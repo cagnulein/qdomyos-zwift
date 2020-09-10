@@ -1,5 +1,6 @@
 #include <QtCore/qcoreapplication.h>
 #include "virtualtreadmill.h"
+#include "domyostreadmill.h"
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +12,10 @@ int main(int argc, char *argv[])
 #endif
 
     virtualtreadmill* V = new virtualtreadmill();
+    domyostreadmill* D = new domyostreadmill();
+
+    Q_UNUSED(V);
+    Q_UNUSED(D);
 
     return app.exec();
 }
