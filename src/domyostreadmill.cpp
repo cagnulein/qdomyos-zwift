@@ -96,7 +96,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 {
     qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
 
-    if (lastPacket.length() && !(lastPacket.compare(newValue)==0) )
+    if (lastPacket.length() && lastPacket == newValue)
         return;
 
     lastPacket = newValue;
