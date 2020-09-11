@@ -27,6 +27,17 @@ class virtualtreadmill: QObject
     Q_OBJECT
 public:
     virtualtreadmill();    
+
+private:
+    QLowEnergyController* leController;
+    QLowEnergyService* service;
+    QLowEnergyAdvertisingData advertisingData;
+    QLowEnergyServiceData serviceData;
+    QTimer treadmillTimer;
+
+private slots:
+    void treadmillProvider();
+    void reconnect();
 };
 
 #endif // VIRTUALTREADMILL_H
