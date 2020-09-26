@@ -8,9 +8,13 @@ Zwift bridge for Domyos treadmills
 ### Installation
 
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
+
 $ sudo apt upgrade && sudo apt update # this is very important on raspberry pi: you need the bluetooth firmware updated!
+
 $ sudo apt install libqt5bluetooth5
+
 $ sudo hciconfig hci0 leadv 0
+
 $ sudo ./qdomyos-zwift
 
 ### Tested on
