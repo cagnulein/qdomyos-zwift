@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 #endif
 
-    virtualtreadmill* V = new virtualtreadmill();
+    //virtualtreadmill* V = new virtualtreadmill();
     domyostreadmill* D = new domyostreadmill();
 
-    Q_UNUSED(V);
+    //Q_UNUSED(V);
     Q_UNUSED(D);
 
     return app.exec();

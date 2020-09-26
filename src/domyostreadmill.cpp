@@ -1,4 +1,6 @@
 #include "domyostreadmill.h"
+#include "virtualtreadmill.h"
+
 
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
@@ -77,6 +79,8 @@ domyostreadmill::domyostreadmill()
 
 void domyostreadmill::update()
 {
+    static uint8_t first = 0;
+    static virtualtreadmill* v;
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
        (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
@@ -85,6 +89,9 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
+        if(!first)
+           v = new virtualtreadmill();
+        first = 1;
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)noOpData, sizeof(noOpData)));
     }
 }
