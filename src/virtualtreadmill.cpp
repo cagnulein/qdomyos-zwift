@@ -1,6 +1,7 @@
 #include "virtualtreadmill.h"
 
 volatile double currentSpeed = 0;
+volatile double currentIncline = 0;
 
 virtualtreadmill::virtualtreadmill()
 {
@@ -16,7 +17,7 @@ virtualtreadmill::virtualtreadmill()
     charData.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); //FitnessMachineFeatureCharacteristicUuid
     QByteArray value;
     value.append(0x08);
-    value.append((char)0x00);
+    value.append((char)0x14); // heart rate and elapsed time
     value.append((char)0x00);
     value.append((char)0x00);
     value.append((char)0x00);
@@ -83,11 +84,16 @@ void virtualtreadmill::treadmillProvider()
     speedBytes.append(c);
     speedBytes.append(b);
     speedBytes.append(a);
+    uint16_t normalizeIncline = (uint32_t)qRound(currentIncline * 100);
+    a = (normalizeIncline >> 8) & 0XFF;
+    b = normalizeIncline & 0XFF;
+    QByteArray inclineBytes;
+    inclineBytes.append(b);
+    inclineBytes.append(a);
 
     value.append(speedBytes); // Actual value.
 
-    value.append(char(0x00));  //incline (not handled)
-    value.append(char(0x00));
+    value.append(inclineBytes); //incline
 
     value.append(char(0xFF));  //ramp angle (auto calculated)
     value.append(char(0x7F));

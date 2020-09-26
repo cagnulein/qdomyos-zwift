@@ -55,6 +55,7 @@ QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 bool initDone = false;
 
 extern volatile double currentSpeed;
+extern volatile double currentIncline;
 
 domyostreadmill::domyostreadmill()
 {
@@ -121,6 +122,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     qDebug() << "Current incline: " << incline;
 
     currentSpeed = speed;
+    currentIncline = incline;
 }
 
 double domyostreadmill::GetSpeedFromPacket(QByteArray packet)
