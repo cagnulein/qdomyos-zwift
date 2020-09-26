@@ -38,6 +38,7 @@ private:
 private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void stateChanged(QLowEnergyService::ServiceState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

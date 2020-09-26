@@ -1,0 +1,3 @@
+sudo apt install libqt5bluetooth5
+sudo hciconfig hci0 leadv 0
+sudo ./qdomyos-zwift

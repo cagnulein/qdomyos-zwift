@@ -50,6 +50,7 @@ QLowEnergyController* m_control = 0;
 QLowEnergyService* gattCommunicationChannelService = 0;
 QLowEnergyCharacteristic gattWriteCharacteristic;
 QLowEnergyCharacteristic gattNotifyCharacteristic;
+QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
 bool initDone = false;
 
@@ -62,12 +63,12 @@ domyostreadmill::domyostreadmill()
     initDone = false;
 
     // Create a discovery agent and connect to its signals
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+    discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
     connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
             this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
 
     // Start a discovery
-    discoveryAgent->start();
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -75,8 +76,9 @@ domyostreadmill::domyostreadmill()
 
 void domyostreadmill::update()
 {
+    //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
-       m_control->state() == QLowEnergyController::ConnectedState &&
+       (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotifyCharacteristic.isValid() &&
@@ -94,14 +96,13 @@ void domyostreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
 static QByteArray lastPacket;
 void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
-    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
 
     if (lastPacket.length() && lastPacket == newValue)
         return;
 
     lastPacket = newValue;
-    //if (newValue.length() != 26)
-    if (newValue.length() != 20)  // intense run
+    if (newValue.length() != 26)
         return;
 
     if (newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
@@ -131,10 +132,48 @@ double domyostreadmill::GetSpeedFromPacket(QByteArray packet)
 
 double domyostreadmill::GetInclinationFromPacket(QByteArray packet)
 {
-    uint8_t convertedData = (packet.at(2) << 8) | packet.at(3);
+    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
+    qDebug() << convertedData;
     double data = ((double)convertedData - 1000.0f) / 10.0f;
     if (data < 0) return 0;
     return data;
+}
+
+void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
+{
+    qDebug() << "stateChanged" << state;
+    if(state == QLowEnergyService::ServiceDiscovered)
+    {
+	    //qDebug() << gattCommunicationChannelService->characteristics();
+
+	    gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
+	    gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+
+	    // establish hook into notifications
+	    connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+        	    this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
+
+	    // await _gattNotifyCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
+	    QByteArray descriptor;
+	    descriptor.append((char)0x01);
+	    descriptor.append((char)0x00);
+	    gattCommunicationChannelService->writeDescriptor(gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData1, sizeof(initData1)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData2, sizeof(initData2)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart, sizeof(initDataStart)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart2, sizeof(initDataStart2)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart3, sizeof(initDataStart3)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart4, sizeof(initDataStart4)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart5, sizeof(initDataStart5)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart6, sizeof(initDataStart6)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
+//    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart8, sizeof(initDataStart8)));
+//    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart9, sizeof(initDataStart9)));
+
+	    initDone = true;
+
+    }
 }
 
 void domyostreadmill::serviceScanDone(void)
@@ -142,32 +181,8 @@ void domyostreadmill::serviceScanDone(void)
     qDebug() << "serviceScanDone";
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-    gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
-
-    // establish hook into notifications
-    connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
-            this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
-
-    // await _gattNotifyCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
-    QByteArray descriptor;
-    descriptor.append((char)0x01);
-    descriptor.append((char)0x00);
-    gattCommunicationChannelService->writeDescriptor(gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData1, sizeof(initData1)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData2, sizeof(initData2)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart, sizeof(initDataStart)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart2, sizeof(initDataStart2)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart3, sizeof(initDataStart3)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart4, sizeof(initDataStart4)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart5, sizeof(initDataStart5)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart6, sizeof(initDataStart6)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart8, sizeof(initDataStart8)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart9, sizeof(initDataStart9)));
-
-    initDone = true;
+    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    gattCommunicationChannelService->discoverDetails();
 }
 
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -175,6 +190,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
     qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
     if(device.name().startsWith("Domyos"))
     {
+        discoveryAgent->stop();
         treadmill = device;
         m_control = QLowEnergyController::createCentral(treadmill, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
