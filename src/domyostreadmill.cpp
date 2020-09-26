@@ -100,7 +100,11 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         return;
 
     lastPacket = newValue;
-    if (newValue.length() != 26)
+    //if (newValue.length() != 26)
+    if (newValue.length() != 20)  // intense run
+        return;
+
+    if (newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;
 
     double speed = GetSpeedFromPacket(newValue);
