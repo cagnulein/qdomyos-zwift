@@ -239,6 +239,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
             Q_UNUSED(error);
             Q_UNUSED(this);
             qDebug() << "Cannot connect to remote device.";
+            exit(1);
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
@@ -248,6 +249,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             qDebug() << "LowEnergy controller disconnected";
+            exit(2);
         });
 
         // Connect
