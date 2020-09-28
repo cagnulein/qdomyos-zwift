@@ -88,7 +88,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             b = newValue.at(2);
 
             uint16_t uspeed = a + (((uint16_t)b) << 8);
-            requestSpeed = uspeed / 100;
+            requestSpeed = (double)uspeed / 100.0;
             qDebug() << "new requested speed" << requestSpeed;
          }
          else if ((char)newValue.at(0)== 0x03) // Set Target Inclination
@@ -97,7 +97,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
               b = newValue.at(2);
 
               int16_t sincline = a + (((int16_t)b) << 8);
-              requestIncline = sincline / 10;
+              requestIncline = (double)sincline / 10.0;
               if(requestIncline < 0)
                  requestIncline = 0;
               qDebug() << "new requested incline" << requestIncline;
