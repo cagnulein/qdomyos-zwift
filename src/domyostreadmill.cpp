@@ -107,6 +107,9 @@ void domyostreadmill::update()
         first = 1;
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)noOpData, sizeof(noOpData)));
 
+        // byte 3 - 4 = elapsed time
+        // byte 17    = inclination
+
         if(requestSpeed != -1)
         {
            qDebug() << "writing speed" << requestSpeed;
