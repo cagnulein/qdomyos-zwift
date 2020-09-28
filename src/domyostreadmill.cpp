@@ -71,6 +71,8 @@ extern volatile double currentIncline;
 extern volatile double currentHeart;
 extern volatile double requestSpeed;
 extern volatile double requestIncline;
+extern volatile int8_t requestStart;
+extern volatile int8_t requestStop;
 
 domyostreadmill::domyostreadmill()
 {
@@ -103,7 +105,10 @@ void domyostreadmill::update()
        initDone)
     {
         if(!first)
+        {
+           qDebug() << "creating virtual treadmill interface...";
            v = new virtualtreadmill();
+        }
         first = 1;
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)noOpData, sizeof(noOpData)));
 
@@ -122,6 +127,17 @@ void domyostreadmill::update()
            writeIncline[16] = (uint8_t)(requestIncline * 10);
            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
            requestIncline = -1;
+        }
+        if(requestStart != -1)
+        {
+           qDebug() << "starting...(TODO)";
+           requestStart = -1;
+        }
+        if(requestStop != -1)
+        {
+           qDebug() << "stopping...";
+           gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart, sizeof(initDataStart)));
+           requestStop = -1;
         }
     }
 }

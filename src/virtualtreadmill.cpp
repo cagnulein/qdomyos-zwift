@@ -5,6 +5,8 @@ volatile double currentIncline = 0;
 volatile double currentHeart = 0;
 volatile double requestSpeed = -1;
 volatile double requestIncline = -1;
+volatile int8_t requestStart = -1;
+volatile int8_t requestStop = -1;
 
 virtualtreadmill::virtualtreadmill()
 {
@@ -101,6 +103,16 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
               if(requestIncline < 0)
                  requestIncline = 0;
               qDebug() << "new requested incline" << requestIncline;
+         }
+         else if ((char)newValue.at(0)== 0x07) // Start request
+         {
+              requestStart = 1;
+              qDebug() << "request to start";
+         }
+         else if ((char)newValue.at(0)== 0x08) // Stop request
+         {
+              requestStop = 1;
+              qDebug() << "request to stop";
          }
          break;
     }
