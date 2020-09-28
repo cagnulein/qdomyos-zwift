@@ -36,6 +36,7 @@ private:
     QTimer treadmillTimer;
 
 private slots:
+    void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void treadmillProvider();
     void reconnect();
 };
