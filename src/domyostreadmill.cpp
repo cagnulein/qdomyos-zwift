@@ -105,6 +105,9 @@ void domyostreadmill::update()
         if(requestIncline != -1)
         {
            qDebug() << "writing incline" << requestIncline;
+           uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x02, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x27, 0x01, 0x01, 0x00};
+           writeIncline[16] = (uint8_t)(requestIncline * 10);
+           gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
            requestIncline = -1;
         }
     }
