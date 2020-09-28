@@ -58,6 +58,9 @@ bool initDone = false;
 
 extern volatile double currentSpeed;
 extern volatile double currentIncline;
+extern volatile double currentHeart;
+extern volatile double requestSpeed;
+extern volatile double requestIncline;
 
 domyostreadmill::domyostreadmill()
 {
@@ -93,6 +96,17 @@ void domyostreadmill::update()
            v = new virtualtreadmill();
         first = 1;
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)noOpData, sizeof(noOpData)));
+
+        if(requestSpeed != -1)
+        {
+           qDebug() << "writing speed" << requestSpeed;
+           requestSpeed = -1;
+        }
+        if(requestIncline != -1)
+        {
+           qDebug() << "writing incline" << requestIncline;
+           requestIncline = -1;
+        }
     }
 }
 

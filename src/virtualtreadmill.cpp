@@ -46,11 +46,6 @@ virtualtreadmill::virtualtreadmill()
     QLowEnergyCharacteristicData charData3;
     charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
     charData3.setProperties(QLowEnergyCharacteristic::Write);
-    QByteArray descriptor3;
-    descriptor3.append((char)0x00);
-    const QLowEnergyDescriptorData clientConfig3(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                descriptor3);
-    charData3.addDescriptor(clientConfig3);
 
     serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
@@ -78,7 +73,37 @@ virtualtreadmill::virtualtreadmill()
 
 void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
-    qDebug() << "characteristicChanged" << characteristic.name() << newValue;
+    qDebug() << "characteristicChanged" << characteristic.uuid().toUInt16() << newValue;
+
+    char a;
+    char b;
+
+    switch(characteristic.uuid().toUInt16())
+    {
+       case 0x2AD9: // Fitness Machine Control Point
+         if((char)newValue.at(0)==0x02)
+         {
+            // Set Target Speed
+            a = newValue.at(1);
+            b = newValue.at(2);
+
+            uint16_t uspeed = a + (((uint16_t)b) << 8);
+            requestSpeed = uspeed / 100;
+            qDebug() << "new requested speed" << requestSpeed;
+         }
+         else if ((char)newValue.at(0)== 0x03) // Set Target Inclination
+         {
+              a = newValue.at(1);
+              b = newValue.at(2);
+
+              int16_t sincline = a + (((int16_t)b) << 8);
+              requestIncline = sincline / 10;
+              if(requestIncline < 0)
+                 requestIncline = 0;
+              qDebug() << "new requested incline" << requestIncline;
+         }
+         break;
+    }
 }
 
 void virtualtreadmill::reconnect()
