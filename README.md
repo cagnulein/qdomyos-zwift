@@ -24,6 +24,7 @@ Raspberry PI 0W and Domyos Intense Run
 ### Reference
 
 https://github.com/ProH4Ck/treadmill-bridge
+
 https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/
 
 ### Blog
