@@ -123,9 +123,15 @@ void domyostreadmill::update()
         if(requestIncline != -1)
         {
            qDebug() << "writing incline" << requestIncline;
-           uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x02, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x27, 0x01, 0x01, 0x00};
+           uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x27, 0x01, 0x01, 0x00};
+           writeIncline[3] = 0; // high byte for elapsed time (in seconds)
+           writeIncline[4] = 0; // low byte for elasped time (in seconds)
            writeIncline[16] = (uint8_t)(requestIncline * 10);
            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
+           uint8_t startIncline[] = {0x0a, 0x01, 0xff, 0xff, 0xff, 0xff, 
+                                     writeIncline[1] + writeIncline[3] + writeIncline[4] + writeIncline[16] }; // the last byte is a sort of a checksum
+           gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)startIncline, sizeof(startIncline)));
+
            requestIncline = -1;
         }
         if(requestStart != -1)
