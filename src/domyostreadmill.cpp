@@ -129,7 +129,7 @@ void domyostreadmill::update()
            writeIncline[16] = (uint8_t)(requestIncline * 10);
            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
            uint8_t startIncline[] = {0x0a, 0x01, 0xff, 0xff, 0xff, 0xff, 
-                                     writeIncline[1] + writeIncline[3] + writeIncline[4] + writeIncline[16] }; // the last byte is a sort of a checksum
+                                     writeIncline[1] + writeIncline[3] + writeIncline[4] + writeIncline[11] + writeIncline[12] + writeIncline[16] }; // the last byte is a sort of a checksum
            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)startIncline, sizeof(startIncline)));
 
            requestIncline = -1;
