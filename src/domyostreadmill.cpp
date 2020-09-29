@@ -135,9 +135,17 @@ void domyostreadmill::update()
         }
         if(requestStop != -1)
         {
-           qDebug() << "stopping...";
-           gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart, sizeof(initDataStart)));
-           requestStop = -1;
+            qDebug() << "stopping...";
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData1, sizeof(initData1)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData2, sizeof(initData2)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart, sizeof(initDataStart)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart2, sizeof(initDataStart2)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart3, sizeof(initDataStart3)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart4, sizeof(initDataStart4)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart5, sizeof(initDataStart5)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart6, sizeof(initDataStart6)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
+            requestStop = -1;
         }
     }
 }
