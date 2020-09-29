@@ -142,7 +142,7 @@ void virtualtreadmill::treadmillProvider()
     speedBytes.append(c);
     speedBytes.append(b);
     speedBytes.append(a);
-    uint16_t normalizeIncline = (uint32_t)qRound(currentIncline * 100);
+    uint16_t normalizeIncline = (uint32_t)qRound(currentIncline * 10);
     a = (normalizeIncline >> 8) & 0XFF;
     b = normalizeIncline & 0XFF;
     QByteArray inclineBytes;
