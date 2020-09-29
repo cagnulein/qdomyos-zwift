@@ -1,4 +1,5 @@
 #include "virtualtreadmill.h"
+#include <QtMath>
 
 volatile double currentSpeed = 0;
 volatile double currentIncline = 0;
@@ -144,13 +145,19 @@ void virtualtreadmill::treadmillProvider()
     QByteArray inclineBytes;
     inclineBytes.append(b);
     inclineBytes.append(a);
+    double ramp = qRadiansToDegrees(qAtan(currentIncline/100));
+    int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
+    a = (normalizeRamp >> 8) & 0XFF;
+    b = normalizeRamp & 0XFF;
+    QByteArray rampBytes;
+    rampBytes.append(b);
+    rampBytes.append(a);
 
     value.append(speedBytes); // Actual value.
 
     value.append(inclineBytes); //incline
 
-    value.append(char(0xFF));  //ramp angle (auto calculated)
-    value.append(char(0x7F));
+    value.append(rampBytes);  //ramp angle
 
     value.append(char(currentHeart)); // heart current
 
