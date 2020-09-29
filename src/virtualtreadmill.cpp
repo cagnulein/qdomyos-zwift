@@ -132,14 +132,10 @@ void virtualtreadmill::treadmillProvider()
     value.append(0x08); // Inclination avaiable
     value.append(0x01); // Heart rate avaiable
 
-    uint32_t normalizeSpeed = (uint32_t)qRound(currentSpeed * 100);
-    char a = (normalizeSpeed >> 24) & 0XFF;
-    char b = (normalizeSpeed >> 16) & 0XFF;
-    char c = (normalizeSpeed >> 8) & 0XFF;
-    char d = normalizeSpeed & 0XFF;
+    uint16_t normalizeSpeed = (uint16_t)qRound(currentSpeed * 100);
+    char a = (normalizeSpeed >> 8) & 0XFF;
+    char b = normalizeSpeed & 0XFF;
     QByteArray speedBytes;
-    speedBytes.append(d);
-    speedBytes.append(c);
     speedBytes.append(b);
     speedBytes.append(a);
     uint16_t normalizeIncline = (uint32_t)qRound(currentIncline * 10);
