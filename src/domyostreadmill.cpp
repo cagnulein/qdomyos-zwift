@@ -11,6 +11,7 @@ uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
 // stop tape
 uint8_t initDataF0C800B8[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 
+#if 0
 uint8_t initDataStart[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 uint8_t initDataStart2[] = { 0xf0, 0xcb, 0x01, 0x00, 0x00, 0x02, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00 };
@@ -19,9 +20,9 @@ uint8_t initDataStart4[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 uint8_t initDataStart5[] = { 0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
                              0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00 };
 uint8_t initDataStart6[] = { 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xc1 };
+#endif
 
 // main startup sequence
-#if 0
 uint8_t initDataStart[] = { 0xf0, 0xa3, 0x93 };
 uint8_t initDataStart2[] = { 0xf0, 0xa4, 0x94 };
 uint8_t initDataStart3[] = { 0xf0, 0xa5, 0x95 };
@@ -51,7 +52,6 @@ uint8_t initDataStart12[] =
         0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x14, 0x01, 0xff, 0xff
 };
 uint8_t initDataStart13[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd };
-#endif
 
 QBluetoothUuid _gattCommunicationChannelServiceId((QString)"49535343-fe7d-4ae5-8fa9-9fafd205e455");
 QBluetoothUuid _gattWriteCharacteristicId((QString)"49535343-8841-43f4-a8d4-ecbe34729bb3");
@@ -222,7 +222,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart4, sizeof(initDataStart4)));
 	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart5, sizeof(initDataStart5)));
 	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart6, sizeof(initDataStart6)));
-	    //gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
 //    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart8, sizeof(initDataStart8)));
 //    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart9, sizeof(initDataStart9)));
 
