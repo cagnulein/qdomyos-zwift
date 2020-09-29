@@ -92,10 +92,23 @@ domyostreadmill::domyostreadmill()
     refresh->start(200);
 }
 
+void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
+{
+   uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x27, 0x01, 0x01, 0x00};
+   writeIncline[3] = 0; // high byte for elapsed time (in seconds)
+   writeIncline[4] = 0; // low byte for elasped time (in seconds)
+   writeIncline[16] = (uint8_t)(requestIncline * 10);
+   gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
+   uint8_t startIncline[] = {(uint8_t)(requestSpeed * 10), 0x01, 0xff, 0xff, 0xff, 0xff, 
+                             writeIncline[1] + writeIncline[3] + writeIncline[4] + writeIncline[9] - ((uint8_t)1) + writeIncline[11] + writeIncline[12] + writeIncline[16] - (uint8_t)(requestSpeed * 10) - ((uint8_t)10) }; // the last byte is a sort of a checksum
+   gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)startIncline, sizeof(startIncline)));
+}
+
 void domyostreadmill::update()
 {
     static uint8_t first = 0;
     static virtualtreadmill* v;
+    Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
        (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
@@ -118,20 +131,13 @@ void domyostreadmill::update()
         if(requestSpeed != -1)
         {
            qDebug() << "writing speed" << requestSpeed;
+           forceSpeedOrIncline(requestSpeed, currentIncline);
            requestSpeed = -1;
         }
         if(requestIncline != -1)
         {
            qDebug() << "writing incline" << requestIncline;
-           uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x27, 0x01, 0x01, 0x00};
-           writeIncline[3] = 0; // high byte for elapsed time (in seconds)
-           writeIncline[4] = 0; // low byte for elasped time (in seconds)
-           writeIncline[16] = (uint8_t)(requestIncline * 10);
-           gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
-           uint8_t startIncline[] = {0x0a, 0x01, 0xff, 0xff, 0xff, 0xff, 
-                                     writeIncline[1] + writeIncline[3] + writeIncline[4] + writeIncline[11] + writeIncline[12] + writeIncline[16] }; // the last byte is a sort of a checksum
-           gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)startIncline, sizeof(startIncline)));
-
+           forceSpeedOrIncline(currentSpeed, requestIncline);
            requestIncline = -1;
         }
         if(requestStart != -1)
@@ -165,6 +171,7 @@ static QByteArray lastPacket;
 void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    Q_UNUSED(characteristic);
 
     if (lastPacket.length() && lastPacket == newValue)
         return;
