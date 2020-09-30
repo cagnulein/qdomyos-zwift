@@ -180,6 +180,12 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (newValue.length() != 26)
         return;
 
+    /*if (newValue.at(0) == 0x0b && newValue.at(1) == 0x01 && newValue.at(2) == 0x07)
+    {
+        qDebug() << "STOP PRESSED!";
+        requestStop = 1;
+    }*/
+
     if (newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;
 
@@ -192,8 +198,11 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Debug.WriteLine(args.CharacteristicValue.ToArray().HexDump());
 #endif
 
+    currentHeart = newValue.at(18);
+
     qDebug() << "Current speed: " << speed;
     qDebug() << "Current incline: " << incline;
+    qDebug() << "Current heart:" << currentHeart;
 
     currentSpeed = speed;
     currentIncline = incline;
@@ -244,8 +253,12 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart5, sizeof(initDataStart5)));
 	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart6, sizeof(initDataStart6)));
 	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
-//    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart8, sizeof(initDataStart8)));
-//    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart9, sizeof(initDataStart9)));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart8, sizeof(initDataStart8)));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart9, sizeof(initDataStart9)));
+	    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart10, sizeof(initDataStart10)));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart11, sizeof(initDataStart11)));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart12, sizeof(initDataStart12)));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart13, sizeof(initDataStart13)));
 
 	    initDone = true;
 
