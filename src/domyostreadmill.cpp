@@ -180,11 +180,11 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (newValue.length() != 26)
         return;
 
-    /*if (newValue.at(0) == 0x0b && newValue.at(1) == 0x01 && newValue.at(2) == 0x07)
+    if (newValue.at(22) == 0x07)
     {
         qDebug() << "STOP PRESSED!";
         requestStop = 1;
-    }*/
+    }
 
     if (newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;
