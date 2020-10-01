@@ -162,6 +162,9 @@ void virtualtreadmill::treadmillProvider()
     value.append(char(currentHeart)); // heart current
 
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+    value.append(0xFF); // Force on Belt Field (autocalculated)
+    value.append(0x7F);
+
     uint16_t watts=0;
     if(currentSpeed > 0)
     {
@@ -178,6 +181,7 @@ void virtualtreadmill::treadmillProvider()
     QByteArray wattsBytes;
     wattsBytes.append(b);
     wattsBytes.append(a);
+
     value.append(wattsBytes);
 
     QLowEnergyCharacteristic characteristic
