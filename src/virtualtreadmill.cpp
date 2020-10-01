@@ -131,7 +131,7 @@ void virtualtreadmill::treadmillProvider()
 {
     QByteArray value;
     value.append(0x08); // Inclination avaiable
-    value.append(0x01); // Heart rate avaiable
+    value.append(0x11); // Heart rate and Force on Belt and Power Output present avaiable
 
     uint16_t normalizeSpeed = (uint16_t)qRound(currentSpeed * 100);
     char a = (normalizeSpeed >> 8) & 0XFF;
@@ -160,6 +160,21 @@ void virtualtreadmill::treadmillProvider()
     value.append(rampBytes);  //ramp angle
 
     value.append(char(currentHeart)); // heart current
+
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+    double weight=75.0; // TODO: config need
+    double pace=60/currentSpeed;
+    double VO2R=210.0/pace;
+    double VO2A=(VO2R*weight)/1000.0;
+    double hwatts=75*VO2A;
+    double vwatts=((9.8*weight) * (currentIncline/100));
+    uint16_t watts=hwatts+vwatts;
+    a = (watts >> 8) & 0XFF;
+    b = watts & 0XFF;
+    QByteArray wattsBytes;
+    wattsBytes.append(b);
+    wattsBytes.append(a);
+    value.append(wattsBytes);
 
     QLowEnergyCharacteristic characteristic
             = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
