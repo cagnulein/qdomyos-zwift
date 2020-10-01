@@ -162,13 +162,17 @@ void virtualtreadmill::treadmillProvider()
     value.append(char(currentHeart)); // heart current
 
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-    double weight=75.0; // TODO: config need
-    double pace=60/currentSpeed;
-    double VO2R=210.0/pace;
-    double VO2A=(VO2R*weight)/1000.0;
-    double hwatts=75*VO2A;
-    double vwatts=((9.8*weight) * (currentIncline/100));
-    uint16_t watts=hwatts+vwatts;
+    uint16_t watts=0;
+    if(currentSpeed > 0)
+    {
+       double weight=75.0; // TODO: config need
+       double pace=60/currentSpeed;
+       double VO2R=210.0/pace;
+       double VO2A=(VO2R*weight)/1000.0;
+       double hwatts=75*VO2A;
+       double vwatts=((9.8*weight) * (currentIncline/100));
+       watts=hwatts+vwatts;
+    }
     a = (watts >> 8) & 0XFF;
     b = watts & 0XFF;
     QByteArray wattsBytes;
