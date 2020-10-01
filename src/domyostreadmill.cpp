@@ -92,22 +92,35 @@ domyostreadmill::domyostreadmill()
     refresh->start(200);
 }
 
-void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
+void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed)
 {
-   uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x27, 0x01, 0x01, 0x00};
-   writeIncline[3] = 0; // high byte for elapsed time (in seconds)
-   writeIncline[4] = 0; // low byte for elasped time (in seconds)
+   uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
+			     0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
+                             (uint8_t)(requestSpeed * 10), 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
+
+   writeIncline[3] = (elapsed >> 8) & 0xFF; // high byte for elapsed time (in seconds)
+   writeIncline[4] = (elapsed & 0xFF); // low byte for elasped time (in seconds)
+
+   writeIncline[12] = currentHeart;
+
    writeIncline[16] = (uint8_t)(requestIncline * 10);
+
+   for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
+   {
+      //qDebug() << QString::number(writeIncline[i], 16);
+      writeIncline[26] += writeIncline[i]; // the last byte is a sort of a checksum
+   }
+
+   //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
+
    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
-   uint8_t startIncline[] = {(uint8_t)(requestSpeed * 10), 0x01, 0xff, 0xff, 0xff, 0xff, 
-                             writeIncline[1] + writeIncline[3] + writeIncline[4] + writeIncline[9] - ((uint8_t)1) + writeIncline[11] + writeIncline[12] + writeIncline[16] - (uint8_t)(requestSpeed * 10) - ((uint8_t)10) }; // the last byte is a sort of a checksum
-   gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)startIncline, sizeof(startIncline)));
 }
 
 void domyostreadmill::update()
 {
     static uint8_t first = 0;
     static virtualtreadmill* v;
+    static uint32_t counter = 0;
     Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
@@ -117,6 +130,7 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
+        counter++;
         if(!first)
         {
            qDebug() << "creating virtual treadmill interface...";
@@ -131,13 +145,13 @@ void domyostreadmill::update()
         if(requestSpeed != -1)
         {
            qDebug() << "writing speed" << requestSpeed;
-           forceSpeedOrIncline(requestSpeed, currentIncline);
+           forceSpeedOrIncline(requestSpeed, currentIncline, counter/5);
            requestSpeed = -1;
         }
         if(requestIncline != -1)
         {
            qDebug() << "writing incline" << requestIncline;
-           forceSpeedOrIncline(currentSpeed, requestIncline);
+           forceSpeedOrIncline(currentSpeed, requestIncline, counter/5);
            requestIncline = -1;
         }
         if(requestStart != -1)
@@ -187,8 +201,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         requestStop = 1;
     }
 
-    if (newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
-        return;
+    /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
+        return;*/
 
     double speed = GetSpeedFromPacket(newValue);
     double incline = GetInclinationFromPacket(newValue);

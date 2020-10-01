@@ -34,7 +34,7 @@ public:
 private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed);
 
 private slots:
 
