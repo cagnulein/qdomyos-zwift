@@ -193,6 +193,30 @@ void virtualtreadmill::treadmillProvider()
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());
     serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
+
+    QFile* log;
+    QDomDocument docStatus;
+    QDomElement docRoot;
+    QDomElement docTreadmill;
+    QDomElement docHeart;
+    log = new QFile("status.xml");
+    if(!log->open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Open status.xml for writing failed";
+    }
+    docRoot = docStatus.createElement("Gym");
+    docStatus.appendChild(docRoot);
+    docTreadmill = docStatus.createElement("Treadmill");
+    docTreadmill.setAttribute("Speed", QString::number(currentSpeed));
+    docTreadmill.setAttribute("Incline", QString::number(currentIncline));
+    docRoot.appendChild(docTreadmill);
+    docHeart = docStatus.createElement("Heart");
+    docHeart.setAttribute("Rate", QString::number(currentHeart));
+    docRoot.appendChild(docHeart);
+    docRoot.setAttribute("Updated", QDateTime::currentDateTime().toString());
+    QTextStream stream(log);
+    stream << docStatus.toString();
+    log->close();
 }
 
 uint16_t virtualtreadmill::watts()

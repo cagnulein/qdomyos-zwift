@@ -1,5 +1,5 @@
 QT -= gui
-QT += bluetooth
+QT += bluetooth xml
 
 CONFIG += c++11 console
 CONFIG -= app_bundle

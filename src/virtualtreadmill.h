@@ -22,6 +22,8 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+#include <QtXml>
+
 class virtualtreadmill: QObject
 {
     Q_OBJECT
