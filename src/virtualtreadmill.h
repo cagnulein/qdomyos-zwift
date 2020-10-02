@@ -31,6 +31,7 @@ public:
 private:
     QLowEnergyController* leController;
     QLowEnergyService* service;
+    QLowEnergyService* serviceHR;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QTimer treadmillTimer;

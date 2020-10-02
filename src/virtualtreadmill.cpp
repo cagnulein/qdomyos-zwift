@@ -15,7 +15,10 @@ virtualtreadmill::virtualtreadmill()
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setIncludePowerLevel(true);
     advertisingData.setLocalName("DomyosBridge");
-    advertisingData.setServices(QList<QBluetoothUuid>() << (QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
+    QList<QBluetoothUuid> services;
+    services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
+    services << QBluetoothUuid::HeartRate;
+    advertisingData.setServices(services);
     //! [Advertising Data]
 
     //! [Service Data]
@@ -57,9 +60,23 @@ virtualtreadmill::virtualtreadmill()
     serviceData.addCharacteristic(charData3);
     //! [Service Data]
 
+    QLowEnergyCharacteristicData charDataHR;
+    charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+    charDataHR.setValue(QByteArray(2, 0));
+    charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
+    const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                            QByteArray(2, 0));
+    charDataHR.addDescriptor(clientConfigHR);
+
+    QLowEnergyServiceData serviceDataHR;
+    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+    serviceDataHR.addCharacteristic(charDataHR);
+
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
     service = leController->addService(serviceData);
+    serviceHR = leController->addService(serviceDataHR);
 
     QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
@@ -193,4 +210,12 @@ void virtualtreadmill::treadmillProvider()
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
     //Q_ASSERT(characteristic.isValid());
     //service->readCharacteristic(characteristic);
+
+    QByteArray valueHR;
+    valueHR.append(char(0)); // Flags that specify the format of the value.
+    valueHR.append(char(60)); // Actual value.
+    QLowEnergyCharacteristic characteristicHR
+            = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+    Q_ASSERT(characteristicHR.isValid());
+    serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
 }
