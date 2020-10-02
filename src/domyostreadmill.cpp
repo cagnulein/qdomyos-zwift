@@ -1,6 +1,6 @@
 #include "domyostreadmill.h"
 #include "virtualtreadmill.h"
-
+#include "trainprogram.h"
 
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
@@ -73,6 +73,8 @@ extern volatile double requestSpeed;
 extern volatile double requestIncline;
 extern volatile int8_t requestStart;
 extern volatile int8_t requestStop;
+
+trainprogram* trainProgram = 0;
 
 domyostreadmill::domyostreadmill()
 {
