@@ -68,7 +68,7 @@ bool initDone = false;
 
 extern volatile double currentSpeed;
 extern volatile double currentIncline;
-extern volatile double currentHeart;
+extern volatile uint8_t currentHeart;
 extern volatile double requestSpeed;
 extern volatile double requestIncline;
 extern volatile int8_t requestStart;

@@ -31,9 +31,11 @@ public:
 private:
     QLowEnergyController* leController;
     QLowEnergyService* service;
+    QLowEnergyService* serviceHR;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QTimer treadmillTimer;
+    uint16_t watts();
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
