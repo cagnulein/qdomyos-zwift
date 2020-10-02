@@ -35,6 +35,7 @@ private:
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QTimer treadmillTimer;
+    uint16_t watts();
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

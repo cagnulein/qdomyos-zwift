@@ -3,7 +3,7 @@
 
 volatile double currentSpeed = 0;
 volatile double currentIncline = 0;
-volatile double currentHeart = 0;
+volatile uint8_t currentHeart = 0;
 volatile double requestSpeed = -1;
 volatile double requestIncline = -1;
 volatile int8_t requestStart = -1;
@@ -148,7 +148,7 @@ void virtualtreadmill::treadmillProvider()
 {
     QByteArray value;
     value.append(0x08); // Inclination avaiable
-    value.append(0x11); // Heart rate and Force on Belt and Power Output present avaiable
+    value.append((char)0x00);
 
     uint16_t normalizeSpeed = (uint16_t)qRound(currentSpeed * 100);
     char a = (normalizeSpeed >> 8) & 0XFF;
@@ -176,31 +176,6 @@ void virtualtreadmill::treadmillProvider()
 
     value.append(rampBytes);  //ramp angle
 
-    value.append(char(currentHeart)); // heart current
-
-    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
-    value.append(0xFF); // Force on Belt Field (autocalculated)
-    value.append(0x7F);
-
-    uint16_t watts=0;
-    if(currentSpeed > 0)
-    {
-       double weight=75.0; // TODO: config need
-       double pace=60/currentSpeed;
-       double VO2R=210.0/pace;
-       double VO2A=(VO2R*weight)/1000.0;
-       double hwatts=75*VO2A;
-       double vwatts=((9.8*weight) * (currentIncline/100));
-       watts=hwatts+vwatts;
-    }
-    a = (watts >> 8) & 0XFF;
-    b = watts & 0XFF;
-    QByteArray wattsBytes;
-    wattsBytes.append(b);
-    wattsBytes.append(a);
-
-    value.append(wattsBytes);
-
     QLowEnergyCharacteristic characteristic
             = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
     Q_ASSERT(characteristic.isValid());
@@ -213,9 +188,27 @@ void virtualtreadmill::treadmillProvider()
 
     QByteArray valueHR;
     valueHR.append(char(0)); // Flags that specify the format of the value.
-    valueHR.append(char(60)); // Actual value.
+    valueHR.append(char(currentHeart)); // Actual value.
     QLowEnergyCharacteristic characteristicHR
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());
     serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
+}
+
+uint16_t virtualtreadmill::watts()
+{
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+
+    uint16_t watts=0;
+    if(currentSpeed > 0)
+    {
+       double weight=75.0; // TODO: config need
+       double pace=60/currentSpeed;
+       double VO2R=210.0/pace;
+       double VO2A=(VO2R*weight)/1000.0;
+       double hwatts=75*VO2A;
+       double vwatts=((9.8*weight) * (currentIncline/100));
+       watts=hwatts+vwatts;
+    }
+    return watts;
 }
