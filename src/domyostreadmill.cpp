@@ -163,7 +163,7 @@ void domyostreadmill::update()
     Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
-       (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
+       m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotifyCharacteristic.isValid() &&
@@ -258,6 +258,9 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     qDebug() << "Current incline: " << incline;
     qDebug() << "Current heart:" << currentHeart;
 
+    if(m_control->error() != QLowEnergyController::NoError)
+        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+
     currentSpeed = speed;
     currentIncline = incline;
 }
@@ -333,6 +336,11 @@ void domyostreadmill::serviceScanDone(void)
     gattCommunicationChannelService->discoverDetails();
 }
 
+void domyostreadmill::error(QLowEnergyController::Error err)
+{
+    qDebug() << "domyostreadmill::error" << err << m_control->errorString();
+}
+
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
@@ -345,6 +353,8 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),
                 this, SLOT(serviceScanDone()));
+        connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
+                this, SLOT(error(QLowEnergyController::Error)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {

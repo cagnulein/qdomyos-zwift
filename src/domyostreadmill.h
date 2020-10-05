@@ -47,6 +47,7 @@ private slots:
     void serviceScanDone(void);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void update();
+    void error(QLowEnergyController::Error err);
 };
 
 #endif // DOMYOSTREADMILL_H
