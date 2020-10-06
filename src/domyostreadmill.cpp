@@ -1,6 +1,7 @@
 #include "domyostreadmill.h"
 #include "virtualtreadmill.h"
-
+#include <QFile>
+#include <QDateTime>
 
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
@@ -74,9 +75,13 @@ extern volatile double requestIncline;
 extern volatile int8_t requestStart;
 extern volatile int8_t requestStop;
 
+QFile* debugCommsLog;
+
 domyostreadmill::domyostreadmill()
 {
     QTimer* refresh = new QTimer(this);
+    debugCommsLog = new QFile("debug.log");
+    debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
 
     initDone = false;
 
@@ -90,6 +95,16 @@ domyostreadmill::domyostreadmill()
 
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
+}
+
+void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
+{
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
+    if(!disable_log)
+    {
+        QString debug = QDateTime::currentDateTime().toString() + " >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info + '\n';
+        debugCommsLog->write(debug.toLocal8Bit());
+    }
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed)
@@ -113,7 +128,7 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
 
    //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
 
-   gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)writeIncline, sizeof(writeIncline)));
+   writeCharacteristic(writeIncline, sizeof(writeIncline), "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
 }
 
 void domyostreadmill::update()
@@ -137,7 +152,7 @@ void domyostreadmill::update()
            v = new virtualtreadmill();
         }
         first = 1;
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)noOpData, sizeof(noOpData)));
+        writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
@@ -163,7 +178,7 @@ void domyostreadmill::update()
         if(requestStop != -1)
         {
             qDebug() << "stopping...";
-            gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataF0C800B8, sizeof(initDataF0C800B8)));
+            writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
@@ -179,6 +194,9 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+
+    QString debug = QDateTime::currentDateTime().toString() + " << " + newValue.toHex(' ') + '\n';
+    debugCommsLog->write(debug.toLocal8Bit());
 
     if (lastPacket.length() && lastPacket == newValue)
         return;
@@ -238,21 +256,21 @@ double domyostreadmill::GetInclinationFromPacket(QByteArray packet)
 
 void domyostreadmill::btinit()
 {
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData1, sizeof(initData1)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initData2, sizeof(initData2)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart, sizeof(initDataStart)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart2, sizeof(initDataStart2)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart3, sizeof(initDataStart3)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart4, sizeof(initDataStart4)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart5, sizeof(initDataStart5)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart6, sizeof(initDataStart6)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart7, sizeof(initDataStart7)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart8, sizeof(initDataStart8)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart9, sizeof(initDataStart9)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart10, sizeof(initDataStart10)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart11, sizeof(initDataStart11)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart12, sizeof(initDataStart12)));
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)initDataStart13, sizeof(initDataStart13)));
+    writeCharacteristic(initData1, sizeof(initData1), "init");
+    writeCharacteristic(initData2, sizeof(initData2), "init");
+    writeCharacteristic(initDataStart, sizeof(initDataStart), "init");
+    writeCharacteristic(initDataStart2, sizeof(initDataStart2), "init");
+    writeCharacteristic(initDataStart3, sizeof(initDataStart3), "init");
+    writeCharacteristic(initDataStart4, sizeof(initDataStart4), "init");
+    writeCharacteristic(initDataStart5, sizeof(initDataStart5), "init");
+    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init");
+    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init");
+    writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init");
+    writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init");
+    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
+    writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init");
+    writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init");
+    writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init");
 }
 
 void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
