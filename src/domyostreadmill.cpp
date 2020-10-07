@@ -2,6 +2,7 @@
 #include "virtualtreadmill.h"
 #include <QFile>
 #include <QDateTime>
+#include <QMetaEnum>
 
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
@@ -97,14 +98,18 @@ domyostreadmill::domyostreadmill()
     refresh->start(200);
 }
 
+void domyostreadmill::debug(QString text)
+{
+    QString debug = QDateTime::currentDateTime().toString() + text + '\n';
+    debugCommsLog->write(debug.toLocal8Bit());
+    qDebug() << debug;
+}
+
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
 {
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
     if(!disable_log)
-    {
-        QString debug = QDateTime::currentDateTime().toString() + " >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info + '\n';
-        debugCommsLog->write(debug.toLocal8Bit());
-    }
+        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed)
@@ -148,7 +153,7 @@ void domyostreadmill::update()
         counter++;
         if(!first)
         {
-           qDebug() << "creating virtual treadmill interface...";
+           debug("creating virtual treadmill interface...");
            v = new virtualtreadmill();
         }
         first = 1;
@@ -159,25 +164,25 @@ void domyostreadmill::update()
 
         if(requestSpeed != -1)
         {
-           qDebug() << "writing speed" << requestSpeed;
+           debug("writing speed " + QString::number(requestSpeed));
            forceSpeedOrIncline(requestSpeed, currentIncline, counter/5);
            requestSpeed = -1;
         }
         if(requestIncline != -1)
         {
-           qDebug() << "writing incline" << requestIncline;
+           debug("writing incline " + QString::number(requestIncline));
            forceSpeedOrIncline(currentSpeed, requestIncline, counter/5);
            requestIncline = -1;
         }
         if(requestStart != -1)
         {
-           qDebug() << "starting...";
+           debug("starting...");
            btinit();
            requestStart = -1;
         }
         if(requestStop != -1)
         {
-            qDebug() << "stopping...";
+            debug("stopping...");
             writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
@@ -186,7 +191,7 @@ void domyostreadmill::update()
 
 void domyostreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
 {
-    qDebug() << "serviceDiscovered" << gatt;
+    debug("serviceDiscovered " + gatt.toString());
 }
 
 static QByteArray lastPacket;
@@ -195,8 +200,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
 
-    QString debug = QDateTime::currentDateTime().toString() + " << " + newValue.toHex(' ') + '\n';
-    debugCommsLog->write(debug.toLocal8Bit());
+    debug(" << " + newValue.toHex(' '));
 
     if (lastPacket.length() && lastPacket == newValue)
         return;
@@ -207,12 +211,12 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     if (newValue.at(22) == 0x06)
     {
-        qDebug() << "START PRESSED!";
+        debug("start button pressed!");
         requestStart = 1;
     }
     else if (newValue.at(22) == 0x07)
     {
-        qDebug() << "STOP PRESSED!";
+        debug("stop button pressed!");
         requestStop = 1;
     }
 
@@ -230,9 +234,9 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     currentHeart = newValue.at(18);
 
-    qDebug() << "Current speed: " << speed;
-    qDebug() << "Current incline: " << incline;
-    qDebug() << "Current heart:" << currentHeart;
+    debug("Current speed: " + QString::number(speed));
+    debug("Current incline: " + QString::number(incline));
+    debug("Current heart: " + QString::number(currentHeart));
 
     currentSpeed = speed;
     currentIncline = incline;
@@ -248,7 +252,6 @@ double domyostreadmill::GetSpeedFromPacket(QByteArray packet)
 double domyostreadmill::GetInclinationFromPacket(QByteArray packet)
 {
     uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
-    qDebug() << convertedData;
     double data = ((double)convertedData - 1000.0f) / 10.0f;
     if (data < 0) return 0;
     return data;
@@ -275,7 +278,9 @@ void domyostreadmill::btinit()
 
 void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 {
-    qDebug() << "stateChanged" << state;
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
     if(state == QLowEnergyService::ServiceDiscovered)
     {
 	    //qDebug() << gattCommunicationChannelService->characteristics();
@@ -302,7 +307,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
 void domyostreadmill::serviceScanDone(void)
 {
-    qDebug() << "serviceScanDone";
+    debug("serviceScanDone");
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
@@ -311,7 +316,7 @@ void domyostreadmill::serviceScanDone(void)
 
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
-    qDebug() << "Found new device:" << device.name() << '(' << device.address().toString() << ')';
+    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     if(device.name().startsWith("Domyos"))
     {
         discoveryAgent->stop();
@@ -326,17 +331,17 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, [this](QLowEnergyController::Error error) {
             Q_UNUSED(error);
             Q_UNUSED(this);
-            qDebug() << "Cannot connect to remote device.";
+            debug("Cannot connect to remote device.");
             exit(1);
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            qDebug() << "Controller connected. Search services...";
+            debug("Controller connected. Search services...");
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            qDebug() << "LowEnergy controller disconnected";
+            debug("LowEnergy controller disconnected");
             exit(2);
         });
 
