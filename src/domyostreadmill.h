@@ -37,6 +37,8 @@ private:
     void forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed);
     void btinit();
 
+    QTimer* refresh;
+
 private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

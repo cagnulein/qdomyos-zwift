@@ -78,7 +78,7 @@ trainprogram* trainProgram = 0;
 
 domyostreadmill::domyostreadmill()
 {
-    QTimer* refresh = new QTimer(this);
+    refresh = new QTimer(this);
 
     initDone = false;
 
@@ -122,7 +122,7 @@ void domyostreadmill::update()
 {
     static uint8_t first = 0;
     static virtualtreadmill* v;
-    static uint32_t counter = 0;
+
     Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
@@ -132,7 +132,8 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        counter++;
+        trainProgram->scheduler(refresh->interval());
+
         if(!first)
         {
            qDebug() << "creating virtual treadmill interface...";
@@ -147,13 +148,13 @@ void domyostreadmill::update()
         if(requestSpeed != -1)
         {
            qDebug() << "writing speed" << requestSpeed;
-           forceSpeedOrIncline(requestSpeed, currentIncline, counter/5);
+           forceSpeedOrIncline(requestSpeed, currentIncline, trainProgram->elapsed);
            requestSpeed = -1;
         }
         if(requestIncline != -1)
         {
            qDebug() << "writing incline" << requestIncline;
-           forceSpeedOrIncline(currentSpeed, requestIncline, counter/5);
+           forceSpeedOrIncline(currentSpeed, requestIncline, trainProgram->elapsed);
            requestIncline = -1;
         }
         if(requestStart != -1)

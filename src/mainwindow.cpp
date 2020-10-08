@@ -156,6 +156,8 @@ void MainWindow::on_load_clicked()
 
 void MainWindow::on_reset_clicked()
 {
+    if(currentSpeed > 0) return;
+
     int countRow = 0;
     foreach(trainrow row, trainProgram->rows)
     {
@@ -181,4 +183,18 @@ void MainWindow::on_reset_clicked()
 
         countRow++;
     }
+
+    if(trainProgram) delete trainProgram;
+    trainProgram = new trainprogram(QList<trainrow>());
+}
+
+void MainWindow::on_stop_clicked()
+{
+    requestStop = 1;
+}
+
+void MainWindow::on_start_clicked()
+{
+    trainProgram->restart();
+    requestStart = 1;
 }
