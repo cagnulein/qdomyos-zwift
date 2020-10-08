@@ -88,8 +88,6 @@ QLowEnergyCharacteristic gattWriteCharacteristic;
 QLowEnergyCharacteristic gattNotifyCharacteristic;
 QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
-QMutex characteristicMutex;
-
 bool initDone = false;
 
 extern volatile double currentSpeed;
@@ -131,10 +129,16 @@ void domyostreadmill::debug(QString text)
 
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
 {
-    characteristicMutex.lock();
+    QEventLoop loop;
+    connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
+            &loop, SLOT(quit()));
+
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
+
     if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
+        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);    
+
+    loop.exec();
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed)
@@ -345,7 +349,6 @@ void domyostreadmill::characteristicWritten(const QLowEnergyCharacteristic &char
 {
     Q_UNUSED(characteristic);
     debug("characteristicWritten " + newValue.toHex(' '));
-    characteristicMutex.unlock();
 }
 
 void domyostreadmill::serviceScanDone(void)
