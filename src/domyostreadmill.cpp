@@ -122,7 +122,7 @@ domyostreadmill::domyostreadmill()
 
 void domyostreadmill::debug(QString text)
 {
-    QString debug = QDateTime::currentDateTime().toString() + text + '\n';
+    QString debug = QDateTime::currentDateTime().toString() + " " + text + '\n';
     debugCommsLog->write(debug.toLocal8Bit());
     qDebug() << debug;
 }
