@@ -21,7 +21,7 @@ public:
     ~MainWindow();
 
 private:
-    void addEmptyRow(int row);
+    void addEmptyRow();
     bool editing = false;
 
     Ui::MainWindow *ui;
@@ -33,6 +33,7 @@ private slots:
     void on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
     void on_save_clicked();
     void on_load_clicked();
+    void on_reset_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -36,18 +36,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addEmptyRow(int row)
+void MainWindow::addEmptyRow()
 {
+    int row = ui->tableWidget->rowCount();
     editing = true;
-    ui->tableWidget->insertRow(row + 1);
-    ui->tableWidget->setItem(row + 1, 0, new QTableWidgetItem("00:00:00"));
-    ui->tableWidget->setItem(row + 1, 1, new QTableWidgetItem("10"));
-    ui->tableWidget->setItem(row + 1, 2, new QTableWidgetItem("0"));
-    ui->tableWidget->setItem(row + 1, 3, new QTableWidgetItem(""));
-    ui->tableWidget->item(row + 1, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    ui->tableWidget->item(row + 1, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    ui->tableWidget->item(row + 1, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-    ui->tableWidget->item(row + 1, 3)->setCheckState(Qt::CheckState::Checked);
+    ui->tableWidget->insertRow(row);
+    ui->tableWidget->setItem(row, 0, new QTableWidgetItem("00:00:00"));
+    ui->tableWidget->setItem(row, 1, new QTableWidgetItem("10"));
+    ui->tableWidget->setItem(row, 2, new QTableWidgetItem("0"));
+    ui->tableWidget->setItem(row, 3, new QTableWidgetItem(""));
+    ui->tableWidget->item(row, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    ui->tableWidget->item(row, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    ui->tableWidget->item(row, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    ui->tableWidget->item(row, 3)->setCheckState(Qt::CheckState::Checked);
     editing = false;
 }
 
@@ -75,7 +76,7 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     }
 
     if(row + 1 == ui->tableWidget->rowCount() && ui->tableWidget->currentItem()->text().length() )
-        addEmptyRow(row);
+        addEmptyRow();
 
     QList<trainrow> rows;
     for(int i = 0; i < ui->tableWidget->rowCount(); i++)
@@ -126,23 +127,58 @@ void MainWindow::on_load_clicked()
         foreach(trainrow row, trainProgram->rows)
         {
             if(ui->tableWidget->rowCount() <= countRow)
-                addEmptyRow(countRow);
+                addEmptyRow();
 
             QTableWidgetItem* i;
             editing = true;
             i = ui->tableWidget->takeItem(countRow, 0);
             i->setText(row.duration.toString("hh:mm:ss"));
             ui->tableWidget->setItem(countRow, 0, i);
+
             i = ui->tableWidget->takeItem(countRow, 1);
             i->setText(QString::number(row.speed));
             ui->tableWidget->setItem(countRow, 1, i);
+
+            i = ui->tableWidget->takeItem(countRow, 2);
             i->setText(QString::number(row.inclination));
             ui->tableWidget->setItem(countRow, 2, i);
+
+            i = ui->tableWidget->takeItem(countRow, 3);
             i->setCheckState(row.forcespeed?Qt::CheckState::Checked:Qt::CheckState::Unchecked);
             ui->tableWidget->setItem(countRow, 3, i);
+
             editing = false;
 
             countRow++;
         }
+    }
+}
+
+void MainWindow::on_reset_clicked()
+{
+    int countRow = 0;
+    foreach(trainrow row, trainProgram->rows)
+    {
+        QTableWidgetItem* i;
+        editing = true;
+        i = ui->tableWidget->takeItem(countRow, 0);
+        i->setText("00:00:00");
+        ui->tableWidget->setItem(countRow, 0, i);
+
+        i = ui->tableWidget->takeItem(countRow, 1);
+        i->setText("0");
+        ui->tableWidget->setItem(countRow, 1, i);
+
+        i = ui->tableWidget->takeItem(countRow, 2);
+        i->setText("0");
+        ui->tableWidget->setItem(countRow, 2, i);
+
+        i = ui->tableWidget->takeItem(countRow, 3);
+        i->setCheckState(row.forcespeed?Qt::CheckState::Checked:Qt::CheckState::Unchecked);
+        ui->tableWidget->setItem(countRow, 3, i);
+
+        editing = false;
+
+        countRow++;
     }
 }
