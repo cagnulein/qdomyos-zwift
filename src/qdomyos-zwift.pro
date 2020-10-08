@@ -18,6 +18,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         domyostreadmill.cpp \
         main.cpp \
+        treadmill.cpp \
         virtualtreadmill.cpp
 
 # Default rules for deployment.
@@ -27,4 +28,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
    domyostreadmill.h \
+   treadmill.h \
    virtualtreadmill.h

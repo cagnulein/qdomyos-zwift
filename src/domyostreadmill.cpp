@@ -59,7 +59,7 @@ QBluetoothUuid _gattCommunicationChannelServiceId((QString)"49535343-fe7d-4ae5-8
 QBluetoothUuid _gattWriteCharacteristicId((QString)"49535343-8841-43f4-a8d4-ecbe34729bb3");
 QBluetoothUuid _gattNotifyCharacteristicId((QString)"49535343-1e4d-4bd9-ba61-23c647249616");
 
-QBluetoothDeviceInfo treadmill;
+QBluetoothDeviceInfo bttreadmill;
 QLowEnergyController* m_control = 0;
 QLowEnergyService* gattCommunicationChannelService = 0;
 QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -67,14 +67,6 @@ QLowEnergyCharacteristic gattNotifyCharacteristic;
 QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
 bool initDone = false;
-
-extern volatile double currentSpeed;
-extern volatile double currentIncline;
-extern volatile uint8_t currentHeart;
-extern volatile double requestSpeed;
-extern volatile double requestIncline;
-extern volatile int8_t requestStart;
-extern volatile int8_t requestStop;
 
 QFile* debugCommsLog;
 
@@ -121,7 +113,7 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
    writeIncline[3] = (elapsed >> 8) & 0xFF; // high byte for elapsed time (in seconds)
    writeIncline[4] = (elapsed & 0xFF); // low byte for elasped time (in seconds)
 
-   writeIncline[12] = currentHeart;
+   writeIncline[12] = currentHeart();
 
    writeIncline[16] = (uint8_t)(requestIncline * 10);
 
@@ -143,7 +135,7 @@ void domyostreadmill::update()
     static uint32_t counter = 0;
     Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
-    if(treadmill.isValid() &&
+    if(bttreadmill.isValid() &&
        (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -154,7 +146,7 @@ void domyostreadmill::update()
         if(!first)
         {
            debug("creating virtual treadmill interface...");
-           v = new virtualtreadmill();
+           v = new virtualtreadmill(this);
         }
         first = 1;
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
@@ -165,14 +157,14 @@ void domyostreadmill::update()
         if(requestSpeed != -1)
         {
            debug("writing speed " + QString::number(requestSpeed));
-           forceSpeedOrIncline(requestSpeed, currentIncline, counter/5);
+           forceSpeedOrIncline(requestSpeed, Inclination, counter/5);
            requestSpeed = -1;
         }
-        if(requestIncline != -1)
+        if(requestInclination != -1)
         {
-           debug("writing incline " + QString::number(requestIncline));
-           forceSpeedOrIncline(currentSpeed, requestIncline, counter/5);
-           requestIncline = -1;
+           debug("writing incline " + QString::number(requestInclination));
+           forceSpeedOrIncline(currentSpeed(), requestInclination, counter/5);
+           requestInclination = -1;
         }
         if(requestStart != -1)
         {
@@ -232,14 +224,14 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Debug.WriteLine(args.CharacteristicValue.ToArray().HexDump());
 #endif
 
-    currentHeart = newValue.at(18);
+    Heart = newValue.at(18);
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
-    debug("Current heart: " + QString::number(currentHeart));
+    debug("Current heart: " + QString::number(Heart));
 
-    currentSpeed = speed;
-    currentIncline = incline;
+    Speed = speed;
+    Inclination = incline;
 }
 
 double domyostreadmill::GetSpeedFromPacket(QByteArray packet)
@@ -320,8 +312,8 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(device.name().startsWith("Domyos"))
     {
         discoveryAgent->stop();
-        treadmill = device;
-        m_control = QLowEnergyController::createCentral(treadmill, this);
+        bttreadmill = device;
+        m_control = QLowEnergyController::createCentral(bttreadmill, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),

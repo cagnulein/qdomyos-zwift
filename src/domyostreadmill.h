@@ -25,7 +25,9 @@
 
 #include <QObject>
 
-class domyostreadmill : QObject
+#include "treadmill.h"
+
+class domyostreadmill : public treadmill
 {
     Q_OBJECT
 public:

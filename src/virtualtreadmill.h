@@ -22,11 +22,13 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+#include "treadmill.h"
+
 class virtualtreadmill: QObject
 {
     Q_OBJECT
 public:
-    virtualtreadmill();    
+    virtualtreadmill(treadmill* t);
 
 private:
     QLowEnergyController* leController;
@@ -36,6 +38,8 @@ private:
     QLowEnergyServiceData serviceData;
     QTimer treadmillTimer;
     uint16_t watts();
+
+    treadmill* treadMill;
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
