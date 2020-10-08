@@ -15,9 +15,11 @@ class trainprogram
 {
 public:
     trainprogram(QList<trainrow>);
+    void save(QString filename);
+    static trainprogram* load(QString filename);
 
-private:
     QList<trainrow> rows;
+private:        
 };
 
 #endif // TRAINPROGRAM_H

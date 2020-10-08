@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QFileDialog>
 
 extern volatile double currentSpeed;
 extern volatile double currentIncline;
@@ -35,10 +36,23 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::on_tableWidget_cellChanged(int row, int column)
+void MainWindow::addEmptyRow(int row)
 {
-    static bool editing = false;
+    editing = true;
+    ui->tableWidget->insertRow(row + 1);
+    ui->tableWidget->setItem(row + 1, 0, new QTableWidgetItem("00:00:00"));
+    ui->tableWidget->setItem(row + 1, 1, new QTableWidgetItem("10"));
+    ui->tableWidget->setItem(row + 1, 2, new QTableWidgetItem("0"));
+    ui->tableWidget->setItem(row + 1, 3, new QTableWidgetItem(""));
+    ui->tableWidget->item(row + 1, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    ui->tableWidget->item(row + 1, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    ui->tableWidget->item(row + 1, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+    ui->tableWidget->item(row + 1, 3)->setCheckState(Qt::CheckState::Checked);
+    editing = false;
+}
 
+void MainWindow::on_tableWidget_cellChanged(int row, int column)
+{    
     if(editing) return;
     if(column == 0)
     {
@@ -61,19 +75,7 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     }
 
     if(row + 1 == ui->tableWidget->rowCount() && ui->tableWidget->currentItem()->text().length() )
-    {
-        editing = true;
-        ui->tableWidget->insertRow(row + 1);
-        ui->tableWidget->setItem(row + 1, 0, new QTableWidgetItem("00:00:00"));
-        ui->tableWidget->setItem(row + 1, 1, new QTableWidgetItem("10"));
-        ui->tableWidget->setItem(row + 1, 2, new QTableWidgetItem("0"));
-        ui->tableWidget->setItem(row + 1, 3, new QTableWidgetItem(""));
-        ui->tableWidget->item(row + 1, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        ui->tableWidget->item(row + 1, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        ui->tableWidget->item(row + 1, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-        ui->tableWidget->item(row + 1, 3)->setCheckState(Qt::CheckState::Checked);
-        editing = false;
-    }
+        addEmptyRow(row);
 
     QList<trainrow> rows;
     for(int i = 0; i < ui->tableWidget->rowCount(); i++)
@@ -99,4 +101,48 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
 void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
 {
 
+}
+
+void MainWindow::on_save_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
+                               "train.xml",
+                               tr("Train Program (*.xml)"));
+    if(!fileName.isEmpty() && trainProgram)
+        trainProgram->save(fileName);
+}
+
+void MainWindow::on_load_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                               "train.xml",
+                               tr("Train Program (*.xml)"));
+    if(!fileName.isEmpty())
+    {
+        if(trainProgram)
+            delete trainProgram;
+        trainProgram = trainprogram::load(fileName);
+        int countRow = 0;
+        foreach(trainrow row, trainProgram->rows)
+        {
+            if(ui->tableWidget->rowCount() <= countRow)
+                addEmptyRow(countRow);
+
+            QTableWidgetItem* i;
+            editing = true;
+            i = ui->tableWidget->takeItem(countRow, 0);
+            i->setText(row.duration.toString("hh:mm:ss"));
+            ui->tableWidget->setItem(countRow, 0, i);
+            i = ui->tableWidget->takeItem(countRow, 1);
+            i->setText(QString::number(row.speed));
+            ui->tableWidget->setItem(countRow, 1, i);
+            i->setText(QString::number(row.inclination));
+            ui->tableWidget->setItem(countRow, 2, i);
+            i->setCheckState(row.forcespeed?Qt::CheckState::Checked:Qt::CheckState::Unchecked);
+            ui->tableWidget->setItem(countRow, 3, i);
+            editing = false;
+
+            countRow++;
+        }
+    }
 }
