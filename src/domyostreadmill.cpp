@@ -177,7 +177,9 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        counter++;
+        if(currentSpeed > 0.0)
+            counter++;
+
         if(!first)
         {
            debug("creating virtual treadmill interface...");
