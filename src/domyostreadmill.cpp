@@ -19,9 +19,31 @@ uint8_t initDataStart2[] = { 0xf0, 0xcb, 0x01, 0x00, 0x00, 0x02, 0xff, 0xff, 0xf
                              0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00 };
 uint8_t initDataStart3[] = { 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xb6 };
 uint8_t initDataStart4[] = { 0xf0, 0xc8, 0x00, 0xb8 };
-uint8_t initDataStart5[] = { 0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
-                             0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00 };
-uint8_t initDataStart6[] = { 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xc1 };
+uint8_t initDataStart5[] = { 0xf0, 0xc8, 0x01, 0xb9 };
+uint8_t initDataStart6[] =
+{
+        0xf0, 0xad, 0xff, 0xff, 0x00, 0x0a, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+uint8_t initDataStart7[] = { 0xff, 0xff, 0x95 };
+uint8_t initDataStart8[] =
+{
+        0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+uint8_t initDataStart9[] = { 0xff, 0xff, 0x8b };
+uint8_t initDataStart10[] =
+{
+        0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0x03, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+uint8_t initDataStart11[] = { 0xff, 0xff, 0x8a };
+uint8_t initDataStart12[] =
+{
+        0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+        0xff, 0xff, 0xff, 0x04, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+uint8_t initDataStart13[] = { 0xff, 0xff, 0x9e };
 #endif
 
 // main startup sequence
@@ -133,7 +155,9 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
 
    //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
 
-   writeCharacteristic(writeIncline, sizeof(writeIncline), "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
+
+   writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
 }
 
 void domyostreadmill::update()
@@ -144,7 +168,7 @@ void domyostreadmill::update()
     Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
-       (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
+       m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotifyCharacteristic.isValid() &&
@@ -238,6 +262,9 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     debug("Current incline: " + QString::number(incline));
     debug("Current heart: " + QString::number(currentHeart));
 
+    if(m_control->error() != QLowEnergyController::NoError)
+        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+
     currentSpeed = speed;
     currentIncline = incline;
 }
@@ -314,6 +341,11 @@ void domyostreadmill::serviceScanDone(void)
     gattCommunicationChannelService->discoverDetails();
 }
 
+void domyostreadmill::error(QLowEnergyController::Error err)
+{
+    qDebug() << "domyostreadmill::error" << err << m_control->errorString();
+}
+
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
@@ -326,6 +358,8 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),
                 this, SLOT(serviceScanDone()));
+        connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
+                this, SLOT(error(QLowEnergyController::Error)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
