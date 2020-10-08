@@ -88,6 +88,8 @@ QLowEnergyCharacteristic gattWriteCharacteristic;
 QLowEnergyCharacteristic gattNotifyCharacteristic;
 QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
+QMutex characteristicMutex;
+
 bool initDone = false;
 
 extern volatile double currentSpeed;
@@ -129,6 +131,7 @@ void domyostreadmill::debug(QString text)
 
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
 {
+    characteristicMutex.lock();
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
     if(!disable_log)
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
@@ -318,6 +321,10 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 	    // establish hook into notifications
 	    connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
         	    this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
+        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
+                this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)),
+                this, SLOT(errorService(QLowEnergyService::ServiceError)));
 
 	    // await _gattNotifyCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 	    QByteArray descriptor;
@@ -332,6 +339,13 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
     }
 }
 
+void domyostreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+{
+    Q_UNUSED(characteristic);
+    debug("characteristicWritten " + newValue.toHex(' '));
+    characteristicMutex.unlock();
+}
+
 void domyostreadmill::serviceScanDone(void)
 {
     debug("serviceScanDone");
@@ -341,9 +355,16 @@ void domyostreadmill::serviceScanDone(void)
     gattCommunicationChannelService->discoverDetails();
 }
 
+void domyostreadmill::errorService(QLowEnergyService::ServiceError err)
+{
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
+    debug("domyostreadmill::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+}
+
 void domyostreadmill::error(QLowEnergyController::Error err)
 {
-    qDebug() << "domyostreadmill::error" << err << m_control->errorString();
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
+    debug("domyostreadmill::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)

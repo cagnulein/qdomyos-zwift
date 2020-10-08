@@ -42,6 +42,7 @@ private:
 private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
@@ -49,6 +50,7 @@ private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void update();
     void error(QLowEnergyController::Error err);
+    void errorService(QLowEnergyService::ServiceError);
 };
 
 #endif // DOMYOSTREADMILL_H
