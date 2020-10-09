@@ -170,7 +170,7 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
 void domyostreadmill::update()
 {        
     static uint32_t counter = 0;
-    Q_UNUSED(v);
+
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
@@ -333,7 +333,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
         // ******************************************* virtual treadmill init *************************************
         static uint8_t first = 0;
         static virtualtreadmill* v;
-
+        Q_UNUSED(v);
         if(!first)
         {
            debug("creating virtual treadmill interface...");
