@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
-        MainWindow* W = new MainWindow();
+        MainWindow* W = new MainWindow(D);
         W->show();
     } else {
         // start non-GUI version...

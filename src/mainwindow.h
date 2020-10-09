@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QTableWidgetItem>
 #include <trainprogram.h>
+#include "domyostreadmill.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,7 +18,7 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(domyostreadmill* treadmill);
     ~MainWindow();
 
 private:
@@ -26,6 +27,8 @@ private:
 
     Ui::MainWindow *ui;
     QTimer *timer;
+
+    domyostreadmill* treadmill;
 
 private slots:
     void update();

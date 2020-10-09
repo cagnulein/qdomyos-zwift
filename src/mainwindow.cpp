@@ -11,12 +11,13 @@ extern volatile int8_t requestStart;
 extern volatile int8_t requestStop;
 extern trainprogram* trainProgram;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QDialog(parent),
+MainWindow::MainWindow(domyostreadmill* treadmill) :
+    QDialog(nullptr),
     ui(new Ui::MainWindow)
-{
+{    
     ui->setupUi(this);
 
+    this->treadmill = treadmill;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::update);
     timer->start(1000);
@@ -29,6 +30,10 @@ void MainWindow::update()
     ui->speed->setText(QString::number(currentSpeed));
     ui->inclination->setText(QString::number(currentIncline));
     ui->heartrate->setText(QString::number(currentHeart));
+    if(treadmill->virtualTreadMill)
+        ui->watt->setText(QString::number(treadmill->virtualTreadMill->watts(ui->weight->text().toFloat())));
+    else
+        ui->watt->setText("0");
 }
 
 MainWindow::~MainWindow()
@@ -101,7 +106,8 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
 
 void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
 {
-
+    Q_UNUSED(current);
+    Q_UNUSED(previous);
 }
 
 void MainWindow::on_save_clicked()

@@ -1,5 +1,4 @@
 #include "domyostreadmill.h"
-#include "virtualtreadmill.h"
 #include "trainprogram.h"
 
 // set speed and incline to 0
@@ -121,9 +120,7 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
 void domyostreadmill::update()
 {
     static uint8_t first = 0;
-    static virtualtreadmill* v;
 
-    Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
     if(treadmill.isValid() &&
        (m_control->state() == QLowEnergyController::ConnectedState || m_control->state() == QLowEnergyController::DiscoveredState) &&
@@ -137,7 +134,7 @@ void domyostreadmill::update()
         if(!first)
         {
            qDebug() << "creating virtual treadmill interface...";
-           v = new virtualtreadmill();
+           virtualTreadMill = new virtualtreadmill();
         }
         first = 1;
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)noOpData, sizeof(noOpData)));

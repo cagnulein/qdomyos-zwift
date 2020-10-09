@@ -25,11 +25,15 @@
 
 #include <QObject>
 
+#include "virtualtreadmill.h"
+
+
 class domyostreadmill : QObject
 {
     Q_OBJECT
 public:
     domyostreadmill();
+    virtualtreadmill* virtualTreadMill = 0;
 
 private:
     double GetSpeedFromPacket(QByteArray packet);

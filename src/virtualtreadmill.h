@@ -26,7 +26,8 @@ class virtualtreadmill: QObject
 {
     Q_OBJECT
 public:
-    virtualtreadmill();    
+    virtualtreadmill();
+    uint16_t watts(double weight=75.0);
 
 private:
     QLowEnergyController* leController;
@@ -34,8 +35,7 @@ private:
     QLowEnergyService* serviceHR;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
-    QTimer treadmillTimer;
-    uint16_t watts();
+    QTimer treadmillTimer;    
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

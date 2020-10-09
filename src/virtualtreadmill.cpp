@@ -195,14 +195,13 @@ void virtualtreadmill::treadmillProvider()
     serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
 }
 
-uint16_t virtualtreadmill::watts()
+uint16_t virtualtreadmill::watts(double weight)
 {
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
     uint16_t watts=0;
     if(currentSpeed > 0)
     {
-       double weight=75.0; // TODO: config need
        double pace=60/currentSpeed;
        double VO2R=210.0/pace;
        double VO2A=(VO2R*weight)/1000.0;

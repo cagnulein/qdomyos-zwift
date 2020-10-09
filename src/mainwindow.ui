@@ -36,7 +36,7 @@
        <rect>
         <x>10</x>
         <y>30</y>
-        <width>185</width>
+        <width>131</width>
         <height>42</height>
        </rect>
       </property>
@@ -81,9 +81,9 @@
      <widget class="QFrame" name="frame_2">
       <property name="geometry">
        <rect>
-        <x>220</x>
+        <x>150</x>
         <y>30</y>
-        <width>185</width>
+        <width>161</width>
         <height>42</height>
        </rect>
       </property>
@@ -128,9 +128,9 @@
      <widget class="QFrame" name="frame_3">
       <property name="geometry">
        <rect>
-        <x>420</x>
+        <x>320</x>
         <y>30</y>
-        <width>185</width>
+        <width>161</width>
         <height>42</height>
        </rect>
       </property>
@@ -153,6 +153,53 @@
        </item>
        <item>
         <widget class="QLineEdit" name="heartrate">
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QFrame" name="frame_4">
+      <property name="geometry">
+       <rect>
+        <x>510</x>
+        <y>30</y>
+        <width>101</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Watt</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="watt">
          <property name="font">
           <font>
            <weight>75</weight>
@@ -273,6 +320,27 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Player Weight (kg):</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="weight">
+       <property name="text">
+        <string>70.0</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
