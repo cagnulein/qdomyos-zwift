@@ -250,12 +250,6 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     double speed = GetSpeedFromPacket(newValue);
     double incline = GetInclinationFromPacket(newValue);
-    //var isStartPressed = GetIsStartPressedFromPacket(currentPacket);
-    //var isStopPressed = GetIsStopPressedFromPacket(currentPacket);
-
-#if DEBUG
-    Debug.WriteLine(args.CharacteristicValue.ToArray().HexDump());
-#endif
 
     currentHeart = newValue.at(18);
 
