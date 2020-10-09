@@ -89,6 +89,7 @@ QLowEnergyCharacteristic gattNotifyCharacteristic;
 QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
 bool initDone = false;
+bool initRequest = false;
 
 extern volatile double currentSpeed;
 extern volatile double currentIncline;
@@ -173,7 +174,13 @@ void domyostreadmill::update()
     static uint32_t counter = 0;
 
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
-    if(treadmill.isValid() &&
+
+    if(initRequest)
+    {
+        initRequest = false;
+        btinit();
+    }
+    else if(treadmill.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -348,7 +355,7 @@ void domyostreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, 
 {
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
-    btinit();
+    initRequest = true;
 }
 
 void domyostreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
