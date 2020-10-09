@@ -310,6 +310,8 @@ void domyostreadmill::btinit()
     writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init");
     writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init");
     writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init");
+
+    initDone = true;
 }
 
 void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
@@ -331,18 +333,21 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)),
                 this, SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
+                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-	    // await _gattNotifyCharacteristic.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
 	    QByteArray descriptor;
 	    descriptor.append((char)0x01);
 	    descriptor.append((char)0x00);
 	    gattCommunicationChannelService->writeDescriptor(gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-
-        btinit();
-
-	    initDone = true;
-
     }
+}
+
+void domyostreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
+{
+    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+
+    btinit();
 }
 
 void domyostreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
