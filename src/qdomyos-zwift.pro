@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         domyostreadmill.cpp \
         main.cpp \
+        treadmill.cpp \
         mainwindow.cpp \
         trainprogram.cpp \
         virtualtreadmill.cpp
@@ -28,6 +29,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
    domyostreadmill.h \
+   treadmill.h \
    mainwindow.h \
    trainprogram.h \
    virtualtreadmill.h

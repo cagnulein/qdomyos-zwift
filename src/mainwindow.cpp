@@ -2,15 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 
-extern volatile double currentSpeed;
-extern volatile double currentIncline;
-extern volatile uint8_t currentHeart;
-extern volatile double requestSpeed;
-extern volatile double requestIncline;
-extern volatile int8_t requestStart;
-extern volatile int8_t requestStop;
-extern trainprogram* trainProgram;
-
 MainWindow::MainWindow(domyostreadmill* treadmill) :
     QDialog(nullptr),
     ui(new Ui::MainWindow)
@@ -27,9 +18,9 @@ MainWindow::MainWindow(domyostreadmill* treadmill) :
 
 void MainWindow::update()
 {
-    ui->speed->setText(QString::number(currentSpeed));
-    ui->inclination->setText(QString::number(currentIncline));
-    ui->heartrate->setText(QString::number(currentHeart));
+    ui->speed->setText(QString::number(treadmill->currentSpeed()));
+    ui->inclination->setText(QString::number(treadmill->currentInclination()));
+    ui->heartrate->setText(QString::number(treadmill->currentHeart()));
     if(treadmill->virtualTreadMill)
         ui->watt->setText(QString::number(treadmill->virtualTreadMill->watts(ui->weight->text().toFloat())));
     else
@@ -99,9 +90,18 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
         {
             break;
         }
-        if(trainProgram) delete trainProgram;
-        trainProgram = new trainprogram(rows);
+        createTrainProgram(rows);
     }
+}
+
+void MainWindow::createTrainProgram(QList<trainrow> rows)
+{
+    if(treadmill->trainProgram) delete treadmill->trainProgram;
+    treadmill->trainProgram = new trainprogram(rows);
+    connect(treadmill->trainProgram, SIGNAL(start()), treadmill, SLOT(start()));
+    connect(treadmill->trainProgram, SIGNAL(stop()), treadmill, SLOT(stop()));
+    connect(treadmill->trainProgram, SIGNAL(changeSpeed(double)), treadmill, SLOT(changeSpeed(double)));
+    connect(treadmill->trainProgram, SIGNAL(changeInclination(double)), treadmill, SLOT(changeInclination(double)));
 }
 
 void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
@@ -115,8 +115,8 @@ void MainWindow::on_save_clicked()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                                "train.xml",
                                tr("Train Program (*.xml)"));
-    if(!fileName.isEmpty() && trainProgram)
-        trainProgram->save(fileName);
+    if(!fileName.isEmpty() && treadmill->trainProgram)
+        treadmill->trainProgram->save(fileName);
 }
 
 void MainWindow::on_load_clicked()
@@ -126,11 +126,11 @@ void MainWindow::on_load_clicked()
                                tr("Train Program (*.xml)"));
     if(!fileName.isEmpty())
     {
-        if(trainProgram)
-            delete trainProgram;
-        trainProgram = trainprogram::load(fileName);
+        if(treadmill->trainProgram)
+            delete treadmill->trainProgram;
+        treadmill->trainProgram = trainprogram::load(fileName);
         int countRow = 0;
-        foreach(trainrow row, trainProgram->rows)
+        foreach(trainrow row, treadmill->trainProgram->rows)
         {
             if(ui->tableWidget->rowCount() <= countRow)
                 addEmptyRow();
@@ -162,10 +162,10 @@ void MainWindow::on_load_clicked()
 
 void MainWindow::on_reset_clicked()
 {
-    if(currentSpeed > 0) return;
+    if(treadmill->currentSpeed() > 0) return;
 
     int countRow = 0;
-    foreach(trainrow row, trainProgram->rows)
+    foreach(trainrow row, treadmill->trainProgram->rows)
     {
         QTableWidgetItem* i;
         editing = true;
@@ -190,17 +190,16 @@ void MainWindow::on_reset_clicked()
         countRow++;
     }
 
-    if(trainProgram) delete trainProgram;
-    trainProgram = new trainprogram(QList<trainrow>());
+    createTrainProgram(QList<trainrow>());
 }
 
 void MainWindow::on_stop_clicked()
 {
-    requestStop = 1;
+    treadmill->stop();
 }
 
 void MainWindow::on_start_clicked()
 {
-    trainProgram->restart();
-    requestStart = 1;
+    treadmill->trainProgram->restart();
+    treadmill->start();
 }

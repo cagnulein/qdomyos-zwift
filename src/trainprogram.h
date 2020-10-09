@@ -1,6 +1,7 @@
 #ifndef TRAINPROGRAM_H
 #define TRAINPROGRAM_H
 #include <QTime>
+#include <QObject>
 
 class trainrow
 {
@@ -11,8 +12,10 @@ public:
     bool forcespeed;
 };
 
-class trainprogram
+class trainprogram: public QObject
 {
+    Q_OBJECT
+
 public:
     trainprogram(QList<trainrow>);
     void save(QString filename);
@@ -23,6 +26,12 @@ public:
 
     void restart();
     void scheduler(int tick);
+
+signals:
+    void start();
+    void stop();
+    void changeSpeed(double speed);
+    void changeInclination(double inclination);
 
 private:
     uint32_t ticks = 0;

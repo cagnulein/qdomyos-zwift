@@ -2,11 +2,6 @@
 #include <QFile>
 #include <QtXml/QtXml>
 
-extern volatile double requestSpeed;
-extern volatile double requestIncline;
-extern volatile int8_t requestStart;
-extern volatile int8_t requestStop;
-
 trainprogram::trainprogram(QList<trainrow> rows)
 {
     this->rows = rows;
@@ -19,9 +14,9 @@ void trainprogram::scheduler(int tick)
     {
         if(rows[0].forcespeed && rows[0].speed)
         {
-            requestSpeed = rows[0].speed;
+            emit changeSpeed(rows[0].speed);
         }
-        requestIncline = rows[0].inclination;
+        emit changeInclination(rows[0].inclination);
     }
 
     ticks++;
@@ -49,13 +44,13 @@ void trainprogram::scheduler(int tick)
             elapsedCurrentRow = 0;
             if(rows[currentStep].forcespeed && rows[currentStep].speed)
             {
-                requestSpeed = rows[currentStep].speed;
+                emit changeSpeed(rows[currentStep].speed);
             }
-            requestIncline = rows[currentStep].inclination;
+            emit changeInclination(rows[currentStep].inclination);
         }
         else
         {
-            requestStop = 1;
+            emit stop();
             restart();
         }
     }
@@ -108,6 +103,6 @@ trainprogram* trainprogram::load(QString filename)
             list.append(row);
         }
     }
-    trainprogram *t = new trainprogram(list);
-    return t;
+    trainprogram *tr = new trainprogram(list);
+    return tr;
 }

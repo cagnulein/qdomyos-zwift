@@ -23,6 +23,7 @@ public:
 
 private:
     void addEmptyRow();
+    void createTrainProgram(QList<trainrow> rows);
     bool editing = false;
 
     Ui::MainWindow *ui;

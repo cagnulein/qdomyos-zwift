@@ -26,9 +26,9 @@
 #include <QObject>
 
 #include "virtualtreadmill.h"
+#include "treadmill.h"
 
-
-class domyostreadmill : QObject
+class domyostreadmill : public treadmill
 {
     Q_OBJECT
 public:
@@ -40,6 +40,8 @@ private:
     double GetInclinationFromPacket(QByteArray packet);
     void forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed);
     void btinit();
+    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
+    void debug(QString text);
 
     QTimer* refresh;
 
