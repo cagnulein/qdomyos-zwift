@@ -102,6 +102,7 @@ QFile* debugCommsLog;
 
 domyostreadmill::domyostreadmill()
 {
+    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     QTimer* refresh = new QTimer(this);
     debugCommsLog = new QFile("debug-" + QDateTime::currentDateTime().toString() + ".log");
     debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
