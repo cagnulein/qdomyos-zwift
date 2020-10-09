@@ -103,7 +103,7 @@ QFile* debugCommsLog;
 domyostreadmill::domyostreadmill()
 {
     QTimer* refresh = new QTimer(this);
-    debugCommsLog = new QFile("debug.log");
+    debugCommsLog = new QFile("debug-" + QDateTime::currentDateTime().toString() + ".log");
     debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
 
     initDone = false;
