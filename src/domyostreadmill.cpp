@@ -168,9 +168,7 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
 }
 
 void domyostreadmill::update()
-{
-    static uint8_t first = 0;
-    static virtualtreadmill* v;
+{        
     static uint32_t counter = 0;
     Q_UNUSED(v);
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
@@ -184,12 +182,6 @@ void domyostreadmill::update()
         if(currentSpeed > 0.0)
             counter++;
 
-        if(!first)
-        {
-           debug("creating virtual treadmill interface...");
-           v = new virtualtreadmill();
-        }
-        first = 1;
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
@@ -325,6 +317,8 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
 	    gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
 	    gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+        Q_ASSERT(gattWriteCharacteristic.isValid());
+        Q_ASSERT(gattNotifyCharacteristic.isValid());
 
 	    // establish hook into notifications
 	    connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
@@ -335,6 +329,18 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 this, SLOT(errorService(QLowEnergyService::ServiceError)));
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+
+        // ******************************************* virtual treadmill init *************************************
+        static uint8_t first = 0;
+        static virtualtreadmill* v;
+
+        if(!first)
+        {
+           debug("creating virtual treadmill interface...");
+           v = new virtualtreadmill();
+        }
+        first = 1;
+        // ********************************************************************************************************
 
 	    QByteArray descriptor;
 	    descriptor.append((char)0x01);
