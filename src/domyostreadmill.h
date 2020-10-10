@@ -34,7 +34,8 @@ public:
 private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed);
+    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void updateDisplay(uint16_t elapsed);
     void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void debug(QString text);

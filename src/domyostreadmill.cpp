@@ -143,18 +143,16 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
     loop.exec();
 }
 
-void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed)
+void domyostreadmill::updateDisplay(uint16_t elapsed)
 {
    uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
 			     0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
-                             (uint8_t)(requestSpeed * 10), 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
+                             0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
    writeIncline[3] = (elapsed >> 8) & 0xFF; // high byte for elapsed time (in seconds)
    writeIncline[4] = (elapsed & 0xFF); // low byte for elasped time (in seconds)
 
    writeIncline[12] = currentHeart;
-
-   writeIncline[16] = (uint8_t)(requestIncline * 10);
 
    for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
    {
@@ -165,9 +163,35 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
    //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
 
 
-   writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
-   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(writeIncline, 20, "updateDisplay speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "updateDisplay speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
 }
+
+void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
+{
+   uint8_t writeIncline[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
+			     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                             0xff, 0xff, 0x00};
+
+   writeIncline[4] = ((uint16_t)(requestSpeed*10) >> 8) & 0xFF;
+   writeIncline[5] = ((uint16_t)(requestSpeed*10) & 0xFF);
+
+   writeIncline[13] = ((uint16_t)(requestIncline*10) >> 8) & 0xFF;
+   writeIncline[14] = ((uint16_t)(requestIncline*10) & 0xFF);
+
+   for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
+   {
+      //qDebug() << QString::number(writeIncline[i], 16);
+      writeIncline[22] += writeIncline[i]; // the last byte is a sort of a checksum
+   }
+
+   //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
+
+
+   writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
+   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
+}
+
 
 void domyostreadmill::update()
 {        
@@ -198,13 +222,13 @@ void domyostreadmill::update()
         if(requestSpeed != -1)
         {
            debug("writing speed " + QString::number(requestSpeed));
-           forceSpeedOrIncline(requestSpeed, currentIncline, counter/5);
+           forceSpeedOrIncline(requestSpeed, currentIncline);
            requestSpeed = -1;
         }
         if(requestIncline != -1)
         {
            debug("writing incline " + QString::number(requestIncline));
-           forceSpeedOrIncline(currentSpeed, requestIncline, counter/5);
+           forceSpeedOrIncline(currentSpeed, requestIncline);
            requestIncline = -1;
         }
         if(requestStart != -1)
