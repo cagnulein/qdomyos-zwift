@@ -158,8 +158,8 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
    //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
 
 
-   writeCharacteristic(writeIncline, 20, "updateDisplay speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
-   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "updateDisplay speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline) + " elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(writeIncline, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
@@ -197,14 +197,14 @@ void domyostreadmill::update()
         initRequest = false;
         btinit();
     }
-    else if(treadmill.isValid() &&
+    else if(bttreadmill.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-	if(currentSpeed > 0.0)
+    if(currentSpeed() > 0.0)
 	   trainProgram->scheduler(refresh->interval());
 
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
@@ -220,7 +220,7 @@ void domyostreadmill::update()
         }
         if(requestInclination != -1)
         {
-           debug("writing incline " + QString::number(requestIncline));
+           debug("writing incline " + QString::number(requestInclination));
            forceSpeedOrIncline(currentSpeed(), requestInclination);
            requestInclination = -1;
         }
@@ -356,7 +356,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
         if(!first)
         {
            debug("creating virtual treadmill interface...");
-           v = new virtualtreadmill();
+           v = new virtualtreadmill(this);
         }
         first = 1;
         // ********************************************************************************************************
