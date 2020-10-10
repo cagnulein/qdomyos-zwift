@@ -38,7 +38,8 @@ public:
 private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed);
+    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void updateDisplay(uint16_t elapsed);
     void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void debug(QString text);
@@ -48,12 +49,16 @@ private:
 private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void update();
+    void error(QLowEnergyController::Error err);
+    void errorService(QLowEnergyService::ServiceError);
 };
 
 #endif // DOMYOSTREADMILL_H

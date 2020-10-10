@@ -69,6 +69,7 @@ virtualtreadmill::virtualtreadmill(treadmill* t)
 
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
+    Q_ASSERT(leController);
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
 
