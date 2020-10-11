@@ -9,14 +9,16 @@ class treadmill:public QObject
 
 public:
     treadmill();
-    virtual void start();
-    virtual void stop();
-    virtual void changeSpeed(double speed);
-    virtual void changeInclination(double inclination);
     virtual unsigned char currentHeart();
     virtual double currentSpeed();
     virtual double currentInclination();
     trainprogram* trainProgram = 0;
+
+public slots:
+    virtual void start();
+    virtual void stop();
+    virtual void changeSpeed(double speed);
+    virtual void changeInclination(double inclination);
 
 protected:
     double elapsed = 0;

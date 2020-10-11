@@ -94,14 +94,19 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
     }
 }
 
-void MainWindow::createTrainProgram(QList<trainrow> rows)
+void MainWindow::trainProgramSignals()
 {
-    if(treadmill->trainProgram) delete treadmill->trainProgram;
-    treadmill->trainProgram = new trainprogram(rows);
     connect(treadmill->trainProgram, SIGNAL(start()), treadmill, SLOT(start()));
     connect(treadmill->trainProgram, SIGNAL(stop()), treadmill, SLOT(stop()));
     connect(treadmill->trainProgram, SIGNAL(changeSpeed(double)), treadmill, SLOT(changeSpeed(double)));
     connect(treadmill->trainProgram, SIGNAL(changeInclination(double)), treadmill, SLOT(changeInclination(double)));
+}
+
+void MainWindow::createTrainProgram(QList<trainrow> rows)
+{
+    if(treadmill->trainProgram) delete treadmill->trainProgram;
+    treadmill->trainProgram = new trainprogram(rows);
+    trainProgramSignals();
 }
 
 void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
@@ -157,6 +162,8 @@ void MainWindow::on_load_clicked()
 
             countRow++;
         }
+
+        trainProgramSignals();
     }
 }
 
