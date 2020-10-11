@@ -19,6 +19,7 @@ public slots:
     virtual void stop();
     virtual void changeSpeed(double speed);
     virtual void changeInclination(double inclination);
+    virtual void changeSpeedAndInclination(double speed, double inclination);
 
 protected:
     double elapsed = 0;

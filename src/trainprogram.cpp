@@ -24,10 +24,13 @@ void trainprogram::scheduler(int tick)
         if(rows[0].forcespeed && rows[0].speed)
         {
             qDebug() << "trainprogram change speed" + QString::number(rows[0].speed);
-            emit changeSpeed(rows[0].speed);
+            emit changeSpeedAndInclination(rows[0].speed, rows[0].inclination);
         }
-        qDebug() << "trainprogram change inclination" + QString::number(rows[0].inclination);
-        emit changeInclination(rows[0].inclination);
+        else
+        {
+            qDebug() << "trainprogram change inclination" + QString::number(rows[0].inclination);
+            emit changeInclination(rows[0].inclination);
+        }
     }
 
     uint32_t currentRowLen = rows[currentStep].duration.second() +
@@ -53,7 +56,7 @@ void trainprogram::scheduler(int tick)
             if(rows[currentStep].forcespeed && rows[currentStep].speed)
             {
                 qDebug() << "trainprogram change speed" + QString::number(rows[currentStep].speed);
-                emit changeSpeed(rows[currentStep].speed);
+                emit changeSpeedAndInclination(rows[currentStep].speed, rows[currentStep].inclination);
             }
             qDebug() << "trainprogram change inclination" + QString::number(rows[currentStep].inclination);
             emit changeInclination(rows[currentStep].inclination);

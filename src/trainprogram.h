@@ -32,6 +32,7 @@ signals:
     void stop();
     void changeSpeed(double speed);
     void changeInclination(double inclination);
+    void changeSpeedAndInclination(double speed, double inclination);
 
 private:
     bool started = false;

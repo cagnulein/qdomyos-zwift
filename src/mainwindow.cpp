@@ -100,6 +100,7 @@ void MainWindow::trainProgramSignals()
     connect(treadmill->trainProgram, SIGNAL(stop()), treadmill, SLOT(stop()));
     connect(treadmill->trainProgram, SIGNAL(changeSpeed(double)), treadmill, SLOT(changeSpeed(double)));
     connect(treadmill->trainProgram, SIGNAL(changeInclination(double)), treadmill, SLOT(changeInclination(double)));
+    connect(treadmill->trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), treadmill, SLOT(changeSpeedAndInclination(double, double)));
 }
 
 void MainWindow::createTrainProgram(QList<trainrow> rows)

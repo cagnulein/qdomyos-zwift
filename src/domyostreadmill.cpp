@@ -225,22 +225,33 @@ void domyostreadmill::update()
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
-
         if(requestSpeed != -1)
         {
            if(requestSpeed != currentSpeed())
            {
               debug("writing speed " + QString::number(requestSpeed));
-              forceSpeedOrIncline(requestSpeed, Inclination);
+              double inc = Inclination;
+              if(requestInclination != -1)
+              {
+                  inc = requestInclination;
+                  requestInclination = -1;
+              }
+              forceSpeedOrIncline(requestSpeed, inc);
            }
            requestSpeed = -1;
         }
         if(requestInclination != -1)
         {
            if(requestInclination != currentInclination())
-           {
+           {              
               debug("writing incline " + QString::number(requestInclination));
-              forceSpeedOrIncline(currentSpeed(), requestInclination);
+              double speed = currentSpeed();
+              if(requestSpeed != 1)
+              {
+                  speed = requestSpeed;
+                  requestSpeed = -1;
+              }
+              forceSpeedOrIncline(speed, requestInclination);
            }
            requestInclination = -1;
         }
