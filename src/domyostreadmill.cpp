@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
+#include <QBluetoothLocalDevice>
 
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
@@ -106,13 +107,20 @@ domyostreadmill::domyostreadmill()
 
     initDone = false;
 
-    // Create a discovery agent and connect to its signals
-    discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-    connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
-            this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
+    if(!QBluetoothLocalDevice::allDevices().count())
+    {
+        debug("no bluetooth dongle found!");
+    }
+    else
+    {
+        // Create a discovery agent and connect to its signals
+        discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+        connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+                this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
 
-    // Start a discovery
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        // Start a discovery
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    }
 
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
