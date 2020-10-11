@@ -5,11 +5,16 @@
 
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
+    bool nogui = false;
     for (int i = 1; i < argc; ++i) {
         if (!qstrcmp(argv[i], "-no-gui"))
-            return new QCoreApplication(argc, argv);
+            nogui = true;
     }
-    return new QApplication(argc, argv);
+
+    if(nogui)
+        return new QCoreApplication(argc, argv);
+    else
+        return new QApplication(argc, argv);
 }
 
 int main(int argc, char *argv[])
