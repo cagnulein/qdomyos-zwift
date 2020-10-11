@@ -228,14 +228,20 @@ void domyostreadmill::update()
 
         if(requestSpeed != -1)
         {
-           debug("writing speed " + QString::number(requestSpeed));
-           forceSpeedOrIncline(requestSpeed, Inclination);
+           if(requestSpeed != currentSpeed())
+           {
+              debug("writing speed " + QString::number(requestSpeed));
+              forceSpeedOrIncline(requestSpeed, Inclination);
+           }
            requestSpeed = -1;
         }
         if(requestInclination != -1)
         {
-           debug("writing incline " + QString::number(requestInclination));
-           forceSpeedOrIncline(currentSpeed(), requestInclination);
+           if(requestInclination != currentInclination())
+           {
+              debug("writing incline " + QString::number(requestInclination));
+              forceSpeedOrIncline(currentSpeed(), requestInclination);
+           }
            requestInclination = -1;
         }
         if(requestStart != -1)
