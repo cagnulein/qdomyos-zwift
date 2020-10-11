@@ -19,6 +19,7 @@ public:
     trainprogram* trainProgram = 0;
 
 protected:
+    double elapsed = 0;
     double Speed = 0;
     double Inclination = 0;
     uint8_t Heart = 0;

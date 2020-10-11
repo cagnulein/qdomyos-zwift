@@ -96,8 +96,6 @@ bool initRequest = false;
 
 QFile* debugCommsLog;
 
-trainprogram* trainProgram = 0;
-
 domyostreadmill::domyostreadmill()
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
@@ -217,9 +215,12 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-    if(currentSpeed() > 0.0)
-	   trainProgram->scheduler(refresh->interval());
-
+        if(currentSpeed() > 0.0)
+        {
+           elapsed += ((double)refresh->interval() / 1000.0);
+           if(trainProgram)
+              trainProgram->scheduler(refresh->interval());
+        }
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
