@@ -77,14 +77,16 @@ void trainprogram::save(QString filename)
     QXmlStreamWriter stream(&output);
     stream.setAutoFormatting(true);
     stream.writeStartDocument();
+    stream.writeStartElement("rows");
     foreach (trainrow row, rows) {
         stream.writeStartElement("row");
         stream.writeAttribute("duration", row.duration.toString());
         stream.writeAttribute("speed", QString::number(row.speed));
         stream.writeAttribute("inclination", QString::number(row.inclination));
         stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
-        stream.writeEndElement(); // bookmark
+        stream.writeEndElement();
     }
+    stream.writeEndElement();
     stream.writeEndDocument();
 }
 
