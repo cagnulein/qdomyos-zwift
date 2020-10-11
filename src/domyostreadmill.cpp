@@ -246,7 +246,7 @@ void domyostreadmill::update()
            {              
               debug("writing incline " + QString::number(requestInclination));
               double speed = currentSpeed();
-              if(requestSpeed != 1)
+              if(requestSpeed != -1)
               {
                   speed = requestSpeed;
                   requestSpeed = -1;
