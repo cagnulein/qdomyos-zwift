@@ -34,6 +34,7 @@ signals:
     void changeInclination(double inclination);
 
 private:
+    bool started = false;
     uint32_t ticks = 0;
     uint16_t currentStep = 0;
     uint32_t ticksCurrentRow = 0;

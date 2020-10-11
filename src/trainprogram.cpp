@@ -9,8 +9,17 @@ trainprogram::trainprogram(QList<trainrow> rows)
 
 void trainprogram::scheduler(int tick)
 {
+    Q_ASSERT(tick);
+
+    ticks++;
+    elapsed = ticks / (1000 / tick);
+    ticksCurrentRow++;
+    elapsedCurrentRow =  ticksCurrentRow / (1000 / tick);
+
+    if(rows.count() == 0 || started == false) return;
+
     // entry point
-    if(ticks == 0 && currentStep == 0)
+    if(ticks == 1 && currentStep == 0)
     {
         if(rows[0].forcespeed && rows[0].speed)
         {
@@ -18,11 +27,6 @@ void trainprogram::scheduler(int tick)
         }
         emit changeInclination(rows[0].inclination);
     }
-
-    ticks++;
-    elapsed = ticks / (1000 / tick);
-    ticksCurrentRow++;
-    elapsedCurrentRow =  ticksCurrentRow / (1000 / tick);
 
     uint32_t currentRowLen = rows[currentStep].duration.second() +
             (rows[currentStep].duration.minute() * 60) +
@@ -50,8 +54,8 @@ void trainprogram::scheduler(int tick)
         }
         else
         {
+            started = false;
             emit stop();
-            restart();
         }
     }
 }
@@ -63,6 +67,7 @@ void trainprogram::restart()
     elapsed = 0;
     elapsedCurrentRow = 0;
     currentStep = 0;
+    started = true;
 }
 
 void trainprogram::save(QString filename)
