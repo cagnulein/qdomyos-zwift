@@ -43,6 +43,7 @@ private:
     void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void debug(QString text);
+    void startDiscover();
 
     QTimer* refresh;
 

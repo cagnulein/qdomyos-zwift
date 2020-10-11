@@ -89,6 +89,7 @@ QLowEnergyCharacteristic gattWriteCharacteristic;
 QLowEnergyCharacteristic gattNotifyCharacteristic;
 QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
+bool restart = false;
 bool initDone = false;
 bool initRequest = false;
 
@@ -196,6 +197,10 @@ void domyostreadmill::update()
     {
         initRequest = false;
         btinit();
+    }
+    else if(restart)
+    {
+        startDiscover();
     }
     else if(bttreadmill.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
@@ -422,7 +427,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
             Q_UNUSED(error);
             Q_UNUSED(this);
             debug("Cannot connect to remote device.");
-            exit(1);
+            restart = true;
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
@@ -432,11 +437,23 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             debug("LowEnergy controller disconnected");
-            exit(2);
+            restart = true;
         });
 
         // Connect
         m_control->connectToDevice();
         return;
     }
+}
+
+void domyostreadmill::startDiscover()
+{
+    initDone = false;
+    initRequest = false;
+    if(m_control)
+       delete m_control;
+    if(gattCommunicationChannelService)
+       delete gattCommunicationChannelService;
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    restart = false;
 }
