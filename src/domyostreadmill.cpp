@@ -15,39 +15,6 @@ uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
 // stop tape
 uint8_t initDataF0C800B8[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 
-#if 0
-uint8_t initDataStart[] = { 0xf0, 0xc8, 0x00, 0xb8 };
-uint8_t initDataStart2[] = { 0xf0, 0xcb, 0x01, 0x00, 0x00, 0x02, 0xff, 0xff, 0xff, 0xff,
-                             0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00 };
-uint8_t initDataStart3[] = { 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xb6 };
-uint8_t initDataStart4[] = { 0xf0, 0xc8, 0x00, 0xb8 };
-uint8_t initDataStart5[] = { 0xf0, 0xc8, 0x01, 0xb9 };
-uint8_t initDataStart6[] =
-{
-        0xf0, 0xad, 0xff, 0xff, 0x00, 0x0a, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
-};
-uint8_t initDataStart7[] = { 0xff, 0xff, 0x95 };
-uint8_t initDataStart8[] =
-{
-        0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff
-};
-uint8_t initDataStart9[] = { 0xff, 0xff, 0x8b };
-uint8_t initDataStart10[] =
-{
-        0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0x03, 0xfc, 0xff, 0xff, 0xff, 0xff, 0xff
-};
-uint8_t initDataStart11[] = { 0xff, 0xff, 0x8a };
-uint8_t initDataStart12[] =
-{
-        0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-        0xff, 0xff, 0xff, 0x04, 0x0f, 0xff, 0xff, 0xff, 0xff, 0xff
-};
-uint8_t initDataStart13[] = { 0xff, 0xff, 0x9e };
-#endif
-
 // main startup sequence
 uint8_t initDataStart[] = { 0xf0, 0xa3, 0x93 };
 uint8_t initDataStart2[] = { 0xf0, 0xa4, 0x94 };
@@ -202,7 +169,7 @@ void domyostreadmill::update()
     if(initRequest)
     {
         initRequest = false;
-        btinit();
+        btinit(false);
     }
     else if(restart)
     {
@@ -258,7 +225,7 @@ void domyostreadmill::update()
         if(requestStart != -1)
         {
            debug("starting...");
-           btinit();
+           btinit(true);
            requestStart = -1;
         }
         if(requestStop != -1)
@@ -374,7 +341,7 @@ double domyostreadmill::GetInclinationFromPacket(QByteArray packet)
     return data;
 }
 
-void domyostreadmill::btinit()
+void domyostreadmill::btinit(bool startTape)
 {
     writeCharacteristic(initData1, sizeof(initData1), "init");
     writeCharacteristic(initData2, sizeof(initData2), "init");
@@ -388,9 +355,12 @@ void domyostreadmill::btinit()
     writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init");
     writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init");
     writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
-    writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init");
-    writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init");
-    writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init");
+    if(startTape)
+    {
+        writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init");
+        writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init");
+        writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init");
+    }
 
     initDone = true;
 }
