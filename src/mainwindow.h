@@ -41,6 +41,7 @@ private slots:
     void on_reset_clicked();
     void on_stop_clicked();
     void on_start_clicked();
+    void on_groupBox_2_clicked();
 };
 
 #endif // MAINWINDOW_H

@@ -235,6 +235,12 @@
      <property name="title">
       <string>Train me!</string>
      </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
        <widget class="QTableWidget" name="tableWidget">

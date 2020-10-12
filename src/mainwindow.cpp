@@ -101,6 +101,7 @@ void MainWindow::trainProgramSignals()
     connect(treadmill->trainProgram, SIGNAL(changeSpeed(double)), treadmill, SLOT(changeSpeed(double)));
     connect(treadmill->trainProgram, SIGNAL(changeInclination(double)), treadmill, SLOT(changeInclination(double)));
     connect(treadmill->trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), treadmill, SLOT(changeSpeedAndInclination(double, double)));
+    connect(treadmill, SIGNAL(tapeStarted()), treadmill->trainProgram, SLOT(onTapeStarted()));
 }
 
 void MainWindow::createTrainProgram(QList<trainrow> rows)
@@ -210,4 +211,11 @@ void MainWindow::on_start_clicked()
 {
     treadmill->trainProgram->restart();
     treadmill->start();
+}
+
+void MainWindow::on_groupBox_2_clicked()
+{
+    if(!treadmill->trainProgram)
+        createTrainProgram(QList<trainrow>());
+    treadmill->trainProgram->enabled = ui->groupBox_2->isChecked();
 }

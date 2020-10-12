@@ -16,7 +16,7 @@ void trainprogram::scheduler(int tick)
     ticksCurrentRow++;
     elapsedCurrentRow =  ticksCurrentRow / (1000 / tick);
 
-    if(rows.count() == 0 || started == false) return;
+    if(rows.count() == 0 || started == false || enabled == false) return;
 
     // entry point
     if(ticks == 1 && currentStep == 0)
@@ -68,6 +68,11 @@ void trainprogram::scheduler(int tick)
             emit stop();
         }
     }
+}
+
+void trainprogram::onTapeStarted()
+{
+    started = true;
 }
 
 void trainprogram::restart()

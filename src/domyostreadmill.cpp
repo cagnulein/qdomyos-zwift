@@ -227,6 +227,7 @@ void domyostreadmill::update()
            debug("starting...");
            btinit(true);
            requestStart = -1;
+           emit tapeStarted();
         }
         if(requestStop != -1)
         {

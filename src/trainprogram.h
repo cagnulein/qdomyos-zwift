@@ -23,9 +23,13 @@ public:
 
     QList<trainrow> rows;
     uint32_t elapsed = 0;
+    bool enabled = true;
 
     void restart();
     void scheduler(int tick);
+
+public slots:
+    void onTapeStarted();
 
 signals:
     void start();

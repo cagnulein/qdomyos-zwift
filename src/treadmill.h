@@ -21,6 +21,9 @@ public slots:
     virtual void changeInclination(double inclination);
     virtual void changeSpeedAndInclination(double speed, double inclination);
 
+signals:
+    void tapeStarted();
+
 protected:
     double elapsed = 0;
     double Speed = 0;
