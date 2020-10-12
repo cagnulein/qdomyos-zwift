@@ -23,6 +23,7 @@ public:
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime duration();
+    double totalDistance();
 
     QList<trainrow> rows;
     uint32_t elapsed = 0;

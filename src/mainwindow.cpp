@@ -33,6 +33,14 @@ void MainWindow::update()
             ui->trainProgramElapsedTime->setText(treadmill->trainProgram->totalElapsedTime().toString("hh:mm:ss"));
             ui->trainProgramCurrentRowElapsedTime->setText(treadmill->trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
             ui->trainProgramDuration->setText(treadmill->trainProgram->duration().toString("hh:mm:ss"));
+
+            double distance = treadmill->trainProgram->totalDistance();
+            if(distance > 0)
+            {
+                ui->trainProgramTotalDistance->setText(QString::number(distance));
+            }
+            else
+                ui->trainProgramTotalDistance->setText("N/A");
         }
     }
 }

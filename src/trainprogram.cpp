@@ -147,3 +147,19 @@ QTime trainprogram::duration()
     }
     return total;
 }
+
+double trainprogram::totalDistance()
+{
+    double distance = 0;
+    foreach (trainrow row, rows) {
+        if(row.duration.hour() || row.duration.minute() || row.duration.second())
+        {
+            if(!row.forcespeed)
+            {
+                return -1;
+            }
+            distance += ((row.duration.hour() * 3600) + (row.duration.minute() * 60) + row.duration.second()) * (row.speed / 3600);
+        }
+    }
+    return distance;
+}
