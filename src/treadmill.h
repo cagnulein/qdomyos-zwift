@@ -15,7 +15,7 @@ public:
     trainprogram* trainProgram = 0;
     virtual double odometer();
     virtual double elevationGain();
-    virtual dobule calories();
+    virtual double calories();
 
 public slots:
     virtual void start();
