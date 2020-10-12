@@ -128,3 +128,22 @@ trainprogram* trainprogram::load(QString filename)
     trainprogram *tr = new trainprogram(list);
     return tr;
 }
+
+QTime trainprogram::totalElapsedTime()
+{
+    return QTime(0,0,elapsed);
+}
+
+QTime trainprogram::currentRowElapsedTime()
+{
+    return QTime(0,0,elapsedCurrentRow);
+}
+
+QTime trainprogram::duration()
+{
+    QTime total(0,0,0,0);
+    foreach (trainrow row, rows) {
+        total = total.addSecs((row.duration.hour() * 3600) + (row.duration.minute() * 60) + row.duration.second());
+    }
+    return total;
+}

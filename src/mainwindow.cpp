@@ -25,6 +25,16 @@ void MainWindow::update()
         ui->watt->setText(QString::number(treadmill->virtualTreadMill->watts(ui->weight->text().toFloat())));
     else
         ui->watt->setText("0");
+
+    if(treadmill)
+    {
+        if(treadmill->trainProgram)
+        {
+            ui->trainProgramElapsedTime->setText(treadmill->trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+            ui->trainProgramCurrentRowElapsedTime->setText(treadmill->trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+            ui->trainProgramDuration->setText(treadmill->trainProgram->duration().toString("hh:mm:ss"));
+        }
+    }
 }
 
 MainWindow::~MainWindow()
@@ -108,7 +118,9 @@ void MainWindow::createTrainProgram(QList<trainrow> rows)
 {
     if(treadmill->trainProgram) delete treadmill->trainProgram;
     treadmill->trainProgram = new trainprogram(rows);
-    trainProgramSignals();
+    if(rows.length() == 0)
+        addEmptyRow();
+    trainProgramSignals();    
 }
 
 void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)

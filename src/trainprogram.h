@@ -20,6 +20,9 @@ public:
     trainprogram(QList<trainrow>);
     void save(QString filename);
     static trainprogram* load(QString filename);
+    QTime totalElapsedTime();
+    QTime currentRowElapsedTime();
+    QTime duration();
 
     QList<trainrow> rows;
     uint32_t elapsed = 0;
