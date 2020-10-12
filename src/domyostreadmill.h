@@ -32,7 +32,7 @@ class domyostreadmill : public treadmill
 {
     Q_OBJECT
 public:
-    domyostreadmill();
+    domyostreadmill(bool logs = true);
     virtualtreadmill* virtualTreadMill = 0;
     bool connected();
 

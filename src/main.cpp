@@ -3,12 +3,17 @@
 #include "domyostreadmill.h"
 #include "mainwindow.h"
 
+bool nologs = false;
+
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
     bool nogui = false;
+
     for (int i = 1; i < argc; ++i) {
         if (!qstrcmp(argv[i], "-no-gui"))
             nogui = true;
+        if (!qstrcmp(argv[i], "-no-log"))
+            nologs = true;
     }
 
     if(nogui)
@@ -22,7 +27,7 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 
     //virtualtreadmill* V = new virtualtreadmill();
-    domyostreadmill* D = new domyostreadmill();
+    domyostreadmill* D = new domyostreadmill(!nologs);
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...

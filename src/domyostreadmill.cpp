@@ -61,14 +61,17 @@ bool restart = false;
 bool initDone = false;
 bool initRequest = false;
 
-QFile* debugCommsLog;
+QFile* debugCommsLog = 0;
 
-domyostreadmill::domyostreadmill()
+domyostreadmill::domyostreadmill(bool logs)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     refresh = new QTimer(this);
-    debugCommsLog = new QFile("debug-" + QDateTime::currentDateTime().toString() + ".log");
-    debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
+    if(logs)
+    {
+        debugCommsLog = new QFile("debug-" + QDateTime::currentDateTime().toString() + ".log");
+        debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
+    }
 
     initDone = false;
 
@@ -94,8 +97,11 @@ domyostreadmill::domyostreadmill()
 void domyostreadmill::debug(QString text)
 {
     QString debug = QDateTime::currentDateTime().toString() + text + '\n';
-    debugCommsLog->write(debug.toLocal8Bit());
-    qDebug() << debug;
+    if(debugCommsLog)
+    {
+        debugCommsLog->write(debug.toLocal8Bit());
+        qDebug() << debug;
+    }
 }
 
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
