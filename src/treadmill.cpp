@@ -15,3 +15,4 @@ double treadmill::currentSpeed(){ return Speed; }
 double treadmill::currentInclination(){ return Inclination; }
 double treadmill::odometer(){ return Distance; }
 double treadmill::elevationGain(){ return elevationAcc; }
+double treadmill::calories(){ return KCal; }

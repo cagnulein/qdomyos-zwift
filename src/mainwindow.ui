@@ -378,6 +378,26 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>Calories (kcal):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="calories">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

@@ -30,6 +30,7 @@ void MainWindow::update()
     {
         ui->odometer->setText(QString::number(treadmill->odometer()));
         ui->elevationGain->setText(QString::number(treadmill->elevationGain()));
+        ui->calories->setText(QString::number(treadmill->calories()));
 
         if(treadmill->trainProgram)
         {
