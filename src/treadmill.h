@@ -13,6 +13,7 @@ public:
     virtual double currentSpeed();
     virtual double currentInclination();
     trainprogram* trainProgram = 0;
+    virtual double odometer();
 
 public slots:
     virtual void start();

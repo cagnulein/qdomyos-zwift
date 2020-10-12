@@ -28,6 +28,8 @@ void MainWindow::update()
 
     if(treadmill)
     {
+        ui->odometer->setText(QString::number(treadmill->odometer()));
+
         if(treadmill->trainProgram)
         {
             ui->trainProgramElapsedTime->setText(treadmill->trainProgram->totalElapsedTime().toString("hh:mm:ss"));

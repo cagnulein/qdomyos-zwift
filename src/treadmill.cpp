@@ -13,3 +13,4 @@ void treadmill::changeSpeedAndInclination(double speed, double inclination){ req
 unsigned char treadmill::currentHeart(){ return Heart; }
 double treadmill::currentSpeed(){ return Speed; }
 double treadmill::currentInclination(){ return Inclination; }
+double treadmill::odometer(){ return Distance; }
