@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+    <row duration="00:02:00" speed="5" inclination="0" forcespeed="1"/>
+    <row duration="00:03:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:05:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7.7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7.7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7.7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7" inclination="1" forcespeed="1"/>
+    <row duration="00:01:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:02:00" speed="7" inclination="1" forcespeed="1"/>
+    <row duration="00:06:00" speed="6" inclination="0" forcespeed="1"/>
+    <row duration="00:01:00" speed="5" inclination="0" forcespeed="1"/>
+</rows>
