@@ -25,6 +25,8 @@ protected:
     double elapsed = 0;
     double Speed = 0;
     double Inclination = 0;
+    double KCal = 0;
+    double Distance = 0;
     uint8_t Heart = 0;
     double requestSpeed = -1;
     double requestInclination = -1;

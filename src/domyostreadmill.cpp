@@ -326,24 +326,43 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     double speed = GetSpeedFromPacket(newValue);
     double incline = GetInclinationFromPacket(newValue);
+    double kcal = GetKcalFromPacket(newValue);
+    double distance = GetDistanceFromPacket(newValue);
 
     Heart = newValue.at(18);
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
     debug("Current heart: " + QString::number(Heart));
+    debug("Current KCal: " + QString::number(kcal));
+    debug("Current Distance: " + QString::number(distance));
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
     Speed = speed;
     Inclination = incline;
+    KCal = kcal;
+    Distance = distance;
 }
 
 double domyostreadmill::GetSpeedFromPacket(QByteArray packet)
 {
     uint8_t convertedData = (uint8_t)packet.at(7);
     double data = (double)convertedData / 10.0f;
+    return data;
+}
+
+double domyostreadmill::GetKcalFromPacket(QByteArray packet)
+{
+    uint16_t convertedData = (packet.at(10) << 8) | packet.at(11);
+    return (double)convertedData;
+}
+
+double domyostreadmill::GetDistanceFromPacket(QByteArray packet)
+{
+    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
+    double data = ((double)convertedData) / 10.0f;
     return data;
 }
 
