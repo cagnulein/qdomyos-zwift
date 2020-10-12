@@ -30,6 +30,8 @@ protected:
     double requestInclination = -1;
     int8_t requestStart = -1;
     int8_t requestStop = -1;    
+    int8_t requestIncreaseFan = -1;
+    int8_t requestDecreaseFan = -1;
 };
 
 #endif // TREADMILL_H

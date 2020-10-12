@@ -267,6 +267,16 @@ void domyostreadmill::update()
             writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
+        if(requestIncreaseFan != -1)
+        {
+            debug("increasing fan speed TODO...");
+            requestIncreaseFan = -1;
+        }
+        else if(requestDecreaseFan != -1)
+        {
+            debug("decreasing fan speed TODO...");
+            requestDecreaseFan = -1;
+        }
     }
 }
 
@@ -299,6 +309,16 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     {
         debug("stop button pressed!");
         requestStop = 1;
+    }
+    else if (newValue.at(22) == 0x0b)
+    {
+        debug("increase speed fan pressed!");
+        requestIncreaseFan = 1;
+    }
+    else if (newValue.at(22) == 0x0a)
+    {
+        debug("decrease speed fan pressed!");
+        requestDecreaseFan = 1;
     }
 
     /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
