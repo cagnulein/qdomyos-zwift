@@ -34,6 +34,7 @@ class domyostreadmill : public treadmill
 public:
     domyostreadmill();
     virtualtreadmill* virtualTreadMill = 0;
+    bool connected();
 
 private:
     double GetSpeedFromPacket(QByteArray packet);

@@ -495,3 +495,10 @@ void domyostreadmill::startDiscover()
     discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     restart = false;
 }
+
+bool domyostreadmill::connected()
+{
+    if(!m_control)
+        return false;
+    return m_control->state() == QLowEnergyController::DiscoveredState;
+}

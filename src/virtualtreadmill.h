@@ -30,6 +30,7 @@ class virtualtreadmill: QObject
 public:
     virtualtreadmill(treadmill* t);
     uint16_t watts(double weight=75.0);
+    bool connected();
 
 private:
     QLowEnergyController* leController;

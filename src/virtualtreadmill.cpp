@@ -208,3 +208,10 @@ uint16_t virtualtreadmill::watts(double weight)
     }
     return watts;
 }
+
+bool virtualtreadmill::connected()
+{
+    if(!leController)
+        return false;
+    return leController->state() == QLowEnergyController::ConnectedState;
+}

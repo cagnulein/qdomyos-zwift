@@ -45,6 +45,27 @@ void MainWindow::update()
             else
                 ui->trainProgramTotalDistance->setText("N/A");
         }
+
+        if(treadmill->connected())
+        {
+            ui->connectionToTreadmill->setEnabled(true);
+            if(treadmill->virtualTreadMill)
+            {
+                if(treadmill->virtualTreadMill->connected())
+                    ui->connectionToZwift->setEnabled(true);
+                else
+                    ui->connectionToZwift->setEnabled(false);
+            }
+            else
+                ui->connectionToZwift->setEnabled(false);
+        }
+        else
+            ui->connectionToTreadmill->setEnabled(false);
+    }
+    else
+    {
+        ui->connectionToTreadmill->setEnabled(false);
+        ui->connectionToZwift->setEnabled(false);
     }
 }
 
