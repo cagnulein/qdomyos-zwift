@@ -245,6 +245,8 @@ void domyostreadmill::update()
             debug("decreasing fan speed TODO...");
             requestDecreaseFan = -1;
         }
+
+        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
     }
 }
 
@@ -311,7 +313,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Speed = speed;
     Inclination = incline;
     KCal = kcal;
-    Distance = distance;
+    Distance = distance;    
 }
 
 double domyostreadmill::GetSpeedFromPacket(QByteArray packet)

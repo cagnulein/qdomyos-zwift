@@ -14,6 +14,7 @@ public:
     virtual double currentInclination();
     trainprogram* trainProgram = 0;
     virtual double odometer();
+    virtual double elevationGain();
 
 public slots:
     virtual void start();
@@ -26,6 +27,7 @@ signals:
     void tapeStarted();
 
 protected:
+    double elevationAcc = 0;
     double elapsed = 0;
     double Speed = 0;
     double Inclination = 0;

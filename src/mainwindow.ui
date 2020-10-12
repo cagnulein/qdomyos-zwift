@@ -224,6 +224,26 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="text">
+             <string>Elevation Gain (meters):</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="elevationGain">
+            <property name="text">
+             <string>0</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>
