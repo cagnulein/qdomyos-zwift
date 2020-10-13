@@ -28,8 +28,7 @@ class virtualtreadmill: QObject
 {
     Q_OBJECT
 public:
-    virtualtreadmill(treadmill* t);
-    uint16_t watts(double weight=75.0);
+    virtualtreadmill(treadmill* t);    
     bool connected();
 
 private:

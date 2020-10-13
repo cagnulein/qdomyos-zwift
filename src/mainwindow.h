@@ -18,7 +18,7 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit MainWindow(domyostreadmill* treadmill);
+    explicit MainWindow(treadmill* t);
     ~MainWindow();
 
 private:
@@ -30,7 +30,7 @@ private:
     Ui::MainWindow *ui;
     QTimer *timer;
 
-    domyostreadmill* treadmill;
+    treadmill* treadMill;
 
 private slots:
     void update();

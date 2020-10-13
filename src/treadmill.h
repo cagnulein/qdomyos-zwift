@@ -17,6 +17,10 @@ public:
     virtual double elevationGain();
     virtual double calories();
     virtual uint8_t fanSpeed();
+    virtual bool connected();
+    virtual void* VirtualTreadMill();
+    uint16_t watts(double weight=75.0);
+    virtual bool changeFanSpeed(uint8_t speed);
 
 public slots:
     virtual void start();

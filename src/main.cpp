@@ -1,6 +1,7 @@
 #include <QApplication>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
+#include "bluetooth.h"
 #include "mainwindow.h"
 
 bool nologs = false;
@@ -27,18 +28,15 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 
     //virtualtreadmill* V = new virtualtreadmill();
-    domyostreadmill* D = new domyostreadmill(!nologs);
+    bluetooth* bl = new bluetooth(!nologs);
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
-        MainWindow* W = new MainWindow(D);
+        MainWindow* W = new MainWindow(bl->treadmill());
         W->show();
     } else {
         // start non-GUI version...
     }
-
-    //Q_UNUSED(V);
-    Q_UNUSED(D);
 
     return app->exec();
 }
