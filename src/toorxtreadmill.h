@@ -43,12 +43,23 @@ private slots:
     void readSocket();
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
+    void update();
 
 private:
     QBluetoothDeviceInfo bttreadmill;
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
+
+    QTimer* refresh;
+    bool initDone = false;
+
+    uint16_t GetElapsedTimeFromPacket(QByteArray packet);
+    uint16_t GetDistanceFromPacket(QByteArray packet);
+    uint16_t GetCaloriesFromPacket(QByteArray packet);
+    double GetSpeedFromPacket(QByteArray packet);
+    uint8_t GetInclinationFromPacket(QByteArray packet);
+    uint8_t GetHeartRateFromPacket(QByteArray packet);
 
 signals:
     void disconnected();
