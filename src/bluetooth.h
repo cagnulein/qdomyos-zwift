@@ -24,7 +24,7 @@ class bluetooth : public QObject
     Q_OBJECT
 public:
     explicit bluetooth(bool logs);
-    treadmill* treadmill();
+    treadmill* treadMill();
 
 private:
     QFile* debugCommsLog = 0;

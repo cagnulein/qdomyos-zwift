@@ -68,7 +68,7 @@ void bluetooth::restart()
     discoveryAgent->start();
 }
 
-treadmill* bluetooth::treadmill()
+treadmill* bluetooth::treadMill()
 {
     if(domyos)
         return domyos;
