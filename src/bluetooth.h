@@ -17,6 +17,7 @@
 
 #include "treadmill.h"
 #include "domyostreadmill.h"
+#include "toorxtreadmill.h"
 
 class bluetooth : public QObject
 {
@@ -29,6 +30,7 @@ private:
     QFile* debugCommsLog = 0;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     domyostreadmill* domyos = 0;
+    toorxtreadmill* toorx = 0;
 
 public slots:
     void restart();

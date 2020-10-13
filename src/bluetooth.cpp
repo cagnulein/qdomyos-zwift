@@ -26,7 +26,7 @@ bluetooth::bluetooth(bool logs) : QObject(nullptr)
                 this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
 
         // Start a discovery
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        discoveryAgent->start();
     }
 }
 
@@ -54,6 +54,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     else if(device.name().startsWith("TRX ROUTE KEY"))
     {
         discoveryAgent->stop();
+        toorx = new toorxtreadmill();
+        connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        toorx->deviceDiscovered(device);
     }
 }
 
@@ -61,7 +65,7 @@ void bluetooth::restart()
 {
     if(domyos)
         delete domyos;
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    discoveryAgent->start();
 }
 
 treadmill* bluetooth::treadmill()

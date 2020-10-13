@@ -18,6 +18,7 @@ SOURCES += \
         bluetooth.cpp \
         domyostreadmill.cpp \
         main.cpp \
+        toorxtreadmill.cpp \
         treadmill.cpp \
         mainwindow.cpp \
         trainprogram.cpp \
@@ -31,6 +32,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
    bluetooth.h \
    domyostreadmill.h \
+   toorxtreadmill.h \
    treadmill.h \
    mainwindow.h \
    trainprogram.h \
