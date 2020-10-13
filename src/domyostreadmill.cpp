@@ -145,7 +145,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
 {
    uint8_t writeIncline[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
-			     0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0x00};
 
    writeIncline[4] = ((uint16_t)(requestSpeed*10) >> 8) & 0xFF;
@@ -165,6 +165,24 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
 
    writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
    writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
+}
+
+bool domyostreadmill::changeFanSpeed(uint8_t speed)
+{
+   uint8_t fanSpeed[] = {0xf0, 0xca, 0x00, 0x00};
+
+   if(speed > 5) return false;
+
+   fanSpeed[2] = speed;
+
+   for(uint8_t i=0; i<sizeof(fanSpeed)-1; i++)
+   {
+      fanSpeed[3] += fanSpeed[i]; // the last byte is a sort of a checksum
+   }
+
+   writeCharacteristic(fanSpeed, 4, "changeFanSpeed speed=" + QString::number(speed));
+
+   return true;
 }
 
 
@@ -243,12 +261,14 @@ void domyostreadmill::update()
         }
         if(requestIncreaseFan != -1)
         {
-            debug("increasing fan speed TODO...");
+            debug("increasing fan speed...");
+            changeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         }
         else if(requestDecreaseFan != -1)
         {
-            debug("decreasing fan speed TODO...");
+            debug("decreasing fan speed...");
+            changeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
 
@@ -306,6 +326,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double distance = GetDistanceFromPacket(newValue);
 
     Heart = newValue.at(18);
+    FanSpeed = newValue.at(23);
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));

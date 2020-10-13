@@ -31,6 +31,7 @@ void MainWindow::update()
         ui->odometer->setText(QString::number(treadmill->odometer()));
         ui->elevationGain->setText(QString::number(treadmill->elevationGain()));
         ui->calories->setText(QString::number(treadmill->calories()));
+        ui->fanBar->setValue(treadmill->fanSpeed());
 
         if(treadmill->trainProgram)
         {
@@ -263,4 +264,16 @@ void MainWindow::on_groupBox_2_clicked()
     if(!treadmill->trainProgram)
         createTrainProgram(QList<trainrow>());
     treadmill->trainProgram->enabled = ui->groupBox_2->isChecked();
+}
+
+void MainWindow::on_fanSpeedMinus_clicked()
+{
+    if(treadmill)
+        treadmill->changeFanSpeed(treadmill->fanSpeed() - 1);
+}
+
+void MainWindow::on_fanSpeedPlus_clicked()
+{
+    if(treadmill)
+        treadmill->changeFanSpeed(treadmill->fanSpeed() + 1);
 }

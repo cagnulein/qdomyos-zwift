@@ -42,6 +42,8 @@ private slots:
     void on_stop_clicked();
     void on_start_clicked();
     void on_groupBox_2_clicked();
+    void on_fanSpeedMinus_clicked();
+    void on_fanSpeedPlus_clicked();
 };
 
 #endif // MAINWINDOW_H

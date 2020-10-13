@@ -16,6 +16,7 @@ public:
     virtual double odometer();
     virtual double elevationGain();
     virtual double calories();
+    virtual uint8_t fanSpeed();
 
 public slots:
     virtual void start();
@@ -34,6 +35,7 @@ protected:
     double Inclination = 0;
     double KCal = 0;
     double Distance = 0;
+    uint8_t FanSpeed = 0;
     uint8_t Heart = 0;
     double requestSpeed = -1;
     double requestInclination = -1;
