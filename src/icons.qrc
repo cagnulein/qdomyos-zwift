@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/bluetooth-icon.png</file>
+        <file>icons/zwift-on.png</file>
+    </qresource>
+</RCC>

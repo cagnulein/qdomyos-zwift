@@ -1,5 +1,4 @@
-QT -= gui
-QT += bluetooth
+QT += bluetooth widgets
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -18,6 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         domyostreadmill.cpp \
         main.cpp \
+        treadmill.cpp \
+        mainwindow.cpp \
+        trainprogram.cpp \
         virtualtreadmill.cpp
 
 # Default rules for deployment.
@@ -27,4 +29,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
    domyostreadmill.h \
+   treadmill.h \
+   mainwindow.h \
+   trainprogram.h \
    virtualtreadmill.h
+
+FORMS += \
+   mainwindow.ui
+
+RESOURCES += \
+   icons.qrc

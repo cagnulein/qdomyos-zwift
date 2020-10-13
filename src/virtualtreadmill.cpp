@@ -1,16 +1,10 @@
 #include "virtualtreadmill.h"
 #include <QtMath>
 
-volatile double currentSpeed = 0;
-volatile double currentIncline = 0;
-volatile uint8_t currentHeart = 0;
-volatile double requestSpeed = -1;
-volatile double requestIncline = -1;
-volatile int8_t requestStart = -1;
-volatile int8_t requestStop = -1;
-
-virtualtreadmill::virtualtreadmill()
+virtualtreadmill::virtualtreadmill(treadmill* t)
 {
+    treadMill = t;
+
     //! [Advertising Data]    
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setIncludePowerLevel(true);
@@ -75,6 +69,7 @@ virtualtreadmill::virtualtreadmill()
 
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
+    Q_ASSERT(leController);
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
 
@@ -108,7 +103,8 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             b = newValue.at(2);
 
             uint16_t uspeed = a + (((uint16_t)b) << 8);
-            requestSpeed = (double)uspeed / 100.0;
+            double requestSpeed = (double)uspeed / 100.0;
+            treadMill->changeSpeed(requestSpeed);
             qDebug() << "new requested speed" << requestSpeed;
          }
          else if ((char)newValue.at(0)== 0x03) // Set Target Inclination
@@ -117,19 +113,20 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
               b = newValue.at(2);
 
               int16_t sincline = a + (((int16_t)b) << 8);
-              requestIncline = (double)sincline / 10.0;
+              double requestIncline = (double)sincline / 10.0;
               if(requestIncline < 0)
                  requestIncline = 0;
+              treadMill->changeInclination(requestIncline);
               qDebug() << "new requested incline" << requestIncline;
          }
          else if ((char)newValue.at(0)== 0x07) // Start request
          {
-              requestStart = 1;
+              treadMill->start();
               qDebug() << "request to start";
          }
          else if ((char)newValue.at(0)== 0x08) // Stop request
          {
-              requestStop = 1;
+              treadMill->stop();
               qDebug() << "request to stop";
          }
          break;
@@ -150,19 +147,19 @@ void virtualtreadmill::treadmillProvider()
     value.append(0x08); // Inclination avaiable
     value.append((char)0x00);
 
-    uint16_t normalizeSpeed = (uint16_t)qRound(currentSpeed * 100);
+    uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed() * 100);
     char a = (normalizeSpeed >> 8) & 0XFF;
     char b = normalizeSpeed & 0XFF;
     QByteArray speedBytes;
     speedBytes.append(b);
     speedBytes.append(a);
-    uint16_t normalizeIncline = (uint32_t)qRound(currentIncline * 10);
+    uint16_t normalizeIncline = (uint32_t)qRound(treadMill->currentInclination() * 10);
     a = (normalizeIncline >> 8) & 0XFF;
     b = normalizeIncline & 0XFF;
     QByteArray inclineBytes;
     inclineBytes.append(b);
     inclineBytes.append(a);
-    double ramp = qRadiansToDegrees(qAtan(currentIncline/100));
+    double ramp = qRadiansToDegrees(qAtan(treadMill->currentInclination()/100));
     int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
     a = (normalizeRamp >> 8) & 0XFF;
     b = normalizeRamp & 0XFF;
@@ -188,27 +185,33 @@ void virtualtreadmill::treadmillProvider()
 
     QByteArray valueHR;
     valueHR.append(char(0)); // Flags that specify the format of the value.
-    valueHR.append(char(currentHeart)); // Actual value.
+    valueHR.append(char(treadMill->currentHeart())); // Actual value.
     QLowEnergyCharacteristic characteristicHR
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());
     serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
 }
 
-uint16_t virtualtreadmill::watts()
+uint16_t virtualtreadmill::watts(double weight)
 {
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
     uint16_t watts=0;
-    if(currentSpeed > 0)
+    if(treadMill->currentSpeed() > 0)
     {
-       double weight=75.0; // TODO: config need
-       double pace=60/currentSpeed;
+       double pace=60/treadMill->currentSpeed();
        double VO2R=210.0/pace;
        double VO2A=(VO2R*weight)/1000.0;
        double hwatts=75*VO2A;
-       double vwatts=((9.8*weight) * (currentIncline/100));
+       double vwatts=((9.8*weight) * (treadMill->currentInclination()/100));
        watts=hwatts+vwatts;
     }
     return watts;
+}
+
+bool virtualtreadmill::connected()
+{
+    if(!leController)
+        return false;
+    return leController->state() == QLowEnergyController::ConnectedState;
 }

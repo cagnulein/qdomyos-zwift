@@ -25,23 +25,36 @@
 
 #include <QObject>
 
-class domyostreadmill : QObject
+#include "virtualtreadmill.h"
+#include "treadmill.h"
+
+class domyostreadmill : public treadmill
 {
     Q_OBJECT
 public:
-    domyostreadmill();
+    domyostreadmill(bool logs = true);
+    virtualtreadmill* virtualTreadMill = 0;
+    bool connected();
 
 private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline, uint16_t elapsed);
-    void btinit();
+    double GetKcalFromPacket(QByteArray packet);
+    double GetDistanceFromPacket(QByteArray packet);
+    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void updateDisplay(uint16_t elapsed);
+    void btinit(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void debug(QString text);
+    void startDiscover();
+
+    QTimer* refresh;
 
 private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
@@ -49,6 +62,7 @@ private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void update();
     void error(QLowEnergyController::Error err);
+    void errorService(QLowEnergyService::ServiceError);
 };
 
 #endif // DOMYOSTREADMILL_H
