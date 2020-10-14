@@ -120,26 +120,31 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
 
 void domyostreadmill::updateDisplay(uint16_t elapsed)
 {
-   uint8_t writeIncline[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
-			     0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
-                             0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
+   uint8_t display[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
+                        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
+                        0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-   writeIncline[3] = (elapsed >> 8) & 0xFF; // high byte for elapsed time (in seconds)
-   writeIncline[4] = (elapsed & 0xFF); // low byte for elasped time (in seconds)
+   display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
+   display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-   writeIncline[12] = currentHeart();
+   display[12] = currentHeart();
 
-   for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
+   display[15] = ((((uint8_t)currentInclination()) * 10) >> 8) & 0xFF;
+   display[16] = (((uint8_t)currentInclination()) * 10) & 0xFF;
+
+   display[20] = (uint8_t)currentSpeed();
+
+   for(uint8_t i=0; i<sizeof(display)-1; i++)
    {
       //qDebug() << QString::number(writeIncline[i], 16);
-      writeIncline[26] += writeIncline[i]; // the last byte is a sort of a checksum
+      display[26] += display[i]; // the last byte is a sort of a checksum
    }
 
    //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
 
 
-   writeCharacteristic(writeIncline, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
-   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
@@ -188,6 +193,7 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
 
 void domyostreadmill::update()
 {
+    static uint8_t sec1 = 0;
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
     if(initRequest)
@@ -212,6 +218,14 @@ void domyostreadmill::update()
            if(trainProgram)
               trainProgram->scheduler(refresh->interval());
         }
+
+        // updating the treadmill console every second
+        if(sec1++ == (1000 / refresh->interval()))
+        {
+            sec1 = 0;
+            updateDisplay(elapsed);
+        }
+
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
