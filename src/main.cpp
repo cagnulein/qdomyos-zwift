@@ -2,7 +2,6 @@
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "mainwindow.h"
-#include "gpx.h"
 
 bool nologs = false;
 
@@ -26,9 +25,6 @@ QCoreApplication* createApplication(int &argc, char *argv[])
 int main(int argc, char *argv[])
 {
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
-
-    gpx* g= new gpx();
-    g->open("c:\\a.gpx");
 
     //virtualtreadmill* V = new virtualtreadmill();
     domyostreadmill* D = new domyostreadmill(!nologs);

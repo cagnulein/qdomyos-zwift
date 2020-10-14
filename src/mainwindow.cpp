@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
+#include "gpx.h"
 
 MainWindow::MainWindow(domyostreadmill* treadmill) :
     QDialog(nullptr),
@@ -176,12 +177,37 @@ void MainWindow::on_load_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
                                "train.xml",
-                               tr("Train Program (*.xml)"));
+                               tr("Train Program (*.xml *.gpx)"));
     if(!fileName.isEmpty())
-    {
-        if(treadmill->trainProgram)
-            delete treadmill->trainProgram;
-        treadmill->trainProgram = trainprogram::load(fileName);
+    {       
+        if(fileName.endsWith("xml"))
+        {
+            if(treadmill->trainProgram)
+                delete treadmill->trainProgram;
+            treadmill->trainProgram = trainprogram::load(fileName);
+        }
+        else if(fileName.endsWith("gpx"))
+        {
+            if(treadmill->trainProgram)
+                delete treadmill->trainProgram;
+            gpx g;
+            QList<trainrow> list;
+            foreach(gpx_altitude_point_for_treadmill p, g.open(fileName))
+            {
+                trainrow r;
+                r.speed = p.speed;
+                r.duration = QTime(0,0,0,0);
+                r.duration = r.duration.addSecs(p.seconds);
+                r.inclination = p.inclination;
+                r.forcespeed = true;
+                list.append(r);
+            }
+            treadmill->trainProgram = new trainprogram(list);
+        }
+        else
+        {
+            return;
+        }
         int countRow = 0;
         foreach(trainrow row, treadmill->trainProgram->rows)
         {
