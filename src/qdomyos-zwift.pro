@@ -1,4 +1,4 @@
-QT += bluetooth widgets
+QT += bluetooth widgets xml positioning
 
 CONFIG += c++11 console
 CONFIG -= app_bundle
@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         domyostreadmill.cpp \
+        gpx.cpp \
         main.cpp \
         treadmill.cpp \
         mainwindow.cpp \
@@ -29,6 +30,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
    domyostreadmill.h \
+   gpx.h \
    treadmill.h \
    mainwindow.h \
    trainprogram.h \
