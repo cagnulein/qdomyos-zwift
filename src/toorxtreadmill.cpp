@@ -43,15 +43,16 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 
             serialPortService = service;
             socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-            debug("Create socket");
-            socket->connectToService(serialPortService);
-            debug("ConnectToService done");
 
             connect(socket, &QBluetoothSocket::readyRead, this, &toorxtreadmill::readSocket);
             connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&toorxtreadmill::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &toorxtreadmill::disconnected);
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error),
                     this, &toorxtreadmill::onSocketErrorOccurred);
+
+            debug("Create socket");
+            socket->connectToService(serialPortService);
+            debug("ConnectToService done");
         }
     }
 }
