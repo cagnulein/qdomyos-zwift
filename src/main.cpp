@@ -5,6 +5,7 @@
 #include "mainwindow.h"
 
 bool nologs = false;
+QString trainProgram;
 
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
@@ -15,6 +16,10 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             nogui = true;
         if (!qstrcmp(argv[i], "-no-log"))
             nologs = true;
+        if (!qstrcmp(argv[i], "-train"))
+        {
+            trainProgram = argv[++i];
+        }
     }
 
     if(nogui)
@@ -67,7 +72,11 @@ int main(int argc, char *argv[])
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
-        MainWindow* W = new MainWindow(D);
+        MainWindow* W = 0;
+        if(trainProgram.isEmpty())
+            W = new MainWindow(D);
+        else
+            W = new MainWindow(D, trainProgram);
         W->show();
     } else {
         // start non-GUI version...

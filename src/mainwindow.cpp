@@ -3,10 +3,8 @@
 #include <QFileDialog>
 #include "gpx.h"
 
-MainWindow::MainWindow(domyostreadmill* treadmill) :
-    QDialog(nullptr),
-    ui(new Ui::MainWindow)
-{    
+void MainWindow::load(domyostreadmill* treadmill)
+{
     ui->setupUi(this);
 
     this->treadmill = treadmill;
@@ -15,6 +13,21 @@ MainWindow::MainWindow(domyostreadmill* treadmill) :
     timer->start(1000);
 
     update();
+}
+
+MainWindow::MainWindow(domyostreadmill* treadmill) :
+    QDialog(nullptr),
+    ui(new Ui::MainWindow)
+{    
+    load(treadmill);
+}
+
+MainWindow::MainWindow(domyostreadmill* treadmill, QString trainProgram) :
+    QDialog(nullptr),
+    ui(new Ui::MainWindow)
+{
+    load(treadmill);
+    loadTrainProgram(trainProgram);
 }
 
 void MainWindow::update()
@@ -173,13 +186,10 @@ void MainWindow::on_save_clicked()
         treadmill->trainProgram->save(fileName);
 }
 
-void MainWindow::on_load_clicked()
+void MainWindow::loadTrainProgram(QString fileName)
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                               "train.xml",
-                               tr("Train Program (*.xml *.gpx)"));
     if(!fileName.isEmpty())
-    {       
+    {
         if(fileName.endsWith("xml"))
         {
             if(treadmill->trainProgram)
@@ -238,7 +248,16 @@ void MainWindow::on_load_clicked()
         }
 
         trainProgramSignals();
+        ui->groupBox_2->setChecked(true);
     }
+}
+
+void MainWindow::on_load_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+                               "train.xml",
+                               tr("Train Program (*.xml *.gpx)"));
+    loadTrainProgram(fileName);
 }
 
 void MainWindow::on_reset_clicked()

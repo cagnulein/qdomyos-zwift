@@ -19,10 +19,13 @@ class MainWindow : public QDialog
 
 public:
     explicit MainWindow(domyostreadmill* treadmill);
+    explicit MainWindow(domyostreadmill* treadmill, QString trainProgram);
     ~MainWindow();
 
 private:
     void addEmptyRow();
+    void load(domyostreadmill* treadmill);
+    void loadTrainProgram(QString fileName);
     void createTrainProgram(QList<trainrow> rows);
     void trainProgramSignals();
     bool editing = false;
