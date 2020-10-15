@@ -33,10 +33,10 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 {
     if(service.device().address() == bttreadmill.address())
     {
-        debug("Found new service:" + service.serviceName()
+        debug("Found new service: " + service.serviceName()
                  + '(' + service.serviceUuid().toString() + ')');
 
-        if(service.serviceUuid() == QBluetoothUuid::SerialPort)
+        if(service.serviceName().contains("SerialPort"))
         {
             debug("Serial port service found");
             discoveryAgent->stop();
