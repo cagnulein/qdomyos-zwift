@@ -11,7 +11,7 @@ Zwift bridge for Domyos treadmills
 2. Zwift compatible
 3. Create, load and save train programs
 4. Measure distance, elevation gain and watts
-5. Gpx import
+5. Gpx import (with difficulty slider)
 
 ![First Success](docs/first_success.jpg)
 
