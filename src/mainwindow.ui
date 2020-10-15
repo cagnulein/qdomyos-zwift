@@ -640,6 +640,35 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="Difficult">
+            <property name="text">
+             <string>Difficulty:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="difficulty">
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="value">
+             <number>50</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::TicksBelow</enum>
+            </property>
+            <property name="tickInterval">
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

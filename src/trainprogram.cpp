@@ -5,6 +5,7 @@
 trainprogram::trainprogram(QList<trainrow> rows)
 {
     this->rows = rows;
+    this->loadedRows = rows;
 }
 
 void trainprogram::scheduler(int tick)

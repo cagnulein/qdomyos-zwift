@@ -303,3 +303,35 @@ void MainWindow::on_fanSpeedPlus_clicked()
     if(treadmill)
         treadmill->changeFanSpeed(treadmill->fanSpeed() + 1);
 }
+
+void MainWindow::on_difficulty_valueChanged(int value)
+{
+    if(editing) return;
+
+    for(int i=0;i<treadmill->trainProgram->rows.count(); i++)
+    {
+        treadmill->trainProgram->rows[i].speed = treadmill->trainProgram->loadedRows[i].speed +
+                (treadmill->trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
+        treadmill->trainProgram->rows[i].inclination = treadmill->trainProgram->loadedRows[i].inclination +
+                (treadmill->trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
+    }
+
+    int countRow = 0;
+    foreach(trainrow row, treadmill->trainProgram->rows)
+    {
+        QTableWidgetItem* i;
+        editing = true;
+
+        i = ui->tableWidget->takeItem(countRow, 1);
+        i->setText(QString::number(row.speed));
+        ui->tableWidget->setItem(countRow, 1, i);
+
+        i = ui->tableWidget->takeItem(countRow, 2);
+        i->setText(QString::number(row.inclination));
+        ui->tableWidget->setItem(countRow, 2, i);
+
+        editing = false;
+
+        countRow++;
+    }
+}

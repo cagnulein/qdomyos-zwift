@@ -26,6 +26,7 @@ public:
     double totalDistance();
 
     QList<trainrow> rows;
+    QList<trainrow> loadedRows; // rows as loaded
     uint32_t elapsed = 0;
     bool enabled = true;
 
