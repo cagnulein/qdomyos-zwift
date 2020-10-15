@@ -3,5 +3,15 @@
         <file>icons/bluetooth-icon.png</file>
         <file>icons/zwift-on.png</file>
         <file>icons/fan.png</file>
+        <file>icons/speed.png</file>
+        <file>icons/inclination.png</file>
+        <file>icons/heart_red.png</file>
+        <file>icons/watt.png</file>
+        <file>icons/odometer.png</file>
+        <file>icons/elevationgain.png</file>
+        <file>icons/kcal.png</file>
+        <file>icons/weight.png</file>
+        <file>icons/start.png</file>
+        <file>icons/stop.png</file>
     </qresource>
 </RCC>
