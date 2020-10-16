@@ -184,9 +184,11 @@ void MainWindow::on_save_clicked()
 }
 
 void MainWindow::loadTrainProgram(QString fileName)
-{
+{       
     if(!fileName.isEmpty())
     {
+        ui->difficulty->setValue(50);
+
         if(fileName.endsWith("xml"))
         {
             if(treadmill->trainProgram)
@@ -350,4 +352,5 @@ void MainWindow::on_difficulty_valueChanged(int value)
 
         countRow++;
     }
+    ui->difficulty->setToolTip(QString::number(value) + "%");
 }
