@@ -17,6 +17,7 @@ public:
     virtual double elevationGain();
     virtual double calories();
     virtual uint8_t fanSpeed();
+    uint16_t watts(double weight=75.0);
 
 public slots:
     virtual void start();

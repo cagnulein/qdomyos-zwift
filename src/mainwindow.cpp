@@ -35,10 +35,6 @@ void MainWindow::update()
     ui->speed->setText(QString::number(treadmill->currentSpeed()));
     ui->inclination->setText(QString::number(treadmill->currentInclination()));
     ui->heartrate->setText(QString::number(treadmill->currentHeart()));
-    if(treadmill->virtualTreadMill)
-        ui->watt->setText(QString::number(treadmill->virtualTreadMill->watts(ui->weight->text().toFloat())));
-    else
-        ui->watt->setText("0");
 
     if(treadmill)
     {
@@ -46,6 +42,7 @@ void MainWindow::update()
         ui->elevationGain->setText(QString::number(treadmill->elevationGain()));
         ui->calories->setText(QString::number(treadmill->calories()));
         ui->fanBar->setValue(treadmill->fanSpeed());
+        ui->watt->setText(QString::number(treadmill->watts(ui->weight->text().toFloat())));
 
         if(treadmill->trainProgram)
         {
