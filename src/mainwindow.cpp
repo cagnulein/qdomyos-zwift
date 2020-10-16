@@ -188,6 +188,9 @@ void MainWindow::loadTrainProgram(QString fileName)
     if(!fileName.isEmpty())
     {
         ui->difficulty->setValue(50);
+        int rows = ui->tableWidget->rowCount();
+        for(int i = 0; i<rows; i++)
+            ui->tableWidget->removeRow(ui->tableWidget->rowCount() - 1);
 
         if(fileName.endsWith("xml"))
         {
