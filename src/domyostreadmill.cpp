@@ -127,12 +127,26 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
    display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
+   //if(odometer() < 10.0)
+   {
+      display[7] = ((uint8_t)(odometer() * 100) >> 8) & 0xFF;
+      display[8] = (uint8_t)(odometer() * 100) & 0xFF;
+   }
+   /*else
+   {
+      display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
+      display[8] = (uint8_t)(odometer() * 10) & 0xFF;
+   }*/
+
    display[12] = currentHeart();
 
-   display[15] = ((((uint8_t)currentInclination()) * 10) >> 8) & 0xFF;
-   display[16] = (((uint8_t)currentInclination()) * 10) & 0xFF;
+   //display[13] = ((((uint8_t)currentInclination()) * 10) >> 8) & 0xFF;
+   //display[14] = (((uint8_t)currentInclination()) * 10) & 0xFF;
 
-   display[20] = (uint8_t)currentSpeed();
+   //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
+   //display[14] = (((uint8_t)calories())) & 0xFF;
+
+   //display[20] = (uint8_t)currentSpeed();
 
    for(uint8_t i=0; i<sizeof(display)-1; i++)
    {
