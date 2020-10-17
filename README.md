@@ -5,6 +5,12 @@ Zwift bridge for Domyos treadmills
 
 ![UI](docs/ui.png)
 
+UI on Linux
+
+![UI](docs/ui-mac.png)
+
+UI on MacOS
+
 ### Features
 
 1. Domyos compatible
@@ -34,6 +40,7 @@ $ sudo ./qdomyos-zwift
 ### Tested on
 
 Raspberry PI 0W and Domyos Intense Run
+MacBook Air 2011 and Domyos Intense Run
 
 ### No gui version
 
