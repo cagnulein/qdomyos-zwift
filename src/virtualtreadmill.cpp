@@ -75,7 +75,9 @@ virtualtreadmill::virtualtreadmill(treadmill* t)
 
     QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
-    leController->startAdvertising(QLowEnergyAdvertisingParameters(), advertisingData,
+    QLowEnergyAdvertisingParameters pars;
+    pars.setInterval(100, 100);
+    leController->startAdvertising(pars, advertisingData,
                                    advertisingData);
     //! [Start Advertising]
 
@@ -143,6 +145,8 @@ void virtualtreadmill::reconnect()
 
 void virtualtreadmill::treadmillProvider()
 {
+    if(leController->state() != QLowEnergyController::ConnectedState) return;
+
     QByteArray value;
     value.append(0x08); // Inclination avaiable
     value.append((char)0x00);
@@ -176,7 +180,10 @@ void virtualtreadmill::treadmillProvider()
     QLowEnergyCharacteristic characteristic
             = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
     Q_ASSERT(characteristic.isValid());
-    service->writeCharacteristic(characteristic, value); // Potentially causes notification.
+    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    try {
+       service->writeCharacteristic(characteristic, value); // Potentially causes notification.
+    } catch (...) {}
 
     //characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -189,7 +196,10 @@ void virtualtreadmill::treadmillProvider()
     QLowEnergyCharacteristic characteristicHR
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());
-    serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
+    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    try {
+      serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
+    } catch (...) {}
 }
 
 bool virtualtreadmill::connected()
