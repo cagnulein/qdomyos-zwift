@@ -489,7 +489,7 @@ void domyostreadmill::error(QLowEnergyController::Error err)
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("Domyos"))
+    if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
     {
         discoveryAgent->stop();
         bttreadmill = device;
