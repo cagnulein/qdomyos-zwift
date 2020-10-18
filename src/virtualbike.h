@@ -37,6 +37,7 @@ private:
     QLowEnergyService* serviceHR;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
+    QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;    
     treadmill* treadMill;
 
