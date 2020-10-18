@@ -1,5 +1,5 @@
 # qdomyos-zwift
-Zwift bridge for Domyos treadmills
+Zwift bridge for Treadmills!
 
 <a href="https://www.buymeacoffee.com/cagnulein" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
@@ -14,10 +14,11 @@ UI on MacOS
 ### Features
 
 1. Domyos compatible
-2. Zwift compatible
-3. Create, load and save train programs
-4. Measure distance, elevation gain and watts
-5. Gpx import (with difficulty slider)
+2. Toorx TRX Route Key comaptible
+3. Zwift compatible
+4. Create, load and save train programs
+5. Measure distance, elevation gain and watts
+6. Gpx import (with difficulty slider)
 
 ![First Success](docs/first_success.jpg)
 
@@ -45,6 +46,8 @@ Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-o
 
 Raspberry PI 0W and Domyos Intense Run
 MacBook Air 2011 and Domyos Intense Run
+
+Raspberry 3b+ and Toorx TRX Route Key
 
 ### No gui version
 

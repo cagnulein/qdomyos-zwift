@@ -17,6 +17,9 @@ double treadmill::odometer(){ return Distance; }
 double treadmill::elevationGain(){ return elevationAcc; }
 double treadmill::calories(){ return KCal; }
 uint8_t treadmill::fanSpeed() { return FanSpeed; };
+void* treadmill::VirtualTreadMill() { return nullptr; }
+bool treadmill::changeFanSpeed(uint8_t speed) { Q_UNUSED(speed); return false; }
+bool treadmill::connected() { return false; }
 
 uint16_t treadmill::watts(double weight)
 {

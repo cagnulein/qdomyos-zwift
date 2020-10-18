@@ -18,7 +18,6 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
-#include <QtCore/qloggingcategory.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qmutex.h>
@@ -32,10 +31,11 @@ class domyostreadmill : public treadmill
 {
     Q_OBJECT
 public:
-    domyostreadmill(bool logs = true);
-    virtualtreadmill* virtualTreadMill = 0;
+    domyostreadmill();
     bool connected();
     bool changeFanSpeed(uint8_t speed);
+
+    void* VirtualTreadMill();
 
 private:
     double GetSpeedFromPacket(QByteArray packet);
@@ -46,10 +46,17 @@ private:
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
-    void debug(QString text);
     void startDiscover();
 
     QTimer* refresh;
+    virtualtreadmill* virtualTreadMill = 0;
+
+signals:
+    void disconnected();
+    void debug(QString string);
+
+public slots:
+    void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
 private slots:
 
@@ -59,8 +66,7 @@ private slots:
     void stateChanged(QLowEnergyService::ServiceState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
-    void serviceScanDone(void);
-    void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void serviceScanDone(void);    
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);

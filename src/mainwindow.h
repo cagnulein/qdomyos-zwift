@@ -18,13 +18,13 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit MainWindow(domyostreadmill* treadmill);
-    explicit MainWindow(domyostreadmill* treadmill, QString trainProgram);
+    explicit MainWindow(treadmill* t);
+    explicit MainWindow(treadmill* t, QString trainProgram);
     ~MainWindow();
 
 private:
     void addEmptyRow();
-    void load(domyostreadmill* treadmill);
+    void load(treadmill* treadmill);
     void loadTrainProgram(QString fileName);
     void createTrainProgram(QList<trainrow> rows);
     void trainProgramSignals();
@@ -33,7 +33,7 @@ private:
     Ui::MainWindow *ui;
     QTimer *timer;
 
-    domyostreadmill* treadmill;
+    treadmill* treadMill;
 
 private slots:
     void update();

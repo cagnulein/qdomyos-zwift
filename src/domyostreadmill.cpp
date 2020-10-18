@@ -55,53 +55,16 @@ QLowEnergyController* m_control = 0;
 QLowEnergyService* gattCommunicationChannelService = 0;
 QLowEnergyCharacteristic gattWriteCharacteristic;
 QLowEnergyCharacteristic gattNotifyCharacteristic;
-QBluetoothDeviceDiscoveryAgent *discoveryAgent;
 
-bool restart = false;
 bool initDone = false;
 bool initRequest = false;
 
-QFile* debugCommsLog = 0;
-
-domyostreadmill::domyostreadmill(bool logs)
+domyostreadmill::domyostreadmill()
 {
-    QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     refresh = new QTimer(this);
-    if(logs)
-    {
-        debugCommsLog = new QFile("debug-" + QDateTime::currentDateTime().toString() + ".log");
-        debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
-    }
-
     initDone = false;
-
-    if(!QBluetoothLocalDevice::allDevices().count())
-    {
-        debug("no bluetooth dongle found!");
-    }
-    else
-    {
-        // Create a discovery agent and connect to its signals
-        discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-        connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
-                this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
-
-        // Start a discovery
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    }
-
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
-}
-
-void domyostreadmill::debug(QString text)
-{
-    QString debug = QDateTime::currentDateTime().toString() + text + '\n';
-    if(debugCommsLog)
-    {
-        debugCommsLog->write(debug.toLocal8Bit());
-        qDebug() << debug;
-    }
 }
 
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
@@ -113,7 +76,7 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
 
     if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);    
+        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
 }
@@ -214,10 +177,6 @@ void domyostreadmill::update()
     {
         initRequest = false;
         btinit(false);
-    }
-    else if(restart)
-    {
-        startDiscover();
     }
     else if(bttreadmill.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
@@ -505,7 +464,6 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
     {
-        discoveryAgent->stop();
         bttreadmill = device;
         m_control = QLowEnergyController::createCentral(bttreadmill, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
@@ -520,7 +478,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
             Q_UNUSED(error);
             Q_UNUSED(this);
             debug("Cannot connect to remote device.");
-            restart = true;
+            emit disconnected();
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
@@ -530,7 +488,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             debug("LowEnergy controller disconnected");
-            restart = true;
+            emit disconnected();
         });
 
         // Connect
@@ -539,21 +497,14 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 }
 
-void domyostreadmill::startDiscover()
-{
-    initDone = false;
-    initRequest = false;
-    if(m_control)
-       delete m_control;
-    if(gattCommunicationChannelService)
-       delete gattCommunicationChannelService;
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    restart = false;
-}
-
 bool domyostreadmill::connected()
 {
     if(!m_control)
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+void* domyostreadmill::VirtualTreadMill()
+{
+    return virtualTreadMill;
 }

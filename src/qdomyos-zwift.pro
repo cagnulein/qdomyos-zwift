@@ -1,6 +1,6 @@
 QT += bluetooth widgets xml positioning
 
-CONFIG += c++11 console
+CONFIG += c++11 console debug
 CONFIG -= app_bundle
 
 # The following define makes your compiler emit warnings if you use
@@ -15,9 +15,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        bluetooth.cpp \
         domyostreadmill.cpp \
         gpx.cpp \
         main.cpp \
+        toorxtreadmill.cpp \
         treadmill.cpp \
         mainwindow.cpp \
         trainprogram.cpp \
@@ -29,7 +31,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+   bluetooth.h \
    domyostreadmill.h \
+   toorxtreadmill.h \
    gpx.h \
    treadmill.h \
    mainwindow.h \

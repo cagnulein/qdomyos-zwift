@@ -3,11 +3,11 @@
 #include <QFileDialog>
 #include "gpx.h"
 
-void MainWindow::load(domyostreadmill* treadmill)
+void MainWindow::load(treadmill* t)
 {
     ui->setupUi(this);
 
-    this->treadmill = treadmill;
+    this->treadMill = t;
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::update);
     timer->start(1000);
@@ -15,14 +15,14 @@ void MainWindow::load(domyostreadmill* treadmill)
     update();
 }
 
-MainWindow::MainWindow(domyostreadmill* treadmill) :
+MainWindow::MainWindow(treadmill* treadmill) :
     QDialog(nullptr),
     ui(new Ui::MainWindow)
 {    
     load(treadmill);
 }
 
-MainWindow::MainWindow(domyostreadmill* treadmill, QString trainProgram) :
+MainWindow::MainWindow(treadmill* treadmill, QString trainProgram) :
     QDialog(nullptr),
     ui(new Ui::MainWindow)
 {
@@ -32,25 +32,24 @@ MainWindow::MainWindow(domyostreadmill* treadmill, QString trainProgram) :
 
 void MainWindow::update()
 {
-    ui->speed->setText(QString::number(treadmill->currentSpeed()));
-    ui->inclination->setText(QString::number(treadmill->currentInclination()));
-    ui->heartrate->setText(QString::number(treadmill->currentHeart()));
-
-    if(treadmill)
+    if(treadMill)
     {
-        ui->odometer->setText(QString::number(treadmill->odometer()));
-        ui->elevationGain->setText(QString::number(treadmill->elevationGain()));
-        ui->calories->setText(QString::number(treadmill->calories()));
-        ui->fanBar->setValue(treadmill->fanSpeed());
-        ui->watt->setText(QString::number(treadmill->watts(ui->weight->text().toFloat())));
+        ui->speed->setText(QString::number(treadMill->currentSpeed()));
+        ui->inclination->setText(QString::number(treadMill->currentInclination()));
+        ui->heartrate->setText(QString::number(treadMill->currentHeart()));
+        ui->odometer->setText(QString::number(treadMill->odometer()));
+        ui->elevationGain->setText(QString::number(treadMill->elevationGain()));
+        ui->calories->setText(QString::number(treadMill->calories()));
+        ui->fanBar->setValue(treadMill->fanSpeed());
+        ui->watt->setText(QString::number(treadMill->watts(ui->weight->text().toFloat())));
 
-        if(treadmill->trainProgram)
+        if(treadMill->trainProgram)
         {
-            ui->trainProgramElapsedTime->setText(treadmill->trainProgram->totalElapsedTime().toString("hh:mm:ss"));
-            ui->trainProgramCurrentRowElapsedTime->setText(treadmill->trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
-            ui->trainProgramDuration->setText(treadmill->trainProgram->duration().toString("hh:mm:ss"));
+            ui->trainProgramElapsedTime->setText(treadMill->trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+            ui->trainProgramCurrentRowElapsedTime->setText(treadMill->trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+            ui->trainProgramDuration->setText(treadMill->trainProgram->duration().toString("hh:mm:ss"));
 
-            double distance = treadmill->trainProgram->totalDistance();
+            double distance = treadMill->trainProgram->totalDistance();
             if(distance > 0)
             {
                 ui->trainProgramTotalDistance->setText(QString::number(distance));
@@ -59,12 +58,12 @@ void MainWindow::update()
                 ui->trainProgramTotalDistance->setText("N/A");
         }
 
-        if(treadmill->connected())
+        if(treadMill->connected())
         {
             ui->connectionToTreadmill->setEnabled(true);
-            if(treadmill->virtualTreadMill)
+            if(treadMill->VirtualTreadMill())
             {
-                if(treadmill->virtualTreadMill->connected())
+                if(((virtualtreadmill*)treadMill->VirtualTreadMill())->connected())
                     ui->connectionToZwift->setEnabled(true);
                 else
                     ui->connectionToZwift->setEnabled(false);
@@ -151,18 +150,18 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
 
 void MainWindow::trainProgramSignals()
 {
-    connect(treadmill->trainProgram, SIGNAL(start()), treadmill, SLOT(start()));
-    connect(treadmill->trainProgram, SIGNAL(stop()), treadmill, SLOT(stop()));
-    connect(treadmill->trainProgram, SIGNAL(changeSpeed(double)), treadmill, SLOT(changeSpeed(double)));
-    connect(treadmill->trainProgram, SIGNAL(changeInclination(double)), treadmill, SLOT(changeInclination(double)));
-    connect(treadmill->trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), treadmill, SLOT(changeSpeedAndInclination(double, double)));
-    connect(treadmill, SIGNAL(tapeStarted()), treadmill->trainProgram, SLOT(onTapeStarted()));
+    connect(treadMill->trainProgram, SIGNAL(start()), treadMill, SLOT(start()));
+    connect(treadMill->trainProgram, SIGNAL(stop()), treadMill, SLOT(stop()));
+    connect(treadMill->trainProgram, SIGNAL(changeSpeed(double)), treadMill, SLOT(changeSpeed(double)));
+    connect(treadMill->trainProgram, SIGNAL(changeInclination(double)), treadMill, SLOT(changeInclination(double)));
+    connect(treadMill->trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), treadMill, SLOT(changeSpeedAndInclination(double, double)));
+    connect(treadMill, SIGNAL(tapeStarted()), treadMill->trainProgram, SLOT(onTapeStarted()));
 }
 
 void MainWindow::createTrainProgram(QList<trainrow> rows)
 {
-    if(treadmill->trainProgram) delete treadmill->trainProgram;
-    treadmill->trainProgram = new trainprogram(rows);
+    if(treadMill->trainProgram) delete treadMill->trainProgram;
+    treadMill->trainProgram = new trainprogram(rows);
     if(rows.length() == 0)
         addEmptyRow();
     trainProgramSignals();    
@@ -179,8 +178,8 @@ void MainWindow::on_save_clicked()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                                "train.xml",
                                tr("Train Program (*.xml)"));
-    if(!fileName.isEmpty() && treadmill->trainProgram)
-        treadmill->trainProgram->save(fileName);
+    if(!fileName.isEmpty() && treadMill->trainProgram)
+        treadMill->trainProgram->save(fileName);
 }
 
 void MainWindow::loadTrainProgram(QString fileName)
@@ -194,14 +193,14 @@ void MainWindow::loadTrainProgram(QString fileName)
 
         if(fileName.endsWith("xml"))
         {
-            if(treadmill->trainProgram)
-                delete treadmill->trainProgram;
-            treadmill->trainProgram = trainprogram::load(fileName);
+            if(treadMill->trainProgram)
+                delete treadMill->trainProgram;
+            treadMill->trainProgram = trainprogram::load(fileName);
         }
         else if(fileName.endsWith("gpx"))
         {
-            if(treadmill->trainProgram)
-                delete treadmill->trainProgram;
+            if(treadMill->trainProgram)
+                delete treadMill->trainProgram;
             gpx g;
             QList<trainrow> list;
             foreach(gpx_altitude_point_for_treadmill p, g.open(fileName))
@@ -214,14 +213,14 @@ void MainWindow::loadTrainProgram(QString fileName)
                 r.forcespeed = true;
                 list.append(r);
             }
-            treadmill->trainProgram = new trainprogram(list);
+            treadMill->trainProgram = new trainprogram(list);
         }
         else
         {
             return;
         }
         int countRow = 0;
-        foreach(trainrow row, treadmill->trainProgram->rows)
+        foreach(trainrow row, treadMill->trainProgram->rows)
         {
             if(ui->tableWidget->rowCount() <= countRow)
                 addEmptyRow();
@@ -264,10 +263,10 @@ void MainWindow::on_load_clicked()
 
 void MainWindow::on_reset_clicked()
 {
-    if(treadmill->currentSpeed() > 0) return;
+    if(treadMill->currentSpeed() > 0) return;
 
     int countRow = 0;
-    foreach(trainrow row, treadmill->trainProgram->rows)
+    foreach(trainrow row, treadMill->trainProgram->rows)
     {
         QTableWidgetItem* i;
         editing = true;
@@ -297,48 +296,48 @@ void MainWindow::on_reset_clicked()
 
 void MainWindow::on_stop_clicked()
 {
-    treadmill->stop();
+    treadMill->stop();
 }
 
 void MainWindow::on_start_clicked()
 {
-    treadmill->trainProgram->restart();
-    treadmill->start();
+    treadMill->trainProgram->restart();
+    treadMill->start();
 }
 
 void MainWindow::on_groupBox_2_clicked()
 {
-    if(!treadmill->trainProgram)
+    if(!treadMill->trainProgram)
         createTrainProgram(QList<trainrow>());
-    treadmill->trainProgram->enabled = ui->groupBox_2->isChecked();
+    treadMill->trainProgram->enabled = ui->groupBox_2->isChecked();
 }
 
 void MainWindow::on_fanSpeedMinus_clicked()
 {
-    if(treadmill)
-        treadmill->changeFanSpeed(treadmill->fanSpeed() - 1);
+    if(treadMill)
+        treadMill->changeFanSpeed(treadMill->fanSpeed() - 1);
 }
 
 void MainWindow::on_fanSpeedPlus_clicked()
 {
-    if(treadmill)
-        treadmill->changeFanSpeed(treadmill->fanSpeed() + 1);
+    if(treadMill)
+        treadMill->changeFanSpeed(treadMill->fanSpeed() + 1);
 }
 
 void MainWindow::on_difficulty_valueChanged(int value)
 {
     if(editing) return;
 
-    for(int i=0;i<treadmill->trainProgram->rows.count(); i++)
+    for(int i=0;i<treadMill->trainProgram->rows.count(); i++)
     {
-        treadmill->trainProgram->rows[i].speed = treadmill->trainProgram->loadedRows[i].speed +
-                (treadmill->trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
-        treadmill->trainProgram->rows[i].inclination = treadmill->trainProgram->loadedRows[i].inclination +
-                (treadmill->trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
+        treadMill->trainProgram->rows[i].speed = treadMill->trainProgram->loadedRows[i].speed +
+                (treadMill->trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
+        treadMill->trainProgram->rows[i].inclination = treadMill->trainProgram->loadedRows[i].inclination +
+                (treadMill->trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
     }
 
     int countRow = 0;
-    foreach(trainrow row, treadmill->trainProgram->rows)
+    foreach(trainrow row, treadMill->trainProgram->rows)
     {
         QTableWidgetItem* i;
         editing = true;
