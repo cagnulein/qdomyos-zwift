@@ -1,6 +1,6 @@
 #include "domyosbike.h"
 #include "trainprogram.h"
-#include "virtualtreadmill.h"
+#include "virtualbike.h"
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -396,14 +396,14 @@ void domyosbike::stateChanged(QLowEnergyService::ServiceState state)
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-        // ******************************************* virtual treadmill init *************************************
+        // ******************************************* virtual bike init *************************************
         static uint8_t first = 0;
-        static virtualtreadmill* v;
+        static virtualbike* v;
         Q_UNUSED(v);
         if(!first)
         {
-           debug("creating virtual treadmill interface...");
-           v = new virtualtreadmill(this);
+           debug("creating virtual bike interface...");
+           v = new virtualbike(this);
         }
         first = 1;
         // ********************************************************************************************************
