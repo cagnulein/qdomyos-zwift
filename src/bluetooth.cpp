@@ -43,7 +43,15 @@ void bluetooth::debug(QString text)
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
+    if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge"))
+    {
+        discoveryAgent->stop();
+        domyosBike = new domyosbike();
+        connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        domyosBike->deviceDiscovered(device);
+    }
+    else if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
     {
         discoveryAgent->stop();
         domyos = new domyostreadmill();

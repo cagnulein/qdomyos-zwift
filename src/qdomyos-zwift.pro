@@ -23,7 +23,8 @@ SOURCES += \
         treadmill.cpp \
         mainwindow.cpp \
         trainprogram.cpp \
-        virtualtreadmill.cpp
+        virtualtreadmill.cpp \
+    domyosbike.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -38,7 +39,8 @@ HEADERS += \
    treadmill.h \
    mainwindow.h \
    trainprogram.h \
-   virtualtreadmill.h
+   virtualtreadmill.h \
+    domyosbike.h
 
 FORMS += \
    mainwindow.ui
