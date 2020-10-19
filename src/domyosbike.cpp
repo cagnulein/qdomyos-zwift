@@ -38,7 +38,7 @@ void domyosbike::updateDisplay(uint16_t elapsed)
 
    //if(odometer() < 10.0)
    {
-      display[7] = ((uint8_t)(odometer() * 100) >> 8) & 0xFF;
+      display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
       display[8] = (uint8_t)(odometer() * 100) & 0xFF;
    }
    /*else
