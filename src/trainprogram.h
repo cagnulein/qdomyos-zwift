@@ -1,7 +1,9 @@
 #ifndef TRAINPROGRAM_H
 #define TRAINPROGRAM_H
 #include <QTime>
+#include <QTimer>
 #include <QObject>
+#include "bluetooth.h"
 
 class trainrow
 {
@@ -17,9 +19,9 @@ class trainprogram: public QObject
     Q_OBJECT
 
 public:
-    trainprogram(QList<trainrow>);
+    trainprogram(QList<trainrow>, bluetooth* b);
     void save(QString filename);
-    static trainprogram* load(QString filename);
+    static trainprogram* load(QString filename, bluetooth* b);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime duration();
@@ -35,6 +37,7 @@ public:
 
 public slots:
     void onTapeStarted();
+    void scheduler();
 
 signals:
     void start();
@@ -44,11 +47,13 @@ signals:
     void changeSpeedAndInclination(double speed, double inclination);
 
 private:
+    bluetooth* bluetoothManager;
     bool started = false;
     uint32_t ticks = 0;
     uint16_t currentStep = 0;
     uint32_t ticksCurrentRow = 0;
     uint32_t elapsedCurrentRow = 0;
+    QTimer timer;
 };
 
 #endif // TRAINPROGRAM_H

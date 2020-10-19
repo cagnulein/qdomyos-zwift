@@ -19,13 +19,14 @@
 #include "domyostreadmill.h"
 #include "domyosbike.h"
 #include "toorxtreadmill.h"
+#include "bluetoothdevice.h"
 
 class bluetooth : public QObject
 {
     Q_OBJECT
 public:
     explicit bluetooth(bool logs);
-    treadmill* treadMill();
+    bluetoothdevice* device();
 
 private:
     QFile* debugCommsLog = 0;
@@ -33,6 +34,9 @@ private:
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
     toorxtreadmill* toorx = 0;
+
+signals:
+    void deviceConnected();
 
 public slots:
     void restart();

@@ -16,6 +16,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         bluetooth.cpp \
+   bluetoothdevice.cpp \
         domyostreadmill.cpp \
         gpx.cpp \
         main.cpp \
@@ -34,6 +35,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
    bluetooth.h \
+   bluetoothdevice.h \
    domyostreadmill.h \
    toorxtreadmill.h \
    gpx.h \

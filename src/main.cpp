@@ -75,9 +75,9 @@ int main(int argc, char *argv[])
         // start GUI version...
         MainWindow* W = 0;
         if(trainProgram.isEmpty())
-            W = new MainWindow(bl->treadMill());
+            W = new MainWindow(bl);
         else
-            W = new MainWindow(bl->treadMill(), trainProgram);
+            W = new MainWindow(bl, trainProgram);
         W->show();
     } else {
         // start non-GUI version...

@@ -1,5 +1,4 @@
 #include "domyostreadmill.h"
-#include "trainprogram.h"
 #include "virtualtreadmill.h"
 #include <QFile>
 #include <QDateTime>
@@ -186,11 +185,7 @@ void domyostreadmill::update()
        initDone)
     {
         if(currentSpeed() > 0.0)
-        {
            elapsed += ((double)refresh->interval() / 1000.0);
-           if(trainProgram)
-              trainProgram->scheduler(refresh->interval());
-        }
 
         // updating the treadmill console every second
         if(sec1++ == (1000 / refresh->interval()))

@@ -47,6 +47,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     {
         discoveryAgent->stop();
         domyosBike = new domyosbike();
+        emit(deviceConnected());
         connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyosBike->deviceDiscovered(device);
@@ -55,6 +56,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     {
         discoveryAgent->stop();
         domyos = new domyostreadmill();
+        emit(deviceConnected());
         connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyos->deviceDiscovered(device);
@@ -63,6 +65,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     {
         discoveryAgent->stop();
         toorx = new toorxtreadmill();
+        emit(deviceConnected());
         connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         toorx->deviceDiscovered(device);
@@ -73,13 +76,20 @@ void bluetooth::restart()
 {
     if(domyos)
         delete domyos;
+    if(domyosBike)
+        delete domyosBike;
+    if(toorx)
+        delete toorx;
     discoveryAgent->start();
 }
 
-treadmill* bluetooth::treadMill()
+bluetoothdevice* bluetooth::device()
 {
     if(domyos)
         return domyos;
-
+    else if(domyosBike)
+        return domyosBike;
+    else if(toorx)
+        return toorx;
     return nullptr;
 }

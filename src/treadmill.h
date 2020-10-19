@@ -1,30 +1,24 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
 #include <QObject>
-#include "trainprogram.h"
+#include "bluetoothdevice.h"
 
-class treadmill:public QObject
+class treadmill:public bluetoothdevice
 {
     Q_OBJECT
 
 public:
-    treadmill();
-    virtual unsigned char currentHeart();
-    virtual double currentSpeed();
+    treadmill();    
     virtual double currentInclination();
-    trainprogram* trainProgram = 0;
     virtual double odometer();
     virtual double elevationGain();
     virtual double calories();
     virtual uint8_t fanSpeed();
     virtual bool connected();
-    virtual void* VirtualTreadMill();
-    uint16_t watts(double weight=75.0);
-    virtual bool changeFanSpeed(uint8_t speed);
+    uint16_t watts(double weight=75.0);    
+    bluetoothdevice::BLUETOOTH_TYPE deviceType();
 
 public slots:
-    virtual void start();
-    virtual void stop();
     virtual void changeSpeed(double speed);
     virtual void changeInclination(double inclination);
     virtual void changeSpeedAndInclination(double speed, double inclination);
@@ -34,19 +28,9 @@ signals:
 
 protected:
     double elevationAcc = 0;
-    double elapsed = 0;
-    double Speed = 0;
     double Inclination = 0;
-    double KCal = 0;
-    double Distance = 0;
-    uint8_t FanSpeed = 0;
-    uint8_t Heart = 0;
     double requestSpeed = -1;
     double requestInclination = -1;
-    int8_t requestStart = -1;
-    int8_t requestStop = -1;    
-    int8_t requestIncreaseFan = -1;
-    int8_t requestDecreaseFan = -1;
 };
 
 #endif // TREADMILL_H

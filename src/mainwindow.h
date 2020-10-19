@@ -6,7 +6,7 @@
 #include <QTime>
 #include <QDebug>
 #include <QTableWidgetItem>
-#include <trainprogram.h>
+#include "trainprogram.h"
 #include "domyostreadmill.h"
 
 namespace Ui {
@@ -18,22 +18,22 @@ class MainWindow : public QDialog
     Q_OBJECT
 
 public:
-    explicit MainWindow(treadmill* t);
-    explicit MainWindow(treadmill* t, QString trainProgram);
+    explicit MainWindow(bluetooth* t);
+    explicit MainWindow(bluetooth* t, QString trainProgram);
     ~MainWindow();
 
 private:
     void addEmptyRow();
-    void load(treadmill* treadmill);
+    void load(bluetooth* device);
     void loadTrainProgram(QString fileName);
-    void createTrainProgram(QList<trainrow> rows);
-    void trainProgramSignals();
+    void createTrainProgram(QList<trainrow> rows);    
     bool editing = false;
+    trainprogram* trainProgram = 0;
 
     Ui::MainWindow *ui;
     QTimer *timer;
 
-    treadmill* treadMill;
+    bluetooth* bluetoothManager;
 
 private slots:
     void update();
@@ -48,6 +48,7 @@ private slots:
     void on_fanSpeedMinus_clicked();
     void on_fanSpeedPlus_clicked();
     void on_difficulty_valueChanged(int value);
+    void trainProgramSignals();
 };
 
 #endif // MAINWINDOW_H

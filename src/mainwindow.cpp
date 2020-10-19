@@ -3,11 +3,12 @@
 #include <QFileDialog>
 #include "gpx.h"
 
-void MainWindow::load(treadmill* t)
+void MainWindow::load(bluetooth* b)
 {
     ui->setupUi(this);
 
-    this->treadMill = t;
+	 this->bluetoothManager = b;
+	 connect(this->bluetoothManager, SIGNAL(deviceConnected()), this, SLOT(trainProgramSignals()));
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::update);
     timer->start(1000);
@@ -15,41 +16,46 @@ void MainWindow::load(treadmill* t)
     update();
 }
 
-MainWindow::MainWindow(treadmill* treadmill) :
+MainWindow::MainWindow(bluetooth* b) :
     QDialog(nullptr),
     ui(new Ui::MainWindow)
 {    
-    load(treadmill);
+	 load(b);
+	 this->trainProgram = new trainprogram(QList<trainrow>(), b);
 }
 
-MainWindow::MainWindow(treadmill* treadmill, QString trainProgram) :
+MainWindow::MainWindow(bluetooth* b, QString trainProgram) :
     QDialog(nullptr),
     ui(new Ui::MainWindow)
 {
-    load(treadmill);
+	 load(b);
     loadTrainProgram(trainProgram);
 }
 
 void MainWindow::update()
 {
-    if(treadMill)
+	 if(bluetoothManager->device())
     {
-        ui->speed->setText(QString::number(treadMill->currentSpeed()));
-        ui->inclination->setText(QString::number(treadMill->currentInclination()));
-        ui->heartrate->setText(QString::number(treadMill->currentHeart()));
-        ui->odometer->setText(QString::number(treadMill->odometer()));
-        ui->elevationGain->setText(QString::number(treadMill->elevationGain()));
-        ui->calories->setText(QString::number(treadMill->calories()));
-        ui->fanBar->setValue(treadMill->fanSpeed());
-        ui->watt->setText(QString::number(treadMill->watts(ui->weight->text().toFloat())));
+		  ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed()));
+		  ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart()));
+		  ui->odometer->setText(QString::number(bluetoothManager->device()->odometer()));
+		  ui->calories->setText(QString::number(bluetoothManager->device()->calories()));
+		  ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
 
-        if(treadMill->trainProgram)
+		  if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+		  {
+			  ui->watt->setText(QString::number(((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat())));
+			  ui->inclination->setText(QString::number(((treadmill*)bluetoothManager->device())->currentInclination()));
+			  ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain()));
+		  }
+
+		  if(trainProgram)
         {
-            ui->trainProgramElapsedTime->setText(treadMill->trainProgram->totalElapsedTime().toString("hh:mm:ss"));
-            ui->trainProgramCurrentRowElapsedTime->setText(treadMill->trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
-            ui->trainProgramDuration->setText(treadMill->trainProgram->duration().toString("hh:mm:ss"));
+			   ui->trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+				ui->trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+				ui->trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
 
-            double distance = treadMill->trainProgram->totalDistance();
+				double distance = trainProgram->totalDistance();
             if(distance > 0)
             {
                 ui->trainProgramTotalDistance->setText(QString::number(distance));
@@ -58,12 +64,12 @@ void MainWindow::update()
                 ui->trainProgramTotalDistance->setText("N/A");
         }
 
-        if(treadMill->connected())
+		  if(bluetoothManager->device()->connected())
         {
             ui->connectionToTreadmill->setEnabled(true);
-            if(treadMill->VirtualTreadMill())
+				if(bluetoothManager->device()->VirtualDevice())
             {
-                if(((virtualtreadmill*)treadMill->VirtualTreadMill())->connected())
+					 if(((bluetoothdevice*)bluetoothManager->device()->VirtualDevice())->connected())
                     ui->connectionToZwift->setEnabled(true);
                 else
                     ui->connectionToZwift->setEnabled(false);
@@ -150,18 +156,34 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
 
 void MainWindow::trainProgramSignals()
 {
-    connect(treadMill->trainProgram, SIGNAL(start()), treadMill, SLOT(start()));
-    connect(treadMill->trainProgram, SIGNAL(stop()), treadMill, SLOT(stop()));
-    connect(treadMill->trainProgram, SIGNAL(changeSpeed(double)), treadMill, SLOT(changeSpeed(double)));
-    connect(treadMill->trainProgram, SIGNAL(changeInclination(double)), treadMill, SLOT(changeInclination(double)));
-    connect(treadMill->trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), treadMill, SLOT(changeSpeedAndInclination(double, double)));
-    connect(treadMill, SIGNAL(tapeStarted()), treadMill->trainProgram, SLOT(onTapeStarted()));
+	 if(bluetoothManager->device())
+	 {
+		 disconnect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
+		 disconnect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
+		 disconnect(trainProgram, SIGNAL(changeSpeed(double)), bluetoothManager->device(), SLOT(changeSpeed(double)));
+		 disconnect(trainProgram, SIGNAL(changeInclination(double)), bluetoothManager->device(), SLOT(changeInclination(double)));
+		 disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), bluetoothManager->device(), SLOT(changeSpeedAndInclination(double, double)));
+		 disconnect(bluetoothManager->device(), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
+
+		 connect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
+		 connect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
+		 connect(trainProgram, SIGNAL(changeSpeed(double)), bluetoothManager->device(), SLOT(changeSpeed(double)));
+		 connect(trainProgram, SIGNAL(changeInclination(double)), bluetoothManager->device(), SLOT(changeInclination(double)));
+		 connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), bluetoothManager->device(), SLOT(changeSpeedAndInclination(double, double)));
+		 connect(bluetoothManager->device(), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
+
+		 qDebug() << "trainProgram associated to a device";
+	 }
+	 else
+	 {
+		 qDebug() << "trainProgram NOT associated to a device";
+	 }
 }
 
 void MainWindow::createTrainProgram(QList<trainrow> rows)
 {
-    if(treadMill->trainProgram) delete treadMill->trainProgram;
-    treadMill->trainProgram = new trainprogram(rows);
+	 if(trainProgram) delete trainProgram;
+	 trainProgram = new trainprogram(rows, bluetoothManager);
     if(rows.length() == 0)
         addEmptyRow();
     trainProgramSignals();    
@@ -178,8 +200,8 @@ void MainWindow::on_save_clicked()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                                "train.xml",
                                tr("Train Program (*.xml)"));
-    if(!fileName.isEmpty() && treadMill->trainProgram)
-        treadMill->trainProgram->save(fileName);
+	 if(!fileName.isEmpty() && trainProgram)
+		  trainProgram->save(fileName);
 }
 
 void MainWindow::loadTrainProgram(QString fileName)
@@ -193,14 +215,14 @@ void MainWindow::loadTrainProgram(QString fileName)
 
         if(fileName.endsWith("xml"))
         {
-            if(treadMill->trainProgram)
-                delete treadMill->trainProgram;
-            treadMill->trainProgram = trainprogram::load(fileName);
+			   if(trainProgram)
+					 delete trainProgram;
+				trainProgram = trainprogram::load(fileName, bluetoothManager);
         }
         else if(fileName.endsWith("gpx"))
         {
-            if(treadMill->trainProgram)
-                delete treadMill->trainProgram;
+			   if(trainProgram)
+					 delete trainProgram;
             gpx g;
             QList<trainrow> list;
             foreach(gpx_altitude_point_for_treadmill p, g.open(fileName))
@@ -213,14 +235,14 @@ void MainWindow::loadTrainProgram(QString fileName)
                 r.forcespeed = true;
                 list.append(r);
             }
-            treadMill->trainProgram = new trainprogram(list);
+				trainProgram = new trainprogram(list, bluetoothManager);
         }
         else
         {
             return;
         }
         int countRow = 0;
-        foreach(trainrow row, treadMill->trainProgram->rows)
+		  foreach(trainrow row, trainProgram->rows)
         {
             if(ui->tableWidget->rowCount() <= countRow)
                 addEmptyRow();
@@ -263,10 +285,10 @@ void MainWindow::on_load_clicked()
 
 void MainWindow::on_reset_clicked()
 {
-    if(treadMill->currentSpeed() > 0) return;
+	 if(bluetoothManager->device()->currentSpeed() > 0) return;
 
     int countRow = 0;
-    foreach(trainrow row, treadMill->trainProgram->rows)
+	 foreach(trainrow row, trainProgram->rows)
     {
         QTableWidgetItem* i;
         editing = true;
@@ -296,48 +318,48 @@ void MainWindow::on_reset_clicked()
 
 void MainWindow::on_stop_clicked()
 {
-    treadMill->stop();
+	 bluetoothManager->device()->stop();
 }
 
 void MainWindow::on_start_clicked()
 {
-    treadMill->trainProgram->restart();
-    treadMill->start();
+	 trainProgram->restart();
+	 bluetoothManager->device()->start();
 }
 
 void MainWindow::on_groupBox_2_clicked()
 {
-    if(!treadMill->trainProgram)
+	 if(!trainProgram)
         createTrainProgram(QList<trainrow>());
-    treadMill->trainProgram->enabled = ui->groupBox_2->isChecked();
+	 trainProgram->enabled = ui->groupBox_2->isChecked();
 }
 
 void MainWindow::on_fanSpeedMinus_clicked()
 {
-    if(treadMill)
-        treadMill->changeFanSpeed(treadMill->fanSpeed() - 1);
+	 if(bluetoothManager->device())
+		  bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
 }
 
 void MainWindow::on_fanSpeedPlus_clicked()
 {
-    if(treadMill)
-        treadMill->changeFanSpeed(treadMill->fanSpeed() + 1);
+	 if(bluetoothManager->device())
+		  bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
 }
 
 void MainWindow::on_difficulty_valueChanged(int value)
 {
     if(editing) return;
 
-    for(int i=0;i<treadMill->trainProgram->rows.count(); i++)
+	 for(int i=0;i<trainProgram->rows.count(); i++)
     {
-        treadMill->trainProgram->rows[i].speed = treadMill->trainProgram->loadedRows[i].speed +
-                (treadMill->trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
-        treadMill->trainProgram->rows[i].inclination = treadMill->trainProgram->loadedRows[i].inclination +
-                (treadMill->trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
+		  trainProgram->rows[i].speed = trainProgram->loadedRows[i].speed +
+		          (trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
+		  trainProgram->rows[i].inclination = trainProgram->loadedRows[i].inclination +
+		          (trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
     }
 
     int countRow = 0;
-    foreach(trainrow row, treadMill->trainProgram->rows)
+	 foreach(trainrow row, trainProgram->rows)
     {
         QTableWidgetItem* i;
         editing = true;

@@ -2,22 +2,33 @@
 #include <QFile>
 #include <QtXml/QtXml>
 
-trainprogram::trainprogram(QList<trainrow> rows)
+trainprogram::trainprogram(QList<trainrow> rows, bluetooth* b)
 {
+    this->bluetoothManager = b;
     this->rows = rows;
     this->loadedRows = rows;
+    connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
+    timer.setInterval(1000);
+    timer.start();
 }
 
-void trainprogram::scheduler(int tick)
+void trainprogram::scheduler()
 {
-    Q_ASSERT(tick);
+    if(
+            rows.count() == 0 ||
+            started == false ||
+            enabled == false ||
+            bluetoothManager->device() == nullptr ||
+            bluetoothManager->device()->currentSpeed() <= 0
+            )
+    {
+        return;
+    }
 
     ticks++;
-    elapsed = ticks / (1000 / tick);
+    elapsed = ticks;
     ticksCurrentRow++;
-    elapsedCurrentRow =  ticksCurrentRow / (1000 / tick);
-
-    if(rows.count() == 0 || started == false || enabled == false) return;
+    elapsedCurrentRow =  ticksCurrentRow;
 
     // entry point
     if(ticks == 1 && currentStep == 0)
@@ -106,7 +117,7 @@ void trainprogram::save(QString filename)
     stream.writeEndDocument();
 }
 
-trainprogram* trainprogram::load(QString filename)
+trainprogram* trainprogram::load(QString filename, bluetooth* b)
 {
     QList<trainrow> list;
     QFile input(filename);
@@ -126,7 +137,7 @@ trainprogram* trainprogram::load(QString filename)
             list.append(row);
         }
     }
-    trainprogram *tr = new trainprogram(list);
+    trainprogram *tr = new trainprogram(list, b);
     return tr;
 }
 
