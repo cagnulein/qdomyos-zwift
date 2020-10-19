@@ -6,8 +6,9 @@ bike::bike()
 
 }
 
-void bike::changeResistance(double resistance) { requestResistance = resistance;}\
+void bike::changeResistance(double resistance) { requestResistance = resistance;}
 double bike::currentCrankRevolutions() { return CrankRevs;}
+uint16_t bike::lastCrankEventTime() { return LastCrankEventTime;}
 uint8_t bike::currentResistance() { return Resistance;}
 uint8_t bike::currentCadence() { return Cadence;}
 uint8_t bike::fanSpeed() { return FanSpeed; }

@@ -1,6 +1,5 @@
 #include "virtualbike.h"
 #include <QtMath>
-#include <QTime>
 
 virtualbike::virtualbike(bike* t)
 {
@@ -117,19 +116,16 @@ void virtualbike::bikeProvider()
 {
     if(leController->state() != QLowEnergyController::ConnectedState) return;
 
-    static int i=0;
-    i++;
     QByteArray value;
-    QTime now = QTime::currentTime();
-    uint16_t milliseconds = (now.second() * 1000) + now.msec();
+
     value.append((char)0x00); // crank data present
     value.append((char)0x20); // crank data present
     value.append((char)(Bike->watts() >> 8) & 0xFF); // watts
     value.append((char)(Bike->watts() & 0xFF)); // watts
     value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
     value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF)); // revs count
-    value.append((char)(milliseconds >> 8) & 0xFF); // eventtime
-    value.append((char)(milliseconds & 0xff)); // eventtime
+    value.append((char)(Bike->lastCrankEventTime() >> 8) & 0xFF); // eventtime
+    value.append((char)(Bike->lastCrankEventTime() & 0xff)); // eventtime
 
     QLowEnergyCharacteristic characteristic
             = service->characteristic(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);

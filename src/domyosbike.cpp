@@ -190,6 +190,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Heart = newValue.at(18);
 
     CrankRevs += ((double)(lastRefresh.msecsTo(QTime::currentTime())) * ((double)Cadence / 60000.0) );
+    LastCrankEventTime += (uint16_t)((lastRefresh.msecsTo(QTime::currentTime())) * 0.9765625);
     lastRefresh = QTime::currentTime();
 
     debug("Current speed: " + QString::number(speed));

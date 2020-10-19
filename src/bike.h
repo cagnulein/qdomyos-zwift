@@ -14,6 +14,7 @@ public:
     virtual uint8_t currentCadence();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
+    virtual uint16_t lastCrankEventTime();
     virtual bool connected();
     uint16_t watts();
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
@@ -27,6 +28,7 @@ signals:
 protected:
     uint8_t Cadence = 0;
     uint8_t Resistance = 0;
+    uint16_t LastCrankEventTime = 0;
     double requestResistance = -1;
     double CrankRevs = 0;
 };
