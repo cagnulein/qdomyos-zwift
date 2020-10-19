@@ -156,6 +156,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+    static QTime lastRefresh = QTime::currentTime();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -187,6 +188,9 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Cadence = newValue.at(9);
     Resistance = newValue.at(14);
     Heart = newValue.at(18);
+
+    CrankRevs += ((double)(lastRefresh.msecsTo(QTime::currentTime())) * ((double)Cadence / 60000.0) );
+    lastRefresh = QTime::currentTime();
 
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));

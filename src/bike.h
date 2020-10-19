@@ -10,11 +10,12 @@ class bike:public bluetoothdevice
 
 public:
     bike();
-    virtual double currentResistance();
+    virtual uint8_t currentResistance();
     virtual uint8_t currentCadence();
     virtual uint8_t fanSpeed();
+    virtual double currentCrankRevolutions();
     virtual bool connected();
-    uint16_t watts(double weight=75.0);
+    uint16_t watts();
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
 
 public slots:
@@ -25,8 +26,9 @@ signals:
 
 protected:
     uint8_t Cadence = 0;
-    double Resistance = 0;
+    uint8_t Resistance = 0;
     double requestResistance = -1;
+    double CrankRevs = 0;
 };
 
 #endif // BIKE_H
