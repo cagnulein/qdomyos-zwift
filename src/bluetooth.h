@@ -25,7 +25,7 @@ class bluetooth : public QObject
 {
     Q_OBJECT
 public:
-    explicit bluetooth(bool logs);
+    explicit bluetooth(bool logs, QString deviceName = "");
     bluetoothdevice* device();
 
 private:
@@ -34,6 +34,7 @@ private:
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
     toorxtreadmill* toorx = 0;
+    QString filterDevice = "";
 
 signals:
     void deviceConnected();

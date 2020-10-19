@@ -4,9 +4,10 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
-bluetooth::bluetooth(bool logs) : QObject(nullptr)
+bluetooth::bluetooth(bool logs, QString deviceName) : QObject(nullptr)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
+    filterDevice = deviceName;
 
     if(logs)
     {
@@ -43,7 +44,14 @@ void bluetooth::debug(QString text)
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge"))
+
+    bool filter = true;
+    if(filterDevice.length())
+    {
+        filter = (device.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
+    }
+
+    if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge") && filter)
     {
         discoveryAgent->stop();
         domyosBike = new domyosbike();
@@ -52,7 +60,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyosBike->deviceDiscovered(device);
     }
-    else if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
+    else if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge") && filter)
     {
         discoveryAgent->stop();
         domyos = new domyostreadmill();
@@ -61,7 +69,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyos->deviceDiscovered(device);
     }
-    else if(device.name().startsWith("TRX ROUTE KEY"))
+    else if(device.name().startsWith("TRX ROUTE KEY") && filter)
     {
         discoveryAgent->stop();
         toorx = new toorxtreadmill();

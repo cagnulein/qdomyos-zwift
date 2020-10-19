@@ -7,6 +7,7 @@
 
 bool nologs = false;
 QString trainProgram;
+QString deviceName = "";
 
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
@@ -20,6 +21,10 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-name"))
+        {
+            deviceName = argv[++i];
         }
     }
 
@@ -69,7 +74,7 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 
     //virtualtreadmill* V = new virtualtreadmill();
-    bluetooth* bl = new bluetooth(!nologs);
+    bluetooth* bl = new bluetooth(!nologs, deviceName);
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
