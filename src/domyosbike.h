@@ -25,10 +25,10 @@
 #include <QObject>
 #include <QString>
 
-#include "virtualtreadmill.h"
-#include "treadmill.h"
+#include "virtualbike.h"
+#include "bike.h"
 
-class domyosbike : public treadmill
+class domyosbike : public bike
 {
     Q_OBJECT
 public:
@@ -36,23 +36,23 @@ public:
     bool connected();
     bool changeFanSpeed(uint8_t speed);
 
-    void* VirtualTreadMill();
+    void* VirtualBike();
 
 private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);    
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceResistance(double requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void startDiscover();
 
     QTimer* refresh;
-    virtualtreadmill* virtualTreadMill = 0;
+    virtualbike* virtualBike = 0;
 
-    QBluetoothDeviceInfo bttreadmill;
+    QBluetoothDeviceInfo btbike;
     QLowEnergyController* m_control = 0;
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;

@@ -70,8 +70,10 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
 }
 
-void domyosbike::forceSpeedOrIncline(double requestSpeed, double requestIncline)
+void domyosbike::forceResistance(double requestResistance)
 {
+    debug("forceResitance TODO");
+    /*
    uint8_t writeIncline[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
                  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0x00};
@@ -93,6 +95,7 @@ void domyosbike::forceSpeedOrIncline(double requestSpeed, double requestIncline)
 
    writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
    writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
+   */
 }
 
 bool domyosbike::changeFanSpeed(uint8_t speed)
@@ -129,7 +132,7 @@ void domyosbike::update()
         initRequest = false;
         btinit(false);
     }
-    else if(bttreadmill.isValid() &&
+    else if(btbike.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -148,44 +151,21 @@ void domyosbike::update()
 
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
-        // byte 3 - 4 = elapsed time
-        // byte 17    = inclination
-        if(requestSpeed != -1)
+        if(requestResistance != -1)
         {
-           if(requestSpeed != currentSpeed())
+           if(requestResistance != currentResistance())
            {
-              debug("writing speed " + QString::number(requestSpeed));
-              double inc = Inclination;
-              if(requestInclination != -1)
-              {
-                  inc = requestInclination;
-                  requestInclination = -1;
-              }
-              forceSpeedOrIncline(requestSpeed, inc);
+              debug("writing resistance " + QString::number(requestResistance));
+              forceResistance(requestResistance);
            }
-           requestSpeed = -1;
-        }
-        if(requestInclination != -1)
-        {
-           if(requestInclination != currentInclination())
-           {              
-              debug("writing incline " + QString::number(requestInclination));
-              double speed = currentSpeed();
-              if(requestSpeed != -1)
-              {
-                  speed = requestSpeed;
-                  requestSpeed = -1;
-              }
-              forceSpeedOrIncline(speed, requestInclination);
-           }
-           requestInclination = -1;
+           requestResistance = -1;
         }
         if(requestStart != -1)
         {
            debug("starting...");
            btinit(true);
            requestStart = -1;
-           emit tapeStarted();
+           emit bikeStarted();
         }
         if(requestStop != -1)
         {
@@ -205,8 +185,6 @@ void domyosbike::update()
             changeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
-
-        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
     }
 }
 
@@ -255,7 +233,6 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         return;*/
 
     double speed = GetSpeedFromPacket(newValue);
-    double incline = GetInclinationFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
@@ -263,7 +240,6 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     FanSpeed = newValue.at(23);
 
     debug("Current speed: " + QString::number(speed));
-    debug("Current incline: " + QString::number(incline));
     debug("Current heart: " + QString::number(Heart));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
@@ -272,7 +248,6 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
     Speed = speed;
-    Inclination = incline;
     KCal = kcal;
     Distance = distance;    
 }
@@ -294,14 +269,6 @@ double domyosbike::GetDistanceFromPacket(QByteArray packet)
 {
     uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = ((double)convertedData) / 10.0f;
-    return data;
-}
-
-double domyosbike::GetInclinationFromPacket(QByteArray packet)
-{
-    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
-    double data = ((double)convertedData - 1000.0f) / 10.0f;
-    if (data < 0) return 0;
     return data;
 }
 
@@ -449,10 +416,10 @@ void domyosbike::error(QLowEnergyController::Error err)
 void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
+    if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge"))
     {
-        bttreadmill = device;
-        m_control = QLowEnergyController::createCentral(bttreadmill, this);
+        btbike = device;
+        m_control = QLowEnergyController::createCentral(btbike, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),
@@ -491,7 +458,7 @@ bool domyosbike::connected()
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void* domyosbike::VirtualTreadMill()
+void* domyosbike::VirtualBike()
 {
-    return virtualTreadMill;
+    return virtualBike;
 }

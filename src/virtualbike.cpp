@@ -1,9 +1,9 @@
 #include "virtualbike.h"
 #include <QtMath>
 
-virtualbike::virtualbike(treadmill* t)
+virtualbike::virtualbike(bike* t)
 {
-    treadMill = t;
+    Bike = t;
 
     //! [Advertising Data]    
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -87,8 +87,8 @@ virtualbike::virtualbike(treadmill* t)
     //! [Start Advertising]
 
     //! [Provide Heartbeat]    
-    QObject::connect(&treadmillTimer, SIGNAL(timeout()), this, SLOT(treadmillProvider()));
-    treadmillTimer.start(1000);
+    QObject::connect(&bikeTimer, SIGNAL(timeout()), this, SLOT(bikeProvider()));
+    bikeTimer.start(1000);
     //! [Provide Heartbeat]
     QObject::connect(leController, SIGNAL(disconnected()), this, SLOT(reconnect()));
 }
@@ -97,45 +97,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 {
     qDebug() << "characteristicChanged" << characteristic.uuid().toUInt16() << newValue;
 
-    char a;
-    char b;
-
     switch(characteristic.uuid().toUInt16())
     {
-       case 0x2AD9: // Fitness Machine Control Point
-         if((char)newValue.at(0)==0x02)
-         {
-            // Set Target Speed
-            a = newValue.at(1);
-            b = newValue.at(2);
-
-            uint16_t uspeed = a + (((uint16_t)b) << 8);
-            double requestSpeed = (double)uspeed / 100.0;
-            treadMill->changeSpeed(requestSpeed);
-            qDebug() << "new requested speed" << requestSpeed;
-         }
-         else if ((char)newValue.at(0)== 0x03) // Set Target Inclination
-         {
-              a = newValue.at(1);
-              b = newValue.at(2);
-
-              int16_t sincline = a + (((int16_t)b) << 8);
-              double requestIncline = (double)sincline / 10.0;
-              if(requestIncline < 0)
-                 requestIncline = 0;
-              treadMill->changeInclination(requestIncline);
-              qDebug() << "new requested incline" << requestIncline;
-         }
-         else if ((char)newValue.at(0)== 0x07) // Start request
-         {
-              treadMill->start();
-              qDebug() << "request to start";
-         }
-         else if ((char)newValue.at(0)== 0x08) // Stop request
-         {
-              treadMill->stop();
-              qDebug() << "request to stop";
-         }
          break;
     }
 }
@@ -149,7 +112,7 @@ void virtualbike::reconnect()
                                        advertisingData, advertisingData);
 }
 
-void virtualbike::treadmillProvider()
+void virtualbike::bikeProvider()
 {
     if(leController->state() != QLowEnergyController::ConnectedState) return;
 
@@ -180,7 +143,7 @@ void virtualbike::treadmillProvider()
 
     QByteArray valueHR;
     valueHR.append(char(0)); // Flags that specify the format of the value.
-    valueHR.append(char(treadMill->currentHeart())); // Actual value.
+    valueHR.append(char(Bike->currentHeart())); // Actual value.
     QLowEnergyCharacteristic characteristicHR
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());

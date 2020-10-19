@@ -22,13 +22,13 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-#include "treadmill.h"
+#include "bike.h"
 
 class virtualbike: QObject
 {
     Q_OBJECT
 public:
-    virtualbike(treadmill* t);
+    virtualbike(bike* t);
     bool connected();
 
 private:
@@ -38,12 +38,12 @@ private:
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataHR;
-    QTimer treadmillTimer;    
-    treadmill* treadMill;
+    QTimer bikeTimer;
+    bike* Bike;
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void treadmillProvider();
+    void bikeProvider();
     void reconnect();
 };
 
