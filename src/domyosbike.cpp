@@ -87,25 +87,6 @@ void domyosbike::forceResistance(double requestResistance)
    writeCharacteristic(&write[20], sizeof (write) - 20, "forceResistance " + QString::number(requestResistance));
 }
 
-bool domyosbike::changeFanSpeed(uint8_t speed)
-{
-   uint8_t fanSpeed[] = {0xf0, 0xca, 0x00, 0x00};
-
-   if(speed > 5) return false;
-
-   fanSpeed[2] = speed;
-
-   for(uint8_t i=0; i<sizeof(fanSpeed)-1; i++)
-   {
-      fanSpeed[3] += fanSpeed[i]; // the last byte is a sort of a checksum
-   }
-
-   writeCharacteristic(fanSpeed, 4, "changeFanSpeed speed=" + QString::number(speed));
-
-   return true;
-}
-
-
 void domyosbike::update()
 {
     uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
@@ -162,18 +143,6 @@ void domyosbike::update()
             writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
-        if(requestIncreaseFan != -1)
-        {
-            debug("increasing fan speed...");
-            changeFanSpeed(FanSpeed + 1);
-            requestIncreaseFan = -1;
-        }
-        else if(requestDecreaseFan != -1)
-        {
-            debug("decreasing fan speed...");
-            changeFanSpeed(FanSpeed - 1);
-            requestDecreaseFan = -1;
-        }
     }
 }
 
@@ -207,16 +176,6 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         debug("stop button pressed!");
         requestStop = 1;
     }
-    else if (newValue.at(22) == 0x0b)
-    {
-        debug("increase speed fan pressed!");
-        requestIncreaseFan = 1;
-    }
-    else if (newValue.at(22) == 0x0a)
-    {
-        debug("decrease speed fan pressed!");
-        requestDecreaseFan = 1;
-    }
 
     /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;*/
@@ -228,7 +187,6 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Cadence = newValue.at(9);
     Resistance = newValue.at(14);
     Heart = newValue.at(18);
-    FanSpeed = newValue.at(23);
 
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));

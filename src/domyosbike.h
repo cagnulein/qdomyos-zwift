@@ -34,7 +34,6 @@ class domyosbike : public bike
 public:
     domyosbike();
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
 
     void* VirtualBike();
 
