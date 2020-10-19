@@ -62,7 +62,6 @@ virtualtreadmill::virtualtreadmill(treadmill* t)
                                             QByteArray(2, 0));
     charDataHR.addDescriptor(clientConfigHR);
 
-    QLowEnergyServiceData serviceDataHR;
     serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
     serviceDataHR.addCharacteristic(charDataHR);
@@ -138,6 +137,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void virtualtreadmill::reconnect()
 {
     service = leController->addService(serviceData);
+    service = leController->addService(serviceDataHR);
     if (service)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                        advertisingData, advertisingData);
