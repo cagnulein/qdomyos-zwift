@@ -11,6 +11,7 @@ class bike:public bluetoothdevice
 public:
     bike();
     virtual double currentResistance();
+    virtual uint8_t currentCadence();
     virtual uint8_t fanSpeed();
     virtual bool connected();
     uint16_t watts(double weight=75.0);
@@ -23,6 +24,7 @@ signals:
     void bikeStarted();
 
 protected:
+    uint8_t Cadence = 0;
     double Resistance = 0;
     double requestResistance = -1;
 };

@@ -8,6 +8,7 @@ bike::bike()
 
 void bike::changeResistance(double resistance) { requestResistance = resistance;}
 double bike::currentResistance() { return Resistance;}
+uint8_t bike::currentCadence() { return Cadence;}
 uint8_t bike::fanSpeed() { return FanSpeed; }
 bool bike::connected() { return false; }
 

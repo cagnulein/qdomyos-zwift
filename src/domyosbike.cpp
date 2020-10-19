@@ -72,30 +72,19 @@ void domyosbike::updateDisplay(uint16_t elapsed)
 
 void domyosbike::forceResistance(double requestResistance)
 {
-    debug("forceResitance TODO");
-    /*
-   uint8_t writeIncline[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff,
-                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                             0xff, 0xff, 0x00};
+   uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                      0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff,
+                      0xff, 0xff, 0x00};
 
-   writeIncline[4] = ((uint16_t)(requestSpeed*10) >> 8) & 0xFF;
-   writeIncline[5] = ((uint16_t)(requestSpeed*10) & 0xFF);
+   write[10] = requestResistance;
 
-   writeIncline[13] = ((uint16_t)(requestIncline*10) >> 8) & 0xFF;
-   writeIncline[14] = ((uint16_t)(requestIncline*10) & 0xFF);
-
-   for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
+   for(uint8_t i=0; i<sizeof(write)-1; i++)
    {
-      //qDebug() << QString::number(writeIncline[i], 16);
-      writeIncline[22] += writeIncline[i]; // the last byte is a sort of a checksum
+      write[22] += write[i]; // the last byte is a sort of a checksum
    }
 
-   //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
-
-
-   writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
-   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
-   */
+   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance));
+   writeCharacteristic(&write[20], sizeof (write) - 20, "forceResistance " + QString::number(requestResistance));
 }
 
 bool domyosbike::changeFanSpeed(uint8_t speed)
@@ -236,10 +225,14 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
+    Cadence = newValue.at(9);
+    Resistance = newValue.at(14);
     Heart = newValue.at(18);
     FanSpeed = newValue.at(23);
 
     debug("Current speed: " + QString::number(speed));
+    debug("Current cadence: " + QString::number(Cadence));
+    debug("Current resistance: " + QString::number(Resistance));
     debug("Current heart: " + QString::number(Heart));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
