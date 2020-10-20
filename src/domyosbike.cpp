@@ -36,37 +36,20 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-   //if(odometer() < 10.0)
-   {
-      display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
-      display[8] = (uint8_t)(odometer() * 100) & 0xFF;
-   }
-   /*else
-   {
-      display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
-      display[8] = (uint8_t)(odometer() * 10) & 0xFF;
-   }*/
+   display[7] = ((uint8_t)((uint16_t)(currentSpeed() * 10) >> 8)) & 0xFF;
+   display[8] = (uint8_t)(currentSpeed() * 10) & 0xFF;
 
    display[12] = currentHeart();
-
-   //display[13] = ((((uint8_t)currentInclination()) * 10) >> 8) & 0xFF;
-   //display[14] = (((uint8_t)currentInclination()) * 10) & 0xFF;
 
    //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
    //display[14] = (((uint8_t)calories())) & 0xFF;
 
    display[16] = (uint8_t)currentCadence();
 
-   //display[20] = (uint8_t)currentSpeed();
-
    for(uint8_t i=0; i<sizeof(display)-1; i++)
    {
-      //qDebug() << QString::number(writeIncline[i], 16);
       display[26] += display[i]; // the last byte is a sort of a checksum
    }
-
-   //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
-
 
    writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
