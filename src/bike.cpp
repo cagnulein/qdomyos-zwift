@@ -81,43 +81,43 @@ uint16_t bike::watts()
         const uint16_t watt_cad130_max = 595;
 
         if(currentCadence() < 41)
-            return(((((watt_cad40_max-watt_cad40_min) / max_resistance) * currentResistance()) - 1)+watt_cad40_min);
+            return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);
         else if(currentCadence() < 46)
-            return(((((watt_cad45_max-watt_cad45_min) / max_resistance) * currentResistance()) - 1)+watt_cad45_min);
+            return((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad45_min);
         else if(currentCadence() < 51)
-            return(((((watt_cad50_max-watt_cad50_min) / max_resistance) * currentResistance()) - 1)+watt_cad50_min);
+            return((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad50_min);
         else if(currentCadence() < 56)
-            return(((((watt_cad55_max-watt_cad55_min) / max_resistance) * currentResistance()) - 1)+watt_cad55_min);
+            return((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad55_min);
         else if(currentCadence() < 61)
-            return(((((watt_cad60_max-watt_cad60_min) / max_resistance) * currentResistance()) - 1)+watt_cad60_min);
+            return((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad60_min);
         else if(currentCadence() < 66)
-            return(((((watt_cad65_max-watt_cad65_min) / max_resistance) * currentResistance()) - 1)+watt_cad65_min);
+            return((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad65_min);
         else if(currentCadence() < 71)
-            return(((((watt_cad70_max-watt_cad70_min) / max_resistance) * currentResistance()) - 1)+watt_cad70_min);
+            return((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad70_min);
         else if(currentCadence() < 76)
-            return(((((watt_cad75_max-watt_cad75_min) / max_resistance) * currentResistance()) - 1)+watt_cad75_min);
+            return((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad75_min);
         else if(currentCadence() < 81)
-            return(((((watt_cad80_max-watt_cad80_min) / max_resistance) * currentResistance()) - 1)+watt_cad80_min);
+            return((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad80_min);
         else if(currentCadence() < 86)
-            return(((((watt_cad85_max-watt_cad85_min) / max_resistance) * currentResistance()) - 1)+watt_cad85_min);
+            return((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad85_min);
         else if(currentCadence() < 91)
-            return(((((watt_cad90_max-watt_cad90_min) / max_resistance) * currentResistance()) - 1)+watt_cad90_min);
+            return((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad90_min);
         else if(currentCadence() < 96)
-            return(((((watt_cad95_max-watt_cad95_min) / max_resistance) * currentResistance()) - 1)+watt_cad95_min);
+            return((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad95_min);
         else if(currentCadence() < 101)
-            return(((((watt_cad100_max-watt_cad100_min) / max_resistance) * currentResistance()) - 1)+watt_cad100_min);
+            return((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad100_min);
         else if(currentCadence() < 106)
-            return(((((watt_cad105_max-watt_cad105_min) / max_resistance) * currentResistance()) - 1)+watt_cad105_min);
+            return((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad105_min);
         else if(currentCadence() < 111)
-            return(((((watt_cad110_max-watt_cad110_min) / max_resistance) * currentResistance()) - 1)+watt_cad110_min);
+            return((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad110_min);
         else if(currentCadence() < 116)
-            return(((((watt_cad115_max-watt_cad115_min) / max_resistance) * currentResistance()) - 1)+watt_cad115_min);
+            return((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad115_min);
         else if(currentCadence() < 121)
-            return(((((watt_cad120_max-watt_cad120_min) / max_resistance) * currentResistance()) - 1)+watt_cad120_min);
+            return((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad120_min);
         else if(currentCadence() < 126)
-            return(((((watt_cad125_max-watt_cad125_min) / max_resistance) * currentResistance()) - 1)+watt_cad125_min);
+            return((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad125_min);
         else
-            return(((((watt_cad130_max-watt_cad130_min) / max_resistance) * currentResistance()) - 1)+watt_cad130_min);
+            return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad130_min);
     }
     return 0;
 }
