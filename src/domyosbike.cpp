@@ -55,6 +55,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
    //display[14] = (((uint8_t)calories())) & 0xFF;
 
+   display[16] = (uint8_t)currentCadence();
+
    //display[20] = (uint8_t)currentSpeed();
 
    for(uint8_t i=0; i<sizeof(display)-1; i++)
