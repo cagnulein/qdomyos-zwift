@@ -184,6 +184,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     debug("Current heart: " + QString::number(Heart));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
+    debug("Current CrankRevs: " + QString::number(CrankRevs));
+    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();

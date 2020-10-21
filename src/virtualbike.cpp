@@ -118,8 +118,8 @@ void virtualbike::bikeProvider()
 
     QByteArray value;
 
-    value.append((char)0x00); // crank data present
     value.append((char)0x20); // crank data present
+    value.append((char)0x00); // crank data present    
     value.append((char)(Bike->watts() & 0xFF)); // watts
     value.append((char)(Bike->watts() >> 8) & 0xFF); // watts    
     value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF)); // revs count
