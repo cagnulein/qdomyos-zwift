@@ -36,8 +36,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-   display[7] = ((uint8_t)((uint16_t)(currentSpeed() * 10) >> 8)) & 0xFF;
-   display[8] = (uint8_t)(currentSpeed() * 10) & 0xFF;
+   display[7] = ((uint8_t)((uint16_t)(currentSpeed()) >> 8)) & 0xFF;
+   display[8] = (uint8_t)(currentSpeed()) & 0xFF;
 
    display[12] = currentHeart();
 
