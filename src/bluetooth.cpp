@@ -69,7 +69,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyos->deviceDiscovered(device);
     }
-    else if(device.name().startsWith("TRX ROUTE KEY") && filter)
+    else if((device.name().startsWith("TRX ROUTE KEY") || device.name().startsWith("TOORX")) && filter)
     {
         discoveryAgent->stop();
         toorx = new toorxtreadmill();
