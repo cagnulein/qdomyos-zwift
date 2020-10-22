@@ -268,6 +268,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+    static QTime lastTime;
+    static bool first = true;
 
     debug(" << " + newValue.toHex(' '));
 
@@ -310,11 +312,15 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Heart = newValue.at(18);
     FanSpeed = newValue.at(23);
 
+    if(!first)
+        DistanceCalculated += ((speed / 3600.0) / ( 1000 / (lastTime.msecsTo(QTime::currentTime()))));
+
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
     debug("Current heart: " + QString::number(Heart));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
+    debug("Current Distance Calculated: " + QString::number(DistanceCalculated));
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
@@ -323,6 +329,9 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Inclination = incline;
     KCal = kcal;
     Distance = distance;    
+
+    lastTime = QTime::currentTime();
+    first = false;
 }
 
 double domyostreadmill::GetSpeedFromPacket(QByteArray packet)
@@ -502,4 +511,9 @@ bool domyostreadmill::connected()
 void* domyostreadmill::VirtualTreadMill()
 {
     return virtualTreadMill;
+}
+
+double domyostreadmill::odometer()
+{
+    return DistanceCalculated;
 }

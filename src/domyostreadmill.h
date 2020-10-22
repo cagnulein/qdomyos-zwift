@@ -34,6 +34,7 @@ public:
     domyostreadmill();
     bool connected();
     bool changeFanSpeed(uint8_t speed);
+    double odometer();
 
     void* VirtualTreadMill();
 
@@ -46,7 +47,8 @@ private:
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
-    void startDiscover();
+    void startDiscover();    
+    double DistanceCalculated = 0;
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;
