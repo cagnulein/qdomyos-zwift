@@ -170,6 +170,8 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
 void domyostreadmill::update()
 {
     static uint8_t sec1 = 0;
+    static QTime lastTime;
+    static bool first = true;
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
     if(initRequest)
@@ -184,8 +186,8 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed() > 0.0)
-           elapsed += ((double)refresh->interval() / 1000.0);
+        if(currentSpeed() > 0.0 && !first)
+           elapsed += ((double)lastTime.msecsTo(QTime::currentTime()) / 1000.0);
 
         // updating the treadmill console every second
         if(sec1++ == (1000 / refresh->interval()))
@@ -256,6 +258,9 @@ void domyostreadmill::update()
 
         elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
     }
+
+    lastTime = QTime::currentTime();
+    first = false;
 }
 
 void domyostreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
