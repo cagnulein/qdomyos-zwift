@@ -318,7 +318,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     FanSpeed = newValue.at(23);
 
     if(!first)
-        DistanceCalculated += ((speed / 3600.0) / ( 1000 / (lastTime.msecsTo(QTime::currentTime()))));
+        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTime.msecsTo(QTime::currentTime()))));
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
