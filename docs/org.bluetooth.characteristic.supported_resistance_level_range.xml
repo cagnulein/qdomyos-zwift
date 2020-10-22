@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright 2017 Bluetooth SIG, Inc. All rights reserved.-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+name="Supported Resistance Level Range"
+type="org.bluetooth.characteristic.supported_resistance_level_range"
+uuid="2AD6" last-modified="2017-02-14" approved="Yes">
+  <InformativeText>
+    <Summary>The Supported Resistance Level Range characteristic is
+    used to send the supported resistance level range as well as
+    the minimum resistance increment supported by the
+    Server.</Summary>
+  </InformativeText>
+  <Value>
+    <Field name="Minimum Resistance Level">
+      <InformativeText>Unitless with a resolution of
+      0.1</InformativeText>
+      <Requirement>Mandatory</Requirement>
+      <Format>sint16</Format>
+      <Unit>org.bluetooth.unit.unitless</Unit>
+      <DecimalExponent>-1</DecimalExponent>
+    </Field>
+    <Field name="Maximum Resistance Level">
+      <InformativeText>Unitless with a resolution of
+      0.1</InformativeText>
+      <Requirement>Mandatory</Requirement>
+      <Format>sint16</Format>
+      <Unit>org.bluetooth.unit.unitless</Unit>
+      <DecimalExponent>-1</DecimalExponent>
+    </Field>
+    <Field name="Minimum Increment">
+      <InformativeText>Unitless with a resolution of
+      0.1</InformativeText>
+      <Requirement>Mandatory</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.unitless</Unit>
+      <DecimalExponent>-1</DecimalExponent>
+    </Field>
+  </Value>
+</Characteristic>

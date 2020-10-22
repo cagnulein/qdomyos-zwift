@@ -11,6 +11,7 @@ virtualbike::virtualbike(bike* t)
     advertisingData.setLocalName("DomyosBridge");
     QList<QBluetoothUuid> services;
     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
+    services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     services << QBluetoothUuid::HeartRate;
     advertisingData.setServices(services);
     //! [Advertising Data]
@@ -60,6 +61,47 @@ virtualbike::virtualbike(bike* t)
     serviceData.addCharacteristic(charData3);
     //! [Service Data]
 
+    //! [Fitness Service Data]
+    QLowEnergyCharacteristicData charDataFIT;
+    charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); //FitnessMachineFeatureCharacteristicUuid
+    QByteArray valueFIT;
+    valueFIT.append((char)0x80); // resistance level supported
+    valueFIT.append((char)0x14); // heart rate and elapsed time
+    valueFIT.append((char)0x00);
+    valueFIT.append((char)0x00);
+    valueFIT.append((char)0x00);
+    valueFIT.append((char)0x00);
+    valueFIT.append((char)0x00);
+    valueFIT.append((char)0x00);
+    charDataFIT.setValue(valueFIT);
+    charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
+/*    const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                QByteArray(2, 0));
+    charData.addDescriptor(clientConfig);*/
+
+    QLowEnergyCharacteristicData charDataFIT2;
+    charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2AD6); //supported_resistance_level_rangeCharacteristicUuid
+    charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+    QByteArray valueFIT2;
+    valueFIT2.append((char)0x01);  // min resistance value
+    valueFIT2.append((char)0x00);  // min resistance value
+    valueFIT2.append((char)0x0F);  // max resistance value
+    valueFIT2.append((char)0x00);  // max resistance value
+    valueFIT2.append((char)0x01);  // step resistance
+    valueFIT2.append((char)0x00);  // step resistance
+    charDataFIT2.setValue(valueFIT2);
+
+    QLowEnergyCharacteristicData charDataFIT3;
+    charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
+    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write);
+
+    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
+    serviceDataFIT.addCharacteristic(charDataFIT);
+    serviceDataFIT.addCharacteristic(charDataFIT2);
+    serviceDataFIT.addCharacteristic(charDataFIT3);
+    //! [Service Data]
+
     QLowEnergyCharacteristicData charDataHR;
     charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
     charDataHR.setValue(QByteArray(2, 0));
@@ -77,6 +119,7 @@ virtualbike::virtualbike(bike* t)
     Q_ASSERT(leController);
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
+    serviceFIT = leController->addService(serviceDataFIT);
 
     QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
@@ -99,14 +142,23 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     switch(characteristic.uuid().toUInt16())
     {
-         break;
+       case 0x2AD9: // Fitness Machine Control Point
+         if((char)newValue.at(0)==0x04)
+         {
+            // Set Target Resistance
+            uint8_t uresistance = newValue.at(1);
+            Bike->changeResistance(uresistance);
+            qDebug() << "new requested resistance" << uresistance;
+         }
+        break;
     }
 }
 
 void virtualbike::reconnect()
 {
     service = leController->addService(serviceData);
-    service = leController->addService(serviceDataHR);
+    serviceHR = leController->addService(serviceDataHR);
+    serviceFIT = leController->addService(serviceDataFIT);
     if (service)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                        advertisingData, advertisingData);

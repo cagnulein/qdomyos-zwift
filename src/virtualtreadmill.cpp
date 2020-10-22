@@ -137,7 +137,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void virtualtreadmill::reconnect()
 {
     service = leController->addService(serviceData);
-    service = leController->addService(serviceDataHR);
+    serviceHR = leController->addService(serviceDataHR);
     if (service)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                        advertisingData, advertisingData);

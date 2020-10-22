@@ -58,7 +58,7 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
 }
 
-void domyosbike::forceResistance(double requestResistance)
+void domyosbike::forceResistance(int8_t requestResistance)
 {
    uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff,

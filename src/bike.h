@@ -10,7 +10,7 @@ class bike:public bluetoothdevice
 
 public:
     bike();
-    virtual uint8_t currentResistance();
+    virtual int8_t currentResistance();
     virtual uint8_t currentCadence();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
@@ -20,16 +20,16 @@ public:
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
 
 public slots:
-    virtual void changeResistance(double res);
+    virtual void changeResistance(int8_t res);
 
 signals:
     void bikeStarted();
 
 protected:
     uint8_t Cadence = 0;
-    uint8_t Resistance = 0;
+    int8_t Resistance = 0;
     uint16_t LastCrankEventTime = 0;
-    double requestResistance = -1;
+    int8_t requestResistance = -1;
     double CrankRevs = 0;
 };
 

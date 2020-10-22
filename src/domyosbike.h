@@ -42,7 +42,7 @@ private:
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);    
-    void forceResistance(double requestResistance);
+    void forceResistance(int8_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
