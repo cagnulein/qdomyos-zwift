@@ -46,6 +46,9 @@ void domyosbike::updateDisplay(uint16_t elapsed)
 
    display[16] = (uint8_t)currentCadence();
 
+   display[19] = ((((uint16_t)odometer())) >> 8) & 0xFF;
+   display[20] = (((uint16_t)odometer())) & 0xFF;
+
    for(uint8_t i=0; i<sizeof(display)-1; i++)
    {
       display[26] += display[i]; // the last byte is a sort of a checksum
