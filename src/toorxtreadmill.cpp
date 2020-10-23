@@ -13,7 +13,7 @@ toorxtreadmill::toorxtreadmill()
 void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("TRX ROUTE KEY") || device.name().startsWith("TOORX"))
+    if(device.name().startsWith("TRX ROUTE KEY"))
     {
         bttreadmill = device;
 

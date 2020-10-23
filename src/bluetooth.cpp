@@ -69,10 +69,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyos->deviceDiscovered(device);
     }
-    else if((device.name().startsWith("TRX ROUTE KEY") || device.name().startsWith("TOORX")) && filter)
+    else if((device.name().startsWith("TRX ROUTE KEY")) && filter)
     {
         discoveryAgent->stop();
         toorx = new toorxtreadmill();
+        emit(deviceConnected());
+        connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        toorx->deviceDiscovered(device);
+    }
+    else if((device.name().startsWith("TOORX")) && filter)
+    {
+        discoveryAgent->stop();
+        trxappgateusb = new trxappgateusbtreadmill();
         emit(deviceConnected());
         connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
@@ -88,6 +97,8 @@ void bluetooth::restart()
         delete domyosBike;
     if(toorx)
         delete toorx;
+    if(trxappgateusb)
+        delete trxappgateusb;
     discoveryAgent->start();
 }
 
@@ -99,5 +110,7 @@ bluetoothdevice* bluetooth::device()
         return domyosBike;
     else if(toorx)
         return toorx;
+    else if(trxappgateusb)
+        return trxappgateusb;
     return nullptr;
 }

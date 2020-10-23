@@ -18,6 +18,7 @@
 #include "treadmill.h"
 #include "domyostreadmill.h"
 #include "domyosbike.h"
+#include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "bluetoothdevice.h"
 
@@ -34,6 +35,7 @@ private:
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
     toorxtreadmill* toorx = 0;
+    trxappgateusbtreadmill* trxappgateusb = 0;
     QString filterDevice = "";
 
 signals:

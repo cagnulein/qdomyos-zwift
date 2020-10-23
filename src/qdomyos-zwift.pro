@@ -24,6 +24,7 @@ SOURCES += \
         treadmill.cpp \
         mainwindow.cpp \
         trainprogram.cpp \
+   trxappgateusbtreadmill.cpp \
     virtualbike.cpp \
         virtualtreadmill.cpp \
     domyosbike.cpp
@@ -43,6 +44,7 @@ HEADERS += \
    treadmill.h \
    mainwindow.h \
    trainprogram.h \
+   trxappgateusbtreadmill.h \
     virtualbike.h \
    virtualtreadmill.h \
     domyosbike.h
