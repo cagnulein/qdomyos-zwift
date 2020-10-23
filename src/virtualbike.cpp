@@ -83,11 +83,11 @@ virtualbike::virtualbike(bike* t)
     charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2AD6); //supported_resistance_level_rangeCharacteristicUuid
     charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
     QByteArray valueFIT2;
-    valueFIT2.append((char)0x01);  // min resistance value
+    valueFIT2.append((char)0x0A);  // min resistance value
     valueFIT2.append((char)0x00);  // min resistance value
-    valueFIT2.append((char)0x0F);  // max resistance value
+    valueFIT2.append((char)0x96);  // max resistance value
     valueFIT2.append((char)0x00);  // max resistance value
-    valueFIT2.append((char)0x01);  // step resistance
+    valueFIT2.append((char)0x0A);  // step resistance
     valueFIT2.append((char)0x00);  // step resistance
     charDataFIT2.setValue(valueFIT2);
 
