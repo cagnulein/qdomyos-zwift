@@ -216,12 +216,21 @@ double trxappgateusbtreadmill::GetInclinationFromPacket(QByteArray packet)
 void trxappgateusbtreadmill::btinit(bool startTape)
 {
     const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
-    const uint8_t initData2[] = { 0xf0, 0xa0, 0x01, 0xd3, 0x64 };
-    const uint8_t initData3[] = { 0xf0, 0xa1, 0x01, 0xd3, 0x65 };
+    const uint8_t initData2[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
+    const uint8_t initData3[] = { 0xf0, 0xa0, 0x01, 0xd3, 0x64 };
+    const uint8_t initData4[] = { 0xf0, 0xa1, 0x01, 0xd3, 0x65 };
+    const uint8_t initData5[] = { 0xf0, 0xa3, 0x01, 0xd3, 0x01, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x23 };
+    const uint8_t initData6[] = { 0xf0, 0xa4, 0x01, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x73 };
+    const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };
 
     writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init");
     writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init");
     writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init");
+    writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init");
+    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init");
+    writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init");
+    writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init");
+    writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init");
 
     initDone = true;
 }
