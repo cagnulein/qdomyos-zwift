@@ -121,7 +121,7 @@ virtualbike::virtualbike(bike* t)
     serviceHR = leController->addService(serviceDataHR);
     serviceFIT = leController->addService(serviceDataFIT);
 
-    QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
+    QObject::connect(serviceFIT, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
