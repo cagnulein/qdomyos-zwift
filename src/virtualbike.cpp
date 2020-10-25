@@ -10,9 +10,9 @@ virtualbike::virtualbike(bike* t)
     advertisingData.setIncludePowerLevel(true);
     advertisingData.setLocalName("DomyosBridge");
     QList<QBluetoothUuid> services;
-    services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
-    services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
+    services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);    
     services << QBluetoothUuid::HeartRate;
+    services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     advertisingData.setServices(services);
     //! [Advertising Data]
 
@@ -20,10 +20,8 @@ virtualbike::virtualbike(bike* t)
     QLowEnergyCharacteristicData charData;
     charData.setUuid(QBluetoothUuid::CharacteristicType::CyclingPowerFeature);
     QByteArray value;
+    value.append((char)0x08);
     value.append((char)0x00);
-    value.append((char)0x00);
-    value.append((char)0x00);
-    value.append((char)0x08);   // crank revolution
     charData.setValue(value);
     charData.setProperties(QLowEnergyCharacteristic::Read);
     /*const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
@@ -50,10 +48,6 @@ virtualbike::virtualbike(bike* t)
                                                 descriptor);
     charData3.addDescriptor(clientConfig3);
 
-/*    QLowEnergyCharacteristicData charData3;
-    charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
-    charData3.setProperties(QLowEnergyCharacteristic::Write);*/
-
     serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceData.setUuid(QBluetoothUuid::ServiceClassUuid::CyclingPower);
     serviceData.addCharacteristic(charData);
@@ -62,6 +56,7 @@ virtualbike::virtualbike(bike* t)
     //! [Service Data]
 
     //! [Fitness Service Data]
+    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypeSecondary);
     QLowEnergyCharacteristicData charDataFIT;
     charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); //FitnessMachineFeatureCharacteristicUuid
     QByteArray valueFIT;
@@ -75,9 +70,6 @@ virtualbike::virtualbike(bike* t)
     valueFIT.append((char)0x00);
     charDataFIT.setValue(valueFIT);
     charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
-/*    const QLowEnergyDescriptorData clientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                QByteArray(2, 0));
-    charData.addDescriptor(clientConfig);*/
 
     QLowEnergyCharacteristicData charDataFIT2;
     charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2AD6); //supported_resistance_level_rangeCharacteristicUuid
@@ -95,7 +87,6 @@ virtualbike::virtualbike(bike* t)
     charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
     charDataFIT3.setProperties(QLowEnergyCharacteristic::Write);
 
-    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     serviceDataFIT.addCharacteristic(charDataFIT);
     serviceDataFIT.addCharacteristic(charDataFIT2);
@@ -110,7 +101,7 @@ virtualbike::virtualbike(bike* t)
                                             QByteArray(2, 0));
     charDataHR.addDescriptor(clientConfigHR);
 
-    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
+    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypeSecondary);
     serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
     serviceDataHR.addCharacteristic(charDataHR);
 
@@ -121,6 +112,7 @@ virtualbike::virtualbike(bike* t)
     serviceHR = leController->addService(serviceDataHR);
     serviceFIT = leController->addService(serviceDataFIT);
 
+    QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
     QObject::connect(serviceFIT, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
     QLowEnergyAdvertisingParameters pars;
