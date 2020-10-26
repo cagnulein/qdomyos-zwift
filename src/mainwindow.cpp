@@ -2,6 +2,9 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include "gpx.h"
+#include "charts.h"
+
+charts* Charts = 0;
 
 void MainWindow::load(bluetooth* b)
 {
@@ -34,8 +37,12 @@ MainWindow::MainWindow(bluetooth* b, QString trainProgram) :
 
 void MainWindow::update()
 {
-     if(bluetoothManager->device())
+    if(bluetoothManager->device())
     {
+        double inclination = 0;
+        double resistance = 0;
+        double watts = 0;
+
           ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed()));
           ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart()));
           ui->odometer->setText(QString::number(bluetoothManager->device()->odometer()));
@@ -44,8 +51,10 @@ void MainWindow::update()
 
           if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
           {
-              ui->watt->setText(QString::number(((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat())));
-              ui->inclination->setText(QString::number(((treadmill*)bluetoothManager->device())->currentInclination()));
+              watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
+              inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
+              ui->watt->setText(QString::number(watts));
+              ui->inclination->setText(QString::number(inclination));
               ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain()));
           }
 
@@ -79,6 +88,24 @@ void MainWindow::update()
         }
         else
             ui->connectionToTreadmill->setEnabled(false);
+
+        SessionLine s(
+                      bluetoothManager->device()->currentSpeed(),
+                      inclination,
+                      bluetoothManager->device()->odometer(),
+                      watts,
+                      resistance,
+                      bluetoothManager->device()->currentHeart());
+
+        Session.append(s);
+
+        if(!Charts)
+        {
+            Charts = new charts(this);
+            Charts->show();
+        }
+        Charts->update();
+
     }
     else
     {
@@ -384,3 +411,16 @@ void MainWindow::on_difficulty_valueChanged(int value)
     }
     ui->difficulty->setToolTip(QString::number(value) + "%");
 }
+
+SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, QTime time)
+{
+    this->speed = speed;
+    this->inclination = inclination;
+    this->distance = distance;
+    this->watt = watt;
+    this->resistance = resistance;
+    this->heart = heart;
+    this->time = time;
+}
+
+SessionLine::SessionLine() {}
