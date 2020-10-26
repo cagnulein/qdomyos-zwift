@@ -45,8 +45,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
 
-    if(device.rssi() == 0) return;
-
     bool filter = true;
     if(filterDevice.length())
     {
