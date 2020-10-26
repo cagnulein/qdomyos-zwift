@@ -89,7 +89,7 @@ virtualtreadmill::virtualtreadmill(treadmill* t)
 
 void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
-    qDebug() << "characteristicChanged" << characteristic.uuid().toUInt16() << newValue;
+    emit debug("characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue);
 
     char a;
     char b;
@@ -106,7 +106,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             uint16_t uspeed = a + (((uint16_t)b) << 8);
             double requestSpeed = (double)uspeed / 100.0;
             treadMill->changeSpeed(requestSpeed);
-            qDebug() << "new requested speed" << requestSpeed;
+            emit debug("new requested speed " + QString::number(requestSpeed));
          }
          else if ((char)newValue.at(0)== 0x03) // Set Target Inclination
          {
@@ -118,17 +118,17 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
               if(requestIncline < 0)
                  requestIncline = 0;
               treadMill->changeInclination(requestIncline);
-              qDebug() << "new requested incline" << requestIncline;
+              emit debug("new requested incline " +QString::number(requestIncline));
          }
          else if ((char)newValue.at(0)== 0x07) // Start request
          {
               treadMill->start();
-              qDebug() << "request to start";
+              emit debug("request to start");
          }
          else if ((char)newValue.at(0)== 0x08) // Stop request
          {
               treadMill->stop();
-              qDebug() << "request to stop";
+              emit debug("request to stop");
          }
          break;
     }
@@ -136,6 +136,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void virtualtreadmill::reconnect()
 {
+    emit debug("virtualtreadmill reconnect");
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
     if (service)
@@ -145,7 +146,11 @@ void virtualtreadmill::reconnect()
 
 void virtualtreadmill::treadmillProvider()
 {
-    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    if(leController->state() != QLowEnergyController::ConnectedState)
+    {
+        emit debug("virtualtreadmill connection error");
+        return;
+    }
 
     QByteArray value;
     value.append(0x08); // Inclination avaiable
@@ -180,10 +185,16 @@ void virtualtreadmill::treadmillProvider()
     QLowEnergyCharacteristic characteristic
             = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
     Q_ASSERT(characteristic.isValid());
-    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    if(leController->state() != QLowEnergyController::ConnectedState)
+    {
+        emit debug("virtualtreadmill connection error");
+        return;
+    }
     try {
        service->writeCharacteristic(characteristic, value); // Potentially causes notification.
-    } catch (...) {}
+    } catch (...) {
+        emit debug("virtualtreadmill error!");
+    }
 
     //characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -196,10 +207,16 @@ void virtualtreadmill::treadmillProvider()
     QLowEnergyCharacteristic characteristicHR
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());
-    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    if(leController->state() != QLowEnergyController::ConnectedState)
+    {
+        emit debug("virtualtreadmill connection error");
+        return;
+    }
     try {
       serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
-    } catch (...) {}
+    } catch (...) {
+        emit debug("virtualtreadmill error!");
+    }
 }
 
 bool virtualtreadmill::connected()

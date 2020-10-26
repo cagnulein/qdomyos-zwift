@@ -423,6 +423,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
         {
            debug("creating virtual treadmill interface...");
            v = new virtualtreadmill(this);
+           connect(v,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
         }
         first = 1;
         // ********************************************************************************************************

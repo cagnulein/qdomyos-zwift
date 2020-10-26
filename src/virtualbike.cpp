@@ -130,7 +130,7 @@ virtualbike::virtualbike(bike* t)
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
-    qDebug() << "characteristicChanged" << characteristic.uuid().toUInt16() << newValue;
+    emit debug("characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue);
 
     switch(characteristic.uuid().toUInt16())
     {
@@ -140,7 +140,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // Set Target Resistance
             uint8_t uresistance = newValue.at(1);
             Bike->changeResistance(uresistance);
-            qDebug() << "new requested resistance" << uresistance;
+            emit debug("new requested resistance " + QString::number(uresistance));
          }
         break;
     }
@@ -148,6 +148,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
 void virtualbike::reconnect()
 {
+    emit debug("virtualbike::reconnect");
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
     serviceFIT = leController->addService(serviceDataFIT);
@@ -158,7 +159,11 @@ void virtualbike::reconnect()
 
 void virtualbike::bikeProvider()
 {
-    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    if(leController->state() != QLowEnergyController::ConnectedState)
+    {
+        emit debug("virtual bike not connected");
+        return;
+    }
 
     QByteArray value;
 
@@ -174,10 +179,16 @@ void virtualbike::bikeProvider()
     QLowEnergyCharacteristic characteristic
             = service->characteristic(QBluetoothUuid::CharacteristicType::CyclingPowerMeasurement);
     Q_ASSERT(characteristic.isValid());
-    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    if(leController->state() != QLowEnergyController::ConnectedState)
+    {
+        emit debug("virtual bike not connected");
+        return;
+    }
     try {
        service->writeCharacteristic(characteristic, value); // Potentially causes notification.
-    } catch (...) {}
+    } catch (...) {
+        emit debug("virtual bike error!");
+    }
 
     //characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -190,10 +201,16 @@ void virtualbike::bikeProvider()
     QLowEnergyCharacteristic characteristicHR
             = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
     Q_ASSERT(characteristicHR.isValid());
-    if(leController->state() != QLowEnergyController::ConnectedState) return;
+    if(leController->state() != QLowEnergyController::ConnectedState)
+    {
+        emit debug("virtual bike not connected");
+        return;
+    }
     try {
       serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
-    } catch (...) {}
+    } catch (...) {
+        emit debug("virtual bike error!");
+    }
 }
 
 bool virtualbike::connected()

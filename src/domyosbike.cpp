@@ -312,6 +312,7 @@ void domyosbike::stateChanged(QLowEnergyService::ServiceState state)
         {
            debug("creating virtual bike interface...");
            v = new virtualbike(this);
+           connect(v,virtualbike::debug ,this,&domyosbike::debug);
         }
         first = 1;
         // ********************************************************************************************************
