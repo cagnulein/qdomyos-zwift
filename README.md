@@ -51,10 +51,11 @@ Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-o
 
 ### Tested on
 
-Raspberry PI 0W and Domyos Intense Run
-MacBook Air 2011 and Domyos Intense Run
+- Raspberry PI 0W and Domyos Intense Run
 
-Raspberry 3b+ and Toorx TRX Route Key
+- MacBook Air 2011 and Domyos Intense Run
+
+- Raspberry 3b+ and Toorx TRX Route Key
 
 ### No gui version
 
