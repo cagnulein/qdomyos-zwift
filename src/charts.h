@@ -18,6 +18,19 @@ public:
     void update();
     ~charts();
 
+private slots:
+    void on_valueOnChart_stateChanged(int arg1);
+
+    void on_speed_clicked();
+
+    void on_Inclination_clicked();
+
+    void on_watt_clicked();
+
+    void on_resistance_clicked();
+
+    void on_heart_clicked();
+
 private:
     Ui::charts *ui;
     MainWindow* parent = 0;
