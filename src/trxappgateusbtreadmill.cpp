@@ -303,7 +303,7 @@ void trxappgateusbtreadmill::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"FFF0");
+    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0000fff0-0000-1000-8000-00805f9b34fb");
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
