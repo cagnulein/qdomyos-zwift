@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning
+QT += bluetooth widgets xml positioning charts
 
 CONFIG += c++11 console debug app_bundle
 
@@ -17,6 +17,7 @@ SOURCES += \
    bike.cpp \
         bluetooth.cpp \
    bluetoothdevice.cpp \
+   charts.cpp \
         domyostreadmill.cpp \
         gpx.cpp \
         main.cpp \
@@ -38,6 +39,7 @@ HEADERS += \
    bike.h \
    bluetooth.h \
    bluetoothdevice.h \
+   charts.h \
    domyostreadmill.h \
    toorxtreadmill.h \
    gpx.h \
@@ -50,6 +52,7 @@ HEADERS += \
     domyosbike.h
 
 FORMS += \
+   charts.ui \
    mainwindow.ui
 
 RESOURCES += \
