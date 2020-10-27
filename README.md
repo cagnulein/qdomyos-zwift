@@ -44,14 +44,18 @@ $ sudo ./qdomyos-zwift
 
 ### MacOs installation
 
+You will need to (at a minimum) to install the xcode Command Line Tools (CLI) thanks to @richardwait
+https://developer.apple.com/download/more/?=xcode
+
 Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-opensource-mac-x64-5.12.9.dmg and simply run the qdomyos-zwift relase for MacOs
 
 ### Tested on
 
-Raspberry PI 0W and Domyos Intense Run
-MacBook Air 2011 and Domyos Intense Run
+- Raspberry PI 0W and Domyos Intense Run
 
-Raspberry 3b+ and Toorx TRX Route Key
+- MacBook Air 2011 and Domyos Intense Run
+
+- Raspberry 3b+ and Toorx TRX Route Key
 
 ### No gui version
 
