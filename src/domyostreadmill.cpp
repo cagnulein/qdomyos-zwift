@@ -186,8 +186,10 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
+        QTime current = QTime::currentTime();
         if(currentSpeed() > 0.0 && !first)
-           elapsed += ((double)lastTime.msecsTo(QTime::currentTime()) / 1000.0);
+           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+        lastTime = current;
 
         // updating the treadmill console every second
         if(sec1++ == (1000 / refresh->interval()))
@@ -259,7 +261,6 @@ void domyostreadmill::update()
         elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
     }
 
-    lastTime = QTime::currentTime();
     first = false;
 }
 
