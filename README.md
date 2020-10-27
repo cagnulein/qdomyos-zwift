@@ -26,7 +26,7 @@ UI on MacOS
 
 $ sudo apt upgrade && sudo apt update # this is very important on raspberry pi: you need the bluetooth firmware updated!
 
-$ sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qpositioning5-dev
+$ sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qpositioning5-dev libqt5charts5-dev libqt5charts5
 
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 
