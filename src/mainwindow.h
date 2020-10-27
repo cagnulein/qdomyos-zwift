@@ -13,11 +13,27 @@ namespace Ui {
 class MainWindow;
 }
 
+class SessionLine
+{
+public:
+    double speed;
+    int8_t inclination;
+    double distance;
+    uint8_t watt;
+    int8_t resistance;
+    uint8_t heart;
+    QTime time;
+
+    SessionLine();
+    SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, QTime time = QTime::currentTime());
+};
+
 class MainWindow : public QDialog
 {
     Q_OBJECT
 
 public:
+    QList<SessionLine> Session;
     explicit MainWindow(bluetooth* t);
     explicit MainWindow(bluetooth* t, QString trainProgram);
     ~MainWindow();
@@ -33,7 +49,7 @@ private:
     Ui::MainWindow *ui;
     QTimer *timer;
 
-    bluetooth* bluetoothManager;
+    bluetooth* bluetoothManager;    
 
 private slots:
     void update();

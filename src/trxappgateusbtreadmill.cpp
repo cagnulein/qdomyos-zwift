@@ -29,11 +29,13 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len
 
 void trxappgateusbtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
 {
-
+    Q_UNUSED(requestSpeed);
+    Q_UNUSED(requestIncline);
 }
 
 bool trxappgateusbtreadmill::changeFanSpeed(uint8_t speed)
 {
+   Q_UNUSED(speed);
    return false;
 }
 
@@ -215,6 +217,8 @@ double trxappgateusbtreadmill::GetInclinationFromPacket(QByteArray packet)
 
 void trxappgateusbtreadmill::btinit(bool startTape)
 {
+    Q_UNUSED(startTape);
+
     const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
     const uint8_t initData2[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
     const uint8_t initData3[] = { 0xf0, 0xa0, 0x01, 0xd3, 0x64 };
@@ -270,6 +274,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         {
            debug("creating virtual treadmill interface...");
            v = new virtualtreadmill(this);
+           connect(v,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
         }
         first = 1;
         // ********************************************************************************************************

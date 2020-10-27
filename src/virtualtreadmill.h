@@ -24,7 +24,7 @@
 
 #include "treadmill.h"
 
-class virtualtreadmill: QObject
+class virtualtreadmill: public QObject
 {
     Q_OBJECT
 public:
@@ -40,6 +40,9 @@ private:
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;    
     treadmill* treadMill;
+
+signals:
+    void debug(QString string);
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

@@ -83,9 +83,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         discoveryAgent->stop();
         trxappgateusb = new trxappgateusbtreadmill();
         emit(deviceConnected());
-        connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
-        connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-        toorx->deviceDiscovered(device);
+        connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        trxappgateusb->deviceDiscovered(device);
     }
 }
 

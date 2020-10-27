@@ -24,7 +24,7 @@
 
 #include "bike.h"
 
-class virtualbike: QObject
+class virtualbike: public QObject
 {
     Q_OBJECT
 public:
@@ -42,6 +42,9 @@ private:
     QLowEnergyServiceData serviceDataFIT;
     QTimer bikeTimer;
     bike* Bike;
+
+signals:
+    void debug(QString string);
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
