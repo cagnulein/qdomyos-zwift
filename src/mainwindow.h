@@ -49,7 +49,7 @@ private:
     Ui::MainWindow *ui;
     QTimer *timer;
 
-    bluetooth* bluetoothManager;    
+    bluetooth* bluetoothManager;
 
 private slots:
     void update();
@@ -65,6 +65,12 @@ private slots:
     void on_fanSpeedPlus_clicked();
     void on_difficulty_valueChanged(int value);
     void trainProgramSignals();
+    void on_speedMinus_clicked();
+    void on_speedPlus_clicked();
+    void on_inclinationMinus_clicked();
+    void on_inclinationPlus_clicked();
+    void on_resistanceMinus_clicked();
+    void on_resistancePlus_clicked();
 };
 
 #endif // MAINWINDOW_H

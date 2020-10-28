@@ -10,8 +10,8 @@ void MainWindow::load(bluetooth* b)
 {
     ui->setupUi(this);
 
-     this->bluetoothManager = b;
-     connect(this->bluetoothManager, SIGNAL(deviceConnected()), this, SLOT(trainProgramSignals()));
+    this->bluetoothManager = b;
+    connect(this->bluetoothManager, SIGNAL(deviceConnected()), this, SLOT(trainProgramSignals()));
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &MainWindow::update);
     timer->start(1000);
@@ -452,3 +452,69 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
 }
 
 SessionLine::SessionLine() {}
+
+void MainWindow::on_speedMinus_clicked()
+{
+    if(bluetoothManager->device())
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            ((treadmill*)bluetoothManager->device())->changeSpeed(((treadmill*)bluetoothManager->device())->currentSpeed() - 0.5);
+        }
+    }
+}
+
+void MainWindow::on_speedPlus_clicked()
+{
+    if(bluetoothManager->device())
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            ((treadmill*)bluetoothManager->device())->changeSpeed(((treadmill*)bluetoothManager->device())->currentSpeed() + 0.5);
+        }
+    }
+}
+
+void MainWindow::on_inclinationMinus_clicked()
+{
+    if(bluetoothManager->device())
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            ((treadmill*)bluetoothManager->device())->changeInclination(((treadmill*)bluetoothManager->device())->currentInclination() - 0.5);
+        }
+    }
+}
+
+void MainWindow::on_inclinationPlus_clicked()
+{
+    if(bluetoothManager->device())
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            ((treadmill*)bluetoothManager->device())->changeInclination(((treadmill*)bluetoothManager->device())->currentInclination() + 0.5);
+        }
+    }
+}
+
+void MainWindow::on_resistanceMinus_clicked()
+{
+    if(bluetoothManager->device())
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+        {
+            ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance() - 1);
+        }
+    }
+}
+
+void MainWindow::on_resistancePlus_clicked()
+{
+    if(bluetoothManager->device())
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+        {
+            ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance() + 1);
+        }
+    }
+}
