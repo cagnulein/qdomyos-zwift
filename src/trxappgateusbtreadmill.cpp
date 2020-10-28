@@ -251,8 +251,8 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
             debug("characteristic " + c.uuid().toString());
         }
 
-        QBluetoothUuid _gattWriteCharacteristicId((QString)"FFF2");
-        QBluetoothUuid _gattNotifyCharacteristicId((QString)"FFF1");
+        QBluetoothUuid _gattWriteCharacteristicId((QString)"0000fff2-0000-1000-8000-00805f9b34fb");
+        QBluetoothUuid _gattNotifyCharacteristicId((QString)"0000fff1-0000-1000-8000-00805f9b34fb");
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
