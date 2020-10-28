@@ -246,7 +246,10 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
     if(state == QLowEnergyService::ServiceDiscovered)
     {
-        //qDebug() << gattCommunicationChannelService->characteristics();
+        foreach(QLowEnergyCharacteristic c,gattCommunicationChannelService->characteristics())
+        {
+            debug("characteristic " + c.uuid().toString());
+        }
 
         QBluetoothUuid _gattWriteCharacteristicId((QString)"FFF2");
         QBluetoothUuid _gattNotifyCharacteristicId((QString)"FFF1");
