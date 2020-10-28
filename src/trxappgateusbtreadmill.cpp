@@ -10,7 +10,7 @@ trxappgateusbtreadmill::trxappgateusbtreadmill()
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(500);
+    refresh->start(200);
 }
 
 void trxappgateusbtreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
