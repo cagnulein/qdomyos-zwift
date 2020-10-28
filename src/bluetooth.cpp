@@ -15,11 +15,13 @@ bluetooth::bluetooth(bool logs, QString deviceName) : QObject(nullptr)
         debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
     }
 
+#ifndef WIN32
     if(!QBluetoothLocalDevice::allDevices().count())
     {
         debug("no bluetooth dongle found!");
     }
     else
+#endif
     {
         // Create a discovery agent and connect to its signals
         discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
