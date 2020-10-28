@@ -189,21 +189,21 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
 double trxappgateusbtreadmill::GetSpeedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(15) << 8) | packet.at(16);
-    double data = (double)(convertedData - 1) / 10.0f;
+    uint16_t convertedData = ((packet.at(15) - 1) << 8) | (packet.at(16) - 1);
+    double data = (double)(convertedData) / 10.0f;
     return data;
 }
 
 double trxappgateusbtreadmill::GetKcalFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(8) << 8) | packet.at(9);
-    return (double)(convertedData - 1);
+    uint16_t convertedData = ((packet.at(8) - 1) << 8) | (packet.at(9) - 1);
+    return (double)(convertedData);
 }
 
 double trxappgateusbtreadmill::GetDistanceFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
-    double data = ((double)(convertedData - 1)) / 10.0f;
+    uint16_t convertedData = ((packet.at(6) - 1) << 8) | (packet.at(7) - 1);
+    double data = ((double)(convertedData)) / 10.0f;
     return data;
 }
 
