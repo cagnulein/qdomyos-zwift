@@ -13,5 +13,7 @@
         <file>icons/weight.png</file>
         <file>icons/start.png</file>
         <file>icons/stop.png</file>
+        <file>icons/cadence.png</file>
+        <file>icons/resistance.png</file>
     </qresource>
 </RCC>

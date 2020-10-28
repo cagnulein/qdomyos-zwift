@@ -43,28 +43,35 @@ void MainWindow::update()
         double resistance = 0;
         double watts = 0;
 
-          ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed()));
-          ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart()));
-          ui->odometer->setText(QString::number(bluetoothManager->device()->odometer()));
-          ui->calories->setText(QString::number(bluetoothManager->device()->calories()));
-          ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
+        ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed()));
+        ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart()));
+        ui->odometer->setText(QString::number(bluetoothManager->device()->odometer()));
+        ui->calories->setText(QString::number(bluetoothManager->device()->calories()));
+        ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
 
-          if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
-          {
-              watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
-              inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
-              ui->watt->setText(QString::number(watts));
-              ui->inclination->setText(QString::number(inclination));
-              ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain()));
-          }
-
-          if(trainProgram)
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
-               ui->trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
-                ui->trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
-                ui->trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
+            watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
+            inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
+            ui->watt->setText(QString::number(watts));
+            ui->inclination->setText(QString::number(inclination));
+            ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain()));
+        }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+        {
+            resistance = ((bike*)bluetoothManager->device())->currentResistance();
+            watts = ((bike*)bluetoothManager->device())->watts();
+            ui->watt->setText(QString::number(watts));
+            ui->resistance->setText(QString::number(resistance));
+        }
 
-                double distance = trainProgram->totalDistance();
+        if(trainProgram)
+        {
+            ui->trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+            ui->trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+            ui->trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
+
+            double distance = trainProgram->totalDistance();
             if(distance > 0)
             {
                 ui->trainProgramTotalDistance->setText(QString::number(distance));
@@ -73,7 +80,7 @@ void MainWindow::update()
                 ui->trainProgramTotalDistance->setText("N/A");
         }
 
-          if(bluetoothManager->device()->connected())
+        if(bluetoothManager->device()->connected())
         {
             ui->connectionToTreadmill->setEnabled(true);
                 if(bluetoothManager->device()->VirtualDevice())
