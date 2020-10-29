@@ -48,85 +48,52 @@ charts::charts(MainWindow *parent) :
 
 void charts::update()
 {
-    for(int i=0; i<parent->Session.length(); i++)
+    if(chart->series().count())
     {
-        if(chart->series().count())
-        {
-            if(ui->speed->isChecked())
-                chart->removeSeries(chart_series_speed);
-            if(ui->inclination->isChecked())
-                chart->removeSeries(chart_series_inclination);
-            if(ui->heart->isChecked())
-                chart->removeSeries(chart_series_heart);
-            if(ui->watt->isChecked())
-                chart->removeSeries(chart_series_watt);
-            if(ui->resistance->isChecked())
-                chart->removeSeries(chart_series_resistance);
-        }
-        chart_series_inclination->clear();
-        chart_series_speed->clear();        
-        chart_series_heart->clear();
-        chart_series_watt->clear();
-        chart_series_resistance->clear();
-        const int maxQueue = 100;
-
-        if(ui->inclination->isChecked())
-        {
-            for(int g=0; g<(parent->Session.count() > maxQueue ? maxQueue : parent->Session.count()); g++)
-            {
-                int index = g + (parent->Session.count() > maxQueue ? parent->Session.count() % maxQueue : 0);
-                chart_series_inclination->append(g, static_cast<double>(parent->Session[index].inclination));
-            }
-        }
-
         if(ui->speed->isChecked())
-        {
-            for(int g=0; g<(parent->Session.count() > maxQueue ? maxQueue : parent->Session.count()); g++)
-            {
-                int index = g + (parent->Session.count() > maxQueue ? parent->Session.count() % maxQueue : 0);
-                chart_series_speed->append(g, static_cast<qreal>(parent->Session[index].speed));
-            }
-        }
-
-        if(ui->heart->isChecked())
-        {
-            for(int g=0; g<(parent->Session.count() > maxQueue ? maxQueue : parent->Session.count()); g++)
-            {
-                int index = g + (parent->Session.count() > maxQueue ? parent->Session.count() % maxQueue : 0);
-                chart_series_heart->append(g, static_cast<qreal>(parent->Session[index].heart));
-            }
-        }
-
-        if(ui->watt->isChecked())
-        {
-            for(int g=0; g<(parent->Session.count() > maxQueue ? maxQueue : parent->Session.count()); g++)
-            {
-                int index = g + (parent->Session.count() > maxQueue ? parent->Session.count() % maxQueue : 0);
-                chart_series_watt->append(g, static_cast<qreal>(parent->Session[index].watt));
-            }
-        }
-
-        if(ui->resistance->isChecked())
-        {
-            for(int g=0; g<(parent->Session.count() > maxQueue ? maxQueue : parent->Session.count()); g++)
-            {
-                int index = g + (parent->Session.count() > maxQueue ? parent->Session.count() % maxQueue : 0);
-                chart_series_resistance->append(g, static_cast<qreal>(parent->Session[index].resistance));
-            }
-        }
-
+            chart->removeSeries(chart_series_speed);
         if(ui->inclination->isChecked())
-            chart->addSeries(chart_series_inclination);
-        if(ui->speed->isChecked())
-            chart->addSeries(chart_series_speed);
+            chart->removeSeries(chart_series_inclination);
         if(ui->heart->isChecked())
-            chart->addSeries(chart_series_heart);
+            chart->removeSeries(chart_series_heart);
         if(ui->watt->isChecked())
-            chart->addSeries(chart_series_watt);
+            chart->removeSeries(chart_series_watt);
         if(ui->resistance->isChecked())
-            chart->addSeries(chart_series_resistance);
-        chart->createDefaultAxes();
+            chart->removeSeries(chart_series_resistance);
     }
+    chart_series_inclination->clear();
+    chart_series_speed->clear();
+    chart_series_heart->clear();
+    chart_series_watt->clear();
+    chart_series_resistance->clear();
+    const int maxQueue = 100;
+
+    for(int g=0; g<(parent->Session.count() > maxQueue ? maxQueue : parent->Session.count()); g++)
+    {
+        int index = g + (parent->Session.count() > maxQueue ? parent->Session.count() % maxQueue : 0);
+        if(ui->inclination->isChecked())
+            chart_series_inclination->append(g, static_cast<double>(parent->Session[index].inclination));
+        if(ui->speed->isChecked())
+            chart_series_speed->append(g, static_cast<qreal>(parent->Session[index].speed));
+        if(ui->heart->isChecked())
+            chart_series_heart->append(g, static_cast<qreal>(parent->Session[index].heart));
+        if(ui->watt->isChecked())
+            chart_series_watt->append(g, static_cast<qreal>(parent->Session[index].watt));
+        if(ui->resistance->isChecked())
+            chart_series_resistance->append(g, static_cast<qreal>(parent->Session[index].resistance));
+    }
+
+    if(ui->inclination->isChecked())
+        chart->addSeries(chart_series_inclination);
+    if(ui->speed->isChecked())
+        chart->addSeries(chart_series_speed);
+    if(ui->heart->isChecked())
+        chart->addSeries(chart_series_heart);
+    if(ui->watt->isChecked())
+        chart->addSeries(chart_series_watt);
+    if(ui->resistance->isChecked())
+        chart->addSeries(chart_series_resistance);
+    chart->createDefaultAxes();
 }
 
 charts::~charts()
