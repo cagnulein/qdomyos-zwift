@@ -56,7 +56,7 @@ virtualbike::virtualbike(bike* t)
     //! [Service Data]
 
     //! [Fitness Service Data]
-    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypeSecondary);
+    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
     QLowEnergyCharacteristicData charDataFIT;
     charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); //FitnessMachineFeatureCharacteristicUuid
     QByteArray valueFIT;
@@ -101,7 +101,7 @@ virtualbike::virtualbike(bike* t)
                                             QByteArray(2, 0));
     charDataHR.addDescriptor(clientConfigHR);
 
-    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypeSecondary);
+    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
     serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
     serviceDataHR.addCharacteristic(charDataHR);
 
