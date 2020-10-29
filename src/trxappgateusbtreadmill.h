@@ -43,6 +43,7 @@ private:
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);
+    uint16_t GetElapsedFromPacket(QByteArray packet);
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);

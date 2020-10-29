@@ -173,6 +173,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     debug("Current heart: " + QString::number(Heart));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
+    debug("Current Elapsed from the treadmill (not used): " + QString::number(GetElapsedFromPacket(newValue)));
     debug("Current Distance Calculated: " + QString::number(DistanceCalculated));
 
     if(m_control->error() != QLowEnergyController::NoError)
@@ -185,6 +186,13 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     lastTime = QTime::currentTime();
     first = false;
+}
+
+uint16_t trxappgateusbtreadmill::GetElapsedFromPacket(QByteArray packet)
+{
+    uint16_t convertedData = (packet.at(4) - 1);
+    convertedData += ((packet.at(5) - 1) * 60);
+    return convertedData;
 }
 
 double trxappgateusbtreadmill::GetSpeedFromPacket(QByteArray packet)
