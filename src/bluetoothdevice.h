@@ -10,6 +10,7 @@ public:
     bluetoothdevice();
     virtual unsigned char currentHeart();
     virtual double currentSpeed();
+    virtual QTime currentPace();
     virtual double odometer();
     virtual double calories();
     virtual uint8_t fanSpeed();

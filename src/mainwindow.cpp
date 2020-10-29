@@ -42,6 +42,7 @@ void MainWindow::update()
         double inclination = 0;
         double resistance = 0;
         double watts = 0;
+        double pace = 0;
 
         ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed()));
         ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart()));
@@ -51,8 +52,10 @@ void MainWindow::update()
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
+            pace = ((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60);
             watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
+            ui->pace->setText(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
             ui->watt->setText(QString::number(watts));
             ui->inclination->setText(QString::number(inclination));
             ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain()));
