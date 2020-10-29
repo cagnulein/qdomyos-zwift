@@ -105,7 +105,8 @@ void MainWindow::update()
                       bluetoothManager->device()->odometer(),
                       watts,
                       resistance,
-                      bluetoothManager->device()->currentHeart());
+                      bluetoothManager->device()->currentHeart(),
+                      pace);
 
         Session.append(s);
 
@@ -443,7 +444,7 @@ void MainWindow::on_difficulty_valueChanged(int value)
     ui->difficulty->setToolTip(QString::number(value) + "%");
 }
 
-SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, QTime time)
+SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, double pace, QTime time)
 {
     this->speed = speed;
     this->inclination = inclination;
@@ -451,6 +452,7 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
     this->watt = watt;
     this->resistance = resistance;
     this->heart = heart;
+    this->pace = pace;
     this->time = time;
 }
 

@@ -13,6 +13,7 @@ charts::charts(MainWindow *parent) :
     ui->widget->setVisible(false);
 
     chart_series_speed = new QtCharts::QLineSeries();
+    chart_series_pace = new QtCharts::QLineSeries();
     chart_series_inclination = new QtCharts::QLineSeries();
     chart_series_heart = new QtCharts::QLineSeries();
     chart_series_watt = new QtCharts::QLineSeries();
@@ -21,6 +22,9 @@ charts::charts(MainWindow *parent) :
     chart_series_speed->setPointLabelsVisible(false);    // is false by default
     chart_series_speed->setPointLabelsColor(Qt::black);
     chart_series_speed->setPointLabelsFormat("@yPoint km/h");
+    chart_series_pace->setPointLabelsVisible(false);    // is false by default
+    chart_series_pace->setPointLabelsColor(Qt::black);
+    chart_series_pace->setPointLabelsFormat("@yPoint min/km");
     chart_series_inclination->setPointLabelsVisible(false);    // is false by default
     chart_series_inclination->setPointLabelsColor(Qt::black);
     chart_series_inclination->setPointLabelsFormat("@yPoint%");
@@ -34,6 +38,7 @@ charts::charts(MainWindow *parent) :
     chart_series_resistance->setPointLabelsColor(Qt::black);
     chart_series_resistance->setPointLabelsFormat("@yPoint lvl");
     chart_series_speed->setName("Speed (km/h)");
+    chart_series_pace->setName("Pace (min/km)");
     chart_series_inclination->setName("Inclination (%)");
     chart_series_heart->setName("Heart (bpm)");
     chart_series_watt->setName("Watt (W)");
@@ -52,6 +57,8 @@ void charts::update()
     {
         if(ui->speed->isChecked())
             chart->removeSeries(chart_series_speed);
+        if(ui->pace->isChecked())
+            chart->removeSeries(chart_series_pace);
         if(ui->inclination->isChecked())
             chart->removeSeries(chart_series_inclination);
         if(ui->heart->isChecked())
@@ -63,6 +70,7 @@ void charts::update()
     }
     chart_series_inclination->clear();
     chart_series_speed->clear();
+    chart_series_pace->clear();
     chart_series_heart->clear();
     chart_series_watt->clear();
     chart_series_resistance->clear();
@@ -75,6 +83,8 @@ void charts::update()
             chart_series_inclination->append(g, static_cast<double>(parent->Session[index].inclination));
         if(ui->speed->isChecked())
             chart_series_speed->append(g, static_cast<qreal>(parent->Session[index].speed));
+        if(ui->pace->isChecked())
+            chart_series_pace->append(g, static_cast<qreal>(parent->Session[index].pace));
         if(ui->heart->isChecked())
             chart_series_heart->append(g, static_cast<qreal>(parent->Session[index].heart));
         if(ui->watt->isChecked())
@@ -87,6 +97,8 @@ void charts::update()
         chart->addSeries(chart_series_inclination);
     if(ui->speed->isChecked())
         chart->addSeries(chart_series_speed);
+    if(ui->pace->isChecked())
+        chart->addSeries(chart_series_pace);
     if(ui->heart->isChecked())
         chart->addSeries(chart_series_heart);
     if(ui->watt->isChecked())
@@ -108,6 +120,7 @@ void charts::on_valueOnChart_stateChanged(int arg1)
     if(ui->valueOnChart->checkState() == Qt::Checked)
     {
         chart_series_speed->setPointLabelsVisible(true);
+        chart_series_pace->setPointLabelsVisible(true);
         chart_series_inclination->setPointLabelsVisible(true);    // is false by default
         chart_series_heart->setPointLabelsVisible(true);    // is false by default
         chart_series_watt->setPointLabelsVisible(true);    // is false by default
@@ -116,6 +129,7 @@ void charts::on_valueOnChart_stateChanged(int arg1)
     else
     {
         chart_series_speed->setPointLabelsVisible(false);
+        chart_series_pace->setPointLabelsVisible(false);
         chart_series_inclination->setPointLabelsVisible(false);    // is false by default
         chart_series_heart->setPointLabelsVisible(false);    // is false by default
         chart_series_watt->setPointLabelsVisible(false);    // is false by default

@@ -42,6 +42,7 @@ private:
     QtCharts::QLineSeries* chart_series_heart = 0;
     QtCharts::QLineSeries* chart_series_watt = 0;
     QtCharts::QLineSeries* chart_series_resistance = 0;
+    QtCharts::QLineSeries* chart_series_pace = 0;
 };
 
 #endif // CHARTS_H
