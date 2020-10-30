@@ -98,7 +98,7 @@ void MainWindow::update()
         }
         else
             ui->connectionToTreadmill->setEnabled(false);
-/*
+
         SessionLine s(
                       bluetoothManager->device()->currentSpeed(),
                       inclination,
@@ -116,7 +116,6 @@ void MainWindow::update()
             Charts->show();
         }
         Charts->update();
-*/
     }
     else
     {
