@@ -306,13 +306,11 @@ void domyosbike::stateChanged(QLowEnergyService::ServiceState state)
 
         // ******************************************* virtual bike init *************************************
         static uint8_t first = 0;
-        static virtualbike* v;
-        Q_UNUSED(v);
         if(!first)
         {
            debug("creating virtual bike interface...");
-           v = new virtualbike(this);
-           connect(v,&virtualbike::debug ,this,&domyosbike::debug);
+           virtualBike = new virtualbike(this);
+           connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
         }
         first = 1;
         // ********************************************************************************************************
@@ -408,4 +406,9 @@ bool domyosbike::connected()
 void* domyosbike::VirtualBike()
 {
     return virtualBike;
+}
+
+void* domyosbike::VirtualDevice()
+{
+    return VirtualBike();
 }

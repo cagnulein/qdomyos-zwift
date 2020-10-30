@@ -426,13 +426,11 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
         // ******************************************* virtual treadmill init *************************************
         static uint8_t first = 0;
-        static virtualtreadmill* v;
-        Q_UNUSED(v);
         if(!first)
         {
            debug("creating virtual treadmill interface...");
-           v = new virtualtreadmill(this);
-           connect(v,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
+           virtualTreadMill = new virtualtreadmill(this);
+           connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
         }
         first = 1;
         // ********************************************************************************************************
@@ -526,6 +524,11 @@ bool domyostreadmill::connected()
 void* domyostreadmill::VirtualTreadMill()
 {
     return virtualTreadMill;
+}
+
+void* domyostreadmill::VirtualDevice()
+{
+    return VirtualTreadMill();
 }
 
 double domyostreadmill::odometer()

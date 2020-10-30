@@ -36,6 +36,7 @@ public:
     bool connected();
 
     void* VirtualBike();
+    void* VirtualDevice();
 
 private:
     double GetSpeedFromPacket(QByteArray packet);

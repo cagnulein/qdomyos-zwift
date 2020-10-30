@@ -279,13 +279,11 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
         // ******************************************* virtual treadmill init *************************************
         static uint8_t first = 0;
-        static virtualtreadmill* v;
-        Q_UNUSED(v);
         if(!first)
         {
            debug("creating virtual treadmill interface...");
-           v = new virtualtreadmill(this);
-           connect(v,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
+           virtualTreadMill = new virtualtreadmill(this);
+           connect(virtualTreadMill,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
         }
         first = 1;
         // ********************************************************************************************************
@@ -380,6 +378,11 @@ bool trxappgateusbtreadmill::connected()
 void* trxappgateusbtreadmill::VirtualTreadMill()
 {
     return virtualTreadMill;
+}
+
+void* trxappgateusbtreadmill::VirtualDevice()
+{
+    return VirtualTreadMill();
 }
 
 double trxappgateusbtreadmill::odometer()

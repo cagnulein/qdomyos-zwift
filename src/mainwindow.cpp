@@ -87,10 +87,18 @@ void MainWindow::update()
         if(bluetoothManager->device()->connected())
         {
             ui->connectionToTreadmill->setEnabled(true);
-                if(bluetoothManager->device()->VirtualDevice())
+            if(bluetoothManager->device()->VirtualDevice())
             {
-                     if(((bluetoothdevice*)bluetoothManager->device()->VirtualDevice())->connected())
+                if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+                        ((treadmill*)bluetoothManager->device())->connected())
+                {
                     ui->connectionToZwift->setEnabled(true);
+                }
+                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
+                        ((bike*)bluetoothManager->device())->connected())
+                {
+                    ui->connectionToZwift->setEnabled(true);
+                }
                 else
                     ui->connectionToZwift->setEnabled(false);
             }

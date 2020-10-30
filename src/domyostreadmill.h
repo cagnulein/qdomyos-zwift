@@ -37,6 +37,7 @@ public:
     double odometer();
 
     void* VirtualTreadMill();
+    void* VirtualDevice();
 
 private:
     double GetSpeedFromPacket(QByteArray packet);
