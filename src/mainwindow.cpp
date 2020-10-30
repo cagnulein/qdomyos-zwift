@@ -44,10 +44,10 @@ void MainWindow::update()
         double watts = 0;
         double pace = 0;
 
-        ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed()));
+        ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed(), 'f', 2));
         ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart()));
-        ui->odometer->setText(QString::number(bluetoothManager->device()->odometer()));
-        ui->calories->setText(QString::number(bluetoothManager->device()->calories()));
+        ui->odometer->setText(QString::number(bluetoothManager->device()->odometer(), 'f', 2));
+        ui->calories->setText(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
@@ -56,9 +56,9 @@ void MainWindow::update()
             watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
             ui->pace->setText(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
-            ui->watt->setText(QString::number(watts));
-            ui->inclination->setText(QString::number(inclination));
-            ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain()));
+            ui->watt->setText(QString::number(watts, 'f', 0));
+            ui->inclination->setText(QString::number(inclination, 'f', 1));
+            ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
