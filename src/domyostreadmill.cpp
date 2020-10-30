@@ -89,16 +89,24 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
    display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-   //if(odometer() < 10.0)
+   if(odometer() < 10.0)
    {
       display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
       display[8] = (uint8_t)(odometer() * 100) & 0xFF;
+      display[9] = 0x02; // decimal position
    }
-   /*else
+   else if(odometer() < 100.0)
    {
       display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
       display[8] = (uint8_t)(odometer() * 10) & 0xFF;
-   }*/
+      display[9] = 0x01; // decimal position
+   }
+   else
+   {
+      display[7] = ((uint8_t)(odometer()) >> 8) & 0xFF;
+      display[8] = (uint8_t)(odometer()) & 0xFF;
+      display[9] = 0x00; // decimal position
+   }
 
    display[12] = currentHeart();
 
