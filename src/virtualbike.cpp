@@ -1,9 +1,10 @@
 #include "virtualbike.h"
 #include <QtMath>
 
-virtualbike::virtualbike(bike* t)
+virtualbike::virtualbike(bike* t, bool noWriteResistance)
 {
     Bike = t;
+    this->noWriteResistance = noWriteResistance;
 
     //! [Advertising Data]    
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -12,7 +13,8 @@ virtualbike::virtualbike(bike* t)
     QList<QBluetoothUuid> services;
     services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);    
     services << QBluetoothUuid::HeartRate;
-    services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
+    if(!noWriteResistance)
+        services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     advertisingData.setServices(services);
     //! [Advertising Data]
 
@@ -56,41 +58,44 @@ virtualbike::virtualbike(bike* t)
     //! [Service Data]
 
     //! [Fitness Service Data]
-    serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    QLowEnergyCharacteristicData charDataFIT;
-    charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); //FitnessMachineFeatureCharacteristicUuid
-    QByteArray valueFIT;
-    valueFIT.append((char)0x80); // resistance level supported
-    valueFIT.append((char)0x14); // heart rate and elapsed time
-    valueFIT.append((char)0x00);
-    valueFIT.append((char)0x00);
-    valueFIT.append((char)0x00);
-    valueFIT.append((char)0x00);
-    valueFIT.append((char)0x00);
-    valueFIT.append((char)0x00);
-    charDataFIT.setValue(valueFIT);
-    charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
+    if(noWriteResistance == false)
+    {
+        serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        QLowEnergyCharacteristicData charDataFIT;
+        charDataFIT.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); //FitnessMachineFeatureCharacteristicUuid
+        QByteArray valueFIT;
+        valueFIT.append((char)0x80); // resistance level supported
+        valueFIT.append((char)0x14); // heart rate and elapsed time
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        charDataFIT.setValue(valueFIT);
+        charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
 
-    QLowEnergyCharacteristicData charDataFIT2;
-    charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2AD6); //supported_resistance_level_rangeCharacteristicUuid
-    charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
-    QByteArray valueFIT2;
-    valueFIT2.append((char)0x0A);  // min resistance value
-    valueFIT2.append((char)0x00);  // min resistance value
-    valueFIT2.append((char)0x96);  // max resistance value
-    valueFIT2.append((char)0x00);  // max resistance value
-    valueFIT2.append((char)0x0A);  // step resistance
-    valueFIT2.append((char)0x00);  // step resistance
-    charDataFIT2.setValue(valueFIT2);
+        QLowEnergyCharacteristicData charDataFIT2;
+        charDataFIT2.setUuid((QBluetoothUuid::CharacteristicType)0x2AD6); //supported_resistance_level_rangeCharacteristicUuid
+        charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+        QByteArray valueFIT2;
+        valueFIT2.append((char)0x0A);  // min resistance value
+        valueFIT2.append((char)0x00);  // min resistance value
+        valueFIT2.append((char)0x96);  // max resistance value
+        valueFIT2.append((char)0x00);  // max resistance value
+        valueFIT2.append((char)0x0A);  // step resistance
+        valueFIT2.append((char)0x00);  // step resistance
+        charDataFIT2.setValue(valueFIT2);
 
-    QLowEnergyCharacteristicData charDataFIT3;
-    charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
-    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write);
+        QLowEnergyCharacteristicData charDataFIT3;
+        charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
+        charDataFIT3.setProperties(QLowEnergyCharacteristic::Write);
 
-    serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
-    serviceDataFIT.addCharacteristic(charDataFIT);
-    serviceDataFIT.addCharacteristic(charDataFIT2);
-    serviceDataFIT.addCharacteristic(charDataFIT3);
+        serviceDataFIT.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
+        serviceDataFIT.addCharacteristic(charDataFIT);
+        serviceDataFIT.addCharacteristic(charDataFIT2);
+        serviceDataFIT.addCharacteristic(charDataFIT3);
+    }
     //! [Service Data]
 
     QLowEnergyCharacteristicData charDataHR;
@@ -110,10 +115,12 @@ virtualbike::virtualbike(bike* t)
     Q_ASSERT(leController);
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
-    serviceFIT = leController->addService(serviceDataFIT);
+    if(!noWriteResistance)
+        serviceFIT = leController->addService(serviceDataFIT);
 
     QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
-    QObject::connect(serviceFIT, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
+    if(!noWriteResistance)
+        QObject::connect(serviceFIT, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
@@ -151,7 +158,9 @@ void virtualbike::reconnect()
     emit debug("virtualbike::reconnect");
     service = leController->addService(serviceData);
     serviceHR = leController->addService(serviceDataHR);
-    serviceFIT = leController->addService(serviceDataFIT);
+    if(!noWriteResistance)
+        serviceFIT = leController->addService(serviceDataFIT);
+
     if (service)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                        advertisingData, advertisingData);

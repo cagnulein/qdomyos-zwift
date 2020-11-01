@@ -28,7 +28,7 @@ class virtualbike: public QObject
 {
     Q_OBJECT
 public:
-    virtualbike(bike* t);
+    virtualbike(bike* t, bool noWriteResistance = false);
     bool connected();
 
 private:
@@ -42,6 +42,7 @@ private:
     QLowEnergyServiceData serviceDataFIT;
     QTimer bikeTimer;
     bike* Bike;
+    bool noWriteResistance = false;
 
 signals:
     void debug(QString string);

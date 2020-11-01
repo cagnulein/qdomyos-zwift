@@ -5,9 +5,10 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
-domyosbike::domyosbike()
+domyosbike::domyosbike(bool noWriteResistance)
 {
     refresh = new QTimer(this);
+    this->noWriteResistance = noWriteResistance;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -309,7 +310,7 @@ void domyosbike::stateChanged(QLowEnergyService::ServiceState state)
         if(!first)
         {
            debug("creating virtual bike interface...");
-           virtualBike = new virtualbike(this);
+           virtualBike = new virtualbike(this, noWriteResistance);
            connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
         }
         first = 1;

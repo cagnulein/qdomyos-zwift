@@ -6,6 +6,7 @@
 #include "mainwindow.h"
 
 bool nologs = false;
+bool noWriteResistance = false;
 QString trainProgram;
 QString deviceName = "";
 
@@ -18,6 +19,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             nogui = true;
         if (!qstrcmp(argv[i], "-no-log"))
             nologs = true;
+        if (!qstrcmp(argv[i], "-no-write-resistance"))
+            noWriteResistance = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -74,7 +77,7 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 
     //virtualtreadmill* V = new virtualtreadmill();
-    bluetooth* bl = new bluetooth(!nologs, deviceName);
+    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance);
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
