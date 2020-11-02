@@ -95,13 +95,25 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 void bluetooth::restart()
 {
     if(domyos)
+    {
         delete domyos;
+        domyos = 0;
+    }
     if(domyosBike)
+    {
         delete domyosBike;
+        domyosBike = 0;
+    }
     if(toorx)
+    {
         delete toorx;
+        toorx = 0;
+    }
     if(trxappgateusb)
+    {
         delete trxappgateusb;
+        trxappgateusb = 0;
+    }
     discoveryAgent->start();
 }
 
