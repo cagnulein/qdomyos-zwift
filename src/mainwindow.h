@@ -72,6 +72,7 @@ private slots:
     void on_inclinationPlus_clicked();
     void on_resistanceMinus_clicked();
     void on_resistancePlus_clicked();
+    void on_chart_clicked();
 };
 
 #endif // MAINWINDOW_H

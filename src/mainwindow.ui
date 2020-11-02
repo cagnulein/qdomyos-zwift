@@ -74,6 +74,27 @@
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QPushButton" name="chart">
+          <property name="text">
+           <string>Chart</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normalon>:/icons/icons/chart.png</normalon>
+           </iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>48</width>
+            <height>48</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

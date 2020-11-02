@@ -119,12 +119,15 @@ void MainWindow::update()
 
         Session.append(s);
 
-        if(!Charts)
+        if(ui->chart->isChecked())
         {
-            Charts = new charts(this);
-            Charts->show();
+            if(!Charts)
+            {
+                Charts = new charts(this);
+                Charts->show();
+            }
+            Charts->update();
         }
-        Charts->update();
     }
     else
     {
@@ -530,4 +533,9 @@ void MainWindow::on_resistancePlus_clicked()
             ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance() + 1);
         }
     }
+}
+
+void MainWindow::on_chart_clicked()
+{
+
 }
