@@ -36,7 +36,7 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance) : QO
 
 void bluetooth::debug(QString text)
 {
-    QString debug = QDateTime::currentDateTime().toString() + text + '\n';
+    QString debug = QDateTime::currentDateTime().toString() + " " + text + '\n';
     if(debugCommsLog)
     {
         debugCommsLog->write(debug.toLocal8Bit());

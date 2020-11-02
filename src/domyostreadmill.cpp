@@ -290,14 +290,17 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     static QTime lastTime;
     static bool first = true;
 
-    debug(" << " + newValue.toHex(' '));
+    debug(" << " + QString::number(newValue.length()) + " " + newValue.toHex(' '));
 
     if (lastPacket.length() && lastPacket == newValue)
         return;
 
     lastPacket = newValue;
     if (newValue.length() != 26)
+    {
+        debug("packet ignored");
         return;
+    }
 
     if (newValue.at(22) == 0x06)
     {
