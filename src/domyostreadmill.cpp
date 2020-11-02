@@ -180,7 +180,12 @@ void domyostreadmill::update()
     static uint8_t sec1 = 0;
     static QTime lastTime;
     static bool first = true;
-    //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
+
+    if(m_control->state() == QLowEnergyController::UnconnectedState)
+    {
+        emit disconnected();
+        return;
+    }
 
     if(initRequest)
     {
@@ -404,7 +409,6 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
-
     if(state == QLowEnergyService::ServiceDiscovered)
     {
 	    //qDebug() << gattCommunicationChannelService->characteristics();
@@ -474,6 +478,7 @@ void domyostreadmill::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("domyostreadmill::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    m_control->disconnect();
 }
 
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
