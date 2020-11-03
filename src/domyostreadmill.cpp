@@ -205,70 +205,76 @@ void domyostreadmill::update()
         lastTime = current;
 
         // updating the treadmill console every second
-        if(sec1++ == (1000 / refresh->interval()))
+        if(sec1++ >= (1000 / refresh->interval()))
         {
-            sec1 = 0;
-            updateDisplay(elapsed);
+            if(incompletePackets == false)
+            {
+                sec1 = 0;
+                updateDisplay(elapsed);
+            }
         }
 
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
-        if(requestSpeed != -1)
+        if(incompletePackets == false)
         {
-           if(requestSpeed != currentSpeed())
-           {
-              debug("writing speed " + QString::number(requestSpeed));
-              double inc = Inclination;
-              if(requestInclination != -1)
-              {
-                  inc = requestInclination;
-                  requestInclination = -1;
-              }
-              forceSpeedOrIncline(requestSpeed, inc);
-           }
-           requestSpeed = -1;
-        }
-        if(requestInclination != -1)
-        {
-           if(requestInclination != currentInclination())
-           {              
-              debug("writing incline " + QString::number(requestInclination));
-              double speed = currentSpeed();
-              if(requestSpeed != -1)
-              {
-                  speed = requestSpeed;
-                  requestSpeed = -1;
-              }
-              forceSpeedOrIncline(speed, requestInclination);
-           }
-           requestInclination = -1;
-        }
-        if(requestStart != -1)
-        {
-           debug("starting...");
-           btinit(true);
-           requestStart = -1;
-           emit tapeStarted();
-        }
-        if(requestStop != -1)
-        {
-            debug("stopping...");
-            writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
-            requestStop = -1;
-        }
-        if(requestIncreaseFan != -1)
-        {
-            debug("increasing fan speed...");
-            changeFanSpeed(FanSpeed + 1);
-            requestIncreaseFan = -1;
-        }
-        else if(requestDecreaseFan != -1)
-        {
-            debug("decreasing fan speed...");
-            changeFanSpeed(FanSpeed - 1);
-            requestDecreaseFan = -1;
+            if(requestSpeed != -1)
+            {
+               if(requestSpeed != currentSpeed())
+               {
+                  debug("writing speed " + QString::number(requestSpeed));
+                  double inc = Inclination;
+                  if(requestInclination != -1)
+                  {
+                      inc = requestInclination;
+                      requestInclination = -1;
+                  }
+                  forceSpeedOrIncline(requestSpeed, inc);
+               }
+               requestSpeed = -1;
+            }
+            if(requestInclination != -1)
+            {
+               if(requestInclination != currentInclination())
+               {
+                  debug("writing incline " + QString::number(requestInclination));
+                  double speed = currentSpeed();
+                  if(requestSpeed != -1)
+                  {
+                      speed = requestSpeed;
+                      requestSpeed = -1;
+                  }
+                  forceSpeedOrIncline(speed, requestInclination);
+               }
+               requestInclination = -1;
+            }
+            if(requestStart != -1)
+            {
+               debug("starting...");
+               btinit(true);
+               requestStart = -1;
+               emit tapeStarted();
+            }
+            if(requestStop != -1)
+            {
+                debug("stopping...");
+                writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                requestStop = -1;
+            }
+            if(requestIncreaseFan != -1)
+            {
+                debug("increasing fan speed...");
+                changeFanSpeed(FanSpeed + 1);
+                requestIncreaseFan = -1;
+            }
+            else if(requestDecreaseFan != -1)
+            {
+                debug("decreasing fan speed...");
+                changeFanSpeed(FanSpeed - 1);
+                requestDecreaseFan = -1;
+            }
         }
 
         elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
@@ -302,6 +308,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     // on some treadmills, the 26bytes has splitted in 2 packets
     if(lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6)
     {
+        incompletePackets = false;
+        debug("...final bytes received");
         lastPacket.append(value);
         value = lastPacket;
     }
@@ -310,6 +318,13 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     if (value.length() != 26)
     {
+        // semaphore for any writing packets (for example, update display)
+        if(value.length() == 20 && value.startsWith(startBytes))
+        {
+            debug("waiting for other bytes...");
+            incompletePackets = true;
+        }
+
         debug("packet ignored");
         return;
     }
@@ -486,13 +501,13 @@ void domyostreadmill::serviceScanDone(void)
 void domyostreadmill::errorService(QLowEnergyService::ServiceError err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("domyostreadmill::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    debug("domyostreadmill::errorService " + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
 void domyostreadmill::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("domyostreadmill::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    debug("domyostreadmill::error " + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
     m_control->disconnect();
 }
 

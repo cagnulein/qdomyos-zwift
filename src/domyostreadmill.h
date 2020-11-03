@@ -50,6 +50,7 @@ private:
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void startDiscover();    
     double DistanceCalculated = 0;
+    volatile bool incompletePackets = false;
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;
