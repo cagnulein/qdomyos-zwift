@@ -289,50 +289,62 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Q_UNUSED(characteristic);
     static QTime lastTime;
     static bool first = true;
+    QByteArray value = newValue;
 
-    debug(" << " + QString::number(newValue.length()) + " " + newValue.toHex(' '));
+    debug(" << " + QString::number(value.length()) + " " + value.toHex(' '));
 
-    if (lastPacket.length() && lastPacket == newValue)
+    if (lastPacket.length() && lastPacket == value)
         return;
 
-    lastPacket = newValue;
-    if (newValue.length() != 26)
+    QByteArray startBytes;
+    startBytes.append(0xf0);
+    startBytes.append(0xbc);
+    // on some treadmills, the 26bytes has splitted in 2 packets
+    if(lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6)
+    {
+        lastPacket.append(value);
+        value = lastPacket;
+    }
+
+    lastPacket = value;
+
+    if (value.length() != 26)
     {
         debug("packet ignored");
         return;
     }
 
-    if (newValue.at(22) == 0x06)
+    if (value.at(22) == 0x06)
     {
         debug("start button pressed!");
         requestStart = 1;
     }
-    else if (newValue.at(22) == 0x07)
+    else if (value.at(22) == 0x07)
     {
         debug("stop button pressed!");
         requestStop = 1;
     }
-    else if (newValue.at(22) == 0x0b)
+    else if (value.at(22) == 0x0b)
     {
         debug("increase speed fan pressed!");
         requestIncreaseFan = 1;
     }
-    else if (newValue.at(22) == 0x0a)
+    else if (value.at(22) == 0x0a)
     {
         debug("decrease speed fan pressed!");
         requestDecreaseFan = 1;
     }
 
-    /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
+    /*if ((uint8_t)value.at(1) != 0xbc && value.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;*/
 
-    double speed = GetSpeedFromPacket(newValue);
-    double incline = GetInclinationFromPacket(newValue);
-    double kcal = GetKcalFromPacket(newValue);
-    double distance = GetDistanceFromPacket(newValue);
+    double speed = GetSpeedFromPacket(value);
+    double incline = GetInclinationFromPacket(value);
+    double kcal = GetKcalFromPacket(value);
+    double distance = GetDistanceFromPacket(value);
 
-    Heart = newValue.at(18);
-    FanSpeed = newValue.at(23);
+    Heart = value.at(18);
+    FanSpeed = value.at(23);
 
     if(!first)
         DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTime.msecsTo(QTime::currentTime()))));
