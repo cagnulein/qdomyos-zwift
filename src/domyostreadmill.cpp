@@ -305,8 +305,14 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     QByteArray startBytes;
     startBytes.append(0xf0);
     startBytes.append(0xbc);
+
+    QByteArray startBytes2;
+    startBytes2.append(0xf0);
+    startBytes2.append(0xdb);
+
     // on some treadmills, the 26bytes has splitted in 2 packets
-    if(lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6)
+    if((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
+       (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7))
     {
         incompletePackets = false;
         debug("...final bytes received");
@@ -319,7 +325,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (value.length() != 26)
     {
         // semaphore for any writing packets (for example, update display)
-        if(value.length() == 20 && value.startsWith(startBytes))
+        if(value.length() == 20 && (value.startsWith(startBytes) || value.startsWith(startBytes2)))
         {
             debug("waiting for other bytes...");
             incompletePackets = true;
