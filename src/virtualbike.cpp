@@ -1,5 +1,6 @@
 #include "virtualbike.h"
 #include <QtMath>
+#include <QMetaEnum>
 
 virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 {
@@ -100,6 +101,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
     bikeTimer.start(1000);
     //! [Provide Heartbeat]
     QObject::connect(leController, SIGNAL(disconnected()), this, SLOT(reconnect()));
+    QObject::connect(leController, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
@@ -123,6 +125,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void virtualbike::reconnect()
 {
     emit debug("virtualbike::reconnect");
+    leController->disconnectFromDevice();
+
     if(!this->noHeartService)
         serviceHR = leController->addService(serviceDataHR);
     serviceFIT = leController->addService(serviceDataFIT);
@@ -206,4 +210,12 @@ bool virtualbike::connected()
     if(!leController)
         return false;
     return leController->state() == QLowEnergyController::ConnectedState;
+}
+
+void virtualbike::error(QLowEnergyController::Error newError)
+{
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    debug("virtualbike::controller:ERROR " + QString::fromLocal8Bit(metaEnum.valueToKey(newError)));
+
+    reconnect();
 }

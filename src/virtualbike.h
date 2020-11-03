@@ -50,6 +50,7 @@ private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void bikeProvider();
     void reconnect();
+    void error(QLowEnergyController::Error newError);
 };
 
 #endif // VIRTUALBIKE_H
