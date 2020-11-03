@@ -55,6 +55,8 @@ Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-o
 
 - MacBook Air 2011 and Domyos Intense Run
 
+- Raspberry 3b+ and Domyos T900C
+
 - Raspberry 3b+ and Toorx TRX Route Key
 
 ### No gui version
