@@ -1,9 +1,10 @@
 #include "virtualbike.h"
 #include <QtMath>
 
-virtualbike::virtualbike(bike* t, bool noWriteResistance)
+virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 {
     Bike = t;
+    this->noHeartService = noHeartService;
     Q_UNUSED(noWriteResistance)
 
     //! [Advertising Data]    
@@ -12,7 +13,8 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance)
     advertisingData.setLocalName("DomyosBridge");
     QList<QBluetoothUuid> services;
     services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
-    services << QBluetoothUuid::HeartRate;
+    if(!this->noHeartService)
+        services << QBluetoothUuid::HeartRate;
     advertisingData.setServices(services);
     //! [Advertising Data]
 
@@ -63,22 +65,26 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance)
     serviceDataFIT.addCharacteristic(charDataFIT3);
     serviceDataFIT.addCharacteristic(charDataFIT4);
 
-    QLowEnergyCharacteristicData charDataHR;
-    charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
-    charDataHR.setValue(QByteArray(2, 0));
-    charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
-    const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                            QByteArray(2, 0));
-    charDataHR.addDescriptor(clientConfigHR);
+    if(!this->noHeartService)
+    {
+        QLowEnergyCharacteristicData charDataHR;
+        charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+        charDataHR.setValue(QByteArray(2, 0));
+        charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
+        const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                      QByteArray(2, 0));
+        charDataHR.addDescriptor(clientConfigHR);
 
-    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
-    serviceDataHR.addCharacteristic(charDataHR);
+        serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+        serviceDataHR.addCharacteristic(charDataHR);
+    }
 
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
     Q_ASSERT(leController);
-    serviceHR = leController->addService(serviceDataHR);
+    if(!this->noHeartService)
+        serviceHR = leController->addService(serviceDataHR);
     serviceFIT = leController->addService(serviceDataFIT);
 
     QObject::connect(serviceFIT, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
@@ -117,7 +123,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void virtualbike::reconnect()
 {
     emit debug("virtualbike::reconnect");
-    serviceHR = leController->addService(serviceDataHR);
+    if(!this->noHeartService)
+        serviceHR = leController->addService(serviceDataHR);
     serviceFIT = leController->addService(serviceDataFIT);
 
     if (serviceFIT)
@@ -173,21 +180,24 @@ void virtualbike::bikeProvider()
     //Q_ASSERT(characteristic.isValid());
     //service->readCharacteristic(characteristic);
 
-    QByteArray valueHR;
-    valueHR.append(char(0)); // Flags that specify the format of the value.
-    valueHR.append(char(Bike->currentHeart())); // Actual value.
-    QLowEnergyCharacteristic characteristicHR
-            = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
-    Q_ASSERT(characteristicHR.isValid());
-    if(leController->state() != QLowEnergyController::ConnectedState)
+    if(!this->noHeartService)
     {
-        emit debug("virtual bike not connected");
-        return;
-    }
-    try {
-      serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
-    } catch (...) {
-        emit debug("virtual bike error!");
+        QByteArray valueHR;
+        valueHR.append(char(0)); // Flags that specify the format of the value.
+        valueHR.append(char(Bike->currentHeart())); // Actual value.
+        QLowEnergyCharacteristic characteristicHR
+                = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+        Q_ASSERT(characteristicHR.isValid());
+        if(leController->state() != QLowEnergyController::ConnectedState)
+        {
+            emit debug("virtual bike not connected");
+            return;
+        }
+        try {
+            serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
+        } catch (...) {
+            emit debug("virtual bike error!");
+        }
     }
 }
 

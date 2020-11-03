@@ -4,11 +4,12 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
-bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance) : QObject(nullptr)
+bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService) : QObject(nullptr)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->noWriteResistance = noWriteResistance;
+    this->noHeartService = noHeartService;
 
     if(logs)
     {
@@ -57,7 +58,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge") && filter)
     {
         discoveryAgent->stop();
-        domyosBike = new domyosbike(noWriteResistance);
+        domyosBike = new domyosbike(noWriteResistance, noHeartService);
         emit(deviceConnected());
         connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));

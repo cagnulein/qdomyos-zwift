@@ -26,7 +26,7 @@ class bluetooth : public QObject
 {
     Q_OBJECT
 public:
-    explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false);
+    explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false);
     bluetoothdevice* device();
 
 private:
@@ -38,6 +38,7 @@ private:
     trxappgateusbtreadmill* trxappgateusb = 0;
     QString filterDevice = "";
     bool noWriteResistance = false;
+    bool noHeartService = false;
 
 signals:
     void deviceConnected();

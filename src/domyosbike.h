@@ -32,7 +32,7 @@ class domyosbike : public bike
 {
     Q_OBJECT
 public:
-    domyosbike(bool noWriteResistance = false);
+    domyosbike(bool noWriteResistance = false, bool noHeartService = false);
     bool connected();
 
     void* VirtualBike();
@@ -61,6 +61,7 @@ private:
     bool initDone = false;
     bool initRequest = false;
     bool noWriteResistance = false;
+    bool noHeartService = false;
 
 signals:
     void disconnected();
