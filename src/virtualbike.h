@@ -33,8 +33,10 @@ public:
 
 private:
     QLowEnergyController* leController;
+    QLowEnergyService* serviceHR;
     QLowEnergyService* serviceFIT;
     QLowEnergyAdvertisingData advertisingData;
+    QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
     QTimer bikeTimer;
     bike* Bike;
