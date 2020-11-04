@@ -45,7 +45,8 @@ private:
     double GetDistanceFromPacket(QByteArray packet);    
     void forceResistance(int8_t requestResistance);
     void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
+    void btinit_changyow(bool startTape);
+    void btinit_telink(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
     void startDiscover();
 
@@ -62,6 +63,12 @@ private:
     bool initRequest = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    enum _BIKE_TYPE {
+        CHANG_YOW,
+        TELINK,
+    };
+    _BIKE_TYPE bike_type = CHANG_YOW;
 
 signals:
     void disconnected();
