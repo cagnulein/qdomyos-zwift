@@ -41,6 +41,7 @@ void bluetooth::debug(QString text)
     if(debugCommsLog)
     {
         debugCommsLog->write(debug.toLocal8Bit());
+        debugCommsLog->flush();
         qDebug() << debug;
     }
 }
