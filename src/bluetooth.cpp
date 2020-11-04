@@ -49,10 +49,11 @@ void bluetooth::debug(QString text)
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    /* only on qt 5.12
     foreach(quint16 i, device.manufacturerIds())
     {
         debug("manufacturer id: " + QString::number(i) + " -> " + device.manufacturerData(i));
-    }
+    }*/
 
     bool filter = true;
     if(filterDevice.length())
