@@ -48,8 +48,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
 
    display[16] = (uint8_t)currentCadence();
 
-   display[19] = ((((uint16_t)odometer())) >> 8) & 0xFF;
-   display[20] = (((uint16_t)odometer())) & 0xFF;
+   display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
+   display[20] = (((uint16_t)calories())) & 0xFF;
 
    for(uint8_t i=0; i<sizeof(display)-1; i++)
    {
@@ -59,20 +59,20 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
 
-   if(bike_type == TELINK)
+   uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
+                         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
+
+   display[19] = ((((uint16_t)odometer())) >> 8) & 0xFF;
+   display[20] = (((uint16_t)odometer())) & 0xFF;
+
+   for(uint8_t i=0; i<sizeof(display2)-1; i++)
    {
-       uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
-                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
-
-       for(uint8_t i=0; i<sizeof(display2)-1; i++)
-       {
-          display2[26] += display2[i]; // the last byte is a sort of a checksum
-       }
-
-       writeCharacteristic(display2, 20, "updateDisplay2");
-       writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2");
+       display2[26] += display2[i]; // the last byte is a sort of a checksum
    }
+
+   writeCharacteristic(display2, 20, "updateDisplay2");
+   writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2");
 }
 
 void domyosbike::forceResistance(int8_t requestResistance)
