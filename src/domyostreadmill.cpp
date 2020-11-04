@@ -214,7 +214,8 @@ void domyostreadmill::update()
             }
         }
 
-        writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+        if(incompletePackets == false)
+            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
