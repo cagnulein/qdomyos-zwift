@@ -69,21 +69,24 @@ domyostreadmill::domyostreadmill()
 
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
 {
-    QEventLoop loop;
+/*    QEventLoop loop;
     connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
             &loop, SLOT(quit()));
     connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)),
             &loop, SLOT(quit()));
-
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
+*/
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len), QLowEnergyService::WriteWithoutResponse);
 
     if(!disable_log)
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
-
+/*
     loop.exec();
 
     if(gattCommunicationChannelService->error() != QLowEnergyService::NoError)
+    {
         debug("domyostreadmill::writeCharacteristic ERROR " + QString::number(gattCommunicationChannelService->error()));
+        emit disconnect();
+    }*/
 }
 
 void domyostreadmill::updateDisplay(uint16_t elapsed)
