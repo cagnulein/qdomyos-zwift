@@ -342,8 +342,12 @@ void domyosbike::btinit_telink(bool startTape)
     writeCharacteristic(initDataStart5, sizeof(initDataStart5), "init");
     writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init");
     writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init");
+    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init");
+    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init");
     writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init");
     writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init");
+    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
+    writeCharacteristic(initData1, sizeof(initData1), "init");
     writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
 
     initDone = true;
