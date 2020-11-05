@@ -63,7 +63,6 @@ domyostreadmill::domyostreadmill()
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->setTimerType(Qt::PreciseTimer);
     refresh->start(200);
 }
 
@@ -72,8 +71,6 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
     QEventLoop loop;
     connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
             &loop, SLOT(quit()));
-    connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)),
-            &loop, SLOT(quit()));
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
 
@@ -81,9 +78,6 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
-
-    if(gattCommunicationChannelService->error() != QLowEnergyService::NoError)
-        debug("domyostreadmill::writeCharacteristic ERROR " + QString::number(gattCommunicationChannelService->error()));
 }
 
 void domyostreadmill::updateDisplay(uint16_t elapsed)
@@ -186,21 +180,6 @@ void domyostreadmill::update()
     static uint8_t sec1 = 0;
     static QTime lastTime;
     static bool first = true;
-    static uint8_t lastIncompletePacket = 0;
-
-    if(lastIncompletePacket > 3 && incompletePackets)
-    {
-        lastIncompletePacket = 0;
-        incompletePackets = false;
-        debug("incompletePackets timeout");
-    }
-    if(incompletePackets)
-    {
-        debug("incompletePackets add " + QString::number(lastIncompletePacket));
-        lastIncompletePacket++;
-    }
-    else
-        lastIncompletePacket = 0;
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
@@ -222,9 +201,8 @@ void domyostreadmill::update()
     {
         QTime current = QTime::currentTime();
         if(currentSpeed() > 0.0 && !first)
-           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));        
+           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         lastTime = current;
-        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
 
         // updating the treadmill console every second
         if(sec1++ >= (1000 / refresh->interval()))
@@ -233,14 +211,11 @@ void domyostreadmill::update()
             {
                 sec1 = 0;
                 updateDisplay(elapsed);
-                return;
             }
         }
 
-        if(incompletePackets == false)            
-            writeCharacteristic(noOpData, sizeof(noOpData), "noOp");
-        else
-            debug("polling blocked by other packet");
+        if(incompletePackets == false)
+            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
@@ -301,15 +276,9 @@ void domyostreadmill::update()
                 changeFanSpeed(FanSpeed - 1);
                 requestDecreaseFan = -1;
             }
-        }        
-    }
-    else
-    {
-        debug("domyostreadmill::update nothing to do " + QString::number(bttreadmill.isValid()) + " " +
-              QString::number(m_control->state() == QLowEnergyController::DiscoveredState) + " " +
-              gattWriteCharacteristic.isValid() + " " +
-              gattNotifyCharacteristic.isValid() + " " +
-              initDone);
+        }
+
+        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
     }
 
     first = false;
@@ -332,12 +301,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     debug(" << " + QString::number(value.length()) + " " + value.toHex(' '));
 
     if (lastPacket.length() && lastPacket == value)
-    {
-        if(incompletePackets)
-            debug("packet corrupted");
-        incompletePackets = false;
         return;
-    }
 
     QByteArray startBytes;
     startBytes.append(0xf0);
@@ -366,12 +330,6 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         {
             debug("waiting for other bytes...");
             incompletePackets = true;
-        }
-        else
-        {
-            if(incompletePackets)
-                debug("packet corrupted");
-            incompletePackets = false;
         }
 
         debug("packet ignored");
