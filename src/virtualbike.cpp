@@ -214,7 +214,7 @@ bool virtualbike::connected()
 
 void virtualbike::error(QLowEnergyController::Error newError)
 {
-    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("virtualbike::controller:ERROR " + QString::fromLocal8Bit(metaEnum.valueToKey(newError)));
 
     reconnect();
