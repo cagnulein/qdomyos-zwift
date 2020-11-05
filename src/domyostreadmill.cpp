@@ -63,6 +63,7 @@ domyostreadmill::domyostreadmill()
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
+    refresh->setTimerType(Qt::PreciseTimer);
     refresh->start(200);
 }
 
@@ -71,6 +72,8 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
     QEventLoop loop;
     connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
             &loop, SLOT(quit()));
+    connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)),
+            &loop, SLOT(quit()));
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
 
@@ -78,6 +81,9 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
+
+    if(gattCommunicationChannelService->error() != QLowEnergyService::NoError)
+        debug("domyostreadmill::writeCharacteristic ERROR " + QString::number(gattCommunicationChannelService->error()));
 }
 
 void domyostreadmill::updateDisplay(uint16_t elapsed)
@@ -290,6 +296,14 @@ void domyostreadmill::update()
         }
 
         elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
+    }
+    else
+    {
+        debug("domyostreadmill::update nothing to do " + QString::number(bttreadmill.isValid()) + " " +
+              QString::number(m_control->state() == QLowEnergyController::DiscoveredState) + " " +
+              gattWriteCharacteristic.isValid() + " " +
+              gattNotifyCharacteristic.isValid() + " " +
+              initDone);
     }
 
     first = false;
