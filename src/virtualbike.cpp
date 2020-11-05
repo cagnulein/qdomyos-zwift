@@ -1,6 +1,40 @@
 #include "virtualbike.h"
 #include <QtMath>
 #include <QMetaEnum>
+#include <QDataStream>
+
+enum FtmsControlPointCommand {
+    FTMS_REQUEST_CONTROL = 0x00,
+    FTMS_RESET,
+    FTMS_SET_TARGET_SPEED,
+    FTMS_SET_TARGET_INCLINATION,
+    FTMS_SET_TARGET_RESISTANCE_LEVEL,
+    FTMS_SET_TARGET_POWER,
+    FTMS_SET_TARGET_HEARTRATE,
+    FTMS_START_RESUME,
+    FTMS_STOP_PAUSE,
+    FTMS_SET_TARGETED_EXP_ENERGY,
+    FTMS_SET_TARGETED_STEPS,
+    FTMS_SET_TARGETED_STRIDES,
+    FTMS_SET_TARGETED_DISTANCE,
+    FTMS_SET_TARGETED_TIME,
+    FTMS_SET_TARGETED_TIME_TWO_HR_ZONES,
+    FTMS_SET_TARGETED_TIME_THREE_HR_ZONES,
+    FTMS_SET_TARGETED_TIME_FIVE_HR_ZONES,
+    FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS,
+    FTMS_SET_WHEEL_CIRCUMFERENCE,
+    FTMS_SPIN_DOWN_CONTROL,
+    FTMS_SET_TARGETED_CADENCE,
+    FTMS_RESPONSE_CODE = 0x80
+};
+
+enum FtmsResultCode {
+    FTMS_SUCCESS = 0x01,
+    FTMS_NOT_SUPPORTED,
+    FTMS_INVALID_PARAMETER,
+    FTMS_OPERATION_FAILED,
+    FTMS_CONTROL_NOT_PERMITTED
+};
 
 virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 {
@@ -106,17 +140,47 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
-    emit debug("characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue);
+    QByteArray reply;
+    QDataStream replyDs(&reply, QIODevice::ReadWrite);
+    replyDs.setByteOrder(QDataStream::LittleEndian);
+    emit debug("characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue.toHex(' '));
 
     switch(characteristic.uuid().toUInt16())
     {
        case 0x2AD9: // Fitness Machine Control Point
-         if((char)newValue.at(0)==0x04)
+         if((char)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL)
          {
             // Set Target Resistance
             uint8_t uresistance = newValue.at(1);
+            uresistance = uresistance / 10;
             Bike->changeResistance(uresistance);
             emit debug("new requested resistance " + QString::number(uresistance));
+            replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL << (quint8)FTMS_SUCCESS ;
+         }
+         else if((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
+         {
+             emit debug("indoor bike simulation parameters");
+             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS << (quint8)FTMS_SUCCESS ;
+         }
+         else if((char)newValue.at(0) == FTMS_START_RESUME)
+         {
+             emit debug("start simulation!");
+             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_START_RESUME << (quint8)FTMS_SUCCESS ;
+         }
+
+
+         QLowEnergyCharacteristic characteristic
+                 = serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
+         Q_ASSERT(characteristic.isValid());
+         if(leController->state() != QLowEnergyController::ConnectedState)
+         {
+             emit debug("virtual bike not connected");
+             return;
+         }
+         try {
+            serviceFIT->writeCharacteristic(characteristic, reply);
+         } catch (...) {
+             emit debug("virtual bike error!");
          }
         break;
     }
