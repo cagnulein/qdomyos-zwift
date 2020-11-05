@@ -58,12 +58,12 @@ QLowEnergyCharacteristic gattNotifyCharacteristic;
 bool initDone = false;
 bool initRequest = false;
 
-domyostreadmill::domyostreadmill()
+domyostreadmill::domyostreadmill(uint32_t pollDeviceTime)
 {
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    refresh->start(pollDeviceTime);
 }
 
 void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
