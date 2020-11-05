@@ -216,8 +216,9 @@ void domyostreadmill::update()
     {
         QTime current = QTime::currentTime();
         if(currentSpeed() > 0.0 && !first)
-           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));        
         lastTime = current;
+        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
 
         // updating the treadmill console every second
         if(sec1++ >= (1000 / refresh->interval()))
@@ -226,11 +227,12 @@ void domyostreadmill::update()
             {
                 sec1 = 0;
                 updateDisplay(elapsed);
+                return;
             }
         }
 
         if(incompletePackets == false)            
-            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+            writeCharacteristic(noOpData, sizeof(noOpData), "noOp");
         else
             debug("polling blocked by other packet");
 
@@ -293,9 +295,7 @@ void domyostreadmill::update()
                 changeFanSpeed(FanSpeed - 1);
                 requestDecreaseFan = -1;
             }
-        }
-
-        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
+        }        
     }
     else
     {
