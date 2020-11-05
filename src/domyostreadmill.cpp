@@ -188,7 +188,7 @@ void domyostreadmill::update()
     static bool first = true;
     static uint8_t lastIncompletePacket = 0;
 
-    if(lastIncompletePacket > 3 && incompletePackets)
+    if(lastIncompletePacket > 6 && incompletePackets)
     {
         lastIncompletePacket = 0;
         incompletePackets = false;
