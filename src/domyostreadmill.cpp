@@ -86,8 +86,16 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
                         0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
                         0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-   display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-   display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+   if(elapsed > 5999) // 99:59
+   {
+       display[3] = ((elapsed / 60) / 60) & 0xFF; // high byte for elapsed time (in seconds)
+       display[4] = ((elapsed / 60) % 60) & 0xFF; // low byte for elasped time (in seconds)
+   }
+   else
+   {
+       display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
+       display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+   }
 
    if(odometer() < 10.0)
    {
@@ -108,7 +116,10 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
       display[9] = 0x00; // decimal position
    }
 
-   display[12] = currentHeart();
+   if((elapsed % 10) < 5)
+       display[12] = currentHeart();
+   else
+       display[12] = calories();
 
    //display[13] = ((((uint8_t)currentInclination()) * 10) >> 8) & 0xFF;
    //display[14] = (((uint8_t)currentInclination()) * 10) & 0xFF;
