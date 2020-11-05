@@ -186,15 +186,21 @@ void domyostreadmill::update()
     static uint8_t sec1 = 0;
     static QTime lastTime;
     static bool first = true;
-    static bool lastIncompletePacket = false;
+    static uint8_t lastIncompletePacket = 0;
 
-    if(lastIncompletePacket && incompletePackets)
+    if(lastIncompletePacket > 3 && incompletePackets)
     {
-        lastIncompletePacket = false;
+        lastIncompletePacket = 0;
         incompletePackets = false;
         debug("incompletePackets timeout");
     }
-    lastIncompletePacket = incompletePackets;
+    if(incompletePackets)
+    {
+        debug("incompletePackets add " + QString::number(lastIncompletePacket));
+        lastIncompletePacket++;
+    }
+    else
+        lastIncompletePacket = 0;
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
