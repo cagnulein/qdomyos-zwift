@@ -197,8 +197,8 @@ uint16_t trxappgateusbtreadmill::GetElapsedFromPacket(QByteArray packet)
 
 double trxappgateusbtreadmill::GetSpeedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = ((packet.at(15) - 1) << 8) | (packet.at(16) - 1);
-    double data = (double)(convertedData) / 100.0f;
+    uint16_t convertedData = (packet.at(13) - 1);
+    double data = (double)(convertedData) / 10.0f;
     return data;
 }
 
@@ -217,8 +217,8 @@ double trxappgateusbtreadmill::GetDistanceFromPacket(QByteArray packet)
 
 double trxappgateusbtreadmill::GetInclinationFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = packet.at(13);
-    double data = (convertedData - 1) / 10;
+    uint16_t convertedData = packet.at(14);
+    double data = (convertedData - 1);
     if (data < 0) return 0;
     return data;
 }
