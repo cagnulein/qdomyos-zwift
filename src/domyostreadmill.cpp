@@ -83,8 +83,8 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
 void domyostreadmill::updateDisplay(uint16_t elapsed)
 {
    uint8_t display[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
-                        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
-                        0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
+                        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x01, 0x01, 0x00,
+                        0x0c, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00};
 
    if(elapsed > 5999) // 99:59
    {
@@ -116,27 +116,15 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
       display[9] = 0x00; // decimal position
    }
 
-   if((elapsed % 10) < 5)
-       display[12] = currentHeart();
-   else
-       display[12] = calories();
+   display[12] = currentHeart();
 
-   //display[13] = ((((uint8_t)currentInclination()) * 10) >> 8) & 0xFF;
-   //display[14] = (((uint8_t)currentInclination()) * 10) & 0xFF;
-
-   //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
-   //display[14] = (((uint8_t)calories())) & 0xFF;
-
-   //display[20] = (uint8_t)currentSpeed();
+   display[23] = ((uint8_t)(calories()) >> 8) & 0xFF;
+   display[24] = (uint8_t)(calories()) & 0xFF;
 
    for(uint8_t i=0; i<sizeof(display)-1; i++)
    {
-      //qDebug() << QString::number(writeIncline[i], 16);
       display[26] += display[i]; // the last byte is a sort of a checksum
    }
-
-   //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
-
 
    writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
