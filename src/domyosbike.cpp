@@ -59,20 +59,23 @@ void domyosbike::updateDisplay(uint16_t elapsed)
    writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
 
-   uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
-                         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                         0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
-
-   display2[3] = ((((uint16_t)odometer())) >> 8) & 0xFF;
-   display2[4] = (((uint16_t)odometer())) & 0xFF;
-
-   for(uint8_t i=0; i<sizeof(display2)-1; i++)
+   if(bike_type == CHANG_YOW)
    {
-       display2[26] += display2[i]; // the last byte is a sort of a checksum
-   }
+       uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
+                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-   writeCharacteristic(display2, 20, "updateDisplay2");
-   writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2");
+       display2[3] = ((((uint16_t)odometer())) >> 8) & 0xFF;
+       display2[4] = (((uint16_t)odometer())) & 0xFF;
+
+       for(uint8_t i=0; i<sizeof(display2)-1; i++)
+       {
+           display2[26] += display2[i]; // the last byte is a sort of a checksum
+       }
+
+       writeCharacteristic(display2, 20, "updateDisplay2");
+       writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2");
+   }
 }
 
 void domyosbike::forceResistance(int8_t requestResistance)
@@ -309,46 +312,16 @@ void domyosbike::btinit_telink(bool startTape)
     // set speed and incline to 0
     uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
     uint8_t initData2[] = { 0xf0, 0xc9, 0xb9 };
+    uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
 
     // main startup sequence
-    uint8_t initDataStart[] = { 0xf0, 0xa3, 0x93 };
-    uint8_t initDataStart2[] = { 0xf0, 0xa4, 0x94 };
-    uint8_t initDataStart3[] = { 0xf0, 0xa5, 0x95 };
-    uint8_t initDataStart4[] = { 0xf0, 0xab, 0x9b };
-    uint8_t initDataStart5[] = { 0xf0, 0xc4, 0x03, 0xb7 };
-    uint8_t initDataStart6[] =
-    {
-            0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-            0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0xff
-    };
-    uint8_t initDataStart7[] = { 0xff, 0xff, 0x8d }; // power on bt icon
-    uint8_t initDataStart8[] =
-    {
-            0xf0, 0xcb, 0x02, 0x00, 0x08, 0xff, 0x01, 0x00, 0x00, 0x01,
-            0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00
-    };
-    uint8_t initDataStart9[] = { 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0xcb }; // power on bt word
-    uint8_t initDataStart10[] =
-    {
-        0xf0, 0xca, 0x00, 0xba
-    };
+    uint8_t initDataStart[] = { 0xf0, 0xcc, 0xff, 0xff, 0xff, 0xff, 0x01, 0xff, 0xb8 };
 
     writeCharacteristic(initData1, sizeof(initData1), "init");
     writeCharacteristic(initData2, sizeof(initData2), "init");
+    writeCharacteristic(noOpData, sizeof(noOpData), "noOp");
     writeCharacteristic(initDataStart, sizeof(initDataStart), "init");
-    writeCharacteristic(initDataStart2, sizeof(initDataStart2), "init");
-    writeCharacteristic(initDataStart3, sizeof(initDataStart3), "init");
-    writeCharacteristic(initDataStart4, sizeof(initDataStart4), "init");
-    writeCharacteristic(initDataStart5, sizeof(initDataStart5), "init");
-    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init");
-    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init");
-    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init");
-    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init");
-    writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init");
-    writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init");
-    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
-    writeCharacteristic(initData1, sizeof(initData1), "init");
-    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
+    updateDisplay(0);
 
     initDone = true;
 }
