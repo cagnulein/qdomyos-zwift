@@ -8,6 +8,7 @@
 bool nologs = false;
 bool noWriteResistance = false;
 bool noHeartService = false;
+bool noConsole = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -18,7 +19,9 @@ QCoreApplication* createApplication(int &argc, char *argv[])
 
     for (int i = 1; i < argc; ++i) {
         if (!qstrcmp(argv[i], "-no-gui"))
-            nogui = true;
+            nogui = true;        
+        if (!qstrcmp(argv[i], "-no-console"))
+            noConsole = true;
         if (!qstrcmp(argv[i], "-no-log"))
             nologs = true;
         if (!qstrcmp(argv[i], "-no-write-resistance"))

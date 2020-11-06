@@ -58,8 +58,9 @@ QLowEnergyCharacteristic gattNotifyCharacteristic;
 bool initDone = false;
 bool initRequest = false;
 
-domyostreadmill::domyostreadmill(uint32_t pollDeviceTime)
+domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole)
 {
+    this->noConsole = noConsole;
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
@@ -206,7 +207,7 @@ void domyostreadmill::update()
         // updating the treadmill console every second
         if(sec1++ >= (1000 / refresh->interval()))
         {
-            if(incompletePackets == false)
+            if(incompletePackets == false && noConsole == false)
             {
                 sec1 = 0;
                 updateDisplay(elapsed);

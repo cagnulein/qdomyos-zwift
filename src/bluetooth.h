@@ -26,7 +26,7 @@ class bluetooth : public QObject
 {
     Q_OBJECT
 public:
-    explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200);
+    explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false);
     bluetoothdevice* device();
 
 private:
@@ -39,6 +39,7 @@ private:
     QString filterDevice = "";
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool noConsole = false;
     uint32_t pollDeviceTime = 200;
 
 signals:
