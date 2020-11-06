@@ -63,8 +63,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
                          0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                          0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-   display[3] = ((((uint16_t)odometer())) >> 8) & 0xFF;
-   display[4] = (((uint16_t)odometer())) & 0xFF;
+   display2[3] = ((((uint16_t)odometer())) >> 8) & 0xFF;
+   display2[4] = (((uint16_t)odometer())) & 0xFF;
 
    for(uint8_t i=0; i<sizeof(display2)-1; i++)
    {
