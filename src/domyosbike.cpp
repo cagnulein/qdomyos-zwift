@@ -225,7 +225,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
 double domyosbike::GetSpeedFromPacket(QByteArray packet)
 {
-    uint8_t convertedData = (uint8_t)packet.at(7);
+    uint8_t convertedData = (uint8_t)packet.at(20);
     double data = (double)convertedData / 10.0f;
     return data;
 }
