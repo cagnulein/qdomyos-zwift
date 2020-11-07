@@ -167,6 +167,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              emit debug("start simulation!");
              replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_START_RESUME << (quint8)FTMS_SUCCESS ;
          }
+         else if((char)newValue.at(0) == FTMS_REQUEST_CONTROL)
+         {
+             emit debug("control requested");
+             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_REQUEST_CONTROL << (quint8)FTMS_SUCCESS ;
+         }
          else
          {
              emit debug("not supported");
