@@ -141,8 +141,6 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     QByteArray reply;
-    QDataStream replyDs(&reply, QIODevice::ReadWrite);
-    replyDs.setByteOrder(QDataStream::LittleEndian);
     emit debug("characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue.toHex(' '));
 
     switch(characteristic.uuid().toUInt16())
@@ -155,27 +153,40 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             uresistance = uresistance / 10;
             Bike->changeResistance(uresistance);
             emit debug("new requested resistance " + QString::number(uresistance));
-            replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL << (quint8)FTMS_SUCCESS ;
+            reply.append((quint8)FTMS_RESPONSE_CODE);
+            reply.append((quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL);
+            reply.append((quint8)FTMS_SUCCESS);
          }
          else if((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
          {
              emit debug("indoor bike simulation parameters");
-             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS << (quint8)FTMS_SUCCESS ;
+             reply.append((quint8)FTMS_RESPONSE_CODE);
+             reply.append((quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS);
+             reply.append((quint8)FTMS_SUCCESS);
+
+             double resistance = (newValue.at(3) + (newValue.at(4) << 8)) / 100.0;
+             Bike->changeResistance((uint8_t)resistance);
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)
          {
              emit debug("start simulation!");
-             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_START_RESUME << (quint8)FTMS_SUCCESS ;
+             reply.append((quint8)FTMS_RESPONSE_CODE);
+             reply.append((quint8)FTMS_START_RESUME);
+             reply.append((quint8)FTMS_SUCCESS);
          }
          else if((char)newValue.at(0) == FTMS_REQUEST_CONTROL)
          {
              emit debug("control requested");
-             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)FTMS_REQUEST_CONTROL << (quint8)FTMS_SUCCESS ;
+             reply.append((quint8)FTMS_RESPONSE_CODE);
+             reply.append((quint8)FTMS_REQUEST_CONTROL);
+             reply.append((quint8)FTMS_SUCCESS);
          }
          else
          {
              emit debug("not supported");
-             replyDs << (quint8)FTMS_RESPONSE_CODE << (quint8)newValue.at(0) << (quint8)FTMS_NOT_SUPPORTED ;
+             reply.append((quint8)FTMS_RESPONSE_CODE);
+             reply.append((quint8)newValue.at(0));
+             reply.append((quint8)FTMS_NOT_SUPPORTED);
          }
 
          QLowEnergyCharacteristic characteristic
