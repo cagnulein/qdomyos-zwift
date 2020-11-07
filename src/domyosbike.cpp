@@ -65,8 +65,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
                              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-       display2[3] = ((((uint16_t)odometer() * 10)) >> 8) & 0xFF;
-       display2[4] = (((uint16_t)odometer() * 10)) & 0xFF;
+       display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
+       display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
 
        for(uint8_t i=0; i<sizeof(display2)-1; i++)
        {
@@ -134,6 +134,8 @@ void domyosbike::update()
 
         if(requestResistance != -1)
         {
+           if(requestResistance > 15) requestResistance = 15;
+
            if(requestResistance != currentResistance())
            {
               debug("writing resistance " + QString::number(requestResistance));
