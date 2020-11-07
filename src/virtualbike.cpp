@@ -290,5 +290,6 @@ void virtualbike::error(QLowEnergyController::Error newError)
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("virtualbike::controller:ERROR " + QString::fromLocal8Bit(metaEnum.valueToKey(newError)));
 
-    reconnect();
+    if(newError != QLowEnergyController::RemoteHostClosedError)
+        reconnect();
 }
