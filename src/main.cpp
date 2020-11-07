@@ -9,6 +9,8 @@ bool nologs = false;
 bool noWriteResistance = false;
 bool noHeartService = false;
 bool noConsole = false;
+bool onlyVirtualBike = false;
+bool onlyVirtualTreadmill = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -28,6 +30,10 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             noWriteResistance = true;
         if (!qstrcmp(argv[i], "-no-heart-service"))
             noHeartService = true;        
+        if (!qstrcmp(argv[i], "-only-virtualbike"))
+            onlyVirtualBike = true;
+        if (!qstrcmp(argv[i], "-only-virtualtreadmill"))
+            onlyVirtualTreadmill = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -87,7 +93,17 @@ int main(int argc, char *argv[])
 {
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 
-    //virtualtreadmill* V = new virtualtreadmill();
+    if(onlyVirtualBike)
+    {
+        virtualbike* V = new virtualbike(new bike());
+        return app->exec();
+    }
+    else if(onlyVirtualTreadmill)
+    {
+        virtualtreadmill* V = new virtualtreadmill(new treadmill());
+        return app->exec();
+    }
+
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime);
 
     if (qobject_cast<QApplication *>(app.data())) {
