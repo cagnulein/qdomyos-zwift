@@ -14,6 +14,7 @@ bool onlyVirtualTreadmill = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
+static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log";
 
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
@@ -114,11 +115,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
 
     if(nologs == false)
-    {
-        QFile outFile("debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log");
+    {        
+        QFile outFile(logfilename);
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
-        ts << txt;
+        ts << txt << endl;
     }
 }
 
