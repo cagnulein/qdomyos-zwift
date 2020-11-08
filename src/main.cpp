@@ -1,5 +1,7 @@
 #include <QApplication>
 #include <QStyleFactory>
+#include <stdio.h>
+#include <stdlib.h>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
@@ -120,6 +122,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
         ts << txt << endl;
+
+        fprintf(stderr, txt.toLocal8Bit());
     }
 }
 
