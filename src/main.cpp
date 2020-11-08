@@ -118,7 +118,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         QFile outFile("debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log");
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
-        ts << txt << Qt::endl;
+        ts << txt;
     }
 }
 
