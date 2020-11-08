@@ -21,62 +21,62 @@ uint16_t bike::watts()
     const uint8_t max_resistance = 15;
     // ref https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    const uint16_t watt_cad40_min = 15;
-    const uint16_t watt_cad40_max = 30;
+    const uint16_t watt_cad40_min = 25;
+    const uint16_t watt_cad40_max = 55;
 
-    const uint16_t watt_cad45_min = 20;
-    const uint16_t watt_cad45_max = 35;
+    const uint16_t watt_cad45_min = 35;
+    const uint16_t watt_cad45_max = 65;
 
-    const uint16_t watt_cad50_min = 25;
-    const uint16_t watt_cad50_max = 45;
+    const uint16_t watt_cad50_min = 40;
+    const uint16_t watt_cad50_max = 80;
 
-    const uint16_t watt_cad55_min = 30;
-    const uint16_t watt_cad55_max = 55;
+    const uint16_t watt_cad55_min = 50;
+    const uint16_t watt_cad55_max = 105;
 
-    const uint16_t watt_cad60_min = 35;
-    const uint16_t watt_cad60_max = 70;
+    const uint16_t watt_cad60_min = 60;
+    const uint16_t watt_cad60_max = 125;
 
-    const uint16_t watt_cad65_min = 40;
-    const uint16_t watt_cad65_max = 90;
+    const uint16_t watt_cad65_min = 70;
+    const uint16_t watt_cad65_max = 160;
 
-    const uint16_t watt_cad70_min = 50;
-    const uint16_t watt_cad70_max = 110;
+    const uint16_t watt_cad70_min = 85;
+    const uint16_t watt_cad70_max = 190;
 
-    const uint16_t watt_cad75_min = 55;
-    const uint16_t watt_cad75_max = 135;
+    const uint16_t watt_cad75_min = 100;
+    const uint16_t watt_cad75_max = 240;
 
-    const uint16_t watt_cad80_min = 65;
-    const uint16_t watt_cad80_max = 160;
+    const uint16_t watt_cad80_min = 115;
+    const uint16_t watt_cad80_max = 280;
 
-    const uint16_t watt_cad85_min = 75;
-    const uint16_t watt_cad85_max = 190;
+    const uint16_t watt_cad85_min = 130;
+    const uint16_t watt_cad85_max = 340;
 
-    const uint16_t watt_cad90_min = 85;
-    const uint16_t watt_cad90_max = 225;
+    const uint16_t watt_cad90_min = 150;
+    const uint16_t watt_cad90_max = 390;
 
-    const uint16_t watt_cad95_min = 100;
-    const uint16_t watt_cad95_max = 260;
+    const uint16_t watt_cad95_min = 175;
+    const uint16_t watt_cad95_max = 450;
 
-    const uint16_t watt_cad100_min = 110;
-    const uint16_t watt_cad100_max = 300;
+    const uint16_t watt_cad100_min = 195;
+    const uint16_t watt_cad100_max = 520;
 
-    const uint16_t watt_cad105_min = 125;
-    const uint16_t watt_cad105_max = 340;
+    const uint16_t watt_cad105_min = 210;
+    const uint16_t watt_cad105_max = 600;
 
-    const uint16_t watt_cad110_min = 140;
-    const uint16_t watt_cad110_max = 385;
+    const uint16_t watt_cad110_min = 245;
+    const uint16_t watt_cad110_max = 675;
 
-    const uint16_t watt_cad115_min = 155;
-    const uint16_t watt_cad115_max = 435;
+    const uint16_t watt_cad115_min = 270;
+    const uint16_t watt_cad115_max = 760;
 
-    const uint16_t watt_cad120_min = 170;
-    const uint16_t watt_cad120_max = 485;
+    const uint16_t watt_cad120_min = 300;
+    const uint16_t watt_cad120_max = 850;
 
-    const uint16_t watt_cad125_min = 190;
-    const uint16_t watt_cad125_max = 540;
+    const uint16_t watt_cad125_min = 330;
+    const uint16_t watt_cad125_max = 945;
 
-    const uint16_t watt_cad130_min = 210;
-    const uint16_t watt_cad130_max = 595;
+    const uint16_t watt_cad130_min = 360;
+    const uint16_t watt_cad130_max = 1045;
 
     if(currentCadence() < 41)
         return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);
