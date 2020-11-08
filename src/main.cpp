@@ -100,19 +100,19 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QString txt;
     switch (type) {
     case QtInfoMsg:
-        txt = QString("Info: %1 %2 %3").arg(file).arg(function).arg(msg);
+        txt = QString("Info: %1 %2 %3\n").arg(file).arg(function).arg(msg);
         break;
     case QtDebugMsg:
-        txt = QString("Debug: %1 %2 %3").arg(file).arg(function).arg(msg);
+        txt = QString("Debug: %1 %2 %3\n").arg(file).arg(function).arg(msg);
         break;
     case QtWarningMsg:
-        txt = QString("Warning: %1 %2 %3").arg(file).arg(function).arg(msg);
+        txt = QString("Warning: %1 %2 %3\n").arg(file).arg(function).arg(msg);
     break;
     case QtCriticalMsg:
-        txt = QString("Critical: %1 %2 %3").arg(file).arg(function).arg(msg);
+        txt = QString("Critical: %1 %2 %3\n").arg(file).arg(function).arg(msg);
     break;
     case QtFatalMsg:
-        txt = QString("Fatal: %1 %2 %3").arg(file).arg(function).arg(msg);
+        txt = QString("Fatal: %1 %2 %3\n").arg(file).arg(function).arg(msg);
         abort();
     }
 
@@ -121,7 +121,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         QFile outFile(logfilename);
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
-        ts << txt << endl;
+        ts << txt;
 
         fprintf(stderr, txt.toLocal8Bit());
     }
