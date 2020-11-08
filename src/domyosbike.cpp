@@ -103,7 +103,12 @@ void domyosbike::update()
     uint8_t initDataF0C800B8[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 
     static uint8_t sec1 = 0;
-    //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
+
+    if(m_control->state() == QLowEnergyController::UnconnectedState)
+    {
+        emit disconnected();
+        return;
+    }
 
     if(initRequest)
     {
@@ -409,6 +414,8 @@ void domyosbike::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("domyosbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+
+    m_control->disconnect();
 }
 
 void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
