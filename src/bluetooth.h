@@ -40,6 +40,7 @@ private:
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool noConsole = false;
+    bool logs = true;
     uint32_t pollDeviceTime = 200;
 
 signals:

@@ -43,6 +43,8 @@ private:
 
     bool noHeartService = false;
 
+    void writeCharacteristic(QLowEnergyService* service, QLowEnergyCharacteristic characteristic, QByteArray value);
+
 signals:
     void debug(QString string);
 

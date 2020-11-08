@@ -89,9 +89,43 @@ QCoreApplication* createApplication(int &argc, char *argv[])
     }
 }
 
+void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+{
+    QByteArray localMsg = msg.toLocal8Bit();
+    const char *file = context.file ? context.file : "";
+    const char *function = context.function ? context.function : "";
+    QString txt;
+    switch (type) {
+    case QtInfoMsg:
+        txt = QString("Info: %1 %2 %3").arg(file).arg(function).arg(msg);
+        break;
+    case QtDebugMsg:
+        txt = QString("Debug: %1 %2 %3").arg(file).arg(function).arg(msg);
+        break;
+    case QtWarningMsg:
+        txt = QString("Warning: %1 %2 %3").arg(file).arg(function).arg(msg);
+    break;
+    case QtCriticalMsg:
+        txt = QString("Critical: %1 %2 %3").arg(file).arg(function).arg(msg);
+    break;
+    case QtFatalMsg:
+        txt = QString("Fatal: %1 %2 %3").arg(file).arg(function).arg(msg);
+        abort();
+    }
+
+    if(nologs == false)
+    {
+        QFile outFile("debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log");
+        outFile.open(QIODevice::WriteOnly | QIODevice::Append);
+        QTextStream ts(&outFile);
+        ts << txt << Qt::endl;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
+    qInstallMessageHandler(myMessageOutput);
 
     if(onlyVirtualBike)
     {

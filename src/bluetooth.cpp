@@ -12,12 +12,7 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
     this->noHeartService = noHeartService;
     this->pollDeviceTime = pollDeviceTime;
     this->noConsole = noConsole;
-
-    if(logs)
-    {
-        debugCommsLog = new QFile("debug-" + QDateTime::currentDateTime().toString() + ".log");
-        debugCommsLog->open(QIODevice::WriteOnly | QIODevice::Unbuffered);
-    }
+    this->logs = logs;
 
 #ifndef WIN32
     if(!QBluetoothLocalDevice::allDevices().count())
@@ -40,12 +35,8 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 void bluetooth::debug(QString text)
 {
     QString debug = QDateTime::currentDateTime().toString() + " " + QString::number(QDateTime::currentMSecsSinceEpoch()) + " " + text + '\n';
-    if(debugCommsLog)
-    {
-        debugCommsLog->write(debug.toLocal8Bit());
-        debugCommsLog->flush();
+    if(logs)
         qDebug() << debug;
-    }
 }
 
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)

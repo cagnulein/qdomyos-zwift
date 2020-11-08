@@ -197,12 +197,18 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              emit debug("virtual bike not connected");
              return;
          }
-         try {
-            serviceFIT->writeCharacteristic(characteristic, reply);
-         } catch (...) {
-             emit debug("virtual bike error!");
-         }
+         writeCharacteristic(serviceFIT, characteristic, reply);
         break;
+    }
+}
+
+void virtualbike::writeCharacteristic(QLowEnergyService* service, QLowEnergyCharacteristic characteristic, QByteArray value)
+{
+    try {
+       emit debug("virtualbike::writeCharacteristic " + service->serviceName() + " " + characteristic.name() + " " + value.toHex(' '));
+       service->writeCharacteristic(characteristic, value); // Potentially causes notification.
+    } catch (...) {
+        emit debug("virtual bike error!");
     }
 }
 
@@ -226,6 +232,10 @@ void virtualbike::bikeProvider()
     {
         emit debug("virtual bike not connected");
         return;
+    }
+    else
+    {
+        emit debug("virtual bike connected");
     }
 
     QByteArray value;
@@ -257,11 +267,7 @@ void virtualbike::bikeProvider()
         emit debug("virtual bike not connected");
         return;
     }
-    try {
-       serviceFIT->writeCharacteristic(characteristic, value); // Potentially causes notification.
-    } catch (...) {
-        emit debug("virtual bike error!");
-    }
+    writeCharacteristic(serviceFIT, characteristic, value);
 
     //characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -281,11 +287,7 @@ void virtualbike::bikeProvider()
             emit debug("virtual bike not connected");
             return;
         }
-        try {
-            serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
-        } catch (...) {
-            emit debug("virtual bike error!");
-        }
+        writeCharacteristic(serviceHR, characteristicHR, valueHR);
     }
 }
 
