@@ -47,6 +47,12 @@ void trxappgateusbtreadmill::update()
     static bool first = true;
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
+    if(m_control->state() == QLowEnergyController::UnconnectedState)
+    {
+        emit disconnected();
+        return;
+    }
+
     if(initRequest)
     {
         initRequest = false;
@@ -328,6 +334,7 @@ void trxappgateusbtreadmill::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("trxappgateusbtreadmill::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    m_control->disconnect();
 }
 
 void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
