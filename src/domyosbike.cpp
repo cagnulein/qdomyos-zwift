@@ -210,6 +210,11 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     Cadence = newValue.at(9);
     Resistance = newValue.at(14);
+    if(Resistance < 1)
+    {
+        debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
+        Resistance = 1;
+    }
     Heart = newValue.at(18);
 
     CrankRevs += ((double)(lastRefresh.msecsTo(QTime::currentTime())) * ((double)Cadence / 60000.0) );
