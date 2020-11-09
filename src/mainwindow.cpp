@@ -16,6 +16,19 @@ void MainWindow::load(bluetooth* b)
     connect(timer, &QTimer::timeout, this, &MainWindow::update);
     timer->start(1000);
 
+#ifdef Q_OS_ANDROID
+    ui->groupTrain->setVisible(false);
+    ui->fanBar->setVisible(false);
+    ui->fanSpeedMinus->setVisible(false);
+    ui->fanSpeedPlus->setVisible(false);
+    ui->weight->setVisible(false);
+    ui->weightDescription->setVisible(false);
+    ui->weightIcon->setVisible(false);
+    ui->load->setVisible(false);
+    ui->reset->setVisible(false);
+    ui->save->setVisible(false);
+#endif
+
     update();
 }
 
@@ -345,7 +358,7 @@ void MainWindow::loadTrainProgram(QString fileName)
         }
 
         trainProgramSignals();
-        ui->groupBox_2->setChecked(true);
+        ui->groupTrain->setChecked(true);
     }
 }
 
@@ -407,7 +420,7 @@ void MainWindow::on_groupBox_2_clicked()
 {
      if(!trainProgram)
         createTrainProgram(QList<trainrow>());
-     trainProgram->enabled = ui->groupBox_2->isChecked();
+     trainProgram->enabled = ui->groupTrain->isChecked();
 }
 
 void MainWindow::on_fanSpeedMinus_clicked()
