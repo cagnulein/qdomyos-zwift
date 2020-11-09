@@ -59,6 +59,22 @@ Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-o
 
 - Raspberry 3b+ and Toorx TRX Route Key
 
+
+### Your machine is not compatible?
+
+Open an issue and follow these steps!
+
+1. first of all you need an android device (phone or tablet)
+2. you need to become developer on your phone https://wccftech.com/how-to/how-to-enable-developer-options-on-android-10-tutorial/
+3. Go to Settings
+4. Go into developer options
+5. Enable the option Enable Bluetooth HCI snoop log
+6. restart your phone
+7. open your machine app and play with it collecting inclination and speed
+8. Disable the option Enable Bluetooth HCI snoop log
+9. on your phone you should have a file called btsnoop_hci.log
+10. attach the log file in a new issue with a short description of the steps you did in the app when you used it
+
 ### No gui version
 
 run as
