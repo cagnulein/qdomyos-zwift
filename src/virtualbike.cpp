@@ -82,7 +82,10 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 
     QLowEnergyCharacteristicData charDataFIT3;
     charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
-    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write);
+    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+    const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                QByteArray(2, 0));
+    charDataFIT3.addDescriptor(cpClientConfig);
 
     QLowEnergyCharacteristicData charDataFIT4;
     charDataFIT4.setUuid((QBluetoothUuid::CharacteristicType)0x2AD2); //indoor bike
