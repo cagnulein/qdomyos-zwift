@@ -17,5 +17,6 @@
         <file>icons/resistance.png</file>
         <file>icons/pace.png</file>
         <file>icons/chart.png</file>
+        <file>icons/icon.png</file>
     </qresource>
 </RCC>

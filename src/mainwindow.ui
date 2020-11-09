@@ -13,6 +13,11 @@
   <property name="windowTitle">
    <string>qDoymos-Zwift</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normalon>:/icons/icons/icon.png</normalon>
+   </iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="groupBoxConnectionStatus">
