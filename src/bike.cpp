@@ -78,6 +78,8 @@ uint16_t bike::watts()
     const uint16_t watt_cad130_min = 360;
     const uint16_t watt_cad130_max = 1045;
 
+    if(currentSpeed() <= 0) return 0;
+
     if(currentCadence() < 41)
         return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);
     else if(currentCadence() < 46)
