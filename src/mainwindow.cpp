@@ -416,7 +416,7 @@ void MainWindow::on_start_clicked()
          bluetoothManager->device()->start();
 }
 
-void MainWindow::on_groupBox_2_clicked()
+void MainWindow::on_groupTrain_clicked()
 {
      if(!trainProgram)
         createTrainProgram(QList<trainrow>());

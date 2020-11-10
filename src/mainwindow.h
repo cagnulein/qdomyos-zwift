@@ -61,7 +61,7 @@ private slots:
     void on_reset_clicked();
     void on_stop_clicked();
     void on_start_clicked();
-    void on_groupBox_2_clicked();
+    void on_groupTrain_clicked();
     void on_fanSpeedMinus_clicked();
     void on_fanSpeedPlus_clicked();
     void on_difficulty_valueChanged(int value);
