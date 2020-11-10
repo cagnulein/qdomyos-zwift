@@ -169,7 +169,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
              int16_t iresistance = (newValue.at(3) + (newValue.at(4) << 8));
              double resistance = ((double)iresistance) / 100.0;
-             Bike->changeResistance((uint8_t)resistance);
+             Bike->changeResistance((uint8_t)resistance + 1); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)
          {
