@@ -97,6 +97,8 @@ void domyosbike::forceResistance(int8_t requestResistance)
 
 void domyosbike::update()
 {
+    static QTime lastTime;
+    static bool first = true;
     uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
 
     // stop tape
@@ -125,8 +127,10 @@ void domyosbike::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed() > 0.0)
-           elapsed += ((double)refresh->interval() / 1000.0);
+        QTime current = QTime::currentTime();
+        if(currentSpeed() > 0.0 && !first)
+           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+        lastTime = current;
 
         // updating the treadmill console every second
         if(sec1++ == (1000 / refresh->interval()))
@@ -167,6 +171,8 @@ void domyosbike::update()
             requestStop = -1;
         }
     }
+
+    first = false;
 }
 
 void domyosbike::serviceDiscovered(const QBluetoothUuid &gatt)
