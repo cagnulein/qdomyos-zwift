@@ -33,3 +33,7 @@ jobs:
           version: '5.12.9'
           host: 'linux'
           target: 'desktop'
+      
+      - name: Compile
+        run: cd src; qmake; make -j4
+        
