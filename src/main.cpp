@@ -2,6 +2,7 @@
 #include <QStyleFactory>
 #include <stdio.h>
 #include <stdlib.h>
+#include <QStandardPaths>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
@@ -117,8 +118,13 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
 
     if(nologs == false)
-    {        
-        QFile outFile(logfilename);
+    {
+        QString path = "";
+#ifdef Q_OS_ANDROID
+        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#endif
+
+        QFile outFile(path + logfilename);
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
         ts << txt;
