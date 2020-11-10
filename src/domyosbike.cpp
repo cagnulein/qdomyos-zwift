@@ -156,7 +156,7 @@ void domyosbike::update()
             {
                 uint8_t new_res = currentResistance() + 1;
                 if(new_res > 15)
-                    new_res = 0;
+                    new_res = 1;
                 forceResistance(new_res);
             }
         }
@@ -164,6 +164,7 @@ void domyosbike::update()
         if(requestResistance != -1)
         {
            if(requestResistance > 15) requestResistance = 15;
+           else if(requestResistance == 0) requestResistance = 1;
 
            if(requestResistance != currentResistance())
            {
