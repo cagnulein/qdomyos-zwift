@@ -34,7 +34,7 @@ jobs:
           host: 'linux'
           target: 'desktop'
           modules: 'qtcharts debug_info'
-          dir: '${{ github.workspace }}/output/linux-desktop/':  
+          dir: '${{ github.workspace }}/output/linux-desktop/'
       
       - name: Compile
         run: cd src; qmake; make -j4
