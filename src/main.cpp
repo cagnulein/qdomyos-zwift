@@ -14,6 +14,7 @@ bool noHeartService = false;
 bool noConsole = false;
 bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
+bool testResistance = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -28,6 +29,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             nogui = true;        
         if (!qstrcmp(argv[i], "-no-console"))
             noConsole = true;
+        if (!qstrcmp(argv[i], "-test-resistance"))
+            testResistance = true;
         if (!qstrcmp(argv[i], "-no-log"))
             nologs = true;
         if (!qstrcmp(argv[i], "-no-write-resistance"))
@@ -149,7 +152,7 @@ int main(int argc, char *argv[])
         return app->exec();
     }
 
-    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime);
+    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance);
 
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...

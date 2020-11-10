@@ -5,9 +5,10 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
-domyosbike::domyosbike(bool noWriteResistance, bool noHeartService)
+domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance)
 {
     refresh = new QTimer(this);
+    this->testResistance = testResistance;
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
@@ -140,6 +141,17 @@ void domyosbike::update()
         }
 
         writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+
+        if(testResistance)
+        {
+            if((((int)elapsed) % 5) == 0)
+            {
+                uint8_t new_res = currentResistance() + 1;
+                if(new_res > 15)
+                    new_res = 0;
+                forceResistance(new_res);
+            }
+        }
 
         if(requestResistance != -1)
         {
