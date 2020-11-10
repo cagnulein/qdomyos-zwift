@@ -67,11 +67,19 @@ domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole)
     refresh->start(pollDeviceTime);
 }
 
-void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
+void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
-    connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
-            &loop, SLOT(quit()));
+    if(wait_for_response)
+    {
+        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+                &loop, SLOT(quit()));
+    }
+    else
+    {
+        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
+                &loop, SLOT(quit()));
+    }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
 
@@ -420,23 +428,23 @@ double domyostreadmill::GetInclinationFromPacket(QByteArray packet)
 
 void domyostreadmill::btinit(bool startTape)
 {
-    writeCharacteristic(initData1, sizeof(initData1), "init");
-    writeCharacteristic(initData2, sizeof(initData2), "init");
-    writeCharacteristic(initDataStart, sizeof(initDataStart), "init");
-    writeCharacteristic(initDataStart2, sizeof(initDataStart2), "init");
-    writeCharacteristic(initDataStart3, sizeof(initDataStart3), "init");
-    writeCharacteristic(initDataStart4, sizeof(initDataStart4), "init");
-    writeCharacteristic(initDataStart5, sizeof(initDataStart5), "init");
-    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init");
-    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init");
-    writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init");
-    writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init");
-    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init");
+    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
+    writeCharacteristic(initData2, sizeof(initData2), "init", false, true);
+    writeCharacteristic(initDataStart, sizeof(initDataStart), "init", false, true);
+    writeCharacteristic(initDataStart2, sizeof(initDataStart2), "init", false, true);
+    writeCharacteristic(initDataStart3, sizeof(initDataStart3), "init", false, true);
+    writeCharacteristic(initDataStart4, sizeof(initDataStart4), "init", false, true);
+    writeCharacteristic(initDataStart5, sizeof(initDataStart5), "init", false, true);
+    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
+    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+    writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init", false, false);
+    writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init", false, true);
+    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init", false, false);
     if(startTape)
     {
-        writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init");
-        writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init");
-        writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init");
+        writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init", false, true);
+        writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init", false, false);
+        writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init", false, true);
     }
 
     initDone = true;
