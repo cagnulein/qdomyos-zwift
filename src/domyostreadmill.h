@@ -31,7 +31,7 @@ class domyostreadmill : public treadmill
 {
     Q_OBJECT
 public:
-    domyostreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false);
+    domyostreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false);
     bool connected();
     bool changeFanSpeed(uint8_t speed);
     double odometer();
@@ -52,6 +52,7 @@ private:
     double DistanceCalculated = 0;
     volatile bool incompletePackets = false;
     bool noConsole = false;
+    bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
 
     QTimer* refresh;

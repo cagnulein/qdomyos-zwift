@@ -288,7 +288,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         if(!first)
         {
            debug("creating virtual treadmill interface...");
-           virtualTreadMill = new virtualtreadmill(this);
+           virtualTreadMill = new virtualtreadmill(this, false);
            connect(virtualTreadMill,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
         }
         first = 1;

@@ -1,9 +1,10 @@
 #include "virtualtreadmill.h"
 #include <QtMath>
 
-virtualtreadmill::virtualtreadmill(treadmill* t)
+virtualtreadmill::virtualtreadmill(treadmill* t, bool noHeartService)
 {
     treadMill = t;
+    this->noHeartService = noHeartService;
 
     //! [Advertising Data]    
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -54,23 +55,27 @@ virtualtreadmill::virtualtreadmill(treadmill* t)
     serviceData.addCharacteristic(charData3);
     //! [Service Data]
 
-    QLowEnergyCharacteristicData charDataHR;
-    charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
-    charDataHR.setValue(QByteArray(2, 0));
-    charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
-    const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                            QByteArray(2, 0));
-    charDataHR.addDescriptor(clientConfigHR);
+    if(noHeartService == false)
+    {
+        QLowEnergyCharacteristicData charDataHR;
+        charDataHR.setUuid(QBluetoothUuid::HeartRateMeasurement);
+        charDataHR.setValue(QByteArray(2, 0));
+        charDataHR.setProperties(QLowEnergyCharacteristic::Notify);
+        const QLowEnergyDescriptorData clientConfigHR(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                      QByteArray(2, 0));
+        charDataHR.addDescriptor(clientConfigHR);
 
-    serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
-    serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
-    serviceDataHR.addCharacteristic(charDataHR);
+        serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
+        serviceDataHR.addCharacteristic(charDataHR);
+    }
 
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
     Q_ASSERT(leController);
     service = leController->addService(serviceData);
-    serviceHR = leController->addService(serviceDataHR);
+    if(noHeartService == false)
+        serviceHR = leController->addService(serviceDataHR);
 
     QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
@@ -138,7 +143,10 @@ void virtualtreadmill::reconnect()
 {
     emit debug("virtualtreadmill reconnect");
     service = leController->addService(serviceData);
-    serviceHR = leController->addService(serviceDataHR);
+
+    if(noHeartService == false)
+        serviceHR = leController->addService(serviceDataHR);
+
     if (service)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                        advertisingData, advertisingData);
@@ -154,7 +162,7 @@ void virtualtreadmill::treadmillProvider()
 
     QByteArray value;
     value.append(0x08); // Inclination avaiable
-    value.append((char)0x00);
+    value.append((char)0x01); // heart rate avaiable
 
     uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed() * 100);
     char a = (normalizeSpeed >> 8) & 0XFF;
@@ -182,6 +190,8 @@ void virtualtreadmill::treadmillProvider()
 
     value.append(rampBytes);  //ramp angle
 
+    value.append(treadMill->currentHeart()); // current heart rate
+
     QLowEnergyCharacteristic characteristic
             = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
     Q_ASSERT(characteristic.isValid());
@@ -201,21 +211,24 @@ void virtualtreadmill::treadmillProvider()
     //Q_ASSERT(characteristic.isValid());
     //service->readCharacteristic(characteristic);
 
-    QByteArray valueHR;
-    valueHR.append(char(0)); // Flags that specify the format of the value.
-    valueHR.append(char(treadMill->currentHeart())); // Actual value.
-    QLowEnergyCharacteristic characteristicHR
-            = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
-    Q_ASSERT(characteristicHR.isValid());
-    if(leController->state() != QLowEnergyController::ConnectedState)
+    if(noHeartService == false)
     {
-        emit debug("virtualtreadmill connection error");
-        return;
-    }
-    try {
-      serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
-    } catch (...) {
-        emit debug("virtualtreadmill error!");
+        QByteArray valueHR;
+        valueHR.append(char(0)); // Flags that specify the format of the value.
+        valueHR.append(char(treadMill->currentHeart())); // Actual value.
+        QLowEnergyCharacteristic characteristicHR
+                = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
+        Q_ASSERT(characteristicHR.isValid());
+        if(leController->state() != QLowEnergyController::ConnectedState)
+        {
+            emit debug("virtualtreadmill connection error");
+            return;
+        }
+        try {
+            serviceHR->writeCharacteristic(characteristicHR, valueHR); // Potentially causes notification.
+        } catch (...) {
+            emit debug("virtualtreadmill error!");
+        }
     }
 }
 

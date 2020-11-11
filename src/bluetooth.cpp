@@ -67,7 +67,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     else if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge") && filter)
     {
         discoveryAgent->stop();
-        domyos = new domyostreadmill(this->pollDeviceTime, noConsole);
+        domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
         emit(deviceConnected());
         connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));

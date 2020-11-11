@@ -58,9 +58,10 @@ QLowEnergyCharacteristic gattNotifyCharacteristic;
 bool initDone = false;
 bool initRequest = false;
 
-domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole)
+domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService)
 {
     this->noConsole = noConsole;
+    this->noHeartService = noHeartService;
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
@@ -478,7 +479,7 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
         if(!first)
         {
            debug("creating virtual treadmill interface...");
-           virtualTreadMill = new virtualtreadmill(this);
+           virtualTreadMill = new virtualtreadmill(this, noHeartService);
            connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
         }
         first = 1;

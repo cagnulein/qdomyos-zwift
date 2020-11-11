@@ -28,7 +28,7 @@ class virtualtreadmill: public QObject
 {
     Q_OBJECT
 public:
-    virtualtreadmill(treadmill* t);    
+    virtualtreadmill(treadmill* t, bool noHeartService);
     bool connected();
 
 private:
@@ -40,6 +40,8 @@ private:
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;    
     treadmill* treadMill;
+
+    bool noHeartService = false;
 
 signals:
     void debug(QString string);

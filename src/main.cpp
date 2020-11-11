@@ -10,7 +10,7 @@
 
 bool nologs = false;
 bool noWriteResistance = false;
-bool noHeartService = false;
+bool noHeartService = true;
 bool noConsole = false;
 bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
@@ -37,6 +37,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             noWriteResistance = true;
         if (!qstrcmp(argv[i], "-no-heart-service"))
             noHeartService = true;        
+        if (!qstrcmp(argv[i], "-heart-service"))
+            noHeartService = false;
         if (!qstrcmp(argv[i], "-only-virtualbike"))
             onlyVirtualBike = true;
         if (!qstrcmp(argv[i], "-only-virtualtreadmill"))
@@ -143,12 +145,12 @@ int main(int argc, char *argv[])
 
     if(onlyVirtualBike)
     {
-        virtualbike* V = new virtualbike(new bike());
+        virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
         return app->exec();
     }
     else if(onlyVirtualTreadmill)
     {
-        virtualtreadmill* V = new virtualtreadmill(new treadmill());
+        virtualtreadmill* V = new virtualtreadmill(new treadmill(), noHeartService);
         return app->exec();
     }
 

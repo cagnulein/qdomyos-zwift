@@ -261,7 +261,6 @@ void virtualbike::bikeProvider()
     value.append((char)(Bike->watts() >> 8) & 0xFF); // watts
 
     value.append(char(Bike->currentHeart())); // Actual value.
-    value.append(char(0)); // Actual value.
 
     QLowEnergyCharacteristic characteristic
             = serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
