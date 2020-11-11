@@ -23,19 +23,15 @@ jobs:
         uses: actions/cache@v2.1.3
         with:
           # A list of files, directories, and wildcard patterns to cache and restore
-          path: '${{ github.workspace }}/output/linux-desktop/' 
+          path: '${{ github.workspace }}/output/' 
           # An explicit key for restoring and saving the cache
-          key: qt-linux-desktop
+          key: qt
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
       # Runs a set of commands using the runners shell
-      - name: Install Qt
+      - name: Install Qt Linux Desktop
         uses: jurplel/install-qt-action@v2
         with:
           version: '5.12.9'
@@ -44,7 +40,7 @@ jobs:
           modules: 'qtcharts debug_info'
           dir: '${{ github.workspace }}/output/linux-desktop/'
       
-      - name: Compile
+      - name: Compile Linux Desktop
         run: cd src; qmake; make -j4
         
       - name: Archive linux-desktop binary
@@ -52,3 +48,27 @@ jobs:
         with:
           name: linux-desktop-binary
           path: src/qdomyos-zwift
+
+      - name: Install Qt Android
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.12.9'
+          host: 'linux'
+          target: 'android'
+          modules: 'qtcharts debug_info'
+          dir: '${{ github.workspace }}/output/android/'
+      
+      - name: Compile Android
+        run: cd src; qmake; make -j4
+
+      - name: Install Qt MacOS
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.12.9'
+          host: 'mac'
+          target: 'desktop'
+          modules: 'qtcharts debug_info'
+          dir: '${{ github.workspace }}/output/macos/'
+      
+      - name: Compile MacOS
+        run: cd src; qmake; make -j4
