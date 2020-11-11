@@ -60,7 +60,7 @@ jobs:
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r21d
-      - run: ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
+      - run: APP_PLATFORM android-14 ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
