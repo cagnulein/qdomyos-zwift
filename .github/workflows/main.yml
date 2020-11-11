@@ -49,6 +49,7 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift
 
+# waiting github.com/jurplel/install-qt-action/issues/63
 #      - name: Install Qt Android
 #        uses: jurplel/install-qt-action@v2
 #        with:
@@ -61,14 +62,14 @@ jobs:
 #      - name: Compile Android
 #        run: cd src; qmake; make -j4
 
-      - name: Install Qt MacOS
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: '5.12.9'
-          host: 'mac'
-          target: 'desktop'
-          modules: 'qtcharts debug_info'
-          dir: '${{ github.workspace }}/output/macos/'
+#      - name: Install Qt MacOS
+#        uses: jurplel/install-qt-action@v2
+#        with:
+#          version: '5.12.9'
+#          host: 'mac'
+#          target: 'desktop'
+#          modules: 'qtcharts debug_info'
+#          dir: '${{ github.workspace }}/output/macos/'
       
-      - name: Compile MacOS
-        run: cd src; qmake; make -j4
+#      - name: Compile MacOS
+#        run: cd src; qmake; make -j4
