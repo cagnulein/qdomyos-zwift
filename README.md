@@ -28,7 +28,7 @@ UI on MacOS
 
 ### Installation from source
 
-$ sudo apt upgrade && sudo apt update # this is very important on raspberry pi: you need the bluetooth firmware updated!
+$ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
 
 $ sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default
 
