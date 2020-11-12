@@ -56,11 +56,12 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift
 
-      - uses: actions/checkout@v2
       - uses: nttld/setup-ndk@v1
         with:
           ndk-version: r21d
-      - run: APP_PLATFORM android-14 ndk-build NDK_PROJECT_PATH=. APP_BUILD_SCRIPT=./Android.mk NDK_APPLICATION_MK=./Application.mk
+      - run: |
+          echo ${{ steps.setup-ndk.outputs.ndk-path }} > ./ndkpath.txt
+          pwsh -Command ./build.ps1
 
 # waiting github.com/jurplel/install-qt-action/issues/63
       - name: Install Qt Android
