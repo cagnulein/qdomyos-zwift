@@ -106,7 +106,7 @@ void domyosbike::forceResistance(int8_t requestResistance)
 
 void domyosbike::update()
 {
-    static QTime lastTime;
+    static QDateTime lastTime;
     static bool first = true;
     uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
 
@@ -136,13 +136,13 @@ void domyosbike::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        QTime current = QTime::currentTime();
+        QDateTime current = QDateTime::currentDateTime();
         if(currentSpeed() > 0.0 && !first)
            elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         lastTime = current;
 
         // updating the treadmill console every second
-        if(sec1++ == (1000 / refresh->interval()))
+        if(sec1++ == (500 / refresh->interval()))
         {
             sec1 = 0;
             updateDisplay(elapsed);
@@ -206,7 +206,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
-    static QTime lastRefresh = QTime::currentTime();
+    static QDateTime lastRefresh = QDateTime::currentDateTime();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -244,9 +244,9 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
     Heart = newValue.at(18);
 
-    CrankRevs += ((double)(lastRefresh.msecsTo(QTime::currentTime())) * ((double)Cadence / 60000.0) );
-    LastCrankEventTime += (uint16_t)((lastRefresh.msecsTo(QTime::currentTime())) * 1.024);
-    lastRefresh = QTime::currentTime();
+    CrankRevs += ((double)(lastRefresh.msecsTo(QDateTime::currentDateTime())) * ((double)Cadence / 60000.0) );
+    LastCrankEventTime += (uint16_t)((lastRefresh.msecsTo(QDateTime::currentDateTime())) * 1.024);
+    lastRefresh = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));

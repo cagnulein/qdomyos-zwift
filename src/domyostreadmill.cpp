@@ -187,7 +187,7 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
 void domyostreadmill::update()
 {
     static uint8_t sec1 = 0;
-    static QTime lastTime;
+    static QDateTime lastTime;
     static bool first = true;
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
@@ -208,13 +208,13 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        QTime current = QTime::currentTime();
+        QDateTime current = QDateTime::currentDateTime();
         if(currentSpeed() > 0.0 && !first)
            elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         lastTime = current;
 
         // updating the treadmill console every second
-        if(sec1++ >= (1000 / refresh->interval()))
+        if(sec1++ >= (500 / refresh->interval()))
         {
             if(incompletePackets == false && noConsole == false)
             {
@@ -303,7 +303,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
-    static QTime lastTime;
+    static QDateTime lastTime;
     static bool first = true;
     QByteArray value = newValue;
 
@@ -378,7 +378,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     FanSpeed = value.at(23);
 
     if(!first)
-        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTime.msecsTo(QTime::currentTime()))));
+        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTime.msecsTo(QDateTime::currentDateTime()))));
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
@@ -395,7 +395,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     KCal = kcal;
     Distance = distance;    
 
-    lastTime = QTime::currentTime();
+    lastTime = QDateTime::currentDateTime();
     first = false;
 }
 
