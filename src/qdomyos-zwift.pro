@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning charts
+QT += bluetooth widgets xml positioning charts quick
 
 CONFIG += c++11 console debug app_bundle
 
@@ -56,18 +56,17 @@ FORMS += \
    mainwindow.ui
 
 RESOURCES += \
-   icons.qrc
+   icons.qrc \
+   qml.qrc
 
 DISTFILES += \
-   Mainwindow.qml \
-   MainwindowForm.ui.qml \
    android/AndroidManifest.xml \
    android/build.gradle \
    android/gradle/wrapper/gradle-wrapper.jar \
    android/gradle/wrapper/gradle-wrapper.properties \
    android/gradlew \
    android/gradlew.bat \
-   android/res/values/libs.xml
+	android/res/values/libs.xml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <QStandardPaths>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
@@ -140,6 +142,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+#if 0
+#ifndef Q_OS_ANDROID
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
     qInstallMessageHandler(myMessageOutput);
 
@@ -153,9 +157,24 @@ int main(int argc, char *argv[])
         virtualtreadmill* V = new virtualtreadmill(new treadmill(), noHeartService);
         return app->exec();
     }
-
+#endif
+#endif
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance);
 
+#if 1//def Q_OS_ANDROID
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication app(argc, argv);
+    QQmlApplicationEngine engine;
+    const QUrl url(QStringLiteral("qrc:/main.qml"));
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+    }, Qt::QueuedConnection);
+    engine.load(url);
+
+    return app.exec();
+#else
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
         MainWindow* W = 0;
@@ -167,6 +186,6 @@ int main(int argc, char *argv[])
     } else {
         // start non-GUI version...
     }
-
     return app->exec();
+#endif
 }
