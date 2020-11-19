@@ -9,9 +9,6 @@ ApplicationWindow {
     visible: true
     title: qsTr("Stack")
 
-    Material.theme: Material.Dark
-    Material.accent: Material.Purple
-
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
 
