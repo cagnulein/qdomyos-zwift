@@ -7,77 +7,7 @@ Page {
 
     title: qsTr("qDomyos-Zwift")
     id: page
-
-    ListModel {
-        id: appModel
-
-        ListElement {
-            name: "Speed (km/h)"
-            icon: "icons/icons/speed.png"
-            value: "0.0"
-            writable: true
-        }
-        ListElement {
-            name: "Inclination (%)"
-            icon: "icons/icons/inclination.png"
-            value: "0.0"
-            writable: true
-        }
-        ListElement {
-            name: "Cadence (bpm)"
-            icon: "icons/icons/cadence.png"
-            value: "0"
-            writable: false
-        }
-        ListElement {
-            name: "Elev. Gain (m)"
-            icon: "icons/icons/elevationgain.png"
-            value: "0"
-            writable: false
-        }
-        ListElement {
-            name: "Calories (KCal)"
-            icon: "icons/icons/kcal.png"
-            value: "0"
-            writable: false
-        }
-        ListElement {
-            name: "Odometer (km)"
-            icon: "icons/icons/odometer.png"
-            value: "0.0"
-            writable: false
-        }
-        ListElement {
-            name: "Pace (m/km)"
-            icon: "icons/icons/pace.png"
-            value: "0:00"
-            writable: false
-        }
-        ListElement {
-            name: "Resistance (%)"
-            icon: "icons/icons/resistance.png"
-            value: "0"
-            writable: true
-        }
-        ListElement {
-            name: "Watt"
-            icon: "icons/icons/watt.png"
-            value: "0"
-            writable: false
-        }
-        ListElement {
-            name: "Heart (bpm)"
-            icon: "icons/icons/heart_red.png"
-            value: "0"
-            writable: false
-        }
-        ListElement {
-            name: "Fan Speed"
-            icon: "icons/icons/fan.png"
-            value: "0"
-            writable: true
-        }
-    }
+    property alias start: start
 
     Item {
         width: parent.width
@@ -99,7 +29,7 @@ Page {
                     width: 96
                     height: 96
                     source: "icons/icons/bluetooth-icon.png"
-                    enabled: false
+                    enabled: rootItem.device
                     smooth: true
                     z: 22
                 }
@@ -151,7 +81,7 @@ Page {
                     height: 96
 
                     source: "icons/icons/zwift-on.png"
-                    enabled: false
+                    enabled: rootItem.zwift
                     smooth: true
                 }
                 ColorOverlay {
@@ -173,6 +103,7 @@ Page {
         leftMargin: 5
         topMargin: row.height
         id: gridView
+        objectName: "gridview"
 
         //        highlight: Rectangle {
         //            width: 150
@@ -180,9 +111,10 @@ Page {
         //            color: "lightsteelblue"
         //        }
         delegate: Item {
-            id: item1
+            id: id1
             width: 150
             height: 180
+            objectName: nameobject
 
             Rectangle {
                 width: 148
@@ -203,6 +135,7 @@ Page {
                 source: icon
             }
             Text {
+                objectName: "value"
                 id: myValue
                 color: Material.textSelectionColor
                 y: 0

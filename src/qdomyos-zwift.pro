@@ -20,6 +20,7 @@ SOURCES += \
    charts.cpp \
         domyostreadmill.cpp \
         gpx.cpp \
+   homeform.cpp \
         main.cpp \
         toorxtreadmill.cpp \
         treadmill.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
    bluetoothdevice.h \
    charts.h \
    domyostreadmill.h \
+   homeform.h \
    toorxtreadmill.h \
    gpx.h \
    treadmill.h \

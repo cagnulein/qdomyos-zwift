@@ -38,7 +38,7 @@ ApplicationWindow {
 
         Column {
             anchors.fill: parent
-
+/*
             ItemDelegate {
                 text: qsTr("Page 1")
                 width: parent.width
@@ -54,7 +54,7 @@ ApplicationWindow {
                     stackView.push("Page2Form.ui.qml")
                     drawer.close()
                 }
-            }
+            }*/
         }
     }
 

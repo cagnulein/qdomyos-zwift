@@ -9,6 +9,7 @@
 #include "domyostreadmill.h"
 #include "bluetooth.h"
 #include "mainwindow.h"
+#include "homeform.h"
 
 bool nologs = false;
 bool noWriteResistance = false;
@@ -172,6 +173,7 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
     engine.load(url);
+    new homeform(&engine, bl);
 
     return app.exec();
 #else
