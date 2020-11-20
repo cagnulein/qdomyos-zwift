@@ -6,6 +6,7 @@ import QtGraphicalEffects 1.12
 Page {
 
     title: qsTr("qDomyos-Zwift")
+    id: page
 
     ListModel {
         id: appModel
@@ -78,44 +79,87 @@ Page {
         }
     }
 
-    Row {
-        id: row
+    Item {
         width: parent.width
-        height: 100
+        height: 120
 
-        Item {
-            Image {
-                id: treadmill_connection
-                x: 5
-                width: 96
-                height: 96
-                source: "icons/icons/bluetooth-icon.png"
-                enabled: false
-                smooth: true
-            }
-            ColorOverlay {
-                anchors.fill: treadmill_connection
-                source: treadmill_connection
-                color: treadmill_connection.enabled ? "#00000000" : "#80800000"
-            }
-        }
+        Row {
+            id: row
+            anchors.horizontalCenter: parent.horizontalCenter
+            height: 100
+            spacing: 5
+            padding: 5
 
-        Item {
-            Image {
-                id: zwift_connection
-                x: 100
-                width: 96
-                height: 96
-                source: "icons/icons/zwift-on.png"
-                enabled: false
-                smooth: true
-            }
-            ColorOverlay {
-                anchors.fill: zwift_connection
-                source: zwift_connection
-                color: zwift_connection.enabled ? "#00000000" : "#80800000"
+            Rectangle {
+                width: 100
+                height: 100
+                color: Material.backgroundColor
+                Image {
+                    id: treadmill_connection
+                    width: 96
+                    height: 96
+                    source: "icons/icons/bluetooth-icon.png"
+                    enabled: false
+                    smooth: true
+                    z: 22
+                }
+                ColorOverlay {
+                    anchors.fill: treadmill_connection
+                    source: treadmill_connection
+                    color: treadmill_connection.enabled ? "#00000000" : "#40800000"
+                }
             }
 
+            Rectangle {
+                width: 120
+                height: 100
+                color: Material.backgroundColor
+                RoundButton {
+                    icon.source: "icons/icons/start.png"
+                    icon.height: 46
+                    icon.width: 46
+                    text: "Start"
+                    id: start
+                    width: 120
+                    height: 96
+                }
+            }
+
+            Rectangle {
+                width: 120
+                height: 100
+                color: Material.backgroundColor
+                RoundButton {
+                    icon.source: "icons/icons/stop.png"
+                    icon.height: 46
+                    icon.width: 46
+                    text: "Stop"
+                    id: stop
+                    width: 120
+                    height: 96
+                }
+            }
+
+            Rectangle {
+                id: item2
+                width: 100
+                height: 100
+                color: Material.backgroundColor
+                Image {
+                    id: zwift_connection
+                    width: 96
+                    height: 96
+
+                    source: "icons/icons/zwift-on.png"
+                    enabled: false
+                    smooth: true
+                }
+                ColorOverlay {
+                    anchors.fill: zwift_connection
+                    source: zwift_connection
+                    color: zwift_connection.enabled ? "#00000000" : "#40800000"
+                }
+            }
         }
     }
 
@@ -128,6 +172,7 @@ Page {
         model: appModel
         leftMargin: 5
         topMargin: row.height
+        id: gridView
 
         //        highlight: Rectangle {
         //            width: 150
@@ -144,6 +189,7 @@ Page {
                 height: 178
                 radius: 3
                 border.width: 1
+                color: Material.backgroundColor
             }
 
             Image {
@@ -158,7 +204,7 @@ Page {
             }
             Text {
                 id: myValue
-                color: Material.accentColor
+                color: Material.textSelectionColor
                 y: 0
                 anchors {
                     horizontalCenter: parent.horizontalCenter
@@ -174,6 +220,7 @@ Page {
                     top: myIcon.top
                 }
                 font.bold: true
+                color: "white"
                 text: name
                 anchors.left: parent.left
                 anchors.leftMargin: 55
@@ -206,62 +253,6 @@ Page {
             }
         }
     }
-
-
-    /*GridView {
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill: parent
-        cellWidth: 150
-        cellHeight: 180
-        focus: true
-        model: appModel
-        leftMargin: 5
-        topMargin: 5
-
-        Item {
-            id: item2
-            width: 150
-            height: 180
-
-            Rectangle {
-                width: 148
-                height: 178
-                radius: 3
-                border.width: 1
-            }
-            Image {
-                id: treadmill_connection
-                x: 5
-                anchors {
-                    top: 5
-                }
-                width: 96
-                height: 96
-                source: "icons/icons/bluetooth-icon.png"
-                enabled: false
-            }
-        }
-
-        Item {
-            Rectangle {
-                width: 148
-                height: 178
-                radius: 3
-                border.width: 1
-            }
-            Image {
-                id: zwift_connection
-                x: 5
-                anchors {
-                    top: 5
-                }
-                width: 96
-                height: 96
-                source: "icons/icons/zwift-on.png"
-                enabled: false
-            }
-        }
-    }*/
 }
 
 /*##^##
