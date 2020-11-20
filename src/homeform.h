@@ -4,6 +4,7 @@
 #include <QQuickItem>
 #include <QQmlApplicationEngine>
 #include "bluetooth.h"
+#include "sessionline.h"
 
 class DataObject : public QObject
 {
@@ -34,7 +35,6 @@ signals:
 class homeform: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY( QString speed READ getSpeed NOTIFY changeOfspeed)
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
 
@@ -43,15 +43,30 @@ public:
 
 private:
     QList<QObject *> dataList;
+    QList<SessionLine> Session;
     bluetooth* Bluetooth;
-    QString getSpeed();
+
+    DataObject* speed = new DataObject("Speed (km/h)", "icons/icons/speed.png", "0.0", true);
+    DataObject* inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true);
+    DataObject* cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false);
+    DataObject* elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false);
+    DataObject* calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false);
+    DataObject* odometer = new DataObject("Odometer (km)", "icons/icons/odometer.png", "0.0", false);
+    DataObject* pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false);
+    DataObject* resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true);
+    DataObject* watt = new DataObject("Watt", "icons/icons/watt.png", "0", false);
+    DataObject* heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false);
+    DataObject* fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true);
+
+    QTimer* timer;
+
+    void update();
     bool getDevice();
     bool getZwift();
 
 signals:
- void changeOfspeed(QString i);
- void changeOfdevice(bool i);
- void changeOfzwift(bool i);
+ void changeOfdevice();
+ void changeOfzwift();
 };
 
 #endif // HOMEFORM_H

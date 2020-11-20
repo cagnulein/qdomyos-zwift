@@ -22,6 +22,7 @@ SOURCES += \
         gpx.cpp \
    homeform.cpp \
         main.cpp \
+   sessionline.cpp \
         toorxtreadmill.cpp \
         treadmill.cpp \
         mainwindow.cpp \
@@ -43,6 +44,7 @@ HEADERS += \
    charts.h \
    domyostreadmill.h \
    homeform.h \
+   sessionline.h \
    toorxtreadmill.h \
    gpx.h \
    treadmill.h \

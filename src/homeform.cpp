@@ -1,5 +1,6 @@
 #include "homeform.h"
 #include <QQmlContext>
+#include <QTime>
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable)
 {
@@ -17,27 +18,90 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     engine->rootContext()->setContextProperty("rootItem", (QObject *)this);
 
     dataList = {
-        new DataObject("Speed (km/h)", "icons/icons/speed.png", "0.0", true),
-        new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true),
-        new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false),
-        new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false),
-        new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false),
-        new DataObject("Odometer (km)", "icons/icons/odometer.png", "0.0", false),
-        new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false),
-        new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true),
-        new DataObject("Watt", "icons/icons/watt.png", "0", false),
-        new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false),
-        new DataObject("Fan Speed", "icons/icons/fan.png", "0", true),
+        speed,
+        inclination,
+        cadence,
+        elevation,
+        calories,
+        odometer,
+        pace,
+        resistance,
+        watt,
+        heart,
+        fan
     };
 
     engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
 
-    ((DataObject*)dataList.at(0))->setValue("10");
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &homeform::update);
+    timer->start(1000);
 }
 
-QString homeform::getSpeed()
+void homeform::update()
 {
-    return "10.0";
+    if(Bluetooth->device())
+    {
+        double inclination = 0;
+        double resistance = 0;
+        double watts = 0;
+        double pace = 0;
+
+        speed->setValue(QString::number(Bluetooth->device()->currentSpeed(), 'f', 2));
+        heart->setValue(QString::number(Bluetooth->device()->currentHeart()));
+        odometer->setValue(QString::number(Bluetooth->device()->odometer(), 'f', 2));
+        calories->setValue(QString::number(Bluetooth->device()->calories(), 'f', 0));
+        fan->setValue(QString::number(Bluetooth->device()->fanSpeed()));
+
+        if(Bluetooth->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            pace = 10000 / (((treadmill*)Bluetooth->device())->currentPace().second() + (((treadmill*)Bluetooth->device())->currentPace().minute() * 60));
+            if(pace < 0) pace = 0;
+            watts = ((treadmill*)Bluetooth->device())->watts(/*weight->text().toFloat()*/); // TODO: add weight to settings
+            inclination = ((treadmill*)Bluetooth->device())->currentInclination();
+            this->pace->setValue(((treadmill*)Bluetooth->device())->currentPace().toString("m:ss"));
+            watt->setValue(QString::number(watts, 'f', 0));
+            this->inclination->setValue(QString::number(inclination, 'f', 1));
+            elevation->setValue(QString::number(((treadmill*)Bluetooth->device())->elevationGain(), 'f', 1));
+        }
+        else if(Bluetooth->device()->deviceType() == bluetoothdevice::BIKE)
+        {
+            resistance = ((bike*)Bluetooth->device())->currentResistance();
+            watts = ((bike*)Bluetooth->device())->watts();
+            watt->setValue(QString::number(watts));
+            this->resistance->setValue(QString::number(resistance));
+        }
+/*
+        if(trainProgram)
+        {
+            trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+            trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+            trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
+
+            double distance = trainProgram->totalDistance();
+            if(distance > 0)
+            {
+                trainProgramTotalDistance->setText(QString::number(distance));
+            }
+            else
+                trainProgramTotalDistance->setText("N/A");
+        }
+*/
+
+        SessionLine s(
+                      Bluetooth->device()->currentSpeed(),
+                      inclination,
+                      Bluetooth->device()->odometer(),
+                      watts,
+                      resistance,
+                      Bluetooth->device()->currentHeart(),
+                      pace);
+
+        Session.append(s);
+    }
+
+    emit changeOfdevice();
+    emit changeOfzwift();
 }
 
 bool homeform::getDevice()

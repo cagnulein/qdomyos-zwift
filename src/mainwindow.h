@@ -8,26 +8,11 @@
 #include <QTableWidgetItem>
 #include "trainprogram.h"
 #include "domyostreadmill.h"
+#include "sessionline.h"
 
 namespace Ui {
 class MainWindow;
 }
-
-class SessionLine
-{
-public:
-    double speed;
-    int8_t inclination;
-    double distance;
-    uint8_t watt;
-    int8_t resistance;
-    uint8_t heart;
-    double pace;
-    QTime time;
-
-    SessionLine();
-    SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, double pace, QTime time = QTime::currentTime());
-};
 
 class MainWindow : public QDialog
 {

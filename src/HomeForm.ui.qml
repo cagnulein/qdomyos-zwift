@@ -31,12 +31,11 @@ Page {
                     source: "icons/icons/bluetooth-icon.png"
                     enabled: rootItem.device
                     smooth: true
-                    z: 22
                 }
                 ColorOverlay {
                     anchors.fill: treadmill_connection
                     source: treadmill_connection
-                    color: treadmill_connection.enabled ? "#00000000" : "#40800000"
+                    color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
                 }
             }
 
@@ -79,7 +78,6 @@ Page {
                     id: zwift_connection
                     width: 96
                     height: 96
-
                     source: "icons/icons/zwift-on.png"
                     enabled: rootItem.zwift
                     smooth: true
@@ -87,7 +85,7 @@ Page {
                 ColorOverlay {
                     anchors.fill: zwift_connection
                     source: zwift_connection
-                    color: zwift_connection.enabled ? "#00000000" : "#40800000"
+                    color:  zwift_connection.enabled ? "#00000000" : "#B0D3d3d3"
                 }
             }
         }
