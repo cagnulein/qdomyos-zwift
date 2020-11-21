@@ -2,12 +2,16 @@
 #include <QQmlContext>
 #include <QTime>
 
-DataObject::DataObject(QString name, QString icon, QString value, bool writable)
+DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id)
 {
     m_name = name;
     m_icon = icon;
     m_value = value;
     m_writable = writable;
+    m_id = id;
+
+    emit plusNameChanged(plusName());
+    emit minusNameChanged(minusName());
 }
 
 void DataObject::setValue(QString v) {m_value = v; emit valueChanged(m_value);}
@@ -39,10 +43,24 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()),
         this, SLOT(Stop()));
+    QObject::connect(home, SIGNAL(plus_clicked(QString)),
+        this, SLOT(Plus(QString)));
+    QObject::connect(home, SIGNAL(minus_clicked(QString)),
+        this, SLOT(Minus(QString)));
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &homeform::update);
     timer->start(1000);
+}
+
+void homeform::Plus(QString name)
+{
+    qDebug() << name;
+}
+
+void homeform::Minus(QString name)
+{
+    qDebug() << name;
 }
 
 void homeform::Start()
