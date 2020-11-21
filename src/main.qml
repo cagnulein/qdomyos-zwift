@@ -60,7 +60,7 @@ ApplicationWindow {
 
     StackView {
         id: stackView
-        initialItem: "HomeForm.ui.qml"
+        initialItem: "Home.qml"
         anchors.fill: parent
     }
 }

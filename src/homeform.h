@@ -10,10 +10,10 @@ class DataObject : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString name READ name)
-    Q_PROPERTY(QString icon READ icon)
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
-    Q_PROPERTY(bool writable READ writable)
+    Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
 
 public:
     DataObject(QString name, QString icon, QString value, bool writable);
@@ -30,6 +30,9 @@ public:
 
 signals:
     void valueChanged(QString value);
+    void nameChanged(QString value);
+    void iconChanged(QString value);
+    void writableChanged(bool value);
 };
 
 class homeform: public QObject
@@ -63,6 +66,10 @@ private:
     void update();
     bool getDevice();
     bool getZwift();
+
+private slots:
+    void Start();
+    void Stop();
 
 signals:
  void changeOfdevice();

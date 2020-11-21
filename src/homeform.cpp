@@ -33,9 +33,29 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 
     engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
 
+    QObject *rootObject = engine->rootObjects().first();
+    QObject *home = rootObject->findChild<QObject*>("home");
+    QObject::connect(home, SIGNAL(start_clicked()),
+        this, SLOT(Start()));
+    QObject::connect(home, SIGNAL(stop_clicked()),
+        this, SLOT(Stop()));
+
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &homeform::update);
     timer->start(1000);
+}
+
+void homeform::Start()
+{
+    //trainProgram->restart();
+    if(Bluetooth->device())
+        Bluetooth->device()->start();
+}
+
+void homeform::Stop()
+{
+    if(Bluetooth->device())
+        Bluetooth->device()->stop();
 }
 
 void homeform::update()

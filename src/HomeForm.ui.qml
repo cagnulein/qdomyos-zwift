@@ -7,7 +7,9 @@ Page {
 
     title: qsTr("qDomyos-Zwift")
     id: page
+
     property alias start: start
+    property alias stop: stop
 
     Item {
         width: parent.width
@@ -48,6 +50,7 @@ Page {
                     icon.height: 46
                     icon.width: 46
                     text: "Start"
+                    enabled: true
                     id: start
                     width: 120
                     height: 96
@@ -63,6 +66,7 @@ Page {
                     icon.height: 46
                     icon.width: 46
                     text: "Stop"
+                    enabled: true
                     id: stop
                     width: 120
                     height: 96
@@ -112,7 +116,6 @@ Page {
             id: id1
             width: 150
             height: 180
-            objectName: nameobject
 
             Rectangle {
                 width: 148
