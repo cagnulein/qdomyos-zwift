@@ -23,7 +23,7 @@ HomeForm{
         focus: true
         model: appModel
         leftMargin: 5
-        topMargin: row.height
+        anchors.topMargin: 150
         id: gridView
         objectName: "gridview"
 

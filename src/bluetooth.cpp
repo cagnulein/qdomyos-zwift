@@ -42,6 +42,7 @@ void bluetooth::debug(QString text)
 
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
+    emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
     /* only on qt 5.12
     foreach(quint16 i, device.manufacturerIds())

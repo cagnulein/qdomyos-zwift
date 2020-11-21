@@ -38,16 +38,16 @@ ApplicationWindow {
 
         Column {
             anchors.fill: parent
-/*
+
             ItemDelegate {
-                text: qsTr("Page 1")
+                text: qsTr("by Roberto Viola")
                 width: parent.width
-                onClicked: {
+/*                onClicked: {
                     stackView.push("Page1Form.ui.qml")
                     drawer.close()
-                }
+                }*/
             }
-            ItemDelegate {
+/*            ItemDelegate {
                 text: qsTr("Page 2")
                 width: parent.width
                 onClicked: {

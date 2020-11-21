@@ -90,8 +90,20 @@ Page {
                 ColorOverlay {
                     anchors.fill: zwift_connection
                     source: zwift_connection
-                    color:  zwift_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                    color: zwift_connection.enabled ? "#00000000" : "#B0D3d3d3"
                 }
+            }
+        }
+
+        Row {
+            id: row1
+            width: parent.width
+            anchors.bottom: row.bottom
+            anchors.bottomMargin: -10
+
+            Label {
+                anchors.horizontalCenter: parent.horizontalCenter
+                text: rootItem.info
             }
         }
     }
@@ -99,7 +111,7 @@ Page {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:640}
+    D{i:0;autoSize:true;formeditorZoom:0.33000001311302185;height:480;width:640}
 }
 ##^##*/
 

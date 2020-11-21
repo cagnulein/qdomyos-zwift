@@ -47,14 +47,18 @@ class homeform: public QObject
     Q_OBJECT
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
+    Q_PROPERTY(QString info READ info NOTIFY infoChanged)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
+    QString info() {return m_info;}
 
 private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
-    bluetooth* Bluetooth;
+    bluetooth* bluetoothManager;
+
+    QString m_info = "Connecting...";
 
     DataObject* speed = new DataObject("Speed (km/h)", "icons/icons/speed.png", "0.0", true, "speed");
     DataObject* inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination");
@@ -79,10 +83,12 @@ private slots:
     void Stop();
     void Minus(QString);
     void Plus(QString);
+    void deviceFound(QString name);
 
 signals:
  void changeOfdevice();
  void changeOfzwift();
+ void infoChanged(QString value);
 };
 
 #endif // HOMEFORM_H

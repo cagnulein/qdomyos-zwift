@@ -46,6 +46,7 @@ private:
 
 signals:
     void deviceConnected();
+    void deviceFound(QString name);
 
 public slots:
     void restart();
