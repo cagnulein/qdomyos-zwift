@@ -5,6 +5,9 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
+static double lastSpeed = 0.0;
+static double lastInclination = 0;
+
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
 uint8_t initData2[] = { 0xf0, 0xc9, 0xb9 };
@@ -136,8 +139,8 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
       display[26] += display[i]; // the last byte is a sort of a checksum
    }
 
-   writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
-   writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed), false, false );
+   writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed), false, true );
 }
 
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
@@ -161,8 +164,8 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
    //qDebug() << "writeIncline crc" << QString::number(writeIncline[26], 16);
 
 
-   writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
-   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
+   writeCharacteristic(writeIncline, 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline), false, false);
+   writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline), false, true);
 }
 
 bool domyostreadmill::changeFanSpeed(uint8_t speed)
@@ -178,7 +181,7 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
       fanSpeed[3] += fanSpeed[i]; // the last byte is a sort of a checksum
    }
 
-   writeCharacteristic(fanSpeed, 4, "changeFanSpeed speed=" + QString::number(speed));
+   writeCharacteristic(fanSpeed, 4, "changeFanSpeed speed=" + QString::number(speed), false, true);
 
    return true;
 }
@@ -263,6 +266,8 @@ void domyostreadmill::update()
             if(requestStart != -1)
             {
                debug("starting...");
+               if(lastSpeed == 0.0)
+                   lastSpeed = 0.5;
                btinit(true);
                requestStart = -1;
                emit tapeStarted();
@@ -395,6 +400,12 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     KCal = kcal;
     Distance = distance;    
 
+    if(speed > 0)
+    {
+        lastSpeed = speed;
+        lastInclination = incline;
+    }
+
     lastTime = QDateTime::currentDateTime();
     first = false;
 }
@@ -436,16 +447,20 @@ void domyostreadmill::btinit(bool startTape)
     writeCharacteristic(initDataStart3, sizeof(initDataStart3), "init", false, true);
     writeCharacteristic(initDataStart4, sizeof(initDataStart4), "init", false, true);
     writeCharacteristic(initDataStart5, sizeof(initDataStart5), "init", false, true);
-    writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
-    writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+    //writeCharacteristic(initDataStart6, sizeof(initDataStart6), "init", false, false);
+    //writeCharacteristic(initDataStart7, sizeof(initDataStart7), "init", false, true);
+    forceSpeedOrIncline(lastSpeed, lastInclination);
+
     writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init", false, false);
-    writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init", false, true);
-    writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init", false, false);
+    writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init", false, true);    
     if(startTape)
     {
+        writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init", false, false);
         writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init", false, true);
         writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init", false, false);
         writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init", false, true);
+
+        forceSpeedOrIncline(lastSpeed, lastInclination);
     }
 
     initDone = true;
