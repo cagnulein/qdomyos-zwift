@@ -5,6 +5,8 @@ Zwift bridge for Treadmills and Bike!
 
 ![UI](docs/treadmill-bridge-schema.png)
 
+[![Video](https://img.youtube.com/vi/GgG3dMhmo2Y/0.jpg)](https://www.youtube.com/watch?v=GgG3dMhmo2Y)
+
 ![UI](docs/ui.png)
 ![UI](docs/realtime-chart.png)
 
