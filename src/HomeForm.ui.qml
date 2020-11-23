@@ -19,18 +19,20 @@ Page {
         Row {
             id: row
             anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
             height: 100
             spacing: 5
             padding: 5
 
             Rectangle {
-                width: 100
+                width: 50
                 height: 100
                 color: Material.backgroundColor
                 Image {
+                    anchors.verticalCenter: parent.verticalCenter
                     id: treadmill_connection
-                    width: 96
-                    height: 96
+                    width: 48
+                    height: 48
                     source: "icons/icons/bluetooth-icon.png"
                     enabled: rootItem.device
                     smooth: true
@@ -76,13 +78,14 @@ Page {
 
             Rectangle {
                 id: item2
-                width: 100
+                width: 50
                 height: 100
                 color: Material.backgroundColor
                 Image {
+                    anchors.verticalCenter: parent.verticalCenter
                     id: zwift_connection
-                    width: 96
-                    height: 96
+                    width: 48
+                    height: 48
                     source: "icons/icons/zwift-on.png"
                     enabled: rootItem.zwift
                     smooth: true
@@ -111,7 +114,7 @@ Page {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorZoom:0.33000001311302185;height:480;width:640}
+    D{i:0;autoSize:true;formeditorZoom:0.6600000262260437;height:480;width:640}
 }
 ##^##*/
 

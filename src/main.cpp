@@ -143,7 +143,6 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
-#if 0
 #ifndef Q_OS_ANDROID
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
     qInstallMessageHandler(myMessageOutput);
@@ -159,10 +158,9 @@ int main(int argc, char *argv[])
         return app->exec();
     }
 #endif
-#endif
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance);
 
-#if 1//def Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;

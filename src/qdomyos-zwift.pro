@@ -1,4 +1,5 @@
 QT += bluetooth widgets xml positioning charts quick
+unix:android: QT += androidextras
 
 CONFIG += c++11 console debug app_bundle
 
@@ -70,7 +71,8 @@ DISTFILES += \
    android/gradle/wrapper/gradle-wrapper.properties \
    android/gradlew \
    android/gradlew.bat \
-	android/res/values/libs.xml
+	android/res/values/libs.xml \
+   android/src/MyActivity.java
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

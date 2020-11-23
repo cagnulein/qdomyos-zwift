@@ -18,11 +18,11 @@ HomeForm{
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        cellWidth: 150
-        cellHeight: 180
+        cellWidth: 175
+        cellHeight: 125
         focus: true
         model: appModel
-        leftMargin: 5
+        leftMargin: { (parent.width % 175) / 2;  }
         anchors.topMargin: 150
         id: gridView
         objectName: "gridview"
@@ -34,14 +34,14 @@ HomeForm{
         //        }
         delegate: Item {
             id: id1
-            width: 150
-            height: 180
+            width: 175
+            height: 125
 
             Component.onCompleted: console.log("completed " + objectName)
 
             Rectangle {
-                width: 148
-                height: 178
+                width: 173
+                height: 123
                 radius: 3
                 border.width: 1
                 color: Material.backgroundColor
@@ -87,9 +87,9 @@ HomeForm{
                 text: "-"
                 onClicked: minus_clicked(objectName)
                 visible: writable
-                anchors.top: myIcon.bottom
+                anchors.top: myValue.top
                 anchors.left: parent.left
-                anchors.leftMargin: 10
+                anchors.leftMargin: 2
                 width: 48
                 height: 48
             }
@@ -98,17 +98,17 @@ HomeForm{
                 text: "+"
                 onClicked: plus_clicked(objectName)
                 visible: writable
-                anchors.top: myIcon.bottom
+                anchors.top: myValue.top
                 anchors.right: parent.right
-                anchors.rightMargin: 10
+                anchors.rightMargin: 2
                 width: 48
                 height: 48
             }
 
-            MouseArea {
+            /*MouseArea {
                 anchors.fill: parent
                 onClicked: parent.GridView.view.currentIndex = index
-            }
+            }*/
         }
     }
 }
