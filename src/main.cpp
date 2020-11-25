@@ -150,11 +150,13 @@ int main(int argc, char *argv[])
     if(onlyVirtualBike)
     {
         virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
+        Q_UNUSED(V)
         return app->exec();
     }
     else if(onlyVirtualTreadmill)
     {
         virtualtreadmill* V = new virtualtreadmill(new treadmill(), noHeartService);
+        Q_UNUSED(V)
         return app->exec();
     }
 #endif

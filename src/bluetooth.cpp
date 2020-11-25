@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
+#include <QtXml>
 
 bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance)
 {
@@ -72,6 +73,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         emit(deviceConnected());
         connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+        connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
         domyos->deviceDiscovered(device);
     }
     else if((device.name().startsWith("TRX ROUTE KEY")) && filter)
@@ -140,4 +143,45 @@ bool bluetooth::handleSignal(int signal)
     }
     // Let the signal propagate as though we had not been there
     return true;
+}
+
+void bluetooth::stateFileUpdate()
+{
+    if(!device()) return;
+
+    QFile* log;
+    QDomDocument docStatus;
+    QDomElement docRoot;
+    QDomElement docTreadmill;
+    QDomElement docHeart;
+    log = new QFile("status.xml");
+    if(!log->open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        qDebug() << "Open status.xml for writing failed";
+    }
+    docRoot = docStatus.createElement("Gym");
+    docStatus.appendChild(docRoot);
+    docTreadmill = docStatus.createElement("Treadmill");
+    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed()));
+    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination()));
+    docRoot.appendChild(docTreadmill);
+    //docHeart = docStatus.createElement("Heart");
+    //docHeart.setAttribute("Rate", QString::number(currentHeart));
+    //docRoot.appendChild(docHeart);
+    docRoot.setAttribute("Updated", QDateTime::currentDateTime().toString());
+    QTextStream stream(log);
+    stream << docStatus.toString();
+    log->close();
+}
+
+void bluetooth::speedChanged(double speed)
+{
+    Q_UNUSED(speed);
+    stateFileUpdate();
+}
+
+void bluetooth::inclinationChanged(double inclination)
+{
+    Q_UNUSED(inclination);
+    stateFileUpdate();
 }

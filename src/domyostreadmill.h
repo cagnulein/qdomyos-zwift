@@ -61,6 +61,8 @@ private:
 signals:
     void disconnected();
     void debug(QString string);
+    void speedChanged(double speed);
+    void inclinationChanged(double inclination);
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

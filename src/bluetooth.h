@@ -46,6 +46,7 @@ private:
     uint32_t pollDeviceTime = 200;
 
     bool handleSignal(int signal);
+    void stateFileUpdate();
 
 signals:
     void deviceConnected();
@@ -57,6 +58,8 @@ public slots:
 
 private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void speedChanged(double);
+    void inclinationChanged(double);
 
 signals:
 

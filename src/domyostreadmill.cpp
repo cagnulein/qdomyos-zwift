@@ -395,6 +395,11 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
+    if(Speed != speed)
+        emit speedChanged(speed);
+    if(Inclination != incline)
+        emit inclinationChanged(incline);
+
     Speed = speed;
     Inclination = incline;
     KCal = kcal;
