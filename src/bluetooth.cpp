@@ -70,6 +70,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     {
         discoveryAgent->stop();
         domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
+        stateFileRead();
         emit(deviceConnected());
         connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
@@ -140,14 +141,57 @@ bool bluetooth::handleSignal(int signal)
     if(signal == SIGNALS::SIG_INT)
     {
         qDebug() << "SIGINT";
+        QFile::remove("status.xml");
     }
     // Let the signal propagate as though we had not been there
     return true;
 }
 
+void bluetooth::stateFileRead()
+{
+    if(!device()) return;
+
+    QFile* log;
+    QDomDocument xmlBOM;
+    log = new QFile("status.xml");
+    if(!log->open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug() << "Open status.xml for writing failed";
+        return;
+    }
+    xmlBOM.setContent(log);
+    QDomElement root=xmlBOM.documentElement();
+
+    // Get root names and attributes
+    QString Type=root.tagName();
+    QString lastUpdated = root.attribute("Updated", QDateTime::currentDateTime().toString());
+
+    QDomElement machine=root.firstChild().toElement();
+    // Loop while there is a child
+    while(!machine.isNull())
+    {
+        // Check if the child tag name is COMPONENT
+        if (machine.tagName()=="Treadmill")
+        {
+            // Read and display the component ID
+            double speed = machine.attribute("Speed", "0.0").toDouble();
+            double inclination = machine.attribute("Incline", "0.0").toDouble();
+
+            ((domyostreadmill*)device())->setLastSpeed(speed);
+            ((domyostreadmill*)device())->setLastInclination(inclination);
+        }
+
+        // Next component
+        machine = machine.nextSibling().toElement();
+    }
+
+    log->close();
+}
+
 void bluetooth::stateFileUpdate()
 {
     if(!device()) return;
+    if(device()->deviceType() != bluetoothdevice::TREADMILL) return;
 
     QFile* log;
     QDomDocument docStatus;
@@ -158,12 +202,13 @@ void bluetooth::stateFileUpdate()
     if(!log->open(QIODevice::WriteOnly | QIODevice::Text))
     {
         qDebug() << "Open status.xml for writing failed";
+        return;
     }
     docRoot = docStatus.createElement("Gym");
     docStatus.appendChild(docRoot);
     docTreadmill = docStatus.createElement("Treadmill");
-    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed()));
-    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination()));
+    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed(), 'g', 1));
+    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination(), 'g', 1));
     docRoot.appendChild(docTreadmill);
     //docHeart = docStatus.createElement("Heart");
     //docHeart.setAttribute("Rate", QString::number(currentHeart));
@@ -171,6 +216,7 @@ void bluetooth::stateFileUpdate()
     docRoot.setAttribute("Updated", QDateTime::currentDateTime().toString());
     QTextStream stream(log);
     stream << docStatus.toString();
+    log->flush();
     log->close();
 }
 

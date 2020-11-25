@@ -61,10 +61,17 @@ QLowEnergyCharacteristic gattNotifyCharacteristic;
 bool initDone = false;
 bool initRequest = false;
 
-domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService)
+domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed, double forceInitInclination)
 {
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
+
+    if(forceInitSpeed > 0)
+        lastSpeed = forceInitSpeed;
+
+    if(forceInitInclination > 0)
+        lastInclination = forceInitInclination;
+
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
@@ -202,7 +209,7 @@ void domyostreadmill::update()
     if(initRequest)
     {
         initRequest = false;
-        btinit(false);
+        btinit((lastSpeed > 0 ? true : false));
     }
     else if(bttreadmill.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
@@ -605,4 +612,14 @@ void* domyostreadmill::VirtualDevice()
 double domyostreadmill::odometer()
 {
     return DistanceCalculated;
+}
+
+void domyostreadmill::setLastSpeed(double speed)
+{
+    lastSpeed = speed;
+}
+
+void domyostreadmill::setLastInclination(double inclination)
+{
+    lastInclination = inclination;
 }

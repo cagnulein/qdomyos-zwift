@@ -47,6 +47,7 @@ private:
 
     bool handleSignal(int signal);
     void stateFileUpdate();
+    void stateFileRead();
 
 signals:
     void deviceConnected();
