@@ -4,7 +4,7 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
-bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance) : QObject(nullptr)
+bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -130,4 +130,14 @@ bluetoothdevice* bluetooth::device()
     else if(trxappgateusb)
         return trxappgateusb;
     return nullptr;
+}
+
+bool bluetooth::handleSignal(int signal)
+{
+    if(signal == SIGNALS::SIG_INT)
+    {
+        qDebug() << "SIGINT";
+    }
+    // Let the signal propagate as though we had not been there
+    return true;
 }

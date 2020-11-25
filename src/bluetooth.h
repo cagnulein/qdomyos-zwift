@@ -21,8 +21,9 @@
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "bluetoothdevice.h"
+#include "signalhandler.h"
 
-class bluetooth : public QObject
+class bluetooth : public QObject, public SignalHandler
 {
     Q_OBJECT
 public:
@@ -43,6 +44,8 @@ private:
     bool noConsole = false;
     bool logs = true;
     uint32_t pollDeviceTime = 200;
+
+    bool handleSignal(int signal);
 
 signals:
     void deviceConnected();
