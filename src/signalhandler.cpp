@@ -1,7 +1,7 @@
 #include "signalhandler.h"
 #include <assert.h>
 
-#ifdef __MINGW32_MAJOR_VERSION
+#if 1
 
 #include <signal.h>
 
@@ -14,7 +14,7 @@
 // There can be only ONE SignalHandler per process
 SignalHandler* g_handler(NULL);
 
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
 
 BOOL WINAPI WIN32_handleFunc(DWORD);
 int WIN32_physicalToLogical(DWORD);
@@ -34,7 +34,7 @@ SignalHandler::SignalHandler(int mask) : _mask(mask)
     assert(g_handler == NULL);
     g_handler = this;
 
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
     SetConsoleCtrlHandler(WIN32_handleFunc, TRUE);
 #endif //__MINGW32_MAJOR_VERSION
 
@@ -43,7 +43,7 @@ SignalHandler::SignalHandler(int mask) : _mask(mask)
         int logical = 0x1 << i;
         if (_mask & logical)
         {
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
             g_registry.insert(logical);
 #else
             int sig = POSIX_logicalToPhysical(logical);
@@ -59,7 +59,7 @@ SignalHandler::SignalHandler(int mask) : _mask(mask)
 
 SignalHandler::~SignalHandler()
 {
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
     SetConsoleCtrlHandler(WIN32_handleFunc, FALSE);
 #else
     for (int i=0;i<numSignals;i++)
@@ -74,7 +74,7 @@ SignalHandler::~SignalHandler()
 }
 
 
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
 DWORD WIN32_logicalToPhysical(int signal)
 {
     switch (signal)
@@ -104,7 +104,7 @@ int POSIX_logicalToPhysical(int signal)
 #endif //__MINGW32_MAJOR_VERSION
 
 
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
 int WIN32_physicalToLogical(DWORD signal)
 {
     switch (signal)
@@ -132,7 +132,7 @@ int POSIX_physicalToLogical(int signal)
 
 
 
-#ifndef __MINGW32_MAJOR_VERSION
+#if 0
 BOOL WINAPI WIN32_handleFunc(DWORD signal)
 {
     if (g_handler)
