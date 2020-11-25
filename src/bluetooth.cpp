@@ -207,8 +207,8 @@ void bluetooth::stateFileUpdate()
     docRoot = docStatus.createElement("Gym");
     docStatus.appendChild(docRoot);
     docTreadmill = docStatus.createElement("Treadmill");
-    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed(), 'g', 1));
-    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination(), 'g', 1));
+    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed(), 'f', 1));
+    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination(), 'f', 1));
     docRoot.appendChild(docTreadmill);
     //docHeart = docStatus.createElement("Heart");
     //docHeart.setAttribute("Rate", QString::number(currentHeart));
