@@ -14,16 +14,19 @@ class DataObject : public QObject
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
+    Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
 
 public:
     DataObject(QString name, QString icon, QString value, bool writable, QString id);
     void setValue(QString value);
+    void setVisible(bool visible);
     QString name() {return m_name;}
     QString icon() {return m_icon;}
     QString value() {return m_value;}
     bool writable() {return m_writable;}
+    bool visibleItem() {return m_visible;}
     QString plusName() {return m_id + "_plus";}
     QString minusName() {return m_id + "_minus";}
 
@@ -32,12 +35,14 @@ public:
     QString m_icon;
     QString m_value;
     bool m_writable;
+    bool m_visible = true;
 
 signals:
     void valueChanged(QString value);
     void nameChanged(QString value);
     void iconChanged(QString value);
     void writableChanged(bool value);
+    void visibleChanged(bool value);
     void plusNameChanged(QString value);
     void minusNameChanged(QString value);
 };
@@ -57,6 +62,7 @@ private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth* bluetoothManager;
+    QQmlApplicationEngine* engine;
 
     QString m_info = "Connecting...";
 
@@ -84,6 +90,7 @@ private slots:
     void Minus(QString);
     void Plus(QString);
     void deviceFound(QString name);
+    void deviceConnected();
 
 signals:
  void changeOfdevice();

@@ -37,6 +37,7 @@ HomeForm{
             width: 175
             height: 125
 
+            visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
             Rectangle {

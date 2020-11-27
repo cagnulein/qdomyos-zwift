@@ -65,8 +65,15 @@ void MainWindow::update()
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
-            pace = 10000 / (((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60));
-            if(pace < 0) pace = 0;
+            if(bluetoothManager->device()->currentSpeed())
+            {
+                pace = 10000 / (((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60));
+                if(pace < 0) pace = 0;
+            }
+            else
+            {
+                pace = 0;
+            }
             watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
             ui->pace->setText(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));

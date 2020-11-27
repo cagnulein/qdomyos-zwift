@@ -15,26 +15,53 @@ DataObject::DataObject(QString name, QString icon, QString value, bool writable,
 }
 
 void DataObject::setValue(QString v) {m_value = v; emit valueChanged(m_value);}
+void DataObject::setVisible(bool visible) {m_visible = visible; emit visibleChanged(m_visible);}
 
 homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 {       
     this->bluetoothManager = bl;
+    this->engine = engine;
     connect(bluetoothManager, SIGNAL(deviceFound(QString)), this, SLOT(deviceFound(QString)));
+    connect(bluetoothManager, SIGNAL(deviceConnected()), this, SLOT(deviceConnected()));
     engine->rootContext()->setContextProperty("rootItem", (QObject *)this);
 
-    dataList = {
-        speed,
-        inclination,
-        cadence,
-        elevation,
-        calories,
-        odometer,
-        pace,
-        resistance,
-        watt,
-        heart,
-        fan
-    };
+    timer = new QTimer(this);
+    connect(timer, &QTimer::timeout, this, &homeform::update);
+    timer->start(1000);
+}
+
+void homeform::deviceConnected()
+{
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+    {
+        dataList = {
+            speed,
+            inclination,
+            elevation,
+            calories,
+            odometer,
+            pace,
+            watt,
+            heart,
+            fan
+        };
+
+    }
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+    {
+        dataList = {
+            speed,
+            cadence,
+            elevation,
+            calories,
+            odometer,
+            resistance,
+            watt,
+            heart,
+            fan
+        };
+
+    }
 
     engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
 
@@ -48,10 +75,6 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(Plus(QString)));
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
-
-    timer = new QTimer(this);
-    connect(timer, &QTimer::timeout, this, &homeform::update);
-    timer->start(1000);
 }
 
 void homeform::deviceFound(QString name)
@@ -176,8 +199,15 @@ void homeform::update()
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
-            pace = 10000 / (((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60));
-            if(pace < 0) pace = 0;
+            if(bluetoothManager->device()->currentSpeed())
+            {
+                pace = 10000 / (((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60));
+                if(pace < 0) pace = 0;
+            }
+            else
+            {
+                pace = 0;
+            }
             watts = ((treadmill*)bluetoothManager->device())->watts(/*weight->text().toFloat()*/); // TODO: add weight to settings
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
