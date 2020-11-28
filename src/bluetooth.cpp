@@ -142,9 +142,10 @@ bool bluetooth::handleSignal(int signal)
     {
         qDebug() << "SIGINT";
         QFile::remove("status.xml");
+        exit(0);
     }
     // Let the signal propagate as though we had not been there
-    return true;
+    return false;
 }
 
 void bluetooth::stateFileRead()

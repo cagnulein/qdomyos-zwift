@@ -2,6 +2,7 @@
 #include <QStyleFactory>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h> // getuid
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -143,6 +144,15 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_LINUX
+    if (getuid()) 
+    {
+        printf("Runme as root!\n");
+        return -1;
+    }
+    else printf("%s", "OK, you are root.\n");
+#endif
+
 #ifndef Q_OS_ANDROID
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
     qInstallMessageHandler(myMessageOutput);
