@@ -156,6 +156,7 @@ int main(int argc, char *argv[])
 #ifndef Q_OS_ANDROID
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
     qInstallMessageHandler(myMessageOutput);
+    qDebug() << "version 1.0.0";
 
     if(onlyVirtualBike)
     {

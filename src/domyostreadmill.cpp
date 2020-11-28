@@ -218,6 +218,17 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
+        // ******************************************* virtual treadmill init *************************************
+        static uint8_t firstInit = 0;
+        if(!firstInit)
+        {
+           debug("creating virtual treadmill interface...");
+           virtualTreadMill = new virtualtreadmill(this, noHeartService);
+           connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
+        }
+        firstInit = 1;
+        // ********************************************************************************************************
+
         QDateTime current = QDateTime::currentDateTime();
         if(currentSpeed() > 0.0 && !first)
            elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
@@ -504,17 +515,6 @@ void domyostreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 this, SLOT(errorService(QLowEnergyService::ServiceError)));
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
-
-        // ******************************************* virtual treadmill init *************************************
-        static uint8_t first = 0;
-        if(!first)
-        {
-           debug("creating virtual treadmill interface...");
-           virtualTreadMill = new virtualtreadmill(this, noHeartService);
-           connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
-        }
-        first = 1;
-        // ********************************************************************************************************
 
 	    QByteArray descriptor;
 	    descriptor.append((char)0x01);
