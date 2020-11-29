@@ -221,6 +221,7 @@ void homeform::update()
             watts = ((bike*)bluetoothManager->device())->watts();
             watt->setValue(QString::number(watts));
             this->resistance->setValue(QString::number(resistance));
+            this->cadence->setValue(QString::number(((bike*)bluetoothManager->device())->currentCadence()));
         }
 /*
         if(trainProgram)

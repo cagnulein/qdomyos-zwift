@@ -87,6 +87,7 @@ void MainWindow::update()
             watts = ((bike*)bluetoothManager->device())->watts();
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
+            ui->cadence->setText(QString::number(((bike*)bluetoothManager->device())->currentCadence()));
         }
 
         if(trainProgram)
