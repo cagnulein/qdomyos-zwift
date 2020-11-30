@@ -6,12 +6,15 @@
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QtAndroid>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
 #include "mainwindow.h"
 #include "homeform.h"
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#endif
 
 bool nologs = false;
 bool noWriteResistance = false;
