@@ -15,7 +15,7 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     if(device.name().startsWith("TRX ROUTE KEY"))
     {
-        bttreadmill = device;
+        bluetoothDevice = device;
 
         // Create a discovery agent and connect to its signals
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
@@ -31,7 +31,7 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 // In your local slot, read information about the found devices
 void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 {
-    if(service.device().address() == bttreadmill.address())
+    if(service.device().address() == bluetoothDevice.address())
     {
         debug("Found new service: " + service.serviceName()
                  + '(' + service.serviceUuid().toString() + ')');

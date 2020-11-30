@@ -58,7 +58,7 @@ void trxappgateusbtreadmill::update()
         initRequest = false;
         btinit(false);
     }
-    else if(bttreadmill.isValid() &&
+    else if(bluetoothDevice.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -342,8 +342,8 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     if(device.name().startsWith("TOORX"))
     {
-        bttreadmill = device;
-        m_control = QLowEnergyController::createCentral(bttreadmill, this);
+        bluetoothDevice = device;
+        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),

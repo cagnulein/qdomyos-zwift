@@ -52,7 +52,6 @@ QBluetoothUuid _gattCommunicationChannelServiceId((QString)"49535343-fe7d-4ae5-8
 QBluetoothUuid _gattWriteCharacteristicId((QString)"49535343-8841-43f4-a8d4-ecbe34729bb3");
 QBluetoothUuid _gattNotifyCharacteristicId((QString)"49535343-1e4d-4bd9-ba61-23c647249616");
 
-QBluetoothDeviceInfo bttreadmill;
 QLowEnergyController* m_control = 0;
 QLowEnergyService* gattCommunicationChannelService = 0;
 QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -211,7 +210,7 @@ void domyostreadmill::update()
         initRequest = false;
         btinit((lastSpeed > 0 ? true : false));
     }
-    else if(bttreadmill.isValid() &&
+    else if(bluetoothDevice.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -234,6 +233,8 @@ void domyostreadmill::update()
         }
         firstInit = 1;
         // ********************************************************************************************************
+
+        debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
         QDateTime current = QDateTime::currentDateTime();
         if(currentSpeed() > 0.0 && !first)
@@ -569,8 +570,8 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
     {
-        bttreadmill = device;
-        m_control = QLowEnergyController::createCentral(bttreadmill, this);
+        bluetoothDevice = device;
+        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),

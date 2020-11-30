@@ -129,7 +129,7 @@ void domyosbike::update()
         //else
         //    btinit_telink(false);
     }
-    else if(btbike.isValid() &&
+    else if(bluetoothDevice.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -455,7 +455,7 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge"))
     {
-        btbike = device;
+        bluetoothDevice = device;
 
         if(device.address().toString().startsWith("57"))
         {
@@ -468,7 +468,7 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
             bike_type = CHANG_YOW;
         }
 
-        m_control = QLowEnergyController::createCentral(btbike, this);
+        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
                 this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
         connect(m_control, SIGNAL(discoveryFinished()),

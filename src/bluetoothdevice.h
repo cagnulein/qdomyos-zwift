@@ -2,6 +2,7 @@
 #define BLUETOOTHDEVICE_H
 
 #include <QObject>
+#include <QBluetoothDeviceInfo>
 
 class bluetoothdevice : public QObject
 {
@@ -18,6 +19,7 @@ public:
     virtual void* VirtualDevice();
     uint16_t watts(double weight=75.0);
     virtual bool changeFanSpeed(uint8_t speed);
+    QBluetoothDeviceInfo bluetoothDevice;
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,

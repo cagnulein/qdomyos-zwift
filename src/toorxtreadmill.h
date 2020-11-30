@@ -46,7 +46,6 @@ private slots:
     void update();
 
 private:
-    QBluetoothDeviceInfo bttreadmill;
     QBluetoothServiceDiscoveryAgent *discoveryAgent;
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;

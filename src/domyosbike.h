@@ -53,7 +53,6 @@ private:
     QTimer* refresh;
     virtualbike* virtualBike = 0;
 
-    QBluetoothDeviceInfo btbike;
     QLowEnergyController* m_control = 0;
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;
