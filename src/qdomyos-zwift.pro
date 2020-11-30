@@ -20,6 +20,7 @@ SOURCES += \
    bluetoothdevice.cpp \
    charts.cpp \
         domyostreadmill.cpp \
+   echelonconnectsport.cpp \
         gpx.cpp \
    homeform.cpp \
         main.cpp \
@@ -45,6 +46,7 @@ HEADERS += \
    bluetoothdevice.h \
    charts.h \
    domyostreadmill.h \
+   echelonconnectsport.h \
    homeform.h \
    sessionline.h \
    signalhandler.h \

@@ -78,6 +78,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
         domyos->deviceDiscovered(device);
     }
+    else if(device.name().startsWith("ECH-SPORT") && filter)
+    {
+        discoveryAgent->stop();
+        echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService);
+        //stateFileRead();
+        emit(deviceConnected());
+        connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+        //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+        //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+        echelonConnectSport->deviceDiscovered(device);
+    }
     else if((device.name().startsWith("TRX ROUTE KEY")) && filter)
     {
         discoveryAgent->stop();
@@ -120,6 +132,11 @@ void bluetooth::restart()
         delete trxappgateusb;
         trxappgateusb = 0;
     }
+    if(echelonConnectSport)
+    {
+        delete echelonConnectSport;
+        echelonConnectSport = 0;
+    }
     discoveryAgent->start();
 }
 
@@ -133,6 +150,8 @@ bluetoothdevice* bluetooth::device()
         return toorx;
     else if(trxappgateusb)
         return trxappgateusb;
+    else if(echelonConnectSport)
+        return echelonConnectSport;
     return nullptr;
 }
 

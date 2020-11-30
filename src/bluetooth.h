@@ -20,6 +20,7 @@
 #include "domyosbike.h"
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
+#include "echelonconnectsport.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 
@@ -37,6 +38,7 @@ private:
     domyosbike* domyosBike = 0;
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
+    echelonconnectsport* echelonConnectSport = 0;
     QString filterDevice = "";
     bool testResistance = false;
     bool noWriteResistance = false;
