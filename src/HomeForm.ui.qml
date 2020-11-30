@@ -28,19 +28,42 @@ Page {
                 width: 50
                 height: 100
                 color: Material.backgroundColor
-                Image {
+                Column {
+                    id: column
+                    anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
-                    id: treadmill_connection
-                    width: 48
-                    height: 48
-                    source: "icons/icons/bluetooth-icon.png"
-                    enabled: rootItem.device
-                    smooth: true
-                }
-                ColorOverlay {
-                    anchors.fill: treadmill_connection
-                    source: treadmill_connection
-                    color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                    width: parent.width
+                    height: 100
+                    spacing: 0
+                    padding: 0
+                    Rectangle {
+                        width: 50
+                        height: 100
+                        color: Material.backgroundColor
+
+                        Image {
+                            anchors.verticalCenter: parent.verticalCenter
+                            id: treadmill_connection
+                            width: 48
+                            height: 48
+                            source: "icons/icons/bluetooth-icon.png"
+                            enabled: rootItem.device
+                            smooth: true
+                        }
+                        ColorOverlay {
+                            anchors.fill: treadmill_connection
+                            source: treadmill_connection
+                            color: treadmill_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                        }
+                    }
+                    Image {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        id: treadmill_signal
+                        width: 24
+                        height: 24
+                        source: rootItem.signal
+                        smooth: true
+                    }
                 }
             }
 

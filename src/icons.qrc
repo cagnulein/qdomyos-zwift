@@ -18,5 +18,9 @@
         <file>icons/pace.png</file>
         <file>icons/chart.png</file>
         <file>icons/icon.png</file>
+        <file>icons/signal-0.png</file>
+        <file>icons/signal-1.png</file>
+        <file>icons/signal-2.png</file>
+        <file>icons/signal-3.png</file>
     </qresource>
 </RCC>

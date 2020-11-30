@@ -182,6 +182,20 @@ void homeform::Stop()
         bluetoothManager->device()->stop();
 }
 
+QString homeform::signal()
+{
+    if(!bluetoothManager->device())
+        return "icons/icons/signal-1.png";
+
+    int16_t rssi = bluetoothManager->device()->bluetoothDevice.rssi();
+    if(rssi > -40)
+        return "icons/icons/signal-3.png";
+    else if(rssi > -60)
+        return "icons/icons/signal-2.png";
+
+    return "icons/icons/signal-1.png";
+}
+
 void homeform::update()
 {
     if(bluetoothManager->device())
@@ -190,6 +204,8 @@ void homeform::update()
         double resistance = 0;
         double watts = 0;
         double pace = 0;
+
+        emit signalChanged(signal());
 
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed(), 'f', 2));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart()));
