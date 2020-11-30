@@ -212,7 +212,7 @@ void echelonconnectsport::btinit()
 
     writeCharacteristic(initData2, sizeof(initData2), "init", false, true);
     writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
-    writeCharacteristic(initData1, sizeof(initData3), "init", false, true);
+    writeCharacteristic(initData3, sizeof(initData3), "init", false, true);
 
     initDone = true;
 }
