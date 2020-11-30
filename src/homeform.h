@@ -63,7 +63,7 @@ public:
 private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
-    bluetooth* bluetoothManager;
+    bluetooth* bluetoothManager = 0;
     QQmlApplicationEngine* engine;
 
     QString m_info = "Connecting...";

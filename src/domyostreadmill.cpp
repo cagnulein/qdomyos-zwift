@@ -317,7 +317,7 @@ void domyostreadmill::update()
             }
         }
 
-        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
+        elevationAcc += (currentSpeed() / 3600.0) * 1000.0 * (currentInclination() / 100.0) * ((double)refresh->interval() / 1000.0);
     }
 
     first = false;
@@ -467,7 +467,12 @@ double domyostreadmill::GetDistanceFromPacket(QByteArray packet)
 double domyostreadmill::GetInclinationFromPacket(QByteArray packet)
 {
     uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
-    double data = ((double)convertedData - 1000.0f) / 10.0f;
+    double data;
+
+    if(convertedData > 10000)
+        data = ((double)convertedData - 65512.0f) / 10.0f;
+    else
+        data = ((double)convertedData - 1000.0f) / 10.0f;
     if (data < 0) return 0;
     return data;
 }

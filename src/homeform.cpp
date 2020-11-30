@@ -184,6 +184,9 @@ void homeform::Stop()
 
 QString homeform::signal()
 {
+    if(!bluetoothManager)
+        return "icons/icons/signal-1.png";
+
     if(!bluetoothManager->device())
         return "icons/icons/signal-1.png";
 
