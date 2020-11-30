@@ -157,9 +157,12 @@ int main(int argc, char *argv[])
 
 #ifndef Q_OS_ANDROID
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
-    qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.0.0";
+#endif
 
+    qInstallMessageHandler(myMessageOutput);
+    qDebug() << "version 1.0.1";
+
+#ifndef Q_OS_ANDROID
     if(onlyVirtualBike)
     {
         virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
