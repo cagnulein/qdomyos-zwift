@@ -19,19 +19,19 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - name: Cache Qt Linux Desktop
-        id: cache-qt-linux-desktop
-        uses: actions/cache@v1
-        with:
-          path: '${{ github.workspace }}/output/linux-desktop/'
-          key: ${{ runner.os }}-QtCache-Linux-Desktop
+#      - name: Cache Qt Linux Desktop
+#        id: cache-qt-linux-desktop
+#        uses: actions/cache@v1
+#        with:
+#          path: '${{ github.workspace }}/output/linux-desktop/'
+#          key: ${{ runner.os }}-QtCache-Linux-Desktop
 
-      - name: Cache Qt Linux Android
-        id: cache-qt-android
-        uses: actions/cache@v1
-        with:
-          path: '${{ github.workspace }}/output/android/'
-          key: ${{ runner.os }}-QtCache-Android
+#      - name: Cache Qt Linux Android
+#        id: cache-qt-android
+#        uses: actions/cache@v1
+#        with:
+#          path: '${{ github.workspace }}/output/android/'
+#          key: ${{ runner.os }}-QtCache-Android
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
@@ -45,7 +45,7 @@ jobs:
           target: 'desktop'
           modules: 'qtcharts debug_info'
           dir: '${{ github.workspace }}/output/linux-desktop/'
-          cached: ${{ steps.cache-qt-linux-desktop.outputs.cache-hit }}
+#          cached: ${{ steps.cache-qt-linux-desktop.outputs.cache-hit }}
       
       - name: Compile Linux Desktop
         run: cd src; qmake; make -j4
