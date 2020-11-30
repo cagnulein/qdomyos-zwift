@@ -194,7 +194,7 @@ QTime echelonconnectsport::GetElapsedFromPacket(QByteArray packet)
 double echelonconnectsport::GetDistanceFromPacket(QByteArray packet)
 {
     uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
-    double data = ((double)convertedData) / 10.0f;
+    double data = ((double)convertedData) / 100.0f;
     return data;
 }
 

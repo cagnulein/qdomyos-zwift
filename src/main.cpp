@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.1.2";
+    qDebug() << "version 1.1.3";
 
 #ifndef Q_OS_ANDROID
     if(onlyVirtualBike)
