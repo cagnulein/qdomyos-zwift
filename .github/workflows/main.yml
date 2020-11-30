@@ -56,39 +56,39 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift
 
-      - uses: actions/checkout@v2
-        with:
-          repository: nttld/setup-ndk
-          path: setup-ndk
+#      - uses: actions/checkout@v2
+#        with:
+#          repository: nttld/setup-ndk
+#          path: setup-ndk
       # The packages.json in nttld/setup-ndk has already been updated,
       # https://github.com/nttld/setup-ndk/commit/831db5b02a0f0cab80614619efe461a3dcc140e6
       # but `dist/*` has not been rebuilt yet. Build it.
       # https://github.com/nttld/setup-ndk/tree/main/dist
-      - name: Locally rebuilt setup-ndk
-        run: |
-          npm -prefix ./setup-ndk install
-          npm -prefix ./setup-ndk run all
+#      - name: Locally rebuilt setup-ndk
+#        run: |
+#          npm -prefix ./setup-ndk install
+#          npm -prefix ./setup-ndk run all
       # Install using locally rebuilt setup-ndk
-      - name: Setup Android NDK r21d
-        uses: ./setup-ndk
+#      - name: Setup Android NDK r21d
+#        uses: ./setup-ndk
       #- uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r21d
+#        with:
+#          ndk-version: r21d
 
 # waiting github.com/jurplel/install-qt-action/issues/63
-      - name: Install Qt Android
-        uses: jurplel/install-qt-action@v2
-        with:
-          version: '5.12.9'
-          host: 'linux'
-          target: 'android'
-          arch: 'android_armv7'
-          modules: 'qtcharts debug_info'
-          dir: '${{ github.workspace }}/output/android/'
-          cached: ${{ steps.cache-qt-android.outputs.cache-hit }}
+#      - name: Install Qt Android
+#        uses: jurplel/install-qt-action@v2
+#        with:
+#          version: '5.12.9'
+#          host: 'linux'
+#          target: 'android'
+#          arch: 'android_armv7'
+#          modules: 'qtcharts debug_info'
+#          dir: '${{ github.workspace }}/output/android/'
+#          cached: ${{ steps.cache-qt-android.outputs.cache-hit }}
       
-      - name: Compile Android
-        run: cd src; qmake; make -j4
+#      - name: Compile Android
+#        run: cd src; qmake; make -j4
 
 #      - name: Install Qt MacOS
 #        uses: jurplel/install-qt-action@v2
