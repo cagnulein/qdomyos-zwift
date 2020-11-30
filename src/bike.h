@@ -16,7 +16,7 @@ public:
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
-    uint16_t watts();
+    virtual uint16_t watts();
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
 
 public slots:
