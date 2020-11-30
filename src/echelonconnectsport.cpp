@@ -283,7 +283,7 @@ void echelonconnectsport::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"49535343-fe7d-4ae5-8fa9-9fafd205e455");
+    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0bf669f1-45f2-11e7-9598-0800200c9a66");
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
