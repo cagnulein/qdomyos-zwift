@@ -79,6 +79,7 @@ void homeform::deviceConnected()
 
 void homeform::deviceFound(QString name)
 {
+    if(!name.trimmed().length()) return;
     m_info = name + " founded";
     emit infoChanged(m_info);
 }

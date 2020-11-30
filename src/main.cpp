@@ -145,12 +145,14 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 int main(int argc, char *argv[])
 {
 #ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
     if (getuid()) 
     {
         printf("Runme as root!\n");
         return -1;
     }
     else printf("%s", "OK, you are root.\n");
+#endif
 #endif
 
 #ifndef Q_OS_ANDROID
