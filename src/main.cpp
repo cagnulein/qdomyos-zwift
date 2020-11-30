@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QtAndroid>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
@@ -188,6 +189,14 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
+
+    auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
+    if(result == QtAndroid::PermissionResult::Denied){
+        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
+        if(resultHash["android.permission.STORAGE"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "log unwritable!";
+    }
+
     engine.load(url);
     new homeform(&engine, bl);
 
