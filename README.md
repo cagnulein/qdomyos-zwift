@@ -19,12 +19,13 @@ UI on MacOS
 ### Features
 
 1. Domyos compatible
-2. Toorx TRX Route Key comaptible
-3. Zwift compatible
-4. Create, load and save train programs
-5. Measure distance, elevation gain and watts
-6. Gpx import (with difficulty slider)
-7. Realtime Charts
+2. Toorx TRX Route Key compatible
+3. Echelon Connect Sport compatible
+4. Zwift compatible
+5. Create, load and save train programs
+6. Measure distance, elevation gain and watts
+7. Gpx import (with difficulty slider)
+8. Realtime Charts
 
 ![First Success](docs/first_success.jpg)
 
@@ -60,6 +61,8 @@ Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-o
 - Raspberry 3b+ and Domyos T900C
 
 - Raspberry 3b+ and Toorx TRX Route Key
+
+- Android Pixel 2 and Echelon Connect Sport
 
 
 ### Your machine is not compatible?
