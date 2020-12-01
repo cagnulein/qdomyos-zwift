@@ -68,8 +68,10 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         }
     }
 
-    if(nogui || forceQml)
+    if(nogui)
         return new QCoreApplication(argc, argv);
+    else if(forceQml)
+        return new QGuiApplication(argc, argv);
     else        
     {
         QApplication* a = new QApplication(argc, argv);
@@ -164,23 +166,29 @@ int main(int argc, char *argv[])
 
 #ifndef Q_OS_ANDROID
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
+#else
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication* app = new QGuiApplication(argc, argv);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << "version 1.1.5";
 
 #ifndef Q_OS_ANDROID
-    if(onlyVirtualBike)
+    if(!forceQml)
     {
-        virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
-        Q_UNUSED(V)
-        return app->exec();
-    }
-    else if(onlyVirtualTreadmill)
-    {
-        virtualtreadmill* V = new virtualtreadmill(new treadmill(), noHeartService);
-        Q_UNUSED(V)
-        return app->exec();
+        if(onlyVirtualBike)
+        {
+            virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
+            Q_UNUSED(V)
+            return app->exec();
+        }
+        else if(onlyVirtualTreadmill)
+        {
+            virtualtreadmill* V = new virtualtreadmill(new treadmill(), noHeartService);
+            Q_UNUSED(V)
+            return app->exec();
+        }
     }
 #endif
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance);
@@ -189,12 +197,10 @@ int main(int argc, char *argv[])
     if(forceQml)
 #endif
     {
-        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-        QGuiApplication app(argc, argv);
         QQmlApplicationEngine engine;
         const QUrl url(QStringLiteral("qrc:/main.qml"));
         QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                         &app, [url](QObject *obj, const QUrl &objUrl) {
+                         qobject_cast<QGuiApplication *>(app.data()), [url](QObject *obj, const QUrl &objUrl) {
             if (!obj && url == objUrl)
                 QCoreApplication::exit(-1);
         }, Qt::QueuedConnection);
@@ -210,7 +216,7 @@ int main(int argc, char *argv[])
         engine.load(url);
         new homeform(&engine, bl);
 
-        return app.exec();
+        return app->exec();
     }
 
 #ifndef Q_OS_ANDROID
