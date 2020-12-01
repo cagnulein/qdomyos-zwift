@@ -223,14 +223,6 @@ void domyostreadmill::update()
         {
            debug("creating virtual treadmill interface...");
            virtualTreadMill = new virtualtreadmill(this, noHeartService);
-
-#ifdef Q_OS_LINUX
-#ifndef Q_OS_ANDROID
-           // on raspberry, the very first time you run the bridge it doesn't work. let's try in this way
-           delete virtualTreadMill;
-           virtualTreadMill = new virtualtreadmill(this, noHeartService);
-#endif
-#endif
            connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
         }
         firstInit = 1;
