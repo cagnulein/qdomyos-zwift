@@ -65,8 +65,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
       display[26] += display[i]; // the last byte is a sort of a checksum
    }
 
-   writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed) );
-   writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed) );
+   writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed), false, false );
+   writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed), false, true );
 
    //if(bike_type == CHANG_YOW)
    {
@@ -82,8 +82,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
            display2[26] += display2[i]; // the last byte is a sort of a checksum
        }
 
-       writeCharacteristic(display2, 20, "updateDisplay2");
-       writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2");
+       writeCharacteristic(display2, 20, "updateDisplay2", false, false);
+       writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2", false, true);
    }
 }
 
