@@ -23,10 +23,13 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
 void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
+    QTimer timeout;
+
     if(wait_for_response)
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
     else
     {
@@ -40,6 +43,9 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
+
+    if(timeout.isActive() == false)
+        debug(" exit for timeout");
 }
 
 void domyosbike::updateDisplay(uint16_t elapsed)
