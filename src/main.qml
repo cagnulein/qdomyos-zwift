@@ -41,21 +41,21 @@ ApplicationWindow {
             anchors.fill: parent
 
             ItemDelegate {
+                text: qsTr("Settings")
+                width: parent.width
+                onClicked: {
+                    stackView.push("settings.qml")
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
                 text: qsTr("by Roberto Viola")
                 width: parent.width
 /*                onClicked: {
-                    stackView.push("Page1Form.ui.qml")
+                    stackView.push("Page2Form.ui.qml")
                     drawer.close()
                 }*/
             }
-/*            ItemDelegate {
-                text: qsTr("Page 2")
-                width: parent.width
-                onClicked: {
-                    stackView.push("Page2Form.ui.qml")
-                    drawer.close()
-                }
-            }*/
         }
     }
 

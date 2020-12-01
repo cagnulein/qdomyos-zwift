@@ -5,7 +5,7 @@
 #include <QBluetoothLocalDevice>
 #include <QtXml>
 
-bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance)
+bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -15,6 +15,8 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
     this->pollDeviceTime = pollDeviceTime;
     this->noConsole = noConsole;
     this->logs = logs;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
 
 #ifndef WIN32
     if(!QBluetoothLocalDevice::allDevices().count())
@@ -60,7 +62,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge") && filter)
     {
         discoveryAgent->stop();
-        domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance);
+        domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
         emit(deviceConnected());
         connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
         connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));

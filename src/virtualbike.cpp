@@ -36,14 +36,14 @@ enum FtmsResultCode {
     FTMS_CONTROL_NOT_PERMITTED
 };
 
-virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
+virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
     Bike = t;
 
-    // seems that Zwift doesn't manage the Heart Rate inside FTMS, trying force the separate service
-    noHeartService = false;
-
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
+
     Q_UNUSED(noWriteResistance)
 
     //! [Advertising Data]    
@@ -173,7 +173,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
              int16_t iresistance = (newValue.at(3) + (newValue.at(4) << 8));
              double resistance = ((double)iresistance) / 100.0;
-             Bike->changeResistance((uint8_t)(resistance * 2.0) + 1); // resistance start from 1
+             Bike->changeResistance((uint8_t)(resistance * bikeResistanceGain) + bikeResistanceOffset + 1); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)
          {

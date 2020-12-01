@@ -32,7 +32,7 @@ class domyosbike : public bike
 {
     Q_OBJECT
 public:
-    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false);
+    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, uint8_t bikeResistanceGain = 1);
     bool connected();
 
     void* VirtualBike();
@@ -64,6 +64,8 @@ private:
     bool noWriteResistance = false;
     bool noHeartService = false;
     bool testResistance = false;
+    uint8_t bikeResistanceOffset = 4;
+    uint8_t bikeResistanceGain = 1;
 
     enum _BIKE_TYPE {
         CHANG_YOW,

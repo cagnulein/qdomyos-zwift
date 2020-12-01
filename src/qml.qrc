@@ -6,5 +6,6 @@
         <file>Page2Form.ui.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>Home.qml</file>
+        <file>settings.qml</file>
     </qresource>
 </RCC>

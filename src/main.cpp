@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include <QSettings>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
@@ -27,6 +28,8 @@ bool forceQml = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
+uint8_t bikeResistanceOffset = 4;
+uint8_t bikeResistanceGain = 1;
 static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log";
 
 QCoreApplication* createApplication(int &argc, char *argv[])
@@ -65,6 +68,14 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         if (!qstrcmp(argv[i], "-poll-device-time"))
         {
             pollDeviceTime = atol(argv[++i]);
+        }
+        if (!qstrcmp(argv[i], "-bike-resistance-gain"))
+        {
+            bikeResistanceGain = atoi(argv[++i]);
+        }
+        if (!qstrcmp(argv[i], "-bike-resistance-offset"))
+        {
+            bikeResistanceOffset = atoi(argv[++i]);
         }
     }
 
@@ -168,11 +179,22 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication* app = new QGuiApplication(argc, argv);
+    QScopedPointer<QGuiApplication> app(new QGuiApplication(argc, argv));
+#endif
+
+    app->setOrganizationName("Roberto Viola");
+    app->setOrganizationDomain("robertoviola.cloud");
+    app->setApplicationName("qDomyos-Zwift");
+
+#ifdef Q_OS_ANDROID
+    QSettings settings;
+    noHeartService = settings.value("bike_heartrate_service", !noHeartService).toBool();
+    bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
+    bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.1.5";
+    qDebug() << "version 1.2.0";
 
 #ifndef Q_OS_ANDROID
     if(!forceQml)
@@ -191,7 +213,7 @@ int main(int argc, char *argv[])
         }
     }
 #endif
-    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance);
+    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
 #ifndef Q_OS_ANDROID
     if(forceQml)
