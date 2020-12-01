@@ -39,13 +39,17 @@ enum FtmsResultCode {
 virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService)
 {
     Bike = t;
+
+    // seems that Zwift doesn't manage the Heart Rate inside FTMS, trying force the separate service
+    noHeartService = false;
+
     this->noHeartService = noHeartService;
     Q_UNUSED(noWriteResistance)
 
     //! [Advertising Data]    
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setIncludePowerLevel(true);
-    advertisingData.setLocalName("DomyosBridge");
+    advertisingData.setLocalName("DBridge");  // save chars for service
     QList<QBluetoothUuid> services;
     services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     if(!this->noHeartService)
