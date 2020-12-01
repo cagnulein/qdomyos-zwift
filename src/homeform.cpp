@@ -1,6 +1,7 @@
 #include "homeform.h"
 #include <QQmlContext>
 #include <QTime>
+#include "gpx.h"
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id)
 {
@@ -23,11 +24,44 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     this->engine = engine;
     connect(bluetoothManager, SIGNAL(deviceFound(QString)), this, SLOT(deviceFound(QString)));
     connect(bluetoothManager, SIGNAL(deviceConnected()), this, SLOT(deviceConnected()));
+    connect(bluetoothManager, SIGNAL(deviceConnected()), this, SLOT(trainProgramSignals()));
     engine->rootContext()->setContextProperty("rootItem", (QObject *)this);
+
+    this->trainProgram = new trainprogram(QList<trainrow>(), bl);
 
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &homeform::update);
     timer->start(1000);
+}
+
+void homeform::trainProgramSignals()
+{
+     if(bluetoothManager->device())
+     {
+         disconnect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
+         disconnect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
+         disconnect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
+         disconnect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
+         disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
+         disconnect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
+         disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
+         disconnect(((bike*)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
+
+         connect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
+         connect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
+         connect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
+         connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
+         connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
+         connect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
+         connect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
+         connect(((bike*)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
+
+         qDebug() << "trainProgram associated to a device";
+     }
+     else
+     {
+         qDebug() << "trainProgram NOT associated to a device";
+     }
 }
 
 void homeform::deviceConnected()
@@ -67,10 +101,13 @@ void homeform::deviceConnected()
 
     QObject *rootObject = engine->rootObjects().first();
     QObject *home = rootObject->findChild<QObject*>("home");
+    QObject *stack = rootObject;
     QObject::connect(home, SIGNAL(start_clicked()),
         this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()),
         this, SLOT(Stop()));
+    QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)),
+        this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(home, SIGNAL(plus_clicked(QString)),
         this, SLOT(Plus(QString)));
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
@@ -300,4 +337,42 @@ bool homeform::getZwift()
         return true;
     }
     return false;
+}
+
+void homeform::trainprogram_open_clicked(QUrl fileName)
+{
+    qDebug() << "trainprogram_open_clicked" << fileName;
+    if(!fileName.isEmpty())
+    {
+        if(fileName.fileName().endsWith("xml"))
+        {
+               if(trainProgram)
+                     delete trainProgram;
+                trainProgram = trainprogram::load(fileName.toLocalFile(), bluetoothManager);
+        }
+        else if(fileName.fileName().endsWith("gpx"))
+        {
+               if(trainProgram)
+                     delete trainProgram;
+            gpx g;
+            QList<trainrow> list;
+            foreach(gpx_altitude_point_for_treadmill p, g.open(fileName.toLocalFile()))
+            {
+                trainrow r;
+                r.speed = p.speed;
+                r.duration = QTime(0,0,0,0);
+                r.duration = r.duration.addSecs(p.seconds);
+                r.inclination = p.inclination;
+                r.forcespeed = true;
+                list.append(r);
+            }
+                trainProgram = new trainprogram(list, bluetoothManager);
+        }
+        else
+        {
+            return;
+        }
+
+        trainProgramSignals();
+    }
 }

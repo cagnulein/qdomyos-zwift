@@ -5,6 +5,7 @@
 #include <QQmlApplicationEngine>
 #include "bluetooth.h"
 #include "sessionline.h"
+#include "trainprogram.h"
 
 class DataObject : public QObject
 {
@@ -65,6 +66,7 @@ private:
     QList<SessionLine> Session;
     bluetooth* bluetoothManager = 0;
     QQmlApplicationEngine* engine;
+    trainprogram* trainProgram = 0;
 
     QString m_info = "Connecting...";
 
@@ -93,6 +95,8 @@ private slots:
     void Plus(QString);
     void deviceFound(QString name);
     void deviceConnected();
+    void trainprogram_open_clicked(QUrl fileName);
+    void trainProgramSignals();
 
 signals:
  void changeOfdevice();
