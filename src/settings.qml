@@ -50,7 +50,7 @@ Pane {
             anchors.left: parent.left
             anchors.right: parent.right
             clip: false
-            checked: settings.autoConnect
+            checked: settings.bike_heartrate_service
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             onClicked: settings.bike_heartrate_service = checked
