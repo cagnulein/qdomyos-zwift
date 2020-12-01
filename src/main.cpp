@@ -23,6 +23,7 @@ bool noConsole = false;
 bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
 bool testResistance = false;
+bool forceQml = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -35,6 +36,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
     for (int i = 1; i < argc; ++i) {
         if (!qstrcmp(argv[i], "-no-gui"))
             nogui = true;        
+        if (!qstrcmp(argv[i], "-qml"))
+            forceQml = true;
         if (!qstrcmp(argv[i], "-no-console"))
             noConsole = true;
         if (!qstrcmp(argv[i], "-test-resistance"))
@@ -65,7 +68,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         }
     }
 
-    if(nogui)
+    if(nogui || forceQml)
         return new QCoreApplication(argc, argv);
     else        
     {
@@ -182,29 +185,35 @@ int main(int argc, char *argv[])
 #endif
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance);
 
-#ifdef Q_OS_ANDROID
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
-    QQmlApplicationEngine engine;
-    const QUrl url(QStringLiteral("qrc:/main.qml"));
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
+#ifndef Q_OS_ANDROID
+    if(forceQml)
+#endif
+    {
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QGuiApplication app(argc, argv);
+        QQmlApplicationEngine engine;
+        const QUrl url(QStringLiteral("qrc:/main.qml"));
+        QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                         &app, [url](QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        }, Qt::QueuedConnection);
 
-    auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
-    if(result == QtAndroid::PermissionResult::Denied){
-        QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
-        if(resultHash["android.permission.STORAGE"] == QtAndroid::PermissionResult::Denied)
-            qDebug() << "log unwritable!";
+#ifdef Q_OS_ANDROID
+        auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
+        if(result == QtAndroid::PermissionResult::Denied){
+            QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
+            if(resultHash["android.permission.STORAGE"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "log unwritable!";
+        }
+#endif
+        engine.load(url);
+        new homeform(&engine, bl);
+
+        return app.exec();
     }
 
-    engine.load(url);
-    new homeform(&engine, bl);
-
-    return app.exec();
-#else
+#ifndef Q_OS_ANDROID
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
         MainWindow* W = 0;
