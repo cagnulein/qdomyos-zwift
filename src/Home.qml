@@ -18,8 +18,8 @@ HomeForm{
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        cellWidth: 175
-        cellHeight: 125
+        cellWidth: 180
+        cellHeight: 130
         focus: true
         model: appModel
         leftMargin: { (parent.width % 175) / 2;  }
@@ -45,7 +45,20 @@ HomeForm{
                 height: 123
                 radius: 3
                 border.width: 1
+                border.color: "purple"
                 color: Material.backgroundColor
+                id: rect
+            }
+
+            DropShadow {
+                anchors.fill: rect
+                cached: true
+                horizontalOffset: 3
+                verticalOffset: 3
+                radius: 8.0
+                samples: 16
+                color: Material.Purple
+                source: rect
             }
 
             Image {
@@ -61,7 +74,7 @@ HomeForm{
             Text {
                 objectName: "value"
                 id: myValue
-                color: Material.textSelectionColor
+                color: "white"
                 y: 0
                 anchors {
                     horizontalCenter: parent.horizontalCenter
