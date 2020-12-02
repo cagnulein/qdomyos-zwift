@@ -125,9 +125,9 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
     Q_ASSERT(leController);
+    serviceFIT = leController->addService(serviceDataFIT);
     if(!this->noHeartService)
         serviceHR = leController->addService(serviceDataHR);
-    serviceFIT = leController->addService(serviceDataFIT);
 
     QObject::connect(serviceFIT, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
@@ -225,9 +225,9 @@ void virtualbike::reconnect()
     emit debug("virtualbike::reconnect");
     leController->disconnectFromDevice();
 
+    serviceFIT = leController->addService(serviceDataFIT);
     if(!this->noHeartService)
         serviceHR = leController->addService(serviceDataHR);
-    serviceFIT = leController->addService(serviceDataFIT);
 
     if (serviceFIT)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
