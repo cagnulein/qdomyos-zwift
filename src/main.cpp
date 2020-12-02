@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.2.3";
+    qDebug() << "version 1.2.4";
 
 #ifndef Q_OS_ANDROID
     if(!forceQml)
