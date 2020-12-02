@@ -231,7 +231,13 @@ int main(int argc, char *argv[])
         auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
-            if(resultHash["android.permission.STORAGE"] == QtAndroid::PermissionResult::Denied)
+            if(resultHash["android.permission.WRITE_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "log unwritable!";
+        }
+        result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
+        if(result == QtAndroid::PermissionResult::Denied){
+            QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
+            if(resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
                 qDebug() << "log unwritable!";
         }
 #endif

@@ -18,7 +18,7 @@ HomeForm{
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        cellWidth: 180
+        cellWidth: 175
         cellHeight: 130
         focus: true
         model: appModel
@@ -34,14 +34,14 @@ HomeForm{
         //        }
         delegate: Item {
             id: id1
-            width: 175
+            width: 170
             height: 125
 
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
             Rectangle {
-                width: 173
+                width: 168
                 height: 123
                 radius: 3
                 border.width: 1

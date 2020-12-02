@@ -1,6 +1,7 @@
 #include "homeform.h"
 #include <QQmlContext>
 #include <QTime>
+#include <QQmlFile>
 #include "gpx.h"
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id)
@@ -342,21 +343,23 @@ bool homeform::getZwift()
 void homeform::trainprogram_open_clicked(QUrl fileName)
 {
     qDebug() << "trainprogram_open_clicked" << fileName;
-    if(!fileName.isEmpty())
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    qDebug() << file.fileName();
+    if(!file.fileName().isEmpty())
     {
-        if(fileName.fileName().endsWith("xml"))
+        if(file.fileName().endsWith("xml"))
         {
                if(trainProgram)
                      delete trainProgram;
-                trainProgram = trainprogram::load(fileName.toLocalFile(), bluetoothManager);
+                trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
         }
-        else if(fileName.fileName().endsWith("gpx"))
+        else if(file.fileName().endsWith("gpx"))
         {
                if(trainProgram)
                      delete trainProgram;
             gpx g;
             QList<trainrow> list;
-            foreach(gpx_altitude_point_for_treadmill p, g.open(fileName.toLocalFile()))
+            foreach(gpx_altitude_point_for_treadmill p, g.open(file.fileName()))
             {
                 trainrow r;
                 r.speed = p.speed;
