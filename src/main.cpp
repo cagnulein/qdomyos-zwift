@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.2.2";
+    qDebug() << "version 1.2.3";
 
 #ifndef Q_OS_ANDROID
     if(!forceQml)
@@ -213,7 +213,7 @@ int main(int argc, char *argv[])
         }
     }
 #endif
-    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, testResistance, bikeResistanceOffset, bikeResistanceGain);
+    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
 #ifndef Q_OS_ANDROID
     if(forceQml)
