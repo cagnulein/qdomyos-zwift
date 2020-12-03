@@ -157,7 +157,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
                                                       QByteArray(2, 0));
         charDataHR.addDescriptor(clientConfigHR);
 
-        serviceDataHR.setType(QLowEnergyServiceData::ServiceTypeSecondary);
+        serviceDataHR.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceDataHR.setUuid(QBluetoothUuid::HeartRate);
         serviceDataHR.addCharacteristic(charDataHR);
     }
