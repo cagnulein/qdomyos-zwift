@@ -23,6 +23,7 @@ SOURCES += \
    echelonconnectsport.cpp \
         gpx.cpp \
    homeform.cpp \
+   keepawakehelper.cpp \
         main.cpp \
    sessionline.cpp \
    signalhandler.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
    domyostreadmill.h \
    echelonconnectsport.h \
    homeform.h \
+   keepawakehelper.h \
    sessionline.h \
    signalhandler.h \
    toorxtreadmill.h \
@@ -80,4 +82,4 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_ABIS = armeabi-v7a arm64-v8a
+ANDROID_ABIS = armeabi-v7a

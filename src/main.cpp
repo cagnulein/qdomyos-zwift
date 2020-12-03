@@ -15,6 +15,7 @@
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
+#include "keepawakehelper.h"
 #endif
 
 bool nologs = false;
@@ -244,7 +245,12 @@ int main(int argc, char *argv[])
         engine.load(url);
         new homeform(&engine, bl);
 
-        return app->exec();
+        {
+            KeepAwakeHelper helper;
+            // screen and CPU will stay awake during this section
+            // lock will be released when helper object goes out of scope
+            return app->exec();
+        }
     }
 
 #ifndef Q_OS_ANDROID
