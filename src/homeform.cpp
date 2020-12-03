@@ -1,6 +1,7 @@
 #include "homeform.h"
 #include <QQmlContext>
 #include <QTime>
+#include <QSettings>
 #include <QQmlFile>
 #include "gpx.h"
 
@@ -21,6 +22,24 @@ void DataObject::setVisible(bool visible) {m_visible = visible; emit visibleChan
 
 homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 {       
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    QString unit = "km";
+    if(miles)
+        unit = "mi";
+
+    speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed");
+    inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination");
+    cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence");
+    elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation");
+    calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories");
+    odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer");
+    pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace");
+    resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance");
+    watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt");
+    heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart");
+    fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan");
+
     this->bluetoothManager = bl;
     this->engine = engine;
     connect(bluetoothManager, SIGNAL(deviceFound(QString)), this, SLOT(deviceFound(QString)));
@@ -247,11 +266,17 @@ void homeform::update()
         double watts = 0;
         double pace = 0;
 
+        QSettings settings;
+        bool miles = settings.value("miles_unit", false).toBool();
+        double unit_conversion = 1.0;
+        if(miles)
+            unit_conversion = 0.621371;
+
         emit signalChanged(signal());
 
-        speed->setValue(QString::number(bluetoothManager->device()->currentSpeed(), 'f', 2));
+        speed->setValue(QString::number(bluetoothManager->device()->currentSpeed() * unit_conversion, 'f', 2));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart()));
-        odometer->setValue(QString::number(bluetoothManager->device()->odometer(), 'f', 2));
+        odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
 

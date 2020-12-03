@@ -14,6 +14,7 @@ Pane {
         property bool bike_heartrate_service: false
         property int bike_resistance_offset: 4
         property int bike_resistance_gain: 1
+        property bool miles_unit: false
     }
 
     ColumnLayout {
@@ -28,6 +29,32 @@ Pane {
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
             color: Material.color(Material.Red)
+        }
+
+        Label {
+            id: generalLabel
+            text: qsTr("General Options")
+            textFormat: Text.PlainText
+            wrapMode: Text.WordWrap
+            verticalAlignment: Text.AlignVCenter
+            color: Material.color(Material.Grey)
+        }
+
+        SwitchDelegate {
+            id: unitDelegate
+            text: qsTr("Use Miles unit in UI")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            anchors.left: parent.left
+            anchors.right: parent.right
+            clip: false
+            checked: settings.miles_unit
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.miles_unit = checked
         }
 
         Label {

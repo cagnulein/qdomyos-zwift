@@ -70,17 +70,17 @@ private:
 
     QString m_info = "Connecting...";
 
-    DataObject* speed = new DataObject("Speed (km/h)", "icons/icons/speed.png", "0.0", true, "speed");
-    DataObject* inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination");
-    DataObject* cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence");
-    DataObject* elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation");
-    DataObject* calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories");
-    DataObject* odometer = new DataObject("Odometer (km)", "icons/icons/odometer.png", "0.0", false, "odometer");
-    DataObject* pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace");
-    DataObject* resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance");
-    DataObject* watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt");
-    DataObject* heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart");
-    DataObject* fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan");
+    DataObject* speed;
+    DataObject* inclination;
+    DataObject* cadence;
+    DataObject* elevation;
+    DataObject* calories;
+    DataObject* odometer;
+    DataObject* pace;
+    DataObject* resistance;
+    DataObject* watt;
+    DataObject* heart;
+    DataObject* fan;
 
     QTimer* timer;
 
