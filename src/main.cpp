@@ -26,6 +26,7 @@ bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
 bool testResistance = false;
 bool forceQml = false;
+bool miles = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -42,6 +43,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             nogui = true;        
         if (!qstrcmp(argv[i], "-qml"))
             forceQml = true;
+        if (!qstrcmp(argv[i], "-miles"))
+            miles = true;
         if (!qstrcmp(argv[i], "-no-console"))
             noConsole = true;
         if (!qstrcmp(argv[i], "-test-resistance"))
@@ -187,11 +190,13 @@ int main(int argc, char *argv[])
     app->setOrganizationDomain("robertoviola.cloud");
     app->setApplicationName("qDomyos-Zwift");
 
-#ifdef Q_OS_ANDROID
     QSettings settings;
+#ifdef Q_OS_ANDROID
     noHeartService = settings.value("bike_heartrate_service", !noHeartService).toBool();
     bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
+#else
+    settings.setValue("miles_unit", miles);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
@@ -246,7 +251,9 @@ int main(int argc, char *argv[])
         new homeform(&engine, bl);
 
         {
+#if Q_OS_ANDROID
             KeepAwakeHelper helper;
+#endif
             // screen and CPU will stay awake during this section
             // lock will be released when helper object goes out of scope
             return app->exec();
