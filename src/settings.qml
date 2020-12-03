@@ -15,6 +15,7 @@ Pane {
         property int bike_resistance_offset: 4
         property int bike_resistance_gain: 1
         property bool miles_unit: false
+        property bool bike_cadence_sensor: false
     }
 
     ColumnLayout {
@@ -64,6 +65,23 @@ Pane {
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
             color: Material.color(Material.Grey)
+        }
+
+        SwitchDelegate {
+            id: cadenceSensorDelegate
+            text: qsTr("Cadence Sensor (Peloton compatibility)")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            anchors.left: parent.left
+            anchors.right: parent.right
+            clip: false
+            checked: settings.bike_cadence_sensor
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.bike_cadence_sensor = checked
         }
 
         SwitchDelegate {

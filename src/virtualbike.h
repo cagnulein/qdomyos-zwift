@@ -35,9 +35,11 @@ private:
     QLowEnergyController* leController;
     QLowEnergyService* serviceHR;
     QLowEnergyService* serviceFIT;
+    QLowEnergyService* service;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataFIT;
+    QLowEnergyServiceData serviceData;
     QTimer bikeTimer;
     bike* Bike;
 
