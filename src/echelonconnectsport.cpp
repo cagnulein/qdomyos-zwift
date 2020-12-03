@@ -165,13 +165,18 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     double distance = GetDistanceFromPacket(newValue);
 
     Cadence = newValue.at(10);
+    Speed = 0.37497622 * ((double)Cadence);
+    KCal = 0;
+    Distance += ((Speed / 3600000.0) * ((double)lastRefresh.msecsTo(QDateTime::currentDateTime())) );
 
     CrankRevs += ((double)(lastRefresh.msecsTo(QDateTime::currentDateTime())) * ((double)Cadence / 60000.0) );
     LastCrankEventTime += (uint16_t)((lastRefresh.msecsTo(QDateTime::currentDateTime())) * 1.024);
     lastRefresh = QDateTime::currentDateTime();
 
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
-    debug("Current cadence: " + QString::number(Cadence));
+    debug("Current Speed: " + QString::number(Speed));
+    debug("Current Calculate Distance: " + QString::number(Distance));
+    debug("Current Cadence: " + QString::number(Cadence));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
@@ -179,10 +184,6 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
-
-    Speed = 0;
-    KCal = 0;
-    Distance = distance;
 }
 
 QTime echelonconnectsport::GetElapsedFromPacket(QByteArray packet)
