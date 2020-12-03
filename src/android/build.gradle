@@ -53,6 +53,7 @@ android {
 
     lintOptions {
         abortOnError false
+		  checkReleaseBuilds false
     }
 
     // Do not compress Qt binary resources file
