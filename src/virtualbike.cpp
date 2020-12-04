@@ -74,6 +74,12 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
         QByteArray valueFIT;
         valueFIT.append((char)0x80); // resistance level supported
         valueFIT.append((char)0x14); // heart rate and elapsed time
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
+        valueFIT.append((char)0x00);
         charDataFIT.setValue(valueFIT);
         charDataFIT.setProperties(QLowEnergyCharacteristic::Read);
 
