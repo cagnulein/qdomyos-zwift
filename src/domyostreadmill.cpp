@@ -237,8 +237,9 @@ void domyostreadmill::update()
         debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
         QDateTime current = QDateTime::currentDateTime();
+        double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         if(currentSpeed() > 0.0 && !first)
-           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+           elapsed += deltaTime;
         lastTime = current;
 
         // updating the treadmill console every second
@@ -317,7 +318,7 @@ void domyostreadmill::update()
             }
         }
 
-        elevationAcc += (currentSpeed() / 3600.0) * 1000.0 * (currentInclination() / 100.0) * ((double)refresh->interval() / 1000.0);
+        elevationAcc += (currentSpeed() / 3600.0) * 1000.0 * (currentInclination() / 100.0) * deltaTime;
     }
 
     first = false;
