@@ -147,6 +147,9 @@ void virtualtreadmill::reconnect()
     if(noHeartService == false)
         serviceHR = leController->addService(serviceDataHR);
 
+    QLowEnergyAdvertisingParameters pars;
+    pars.setInterval(100, 100);
+
     if (service)
         leController->startAdvertising(QLowEnergyAdvertisingParameters(),
                                        advertisingData, advertisingData);
