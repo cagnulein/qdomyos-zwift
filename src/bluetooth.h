@@ -56,6 +56,7 @@ private:
 signals:
     void deviceConnected();
     void deviceFound(QString name);
+    void searchingStop();
 
 public slots:
     void restart();
@@ -63,6 +64,7 @@ public slots:
 
 private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void canceled();
     void speedChanged(double);
     void inclinationChanged(double);
 

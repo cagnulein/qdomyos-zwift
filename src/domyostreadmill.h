@@ -57,6 +57,7 @@ private:
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
+    bool searchStopped = false;
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;
@@ -69,6 +70,7 @@ signals:
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
 private slots:
 

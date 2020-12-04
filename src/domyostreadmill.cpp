@@ -225,13 +225,13 @@ void domyostreadmill::update()
     {
         // ******************************************* virtual treadmill init *************************************
         static uint8_t firstInit = 0;
-        if(!firstInit)
+        if(!firstInit && searchStopped)
         {
            debug("creating virtual treadmill interface...");
            virtualTreadMill = new virtualtreadmill(this, noHeartService);
            connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
-        }
-        firstInit = 1;
+           firstInit = 1;
+        }        
         // ********************************************************************************************************
 
         debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
@@ -589,6 +589,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
             Q_UNUSED(error);
             Q_UNUSED(this);
             debug("Cannot connect to remote device.");
+            searchStopped = false;
             emit disconnected();
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
@@ -599,6 +600,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             debug("LowEnergy controller disconnected");
+            searchStopped = false;
             emit disconnected();
         });
 
@@ -638,4 +640,9 @@ void domyostreadmill::setLastSpeed(double speed)
 void domyostreadmill::setLastInclination(double inclination)
 {
     lastInclination = inclination;
+}
+
+void domyostreadmill::searchingStop()
+{
+    searchStopped = true;
 }

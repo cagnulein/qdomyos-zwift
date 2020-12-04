@@ -30,10 +30,18 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
         discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
         connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
                 this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
+        connect(discoveryAgent, SIGNAL(canceled()),
+                this, SLOT(canceled()));
 
         // Start a discovery
         discoveryAgent->start();
     }
+}
+
+void bluetooth::canceled()
+{
+    debug("BTLE scanning stops");
+    emit searchingStop();
 }
 
 void bluetooth::debug(QString text)
@@ -64,9 +72,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         discoveryAgent->stop();
         domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
         emit(deviceConnected());
-        connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));        
         connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         domyosBike->deviceDiscovered(device);
+        connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
+        if(!discoveryAgent->isActive())
+            emit searchingStop();
     }
     else if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge") && filter)
     {
@@ -74,11 +85,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
         stateFileRead();
         emit(deviceConnected());
-        connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
+        connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));        
         connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
         connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
         domyos->deviceDiscovered(device);
+        connect(this, SIGNAL(searchingStop()), domyos, SLOT(searchingStop()));
+        if(!discoveryAgent->isActive())
+            emit searchingStop();
     }
     else if(device.name().startsWith("ECH-SPORT") && filter)
     {

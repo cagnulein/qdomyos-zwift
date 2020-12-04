@@ -66,6 +66,7 @@ private:
     bool testResistance = false;
     uint8_t bikeResistanceOffset = 4;
     uint8_t bikeResistanceGain = 1;
+    bool searchStopped = false;
 
     enum _BIKE_TYPE {
         CHANG_YOW,
@@ -79,6 +80,7 @@ signals:
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
 private slots:
 

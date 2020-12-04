@@ -151,6 +151,18 @@ void domyosbike::update()
            elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         lastTime = current;
 
+        // ******************************************* virtual bike init *************************************
+        static uint8_t firstVirtual = 0;
+        if(!firstVirtual && searchStopped)
+        {
+           debug("creating virtual bike interface...");
+           virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+           connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
+           firstVirtual = 1;
+        }
+        // ********************************************************************************************************
+
+
         // updating the treadmill console every second
         if(sec1++ == (500 / refresh->interval()))
         {
@@ -404,22 +416,16 @@ void domyosbike::stateChanged(QLowEnergyService::ServiceState state)
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-        // ******************************************* virtual bike init *************************************
-        static uint8_t first = 0;
-        if(!first)
-        {
-           debug("creating virtual bike interface...");
-           virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-           connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
-        }
-        first = 1;
-        // ********************************************************************************************************
-
 	    QByteArray descriptor;
 	    descriptor.append((char)0x01);
 	    descriptor.append((char)0x00);
 	    gattCommunicationChannelService->writeDescriptor(gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
+}
+
+void domyosbike::searchingStop()
+{
+    searchStopped = true;
 }
 
 void domyosbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
@@ -491,6 +497,7 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
             Q_UNUSED(error);
             Q_UNUSED(this);
             debug("Cannot connect to remote device.");
+            searchStopped = false;
             emit disconnected();
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
@@ -501,6 +508,7 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             debug("LowEnergy controller disconnected");
+            searchStopped = false;
             emit disconnected();
         });
 
