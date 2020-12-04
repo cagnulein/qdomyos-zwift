@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.2.6";
+    qDebug() << "version 1.3.0";
 
 #ifndef Q_OS_ANDROID
     if(!forceQml)
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         new homeform(&engine, bl);
 
         {
-#if Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
             KeepAwakeHelper helper;
 #endif
             // screen and CPU will stay awake during this section
