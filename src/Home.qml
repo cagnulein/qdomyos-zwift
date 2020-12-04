@@ -13,7 +13,7 @@ HomeForm{
     start.onClicked: { start_clicked(); }
     stop.onClicked: { stop_clicked(); }
 
-    Component.onCompleted: { console.log("completed");  }
+    Component.onCompleted: { console.log("completed"); }
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
@@ -57,7 +57,7 @@ HomeForm{
                 verticalOffset: 3
                 radius: 8.0
                 samples: 16
-                color: Material.Purple
+                color: Material.color(Material.Purple)
                 source: rect
             }
 

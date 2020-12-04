@@ -341,8 +341,13 @@ void homeform::update()
 
 bool homeform::getDevice()
 {
+    static bool toggle = false;
     if(!this->bluetoothManager->device())
-        return false;
+    {
+        // toggling the bluetooth icon
+        toggle = !toggle;
+        return toggle;
+    }
     return this->bluetoothManager->device()->connected();
 }
 
