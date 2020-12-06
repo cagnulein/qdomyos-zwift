@@ -160,7 +160,6 @@ void domyosbike::update()
         lastTime = current;
 
         // ******************************************* virtual bike init *************************************
-        static uint8_t firstVirtual = 0;
         if(!firstVirtual && searchStopped)
         {
            debug("creating virtual bike interface...");

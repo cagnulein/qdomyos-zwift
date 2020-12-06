@@ -54,6 +54,7 @@ private:
 
     QTimer* refresh;
     virtualbike* virtualBike = 0;
+    uint8_t firstVirtual = 0;
 
     QLowEnergyController* m_control = 0;
     QLowEnergyService* gattCommunicationChannelService = 0;
