@@ -20,6 +20,13 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
     refresh->start(300);
 }
 
+domyosbike::~domyosbike()
+{
+    qDebug() << "~domyosbike()" << virtualBike;
+    if(virtualBike)
+        delete virtualBike;
+}
+
 void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
