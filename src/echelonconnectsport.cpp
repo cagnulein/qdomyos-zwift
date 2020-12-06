@@ -178,7 +178,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     lastRefresh = QDateTime::currentDateTime();
 
     // crank rotation done
-    if(((uint16_t)(crankRevsLocal)) > ((uint16_t)(CrankRevs)))
+    if(((uint16_t)(crankRevsLocal)) > ((uint16_t)(CrankRevs + 5)))
     {
         CrankRevs = crankRevsLocal;
         LastCrankEventTime = lastCrankEventTimeLocal;
