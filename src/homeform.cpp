@@ -39,6 +39,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt");
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart");
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan");
+    jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul");
 
     this->bluetoothManager = bl;
     this->engine = engine;
@@ -96,6 +97,7 @@ void homeform::deviceConnected()
             odometer,
             pace,
             watt,
+            jouls,
             heart,
             fan
         };
@@ -111,6 +113,7 @@ void homeform::deviceConnected()
             odometer,
             resistance,
             watt,
+            jouls,
             heart,
             fan
         };
@@ -279,6 +282,7 @@ void homeform::update()
         odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
+        jouls->setValue(QString::number(bluetoothManager->device()->jouls() / 1000.0, 'f', 1));
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {

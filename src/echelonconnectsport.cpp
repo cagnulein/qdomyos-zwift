@@ -84,8 +84,12 @@ void echelonconnectsport::update()
        initDone)
     {
         QDateTime current = QDateTime::currentDateTime();
+        double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         if(currentSpeed() > 0.0 && !first)
-           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+        {
+           elapsed += deltaTime;
+           m_jouls += (((double)watts()) * deltaTime);
+        }
         lastTime = current;
 
         // updating the treadmill console every second

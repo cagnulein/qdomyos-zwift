@@ -155,8 +155,12 @@ void domyosbike::update()
        initDone)
     {
         QDateTime current = QDateTime::currentDateTime();
+        double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         if(currentSpeed() > 0.0 && !first)
-           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+        {
+           elapsed += deltaTime;
+           m_jouls += (((double)watts()) * deltaTime);
+        }
         lastTime = current;
 
         // ******************************************* virtual bike init *************************************
@@ -168,7 +172,6 @@ void domyosbike::update()
            firstVirtual = 1;
         }
         // ********************************************************************************************************
-
 
         // updating the treadmill console every second
         if(sec1++ == (1000 / refresh->interval()))

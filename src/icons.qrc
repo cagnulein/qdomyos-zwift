@@ -22,5 +22,6 @@
         <file>icons/signal-1.png</file>
         <file>icons/signal-2.png</file>
         <file>icons/signal-3.png</file>
+        <file>icons/joul.png</file>
     </qresource>
 </RCC>

@@ -81,6 +81,7 @@ private:
     DataObject* watt;
     DataObject* heart;
     DataObject* fan;
+    DataObject* jouls;
 
     QTimer* timer;
 
