@@ -168,29 +168,16 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     Speed = 0.37497622 * ((double)Cadence);
     KCal = 0;
     Distance += ((Speed / 3600000.0) * ((double)lastRefresh.msecsTo(QDateTime::currentDateTime())) );
+    CrankRevs++;
+    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
 
-    double cadenceAdd = ((double)(lastRefresh.msecsTo(QDateTime::currentDateTime())) * ((double)Cadence / 60000.0) );
-    static double crankRevsLocal = 0;
-    static uint16_t lastCrankEventTimeLocal = 0;
-
-    crankRevsLocal += cadenceAdd;
-    lastCrankEventTimeLocal += (uint16_t)((lastRefresh.msecsTo(QDateTime::currentDateTime())) * 1.024);
     lastRefresh = QDateTime::currentDateTime();
-
-    // crank rotation done
-    if(((uint16_t)(crankRevsLocal)) > ((uint16_t)(CrankRevs + 5)))
-    {
-        CrankRevs = crankRevsLocal;
-        LastCrankEventTime = lastCrankEventTimeLocal;
-    }
 
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
     debug("Current Speed: " + QString::number(Speed));
     debug("Current Calculate Distance: " + QString::number(Distance));
     debug("Current Cadence: " + QString::number(Cadence));
     debug("Current Distance: " + QString::number(distance));
-    debug("Local Current CrankRevs: " + QString::number(crankRevsLocal));
-    debug("Local Last CrankEventTime: " + QString::number(lastCrankEventTimeLocal));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
     debug("Current Watt: " + QString::number(watts()));
