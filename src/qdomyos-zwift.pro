@@ -97,6 +97,8 @@ ios {
 
 ios {
     QMAKE_INFO_PLIST = ios/Info.plist
+	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
+	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 }
 
 TARGET = qdomyoszwift

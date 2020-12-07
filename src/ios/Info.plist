@@ -35,38 +35,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-
-        <key>CFBundleIcons</key>
-        <dict>
-            <key>CFBundlePrimaryIcon</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                    <string>24x24.png</string>
-                    <string>AppIcon24x24@2x.png</string>
-                    <string>AppIcon27.5x27.5@2x.png</string>
-                    <string>AppIcon40x40@2x.png</string>
-                    <string>AppIcon44x44@2x.png</string>
-                    <string>AppIcon86x86@2x.png</string>
-                    <string>AppIcon98x98@2x.png</string>
-                </array>
-            </dict>
-        </dict>
-        <key>CFBundleIcons~ipad</key>
-        <dict>
-            <key>CFBundlePrimaryIcon</key>
-            <dict>
-                <key>CFBundleIconFiles</key>
-                <array>
-                <string>24x24.png</string>
-                <string>AppIcon24x24@2x.png</string>
-                <string>AppIcon27.5x27.5@2x.png</string>
-                <string>AppIcon40x40@2x.png</string>
-                <string>AppIcon44x44@2x.png</string>
-                <string>AppIcon86x86@2x.png</string>
-                <string>AppIcon98x98@2x.png</string>
-                </array>
-            </dict>
-        </dict>
 </dict>
 </plist>
