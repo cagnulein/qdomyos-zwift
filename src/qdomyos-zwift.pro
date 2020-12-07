@@ -89,3 +89,8 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 ANDROID_ABIS = armeabi-v7a
+
+ios {
+    ios_icon.files = $$files($$PWD/icons/ios/*.png)
+	 QMAKE_BUNDLE_DATA += ios_icon
+}
