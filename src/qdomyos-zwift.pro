@@ -94,3 +94,12 @@ ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)
 	 QMAKE_BUNDLE_DATA += ios_icon
 }
+
+ios {
+    QMAKE_INFO_PLIST = ios/Info.plist
+}
+
+TARGET = qdomyoszwift
+QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+QMAKE_FULL_VERSION = 1.4.0
+QMAKE_SHORT_VERSION = 1.4
