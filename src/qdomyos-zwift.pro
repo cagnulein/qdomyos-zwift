@@ -1,7 +1,10 @@
-QT += bluetooth widgets xml positioning charts quick
+QT += bluetooth widgets xml positioning quick
+
+unix:!android: charts
 unix:android: QT += androidextras
 
 CONFIG += c++11 console debug app_bundle
+macx: CONFIG += static
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -18,7 +21,6 @@ SOURCES += \
    bike.cpp \
         bluetooth.cpp \
    bluetoothdevice.cpp \
-   charts.cpp \
         domyostreadmill.cpp \
    echelonconnectsport.cpp \
         gpx.cpp \
@@ -28,13 +30,14 @@ SOURCES += \
    sessionline.cpp \
    signalhandler.cpp \
         toorxtreadmill.cpp \
-        treadmill.cpp \
-        mainwindow.cpp \
+        treadmill.cpp \        
         trainprogram.cpp \
    trxappgateusbtreadmill.cpp \
     virtualbike.cpp \
         virtualtreadmill.cpp \
     domyosbike.cpp
+
+!ios: SOURCES += mainwindow.cpp charts.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -45,7 +48,6 @@ HEADERS += \
    bike.h \
    bluetooth.h \
    bluetoothdevice.h \
-   charts.h \
    domyostreadmill.h \
    echelonconnectsport.h \
    homeform.h \
@@ -62,7 +64,9 @@ HEADERS += \
    virtualtreadmill.h \
     domyosbike.h
 
-FORMS += \
+!ios: HEADERS += charts.h
+
+!ios: FORMS += \
    charts.ui \
    mainwindow.ui
 

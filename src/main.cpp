@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
 #endif
 #endif
 
-#ifndef Q_OS_ANDROID
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
     app->setApplicationName("qDomyos-Zwift");
 
     QSettings settings;
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
     noHeartService = settings.value("bike_heartrate_service", !noHeartService).toBool();
     bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(myMessageOutput);
     qDebug() << "version 1.3.1";
 
-#ifndef Q_OS_ANDROID
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)
     {
         if(onlyVirtualBike)
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 #endif
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
-#ifndef Q_OS_ANDROID
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(forceQml)
 #endif
     {
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
                 QCoreApplication::exit(-1);
         }, Qt::QueuedConnection);
 
-#ifdef Q_OS_ANDROID
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
         auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
         }
     }
 
-#ifndef Q_OS_ANDROID
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
         MainWindow* W = 0;
