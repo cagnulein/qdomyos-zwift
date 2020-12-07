@@ -7,6 +7,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QSettings>
+#include <QOperatingSystemVersion>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
 #include "bluetooth.h"
@@ -192,7 +193,13 @@ int main(int argc, char *argv[])
 
     QSettings settings;
 #if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    noHeartService = settings.value("bike_heartrate_service", !noHeartService).toBool();
+    bool defaultNoHeartService = !noHeartService;
+
+    // Android 10 doesn't support multiple services for peripheral mode
+    if(QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10))
+        settings.setValue("bike_heartrate_service", true);
+
+    noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
     bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
 #else
@@ -233,7 +240,7 @@ int main(int argc, char *argv[])
                 QCoreApplication::exit(-1);
         }, Qt::QueuedConnection);
 
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+#if defined(Q_OS_ANDROID)
         auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
