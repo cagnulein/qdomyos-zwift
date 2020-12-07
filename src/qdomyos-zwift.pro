@@ -103,4 +103,4 @@ ios {
 
 TARGET = qdomyoszwift
 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
-VERSION = 1.4.4
+VERSION = 1.4.5

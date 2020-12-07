@@ -153,7 +153,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     lastPacket = newValue;
 
     // resistance value is in another frame
-    if(newValue.length() == 5 && newValue.at(0) == 0xf0 && newValue.at(1) == 0xd2)
+    if(newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2)
     {
         Resistance = newValue.at(3);
         debug("Current resistance: " + QString::number(Resistance));
