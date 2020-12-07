@@ -37,6 +37,7 @@ SOURCES += \
         virtualtreadmill.cpp \
     domyosbike.cpp
 
+macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
 # Default rules for deployment.
@@ -52,6 +53,7 @@ HEADERS += \
    echelonconnectsport.h \
    homeform.h \
    keepawakehelper.h \
+   macos/lockscreen.h \
    sessionline.h \
    signalhandler.h \
    toorxtreadmill.h \

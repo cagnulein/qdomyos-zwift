@@ -19,6 +19,10 @@
 #include "keepawakehelper.h"
 #endif
 
+#ifdef Q_OS_MACOS
+#include "macos/lockscreen.h"
+#endif
+
 bool nologs = false;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -260,11 +264,16 @@ int main(int argc, char *argv[])
         {
 #ifdef Q_OS_ANDROID
             KeepAwakeHelper helper;
-#endif
+#elif Q_OS_MACOS
+            lockScreen();
+#endif                        
             // screen and CPU will stay awake during this section
             // lock will be released when helper object goes out of scope
             return app->exec();
         }
+#ifdef Q_OS_MACOS
+        unlockScreen();
+#endif
     }
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
