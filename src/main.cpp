@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
         {
 #ifdef Q_OS_ANDROID
             KeepAwakeHelper helper;
-#elif Q_OS_MACOS
+#elif defined Q_OS_MACOS
             lockScreen();
 #endif                        
             // screen and CPU will stay awake during this section

@@ -1,6 +1,7 @@
 #include <Foundation/NSString.h>
 #include <CoreFoundation/CFBundle.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <IOKit/pwr_mgt/IOPMLib.h>
 
 IOPMAssertionID assertion;
 
