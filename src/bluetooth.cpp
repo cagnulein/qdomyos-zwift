@@ -18,7 +18,7 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(Q_OS_IOS)
     if(!QBluetoothLocalDevice::allDevices().count())
     {
         debug("no bluetooth dongle found!");

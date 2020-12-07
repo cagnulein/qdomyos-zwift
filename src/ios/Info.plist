@@ -19,7 +19,7 @@
 	<key>CFBundleSignature</key>
 	<string>${QMAKE_PKGINFO_TYPEINFO}</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+        <string>1.4.4</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>MinimumOSVersion</key>
@@ -34,6 +34,16 @@
 	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>bluetooth-le</string>
+	</array>
+        <key>UIBackgroundModes</key>
+        <array>
+                <string>bluetooth-central</string>
+                <string>bluetooth-peripheral</string>
+                <string>location</string>
+        </array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
