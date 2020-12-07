@@ -1,6 +1,6 @@
 QT += bluetooth widgets xml positioning quick
 
-unix:!android: charts
+!ios: QT+= charts
 unix:android: QT += androidextras
 
 CONFIG += c++11 console debug app_bundle
