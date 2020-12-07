@@ -2,6 +2,7 @@
 #define BLUETOOTHDEVICE_H
 
 #include <QObject>
+#include <QTimer>
 #include <QBluetoothDeviceInfo>
 
 class bluetoothdevice : public QObject
@@ -14,6 +15,7 @@ public:
     virtual QTime currentPace();
     virtual double odometer();
     virtual double calories();
+    double jouls();
     virtual uint8_t fanSpeed();
     virtual bool connected();
     virtual void* VirtualDevice();
@@ -45,7 +47,7 @@ protected:
     int8_t requestStop = -1;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
-
+    double m_jouls = 0;
 };
 
 #endif // BLUETOOTHDEVICE_H

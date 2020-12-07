@@ -17,7 +17,14 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
 
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    refresh->start(300);
+}
+
+domyosbike::~domyosbike()
+{
+    qDebug() << "~domyosbike()" << virtualBike;
+    if(virtualBike)
+        delete virtualBike;
 }
 
 void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
@@ -50,51 +57,52 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
 
 void domyosbike::updateDisplay(uint16_t elapsed)
 {
-   uint8_t display[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
-                        0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
-                        0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
+    //if(bike_type == CHANG_YOW)
+    {
+        uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
+                              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+                              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-   display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
-   display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
+        display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
+        display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
 
-   display[7] = ((uint8_t)((uint16_t)(currentSpeed()) >> 8)) & 0xFF;
-   display[8] = (uint8_t)(currentSpeed()) & 0xFF;
+        for(uint8_t i=0; i<sizeof(display2)-1; i++)
+        {
+            display2[26] += display2[i]; // the last byte is a sort of a checksum
+        }
 
-   display[12] = currentHeart();
+        writeCharacteristic(display2, 20, "updateDisplay2", false, false);
+        writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2", false, true);
+    }
 
-   //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
-   //display[14] = (((uint8_t)calories())) & 0xFF;
+    uint8_t display[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02,
+                         0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01, 0x01, 0x00,
+                         0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-   display[16] = (uint8_t)currentCadence();
+    display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
+    display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-   display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
-   display[20] = (((uint16_t)calories())) & 0xFF;
+    display[7] = ((uint8_t)((uint16_t)(currentSpeed()) >> 8)) & 0xFF;
+    display[8] = (uint8_t)(currentSpeed()) & 0xFF;
 
-   for(uint8_t i=0; i<sizeof(display)-1; i++)
-   {
-      display[26] += display[i]; // the last byte is a sort of a checksum
-   }
+    display[12] = currentHeart();
 
-   writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed), false, false );
-   writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed), false, true );
+    //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
+    //display[14] = (((uint8_t)calories())) & 0xFF;
 
-   //if(bike_type == CHANG_YOW)
-   {
-       uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
-                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
+    display[16] = (uint8_t)currentCadence();
 
-       display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
-       display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
+    display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
+    display[20] = (((uint16_t)calories())) & 0xFF;
 
-       for(uint8_t i=0; i<sizeof(display2)-1; i++)
-       {
-           display2[26] += display2[i]; // the last byte is a sort of a checksum
-       }
+    for(uint8_t i=0; i<sizeof(display)-1; i++)
+    {
+       display[26] += display[i]; // the last byte is a sort of a checksum
+    }
 
-       writeCharacteristic(display2, 20, "updateDisplay2", false, false);
-       writeCharacteristic(&display2[20], sizeof (display2) - 20, "updateDisplay2", false, true);
-   }
+    writeCharacteristic(display, 20, "updateDisplay elapsed=" + QString::number(elapsed), false, false );
+    writeCharacteristic(&display[20], sizeof (display) - 20, "updateDisplay elapsed=" + QString::number(elapsed), false, true );
+
 }
 
 void domyosbike::forceResistance(int8_t requestResistance)
@@ -147,12 +155,15 @@ void domyosbike::update()
        initDone)
     {
         QDateTime current = QDateTime::currentDateTime();
+        double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         if(currentSpeed() > 0.0 && !first)
-           elapsed += (((double)lastTime.msecsTo(current)) / ((double)1000.0));
+        {
+           elapsed += deltaTime;
+           m_jouls += (((double)watts()) * deltaTime);
+        }
         lastTime = current;
 
         // ******************************************* virtual bike init *************************************
-        static uint8_t firstVirtual = 0;
         if(!firstVirtual && searchStopped)
         {
            debug("creating virtual bike interface...");
@@ -162,15 +173,16 @@ void domyosbike::update()
         }
         // ********************************************************************************************************
 
-
         // updating the treadmill console every second
-        if(sec1++ == (500 / refresh->interval()))
+        if(sec1++ == (1000 / refresh->interval()))
         {
             sec1 = 0;
             updateDisplay(elapsed);
         }
-
-        writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+        else
+        {
+            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
+        }
 
         if(testResistance)
         {

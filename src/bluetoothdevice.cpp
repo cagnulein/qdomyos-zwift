@@ -14,6 +14,7 @@ double bluetoothdevice::currentSpeed(){ return Speed; }
 QTime bluetoothdevice::currentPace(){ if(Speed == 0) return QTime(0,0,0,0); else return QTime(0, (int)(1.0 / (Speed / 60.0)), (((double)(1.0 / (Speed / 60.0)) - ((double)((int)(1.0 / (Speed / 60.0))))) * 60.0), 0  ); }
 double bluetoothdevice::odometer(){ return Distance; }
 double bluetoothdevice::calories(){ return KCal; }
+double bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void* bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) { Q_UNUSED(speed); return false; }

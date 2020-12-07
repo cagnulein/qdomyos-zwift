@@ -239,8 +239,11 @@ void domyostreadmill::update()
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
         if(currentSpeed() > 0.0 && !first)
+        {
            elapsed += deltaTime;
-        lastTime = current;
+           m_jouls += (((double)watts()) * deltaTime);
+        }
+        lastTime = current;        
 
         // updating the treadmill console every second
         if(sec1++ >= (500 / refresh->interval()))
