@@ -158,7 +158,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     if(nologs == false)
     {
         QString path = "";
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
         path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #endif
 
@@ -211,7 +211,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.3.1";
+    qDebug() << "version 1.4.6";
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)
