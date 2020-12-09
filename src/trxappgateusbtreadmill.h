@@ -23,6 +23,7 @@
 #include <QtCore/qmutex.h>
 
 #include <QObject>
+#include <QTime>
 
 #include "virtualtreadmill.h"
 #include "treadmill.h"
@@ -54,6 +55,14 @@ private:
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;
+
+    uint8_t firstVirtualTreadmill = 0;
+    bool firstUpdate = true;
+    bool firstCharChanged = true;
+    QTime lastTimeCharChanged;
+    uint8_t sec1update = 0;
+    QTime lastTimeUpdate;
+    QByteArray lastPacket;
 
     QLowEnergyController* m_control = 0;
     QLowEnergyService* gattCommunicationChannelService = 0;

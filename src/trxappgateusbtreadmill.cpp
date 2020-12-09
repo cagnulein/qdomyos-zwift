@@ -42,9 +42,6 @@ bool trxappgateusbtreadmill::changeFanSpeed(uint8_t speed)
 
 void trxappgateusbtreadmill::update()
 {
-    static uint8_t sec1 = 0;
-    static QTime lastTime;
-    static bool first = true;
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
@@ -65,13 +62,13 @@ void trxappgateusbtreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed() > 0.0 && !first)
-           elapsed += ((double)lastTime.msecsTo(QTime::currentTime()) / 1000.0);
+        if(currentSpeed() > 0.0 && !firstUpdate)
+           elapsed += ((double)lastTimeUpdate.msecsTo(QTime::currentTime()) / 1000.0);
 
         // updating the treadmill console every second
-        if(sec1++ == (1000 / refresh->interval()))
+        if(sec1update++ == (1000 / refresh->interval()))
         {
-            sec1 = 0;
+            sec1update = 0;
             //updateDisplay(elapsed);
         }
 
@@ -137,8 +134,8 @@ void trxappgateusbtreadmill::update()
         elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
     }
 
-    lastTime = QTime::currentTime();
-    first = false;
+    lastTimeUpdate = QTime::currentTime();
+    firstUpdate = false;
 }
 
 void trxappgateusbtreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
@@ -146,13 +143,10 @@ void trxappgateusbtreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
     debug("serviceDiscovered " + gatt.toString());
 }
 
-static QByteArray lastPacket;
 void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
-    static QTime lastTime;
-    static bool first = true;
 
     debug(" << " + newValue.toHex(' '));
 
@@ -171,8 +165,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     Heart = 0;
     FanSpeed = 0;
 
-    if(!first)
-        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTime.msecsTo(QTime::currentTime()))));
+    if(!firstCharChanged)
+        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
@@ -190,8 +184,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     KCal = kcal;
     Distance = distance;
 
-    lastTime = QTime::currentTime();
-    first = false;
+    lastTimeCharChanged = QTime::currentTime();
+    firstCharChanged = false;
 }
 
 uint16_t trxappgateusbtreadmill::GetElapsedFromPacket(QByteArray packet)
@@ -284,14 +278,13 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
         // ******************************************* virtual treadmill init *************************************
-        static uint8_t first = 0;
-        if(!first)
+        if(!firstVirtualTreadmill)
         {
            debug("creating virtual treadmill interface...");
            virtualTreadMill = new virtualtreadmill(this, false);
            connect(virtualTreadMill,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
         }
-        first = 1;
+        firstVirtualTreadmill = 1;
         // ********************************************************************************************************
 
         QByteArray descriptor;
