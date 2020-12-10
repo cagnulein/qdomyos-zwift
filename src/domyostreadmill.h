@@ -23,6 +23,7 @@
 #include <QtCore/qmutex.h>
 
 #include <QObject>
+#include <QDateTime>
 
 #include "virtualtreadmill.h"
 #include "treadmill.h"
@@ -58,6 +59,15 @@ private:
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
+    double lastSpeed = 0.0;
+    double lastInclination = 0;
+    uint8_t sec1Update = 0;
+    QDateTime lastTimeUpdate;
+    bool firstUpdate = true;
+    uint8_t firstInit = 0;
+    QByteArray lastPacket;
+    QDateTime lastTimeCharacteristicChanged;
+    bool firstCharacteristicChanged = true;
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;

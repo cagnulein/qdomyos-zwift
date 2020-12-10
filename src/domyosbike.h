@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QDateTime>
 
 #include "virtualbike.h"
 #include "bike.h"
@@ -69,6 +70,11 @@ private:
     uint8_t bikeResistanceOffset = 4;
     uint8_t bikeResistanceGain = 1;
     bool searchStopped = false;
+    QDateTime lastTimeUpdate;
+    bool firstUpdate = true;
+    uint8_t sec1Update = 0;
+    QByteArray lastPacket;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     enum _BIKE_TYPE {
         CHANG_YOW,

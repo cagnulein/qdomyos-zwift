@@ -124,14 +124,10 @@ void domyosbike::forceResistance(int8_t requestResistance)
 
 void domyosbike::update()
 {
-    static QDateTime lastTime;
-    static bool first = true;
     uint8_t noOpData[] = { 0xf0, 0xac, 0x9c };
 
     // stop tape
     uint8_t initDataF0C800B8[] = { 0xf0, 0xc8, 0x00, 0xb8 };
-
-    static uint8_t sec1 = 0;
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
@@ -155,13 +151,13 @@ void domyosbike::update()
        initDone)
     {
         QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !first)
+        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+        if(currentSpeed() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            m_jouls += (((double)watts()) * deltaTime);
         }
-        lastTime = current;
+        lastTimeUpdate = current;
 
         // ******************************************* virtual bike init *************************************
         if(!firstVirtual && searchStopped)
@@ -174,9 +170,9 @@ void domyosbike::update()
         // ********************************************************************************************************
 
         // updating the treadmill console every second
-        if(sec1++ == (1000 / refresh->interval()))
+        if(sec1Update++ == (1000 / refresh->interval()))
         {
-            sec1 = 0;
+            sec1Update = 0;
             updateDisplay(elapsed);
         }
         else
@@ -227,7 +223,7 @@ void domyosbike::update()
         }
     }
 
-    first = false;
+    firstUpdate = false;
 }
 
 void domyosbike::serviceDiscovered(const QBluetoothUuid &gatt)
@@ -235,12 +231,10 @@ void domyosbike::serviceDiscovered(const QBluetoothUuid &gatt)
     debug("serviceDiscovered " + gatt.toString());
 }
 
-static QByteArray lastPacket;
 void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);
-    static QDateTime lastRefresh = QDateTime::currentDateTime();
+    Q_UNUSED(characteristic);    
 
     debug(" << " + newValue.toHex(' '));
 
@@ -278,9 +272,9 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
     Heart = newValue.at(18);
 
-    CrankRevs += ((double)(lastRefresh.msecsTo(QDateTime::currentDateTime())) * ((double)Cadence / 60000.0) );
-    LastCrankEventTime += (uint16_t)((lastRefresh.msecsTo(QDateTime::currentDateTime())) * 1.024);
-    lastRefresh = QDateTime::currentDateTime();
+    CrankRevs += ((double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) * ((double)Cadence / 60000.0) );
+    LastCrankEventTime += (uint16_t)((lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) * 1.024);
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));
