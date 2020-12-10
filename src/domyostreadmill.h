@@ -77,6 +77,7 @@ signals:
     void debug(QString string);
     void speedChanged(double speed);
     void inclinationChanged(double inclination);
+    void packetReceived();
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

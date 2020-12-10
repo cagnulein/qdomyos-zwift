@@ -81,7 +81,7 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
 
     if(wait_for_response)
     {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+        connect(this, SIGNAL(packetReceived()),
                 &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
@@ -238,7 +238,7 @@ void domyostreadmill::update()
         lastTimeUpdate = current;
 
         // updating the treadmill console every second
-        if(sec1Update++ >= (500 / refresh->interval()))
+        if(sec1Update++ >= (1000 / refresh->interval()))
         {
             if(incompletePackets == false && noConsole == false)
             {
@@ -246,9 +246,11 @@ void domyostreadmill::update()
                 updateDisplay(elapsed);
             }
         }
-
-        if(incompletePackets == false)
-            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+        else
+        {
+            if(incompletePackets == false)
+                writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
+        }
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
@@ -331,6 +333,18 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     QByteArray value = newValue;
 
     debug(" << " + QString::number(value.length()) + " " + value.toHex(' '));
+
+    // for the init packets, the lenght is always less than 20
+    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
+    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of 20,
+    //         and the second one with the remained byte
+    // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
+    if(newValue.length() != 20)
+    {
+        debug("packetReceived!");
+        emit packetReceived();
+    }
 
     if (lastPacket.length() && lastPacket == value)
         return;
