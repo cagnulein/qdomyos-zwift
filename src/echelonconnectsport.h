@@ -25,6 +25,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QDateTime>
 
 #include "virtualbike.h"
 #include "bike.h"
@@ -56,6 +57,14 @@ private:
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+
+    uint8_t counterPoll = 1;
+    QDateTime lastTimeUpdate;
+    bool firstUpdate = true;
+    uint8_t sec1Update = 0;
+    QByteArray lastPacket;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
 
     bool initDone = false;
     bool initRequest = false;

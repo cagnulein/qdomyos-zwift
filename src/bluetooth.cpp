@@ -94,7 +94,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         if(!discoveryAgent->isActive())
             emit searchingStop();
     }
-    else if(device.name().startsWith("ECH-SPORT") && filter)
+    else if(device.name().startsWith("ECH") && filter)
     {
         discoveryAgent->stop();
         echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService);
