@@ -97,6 +97,7 @@ private slots:
     void deviceFound(QString name);
     void deviceConnected();
     void trainprogram_open_clicked(QUrl fileName);
+    void gpx_open_clicked(QUrl fileName);
     void trainProgramSignals();
 
 signals:

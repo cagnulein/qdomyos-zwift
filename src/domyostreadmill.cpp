@@ -5,9 +5,6 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 
-static double lastSpeed = 0.0;
-static double lastInclination = 0;
-
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };
 uint8_t initData2[] = { 0xf0, 0xc9, 0xb9 };
@@ -84,7 +81,7 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
 
     if(wait_for_response)
     {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+        connect(this, SIGNAL(packetReceived()),
                 &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
@@ -201,10 +198,6 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
 
 void domyostreadmill::update()
 {
-    static uint8_t sec1 = 0;
-    static QDateTime lastTime;
-    static bool first = true;
-
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
         emit disconnected();
@@ -223,8 +216,7 @@ void domyostreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        // ******************************************* virtual treadmill init *************************************
-        static uint8_t firstInit = 0;
+        // ******************************************* virtual treadmill init *************************************        
         if(!firstInit && searchStopped)
         {
            debug("creating virtual treadmill interface...");
@@ -237,26 +229,28 @@ void domyostreadmill::update()
         debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
         QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTime.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !first)
+        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+        if(currentSpeed() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            m_jouls += (((double)watts()) * deltaTime);
         }
-        lastTime = current;        
+        lastTimeUpdate = current;
 
         // updating the treadmill console every second
-        if(sec1++ >= (500 / refresh->interval()))
+        if(sec1Update++ >= (1000 / refresh->interval()))
         {
             if(incompletePackets == false && noConsole == false)
             {
-                sec1 = 0;
+                sec1Update = 0;
                 updateDisplay(elapsed);
             }
         }
-
-        if(incompletePackets == false)
-            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+        else
+        {
+            if(incompletePackets == false)
+                writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
+        }
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
@@ -324,7 +318,7 @@ void domyostreadmill::update()
         elevationAcc += (currentSpeed() / 3600.0) * 1000.0 * (currentInclination() / 100.0) * deltaTime;
     }
 
-    first = false;
+    firstUpdate = false;
 }
 
 void domyostreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
@@ -332,16 +326,25 @@ void domyostreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
     debug("serviceDiscovered " + gatt.toString());
 }
 
-static QByteArray lastPacket;
 void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
-    static QDateTime lastTime;
-    static bool first = true;
     QByteArray value = newValue;
 
     debug(" << " + QString::number(value.length()) + " " + value.toHex(' '));
+
+    // for the init packets, the lenght is always less than 20
+    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
+    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of 20,
+    //         and the second one with the remained byte
+    // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
+    if(newValue.length() != 20)
+    {
+        debug("packetReceived!");
+        emit packetReceived();
+    }
 
     if (lastPacket.length() && lastPacket == value)
         return;
@@ -411,8 +414,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Heart = value.at(18);
     FanSpeed = value.at(23);
 
-    if(!first)
-        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTime.msecsTo(QDateTime::currentDateTime()))));
+    if(!firstCharacteristicChanged)
+        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
@@ -444,8 +447,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         lastInclination = incline;
     }
 
-    lastTime = QDateTime::currentDateTime();
-    first = false;
+    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+    firstCharacteristicChanged = false;
 }
 
 double domyostreadmill::GetSpeedFromPacket(QByteArray packet)

@@ -12,6 +12,7 @@ ApplicationWindow {
     title: qsTr("Stack")
 
     signal trainprogram_open_clicked(url name)
+	 signal gpx_open_clicked(url name)
 
     Popup {
 	    id: popup
@@ -87,7 +88,7 @@ ApplicationWindow {
                 text: qsTr("Open GPX")
                 width: parent.width
                 onClicked: {
-                    fileDialog.visible = true
+					     fileDialogGPX.visible = true
                     drawer.close()
                 }
             }
@@ -96,7 +97,7 @@ ApplicationWindow {
                 text: qsTr("Open Train Program")
                 width: parent.width
                 onClicked: {
-                    fileDialog.visible = true
+					     fileDialogTrainProgram.visible = true
                     drawer.close()
                 }
             }
@@ -109,20 +110,35 @@ ApplicationWindow {
                 }*/
             }
             FileDialog {
-                id: fileDialog
+				    id: fileDialogTrainProgram
                 title: "Please choose a file"
                 folder: shortcuts.home
                 onAccepted: {
-                    console.log("You chose: " + fileDialog.fileUrl)
-                    trainprogram_open_clicked(fileDialog.fileUrl)
-                    fileDialog.close()
+					     console.log("You chose: " + fileDialogTrainProgram.fileUrl)
+						  trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+						  fileDialogTrainProgram.close()
 						  popup.open()
                 }
                 onRejected: {
                     console.log("Canceled")
-                    fileDialog.close()
+						  fileDialogTrainProgram.close()
                 }
             }
+				FileDialog {
+				    id: fileDialogGPX
+					 title: "Please choose a file"
+					 folder: shortcuts.home
+					 onAccepted: {
+					     console.log("You chose: " + fileDialogGPX.fileUrl)
+						  gpx_open_clicked(fileDialogGPX.fileUrl)
+						  fileDialogGPX.close()
+						  popup.open()
+						}
+					 onRejected: {
+					     console.log("Canceled")
+						  fileDialogGPX.close()
+						}
+					}
         }
     }
 

@@ -38,6 +38,7 @@ uint32_t pollDeviceTime = 200;
 uint8_t bikeResistanceOffset = 4;
 uint8_t bikeResistanceGain = 1;
 static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log";
+static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
@@ -169,6 +170,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
         fprintf(stderr, txt.toLocal8Bit());
     }
+
+    (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
 int main(int argc, char *argv[])
@@ -211,7 +214,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.4.6";
+    qDebug() << "version 1.5.1";
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)

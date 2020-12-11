@@ -53,6 +53,18 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &homeform::update);
     timer->start(1000);
+
+    QObject *rootObject = engine->rootObjects().first();
+    QObject *home = rootObject->findChild<QObject*>("home");
+    QObject *stack = rootObject;
+    QObject::connect(home, SIGNAL(start_clicked()),
+        this, SLOT(Start()));
+    QObject::connect(home, SIGNAL(stop_clicked()),
+        this, SLOT(Stop()));
+    QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)),
+        this, SLOT(trainprogram_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)),
+        this, SLOT(gpx_open_clicked(QUrl)));
 }
 
 void homeform::trainProgramSignals()
@@ -124,13 +136,6 @@ void homeform::deviceConnected()
 
     QObject *rootObject = engine->rootObjects().first();
     QObject *home = rootObject->findChild<QObject*>("home");
-    QObject *stack = rootObject;
-    QObject::connect(home, SIGNAL(start_clicked()),
-        this, SLOT(Start()));
-    QObject::connect(home, SIGNAL(stop_clicked()),
-        this, SLOT(Stop()));
-    QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)),
-        this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(home, SIGNAL(plus_clicked(QString)),
         this, SLOT(Plus(QString)));
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
@@ -232,7 +237,7 @@ void homeform::Minus(QString name)
 
 void homeform::Start()
 {
-    //trainProgram->restart();
+    trainProgram->restart();
     if(bluetoothManager->device())
         bluetoothManager->device()->start();
 }
@@ -381,13 +386,23 @@ void homeform::trainprogram_open_clicked(QUrl fileName)
     qDebug() << file.fileName();
     if(!file.fileName().isEmpty())
     {
-        if(file.fileName().endsWith("xml"))
         {
                if(trainProgram)
                      delete trainProgram;
                 trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
         }
-        else if(file.fileName().endsWith("gpx"))
+
+        trainProgramSignals();
+    }
+}
+
+void homeform::gpx_open_clicked(QUrl fileName)
+{
+    qDebug() << "gpx_open_clicked" << fileName;
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    qDebug() << file.fileName();
+    if(!file.fileName().isEmpty())
+    {
         {
                if(trainProgram)
                      delete trainProgram;
@@ -404,10 +419,6 @@ void homeform::trainprogram_open_clicked(QUrl fileName)
                 list.append(r);
             }
                 trainProgram = new trainprogram(list, bluetoothManager);
-        }
-        else
-        {
-            return;
         }
 
         trainProgramSignals();

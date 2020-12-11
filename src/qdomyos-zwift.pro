@@ -88,7 +88,7 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_ABIS = armeabi-v7a
+ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
 
 ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)
@@ -99,8 +99,8 @@ ios {
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
-}
 
-TARGET = qdomyoszwift
-QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
-VERSION = 1.4.6
+    TARGET = qdomyoszwift
+	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+	 VERSION = 1.4.6
+}

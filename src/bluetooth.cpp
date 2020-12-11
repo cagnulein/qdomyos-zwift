@@ -94,7 +94,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         if(!discoveryAgent->isActive())
             emit searchingStop();
     }
-    else if(device.name().startsWith("ECH-SPORT") && filter)
+    else if(device.name().startsWith("ECH") && filter)
     {
         discoveryAgent->stop();
         echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService);
@@ -128,9 +128,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
 void bluetooth::restart()
 {
-    if(domyos)
+    if(device()->VirtualDevice())
     {
-        delete domyos;
+        if(device()->deviceType() == bluetoothdevice::TREADMILL)
+            delete (virtualtreadmill*)device()->VirtualDevice();
+        else if(device()->deviceType() == bluetoothdevice::BIKE)
+            delete (virtualbike*)device()->VirtualDevice();
+    }
+
+    if(domyos)
+    {        
+        delete domyos;        
         domyos = 0;
     }
     if(domyosBike)
