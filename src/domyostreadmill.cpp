@@ -177,7 +177,7 @@ void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
    writeCharacteristic(&writeIncline[20], sizeof (writeIncline) - 20, "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline), false, true);
 }
 
-bool domyostreadmill::changeFanSpeed(uint8_t speed)
+bool domyostreadmill::sendChangeFanSpeed(uint8_t speed)
 {
    uint8_t fanSpeed[] = {0xf0, 0xca, 0x00, 0x00};
 
@@ -191,6 +191,16 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
    }
 
    writeCharacteristic(fanSpeed, 4, "changeFanSpeed speed=" + QString::number(speed), false, true);
+
+   return true;
+}
+
+bool domyostreadmill::changeFanSpeed(uint8_t speed)
+{
+   if(speed > FanSpeed)
+       requestIncreaseFan = 1;
+   else if(speed < FanSpeed)
+       requestDecreaseFan = 1;
 
    return true;
 }
@@ -249,7 +259,7 @@ void domyostreadmill::update()
         else
         {
             if(incompletePackets == false)
-                writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
+                writeCharacteristic(noOpData, sizeof(noOpData), "noOp", false, true);
         }
 
         // byte 3 - 4 = elapsed time
@@ -298,19 +308,19 @@ void domyostreadmill::update()
             if(requestStop != -1)
             {
                 debug("stopping...");
-                writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
                 requestStop = -1;
             }
             if(requestIncreaseFan != -1)
             {
                 debug("increasing fan speed...");
-                changeFanSpeed(FanSpeed + 1);
+                sendChangeFanSpeed(FanSpeed + 1);
                 requestIncreaseFan = -1;
             }
             else if(requestDecreaseFan != -1)
             {
                 debug("decreasing fan speed...");
-                changeFanSpeed(FanSpeed - 1);
+                sendChangeFanSpeed(FanSpeed - 1);
                 requestDecreaseFan = -1;
             }
         }

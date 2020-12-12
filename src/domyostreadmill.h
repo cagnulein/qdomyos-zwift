@@ -44,6 +44,7 @@ public:
     void* VirtualDevice();
 
 private:
+    bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
