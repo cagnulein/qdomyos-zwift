@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
+#include <QEventLoop>
 #include <QBluetoothLocalDevice>
 
 trxappgateusbtreadmill::trxappgateusbtreadmill()
@@ -13,11 +14,22 @@ trxappgateusbtreadmill::trxappgateusbtreadmill()
     refresh->start(200);
 }
 
-void trxappgateusbtreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log)
+void trxappgateusbtreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
-    connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
-            &loop, SLOT(quit()));
+    QTimer timeout;
+
+    if(wait_for_response)
+    {
+        connect(this, SIGNAL(packetReceived()),
+                &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
+    }
+    else
+    {
+        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
+                &loop, SLOT(quit()));
+    }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
 
@@ -25,6 +37,9 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
+
+    if(timeout.isActive() == false)
+        debug(" exit for timeout");
 }
 
 void trxappgateusbtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
@@ -73,7 +88,7 @@ void trxappgateusbtreadmill::update()
         }
 
         const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0xd3, 0x66 };
-        writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", true);
+        writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
 
         if(requestSpeed != -1)
         {
@@ -110,7 +125,7 @@ void trxappgateusbtreadmill::update()
            debug("starting...");
            //btinit(true);
            const uint8_t startTape[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
-           writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false);
+           writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false, true);
            requestStart = -1;
            emit tapeStarted();
         }
@@ -149,6 +164,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+    emit packetReceived();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -237,14 +253,14 @@ void trxappgateusbtreadmill::btinit(bool startTape)
     const uint8_t initData6[] = { 0xf0, 0xa4, 0x01, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x73 };
     const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };
 
-    writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init");
-    writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init");
-    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init");
-    writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init");
-    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init");
-    writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init");
-    writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init");
-    writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init");
+    writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+    writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+    writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+    writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
+    writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
+    writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
 
     initDone = true;
 }

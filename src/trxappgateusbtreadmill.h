@@ -49,7 +49,7 @@ private:
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false);
+    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response);
     void startDiscover();
     double DistanceCalculated = 0;
 
@@ -82,6 +82,7 @@ private:
 signals:
     void disconnected();
     void debug(QString string);
+    void packetReceived();
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
