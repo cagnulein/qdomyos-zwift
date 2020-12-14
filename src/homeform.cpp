@@ -33,7 +33,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         unit = "mi";
 
 #ifdef Q_OS_IOS
-    const int labelFontSize = 8;
+    const int labelFontSize = 14;
     const int valueElapsedFontSize = 36;
 #elif defined Q_OS_ANDROID
     const int labelFontSize = 16;
