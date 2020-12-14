@@ -266,7 +266,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
         if(treadmill_type == TYPE::IRUNNING)
         {
-            uuidWrite      = "49535343-4C8A-39B3-2F49-511CFF073B7E";
+            uuidWrite      = "49535343-8841-43f4-a8d4-ecbe34729bb3";
             uuidNotify     = "49535343-1E4D-4BD9-BA61-23C647249616";
         }
 
