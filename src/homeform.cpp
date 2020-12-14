@@ -32,10 +32,15 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     if(miles)
         unit = "mi";
 
-#ifndef Q_OS_IOS
-    const int labelFontSize = 10;
-#else
+#ifdef Q_OS_IOS
     const int labelFontSize = 8;
+    const int valueElapsedFontSize = 36;
+#elif defined Q_OS_ANDROID
+    const int labelFontSize = 16;
+    const int valueElapsedFontSize = 36;
+#else
+    const int labelFontSize = 10;
+    const int valueElapsedFontSize = 30;
 #endif
     speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed", 48, labelFontSize);
     inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination", 48, labelFontSize);
@@ -49,7 +54,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
-    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", 30, labelFontSize);
+    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
 
     this->bluetoothManager = bl;
     this->engine = engine;
