@@ -20,7 +20,7 @@ public:
     virtual QTime elapsedTime();
     virtual bool connected();
     virtual void* VirtualDevice();
-    uint16_t watts(double weight=75.0);
+    uint16_t watts(double weight);
     virtual bool changeFanSpeed(uint8_t speed);
     QBluetoothDeviceInfo bluetoothDevice;
 

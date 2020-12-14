@@ -14,6 +14,7 @@ Pane {
         property bool bike_heartrate_service: false
         property int bike_resistance_offset: 4
         property int bike_resistance_gain: 1
+        property real weight: 75.0
         property bool miles_unit: false
         property bool bike_cadence_sensor: false
     }
@@ -39,6 +40,26 @@ Pane {
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter
             color: Material.color(Material.Grey)
+        }
+
+        RowLayout {
+            spacing: 10
+            Label {
+                id: labelWeight
+                text: qsTr("Player Weight (kg):")
+                Layout.preferredWidth: 150
+                Layout.fillWidth: true
+            }
+            TextField {
+                Layout.preferredWidth: 60
+                id: weightTextField
+                text: settings.weight
+                horizontalAlignment: Text.AlignRight
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                inputMethodHints: Qt.ImhDigitsOnly
+                onAccepted: settings.weight = text
+            }
         }
 
         SwitchDelegate {

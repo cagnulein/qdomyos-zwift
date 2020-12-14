@@ -318,7 +318,7 @@ void homeform::update()
             {
                 pace = 0;
             }
-            watts = ((treadmill*)bluetoothManager->device())->watts(/*weight->text().toFloat()*/); // TODO: add weight to settings
+            watts = ((treadmill*)bluetoothManager->device())->watts(settings.value("weight", 75.0).toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination();
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
             watt->setValue(QString::number(watts, 'f', 0));

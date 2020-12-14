@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
+#include <QSettings>
 #include <QBluetoothLocalDevice>
 
 // set speed and incline to 0
@@ -242,8 +243,9 @@ void domyostreadmill::update()
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
         if(currentSpeed() > 0.0 && !firstUpdate)
         {
+            QSettings settings;
            elapsed += deltaTime;
-           m_jouls += (((double)watts()) * deltaTime);
+           m_jouls += (((double)watts(settings.value("weight", 75.0).toFloat())) * deltaTime);
         }
         lastTimeUpdate = current;
 

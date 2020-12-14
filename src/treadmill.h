@@ -13,7 +13,7 @@ public:
     virtual double elevationGain();
     virtual uint8_t fanSpeed();
     virtual bool connected();
-    uint16_t watts(double weight=75.0);    
+    uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
 
 public slots:
