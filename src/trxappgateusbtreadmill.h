@@ -72,6 +72,12 @@ private:
     bool initDone = false;
     bool initRequest = false;
 
+    typedef enum TYPE {
+        TRXAPPGATE = 0,
+        IRUNNING = 1
+    } TYPE;
+    TYPE treadmill_type = TRXAPPGATE;
+
 
 signals:
     void disconnected();

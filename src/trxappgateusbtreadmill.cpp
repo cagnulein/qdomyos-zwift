@@ -108,7 +108,9 @@ void trxappgateusbtreadmill::update()
         if(requestStart != -1)
         {
            debug("starting...");
-           btinit(true);
+           //btinit(true);
+           const uint8_t startTape[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
+           writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false);
            requestStart = -1;
            emit tapeStarted();
         }
@@ -259,8 +261,17 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
             debug("characteristic " + c.uuid().toString());
         }
 
-        QBluetoothUuid _gattWriteCharacteristicId((QString)"0000fff2-0000-1000-8000-00805f9b34fb");
-        QBluetoothUuid _gattNotifyCharacteristicId((QString)"0000fff1-0000-1000-8000-00805f9b34fb");
+        QString uuidWrite  = "0000fff2-0000-1000-8000-00805f9b34fb";
+        QString uuidNotify = "0000fff1-0000-1000-8000-00805f9b34fb";
+
+        if(treadmill_type == TYPE::IRUNNING)
+        {
+            uuidWrite      = "49535343-4C8A-39B3-2F49-511CFF073B7E";
+            uuidNotify     = "49535343-1E4D-4BD9-BA61-23C647249616";
+        }
+
+        QBluetoothUuid _gattWriteCharacteristicId((QString)uuidWrite);
+        QBluetoothUuid _gattNotifyCharacteristicId((QString)uuidNotify);
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
@@ -311,7 +322,11 @@ void trxappgateusbtreadmill::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0000fff0-0000-1000-8000-00805f9b34fb");
+    QString uuid = "0000fff0-0000-1000-8000-00805f9b34fb";
+    if(treadmill_type == TYPE::IRUNNING)
+            uuid = "49535343-FE7D-4AE5-8FA9-9FAFD205E455";
+
+    QBluetoothUuid _gattCommunicationChannelServiceId((QString)uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
@@ -333,8 +348,13 @@ void trxappgateusbtreadmill::error(QLowEnergyController::Error err)
 void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("TOORX"))
+    if(device.name().startsWith("TOORX") || device.name().startsWith("i-Running"))
     {
+        if(device.name().startsWith("i-Running"))
+            treadmill_type = TYPE::IRUNNING;
+        else
+            treadmill_type = TYPE::TRXAPPGATE;
+
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
