@@ -282,7 +282,7 @@ void homeform::update()
 
         emit signalChanged(signal());
 
-        speed->setValue(QString::number(bluetoothManager->device()->currentSpeed() * unit_conversion, 'f', 2));
+        speed->setValue(QString::number(bluetoothManager->device()->currentSpeed() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart()));
         odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
