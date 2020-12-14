@@ -15,20 +15,23 @@ class DataObject : public QObject
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueFontSizeChanged)
+    Q_PROPERTY(int labelFontSize READ labelFontSize WRITE setLabelFontSize NOTIFY labelFontSizeChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
 
 public:
-    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize);
+    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize);
     void setValue(QString value);
     void setValueFontSize(int value);
+    void setLabelFontSize(int value);
     void setVisible(bool visible);
     QString name() {return m_name;}
     QString icon() {return m_icon;}
     QString value() {return m_value;}
     int valueFontSize() {return m_valueFontSize;}
+    int labelFontSize() {return m_labelFontSize;}
     bool writable() {return m_writable;}
     bool visibleItem() {return m_visible;}
     QString plusName() {return m_id + "_plus";}
@@ -39,12 +42,14 @@ public:
     QString m_icon;
     QString m_value;
     int m_valueFontSize;
+    int m_labelFontSize;
     bool m_writable;
     bool m_visible = true;
 
 signals:
     void valueChanged(QString value);
     void valueFontSizeChanged(int value);
+    void labelFontSizeChanged(int value);
     void nameChanged(QString value);
     void iconChanged(QString value);
     void writableChanged(bool value);

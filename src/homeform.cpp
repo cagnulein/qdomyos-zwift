@@ -5,7 +5,7 @@
 #include <QQmlFile>
 #include "gpx.h"
 
-DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize)
+DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize)
 {
     m_name = name;
     m_icon = icon;
@@ -13,6 +13,7 @@ DataObject::DataObject(QString name, QString icon, QString value, bool writable,
     m_writable = writable;
     m_id = id;
     m_valueFontSize = valueFontSize;
+    m_labelFontSize = labelFontSize;
 
     emit plusNameChanged(plusName());
     emit minusNameChanged(minusName());
@@ -20,6 +21,7 @@ DataObject::DataObject(QString name, QString icon, QString value, bool writable,
 
 void DataObject::setValue(QString v) {m_value = v; emit valueChanged(m_value);}
 void DataObject::setValueFontSize(int value) {m_valueFontSize = value; emit valueFontSizeChanged(m_valueFontSize);}
+void DataObject::setLabelFontSize(int value) {m_labelFontSize = value; emit labelFontSizeChanged(m_labelFontSize);}
 void DataObject::setVisible(bool visible) {m_visible = visible; emit visibleChanged(m_visible);}
 
 homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
@@ -30,19 +32,24 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     if(miles)
         unit = "mi";
 
-    speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed", 48);
-    inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination", 48);
-    cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence", 48);
-    elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation", 48);
-    calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories", 48);
-    odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer", 48);
-    pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace", 48);
-    resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48);
-    watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48);
-    heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48);
-    fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48);
-    jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48);
-    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", 30);
+#ifndef Q_OS_IOS
+    const int labelFontSize = 10;
+#else
+    const int labelFontSize = 8;
+#endif
+    speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed", 48, labelFontSize);
+    inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination", 48, labelFontSize);
+    cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence", 48, labelFontSize);
+    elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation", 48, labelFontSize);
+    calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories", 48, labelFontSize);
+    odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer", 48, labelFontSize);
+    pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace", 48, labelFontSize);
+    resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
+    watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
+    heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
+    fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
+    jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
+    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", 30, labelFontSize);
 
     this->bluetoothManager = bl;
     this->engine = engine;

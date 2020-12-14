@@ -90,6 +90,7 @@ HomeForm{
                     top: myIcon.top
                 }
                 font.bold: true
+					 font.pointSize: labelFontSize
                 color: "white"
                 text: name
                 anchors.left: parent.left
