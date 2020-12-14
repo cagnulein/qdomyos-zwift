@@ -5,19 +5,21 @@
 #include <QQmlFile>
 #include "gpx.h"
 
-DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id)
+DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize)
 {
     m_name = name;
     m_icon = icon;
     m_value = value;
     m_writable = writable;
     m_id = id;
+    m_valueFontSize = valueFontSize;
 
     emit plusNameChanged(plusName());
     emit minusNameChanged(minusName());
 }
 
 void DataObject::setValue(QString v) {m_value = v; emit valueChanged(m_value);}
+void DataObject::setValueFontSize(int value) {m_valueFontSize = value; emit valueFontSizeChanged(m_valueFontSize);}
 void DataObject::setVisible(bool visible) {m_visible = visible; emit visibleChanged(m_visible);}
 
 homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
@@ -28,18 +30,19 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     if(miles)
         unit = "mi";
 
-    speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed");
-    inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination");
-    cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence");
-    elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation");
-    calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories");
-    odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer");
-    pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace");
-    resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance");
-    watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt");
-    heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart");
-    fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan");
-    jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul");
+    speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed", 48);
+    inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination", 48);
+    cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence", 48);
+    elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation", 48);
+    calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories", 48);
+    odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer", 48);
+    pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace", 48);
+    resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48);
+    watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48);
+    heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48);
+    fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48);
+    jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48);
+    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", 30);
 
     this->bluetoothManager = bl;
     this->engine = engine;
@@ -105,6 +108,7 @@ void homeform::deviceConnected()
             speed,
             inclination,
             elevation,
+            elapsed,
             calories,
             odometer,
             pace,
@@ -121,6 +125,7 @@ void homeform::deviceConnected()
             speed,
             cadence,
             elevation,
+            elapsed,
             calories,
             odometer,
             resistance,
@@ -288,6 +293,7 @@ void homeform::update()
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls() / 1000.0, 'f', 1));
+        elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {

@@ -14,18 +14,21 @@ class DataObject : public QObject
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
+    Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueFontSizeChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
 
 public:
-    DataObject(QString name, QString icon, QString value, bool writable, QString id);
+    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize);
     void setValue(QString value);
+    void setValueFontSize(int value);
     void setVisible(bool visible);
     QString name() {return m_name;}
     QString icon() {return m_icon;}
     QString value() {return m_value;}
+    int valueFontSize() {return m_valueFontSize;}
     bool writable() {return m_writable;}
     bool visibleItem() {return m_visible;}
     QString plusName() {return m_id + "_plus";}
@@ -35,11 +38,13 @@ public:
     QString m_name;
     QString m_icon;
     QString m_value;
+    int m_valueFontSize;
     bool m_writable;
     bool m_visible = true;
 
 signals:
     void valueChanged(QString value);
+    void valueFontSizeChanged(int value);
     void nameChanged(QString value);
     void iconChanged(QString value);
     void writableChanged(bool value);
@@ -82,6 +87,7 @@ private:
     DataObject* heart;
     DataObject* fan;
     DataObject* jouls;
+    DataObject* elapsed;
 
     QTimer* timer;
 

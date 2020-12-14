@@ -65,7 +65,7 @@ HomeForm{
                 id: myIcon
                 x: 5
                 anchors {
-                    top: myValue.bottom
+					     bottom: id1.bottom
                 }
                 width: 48
                 height: 48
@@ -81,7 +81,7 @@ HomeForm{
                 }
                 text: value
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: 48
+					 font.pointSize: valueFontSize
                 font.bold: true
             }
             Text {

@@ -17,6 +17,7 @@ public:
     virtual double calories();
     double jouls();
     virtual uint8_t fanSpeed();
+    virtual QTime elapsedTime();
     virtual bool connected();
     virtual void* VirtualDevice();
     uint16_t watts(double weight=75.0);
