@@ -258,6 +258,12 @@ void trxappgateusbtreadmill::btinit(bool startTape)
     writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
     writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
     writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+    if(treadmill_type == TYPE::IRUNNING)
+    {
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+    }
     writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
     writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
     writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
