@@ -1,6 +1,6 @@
 #include "sessionline.h"
 
-SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, double pace, QTime time)
+SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, double pace, uint8_t cadence, QDateTime time)
 {
     this->speed = speed;
     this->inclination = inclination;
@@ -10,6 +10,7 @@ SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint
     this->heart = heart;
     this->pace = pace;
     this->time = time;
+    this->cadence = cadence;
 }
 
 SessionLine::SessionLine() {}

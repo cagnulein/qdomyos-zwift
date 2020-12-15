@@ -52,6 +52,7 @@ void MainWindow::update()
 {
     if(bluetoothManager->device())
     {
+        uint8_t cadence = 0;
         double inclination = 0;
         double resistance = 0;
         double watts = 0;
@@ -83,11 +84,12 @@ void MainWindow::update()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
+            cadence = ((bike*)bluetoothManager->device())->currentCadence();
             resistance = ((bike*)bluetoothManager->device())->currentResistance();
             watts = ((bike*)bluetoothManager->device())->watts();
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
-            ui->cadence->setText(QString::number(((bike*)bluetoothManager->device())->currentCadence()));
+            ui->cadence->setText(QString::number(cadence));
         }
 
         if(trainProgram)
@@ -136,7 +138,7 @@ void MainWindow::update()
                       watts,
                       resistance,
                       bluetoothManager->device()->currentHeart(),
-                      pace);
+                      pace, cadence);
 
         Session.append(s);
 

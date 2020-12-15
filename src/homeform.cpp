@@ -79,7 +79,9 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)),
         this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)),
-        this, SLOT(gpx_open_clicked(QUrl)));
+        this, SLOT(gpx_open_clicked(QUrl)));    
+    QObject::connect(stack, SIGNAL(gpx_save_clicked()),
+        this, SLOT(gpx_save_clicked()));
 }
 
 void homeform::trainProgramSignals()
@@ -290,6 +292,7 @@ void homeform::update()
         double resistance = 0;
         double watts = 0;
         double pace = 0;
+        uint8_t cadence = 0;
 
         QSettings settings;
         bool miles = settings.value("miles_unit", false).toBool();
@@ -327,11 +330,12 @@ void homeform::update()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
+            cadence = ((bike*)bluetoothManager->device())->currentCadence();
             resistance = ((bike*)bluetoothManager->device())->currentResistance();
             watts = ((bike*)bluetoothManager->device())->watts();
             watt->setValue(QString::number(watts));
             this->resistance->setValue(QString::number(resistance));
-            this->cadence->setValue(QString::number(((bike*)bluetoothManager->device())->currentCadence()));
+            this->cadence->setValue(QString::number(cadence));
         }
 /*
         if(trainProgram)
@@ -357,7 +361,7 @@ void homeform::update()
                       watts,
                       resistance,
                       bluetoothManager->device()->currentHeart(),
-                      pace);
+                      pace, cadence);
 
         Session.append(s);
     }
@@ -412,6 +416,16 @@ void homeform::trainprogram_open_clicked(QUrl fileName)
 
         trainProgramSignals();
     }
+}
+
+void homeform::gpx_save_clicked()
+{
+    QString path = "";
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#endif
+
+    gpx::save("path" + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session);
 }
 
 void homeform::gpx_open_clicked(QUrl fileName)

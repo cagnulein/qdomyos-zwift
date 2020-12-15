@@ -13,6 +13,7 @@ ApplicationWindow {
 
     signal trainprogram_open_clicked(url name)
 	 signal gpx_open_clicked(url name)
+    signal gpx_save_clicked()
 
     Popup {
 	    id: popup
@@ -98,6 +99,15 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
 					     fileDialogTrainProgram.visible = true
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
+                id: gpx_save
+                text: qsTr("Save GPX")
+                width: parent.width
+                onClicked: {
+                    gpx_save_clicked()
                     drawer.close()
                 }
             }

@@ -109,6 +109,7 @@ private slots:
     void deviceConnected();
     void trainprogram_open_clicked(QUrl fileName);
     void gpx_open_clicked(QUrl fileName);
+    void gpx_save_clicked();
     void trainProgramSignals();
 
 signals:

@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QTime>
 #include <QGeoCoordinate>
+#include "sessionline.h"
 
 class gpx_altitude_point_for_treadmill
 {
@@ -27,6 +28,7 @@ class gpx : public QObject
 public:
     explicit gpx(QObject *parent = nullptr);
     QList<gpx_altitude_point_for_treadmill> open(QString gpx);
+    static void save(QString filename, QList<SessionLine> session);
 
 private:
     QList<gpx_point> points;
