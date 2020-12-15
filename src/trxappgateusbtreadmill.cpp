@@ -125,7 +125,7 @@ void trxappgateusbtreadmill::update()
         {
            debug("starting...");
            //btinit(true);
-           const uint8_t startTape[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
+           const uint8_t startTape[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b };
            writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false, true);
            requestStart = -1;
            emit tapeStarted();
@@ -175,6 +175,15 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     lastPacket = newValue;
     if (newValue.length() != 19)
         return;
+
+    if(treadmill_type == TYPE::IRUNNING)
+    {
+        if(newValue.at(15) == 0x03 && newValue.at(16) == 0x02 && readyToStart == false)
+        {
+            readyToStart = true;
+            requestStart = 1;
+        }
+    }
 
     double speed = GetSpeedFromPacket(newValue);
     double incline = GetInclinationFromPacket(newValue);
@@ -252,7 +261,7 @@ void trxappgateusbtreadmill::btinit(bool startTape)
     const uint8_t initData4[] = { 0xf0, 0xa1, 0x01, 0xd3, 0x65 };
     const uint8_t initData5[] = { 0xf0, 0xa3, 0x01, 0xd3, 0x01, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x23 };
     const uint8_t initData6[] = { 0xf0, 0xa4, 0x01, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x73 };
-    const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };
+    const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };    
 
     writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
     QThread::msleep(400);
@@ -279,7 +288,6 @@ void trxappgateusbtreadmill::btinit(bool startTape)
     QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
     QThread::msleep(400);
-
     initDone = true;
 }
 

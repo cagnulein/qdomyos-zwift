@@ -71,6 +71,7 @@ private:
 
     bool initDone = false;
     bool initRequest = false;
+    bool readyToStart = false;
 
     typedef enum TYPE {
         TRXAPPGATE = 0,
