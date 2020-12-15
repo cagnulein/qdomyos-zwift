@@ -84,6 +84,11 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(gpx_save_clicked()));
 }
 
+homeform::~homeform()
+{
+    gpx_save_clicked();
+}
+
 void homeform::trainProgramSignals()
 {
      if(bluetoothManager->device())
@@ -425,7 +430,7 @@ void homeform::gpx_save_clicked()
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #endif
 
-    gpx::save("path" + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session);
+    gpx::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session);
 }
 
 void homeform::gpx_open_clicked(QUrl fileName)

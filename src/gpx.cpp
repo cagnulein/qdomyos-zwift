@@ -68,7 +68,6 @@ void gpx::save(QString filename, QList<SessionLine> session)
     stream.writeAttribute("xmlns", "http://www.topografix.com/GPX/1/1");
     stream.writeAttribute("xmlns:gpxtpx", "http://www.garmin.com/xmlschemas/TrackPointExtension/v1");
     stream.writeAttribute("xmlns:gpxx", "http://www.garmin.com/xmlschemas/GpxExtensions/v3");
-    stream.writeEndElement();
 
     stream.writeStartElement("metadata");
        stream.writeTextElement("time", session.at(0).time.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -83,6 +82,8 @@ void gpx::save(QString filename, QList<SessionLine> session)
            if(s.speed > 0)
            {
                stream.writeStartElement("trkpt");
+               stream.writeAttribute("lat", "0");
+               stream.writeAttribute("lon", "0");
                stream.writeTextElement("ele", "0"); // replace with the cumulative inclination
                stream.writeTextElement("time", s.time.toString("yyyy-MM-ddTHH:mm:ssZ"));
                stream.writeStartElement("extensions");
@@ -98,6 +99,7 @@ void gpx::save(QString filename, QList<SessionLine> session)
        }
        stream.writeEndElement(); //trkseg
     stream.writeEndElement(); //trk
+    stream.writeEndElement(); //gpx
 
     stream.writeEndDocument();
 }

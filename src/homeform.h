@@ -68,6 +68,7 @@ class homeform: public QObject
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
+    ~homeform();
     QString info() {return m_info;}
     QString signal();
 
