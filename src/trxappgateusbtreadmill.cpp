@@ -1,6 +1,7 @@
 #include "trxappgateusbtreadmill.h"
 #include "virtualtreadmill.h"
 #include <QFile>
+#include <QThread>
 #include <QDateTime>
 #include <QMetaEnum>
 #include <QEventLoop>
@@ -254,19 +255,30 @@ void trxappgateusbtreadmill::btinit(bool startTape)
     const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };
 
     writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+    QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+    QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+    QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+    QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+    QThread::msleep(400);
     if(treadmill_type == TYPE::IRUNNING)
     {
         writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        QThread::msleep(400);
         writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        QThread::msleep(400);
         writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        QThread::msleep(400);
     }
     writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
+    QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
+    QThread::msleep(400);
     writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
+    QThread::msleep(400);
 
     initDone = true;
 }
