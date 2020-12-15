@@ -3,6 +3,7 @@
 #include <QTime>
 #include <QSettings>
 #include <QQmlFile>
+#include <QStandardPaths>
 #include "gpx.h"
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize)
