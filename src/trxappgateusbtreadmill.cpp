@@ -184,6 +184,14 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
             requestStart = 1;
         }
     }
+    else
+    {
+        if(newValue.at(16) == 0x04 && newValue.at(17) == 0x03 && readyToStart == false)
+        {
+            readyToStart = true;
+            requestStart = 1;
+        }
+    }
 
     double speed = GetSpeedFromPacket(newValue);
     double incline = GetInclinationFromPacket(newValue);
