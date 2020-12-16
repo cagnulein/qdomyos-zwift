@@ -88,11 +88,14 @@ void gpx::save(QString filename, QList<SessionLine> session)
                stream.writeTextElement("time", s.time.toString("yyyy-MM-ddTHH:mm:ssZ"));
                stream.writeStartElement("extensions");
                stream.writeStartElement("gpxtpx:TrackPointExtension");
+               stream.writeTextElement("gpxtpx:speed", QString::number(s.speed));
                stream.writeTextElement("gpxtpx:hr", QString::number(s.heart));
                stream.writeTextElement("gpxtpx:cad", QString::number(s.cadence));
-               stream.writeTextElement("gpxtpx:power", QString::number(s.watt));
                stream.writeTextElement("gpxtpx:distance", QString::number(s.distance));
                stream.writeEndElement(); //gpxtpx:TrackPointExtension
+               stream.writeStartElement("gpxpx:PowerExtension");
+               stream.writeTextElement("gpxpx:PowerInWatts", QString::number(s.watt));
+               stream.writeEndElement(); //gpxtpx:PowerExtension
                stream.writeEndElement(); //extensions
                stream.writeEndElement(); //trkpt
            }
