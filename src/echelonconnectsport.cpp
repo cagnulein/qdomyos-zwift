@@ -148,6 +148,10 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if(newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2)
     {
         Resistance = newValue.at(3);
+
+        //0,0097x3 - 0,4972x2 + 10,126x - 37,08
+        m_pelotonResistance = ((pow(Resistance,3) * 0.0097) - (0.4972 * pow(Resistance, 2)) + (10.126 * Resistance) - 37.08);
+
         debug("Current resistance: " + QString::number(Resistance));
         return;
     }

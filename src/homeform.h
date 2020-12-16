@@ -94,6 +94,7 @@ private:
     DataObject* fan;
     DataObject* jouls;
     DataObject* elapsed;
+    DataObject* peloton_resistance;
 
     QTimer* timer;
 

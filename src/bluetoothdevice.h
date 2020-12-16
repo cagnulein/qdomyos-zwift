@@ -22,6 +22,7 @@ public:
     virtual void* VirtualDevice();
     uint16_t watts(double weight);
     virtual bool changeFanSpeed(uint8_t speed);
+    virtual uint8_t pelotonResistance();
     QBluetoothDeviceInfo bluetoothDevice;
 
     enum BLUETOOTH_TYPE {
@@ -49,6 +50,7 @@ protected:
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
     double m_jouls = 0;
+    uint8_t m_pelotonResistance = 0;
 };
 
 #endif // BLUETOOTHDEVICE_H

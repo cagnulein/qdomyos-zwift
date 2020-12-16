@@ -51,6 +51,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer", 48, labelFontSize);
     pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace", 48, labelFontSize);
     resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
+    peloton_resistance = new DataObject("Peloton Res. (%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
@@ -149,6 +150,7 @@ void homeform::deviceConnected()
             calories,
             odometer,
             resistance,
+            peloton_resistance,
             watt,
             jouls,
             heart,
@@ -340,6 +342,7 @@ void homeform::update()
             resistance = ((bike*)bluetoothManager->device())->currentResistance();
             watts = ((bike*)bluetoothManager->device())->watts();
             watt->setValue(QString::number(watts));
+            this->peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->pelotonResistance(), 'f', 0));
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
         }
