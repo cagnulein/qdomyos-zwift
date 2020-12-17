@@ -3,6 +3,7 @@
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
+#include <QSettings>
 #include <QBluetoothLocalDevice>
 #include <math.h>
 
@@ -136,6 +137,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);    
+    QSettings settings;
 
     debug(" << " + newValue.toHex(' '));
 
@@ -169,7 +171,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     Cadence = newValue.at(10);
     Speed = 0.37497622 * ((double)Cadence);
-    KCal = 0;
+    KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
