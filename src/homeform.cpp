@@ -123,40 +123,80 @@ void homeform::trainProgramSignals()
 
 void homeform::deviceConnected()
 {
+    QSettings settings;
+
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
     {
-        dataList = {
-            speed,
-            inclination,
-            elevation,
-            elapsed,
-            calories,
-            odometer,
-            pace,
-            watt,
-            jouls,
-            heart,
-            fan
-        };
+        if(settings.value("tile_speed_enabled", true).toBool())
+                dataList.append(speed);
 
+        if(settings.value("tile_inclination_enabled", true).toBool())
+            dataList.append(inclination);
+
+        if(settings.value("tile_elevation_enabled", true).toBool())
+            dataList.append(elevation);
+
+        if(settings.value("tile_elapsed_enabled", true).toBool())
+            dataList.append(elapsed);
+
+        if(settings.value("tile_calories_enabled", true).toBool())
+            dataList.append(calories);
+
+        if(settings.value("tile_odometer_enabled", true).toBool())
+            dataList.append(odometer);
+
+        if(settings.value("tile_pace_enabled", true).toBool())
+            dataList.append(pace);
+
+        if(settings.value("tile_watt_enabled", true).toBool())
+            dataList.append(watt);
+
+        if(settings.value("tile_jouls_enabled", true).toBool())
+            dataList.append(jouls);
+
+        if(settings.value("tile_heart_enabled", true).toBool())
+            dataList.append(heart);
+
+        if(settings.value("tile_fan_enabled", true).toBool())
+            dataList.append(fan);
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
-        dataList = {
-            speed,
-            cadence,
-            elevation,
-            elapsed,
-            calories,
-            odometer,
-            resistance,
-            peloton_resistance,
-            watt,
-            jouls,
-            heart,
-            fan
-        };
+        if(settings.value("tile_speed_enabled", true).toBool())
+            dataList.append(speed);
 
+        if(settings.value("tile_cadence_enabled", true).toBool())
+            dataList.append(cadence);
+
+        if(settings.value("tile_elevation_enabled", true).toBool())
+            dataList.append(elevation);
+
+        if(settings.value("tile_elapsed_enabled", true).toBool())
+            dataList.append(elapsed);
+
+        if(settings.value("tile_calories_enabled", true).toBool())
+            dataList.append(calories);
+
+        if(settings.value("tile_odometer_enabled", true).toBool())
+            dataList.append(odometer);
+
+        if(settings.value("tile_resistance_enabled", true).toBool())
+            dataList.append(resistance);
+
+        if(settings.value("tile_peloton_resistance_enabled", true).toBool())
+            dataList.append(peloton_resistance);
+
+        if(settings.value("tile_watt_enabled", true).toBool())
+            dataList.append(watt);
+
+        if(settings.value("tile_jouls_enabled", true).toBool())
+            dataList.append(jouls);
+
+        if(settings.value("tile_heart_enabled", true).toBool())
+            dataList.append(heart);
+
+        if(settings.value("tile_fan_enabled", true).toBool())
+            dataList.append(fan);
     }
 
     engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
