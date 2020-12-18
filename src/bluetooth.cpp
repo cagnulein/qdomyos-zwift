@@ -115,7 +115,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
         toorx->deviceDiscovered(device);
     }
-    else if(((device.name().startsWith("TOORX")) || (device.name().startsWith("i-Running"))) && filter)
+    else if(((device.name().startsWith("TOORX")) || (device.name().startsWith("V-RUN")) || (device.name().startsWith("i-Running"))) && filter)
     {
         discoveryAgent->stop();
         trxappgateusb = new trxappgateusbtreadmill();
