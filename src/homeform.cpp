@@ -472,6 +472,8 @@ void homeform::gpx_save_clicked()
     QString path = "";
 #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
 #endif
 
     gpx::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session);
