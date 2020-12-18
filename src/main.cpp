@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
             lockScreen();
 #elif defined Q_OS_IOS
             lockscreen yc;
-            yc.setTimerDisbabled();
+            yc.setTimerDisabled();
 #endif                        
             // screen and CPU will stay awake during this section
             // lock will be released when helper object goes out of scope

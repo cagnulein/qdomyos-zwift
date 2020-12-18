@@ -97,7 +97,7 @@ ios {
 }
 
 ios {
-    OBJECTIVE_SOURCES += lockscreen.mm
+    OBJECTIVE_SOURCES += ios/lockscreen.mm
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
