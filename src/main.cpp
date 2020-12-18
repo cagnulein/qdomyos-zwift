@@ -23,6 +23,10 @@
 #include "macos/lockscreen.h"
 #endif
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 bool nologs = false;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -216,7 +220,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.6.2";
+    qDebug() << "version 1.6.4";
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)
@@ -271,6 +275,9 @@ int main(int argc, char *argv[])
             KeepAwakeHelper helper;
 #elif defined Q_OS_MACOS
             lockScreen();
+#elif defined Q_OS_IOS
+            lockscreen yc;
+            yc.setTimerDisbabled();
 #endif                        
             // screen and CPU will stay awake during this section
             // lock will be released when helper object goes out of scope

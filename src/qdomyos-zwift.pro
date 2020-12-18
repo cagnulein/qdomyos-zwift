@@ -52,6 +52,7 @@ HEADERS += \
    domyostreadmill.h \
    echelonconnectsport.h \
    homeform.h \
+   ios/lockscreen.h \
    keepawakehelper.h \
    macos/lockscreen.h \
    sessionline.h \
@@ -96,11 +97,13 @@ ios {
 }
 
 ios {
+    OBJECTIVE_SOURCES += lockscreen.mm
+
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
-              VERSION = 1.6.3
+	           VERSION = 1.6.4
 }
