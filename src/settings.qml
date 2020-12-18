@@ -75,6 +75,12 @@ import Qt.labs.settings 1.0
                     inputMethodHints: Qt.ImhDigitsOnly
                     onAccepted: settings.weight = text
                 }
+                Button {
+                    id: okWeightButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.weight = weightTextField.text
+                }
             }
 
             SwitchDelegate {
@@ -147,6 +153,12 @@ import Qt.labs.settings 1.0
                     inputMethodHints: Qt.ImhDigitsOnly
                     onAccepted: settings.bike_resistance_offset = text
                 }
+                Button {
+                    id: okBikeResistanceOffsetButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.bike_resistance_offset = bikeResistanceOffsetTextField.text
+                }
             }
 
             RowLayout {
@@ -164,6 +176,12 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     inputMethodHints: Qt.ImhDigitsOnly
                     onAccepted: settings.bike_resistance_gain = text
+                }
+                Button {
+                    id: okBikeResistanceGainButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.bike_resistance_gain = bikeResistanceGainTextField.text
                 }
             }
 
