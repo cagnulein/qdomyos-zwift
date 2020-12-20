@@ -410,7 +410,7 @@ void homeform::update()
                       watts,
                       resistance,
                       bluetoothManager->device()->currentHeart(),
-                      pace, cadence);
+                      pace, cadence, bluetoothManager->device()->calories());
 
         Session.append(s);
     }

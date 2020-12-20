@@ -13,6 +13,7 @@
 #include "bluetooth.h"
 #include "mainwindow.h"
 #include "homeform.h"
+#include "qfit.h"
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -220,7 +221,17 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.6.4";
+    qDebug() << "version 1.7.0";
+
+    qfit f;
+    QList<SessionLine> l;
+    l.append(SessionLine(10,1,100,20,3,40,5,60,1, QDateTime::currentDateTime().addSecs(1)));
+    l.append(SessionLine(12,1,200,40,3,40,5,60,2, QDateTime::currentDateTime().addSecs(2)));
+    l.append(SessionLine(13,1,300,70,3,40,5,60,3, QDateTime::currentDateTime().addSecs(3)));
+    l.append(SessionLine(14,1,400,80,3,40,5,60,4, QDateTime::currentDateTime().addSecs(4)));
+    l.append(SessionLine(15,1,500,90,3,40,5,60,5, QDateTime::currentDateTime().addSecs(5)));
+    f.save("ciccio.fit", l, bluetoothdevice::BIKE);
+    return 0;
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)

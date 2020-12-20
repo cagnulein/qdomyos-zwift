@@ -63,11 +63,13 @@ void gpx::save(QString filename, QList<SessionLine> session)
     stream.writeStartElement("gpx");
     stream.writeAttribute("creator", "qdomyos-zwift");
     stream.writeAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-    stream.writeAttribute("xsi:schemaLocation","http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd");
+    stream.writeAttribute("xsi:schemaLocation","http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www8.garmin.com/xmlschemas/GpxExtensions/v3 http://www8.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www8.garmin.com/xmlschemas/TrackPointExtension/v1 http://www8.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www8.garmin.com/xmlschemas/PowerExtension/v1 http://www8.garmin.com/xmlschemas/PowerExtensionv1.xsd");
     stream.writeAttribute("version","1.1");
     stream.writeAttribute("xmlns", "http://www.topografix.com/GPX/1/1");
-    stream.writeAttribute("xmlns:gpxtpx", "http://www.garmin.com/xmlschemas/TrackPointExtension/v1");
-    stream.writeAttribute("xmlns:gpxx", "http://www.garmin.com/xmlschemas/GpxExtensions/v3");
+    stream.writeAttribute("xmlns:gpxtpx", "http://www8.garmin.com/xmlschemas/TrackPointExtension/v1");
+    stream.writeAttribute("xmlns:gpxx", "http://www8.garmin.com/xmlschemas/GpxExtensions/v3");
+    stream.writeAttribute("xmlns:gpxpx", "http://www8.garmin.com/xmlschemas/PowerExtension/v1");
+    stream.writeAttribute("xmlns:gpxdata", "http://www.cluetrust.com/XML/GPXDATA/1/0");
 
     stream.writeStartElement("metadata");
        stream.writeTextElement("time", session.at(0).time.toString("yyyy-MM-ddTHH:mm:ssZ"));
@@ -86,7 +88,11 @@ void gpx::save(QString filename, QList<SessionLine> session)
                stream.writeAttribute("lon", "0");
                stream.writeTextElement("ele", "0"); // replace with the cumulative inclination
                stream.writeTextElement("time", s.time.toString("yyyy-MM-ddTHH:mm:ssZ"));
+               stream.writeTextElement("speed", QString::number(s.speed / 3.6)); // meter per second
                stream.writeStartElement("extensions");
+               stream.writeTextElement("power", QString::number(s.watt));
+               stream.writeTextElement("gpxdata:hr", QString::number(s.heart));
+               stream.writeTextElement("gpxdata:cadence", QString::number(s.cadence));
                stream.writeStartElement("gpxtpx:TrackPointExtension");
                stream.writeTextElement("gpxtpx:speed", QString::number(s.speed / 3.6)); // meter per second
                stream.writeTextElement("gpxtpx:hr", QString::number(s.heart));
