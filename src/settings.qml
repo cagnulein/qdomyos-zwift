@@ -33,6 +33,8 @@ import Qt.labs.settings 1.0
             property bool tile_jouls_enabled: true
             property bool tile_elapsed_enabled: true
             property bool tile_peloton_resistance_enabled: true
+
+            property bool bluetooth_relaxed: false
         }
 
         ColumnLayout {
@@ -41,7 +43,7 @@ import Qt.labs.settings 1.0
             anchors.fill: parent
 
             Label {
-                Layout.preferredWidth: parent.width - 20
+                Layout.preferredWidth: parent.width
                 id: rebootLabel
                 text: qsTr("Reboot the app in order to apply the settings")
                 textFormat: Text.PlainText
@@ -402,6 +404,30 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.tile_peloton_resistance_enabled = checked
+            }
+
+            Label {
+                id: experimentalFeatureLabel
+                text: qsTr("Experimental Features")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: bluetoothRelaxedDelegate
+                text: qsTr("Relaxed Bluetooth for mad devices")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.bluetooth_relaxed
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.bluetooth_relaxed = checked
             }
         }
     }

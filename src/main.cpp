@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.6.4";
+    qDebug() << "version 1.6.7";
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)

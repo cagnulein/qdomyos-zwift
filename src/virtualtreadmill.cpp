@@ -1,8 +1,10 @@
 #include "virtualtreadmill.h"
 #include <QtMath>
+#include <QSettings>
 
 virtualtreadmill::virtualtreadmill(treadmill* t, bool noHeartService)
 {
+    QSettings settings;
     treadMill = t;
     this->noHeartService = noHeartService;
 
@@ -79,8 +81,11 @@ virtualtreadmill::virtualtreadmill(treadmill* t, bool noHeartService)
 
     QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
-    QLowEnergyAdvertisingParameters pars;
-    pars.setInterval(100, 100);
+    bool bluetooth_relaxed = settings.value("bluetooth_relaxed", false).toBool();
+    QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
+    if(!bluetooth_relaxed)
+        pars.setInterval(100, 100);
+
     leController->startAdvertising(pars, advertisingData,
                                    advertisingData);
     //! [Start Advertising]
@@ -141,6 +146,11 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void virtualtreadmill::reconnect()
 {
+    QSettings settings;
+    bool bluetooth_relaxed = settings.value("bluetooth_relaxed", false).toBool();
+
+    if(bluetooth_relaxed) return;
+
     emit debug("virtualtreadmill reconnect");
     service = leController->addService(serviceData);
 
@@ -161,6 +171,13 @@ void virtualtreadmill::treadmillProvider()
     {
         emit debug("virtualtreadmill connection error");
         return;
+    }
+    else
+    {
+        QSettings settings;
+        bool bluetooth_relaxed = settings.value("bluetooth_relaxed", false).toBool();
+        if(bluetooth_relaxed)
+            leController->stopAdvertising();
     }
 
     QByteArray value;

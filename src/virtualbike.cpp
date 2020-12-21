@@ -195,8 +195,11 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     else
         QObject::connect(service, SIGNAL(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)), this, SLOT(characteristicChanged(const QLowEnergyCharacteristic, const QByteArray)));
 
-    QLowEnergyAdvertisingParameters pars;
-    pars.setInterval(100, 100);
+    bool bluetooth_relaxed = settings.value("bluetooth_relaxed", false).toBool();
+    QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
+    if(!bluetooth_relaxed)
+        pars.setInterval(100, 100);
+
     leController->startAdvertising(pars, advertisingData,
                                    advertisingData);
     //! [Start Advertising]
@@ -287,6 +290,10 @@ void virtualbike::writeCharacteristic(QLowEnergyService* service, QLowEnergyChar
 void virtualbike::reconnect()
 {
     QSettings settings;
+    bool bluetooth_relaxed = settings.value("bluetooth_relaxed", false).toBool();
+
+    if(bluetooth_relaxed) return;
+
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
 
     emit debug("virtualbike::reconnect");
@@ -318,6 +325,9 @@ void virtualbike::bikeProvider()
     }
     else
     {
+        bool bluetooth_relaxed = settings.value("bluetooth_relaxed", false).toBool();
+        if(bluetooth_relaxed)
+            leController->stopAdvertising();
         emit debug("virtual bike connected");
     }
 
