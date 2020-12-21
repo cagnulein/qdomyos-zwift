@@ -5,6 +5,7 @@
 #include <QQmlFile>
 #include <QStandardPaths>
 #include "gpx.h"
+#include "qfit.h"
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize)
 {
@@ -84,11 +85,14 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(gpx_open_clicked(QUrl)));    
     QObject::connect(stack, SIGNAL(gpx_save_clicked()),
         this, SLOT(gpx_save_clicked()));
+    QObject::connect(stack, SIGNAL(fit_save_clicked()),
+        this, SLOT(fit_save_clicked()));
 }
 
 homeform::~homeform()
 {
     gpx_save_clicked();
+    fit_save_clicked();
 }
 
 void homeform::trainProgramSignals()
@@ -410,7 +414,8 @@ void homeform::update()
                       watts,
                       resistance,
                       bluetoothManager->device()->currentHeart(),
-                      pace, cadence);
+                      pace, cadence, bluetoothManager->device()->calories(),
+                      bluetoothManager->device()->elevationGain());
 
         Session.append(s);
     }
@@ -477,6 +482,19 @@ void homeform::gpx_save_clicked()
 #endif
 
     gpx::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session);
+}
+
+void homeform::fit_save_clicked()
+{
+    QString path = "";
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#endif
+
+    if(bluetoothManager->device())
+        qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", Session, bluetoothManager->device()->deviceType());
 }
 
 void homeform::gpx_open_clicked(QUrl fileName)

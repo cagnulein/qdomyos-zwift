@@ -14,6 +14,7 @@ ApplicationWindow {
     signal trainprogram_open_clicked(url name)
 	 signal gpx_open_clicked(url name)
     signal gpx_save_clicked()
+    signal fit_save_clicked()
 
     Popup {
 	    id: popup
@@ -108,6 +109,15 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     gpx_save_clicked()
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
+                id: fit_save
+                text: qsTr("Save FIT")
+                width: parent.width
+                onClicked: {
+                    fit_save_clicked()
                     drawer.close()
                 }
             }

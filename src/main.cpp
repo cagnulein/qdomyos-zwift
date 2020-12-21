@@ -13,6 +13,7 @@
 #include "bluetooth.h"
 #include "mainwindow.h"
 #include "homeform.h"
+#include "qfit.h"
 
 #ifdef Q_OS_ANDROID
 #include <QtAndroid>
@@ -225,7 +226,24 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.6.8";
+    qDebug() << "version 1.7.0";
+
+#if 0 // test gpx or fit export
+    QList<SessionLine> l;
+    for(int i =0; i< 500; i++)
+    {
+        QDateTime d = QDateTime::currentDateTime();
+        l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
+    }
+    QString path = "";
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#endif
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
+    return 0;
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)

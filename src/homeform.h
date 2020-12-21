@@ -112,6 +112,7 @@ private slots:
     void trainprogram_open_clicked(QUrl fileName);
     void gpx_open_clicked(QUrl fileName);
     void gpx_save_clicked();
+    void fit_save_clicked();
     void trainProgramSignals();
 
 signals:

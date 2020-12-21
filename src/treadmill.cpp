@@ -9,7 +9,6 @@ void treadmill::changeSpeed(double speed){ requestSpeed = speed;}
 void treadmill::changeInclination(double inclination){ requestInclination = inclination; }
 void treadmill::changeSpeedAndInclination(double speed, double inclination){ requestSpeed = speed; requestInclination = inclination;}
 double treadmill::currentInclination(){ return Inclination; }
-double treadmill::elevationGain(){ return elevationAcc; }
 uint8_t treadmill::fanSpeed() { return FanSpeed; };
 bool treadmill::connected() { return false; }
 bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }

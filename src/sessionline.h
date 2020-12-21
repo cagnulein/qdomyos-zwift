@@ -15,9 +15,11 @@ public:
     double pace;
     uint8_t cadence;
     QDateTime time;
+    double calories;
+    double elevationGain;
 
     SessionLine();
-    SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, double pace, uint8_t cadence, QDateTime time = QDateTime::currentDateTime());
+    SessionLine(double speed, int8_t inclination, double distance, uint8_t watt, int8_t resistance, uint8_t heart, double pace, uint8_t cadence, double calories, double elevationGain, QDateTime time = QDateTime::currentDateTime());
 };
 
 #endif // SESSIONLINE_H
