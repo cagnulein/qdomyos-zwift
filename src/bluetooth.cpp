@@ -128,6 +128,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
 void bluetooth::restart()
 {
+    QSettings settings;
+    if(settings.value("bluetoot_no_reconnection", false).toBool())
+        exit(0);
+
     if(device()->VirtualDevice())
     {
         if(device()->deviceType() == bluetoothdevice::TREADMILL)

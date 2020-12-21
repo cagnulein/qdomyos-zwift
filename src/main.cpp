@@ -46,6 +46,7 @@ static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandle
 
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
+    QSettings settings;
     bool nogui = false;
 
     for (int i = 1; i < argc; ++i) {
@@ -71,6 +72,10 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             onlyVirtualBike = true;
         if (!qstrcmp(argv[i], "-only-virtualtreadmill"))
             onlyVirtualTreadmill = true;
+        if (!qstrcmp(argv[i], "-no-reconnection"))
+            settings.setValue("bluetoot_no_reconnection", true);
+        if (!qstrcmp(argv[i], "-reconnection"))
+            settings.setValue("bluetoot_no_reconnection", false);
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -220,7 +225,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.6.7";
+    qDebug() << "version 1.6.8";
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)
