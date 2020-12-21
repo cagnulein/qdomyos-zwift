@@ -138,7 +138,8 @@ void MainWindow::update()
                       watts,
                       resistance,
                       bluetoothManager->device()->currentHeart(),
-                      pace, cadence, bluetoothManager->device()->calories());
+                      pace, cadence, bluetoothManager->device()->calories(),
+                      bluetoothManager->device()->elevationGain());
 
         Session.append(s);
 

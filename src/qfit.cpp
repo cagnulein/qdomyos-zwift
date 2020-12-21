@@ -81,6 +81,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         newRecord.SetPower(session.at(i).watt);
         newRecord.SetResistance(session.at(i).resistance);
         newRecord.SetCalories(session.at(i).calories);
+        newRecord.SetAltitude(session.at(i).elevationGain);
         newRecord.SetTimestamp(date.GetTimeStamp());
 
         records.push_back(newRecord);
@@ -100,14 +101,13 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
+    encode.Write(sessionMesg);
+    //encode.Write(activityMesg);
 
     for (auto record : records)
     {
         encode.Write(record);
     }
-
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
 
     if (!encode.Close())
     {

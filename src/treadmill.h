@@ -9,8 +9,7 @@ class treadmill:public bluetoothdevice
 
 public:
     treadmill();    
-    virtual double currentInclination();
-    virtual double elevationGain();
+    virtual double currentInclination();    
     virtual uint8_t fanSpeed();
     virtual bool connected();
     uint16_t watts(double weight);
@@ -24,8 +23,7 @@ public slots:
 signals:
     void tapeStarted();
 
-protected:
-    double elevationAcc = 0;
+protected:    
     double Inclination = 0;
     double requestSpeed = -1;
     double requestInclination = -1;

@@ -13,7 +13,7 @@ class qfit : public QObject
     Q_OBJECT
 public:
     explicit qfit(QObject *parent = nullptr);
-    void save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type);
+    static void save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type);
 
 signals:
 

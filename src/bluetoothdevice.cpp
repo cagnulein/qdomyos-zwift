@@ -21,3 +21,4 @@ void* bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) { Q_UNUSED(speed); return false; }
 bool bluetoothdevice::connected() { return false; }
 uint8_t bluetoothdevice::pelotonResistance() { return m_pelotonResistance; }
+double bluetoothdevice::elevationGain(){ return elevationAcc; }

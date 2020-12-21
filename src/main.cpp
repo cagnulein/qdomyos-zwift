@@ -223,15 +223,22 @@ int main(int argc, char *argv[])
     qInstallMessageHandler(myMessageOutput);
     qDebug() << "version 1.7.0";
 
-    qfit f;
+#if 0 // test gpx or fit export
     QList<SessionLine> l;
-    l.append(SessionLine(10,1,100,20,3,40,5,60,1, QDateTime::currentDateTime().addSecs(1)));
-    l.append(SessionLine(12,1,200,40,3,40,5,60,2, QDateTime::currentDateTime().addSecs(2)));
-    l.append(SessionLine(13,1,300,70,3,40,5,60,3, QDateTime::currentDateTime().addSecs(3)));
-    l.append(SessionLine(14,1,400,80,3,40,5,60,4, QDateTime::currentDateTime().addSecs(4)));
-    l.append(SessionLine(15,1,500,90,3,40,5,60,5, QDateTime::currentDateTime().addSecs(5)));
-    f.save("ciccio.fit", l, bluetoothdevice::BIKE);
+    for(int i =0; i< 500; i++)
+    {
+        QDateTime d = QDateTime::currentDateTime();
+        l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
+    }
+    QString path = "";
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#endif
+    qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
     return 0;
+#endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(!forceQml)
