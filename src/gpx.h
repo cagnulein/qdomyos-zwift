@@ -6,6 +6,7 @@
 #include <QTime>
 #include <QGeoCoordinate>
 #include "sessionline.h"
+#include "bluetoothdevice.h"
 
 class gpx_altitude_point_for_treadmill
 {
@@ -28,7 +29,7 @@ class gpx : public QObject
 public:
     explicit gpx(QObject *parent = nullptr);
     QList<gpx_altitude_point_for_treadmill> open(QString gpx);
-    static void save(QString filename, QList<SessionLine> session);
+    static void save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type);
 
 private:
     QList<gpx_point> points;

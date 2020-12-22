@@ -481,7 +481,8 @@ void homeform::gpx_save_clicked()
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
 #endif
 
-    gpx::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session);
+    if(bluetoothManager->device())
+        gpx::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session,  bluetoothManager->device()->deviceType());
 }
 
 void homeform::fit_save_clicked()

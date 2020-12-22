@@ -49,7 +49,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(QString gpx)
     return inclinationList;
 }
 
-void gpx::save(QString filename, QList<SessionLine> session)
+void gpx::save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type)
 {
     if(!session.length()) return;
 
@@ -77,7 +77,12 @@ void gpx::save(QString filename, QList<SessionLine> session)
 
     stream.writeStartElement("trk");
     stream.writeTextElement("name", session.at(0).time.toString("yyyy-MM-dd HH:mm:ss"));
-    stream.writeTextElement("type", "53"); // replace with the current device type
+
+    if(type == bluetoothdevice::TREADMILL)
+        stream.writeTextElement("type", "0");
+    else
+        stream.writeTextElement("type", "53");
+
        stream.writeStartElement("trkseg");
        foreach(SessionLine s, session)
        {

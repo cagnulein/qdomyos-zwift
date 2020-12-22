@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.7.1";
+    qDebug() << "version 1.7.2";
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;

@@ -36,16 +36,16 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     fileIdMesg.SetProduct(1);
     fileIdMesg.SetSerialNumber(12345);
-    fileIdMesg.SetTimeCreated(session.at(0).time.currentSecsSinceEpoch() - 631065600L);
+    fileIdMesg.SetTimeCreated(session.at(0).time.toSecsSinceEpoch() - 631065600L);
 
     fit::SessionMesg sessionMesg;
-    sessionMesg.SetTimestamp(session.at(0).time.currentSecsSinceEpoch() - 631065600L);
-    sessionMesg.SetStartTime(session.at(0).time.currentSecsSinceEpoch() - 631065600L);
-    sessionMesg.SetTotalElapsedTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
-    sessionMesg.SetTotalTimerTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
+    sessionMesg.SetTimestamp(session.at(0).time.toSecsSinceEpoch() - 631065600L);
+    sessionMesg.SetStartTime(session.at(0).time.toSecsSinceEpoch() - 631065600L);
+    sessionMesg.SetTotalElapsedTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    sessionMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
     sessionMesg.SetTotalDistance(session.last().distance);
     sessionMesg.SetTotalCalories(session.last().calories);
-    sessionMesg.SetTotalMovingTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
+    sessionMesg.SetTotalMovingTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
     sessionMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     sessionMesg.SetFirstLapIndex(0);
@@ -73,7 +73,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     for (int i = 0; i < session.length(); i++)
     {
         fit::RecordMesg newRecord;
-        fit::DateTime date((time_t)session.at(i).time.currentSecsSinceEpoch());
+        fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(session.at(i).heart);
         newRecord.SetCadence(session.at(i).cadence);
         newRecord.SetDistance(session.at(i).distance);
@@ -88,13 +88,13 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     }
 
     fit::ActivityMesg activityMesg;
-    activityMesg.SetTimestamp(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
-    activityMesg.SetTotalTimerTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
+    activityMesg.SetTimestamp(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    activityMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
     activityMesg.SetNumSessions(1);
     activityMesg.SetType(FIT_ACTIVITY_MANUAL);
     activityMesg.SetEvent(FIT_EVENT_WORKOUT);
     activityMesg.SetEventType(FIT_EVENT_TYPE_START);
-    activityMesg.SetLocalTimestamp(fit::DateTime((time_t)session.last().time.currentSecsSinceEpoch()).GetTimeStamp());  //seconds since 00:00 Dec d31 1989 in local time zone
+    activityMesg.SetLocalTimestamp(fit::DateTime((time_t)session.last().time.toSecsSinceEpoch()).GetTimeStamp());  //seconds since 00:00 Dec d31 1989 in local time zone
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
