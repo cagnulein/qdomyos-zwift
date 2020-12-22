@@ -28,6 +28,7 @@ import Qt.labs.settings 1.0
             property bool tile_pace_enabled: true
             property bool tile_resistance_enabled: true
             property bool tile_watt_enabled: true
+            property bool tile_avgwatt_enabled: true
             property bool tile_heart_enabled: true
             property bool tile_fan_enabled: true
             property bool tile_jouls_enabled: true
@@ -329,6 +330,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.tile_watt_enabled = checked
+            }
+
+            SwitchDelegate {
+                id: avgwattEnabledDelegate
+                text: qsTr("AVG Watt")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.tile_avgwatt_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.tile_avgwatt_enabled = checked
             }
 
             SwitchDelegate {

@@ -25,6 +25,7 @@ public:
     virtual uint8_t pelotonResistance();
     virtual double elevationGain();
     QBluetoothDeviceInfo bluetoothDevice;
+    double avgWatt();
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -53,6 +54,9 @@ protected:
     double m_jouls = 0;
     uint8_t m_pelotonResistance = 0;
     double elevationAcc = 0;
+
+    uint64_t totPower = 0;
+    uint32_t countPower = 0;
 };
 
 #endif // BLUETOOTHDEVICE_H

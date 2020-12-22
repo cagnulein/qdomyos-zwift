@@ -245,7 +245,10 @@ void domyostreadmill::update()
         {
             QSettings settings;
            elapsed += deltaTime;
-           m_jouls += (((double)watts(settings.value("weight", 75.0).toFloat())) * deltaTime);
+           double w = (double)watts(settings.value("weight", 75.0).toFloat());
+           m_jouls += (w * deltaTime);
+           totPower += w;
+           countPower++;
         }
         lastTimeUpdate = current;
 

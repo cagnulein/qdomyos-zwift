@@ -54,6 +54,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
     peloton_resistance = new DataObject("Peloton Res. (%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
+    avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
@@ -155,6 +156,9 @@ void homeform::deviceConnected()
         if(settings.value("tile_watt_enabled", true).toBool())
             dataList.append(watt);
 
+        if(settings.value("tile_avgwatt_enabled", true).toBool())
+            dataList.append(avgWatt);
+
         if(settings.value("tile_jouls_enabled", true).toBool())
             dataList.append(jouls);
 
@@ -192,6 +196,9 @@ void homeform::deviceConnected()
 
         if(settings.value("tile_watt_enabled", true).toBool())
             dataList.append(watt);
+
+        if(settings.value("tile_avgwatt_enabled", true).toBool())
+            dataList.append(avgWatt);
 
         if(settings.value("tile_jouls_enabled", true).toBool())
             dataList.append(jouls);
@@ -361,6 +368,7 @@ void homeform::update()
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls() / 1000.0, 'f', 1));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
+        avgWatt->setValue(QString::number(bluetoothManager->device()->avgWatt(), 'f', 0));
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {

@@ -90,6 +90,7 @@ private:
     DataObject* pace;
     DataObject* resistance;
     DataObject* watt;
+    DataObject* avgWatt;
     DataObject* heart;
     DataObject* fan;
     DataObject* jouls;
