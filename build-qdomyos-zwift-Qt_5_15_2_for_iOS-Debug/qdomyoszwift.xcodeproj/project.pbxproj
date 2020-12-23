@@ -115,15 +115,18 @@
 		876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */; };
 		87D41AE525932A2400363084 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87D41AE425932A2400363084 /* Assets.xcassets */; };
 		87D41AEC25932A2500363084 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 87D41AEB25932A2500363084 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		87D41AF125932A2500363084 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF025932A2500363084 /* qdomyoszwiftApp.swift */; };
-		87D41AF325932A2500363084 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF225932A2500363084 /* ContentView.swift */; };
 		87D41AF525932A2500363084 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF425932A2500363084 /* NotificationController.swift */; };
-		87D41AF725932A2500363084 /* NotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF625932A2500363084 /* NotificationView.swift */; };
 		87D41AF925932A2500363084 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF825932A2500363084 /* ComplicationController.swift */; };
 		87D41AFB25932A2700363084 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87D41AFA25932A2700363084 /* Assets.xcassets */; };
 		87D41AFE25932A2700363084 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87D41AFD25932A2700363084 /* Preview Assets.xcassets */; };
 		87D41B0325932A2700363084 /* watchkit.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 87D41AE225932A2200363084 /* watchkit.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		87D41B0E25932BD600363084 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87D41B0C25932B5F00363084 /* HealthKit.framework */; };
+		87D41B102593396600363084 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B0F2593396500363084 /* ExtensionDelegate.swift */; };
+		87D41B122593397300363084 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B112593397300363084 /* MainController.swift */; };
+		87D41B142593398300363084 /* WatchKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B132593398300363084 /* WatchKitConnection.swift */; };
+		87D41B162593398A00363084 /* WatchWorkoutTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B152593398A00363084 /* WatchWorkoutTracking.swift */; };
+		87D41B1825933D0F00363084 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B1725933D0E00363084 /* qdomyoszwiftApp.swift */; };
+		87D41B1A25933DED00363084 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 87D41B1925933DED00363084 /* Interface.storyboard */; };
 		8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */; settings = {ATTRIBUTES = (); }; };
 		8FF7ED75180A8827C6B6AF63 /* qmldbg_inspector in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 67E53FD43BE69489B0434897 /* qmldbg_inspector */; };
 		906D4B242F504925A3CF2DBB /* GSS.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = C714C1AF3FA78E2DABBC17E8 /* GSS.framework */; };
@@ -457,16 +460,20 @@
 		87D41AE425932A2400363084 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		87D41AE625932A2400363084 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		87D41AEB25932A2500363084 /* watchkit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchkit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		87D41AF025932A2500363084 /* qdomyoszwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = qdomyoszwiftApp.swift; sourceTree = "<group>"; };
-		87D41AF225932A2500363084 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		87D41AF425932A2500363084 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
-		87D41AF625932A2500363084 /* NotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationView.swift; sourceTree = "<group>"; };
 		87D41AF825932A2500363084 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		87D41AFA25932A2700363084 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		87D41AFD25932A2700363084 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		87D41AFF25932A2700363084 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		87D41B0025932A2700363084 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
 		87D41B0C25932B5F00363084 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS7.1.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
+		87D41B0F2593396500363084 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
+		87D41B112593397300363084 /* MainController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainController.swift; sourceTree = "<group>"; };
+		87D41B132593398300363084 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchKitConnection.swift; sourceTree = "<group>"; };
+		87D41B152593398A00363084 /* WatchWorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchWorkoutTracking.swift; sourceTree = "<group>"; };
+		87D41B1725933D0E00363084 /* qdomyoszwiftApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = qdomyoszwiftApp.swift; sourceTree = "<group>"; };
+		87D41B1925933DED00363084 /* Interface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Interface.storyboard; sourceTree = "<group>"; };
+		87D41B1B2593473300363084 /* WatchKit Extension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "WatchKit Extension.entitlements"; sourceTree = "<group>"; };
 		87FD05DDC378E9BAD82A818F /* fit_ohr_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		8865E12618F8B1C6C0E68392 /* fit_magnetometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_magnetometer_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_magnetometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		888A6DE1E4CF07F80E80394B /* fit_climb_pro_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_climb_pro_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_climb_pro_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -884,6 +891,7 @@
 		87D41AE325932A2200363084 /* watchkit */ = {
 			isa = PBXGroup;
 			children = (
+				87D41B1925933DED00363084 /* Interface.storyboard */,
 				87D41AE425932A2400363084 /* Assets.xcassets */,
 				87D41AE625932A2400363084 /* Info.plist */,
 			);
@@ -893,10 +901,13 @@
 		87D41AEF25932A2500363084 /* watchkit Extension */ = {
 			isa = PBXGroup;
 			children = (
-				87D41AF025932A2500363084 /* qdomyoszwiftApp.swift */,
-				87D41AF225932A2500363084 /* ContentView.swift */,
+				87D41B1B2593473300363084 /* WatchKit Extension.entitlements */,
+				87D41B1725933D0E00363084 /* qdomyoszwiftApp.swift */,
+				87D41B152593398A00363084 /* WatchWorkoutTracking.swift */,
+				87D41B132593398300363084 /* WatchKitConnection.swift */,
+				87D41B112593397300363084 /* MainController.swift */,
+				87D41B0F2593396500363084 /* ExtensionDelegate.swift */,
 				87D41AF425932A2500363084 /* NotificationController.swift */,
-				87D41AF625932A2500363084 /* NotificationView.swift */,
 				87D41AF825932A2500363084 /* ComplicationController.swift */,
 				87D41AFA25932A2700363084 /* Assets.xcassets */,
 				87D41AFF25932A2700363084 /* Info.plist */,
@@ -1416,6 +1427,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87D41B1A25933DED00363084 /* Interface.storyboard in Resources */,
 				87D41AE525932A2400363084 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1461,11 +1473,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87D41B1825933D0F00363084 /* qdomyoszwiftApp.swift in Sources */,
+				87D41B162593398A00363084 /* WatchWorkoutTracking.swift in Sources */,
+				87D41B142593398300363084 /* WatchKitConnection.swift in Sources */,
+				87D41B122593397300363084 /* MainController.swift in Sources */,
 				87D41AF525932A2500363084 /* NotificationController.swift in Sources */,
-				87D41AF325932A2500363084 /* ContentView.swift in Sources */,
 				87D41AF925932A2500363084 /* ComplicationController.swift in Sources */,
-				87D41AF125932A2500363084 /* qdomyoszwiftApp.swift in Sources */,
-				87D41AF725932A2500363084 /* NotificationView.swift in Sources */,
+				87D41B102593396600363084 /* ExtensionDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1993,7 +2007,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
 			};
 			name = Debug;
 		};
@@ -2059,7 +2073,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
 			};
 			name = Release;
 		};
@@ -2141,7 +2155,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 5.2;
 			};
 			name = Debug;
 		};
@@ -2219,7 +2233,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 7.1;
+				WATCHOS_DEPLOYMENT_TARGET = 5.2;
 			};
 			name = Release;
 		};

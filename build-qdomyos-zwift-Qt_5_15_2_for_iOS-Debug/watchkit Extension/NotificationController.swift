@@ -1,18 +1,23 @@
 //
 //  NotificationController.swift
-//  watchkit Extension
+//  ElecDemo WatchKit Extension
 //
-//  Created by Roberto Viola on 23/12/2020.
+//  Created by NhatHM on 8/9/19.
+//  Copyright © 2019 GST.PID. All rights reserved.
 //
 
 import WatchKit
-import SwiftUI
+import Foundation
 import UserNotifications
 
-class NotificationController: WKUserNotificationHostingController<NotificationView> {
 
-    override var body: NotificationView {
-        return NotificationView()
+class NotificationController: WKUserNotificationInterfaceController {
+
+    override init() {
+        // Initialize variables here.
+        super.init()
+        
+        // Configure interface objects here.
     }
 
     override func willActivate() {
