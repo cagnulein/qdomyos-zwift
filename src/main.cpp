@@ -37,6 +37,7 @@ bool onlyVirtualTreadmill = false;
 bool testResistance = false;
 bool forceQml = false;
 bool miles = false;
+bool bluetoot_no_reconnection = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -74,9 +75,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         if (!qstrcmp(argv[i], "-only-virtualtreadmill"))
             onlyVirtualTreadmill = true;
         if (!qstrcmp(argv[i], "-no-reconnection"))
-            settings.setValue("bluetoot_no_reconnection", true);
-        if (!qstrcmp(argv[i], "-reconnection"))
-            settings.setValue("bluetoot_no_reconnection", false);
+            bluetoot_no_reconnection = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -200,7 +199,7 @@ int main(int argc, char *argv[])
 #endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-    QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
+    QScopedPointer<QCoreApplication> app(createApplication(argc, argv));            
 #else
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QGuiApplication> app(new QGuiApplication(argc, argv));
@@ -223,6 +222,7 @@ int main(int argc, char *argv[])
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
 #else
     settings.setValue("miles_unit", miles);
+    settings.setValue("bluetoot_no_reconnection", bluetoot_no_reconnection);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
