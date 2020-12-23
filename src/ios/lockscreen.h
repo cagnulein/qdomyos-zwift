@@ -5,6 +5,7 @@ class lockscreen
 {
 public:
    void setTimerDisabled();
+   void request();
 };
 
 #endif // LOCKSCREEN_H

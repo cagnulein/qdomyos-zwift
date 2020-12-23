@@ -7,6 +7,15 @@
 //
 
 import UIKit
+
+@objc public class healthkit:NSObject {
+
+    @objc public func request()
+    {
+        LocalNotificationHelper.requestPermission()
+        WatchKitConnection.shared.startSession()
+    }
+}
 /*
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
