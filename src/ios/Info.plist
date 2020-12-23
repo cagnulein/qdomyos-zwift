@@ -19,8 +19,10 @@
 	<key>CFBundleSignature</key>
 	<string>${QMAKE_PKGINFO_TYPEINFO}</string>
 	<key>CFBundleVersion</key>
-             <string>1.7.0</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>MinimumOSVersion</key>
 	<string>${IPHONEOS_DEPLOYMENT_TARGET}</string>
@@ -30,25 +32,27 @@
 	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift. The connection is always required.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>Our app uses bluetooth to find, connect and transfer data between the treadmill/bike and 3rd app like Zwift</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>application needs Documents access in order to save logs and gpx file for the trainig sessions</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>accessing to the heartrate to show the value to the application</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>accessing to the heartrate to show the value to the application</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location service are used to give access to bluetooth peripheral.</string>
-        <key>NSDocumentsFolderUsageDescription</key>
-        <string>application needs Documents access in order to save logs and gpx file for the trainig sessions</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>
 		<string>bluetooth-peripheral</string>
 	</array>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>bluetooth-le</string>
 	</array>
-        <key>UIFileSharingEnabled</key>
-        <true/>
-        <key>LSSupportsOpeningDocumentsInPlace</key>
-        <true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

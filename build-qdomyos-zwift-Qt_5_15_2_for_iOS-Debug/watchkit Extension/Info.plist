@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
     <key>NSHealthShareUsageDescription</key>
-    <string>access to heartbeat</string>
+    <string>access to heartbeat of the apple watch to show it on the app during the workout</string>
     <key>NSHealthUpdateUsageDescription</key>
-    <string>access to heartrate</string>
+    <string>access to heartbeat of the apple watch to show it on the app during the workout</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -21,9 +21,9 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.8</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>1.8.1</string>
 	<key>CLKComplicationPrincipalClass</key>
 	<string>$(PRODUCT_MODULE_NAME).ComplicationController</string>
 	<key>NSExtension</key>

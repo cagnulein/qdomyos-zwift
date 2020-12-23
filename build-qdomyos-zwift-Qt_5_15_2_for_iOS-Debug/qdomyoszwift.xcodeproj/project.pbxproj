@@ -133,6 +133,7 @@
 		87D41B272593524600363084 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B212593524600363084 /* WatchKitConnection.swift */; };
 		87D41B282593524600363084 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B222593524600363084 /* WorkoutTracking.swift */; };
 		87D41B292593524600363084 /* AppDelegate.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B232593524600363084 /* AppDelegate.swift */; };
+		87D41B2B2593894000363084 /* Info.plist in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 87D41B2A2593894000363084 /* Info.plist */; };
 		8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */; settings = {ATTRIBUTES = (); }; };
 		8FF7ED75180A8827C6B6AF63 /* qmldbg_inspector in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 67E53FD43BE69489B0434897 /* qmldbg_inspector */; };
 		906D4B242F504925A3CF2DBB /* GSS.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = C714C1AF3FA78E2DABBC17E8 /* GSS.framework */; };
@@ -488,6 +489,7 @@
 		87D41B212593524600363084 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WatchKitConnection.swift; path = ../src/ios/WatchKitConnection.swift; sourceTree = "<group>"; };
 		87D41B222593524600363084 /* WorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WorkoutTracking.swift; path = ../src/ios/WorkoutTracking.swift; sourceTree = "<group>"; };
 		87D41B232593524600363084 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../src/ios/AppDelegate.swift; sourceTree = "<group>"; };
+		87D41B2A2593894000363084 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		87FD05DDC378E9BAD82A818F /* fit_ohr_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		8865E12618F8B1C6C0E68392 /* fit_magnetometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_magnetometer_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_magnetometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		888A6DE1E4CF07F80E80394B /* fit_climb_pro_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_climb_pro_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_climb_pro_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -793,6 +795,7 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				87D41B2A2593894000363084 /* Info.plist */,
 				87D41B1E2593524600363084 /* APIFetcher.swift */,
 				87D41B232593524600363084 /* AppDelegate.swift */,
 				87D41B1F2593524600363084 /* LocalNotificationHelper.swift */,
@@ -1439,6 +1442,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87D41B2B2593894000363084 /* Info.plist in Copy Bundle Resources */,
 				2188AA0A52E9CD610922F82E /* Default-568h@2x.png in Copy Bundle Resources */,
 				23FA86F306CFF9E704521C39 /* LaunchScreen.storyboard in Copy Bundle Resources */,
 				AE8CD574A5B60EF037ACA8F8 /* Images.xcassets in Copy Bundle Resources */,
@@ -1927,6 +1931,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1.8.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				DYLIB_COMPATIBILITY_VERSION = 1.8;
 				DYLIB_CURRENT_VERSION = 1.8.0;
@@ -1959,6 +1964,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1.8.1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				DYLIB_COMPATIBILITY_VERSION = 1.8;
@@ -2022,7 +2028,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.0;
+				CURRENT_PROJECT_VERSION = 1.8.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				DYLIB_COMPATIBILITY_VERSION = 1.8;
 				DYLIB_CURRENT_VERSION = 1.8.0;
@@ -2043,6 +2049,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
+				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp;
@@ -2094,7 +2101,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.0;
+				CURRENT_PROJECT_VERSION = 1.8.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				DYLIB_COMPATIBILITY_VERSION = 1.8;
@@ -2111,6 +2118,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
+				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp;
@@ -2208,7 +2216,7 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
 			};
 			name = Debug;
 		};
@@ -2291,7 +2299,7 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				VALIDATE_PRODUCT = YES;
-				WATCHOS_DEPLOYMENT_TARGET = 5.2;
+				WATCHOS_DEPLOYMENT_TARGET = 5.0;
 			};
 			name = Release;
 		};
