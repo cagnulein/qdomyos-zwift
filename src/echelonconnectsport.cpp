@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QBluetoothLocalDevice>
 #include <math.h>
+#include "ios/lockscreen.h"
 
 echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService)
 {
@@ -178,6 +179,13 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+#ifdef Q_OS_IOS
+    lockscreen h;
+    long appleWatchHeartRate = h.heartRate();
+    Heart = appleWatchHeartRate;
+    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+    
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
     debug("Current Speed: " + QString::number(Speed));
     debug("Current Calculate Distance: " + QString::number(Distance));

@@ -4,6 +4,8 @@
 #import "qdomyoszwift-Swift.h"
 #include "ios/lockscreen.h"
 
+static healthkit* h = 0;
+
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
 }
@@ -12,6 +14,11 @@ void lockscreen::setTimerDisabled() {
 
 void lockscreen::request()
 {
-    healthkit* h = [[healthkit alloc] init];
+    h = [[healthkit alloc] init];
     [h request];
+}
+
+long lockscreen::heartRate()
+{
+    return [h heartRate];
 }

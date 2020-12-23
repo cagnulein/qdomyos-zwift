@@ -21,9 +21,15 @@ protocol WatchKitConnectionProtocol {
 class WatchKitConnection: NSObject {
     static let shared = WatchKitConnection()
     weak var delegate: WatchKitConnectionDelegate?
+    static var currentHeartRate = 0
     
     private override init() {
         super.init()
+    }
+    
+    public func heartRate() -> Int
+    {
+        return WatchKitConnection.currentHeartRate;
     }
     
     private let session: WCSession? = WCSession.isSupported() ? WCSession.default : nil
@@ -93,6 +99,7 @@ extension WatchKitConnection: WCSessionDelegate {
         guard let heartReateDouble = Double(heartReate) else {
             return
         }
+        WatchKitConnection.currentHeartRate = Int(heartReateDouble)
         LocalNotificationHelper.fireHeartRate(heartReateDouble)
     }
 }

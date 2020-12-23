@@ -15,6 +15,11 @@ import UIKit
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
     }
+    
+    @objc public func heartRate() -> Int
+    {
+        return WatchKitConnection.currentHeartRate;
+    }
 }
 /*
 @UIApplicationMain
