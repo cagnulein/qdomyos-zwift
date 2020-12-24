@@ -147,6 +147,7 @@
       "subtype" : "38mm"
     },
     {
+      "filename" : "Icon-App-88x88-1.png",
       "idiom" : "watch",
       "role" : "appLauncher",
       "scale" : "2x",
@@ -154,6 +155,7 @@
       "subtype" : "40mm"
     },
     {
+      "filename" : "Icon-App-100x100-1.png",
       "idiom" : "watch",
       "role" : "appLauncher",
       "scale" : "2x",
@@ -177,6 +179,7 @@
       "subtype" : "42mm"
     },
     {
+      "filename" : "Icon-App-216x216-1.png",
       "idiom" : "watch",
       "role" : "quickLook",
       "scale" : "2x",
@@ -184,6 +187,7 @@
       "subtype" : "44mm"
     },
     {
+      "filename" : "ItunesArtwork@2x-1.png",
       "idiom" : "watch-marketing",
       "scale" : "1x",
       "size" : "1024x1024"
