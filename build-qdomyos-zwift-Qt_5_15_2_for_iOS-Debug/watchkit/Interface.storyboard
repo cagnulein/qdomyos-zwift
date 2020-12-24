@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="17506" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Tpn-rd-UUX">
+    <device id="watch38"/>
+    <dependencies>
+        <deployment identifier="watchOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="17500"/>
+    </dependencies>
+    <scenes>
+        <!--Main-->
+        <scene sceneID="2gh-qF-IkA">
+            <objects>
+                <controller identifier="Main" hidesWhenLoading="NO" id="Tpn-rd-UUX" customClass="MainController" customModule="ElecDemo_WatchKit_Extension">
+                    <items>
+                        <label width="136" alignment="left" text="qdomyos-zwift" textAlignment="center" id="SlU-M7-WGB"/>
+                        <label width="136" alignment="left" text="Heart Rate" id="Nda-m1-XRw"/>
+                        <label width="136" alignment="left" text="Step Counts" id="HpA-e9-6YV"/>
+                        <button width="1" alignment="left" title="Start" id="vZg-X8-uY5">
+                            <connections>
+                                <action selector="startWorkout" destination="Tpn-rd-UUX" id="UaW-pR-tn6"/>
+                            </connections>
+                        </button>
+                        <button width="1" alignment="left" title="Stop" id="mVg-K9-PI9">
+                            <connections>
+                                <action selector="stopWorkout" destination="Tpn-rd-UUX" id="Jy7-gN-USZ"/>
+                            </connections>
+                        </button>
+                    </items>
+                    <connections>
+                        <outlet property="heartRateLabel" destination="Nda-m1-XRw" id="1la-8R-3jG"/>
+                        <outlet property="stepCountsLabel" destination="HpA-e9-6YV" id="Z88-ej-6oG"/>
+                        <outlet property="userNameLabel" destination="SlU-M7-WGB" id="Y2O-Lg-bDx"/>
+                    </connections>
+                </controller>
+            </objects>
+            <point key="canvasLocation" x="220" y="345"/>
+        </scene>
+        <!--Static Notification Interface Controller-->
+        <scene sceneID="AEw-b0-oYE">
+            <objects>
+                <notificationController id="YCC-NB-fut">
+                    <items>
+                        <label alignment="left" text="Alert Label" numberOfLines="0" id="IdU-wH-bcW"/>
+                    </items>
+                    <notificationCategory key="notificationCategory" identifier="myCategory" id="JfB-70-Muf"/>
+                    <connections>
+                        <outlet property="notificationAlertLabel" destination="IdU-wH-bcW" id="JKC-fr-R95"/>
+                        <segue destination="4sK-HA-Art" kind="relationship" relationship="dynamicNotificationInterface" id="kXh-Jw-8B1"/>
+                        <segue destination="eXb-UN-Cd0" kind="relationship" relationship="dynamicInteractiveNotificationInterface" id="mpB-YA-K8N"/>
+                    </connections>
+                </notificationController>
+            </objects>
+            <point key="canvasLocation" x="220" y="643"/>
+        </scene>
+        <!--Notification Controller-->
+        <scene sceneID="ZPc-GJ-vnh">
+            <objects>
+                <controller id="4sK-HA-Art" customClass="NotificationController" customModule="watchkit" customModuleProvider="target"/>
+            </objects>
+            <point key="canvasLocation" x="468" y="643"/>
+        </scene>
+        <!--Notification Controller-->
+        <scene sceneID="Niz-AI-uX2">
+            <objects>
+                <controller id="eXb-UN-Cd0" customClass="NotificationController" customModule="watchkit" customModuleProvider="target"/>
+            </objects>
+            <point key="canvasLocation" x="468" y="345"/>
+        </scene>
+    </scenes>
+</document>
