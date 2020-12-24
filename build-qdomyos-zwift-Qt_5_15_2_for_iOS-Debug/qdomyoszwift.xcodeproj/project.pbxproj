@@ -471,6 +471,14 @@
 		876E4E46259476F800BD5714 /* ComplicationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		876E4E47259476F800BD5714 /* NotificationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
 		876E4E4A259478A200BD5714 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		876E4E4C259479ED00BD5714 /* watchkit-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "watchkit-Bridging-Header.h"; sourceTree = "<group>"; };
+		876E4E4D259479ED00BD5714 /* LocalNotificationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalNotificationHelper.swift; path = ../src/ios/LocalNotificationHelper.swift; sourceTree = "<group>"; };
+		876E4E4E259479EE00BD5714 /* APIFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = APIFetcher.swift; path = ../src/ios/APIFetcher.swift; sourceTree = "<group>"; };
+		876E4E4F259479EE00BD5714 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = ../src/ios/ViewController.swift; sourceTree = "<group>"; };
+		876E4E50259479EE00BD5714 /* WorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WorkoutTracking.swift; path = ../src/ios/WorkoutTracking.swift; sourceTree = "<group>"; };
+		876E4E51259479EE00BD5714 /* qdomyos-zwift.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = "qdomyos-zwift.entitlements"; path = "../src/ios/qdomyos-zwift.entitlements"; sourceTree = "<group>"; };
+		876E4E52259479EE00BD5714 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../src/ios/AppDelegate.swift; sourceTree = "<group>"; };
+		876E4E53259479EE00BD5714 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WatchKitConnection.swift; path = ../src/ios/WatchKitConnection.swift; sourceTree = "<group>"; };
 		878225C234983ACB863D2D29 /* fit_nmea_sentence_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_nmea_sentence_mesg.hpp"; sourceTree = "<absolute>"; };
 		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		87A659DB8BE7DBAA7B395EF4 /* fit_monitoring_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -777,8 +785,16 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				876E4E4E259479EE00BD5714 /* APIFetcher.swift */,
+				876E4E52259479EE00BD5714 /* AppDelegate.swift */,
+				876E4E4D259479ED00BD5714 /* LocalNotificationHelper.swift */,
+				876E4E51259479EE00BD5714 /* qdomyos-zwift.entitlements */,
+				876E4E4F259479EE00BD5714 /* ViewController.swift */,
+				876E4E53259479EE00BD5714 /* WatchKitConnection.swift */,
+				876E4E50259479EE00BD5714 /* WorkoutTracking.swift */,
 				BDCEC0D3358F9C522E0B39D3 /* lockscreen.mm */,
 				42C97553CD7E951C38EB8FA0 /* lockscreen.h */,
+				876E4E4C259479ED00BD5714 /* watchkit-Bridging-Header.h */,
 			);
 			name = ios;
 			sourceTree = "<group>";
@@ -1375,6 +1391,7 @@
 					876E4E102594747F00BD5714 = {
 						CreatedOnToolsVersion = 12.2;
 						DevelopmentTeam = 6335M7T29D;
+						LastSwiftMigration = 1220;
 						ProvisioningStyle = Automatic;
 					};
 					876E4E192594748000BD5714 = {
@@ -1999,6 +2016,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2007,6 +2025,7 @@
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "watchkit-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -2066,6 +2085,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -2073,6 +2093,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "watchkit-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -2085,6 +2106,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2167,6 +2189,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
