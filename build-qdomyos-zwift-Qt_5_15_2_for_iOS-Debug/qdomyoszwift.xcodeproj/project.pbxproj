@@ -1981,6 +1981,9 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2013,6 +2016,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1.8.4;
 				DEVELOPMENT_TEAM = 6335M7T29D;
@@ -2037,8 +2041,21 @@
 				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-stdlib=libc++",
+					"-Wl,-rpath,@executable_path/Frameworks",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-framework",
+					MobileCoreServices,
+					"-lm",
+					"-framework",
+					UIKit,
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2055,6 +2072,9 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2107,6 +2127,18 @@
 				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-stdlib=libc++",
+					"-Wl,-rpath,@executable_path/Frameworks",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-framework",
+					MobileCoreServices,
+					"-lm",
+					"-framework",
+					UIKit,
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = watchos;
@@ -2124,6 +2156,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2208,6 +2243,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
+				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
 				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -2260,6 +2298,18 @@
 				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-stdlib=libc++",
+					"-Wl,-rpath,@executable_path/Frameworks",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-framework",
+					MobileCoreServices,
+					"-lm",
+					"-framework",
+					UIKit,
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
