@@ -10,6 +10,8 @@
 	<string>${ASSETCATALOG_COMPILER_APPICON_NAME}</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.cagnulein.qdomyoszwift</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>qdomyoszwift</string>
 	<key>CFBundlePackageType</key>
@@ -60,5 +62,9 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSHealthShareUsageDescription</key>
+	<string>access to heartbeat in order to show it in the application</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>access to heartbeat in order to show it in the application</string>
 </dict>
 </plist>

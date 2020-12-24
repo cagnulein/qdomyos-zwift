@@ -29,5 +29,9 @@
 	<string>org.cagnulein.qdomyoszwift</string>
 	<key>WKWatchKitApp</key>
 	<true/>
+	<key>NSHealthShareUsageDescription</key>
+	<string>access to heartbeat in order to show it in the application</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>access to heartbeat in order to show it in the application</string>
 </dict>
 </plist>
