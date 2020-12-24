@@ -112,28 +112,20 @@
 		7EC1321DD83EAAFAA2B7109C /* domyosbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 7944A61A6F17291731CE6F84 /* domyosbike.cpp */; settings = {ATTRIBUTES = (); }; };
 		8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */; settings = {ATTRIBUTES = (); }; };
 		868B65D0AB5114A4A0D5479E /* qmldbg_messages in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 008F20821C7E4D5F7DB55754 /* qmldbg_messages */; };
+		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
+		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */; };
+		876E4E242594748000BD5714 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E232594748000BD5714 /* NotificationController.swift */; };
+		876E4E282594748000BD5714 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E272594748000BD5714 /* ComplicationController.swift */; };
+		876E4E2A2594748100BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E292594748100BD5714 /* Assets.xcassets */; };
+		876E4E2D2594748100BD5714 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E2C2594748100BD5714 /* Preview Assets.xcassets */; };
+		876E4E322594748100BD5714 /* watchkit.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 876E4E112594747F00BD5714 /* watchkit.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		876E4E40259474CC00BD5714 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E3B259474CB00BD5714 /* ExtensionDelegate.swift */; };
+		876E4E41259474CC00BD5714 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E3C259474CB00BD5714 /* MainController.swift */; };
+		876E4E42259474CC00BD5714 /* WatchWorkoutTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */; };
+		876E4E43259474CC00BD5714 /* WatchKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */; };
+		876E4E45259474E300BD5714 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E44259474E200BD5714 /* Interface.storyboard */; };
 		876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */; };
-		87D41AE525932A2400363084 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87D41AE425932A2400363084 /* Assets.xcassets */; };
-		87D41AEC25932A2500363084 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 87D41AEB25932A2500363084 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		87D41AF525932A2500363084 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF425932A2500363084 /* NotificationController.swift */; };
-		87D41AF925932A2500363084 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41AF825932A2500363084 /* ComplicationController.swift */; };
-		87D41AFB25932A2700363084 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87D41AFA25932A2700363084 /* Assets.xcassets */; };
-		87D41AFE25932A2700363084 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 87D41AFD25932A2700363084 /* Preview Assets.xcassets */; };
-		87D41B0325932A2700363084 /* watchkit.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 87D41AE225932A2200363084 /* watchkit.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		87D41B0E25932BD600363084 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 87D41B0C25932B5F00363084 /* HealthKit.framework */; };
-		87D41B102593396600363084 /* ExtensionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B0F2593396500363084 /* ExtensionDelegate.swift */; };
-		87D41B122593397300363084 /* MainController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B112593397300363084 /* MainController.swift */; };
-		87D41B142593398300363084 /* WatchKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B132593398300363084 /* WatchKitConnection.swift */; };
-		87D41B162593398A00363084 /* WatchWorkoutTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B152593398A00363084 /* WatchWorkoutTracking.swift */; };
-		87D41B1825933D0F00363084 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D41B1725933D0E00363084 /* qdomyoszwiftApp.swift */; };
-		87D41B1A25933DED00363084 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 87D41B1925933DED00363084 /* Interface.storyboard */; };
-		87D41B242593524600363084 /* APIFetcher.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B1E2593524600363084 /* APIFetcher.swift */; };
-		87D41B252593524600363084 /* LocalNotificationHelper.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B1F2593524600363084 /* LocalNotificationHelper.swift */; };
-		87D41B262593524600363084 /* ViewController.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B202593524600363084 /* ViewController.swift */; };
-		87D41B272593524600363084 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B212593524600363084 /* WatchKitConnection.swift */; };
-		87D41B282593524600363084 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B222593524600363084 /* WorkoutTracking.swift */; };
-		87D41B292593524600363084 /* AppDelegate.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D41B232593524600363084 /* AppDelegate.swift */; };
-		87D41B2B2593894000363084 /* Info.plist in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 87D41B2A2593894000363084 /* Info.plist */; };
 		8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */; settings = {ATTRIBUTES = (); }; };
 		8FF7ED75180A8827C6B6AF63 /* qmldbg_inspector in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 67E53FD43BE69489B0434897 /* qmldbg_inspector */; };
 		906D4B242F504925A3CF2DBB /* GSS.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = C714C1AF3FA78E2DABBC17E8 /* GSS.framework */; };
@@ -202,48 +194,48 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		87D41ADF259328ED00363084 /* PBXContainerItemProxy */ = {
+		876E4E0E2594739400BD5714 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = E9F0AFC024A6F2D65CE84E08;
 			remoteInfo = "Qt Preprocess";
 		};
-		87D41AED25932A2500363084 /* PBXContainerItemProxy */ = {
+		876E4E1C2594748000BD5714 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 87D41AEA25932A2500363084;
+			remoteGlobalIDString = 876E4E192594748000BD5714;
 			remoteInfo = "watchkit Extension";
 		};
-		87D41B0125932A2700363084 /* PBXContainerItemProxy */ = {
+		876E4E302594748100BD5714 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 6DB9C3763D02B1415CD9D565 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 87D41AE125932A2200363084;
+			remoteGlobalIDString = 876E4E102594747F00BD5714;
 			remoteInfo = watchkit;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		87D41B0425932A2700363084 /* Embed Watch Content */ = {
+		876E4E332594748100BD5714 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				87D41B0325932A2700363084 /* watchkit.app in Embed Watch Content */,
+				876E4E322594748100BD5714 /* watchkit.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87D41B0725932A2700363084 /* Embed App Extensions */ = {
+		876E4E362594748100BD5714 /* Embed App Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				87D41AEC25932A2500363084 /* watchkit Extension.appex in Embed App Extensions */,
+				876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -460,36 +452,26 @@
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86F10E1AE2D47520E65C0543 /* fit_dive_summary_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		876E4E112594747F00BD5714 /* watchkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		876E4E132594748000BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		876E4E152594748000BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		876E4E1A2594748000BD5714 /* watchkit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchkit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = qdomyoszwiftApp.swift; sourceTree = "<group>"; };
+		876E4E232594748000BD5714 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		876E4E272594748000BD5714 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
+		876E4E292594748100BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		876E4E2C2594748100BD5714 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		876E4E2E2594748100BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		876E4E2F2594748100BD5714 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
+		876E4E3B259474CB00BD5714 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
+		876E4E3C259474CB00BD5714 /* MainController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainController.swift; sourceTree = "<group>"; };
+		876E4E3D259474CB00BD5714 /* WatchKit Extension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "WatchKit Extension.entitlements"; sourceTree = "<group>"; };
+		876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchWorkoutTracking.swift; sourceTree = "<group>"; };
+		876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchKitConnection.swift; sourceTree = "<group>"; };
+		876E4E44259474E200BD5714 /* Interface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Interface.storyboard; sourceTree = "<group>"; };
 		878225C234983ACB863D2D29 /* fit_nmea_sentence_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_nmea_sentence_mesg.hpp"; sourceTree = "<absolute>"; };
 		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		87A659DB8BE7DBAA7B395EF4 /* fit_monitoring_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
-		87D41AE225932A2200363084 /* watchkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		87D41AE425932A2400363084 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		87D41AE625932A2400363084 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		87D41AEB25932A2500363084 /* watchkit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchkit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		87D41AF425932A2500363084 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
-		87D41AF825932A2500363084 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
-		87D41AFA25932A2700363084 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		87D41AFD25932A2700363084 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		87D41AFF25932A2700363084 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		87D41B0025932A2700363084 /* PushNotificationPayload.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = PushNotificationPayload.apns; sourceTree = "<group>"; };
-		87D41B0C25932B5F00363084 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS7.1.sdk/System/Library/Frameworks/HealthKit.framework; sourceTree = DEVELOPER_DIR; };
-		87D41B0F2593396500363084 /* ExtensionDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtensionDelegate.swift; sourceTree = "<group>"; };
-		87D41B112593397300363084 /* MainController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainController.swift; sourceTree = "<group>"; };
-		87D41B132593398300363084 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchKitConnection.swift; sourceTree = "<group>"; };
-		87D41B152593398A00363084 /* WatchWorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchWorkoutTracking.swift; sourceTree = "<group>"; };
-		87D41B1725933D0E00363084 /* qdomyoszwiftApp.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = qdomyoszwiftApp.swift; sourceTree = "<group>"; };
-		87D41B1925933DED00363084 /* Interface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Interface.storyboard; sourceTree = "<group>"; };
-		87D41B1B2593473300363084 /* WatchKit Extension.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "WatchKit Extension.entitlements"; sourceTree = "<group>"; };
-		87D41B1C25934ADF00363084 /* qdomyos-zwift.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = "qdomyos-zwift.entitlements"; path = "../src/ios/qdomyos-zwift.entitlements"; sourceTree = "<group>"; };
-		87D41B1D2593524500363084 /* qdomyoszwift-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "qdomyoszwift-Bridging-Header.h"; sourceTree = "<group>"; };
-		87D41B1E2593524600363084 /* APIFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = APIFetcher.swift; path = ../src/ios/APIFetcher.swift; sourceTree = "<group>"; };
-		87D41B1F2593524600363084 /* LocalNotificationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = LocalNotificationHelper.swift; path = ../src/ios/LocalNotificationHelper.swift; sourceTree = "<group>"; };
-		87D41B202593524600363084 /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = ../src/ios/ViewController.swift; sourceTree = "<group>"; };
-		87D41B212593524600363084 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WatchKitConnection.swift; path = ../src/ios/WatchKitConnection.swift; sourceTree = "<group>"; };
-		87D41B222593524600363084 /* WorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WorkoutTracking.swift; path = ../src/ios/WorkoutTracking.swift; sourceTree = "<group>"; };
-		87D41B232593524600363084 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ../src/ios/AppDelegate.swift; sourceTree = "<group>"; };
-		87D41B2A2593894000363084 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		87FD05DDC378E9BAD82A818F /* fit_ohr_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		8865E12618F8B1C6C0E68392 /* fit_magnetometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_magnetometer_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_magnetometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		888A6DE1E4CF07F80E80394B /* fit_climb_pro_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_climb_pro_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_climb_pro_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -546,7 +528,6 @@
 		A882FE4F7367E9AA0D46E8C1 /* moc_virtualbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = moc_virtualbike.cpp; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/moc_virtualbike.cpp"; sourceTree = "<absolute>"; };
 		A989020C3BE82C8DD25B3BEE /* fit_monitoring_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_mesg.hpp"; sourceTree = "<absolute>"; };
 		AAB56836F851724048FCEBF5 /* fit_crc.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = fit_crc.cpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_crc.cpp"; sourceTree = "<absolute>"; };
-		AB38B0B6560DC802967E41E8 /* .qmake.stash */ = {isa = PBXFileReference; lastKnownFileType = text; name = .qmake.stash; path = "/Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/.qmake.stash"; sourceTree = "<absolute>"; };
 		AB42012F2E23818C99BA508C /* fit_watchface_settings_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_watchface_settings_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_watchface_settings_mesg.hpp"; sourceTree = "<absolute>"; };
 		AB7CE9A39563809C5629222D /* fit_monitoring_info_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg.hpp"; sourceTree = "<absolute>"; };
 		ABDEFD1CB1E75A21CD1245B8 /* fit_one_d_sensor_calibration_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_one_d_sensor_calibration_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_one_d_sensor_calibration_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -691,11 +672,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		87D41AE825932A2500363084 /* Frameworks */ = {
+		876E4E172594748000BD5714 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D41B0E25932BD600363084 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -795,16 +775,8 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				87D41B2A2593894000363084 /* Info.plist */,
-				87D41B1E2593524600363084 /* APIFetcher.swift */,
-				87D41B232593524600363084 /* AppDelegate.swift */,
-				87D41B1F2593524600363084 /* LocalNotificationHelper.swift */,
-				87D41B202593524600363084 /* ViewController.swift */,
-				87D41B212593524600363084 /* WatchKitConnection.swift */,
-				87D41B222593524600363084 /* WorkoutTracking.swift */,
 				BDCEC0D3358F9C522E0B39D3 /* lockscreen.mm */,
 				42C97553CD7E951C38EB8FA0 /* lockscreen.h */,
-				87D41B1D2593524500363084 /* qdomyoszwift-Bridging-Header.h */,
 			);
 			name = ios;
 			sourceTree = "<group>";
@@ -896,7 +868,6 @@
 			isa = PBXGroup;
 			children = (
 				57FA65C41805382B87D31F07 /* qdomyos-zwift.pro */,
-				AB38B0B6560DC802967E41E8 /* .qmake.stash */,
 				F753A96D8DEED8080EF04E3D /* qdomyos-zwift.pro */,
 			);
 			name = "Supporting Files";
@@ -912,39 +883,39 @@
 			name = "Bundle Data";
 			sourceTree = "<group>";
 		};
-		87D41AE325932A2200363084 /* watchkit */ = {
+		876E4E122594747F00BD5714 /* watchkit */ = {
 			isa = PBXGroup;
 			children = (
-				87D41B1925933DED00363084 /* Interface.storyboard */,
-				87D41AE425932A2400363084 /* Assets.xcassets */,
-				87D41AE625932A2400363084 /* Info.plist */,
+				876E4E44259474E200BD5714 /* Interface.storyboard */,
+				876E4E132594748000BD5714 /* Assets.xcassets */,
+				876E4E152594748000BD5714 /* Info.plist */,
 			);
 			path = watchkit;
 			sourceTree = "<group>";
 		};
-		87D41AEF25932A2500363084 /* watchkit Extension */ = {
+		876E4E1E2594748000BD5714 /* watchkit Extension */ = {
 			isa = PBXGroup;
 			children = (
-				87D41B1B2593473300363084 /* WatchKit Extension.entitlements */,
-				87D41B1725933D0E00363084 /* qdomyoszwiftApp.swift */,
-				87D41B152593398A00363084 /* WatchWorkoutTracking.swift */,
-				87D41B132593398300363084 /* WatchKitConnection.swift */,
-				87D41B112593397300363084 /* MainController.swift */,
-				87D41B0F2593396500363084 /* ExtensionDelegate.swift */,
-				87D41AF425932A2500363084 /* NotificationController.swift */,
-				87D41AF825932A2500363084 /* ComplicationController.swift */,
-				87D41AFA25932A2700363084 /* Assets.xcassets */,
-				87D41AFF25932A2700363084 /* Info.plist */,
-				87D41B0025932A2700363084 /* PushNotificationPayload.apns */,
-				87D41AFC25932A2700363084 /* Preview Content */,
+				876E4E3B259474CB00BD5714 /* ExtensionDelegate.swift */,
+				876E4E3C259474CB00BD5714 /* MainController.swift */,
+				876E4E3D259474CB00BD5714 /* WatchKit Extension.entitlements */,
+				876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */,
+				876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */,
+				876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */,
+				876E4E232594748000BD5714 /* NotificationController.swift */,
+				876E4E272594748000BD5714 /* ComplicationController.swift */,
+				876E4E292594748100BD5714 /* Assets.xcassets */,
+				876E4E2E2594748100BD5714 /* Info.plist */,
+				876E4E2F2594748100BD5714 /* PushNotificationPayload.apns */,
+				876E4E2B2594748100BD5714 /* Preview Content */,
 			);
 			path = "watchkit Extension";
 			sourceTree = "<group>";
 		};
-		87D41AFC25932A2700363084 /* Preview Content */ = {
+		876E4E2B2594748100BD5714 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
-				87D41AFD25932A2700363084 /* Preview Assets.xcassets */,
+				876E4E2C2594748100BD5714 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
 			sourceTree = "<group>";
@@ -961,7 +932,6 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				87D41B0C25932B5F00363084 /* HealthKit.framework */,
 				BC3A8C3E433A8FA00BB15F07 /* qios */,
 				7EC00404ACD5AB0E97726B0E /* QuartzCore.framework */,
 				3C44131FDCFEF4396B9EA2BA /* AudioToolbox.framework */,
@@ -1306,13 +1276,12 @@
 		E8C543AB96796ECAA2E65C57 /* qdomyoszwift */ = {
 			isa = PBXGroup;
 			children = (
-				87D41B1C25934ADF00363084 /* qdomyos-zwift.entitlements */,
 				2EB56BE3C2D93CDAB0C52E67 /* Sources */,
 				25B08E2869634E9BCBA333A2 /* Generated Sources */,
 				87DF60DE337FB58864343E39 /* Resources */,
 				74B182DB50CB5611B5C1C297 /* Supporting Files */,
-				87D41AE325932A2200363084 /* watchkit */,
-				87D41AEF25932A2500363084 /* watchkit Extension */,
+				876E4E122594747F00BD5714 /* watchkit */,
+				876E4E1E2594748000BD5714 /* watchkit Extension */,
 				AF39DD055C3EF8226FBE929D /* Frameworks */,
 				858FCAB0EB1F29CF8B07677C /* Bundle Data */,
 				FE0A091FDBFB3E9C31B7A1BD /* Products */,
@@ -1324,8 +1293,8 @@
 			isa = PBXGroup;
 			children = (
 				040B10E2EF2CEF79F2205FE2 /* qdomyoszwift.app */,
-				87D41AE225932A2200363084 /* watchkit.app */,
-				87D41AEB25932A2500363084 /* watchkit Extension.appex */,
+				876E4E112594747F00BD5714 /* watchkit.app */,
+				876E4E1A2594748000BD5714 /* watchkit Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1341,43 +1310,43 @@
 				D1C883685E82D5676953459A /* Link Binary With Libraries */,
 				30414803F31797EB689AE508 /* Copy Bundle Resources */,
 				99542592E9780B9225F24AA8 /* Embed Frameworks */,
-				87D41B0425932A2700363084 /* Embed Watch Content */,
+				876E4E332594748100BD5714 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				F8E0E95C27758CAC67EF1CD4 /* PBXTargetDependency */,
-				87D41B0225932A2700363084 /* PBXTargetDependency */,
+				876E4E312594748100BD5714 /* PBXTargetDependency */,
 			);
 			name = qdomyoszwift;
 			productName = qdomyoszwift;
 			productReference = 040B10E2EF2CEF79F2205FE2 /* qdomyoszwift.app */;
 			productType = "com.apple.product-type.application";
 		};
-		87D41AE125932A2200363084 /* watchkit */ = {
+		876E4E102594747F00BD5714 /* watchkit */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 87D41B0B25932A2700363084 /* Build configuration list for PBXNativeTarget "watchkit" */;
+			buildConfigurationList = 876E4E3A2594748100BD5714 /* Build configuration list for PBXNativeTarget "watchkit" */;
 			buildPhases = (
-				87D41AE025932A2200363084 /* Resources */,
-				87D41B0725932A2700363084 /* Embed App Extensions */,
+				876E4E0F2594747F00BD5714 /* Resources */,
+				876E4E362594748100BD5714 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				87D41AEE25932A2500363084 /* PBXTargetDependency */,
+				876E4E1D2594748000BD5714 /* PBXTargetDependency */,
 			);
 			name = watchkit;
 			productName = watchkit;
-			productReference = 87D41AE225932A2200363084 /* watchkit.app */;
+			productReference = 876E4E112594747F00BD5714 /* watchkit.app */;
 			productType = "com.apple.product-type.application.watchapp2";
 		};
-		87D41AEA25932A2500363084 /* watchkit Extension */ = {
+		876E4E192594748000BD5714 /* watchkit Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 87D41B0A25932A2700363084 /* Build configuration list for PBXNativeTarget "watchkit Extension" */;
+			buildConfigurationList = 876E4E392594748100BD5714 /* Build configuration list for PBXNativeTarget "watchkit Extension" */;
 			buildPhases = (
-				87D41AE725932A2500363084 /* Sources */,
-				87D41AE825932A2500363084 /* Frameworks */,
-				87D41AE925932A2500363084 /* Resources */,
+				876E4E162594748000BD5714 /* Sources */,
+				876E4E172594748000BD5714 /* Frameworks */,
+				876E4E182594748000BD5714 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -1385,7 +1354,7 @@
 			);
 			name = "watchkit Extension";
 			productName = "watchkit Extension";
-			productReference = 87D41AEB25932A2500363084 /* watchkit Extension.appex */;
+			productReference = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
 /* End PBXNativeTarget section */
@@ -1399,14 +1368,13 @@
 				TargetAttributes = {
 					799833E5566DEFFC37E4BF1E = {
 						DevelopmentTeam = 6335M7T29D;
-						LastSwiftMigration = 1220;
 					};
-					87D41AE125932A2200363084 = {
+					876E4E102594747F00BD5714 = {
 						CreatedOnToolsVersion = 12.2;
 						DevelopmentTeam = 6335M7T29D;
 						ProvisioningStyle = Automatic;
 					};
-					87D41AEA25932A2500363084 = {
+					876E4E192594748000BD5714 = {
 						CreatedOnToolsVersion = 12.2;
 						DevelopmentTeam = 6335M7T29D;
 						ProvisioningStyle = Automatic;
@@ -1431,8 +1399,8 @@
 			targets = (
 				799833E5566DEFFC37E4BF1E /* qdomyoszwift */,
 				E9F0AFC024A6F2D65CE84E08 /* Qt Preprocess */,
-				87D41AE125932A2200363084 /* watchkit */,
-				87D41AEA25932A2500363084 /* watchkit Extension */,
+				876E4E102594747F00BD5714 /* watchkit */,
+				876E4E192594748000BD5714 /* watchkit Extension */,
 			);
 		};
 /* End PBXProject section */
@@ -1442,7 +1410,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D41B2B2593894000363084 /* Info.plist in Copy Bundle Resources */,
 				2188AA0A52E9CD610922F82E /* Default-568h@2x.png in Copy Bundle Resources */,
 				23FA86F306CFF9E704521C39 /* LaunchScreen.storyboard in Copy Bundle Resources */,
 				AE8CD574A5B60EF037ACA8F8 /* Images.xcassets in Copy Bundle Resources */,
@@ -1450,21 +1417,21 @@
 			name = "Copy Bundle Resources";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87D41AE025932A2200363084 /* Resources */ = {
+		876E4E0F2594747F00BD5714 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D41B1A25933DED00363084 /* Interface.storyboard in Resources */,
-				87D41AE525932A2400363084 /* Assets.xcassets in Resources */,
+				876E4E45259474E300BD5714 /* Interface.storyboard in Resources */,
+				876E4E142594748000BD5714 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87D41AE925932A2500363084 /* Resources */ = {
+		876E4E182594748000BD5714 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D41AFE25932A2700363084 /* Preview Assets.xcassets in Resources */,
-				87D41AFB25932A2700363084 /* Assets.xcassets in Resources */,
+				876E4E2D2594748100BD5714 /* Preview Assets.xcassets in Resources */,
+				876E4E2A2594748100BD5714 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1496,17 +1463,17 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		87D41AE725932A2500363084 /* Sources */ = {
+		876E4E162594748000BD5714 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				87D41B1825933D0F00363084 /* qdomyoszwiftApp.swift in Sources */,
-				87D41B162593398A00363084 /* WatchWorkoutTracking.swift in Sources */,
-				87D41B142593398300363084 /* WatchKitConnection.swift in Sources */,
-				87D41B122593397300363084 /* MainController.swift in Sources */,
-				87D41AF525932A2500363084 /* NotificationController.swift in Sources */,
-				87D41AF925932A2500363084 /* ComplicationController.swift in Sources */,
-				87D41B102593396600363084 /* ExtensionDelegate.swift in Sources */,
+				876E4E242594748000BD5714 /* NotificationController.swift in Sources */,
+				876E4E41259474CC00BD5714 /* MainController.swift in Sources */,
+				876E4E42259474CC00BD5714 /* WatchWorkoutTracking.swift in Sources */,
+				876E4E43259474CC00BD5714 /* WatchKitConnection.swift in Sources */,
+				876E4E40259474CC00BD5714 /* ExtensionDelegate.swift in Sources */,
+				876E4E282594748000BD5714 /* ComplicationController.swift in Sources */,
+				876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1525,15 +1492,12 @@
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
 				DD5ED224478CB82859C61B9F /* fit_buffered_record_mesg_broadcaster.cpp in Compile Sources */,
-				87D41B292593524600363084 /* AppDelegate.swift in Compile Sources */,
 				E7F190E59DC975BA4CA65F0C /* fit_crc.cpp in Compile Sources */,
 				DA1DC0B761BD7A3004BCF43D /* fit_date_time.cpp in Compile Sources */,
 				DF1FD9718B75FA591A7E3D80 /* fit_decode.cpp in Compile Sources */,
-				87D41B242593524600363084 /* APIFetcher.swift in Compile Sources */,
 				952DBD14DF6369E885020EF4 /* fit_developer_field.cpp in Compile Sources */,
 				A4BD6DF51CFFF867B7B5AED4 /* fit_developer_field_definition.cpp in Compile Sources */,
 				3015F9B9FF4CA6D653D46CCA /* fit_developer_field_description.cpp in Compile Sources */,
-				87D41B262593524600363084 /* ViewController.swift in Compile Sources */,
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
 				BBBE7689F5792CB3FD1997EC /* fit_factory.cpp in Compile Sources */,
 				25F2400F80DAFBD41FE5CC75 /* fit_field.cpp in Compile Sources */,
@@ -1553,7 +1517,6 @@
 				25FCD41CCCAF49293B9369E8 /* qfit.cpp in Compile Sources */,
 				27E452D452B62D0948DF0755 /* sessionline.cpp in Compile Sources */,
 				E40895A73216AC52D35083D9 /* signalhandler.cpp in Compile Sources */,
-				87D41B282593524600363084 /* WorkoutTracking.swift in Compile Sources */,
 				BE1D17BBF32F04829E1B3767 /* toorxtreadmill.cpp in Compile Sources */,
 				4697729B15991E98D6A2533D /* treadmill.cpp in Compile Sources */,
 				20AA270C9F447F42F5DC2FF2 /* trainprogram.cpp in Compile Sources */,
@@ -1571,13 +1534,11 @@
 				03F49BBCF19B73B18385B13D /* FitMesgDefinition.mm in Compile Sources */,
 				2D4684BE88B9B0456A50B3F0 /* qdomyoszwift_plugin_import.cpp in Compile Sources */,
 				210F6A0A7E2FA7CDD3CA0084 /* qdomyoszwift_qml_plugin_import.cpp in Compile Sources */,
-				87D41B272593524600363084 /* WatchKitConnection.swift in Compile Sources */,
 				39FAA19B9285AB16AE3A39BA /* qrc_icons.cpp in Compile Sources */,
 				7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,
 				B38F3288D4AE4025465C1953 /* moc_bike.cpp in Compile Sources */,
 				C3D1FD2587BF6F15B58BA675 /* moc_bluetooth.cpp in Compile Sources */,
 				8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */,
-				87D41B252593524600363084 /* LocalNotificationHelper.swift in Compile Sources */,
 				1FBBC7C86C436CAAAFD37E56 /* moc_domyostreadmill.cpp in Compile Sources */,
 				9D9484EED654597C394345DE /* moc_echelonconnectsport.cpp in Compile Sources */,
 				7DEEAF0C3D671FBFD84ACFCE /* moc_homeform.cpp in Compile Sources */,
@@ -1598,20 +1559,20 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		87D41AEE25932A2500363084 /* PBXTargetDependency */ = {
+		876E4E1D2594748000BD5714 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 87D41AEA25932A2500363084 /* watchkit Extension */;
-			targetProxy = 87D41AED25932A2500363084 /* PBXContainerItemProxy */;
+			target = 876E4E192594748000BD5714 /* watchkit Extension */;
+			targetProxy = 876E4E1C2594748000BD5714 /* PBXContainerItemProxy */;
 		};
-		87D41B0225932A2700363084 /* PBXTargetDependency */ = {
+		876E4E312594748100BD5714 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 87D41AE125932A2200363084 /* watchkit */;
-			targetProxy = 87D41B0125932A2700363084 /* PBXContainerItemProxy */;
+			target = 876E4E102594747F00BD5714 /* watchkit */;
+			targetProxy = 876E4E302594748100BD5714 /* PBXContainerItemProxy */;
 		};
 		F8E0E95C27758CAC67EF1CD4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E9F0AFC024A6F2D65CE84E08 /* Qt Preprocess */;
-			targetProxy = 87D41ADF259328ED00363084 /* PBXContainerItemProxy */;
+			targetProxy = 876E4E0E2594739400BD5714 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1928,28 +1889,22 @@
 				"ARCHS[sdk=iphoneos*]" = arm64;
 				"ARCHS[sdk=iphonesimulator*]" = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.1;
+				CURRENT_PROJECT_VERSION = 1.8.4;
 				DEVELOPMENT_TEAM = 6335M7T29D;
-				DYLIB_COMPATIBILITY_VERSION = 1.8;
-				DYLIB_CURRENT_VERSION = 1.8.0;
 				ENABLE_BITCODE = YES;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.8;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
-				QMAKE_FULL_VERSION = 1.8.0;
+				QMAKE_FULL_VERSION = 1.7.0;
 				"QMAKE_MAC_SDK_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.2.sdk;
 				"QMAKE_MAC_SDK_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.2.sdk;
 				"QMAKE_MAC_SDK_PLATFORM_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform;
 				"QMAKE_MAC_SDK_PLATFORM_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform;
 				QMAKE_PKGINFO_TYPEINFO = "????";
-				QMAKE_SHORT_VERSION = 1.8;
+				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
 				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "qdomyoszwift-Bridging-Header.h";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1961,37 +1916,30 @@
 				"ARCHS[sdk=iphoneos*]" = arm64;
 				"ARCHS[sdk=iphonesimulator*]" = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.1;
+				CURRENT_PROJECT_VERSION = 1.8.4;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
-				DYLIB_COMPATIBILITY_VERSION = 1.8;
-				DYLIB_CURRENT_VERSION = 1.8.0;
 				ENABLE_BITCODE = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				MARKETING_VERSION = 1.8;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
-				QMAKE_FULL_VERSION = 1.8.0;
+				QMAKE_FULL_VERSION = 1.7.0;
 				"QMAKE_MAC_SDK_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.2.sdk;
 				"QMAKE_MAC_SDK_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator14.2.sdk;
 				"QMAKE_MAC_SDK_PLATFORM_PATH[sdk=iphoneos*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform;
 				"QMAKE_MAC_SDK_PLATFORM_PATH[sdk=iphonesimulator*]" = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform;
 				QMAKE_PKGINFO_TYPEINFO = "????";
-				QMAKE_SHORT_VERSION = 1.8;
+				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
 				SDKROOT = iphoneos;
-				SWIFT_OBJC_BRIDGING_HEADER = "qdomyoszwift-Bridging-Header.h";
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		87D41B0525932A2700363084 /* Debug */ = {
+		876E4E342594748100BD5714 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -2028,10 +1976,8 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.1;
+				CURRENT_PROJECT_VERSION = 1.8.4;
 				DEVELOPMENT_TEAM = 6335M7T29D;
-				DYLIB_COMPATIBILITY_VERSION = 1.8;
-				DYLIB_CURRENT_VERSION = 1.8.0;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2064,7 +2010,7 @@
 			};
 			name = Debug;
 		};
-		87D41B0625932A2700363084 /* Release */ = {
+		876E4E352594748100BD5714 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
@@ -2101,11 +2047,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.1;
+				CURRENT_PROJECT_VERSION = 1.8.4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
-				DYLIB_COMPATIBILITY_VERSION = 1.8;
-				DYLIB_CURRENT_VERSION = 1.8.0;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -2133,12 +2077,10 @@
 			};
 			name = Release;
 		};
-		87D41B0825932A2700363084 /* Debug */ = {
+		876E4E372594748100BD5714 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2169,11 +2111,9 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "watchKit Extension/watchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "";
-				DYLIB_COMPATIBILITY_VERSION = 1.8;
-				DYLIB_CURRENT_VERSION = 1.8.0;
+				CURRENT_PROJECT_VERSION = 1.8.4;
+				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2192,24 +2132,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				OTHER_LDFLAGS = (
-					"-stdlib=libc++",
-					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
-					"-framework",
-					MobileCoreServices,
-					"-lm",
-					"-framework",
-					UIKit,
-					"-lz",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				QMAKE_FULL_VERSION = 1.8.0;
-				QMAKE_SHORT_VERSION = 1.8;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -2220,12 +2147,10 @@
 			};
 			name = Debug;
 		};
-		87D41B0925932A2700363084 /* Release */ = {
+		876E4E382594748100BD5714 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = "";
 				ASSETCATALOG_COMPILER_COMPLICATION_NAME = Complication;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -2256,12 +2181,10 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_ENTITLEMENTS = "watchKit Extension/watchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.8.4;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_ASSET_PATHS = "";
-				DYLIB_COMPATIBILITY_VERSION = 1.8;
-				DYLIB_CURRENT_VERSION = 1.8.0;
+				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2275,24 +2198,11 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				OTHER_LDFLAGS = (
-					"-stdlib=libc++",
-					"-Wl,-rpath,@executable_path/Frameworks",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
-					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
-					"-framework",
-					MobileCoreServices,
-					"-lm",
-					"-framework",
-					UIKit,
-					"-lz",
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
-				QMAKE_FULL_VERSION = 1.8.0;
-				QMAKE_SHORT_VERSION = 1.8;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -2315,20 +2225,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		87D41B0A25932A2700363084 /* Build configuration list for PBXNativeTarget "watchkit Extension" */ = {
+		876E4E392594748100BD5714 /* Build configuration list for PBXNativeTarget "watchkit Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				87D41B0825932A2700363084 /* Debug */,
-				87D41B0925932A2700363084 /* Release */,
+				876E4E372594748100BD5714 /* Debug */,
+				876E4E382594748100BD5714 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		87D41B0B25932A2700363084 /* Build configuration list for PBXNativeTarget "watchkit" */ = {
+		876E4E3A2594748100BD5714 /* Build configuration list for PBXNativeTarget "watchkit" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				87D41B0525932A2700363084 /* Debug */,
-				87D41B0625932A2700363084 /* Release */,
+				876E4E342594748100BD5714 /* Debug */,
+				876E4E352594748100BD5714 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

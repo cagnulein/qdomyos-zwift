@@ -208,7 +208,6 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/macx-ios-clang/qmake.conf \
 		../../Qt/5.15.2/ios/mkspecs/macx-xcode/qmake.conf \
 		../../Qt/5.15.2/ios/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		../../Qt/5.15.2/ios/mkspecs/features/exclusive_builds.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/mac/sdk.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/uikit/sdk.prf \
@@ -513,7 +512,6 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/macx-ios-clang/qmake.conf:
 ../../Qt/5.15.2/ios/mkspecs/macx-xcode/qmake.conf:
 ../../Qt/5.15.2/ios/mkspecs/features/spec_post.prf:
-.qmake.stash:
 ../../Qt/5.15.2/ios/mkspecs/features/exclusive_builds.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/mac/sdk.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/uikit/sdk.prf:
