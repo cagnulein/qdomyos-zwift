@@ -10,7 +10,7 @@
         <!--Main-->
         <scene sceneID="2gh-qF-IkA">
             <objects>
-                <controller identifier="Main" hidesWhenLoading="NO" id="Tpn-rd-UUX" customClass="MainController" customModule="ElecDemo_WatchKit_Extension">
+                <controller identifier="Main" hidesWhenLoading="NO" id="Tpn-rd-UUX" customClass="MainController" customModule="watchkit_Extension">
                     <items>
                         <label width="136" alignment="left" text="qdomyos-zwift" textAlignment="center" id="SlU-M7-WGB"/>
                         <label width="136" alignment="left" text="Heart Rate" id="Nda-m1-XRw"/>

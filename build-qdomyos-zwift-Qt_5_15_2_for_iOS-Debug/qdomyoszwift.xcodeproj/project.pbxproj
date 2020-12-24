@@ -115,8 +115,6 @@
 		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
 		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */; };
-		876E4E242594748000BD5714 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E232594748000BD5714 /* NotificationController.swift */; };
-		876E4E282594748000BD5714 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E272594748000BD5714 /* ComplicationController.swift */; };
 		876E4E2A2594748100BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E292594748100BD5714 /* Assets.xcassets */; };
 		876E4E2D2594748100BD5714 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E2C2594748100BD5714 /* Preview Assets.xcassets */; };
 		876E4E322594748100BD5714 /* watchkit.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 876E4E112594747F00BD5714 /* watchkit.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -125,6 +123,9 @@
 		876E4E42259474CC00BD5714 /* WatchWorkoutTracking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */; };
 		876E4E43259474CC00BD5714 /* WatchKitConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */; };
 		876E4E45259474E300BD5714 /* Interface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E44259474E200BD5714 /* Interface.storyboard */; };
+		876E4E48259476F900BD5714 /* ComplicationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E46259476F800BD5714 /* ComplicationController.swift */; };
+		876E4E49259476F900BD5714 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E47259476F800BD5714 /* NotificationController.swift */; };
+		876E4E4B259478A200BD5714 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E4A259478A200BD5714 /* Images.xcassets */; };
 		876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */; };
 		8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */; settings = {ATTRIBUTES = (); }; };
 		8FF7ED75180A8827C6B6AF63 /* qmldbg_inspector in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 67E53FD43BE69489B0434897 /* qmldbg_inspector */; };
@@ -457,8 +458,6 @@
 		876E4E152594748000BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		876E4E1A2594748000BD5714 /* watchkit Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchkit Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = qdomyoszwiftApp.swift; sourceTree = "<group>"; };
-		876E4E232594748000BD5714 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
-		876E4E272594748000BD5714 /* ComplicationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
 		876E4E292594748100BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		876E4E2C2594748100BD5714 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		876E4E2E2594748100BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -469,6 +468,9 @@
 		876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchWorkoutTracking.swift; sourceTree = "<group>"; };
 		876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WatchKitConnection.swift; sourceTree = "<group>"; };
 		876E4E44259474E200BD5714 /* Interface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Interface.storyboard; sourceTree = "<group>"; };
+		876E4E46259476F800BD5714 /* ComplicationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ComplicationController.swift; sourceTree = "<group>"; };
+		876E4E47259476F800BD5714 /* NotificationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		876E4E4A259478A200BD5714 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		878225C234983ACB863D2D29 /* fit_nmea_sentence_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_nmea_sentence_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_nmea_sentence_mesg.hpp"; sourceTree = "<absolute>"; };
 		8789DCDB6A4F681A76DF3F92 /* Qt5Widgets */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = Qt5Widgets; path = "/Users/cagnulein/Qt/5.15.2/ios/lib/libQt5Widgets$(QT_LIBRARY_SUFFIX).a"; sourceTree = "<absolute>"; };
 		87A659DB8BE7DBAA7B395EF4 /* fit_monitoring_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -886,6 +888,7 @@
 		876E4E122594747F00BD5714 /* watchkit */ = {
 			isa = PBXGroup;
 			children = (
+				876E4E4A259478A200BD5714 /* Images.xcassets */,
 				876E4E44259474E200BD5714 /* Interface.storyboard */,
 				876E4E132594748000BD5714 /* Assets.xcassets */,
 				876E4E152594748000BD5714 /* Info.plist */,
@@ -896,14 +899,14 @@
 		876E4E1E2594748000BD5714 /* watchkit Extension */ = {
 			isa = PBXGroup;
 			children = (
+				876E4E46259476F800BD5714 /* ComplicationController.swift */,
+				876E4E47259476F800BD5714 /* NotificationController.swift */,
 				876E4E3B259474CB00BD5714 /* ExtensionDelegate.swift */,
 				876E4E3C259474CB00BD5714 /* MainController.swift */,
 				876E4E3D259474CB00BD5714 /* WatchKit Extension.entitlements */,
 				876E4E3F259474CC00BD5714 /* WatchKitConnection.swift */,
 				876E4E3E259474CB00BD5714 /* WatchWorkoutTracking.swift */,
 				876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */,
-				876E4E232594748000BD5714 /* NotificationController.swift */,
-				876E4E272594748000BD5714 /* ComplicationController.swift */,
 				876E4E292594748100BD5714 /* Assets.xcassets */,
 				876E4E2E2594748100BD5714 /* Info.plist */,
 				876E4E2F2594748100BD5714 /* PushNotificationPayload.apns */,
@@ -1421,6 +1424,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				876E4E4B259478A200BD5714 /* Images.xcassets in Resources */,
 				876E4E45259474E300BD5714 /* Interface.storyboard in Resources */,
 				876E4E142594748000BD5714 /* Assets.xcassets in Resources */,
 			);
@@ -1467,13 +1471,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				876E4E242594748000BD5714 /* NotificationController.swift in Sources */,
 				876E4E41259474CC00BD5714 /* MainController.swift in Sources */,
 				876E4E42259474CC00BD5714 /* WatchWorkoutTracking.swift in Sources */,
 				876E4E43259474CC00BD5714 /* WatchKitConnection.swift in Sources */,
+				876E4E49259476F900BD5714 /* NotificationController.swift in Sources */,
 				876E4E40259474CC00BD5714 /* ExtensionDelegate.swift in Sources */,
-				876E4E282594748000BD5714 /* ComplicationController.swift in Sources */,
 				876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */,
+				876E4E48259476F900BD5714 /* ComplicationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2135,6 +2139,18 @@
 				MARKETING_VERSION = 1.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = (
+					"-stdlib=libc++",
+					"-Wl,-rpath,@executable_path/Frameworks",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms",
+					"-L/Users/cagnulein/Qt/5.15.2/ios/lib",
+					"-framework",
+					MobileCoreServices,
+					"-lm",
+					"-framework",
+					UIKit,
+					"-lz",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = org.cagnulein.qdomyoszwift.watchkitapp.watchkitextension;
 				PRODUCT_NAME = "${TARGET_NAME}";
 				SDKROOT = watchos;
