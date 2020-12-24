@@ -112,6 +112,12 @@
 		7EC1321DD83EAAFAA2B7109C /* domyosbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 7944A61A6F17291731CE6F84 /* domyosbike.cpp */; settings = {ATTRIBUTES = (); }; };
 		8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */; settings = {ATTRIBUTES = (); }; };
 		868B65D0AB5114A4A0D5479E /* qmldbg_messages in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 008F20821C7E4D5F7DB55754 /* qmldbg_messages */; };
+		87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E52259479EE00BD5714 /* AppDelegate.swift */; };
+		87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4E259479EE00BD5714 /* APIFetcher.swift */; };
+		87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4D259479ED00BD5714 /* LocalNotificationHelper.swift */; };
+		87062646259480B200D06586 /* ViewController.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4F259479EE00BD5714 /* ViewController.swift */; };
+		87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E53259479EE00BD5714 /* WatchKitConnection.swift */; };
+		87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E50259479EE00BD5714 /* WorkoutTracking.swift */; };
 		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
 		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */; };
@@ -1502,6 +1508,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87062646259480B200D06586 /* ViewController.swift in Compile Sources */,
 				EA780CE97E201242E33E6EEE /* bike.cpp in Compile Sources */,
 				8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */,
 				20A50533946A39CBD2C89104 /* bluetoothdevice.cpp in Compile Sources */,
@@ -1524,6 +1531,7 @@
 				25F2400F80DAFBD41FE5CC75 /* fit_field.cpp in Compile Sources */,
 				333C629F93DB3941862924F7 /* fit_field_base.cpp in Compile Sources */,
 				EEC10275DF646075E08DDC9B /* fit_field_definition.cpp in Compile Sources */,
+				87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */,
 				48BA9CE9D6F256A15E8FB25D /* fit_mesg.cpp in Compile Sources */,
 				DD2E0091F3318F053D2995AA /* fit_mesg_broadcaster.cpp in Compile Sources */,
 				FE77C778768741F1A161682E /* fit_mesg_definition.cpp in Compile Sources */,
@@ -1550,15 +1558,18 @@
 				FB2566376FE0FB17ED3DE94D /* FitDeveloperField.mm in Compile Sources */,
 				43FA2D5EA73D9C89F1A333B6 /* FitEncode.mm in Compile Sources */,
 				3FF025D99EBD71B7E6DCA033 /* FitField.mm in Compile Sources */,
+				87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */,
 				2B42755BF45173E11E2110CB /* FitFieldDefinition.mm in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				03F49BBCF19B73B18385B13D /* FitMesgDefinition.mm in Compile Sources */,
 				2D4684BE88B9B0456A50B3F0 /* qdomyoszwift_plugin_import.cpp in Compile Sources */,
 				210F6A0A7E2FA7CDD3CA0084 /* qdomyoszwift_qml_plugin_import.cpp in Compile Sources */,
+				87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */,
 				39FAA19B9285AB16AE3A39BA /* qrc_icons.cpp in Compile Sources */,
 				7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,
 				B38F3288D4AE4025465C1953 /* moc_bike.cpp in Compile Sources */,
 				C3D1FD2587BF6F15B58BA675 /* moc_bluetooth.cpp in Compile Sources */,
+				87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */,
 				8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */,
 				1FBBC7C86C436CAAAFD37E56 /* moc_domyostreadmill.cpp in Compile Sources */,
 				9D9484EED654597C394345DE /* moc_echelonconnectsport.cpp in Compile Sources */,
@@ -1568,6 +1579,7 @@
 				E8B499F921FB0AB55C7A8A8B /* moc_gpx.cpp in Compile Sources */,
 				140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */,
 				692540CF811B06A8710A0A52 /* moc_mainwindow.cpp in Compile Sources */,
+				87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */,
 				AFEC086E92015064EB841234 /* moc_trainprogram.cpp in Compile Sources */,
 				EE29228550794460E7654533 /* moc_trxappgateusbtreadmill.cpp in Compile Sources */,
 				3DB7B5F0CE1E2390CEFFC1E8 /* moc_virtualbike.cpp in Compile Sources */,
@@ -1612,6 +1624,7 @@
 				CC = /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				DYLIB_COMPATIBILITY_VERSION = 1.7;
 				DYLIB_CURRENT_VERSION = 1.7.0;
@@ -1764,6 +1777,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				DYLIB_COMPATIBILITY_VERSION = 1.7;
 				DYLIB_CURRENT_VERSION = 1.7.0;
@@ -1926,6 +1940,7 @@
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -1956,6 +1971,7 @@
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
 				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
