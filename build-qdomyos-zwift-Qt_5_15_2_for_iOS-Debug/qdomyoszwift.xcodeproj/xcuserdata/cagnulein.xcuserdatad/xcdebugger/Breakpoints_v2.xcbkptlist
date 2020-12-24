@@ -84,5 +84,84 @@
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7070D0F5-BD79-43DC-AE17-7B4D43FC5637"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "watchkit Extension/MainController.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
+            landmarkName = "didReceiveHealthKitHeartRate(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "329EF26B-A7BA-4771-A121-BA4060E60201"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "watchkit Extension/WatchWorkoutTracking.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "handleSendStatisticsData(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "329EF26B-A7BA-4771-A121-BA4060E60201 - 7dd9506ded50816f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "watchkit_Extension.WorkoutTracking.(handleSendStatisticsData in _D3E6F9F3FAAAA099E0A09AA45CD92075)(__C.HKStatistics) -&gt; ()"
+                  moduleName = "watchkit Extension"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit%20Extension/WatchWorkoutTracking.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "40"
+                  endingLineNumber = "40"
+                  offsetFromSymbolStart = "260">
+               </Location>
+               <Location
+                  uuid = "329EF26B-A7BA-4771-A121-BA4060E60201 - 7dd9506ded50816f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "watchkit_Extension.WorkoutTracking.(handleSendStatisticsData in _D3E6F9F3FAAAA099E0A09AA45CD92075)(__C.HKStatistics) -&gt; ()"
+                  moduleName = "watchkit Extension"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit%20Extension/WatchWorkoutTracking.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "40"
+                  endingLineNumber = "40"
+                  offsetFromSymbolStart = "321">
+               </Location>
+               <Location
+                  uuid = "329EF26B-A7BA-4771-A121-BA4060E60201 - 7dd9506ded50816f"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "watchkit_Extension.WorkoutTracking.(handleSendStatisticsData in _D3E6F9F3FAAAA099E0A09AA45CD92075)(__C.HKStatistics) -&gt; ()"
+                  moduleName = "watchkit Extension"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/watchkit%20Extension/WatchWorkoutTracking.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "40"
+                  endingLineNumber = "40"
+                  offsetFromSymbolStart = "1477">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

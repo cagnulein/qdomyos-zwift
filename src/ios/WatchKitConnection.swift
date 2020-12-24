@@ -100,6 +100,6 @@ extension WatchKitConnection: WCSessionDelegate {
             return
         }
         WatchKitConnection.currentHeartRate = Int(heartReateDouble)
-        LocalNotificationHelper.fireHeartRate(heartReateDouble)
+        //LocalNotificationHelper.fireHeartRate(heartReateDouble)
     }
 }

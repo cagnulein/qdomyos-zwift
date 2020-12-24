@@ -36,5 +36,12 @@
 	<string>access to heartbeat in order to show it in the application</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>access to heartbeat in order to show it in the application</string>
+	<key>UIBackgroundModes</key>
+	<array/>
+	<key>WKBackgroundModes</key>
+	<array>
+		<string>self-care</string>
+		<string>workout-processing</string>
+	</array>
 </dict>
 </plist>

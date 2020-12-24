@@ -73,7 +73,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                     let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
                     let heartRate = sample.quantity.doubleValue(for: heartRateUnit)
                     print("Heart Rate Sample: \(heartRate)")
-                    LocalNotificationHelper.fireHeartRate(heartRate)
+                    //LocalNotificationHelper.fireHeartRate(heartRate)
                 }
             }
         }
