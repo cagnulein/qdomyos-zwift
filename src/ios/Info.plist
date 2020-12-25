@@ -37,9 +37,9 @@
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>application needs Documents access in order to save logs and gpx file for the trainig sessions</string>
 	<key>NSHealthShareUsageDescription</key>
-	<string>accessing to the heartrate to show the value to the application</string>
+	<string>access to heartbeat in order to show it in the application</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>accessing to the heartrate to show the value to the application</string>
+	<string>access to heartbeat in order to show it in the application</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location service are used to give access to bluetooth peripheral.</string>
 	<key>UIBackgroundModes</key>
@@ -62,9 +62,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSHealthShareUsageDescription</key>
-	<string>access to heartbeat in order to show it in the application</string>
-	<key>NSHealthUpdateUsageDescription</key>
-	<string>access to heartbeat in order to show it in the application</string>
 </dict>
 </plist>

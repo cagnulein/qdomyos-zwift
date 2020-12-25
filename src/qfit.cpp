@@ -43,7 +43,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     sessionMesg.SetStartTime(session.at(0).time.currentSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
     sessionMesg.SetTotalTimerTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
-    sessionMesg.SetTotalDistance(session.last().distance);
+    sessionMesg.SetTotalDistance(session.last().distance * 1000.0); //meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().time.currentSecsSinceEpoch() - session.first().time.currentSecsSinceEpoch());
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -76,7 +76,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         fit::DateTime date((time_t)session.at(i).time.currentSecsSinceEpoch());
         newRecord.SetHeartRate(session.at(i).heart);
         newRecord.SetCadence(session.at(i).cadence);
-        newRecord.SetDistance(session.at(i).distance);
+        newRecord.SetDistance(session.at(i).distance * 1000.0); //meters
         newRecord.SetSpeed(session.at(i).speed / 3.6); // meter per second
         newRecord.SetPower(session.at(i).watt);
         newRecord.SetResistance(session.at(i).resistance);
