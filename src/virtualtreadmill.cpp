@@ -15,6 +15,11 @@ virtualtreadmill::virtualtreadmill(treadmill* t, bool noHeartService)
     QList<QBluetoothUuid> services;
     services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     services << QBluetoothUuid::HeartRate;
+
+#ifdef Q_OS_LINUX
+    services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
+#endif
+
     advertisingData.setServices(services);
     //! [Advertising Data]
 
