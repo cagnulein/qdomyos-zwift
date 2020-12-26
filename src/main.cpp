@@ -38,6 +38,7 @@ bool testResistance = false;
 bool forceQml = false;
 bool miles = false;
 bool bluetoot_no_reconnection = false;
+bool bike_cadence_sensor = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -76,6 +77,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             onlyVirtualTreadmill = true;
         if (!qstrcmp(argv[i], "-no-reconnection"))
             bluetoot_no_reconnection = true;
+        if (!qstrcmp(argv[i], "-bike-cadence-sensor"))
+            bike_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -223,6 +226,7 @@ int main(int argc, char *argv[])
 #else
     settings.setValue("miles_unit", miles);
     settings.setValue("bluetoot_no_reconnection", bluetoot_no_reconnection);
+    settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
