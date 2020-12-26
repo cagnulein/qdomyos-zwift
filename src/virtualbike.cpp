@@ -64,9 +64,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     if(!this->noHeartService)
         services << QBluetoothUuid::HeartRate;
 
-#ifdef Q_OS_LINUX
     services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
-#endif
 
     advertisingData.setServices(services);
     //! [Advertising Data]
