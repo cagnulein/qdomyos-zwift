@@ -36,6 +36,7 @@ import Qt.labs.settings 1.0
             property bool tile_peloton_resistance_enabled: true
 
             property bool bluetooth_relaxed: false
+            property bool battery_service: false
         }
 
         ColumnLayout {
@@ -444,6 +445,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.bluetooth_relaxed = checked
+            }
+
+            SwitchDelegate {
+                id: batteryServiceDelegate
+                text: qsTr("Simulate Battery Service")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.battery_service
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.battery_service = checked
             }
         }
     }
