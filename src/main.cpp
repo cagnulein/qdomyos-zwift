@@ -37,8 +37,10 @@ bool onlyVirtualTreadmill = false;
 bool testResistance = false;
 bool forceQml = false;
 bool miles = false;
-bool bluetoot_no_reconnection = false;
+bool bluetooth_no_reconnection = false;
+bool bluetooth_relaxed = false;
 bool bike_cadence_sensor = false;
+bool battery_service = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -76,9 +78,13 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         if (!qstrcmp(argv[i], "-only-virtualtreadmill"))
             onlyVirtualTreadmill = true;
         if (!qstrcmp(argv[i], "-no-reconnection"))
-            bluetoot_no_reconnection = true;
+            bluetooth_no_reconnection = true;
+        if (!qstrcmp(argv[i], "-bluetooth_relaxed"))
+            bluetooth_relaxed = true;
         if (!qstrcmp(argv[i], "-bike-cadence-sensor"))
-            bike_cadence_sensor = true;
+            bike_cadence_sensor = true;        
+        if (!qstrcmp(argv[i], "-battery_service"))
+            battery_service = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -225,12 +231,14 @@ int main(int argc, char *argv[])
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
 #else
     settings.setValue("miles_unit", miles);
-    settings.setValue("bluetoot_no_reconnection", bluetoot_no_reconnection);
+    settings.setValue("bluetooth_no_reconnection", bluetooth_no_reconnection);
+    settings.setValue("bluetooth_relaxed", bluetooth_relaxed);
     settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
+    settings.setValue("battery_service", battery_service);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.8.6";
+    qDebug() << "version 1.8.7";
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;

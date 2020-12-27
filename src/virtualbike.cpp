@@ -47,6 +47,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
 
     QSettings settings;
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool battery = settings.value("battery_service", false).toBool();
 
     Q_UNUSED(noWriteResistance)
 
@@ -166,6 +167,21 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
         serviceData.addCharacteristic(charData4);
     }
 
+    if(battery)
+    {
+        QLowEnergyCharacteristicData charDataBattery;
+        charDataBattery.setUuid(QBluetoothUuid::BatteryLevel);
+        charDataBattery.setValue(QByteArray(2, 0));
+        charDataBattery.setProperties(QLowEnergyCharacteristic::Notify);
+        const QLowEnergyDescriptorData clientConfigBattery(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                      QByteArray(2, 0));
+        charDataBattery.addDescriptor(clientConfigBattery);
+
+        serviceDataBattery.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataBattery.setUuid(QBluetoothUuid::BatteryService);
+        serviceDataBattery.addCharacteristic(charDataBattery);
+    }
+
     if(!this->noHeartService)
     {
         QLowEnergyCharacteristicData charDataHR;
@@ -188,6 +204,9 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
         serviceFIT = leController->addService(serviceDataFIT);
     else
         service = leController->addService(serviceData);
+
+    if(battery)
+        serviceBattery = leController->addService(serviceDataBattery);
 
     if(!this->noHeartService)
         serviceHR = leController->addService(serviceDataHR);
@@ -298,6 +317,7 @@ void virtualbike::reconnect()
     if(bluetooth_relaxed) return;
 
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool battery = settings.value("battery_service", false).toBool();
 
     emit debug("virtualbike::reconnect");
     leController->disconnectFromDevice();
@@ -306,6 +326,9 @@ void virtualbike::reconnect()
         serviceFIT = leController->addService(serviceDataFIT);
     else
         service = leController->addService(serviceData);
+
+    if(battery)
+        serviceBattery = leController->addService(serviceDataBattery);
 
     if(!this->noHeartService)
         serviceHR = leController->addService(serviceDataHR);
@@ -320,6 +343,7 @@ void virtualbike::bikeProvider()
 {
     QSettings settings;
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool battery = settings.value("battery_service", false).toBool();
 
     if(leController->state() != QLowEnergyController::ConnectedState)
     {
@@ -388,6 +412,21 @@ void virtualbike::bikeProvider()
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
     //Q_ASSERT(characteristic.isValid());
     //service->readCharacteristic(characteristic);
+
+    if(battery)
+    {
+        QByteArray valueBattery;
+        valueBattery.append(100); // Actual value.
+        QLowEnergyCharacteristic characteristicBattery
+                = serviceBattery->characteristic(QBluetoothUuid::BatteryLevel);
+        Q_ASSERT(characteristicBattery.isValid());
+        if(leController->state() != QLowEnergyController::ConnectedState)
+        {
+            emit debug("virtual bike not connected");
+            return;
+        }
+        writeCharacteristic(serviceBattery, characteristicBattery, valueBattery);
+    }
 
     if(!this->noHeartService)
     {
