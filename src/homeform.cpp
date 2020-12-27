@@ -344,7 +344,7 @@ QString homeform::signal()
 }
 
 void homeform::update()
-{
+{    
     if(bluetoothManager->device())
     {
         double inclination = 0;

@@ -276,6 +276,11 @@ int main(int argc, char *argv[])
 #endif
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
+#ifdef Q_OS_IOS
+    lockscreen h;
+    h.request();
+#endif
+    
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if(forceQml)
 #endif

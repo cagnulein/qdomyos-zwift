@@ -357,5 +357,9 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+<<<<<<< HEAD
 	           VERSION = 1.7.0
+=======
+                   VERSION = 1.7.0
+>>>>>>> b1de9c958a991e1e67654f1497144381eb82b529
 }
