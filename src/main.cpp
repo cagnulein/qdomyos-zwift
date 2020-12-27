@@ -83,7 +83,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             bluetooth_relaxed = true;
         if (!qstrcmp(argv[i], "-bike-cadence-sensor"))
             bike_cadence_sensor = true;        
-        if (!qstrcmp(argv[i], "-battery_service"))
+        if (!qstrcmp(argv[i], "-battery-service"))
             battery_service = true;
         if (!qstrcmp(argv[i], "-train"))
         {
