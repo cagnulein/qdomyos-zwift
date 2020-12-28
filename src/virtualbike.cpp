@@ -58,7 +58,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     advertisingData.setLocalName("DomyosBridge");  // save chars for service
     QList<QBluetoothUuid> services;
 
-    if(!cadence)
+    if(!cadence && !power)
         services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     else if(power)
         services << (QBluetoothUuid::ServiceClassUuid::CyclingPower);
@@ -73,7 +73,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     advertisingData.setServices(services);
     //! [Advertising Data]
 
-    if(!cadence)
+    if(!cadence && !power)
     {
         serviceDataFIT.setType(QLowEnergyServiceData::ServiceTypePrimary);
         QLowEnergyCharacteristicData charDataFIT;
@@ -403,7 +403,7 @@ void virtualbike::bikeProvider()
 
     QByteArray value;
 
-    if(!cadence)
+    if(!cadence && !power)
     {
         value.append((char)0x64); // speed, inst. cadence, resistance lvl, instant power
         value.append((char)0x02); // heart rate
