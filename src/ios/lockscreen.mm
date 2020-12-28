@@ -1,3 +1,4 @@
+#ifndef IO_UNDER_QT
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
@@ -22,3 +23,4 @@ long lockscreen::heartRate()
 {
     return [h heartRate];
 }
+#endif
