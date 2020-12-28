@@ -40,6 +40,7 @@ bool miles = false;
 bool bluetooth_no_reconnection = false;
 bool bluetooth_relaxed = false;
 bool bike_cadence_sensor = false;
+bool bike_power_sensor = false;
 bool battery_service = false;
 QString trainProgram;
 QString deviceName = "";
@@ -83,6 +84,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             bluetooth_relaxed = true;
         if (!qstrcmp(argv[i], "-bike-cadence-sensor"))
             bike_cadence_sensor = true;        
+        if (!qstrcmp(argv[i], "-bike-power-sensor"))
+            bike_power_sensor = true;
         if (!qstrcmp(argv[i], "-battery-service"))
             battery_service = true;
         if (!qstrcmp(argv[i], "-train"))
@@ -234,11 +237,12 @@ int main(int argc, char *argv[])
     settings.setValue("bluetooth_no_reconnection", bluetooth_no_reconnection);
     settings.setValue("bluetooth_relaxed", bluetooth_relaxed);
     settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
+    settings.setValue("bike_power_sensor", bike_power_sensor);
     settings.setValue("battery_service", battery_service);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.8.7";
+    qDebug() << "version 1.8.8";
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
