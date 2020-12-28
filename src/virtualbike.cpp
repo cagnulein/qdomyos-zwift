@@ -49,6 +49,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool power = settings.value("bike_power_sensor", false).toBool();
     bool battery = settings.value("battery_service", false).toBool();
+    bool service_changed = settings.value("service_changed", false).toBool();
 
     Q_UNUSED(noWriteResistance)
 
@@ -57,6 +58,9 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     advertisingData.setIncludePowerLevel(true);
     advertisingData.setLocalName("DomyosBridge");  // save chars for service
     QList<QBluetoothUuid> services;
+
+    if(service_changed)
+        services << (QBluetoothUuid::ServiceClassUuid::GenericAttribute);
 
     if(!cadence && !power)
         services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
@@ -238,9 +242,27 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
         serviceDataHR.addCharacteristic(charDataHR);
     }
 
+    if(service_changed)
+    {
+        QLowEnergyCharacteristicData charData;
+        charData.setUuid(QBluetoothUuid::CharacteristicType::ServiceChanged);
+        charData.setProperties(QLowEnergyCharacteristic::Indicate);
+        const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                      QByteArray(2, 0));
+        charData.addDescriptor(cpClientConfig);
+
+        serviceDataChanged.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceDataChanged.setUuid(QBluetoothUuid::ServiceClassUuid::GenericAttribute);
+        serviceDataChanged.addCharacteristic(charData);
+    }
+
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
     Q_ASSERT(leController);
+
+    if(service_changed)
+        serviceChanged = leController->addService(serviceDataChanged);
+
     if(!cadence && !power)
         serviceFIT = leController->addService(serviceDataFIT);
     else
@@ -360,9 +382,13 @@ void virtualbike::reconnect()
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool battery = settings.value("battery_service", false).toBool();
     bool power = settings.value("bike_power_sensor", false).toBool();
+    bool service_changed = settings.value("service_changed", false).toBool();
 
     emit debug("virtualbike::reconnect");
     leController->disconnectFromDevice();
+
+    if(service_changed)
+        serviceChanged = leController->addService(serviceDataChanged);
 
     if(!cadence && !power)
         serviceFIT = leController->addService(serviceDataFIT);

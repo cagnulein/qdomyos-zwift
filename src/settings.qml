@@ -37,6 +37,7 @@ import Qt.labs.settings 1.0
 
             property bool bluetooth_relaxed: false
             property bool battery_service: false
+            property bool service_changed: false
         }
 
         ColumnLayout {
@@ -460,6 +461,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.battery_service = checked
+            }
+
+            SwitchDelegate {
+                id: serviceChangedDelegate
+                text: qsTr("Service Changed Service")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.service_changed
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.service_changed = checked
             }
         }
     }

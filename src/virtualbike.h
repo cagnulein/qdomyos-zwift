@@ -37,11 +37,13 @@ private:
     QLowEnergyService* serviceBattery;
     QLowEnergyService* serviceFIT;
     QLowEnergyService* service;
+    QLowEnergyService* serviceChanged;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;
     QLowEnergyServiceData serviceDataFIT;
     QLowEnergyServiceData serviceData;
+    QLowEnergyServiceData serviceDataChanged;
     QTimer bikeTimer;
     bike* Bike;
 

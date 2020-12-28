@@ -42,6 +42,7 @@ bool bluetooth_relaxed = false;
 bool bike_cadence_sensor = false;
 bool bike_power_sensor = false;
 bool battery_service = false;
+bool service_changed = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -88,6 +89,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             bike_power_sensor = true;
         if (!qstrcmp(argv[i], "-battery-service"))
             battery_service = true;
+        if (!qstrcmp(argv[i], "-service-changed"))
+            service_changed = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -239,6 +242,7 @@ int main(int argc, char *argv[])
     settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
     settings.setValue("bike_power_sensor", bike_power_sensor);
     settings.setValue("battery_service", battery_service);
+    settings.setValue("service_changed", service_changed);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
