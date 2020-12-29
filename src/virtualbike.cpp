@@ -496,7 +496,7 @@ void virtualbike::bikeProvider()
             {
                 const double wheelCircumference = 2000.0; // millimeters
                 wheelRevs++;
-                lastWheelTime += (uint16_t)(1024.0 / (Bike->currentSpeed() / 3.6) / (wheelCircumference / 1000.0) );
+                lastWheelTime += (uint16_t)(1024.0 / ((Bike->currentSpeed() / 3.6) / (wheelCircumference / 1000.0) ));
             }
             value.append((char)((wheelRevs & 0xFF))); // wheel count
             value.append((char)((wheelRevs >> 8) & 0xFF)); // wheel count
