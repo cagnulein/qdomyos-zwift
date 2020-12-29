@@ -43,6 +43,7 @@ bool bike_cadence_sensor = false;
 bool bike_power_sensor = false;
 bool battery_service = false;
 bool service_changed = false;
+bool bike_wheel_revs = false;
 QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
@@ -91,6 +92,8 @@ QCoreApplication* createApplication(int &argc, char *argv[])
             battery_service = true;
         if (!qstrcmp(argv[i], "-service-changed"))
             service_changed = true;
+        if (!qstrcmp(argv[i], "-bike-wheel-revs"))
+            bike_wheel_revs = true;
         if (!qstrcmp(argv[i], "-train"))
         {
             trainProgram = argv[++i];
@@ -243,10 +246,11 @@ int main(int argc, char *argv[])
     settings.setValue("bike_power_sensor", bike_power_sensor);
     settings.setValue("battery_service", battery_service);
     settings.setValue("service_changed", service_changed);
+    settings.setValue("bike_wheel_revs", bike_wheel_revs);
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version 1.8.8";
+    qDebug() << "version 1.8.9";
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;

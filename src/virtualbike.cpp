@@ -47,6 +47,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
 
     QSettings settings;
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool bike_wheel_revs = settings.value("bike_wheel_revs", false).toBool();
     bool power = settings.value("bike_power_sensor", false).toBool();
     bool battery = settings.value("battery_service", false).toBool();
     bool service_changed = settings.value("service_changed", false).toBool();
@@ -173,7 +174,10 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
         charData.setUuid(QBluetoothUuid::CharacteristicType::CSCFeature);
         charData.setProperties(QLowEnergyCharacteristic::Read);
         QByteArray value;
-        value.append((char)0x02);  // crank supported
+        if(!bike_wheel_revs)
+            value.append((char)0x02);  // crank supported
+        else
+            value.append((char)0x03);  // crank and wheel supported
         value.append((char)0x00);
         charData.setValue(value);
 
@@ -413,6 +417,7 @@ void virtualbike::bikeProvider()
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool battery = settings.value("battery_service", false).toBool();
     bool power = settings.value("bike_power_sensor", false).toBool();
+    bool bike_wheel_revs = settings.value("bike_wheel_revs", false).toBool();
 
     if(leController->state() != QLowEnergyController::ConnectedState)
     {
@@ -481,7 +486,25 @@ void virtualbike::bikeProvider()
     }
     else
     {
-        value.append((char)0x02); // crank data present
+        if(!bike_wheel_revs)
+            value.append((char)0x02); // crank data present
+        else
+        {
+            value.append((char)0x03); // crank and wheel data present
+
+            if(Bike->currentSpeed())
+            {
+                const double wheelCircumference = 2000.0; // millimeters
+                wheelRevs++;
+                lastWheelTime += (uint16_t)(1024.0 / (Bike->currentSpeed() / 3.6) / (wheelCircumference / 1000.0) );
+            }
+            value.append((char)((wheelRevs & 0xFF))); // wheel count
+            value.append((char)((wheelRevs >> 8) & 0xFF)); // wheel count
+            value.append((char)((wheelRevs >> 16) & 0xFF)); // wheel count
+            value.append((char)((wheelRevs >> 24) & 0xFF)); // wheel count
+            value.append((char)(lastWheelTime & 0xff)); // eventtime
+            value.append((char)(lastWheelTime >> 8) & 0xFF); // eventtime
+        }
         value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF)); // revs count
         value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
         value.append((char)(Bike->lastCrankEventTime() & 0xff)); // eventtime
