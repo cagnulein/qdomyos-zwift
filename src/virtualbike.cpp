@@ -60,9 +60,6 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     advertisingData.setLocalName("DomyosBridge");  // save chars for service
     QList<QBluetoothUuid> services;
 
-    if(service_changed)
-        services << (QBluetoothUuid::ServiceClassUuid::GenericAttribute);
-
     if(!cadence && !power)
         services << ((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
     else if(power)
