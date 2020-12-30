@@ -48,6 +48,7 @@ SOURCES += \
    fit-sdk/fit_protocol_validator.cpp \
    fit-sdk/fit_unicode.cpp \
         gpx.cpp \
+    heartratebelt.cpp \
    homeform.cpp \
    keepawakehelper.cpp \
         main.cpp \
@@ -295,6 +296,7 @@ HEADERS += \
    fit-sdk/fit_workout_step_mesg_listener.hpp \
    fit-sdk/fit_zones_target_mesg.hpp \
    fit-sdk/fit_zones_target_mesg_listener.hpp \
+    heartratebelt.h \
    homeform.h \
    ios/lockscreen.h \
    keepawakehelper.h \
