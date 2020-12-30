@@ -41,6 +41,9 @@ public slots:
     virtual void stop();
     virtual void heartRate(uint8_t heart);
 
+signals:
+    void connectedAndDiscovered();
+
 protected:
     double elapsed = 0;
     double Speed = 0;

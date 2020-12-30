@@ -103,6 +103,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 discoveryAgent->stop();
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
                 emit(deviceConnected());
+                connect(domyosBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 domyosBike->deviceDiscovered(b);
@@ -116,6 +117,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
                 stateFileRead();
                 emit(deviceConnected());
+                connect(domyos, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
@@ -131,6 +133,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService);
                 //stateFileRead();
                 emit(deviceConnected());
+                connect(echelonConnectSport, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
@@ -142,6 +145,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 discoveryAgent->stop();
                 toorx = new toorxtreadmill();
                 emit(deviceConnected());
+                connect(toorx, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 toorx->deviceDiscovered(b);
@@ -151,26 +155,33 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
                 emit(deviceConnected());
+                connect(trxappgateusb, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
             }
         }
+    }
+}
 
-        if(this->device() != nullptr)
+void bluetooth::connectedAndDiscovered()
+{
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+
+    if(this->device() != nullptr)
+    {
+        foreach(QBluetoothDeviceInfo b, devices)
         {
-            foreach(QBluetoothDeviceInfo b, devices)
+            if(((b.name().startsWith(heartRateBeltName))) && !heartRateBelt && !heartRateBeltName.startsWith("Disabled"))
             {
-                if(((b.name().startsWith(heartRateBeltName))) && !heartRateBelt && !heartRateBeltName.startsWith("Disabled"))
-                {
-                    heartRateBelt = new heartratebelt();
-                    connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
-                    connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                    connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
-                    heartRateBelt->deviceDiscovered(b);
+                heartRateBelt = new heartratebelt();
+                connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
+                heartRateBelt->deviceDiscovered(b);
 
-                    break;
-                }
+                break;
             }
         }
     }

@@ -446,6 +446,7 @@ void domyosbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 void domyosbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)

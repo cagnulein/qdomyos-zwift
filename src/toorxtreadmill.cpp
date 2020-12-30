@@ -71,6 +71,7 @@ void toorxtreadmill::rfCommConnected()
 {
     debug("connected " + socket->peerName());
     initDone = true;
+    emit connectedAndDiscovered();
 }
 
 void toorxtreadmill::readSocket()

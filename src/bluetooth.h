@@ -74,6 +74,7 @@ private slots:
     void canceled();
     void speedChanged(double);
     void inclinationChanged(double);
+    void connectedAndDiscovered();
 
 signals:
 

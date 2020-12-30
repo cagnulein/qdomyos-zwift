@@ -565,6 +565,7 @@ void domyostreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, 
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 void domyostreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)

@@ -364,6 +364,7 @@ void trxappgateusbtreadmill::descriptorWritten(const QLowEnergyDescriptor &descr
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 void trxappgateusbtreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)

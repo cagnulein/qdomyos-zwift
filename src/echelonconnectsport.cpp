@@ -294,6 +294,7 @@ void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descript
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
+    emit connectedAndDiscovered();
 }
 
 void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
