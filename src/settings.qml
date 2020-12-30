@@ -102,7 +102,6 @@ import Qt.labs.settings 1.0
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    inputMethodHints: Qt.ImhDigitsOnly
                     onAccepted: settings.heart_rate_belt_name = text
                 }
                 Button {
