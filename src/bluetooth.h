@@ -64,7 +64,9 @@ public slots:
 
 private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
+#endif
     void canceled();
     void speedChanged(double);
     void inclinationChanged(double);

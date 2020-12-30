@@ -30,8 +30,10 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
         discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
         connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
                 this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
         connect(discoveryAgent, SIGNAL(deviceUpdated(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)),
                 this, SLOT(deviceUpdated(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)));
+#endif
         connect(discoveryAgent, SIGNAL(canceled()),
                 this, SLOT(canceled()));
 
@@ -283,7 +285,9 @@ void bluetooth::inclinationChanged(double inclination)
     stateFileUpdate();
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void bluetooth::deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields)
 {
     debug("deviceUpdated " + device.name() + " " + updateFields);
 }
+#endif
