@@ -118,6 +118,7 @@
 		87062646259480B200D06586 /* ViewController.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4F259479EE00BD5714 /* ViewController.swift */; };
 		87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E53259479EE00BD5714 /* WatchKitConnection.swift */; };
 		87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E50259479EE00BD5714 /* WorkoutTracking.swift */; };
+		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
 		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
 		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */; };
@@ -459,6 +460,7 @@
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86F10E1AE2D47520E65C0543 /* fit_dive_summary_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		87368824259C602800C71C7E /* watchAppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = watchAppStart.swift; path = ../src/ios/watchAppStart.swift; sourceTree = "<group>"; };
 		876E4E112594747F00BD5714 /* watchkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		876E4E132594748000BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		876E4E152594748000BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -801,6 +803,7 @@
 				BDCEC0D3358F9C522E0B39D3 /* lockscreen.mm */,
 				42C97553CD7E951C38EB8FA0 /* lockscreen.h */,
 				876E4E4C259479ED00BD5714 /* watchkit-Bridging-Header.h */,
+				87368824259C602800C71C7E /* watchAppStart.swift */,
 			);
 			name = ios;
 			sourceTree = "<group>";
@@ -1520,6 +1523,7 @@
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
 				DD5ED224478CB82859C61B9F /* fit_buffered_record_mesg_broadcaster.cpp in Compile Sources */,
+				87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */,
 				E7F190E59DC975BA4CA65F0C /* fit_crc.cpp in Compile Sources */,
 				DA1DC0B761BD7A3004BCF43D /* fit_date_time.cpp in Compile Sources */,
 				DF1FD9718B75FA591A7E3D80 /* fit_decode.cpp in Compile Sources */,
@@ -1924,8 +1928,9 @@
 				"ARCHS[sdk=iphoneos*]" = arm64;
 				"ARCHS[sdk=iphonesimulator*]" = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.5;
+				CURRENT_PROJECT_VERSION = 1.8.9;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				MARKETING_VERSION = 1.8;
@@ -1952,8 +1957,9 @@
 				"ARCHS[sdk=iphoneos*]" = arm64;
 				"ARCHS[sdk=iphonesimulator*]" = x86_64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.5;
+				CURRENT_PROJECT_VERSION = 1.8.9;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2018,7 +2024,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.5;
+				CURRENT_PROJECT_VERSION = 1.8.9;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2108,7 +2114,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.5;
+				CURRENT_PROJECT_VERSION = 1.8.9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2192,7 +2198,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.5;
+				CURRENT_PROJECT_VERSION = 1.8.9;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2279,7 +2285,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.5;
+				CURRENT_PROJECT_VERSION = 1.8.9;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;

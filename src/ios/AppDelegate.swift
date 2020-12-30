@@ -8,12 +8,16 @@
 
 import UIKit
 
-@objc public class healthkit:NSObject {
 
+@objc public class healthkit:NSObject {
+    let w = watchAppStart()
+    
     @objc public func request()
     {
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
+        
+        w.startWatchApp()
     }
     
     @objc public func heartRate() -> Int
