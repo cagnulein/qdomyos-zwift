@@ -344,6 +344,8 @@ void domyostreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
 void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -426,7 +428,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
 
-    Heart = value.at(18);
+    if(heartRateBeltName.startsWith("Disabled"))
+        Heart = value.at(18);
     FanSpeed = value.at(23);
 
     if(!firstCharacteristicChanged)

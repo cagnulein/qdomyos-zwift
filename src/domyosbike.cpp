@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
+#include <QSettings>
 
 domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
@@ -238,6 +239,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);    
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -273,7 +276,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
         Resistance = 1;
     }
-    Heart = newValue.at(18);
+    if(heartRateBeltName.startsWith("Disabled"))
+        Heart = newValue.at(18);
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));

@@ -39,6 +39,7 @@ public:
 public slots:
     virtual void start();
     virtual void stop();
+    virtual void heartRate(uint8_t heart);
 
 protected:
     double elapsed = 0;

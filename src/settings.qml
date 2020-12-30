@@ -18,6 +18,7 @@ import Qt.labs.settings 1.0
             property real weight: 75.0
             property bool miles_unit: false
             property bool bike_cadence_sensor: false
+            property string heart_rate_belt_name: "Disabled"
 
             property bool tile_speed_enabled: true
             property bool tile_inclination_enabled: true
@@ -85,6 +86,30 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.weight = weightTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelHeartRateBelt
+                    text: qsTr("Heart Belt Name:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: heartBeltNameTextField
+                    text: settings.heart_rate_belt_name
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.heart_rate_belt_name = text
+                }
+                Button {
+                    id: okHeartBeltNameButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.text
                 }
             }
 

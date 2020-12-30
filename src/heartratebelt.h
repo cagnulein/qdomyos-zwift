@@ -44,6 +44,7 @@ signals:
     void disconnected();
     void debug(QString string);
     void packetReceived();
+    void heartRate(uint8_t heart);
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

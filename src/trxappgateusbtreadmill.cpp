@@ -6,6 +6,7 @@
 #include <QMetaEnum>
 #include <QEventLoop>
 #include <QBluetoothLocalDevice>
+#include <QSettings>
 
 trxappgateusbtreadmill::trxappgateusbtreadmill()
 {
@@ -165,6 +166,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     emit packetReceived();
 
     debug(" << " + newValue.toHex(' '));
@@ -198,7 +201,8 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
-    Heart = 0;
+    if(heartRateBeltName.startsWith("Disabled"))
+        Heart = 0;
     FanSpeed = 0;
 
     if(!firstCharChanged)

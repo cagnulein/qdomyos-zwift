@@ -142,6 +142,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);    
     QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
     debug(" << " + newValue.toHex(' '));
 
@@ -182,6 +183,8 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    if(heartRateBeltName.startsWith("Disabled"))
+    {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     lockscreen h;
@@ -190,6 +193,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+    }
     
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
     debug("Current Speed: " + QString::number(Speed));

@@ -23,3 +23,4 @@ bool bluetoothdevice::connected() { return false; }
 uint8_t bluetoothdevice::pelotonResistance() { return m_pelotonResistance; }
 double bluetoothdevice::elevationGain(){ return elevationAcc; }
 double bluetoothdevice::avgWatt(){ if(countPower) return (double)totPower/(double)countPower; else return 0;  }
+void bluetoothdevice::heartRate(uint8_t heart) { Heart = heart; }

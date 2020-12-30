@@ -21,6 +21,7 @@
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
+#include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 
@@ -30,6 +31,7 @@ class bluetooth : public QObject, public SignalHandler
 public:
     explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, uint8_t bikeResistanceGain = 1);
     bluetoothdevice* device();
+    QList<QBluetoothDeviceInfo> devices;
 
 private:
     QFile* debugCommsLog = 0;
@@ -39,6 +41,7 @@ private:
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
     echelonconnectsport* echelonConnectSport = 0;
+    heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -61,6 +64,7 @@ signals:
 public slots:
     void restart();
     void debug(QString string);
+    void heartRate(u_int8_t heart);
 
 private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

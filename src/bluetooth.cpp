@@ -57,14 +57,36 @@ void bluetooth::debug(QString text)
 
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+
+    if(!heartRateBeltFound)
+    {
+        foreach(QBluetoothDeviceInfo b, devices)
+        {
+            if(!heartRateBeltName.compare(b.name()))
+            {
+                heartRateBeltFound = true;
+                break;
+            }
+        }
+    }
+
+    bool found = false;
+    foreach(QBluetoothDeviceInfo b, devices)
+    {
+        if(!device.name().compare(b.name()))
+        {
+            found = true;
+            break;
+        }
+    }
+    if(!found)
+        devices.append(device);
+
     emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
-
-    /* only on qt 5.12
-    foreach(quint16 i, device.manufacturerIds())
-    {
-        debug("manufacturer id: " + QString::number(i) + " -> " + device.manufacturerData(i));
-    }*/
 
     bool filter = true;
     if(filterDevice.length())
@@ -72,63 +94,91 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         filter = (device.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
     }
 
-    if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge") && filter)
+    if(heartRateBeltFound)
     {
-        discoveryAgent->stop();
-        domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
-        emit(deviceConnected());
-        connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));        
-        connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-        domyosBike->deviceDiscovered(device);
-        connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
-        if(!discoveryAgent->isActive())
-            emit searchingStop();
+        foreach(QBluetoothDeviceInfo b, devices)
+        {
+            if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
+            {
+                discoveryAgent->stop();
+                domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected());
+                connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                domyosBike->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
+            else if(b.name().startsWith("Domyos") && !b.name().startsWith("DomyosBr") && !domyos && filter)
+            {
+                discoveryAgent->stop();
+                domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                stateFileRead();
+                emit(deviceConnected());
+                connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                domyos->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), domyos, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
+            else if(b.name().startsWith("ECH") && !echelonConnectSport && filter)
+            {
+                discoveryAgent->stop();
+                echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                echelonConnectSport->deviceDiscovered(b);
+            }
+            else if((b.name().startsWith("TRX ROUTE KEY")) && !toorx && filter)
+            {
+                discoveryAgent->stop();
+                toorx = new toorxtreadmill();
+                emit(deviceConnected());
+                connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                toorx->deviceDiscovered(b);
+            }
+            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Running"))) && !trxappgateusb && filter)
+            {
+                discoveryAgent->stop();
+                trxappgateusb = new trxappgateusbtreadmill();
+                emit(deviceConnected());
+                connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                trxappgateusb->deviceDiscovered(b);
+            }
+        }
+
+        if(this->device() != nullptr)
+        {
+            foreach(QBluetoothDeviceInfo b, devices)
+            {
+                if(((b.name().startsWith(heartRateBeltName))) && !heartRateBelt && !heartRateBeltName.startsWith("Disabled"))
+                {
+                    heartRateBelt = new heartratebelt();
+                    connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                    connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
+                    heartRateBelt->deviceDiscovered(b);
+
+                    break;
+                }
+            }
+        }
     }
-    else if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBr") && filter)
-    {
-        discoveryAgent->stop();
-        domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
-        stateFileRead();
-        emit(deviceConnected());
-        connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));        
-        connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-        connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-        connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-        domyos->deviceDiscovered(device);
-        connect(this, SIGNAL(searchingStop()), domyos, SLOT(searchingStop()));
-        if(!discoveryAgent->isActive())
-            emit searchingStop();
-    }
-    else if(device.name().startsWith("ECH") && filter)
-    {
-        discoveryAgent->stop();
-        echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService);
-        //stateFileRead();
-        emit(deviceConnected());
-        connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
-        connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-        //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-        //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-        echelonConnectSport->deviceDiscovered(device);
-    }
-    else if((device.name().startsWith("TRX ROUTE KEY")) && filter)
-    {
-        discoveryAgent->stop();
-        toorx = new toorxtreadmill();
-        emit(deviceConnected());
-        connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
-        connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-        toorx->deviceDiscovered(device);
-    }
-    else if(((device.name().startsWith("TOORX")) || (device.name().startsWith("V-RUN")) || (device.name().startsWith("i-Running"))) && filter)
-    {
-        discoveryAgent->stop();
-        trxappgateusb = new trxappgateusbtreadmill();
-        emit(deviceConnected());
-        connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
-        connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-        trxappgateusb->deviceDiscovered(device);
-    }
+}
+
+void bluetooth::heartRate(u_int8_t heart)
+{
+
 }
 
 void bluetooth::restart()
@@ -136,6 +186,8 @@ void bluetooth::restart()
     QSettings settings;
     if(settings.value("bluetooth_no_reconnection", false).toBool())
         exit(0);
+
+    devices.clear();
 
     if(device()->VirtualDevice())
     {
@@ -169,6 +221,11 @@ void bluetooth::restart()
     {
         delete echelonConnectSport;
         echelonConnectSport = 0;
+    }
+    if(heartRateBelt)
+    {
+        delete heartRateBelt;
+        heartRateBelt = 0;
     }
     discoveryAgent->start();
 }

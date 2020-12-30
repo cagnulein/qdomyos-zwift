@@ -5,6 +5,7 @@
 #include <QMetaEnum>
 #include <QEventLoop>
 #include <QBluetoothLocalDevice>
+#include <QSettings>
 
 heartratebelt::heartratebelt()
 {
@@ -29,7 +30,13 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     debug(" << " + newValue.toHex(' '));
 
+    if(newValue.length() > 1)
+    {
+        Heart = newValue[1];
+        emit heartRate(Heart);
+    }
 
+    debug("Current heart: " + QString::number(Heart));
 }
 
 void heartratebelt::stateChanged(QLowEnergyService::ServiceState state)
@@ -100,8 +107,10 @@ void heartratebelt::error(QLowEnergyController::Error err)
 
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("i-Running"))
+    if(device.name().startsWith(heartRateBeltName))
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
