@@ -118,6 +118,8 @@
 		87062646259480B200D06586 /* ViewController.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4F259479EE00BD5714 /* ViewController.swift */; };
 		87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E53259479EE00BD5714 /* WatchKitConnection.swift */; };
 		87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E50259479EE00BD5714 /* WorkoutTracking.swift */; };
+		873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BC259DF20000DA0F44 /* heartratebelt.cpp */; };
+		873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */; };
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
 		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
 		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -460,6 +462,9 @@
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86F10E1AE2D47520E65C0543 /* fit_dive_summary_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		873063BC259DF20000DA0F44 /* heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = heartratebelt.cpp; path = ../src/heartratebelt.cpp; sourceTree = "<group>"; };
+		873063BD259DF20000DA0F44 /* heartratebelt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heartratebelt.h; path = ../src/heartratebelt.h; sourceTree = "<group>"; };
+		873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_heartratebelt.cpp; sourceTree = "<group>"; };
 		87368824259C602800C71C7E /* watchAppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = watchAppStart.swift; path = ../src/ios/watchAppStart.swift; sourceTree = "<group>"; };
 		876E4E112594747F00BD5714 /* watchkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		876E4E132594748000BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -811,6 +816,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */,
 				8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */,
 				310AB027BBBCDE72251E1C01 /* qdomyoszwift_qml_plugin_import.cpp */,
 				8F482725CD95AE73BEF24D76 /* qrc_icons.cpp */,
@@ -838,6 +844,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				873063BC259DF20000DA0F44 /* heartratebelt.cpp */,
+				873063BD259DF20000DA0F44 /* heartratebelt.h */,
 				5316C24095FFE9C3C9ECA922 /* bike.cpp */,
 				B0BE11FB9531A6AD480B20E7 /* bluetooth.cpp */,
 				4820A6CE9EED8109189EB2E7 /* bluetoothdevice.cpp */,
@@ -1522,6 +1530,7 @@
 				3D7395B0A17915A06361C7F3 /* fit_accumulator.cpp in Compile Sources */,
 				2A61806454201575EDB3F94F /* fit_buffer_encode.cpp in Compile Sources */,
 				BE93C6EF2C2A6BFEEC9EA565 /* fit_buffered_mesg_broadcaster.cpp in Compile Sources */,
+				873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */,
 				DD5ED224478CB82859C61B9F /* fit_buffered_record_mesg_broadcaster.cpp in Compile Sources */,
 				87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */,
 				E7F190E59DC975BA4CA65F0C /* fit_crc.cpp in Compile Sources */,
@@ -1562,6 +1571,7 @@
 				FB2566376FE0FB17ED3DE94D /* FitDeveloperField.mm in Compile Sources */,
 				43FA2D5EA73D9C89F1A333B6 /* FitEncode.mm in Compile Sources */,
 				3FF025D99EBD71B7E6DCA033 /* FitField.mm in Compile Sources */,
+				873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */,
 				87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */,
 				2B42755BF45173E11E2110CB /* FitFieldDefinition.mm in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
@@ -1930,10 +1940,10 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.9;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
 				QMAKE_FULL_VERSION = 1.7.0;
@@ -1959,12 +1969,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1.8.9;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -2024,7 +2034,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.9;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2044,7 +2054,7 @@
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2114,7 +2124,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.9;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2130,7 +2140,7 @@
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2198,7 +2208,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.9;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2218,7 +2228,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2285,7 +2295,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1.8.9;
+				CURRENT_PROJECT_VERSION = 1.9.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2301,7 +2311,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 1.8;
+				MARKETING_VERSION = 1.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
