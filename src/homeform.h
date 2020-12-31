@@ -65,12 +65,14 @@ class homeform: public QObject
     Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
+    Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
     ~homeform();
     QString info() {return m_info;}
     QString signal();
+    QStringList bluetoothDevices();
 
 private:
     QList<QObject *> dataList;
@@ -121,6 +123,7 @@ signals:
  void changeOfzwift();
  void signalChanged(QString value);
  void infoChanged(QString value);
+ void bluetoothDevicesChanged(QStringList value);
 };
 
 #endif // HOMEFORM_H

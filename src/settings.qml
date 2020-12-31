@@ -96,19 +96,24 @@ import Qt.labs.settings 1.0
                     text: qsTr("Heart Belt Name:")
                     Layout.fillWidth: true
                 }
-                TextField {
+                ComboBox {
                     id: heartBeltNameTextField
-                    text: settings.heart_rate_belt_name
-                    horizontalAlignment: Text.AlignRight
+                    model: rootItem.bluetoothDevices
+                    displayText: settings.heart_rate_belt_name
+                    Layout.fillWidth: true
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onAccepted: settings.heart_rate_belt_name = text
+                    onActivated: {
+                        console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
+                        displayText = heartBeltNameTextField.currentValue
+                     }
+
                 }
                 Button {
                     id: okHeartBeltNameButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.text
+                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText
                 }
             }
 

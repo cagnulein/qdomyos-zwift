@@ -64,7 +64,7 @@ signals:
 public slots:
     void restart();
     void debug(QString string);
-    void heartRate(u_int8_t heart);
+    void heartRate(uint8_t heart);
 
 private slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

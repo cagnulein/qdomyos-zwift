@@ -187,7 +187,7 @@ void bluetooth::connectedAndDiscovered()
     }
 }
 
-void bluetooth::heartRate(u_int8_t heart)
+void bluetooth::heartRate(uint8_t heart)
 {
 
 }

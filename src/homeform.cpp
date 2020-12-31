@@ -224,7 +224,8 @@ void homeform::deviceFound(QString name)
 {
     if(!name.trimmed().length()) return;
     m_info = name + " found";
-    emit infoChanged(m_info);
+    emit infoChanged(m_info);    
+    emit bluetoothDevicesChanged(bluetoothDevices());
 }
 
 void homeform::Plus(QString name)
@@ -533,4 +534,16 @@ void homeform::gpx_open_clicked(QUrl fileName)
 
         trainProgramSignals();
     }
+}
+
+QStringList homeform::bluetoothDevices()
+{
+    QStringList r;
+    r.append("Disabled");
+    foreach(QBluetoothDeviceInfo b, bluetoothManager->devices)
+    {
+        if(b.name().trimmed().length())
+            r.append(b.name());
+    }
+    return r;
 }
