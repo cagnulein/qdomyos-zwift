@@ -116,7 +116,7 @@ void echelonconnectsport::update()
         {
            debug("starting...");
 
-           btinit();
+           //btinit();
 
            requestStart = -1;
            emit bikeStarted();
