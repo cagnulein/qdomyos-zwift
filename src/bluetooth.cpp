@@ -211,7 +211,12 @@ void bluetooth::restart()
 {
     QSettings settings;
 
-    onlyDiscover = false;
+    if(onlyDiscover)
+    {
+        onlyDiscover = false;
+        discoveryAgent->start();
+        return;
+    }
 
     if(settings.value("bluetooth_no_reconnection", false).toBool())
         exit(0);
@@ -260,6 +265,7 @@ void bluetooth::restart()
     }
     if(heartRateBelt)
     {
+        //heartRateBelt->disconnect(); // to test
         delete heartRateBelt;
         heartRateBelt = 0;
     }

@@ -89,14 +89,13 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(fit_save_clicked()),
         this, SLOT(fit_save_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
-        bluetoothManager, SLOT(restart()));
-    QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 }
 
 void homeform::refresh_bluetooth_devices_clicked()
 {
     bluetoothManager->onlyDiscover = true;
+    bluetoothManager->restart();
 }
 
 homeform::~homeform()

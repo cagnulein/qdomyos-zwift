@@ -50,14 +50,6 @@ QBluetoothUuid _gattCommunicationChannelServiceId((QString)"49535343-fe7d-4ae5-8
 QBluetoothUuid _gattWriteCharacteristicId((QString)"49535343-8841-43f4-a8d4-ecbe34729bb3");
 QBluetoothUuid _gattNotifyCharacteristicId((QString)"49535343-1e4d-4bd9-ba61-23c647249616");
 
-QLowEnergyController* m_control = 0;
-QLowEnergyService* gattCommunicationChannelService = 0;
-QLowEnergyCharacteristic gattWriteCharacteristic;
-QLowEnergyCharacteristic gattNotifyCharacteristic;
-
-bool initDone = false;
-bool initRequest = false;
-
 domyostreadmill::domyostreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed, double forceInitInclination)
 {
     this->noConsole = noConsole;
