@@ -222,11 +222,16 @@ void domyostreadmill::update()
         // ******************************************* virtual treadmill init *************************************        
         if(!firstInit && searchStopped)
         {
-           debug("creating virtual treadmill interface...");
-           virtualTreadMill = new virtualtreadmill(this, noHeartService);
-           connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
-           firstInit = 1;
-        }        
+            QSettings settings;
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            if(virtual_device_enabled)
+            {
+                debug("creating virtual treadmill interface...");
+                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
+                firstInit = 1;
+            }
+        }
         // ********************************************************************************************************
 
         debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));

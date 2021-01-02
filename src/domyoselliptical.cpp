@@ -166,10 +166,15 @@ void domyoselliptical::update()
         // ******************************************* virtual bike init *************************************
         if(!firstVirtual && searchStopped)
         {
-           debug("creating virtual treadmill interface...");
-           virtualTreadmill = new virtualtreadmill(this, noHeartService);
-           connect(virtualTreadmill,&virtualtreadmill::debug ,this,&domyoselliptical::debug);
-           firstVirtual = 1;
+            QSettings settings;
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            if(virtual_device_enabled)
+            {
+                debug("creating virtual treadmill interface...");
+                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill,&virtualtreadmill::debug ,this,&domyoselliptical::debug);
+                firstVirtual = 1;
+            }
         }
         // ********************************************************************************************************
 

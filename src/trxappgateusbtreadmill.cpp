@@ -345,9 +345,14 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         // ******************************************* virtual treadmill init *************************************
         if(!firstVirtualTreadmill)
         {
-           debug("creating virtual treadmill interface...");
-           virtualTreadMill = new virtualtreadmill(this, false);
-           connect(virtualTreadMill,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
+            QSettings settings;
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            if(virtual_device_enabled)
+            {
+                debug("creating virtual treadmill interface...");
+                virtualTreadMill = new virtualtreadmill(this, false);
+                connect(virtualTreadMill,&virtualtreadmill::debug ,this,&trxappgateusbtreadmill::debug);
+            }
         }
         firstVirtualTreadmill = 1;
         // ********************************************************************************************************

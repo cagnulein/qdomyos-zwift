@@ -274,9 +274,14 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
         // ******************************************* virtual bike init *************************************        
         if(!firstStateChanged)
         {
-           debug("creating virtual bike interface...");
-           virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-           connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+            QSettings settings;
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            if(virtual_device_enabled)
+            {
+                debug("creating virtual bike interface...");
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+            }
         }
         firstStateChanged = 1;
         // ********************************************************************************************************

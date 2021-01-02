@@ -166,10 +166,15 @@ void domyosbike::update()
         // ******************************************* virtual bike init *************************************
         if(!firstVirtual && searchStopped)
         {
-           debug("creating virtual bike interface...");
-           virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-           connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
-           firstVirtual = 1;
+            QSettings settings;
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            if(virtual_device_enabled)
+            {
+                debug("creating virtual bike interface...");
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
+                firstVirtual = 1;
+            }
         }
         // ********************************************************************************************************
 
