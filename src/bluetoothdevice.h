@@ -31,7 +31,8 @@ public:
         UNKNOWN = 0,
         TREADMILL,
         BIKE,
-        ROWING
+        ROWING,
+        ELLIPTICAL
     };
 
     virtual BLUETOOTH_TYPE deviceType();

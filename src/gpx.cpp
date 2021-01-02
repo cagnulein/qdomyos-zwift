@@ -78,7 +78,7 @@ void gpx::save(QString filename, QList<SessionLine> session, bluetoothdevice::BL
     stream.writeStartElement("trk");
     stream.writeTextElement("name", session.at(0).time.toString("yyyy-MM-dd HH:mm:ss"));
 
-    if(type == bluetoothdevice::TREADMILL)
+    if(type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL)
         stream.writeTextElement("type", "0");
     else
         stream.writeTextElement("type", "53");

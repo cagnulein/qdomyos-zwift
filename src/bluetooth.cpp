@@ -111,6 +111,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
+            else if(b.name().startsWith("Domyos-EL") && !b.name().startsWith("DomyosBridge") && !domyosElliptical && filter)
+            {
+                discoveryAgent->stop();
+                domyosElliptical = new domyoselliptical(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected());
+                connect(domyosElliptical, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(domyosElliptical, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                domyosElliptical->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), domyosElliptical, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
             else if(b.name().startsWith("Domyos") && !b.name().startsWith("DomyosBr") && !domyos && filter)
             {
                 discoveryAgent->stop();
@@ -206,6 +219,8 @@ void bluetooth::restart()
             delete (virtualtreadmill*)device()->VirtualDevice();
         else if(device()->deviceType() == bluetoothdevice::BIKE)
             delete (virtualbike*)device()->VirtualDevice();
+        else if(device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            delete (virtualtreadmill*)device()->VirtualDevice();
     }
 
     if(domyos)
@@ -217,6 +232,11 @@ void bluetooth::restart()
     {
         delete domyosBike;
         domyosBike = 0;
+    }
+    if(domyosElliptical)
+    {
+        delete domyosElliptical;
+        domyosElliptical = 0;
     }
     if(toorx)
     {
@@ -247,6 +267,8 @@ bluetoothdevice* bluetooth::device()
         return domyos;
     else if(domyosBike)
         return domyosBike;
+    else if(domyosElliptical)
+        return domyosElliptical;
     else if(toorx)
         return toorx;
     else if(trxappgateusb)

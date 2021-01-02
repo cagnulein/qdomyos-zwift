@@ -28,7 +28,7 @@ class virtualtreadmill: public QObject
 {
     Q_OBJECT
 public:
-    virtualtreadmill(treadmill* t, bool noHeartService);
+    virtualtreadmill(bluetoothdevice* t, bool noHeartService);
     bool connected();
 
 private:
@@ -39,7 +39,7 @@ private:
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;    
-    treadmill* treadMill;
+    bluetoothdevice* treadMill;
 
     bool noHeartService = false;
 

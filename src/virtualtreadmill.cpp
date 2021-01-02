@@ -2,7 +2,7 @@
 #include <QtMath>
 #include <QSettings>
 
-virtualtreadmill::virtualtreadmill(treadmill* t, bool noHeartService)
+virtualtreadmill::virtualtreadmill(bluetoothdevice* t, bool noHeartService)
 {
     QSettings settings;
     treadMill = t;
@@ -172,7 +172,8 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
             uint16_t uspeed = a + (((uint16_t)b) << 8);
             double requestSpeed = (double)uspeed / 100.0;
-            treadMill->changeSpeed(requestSpeed);
+            if(treadMill->deviceType() == bluetoothdevice::TREADMILL)
+                ((treadmill*)treadMill)->changeSpeed(requestSpeed);
             emit debug("new requested speed " + QString::number(requestSpeed));
          }
          else if ((char)newValue.at(0)== 0x03) // Set Target Inclination
@@ -184,7 +185,8 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
               double requestIncline = (double)sincline / 10.0;
               if(requestIncline < 0)
                  requestIncline = 0;
-              treadMill->changeInclination(requestIncline);
+              if(treadMill->deviceType() == bluetoothdevice::TREADMILL)
+                  ((treadmill*)treadMill)->changeInclination(requestIncline);
               emit debug("new requested incline " +QString::number(requestIncline));
          }
          else if ((char)newValue.at(0)== 0x07) // Start request
@@ -253,13 +255,17 @@ void virtualtreadmill::treadmillProvider()
         QByteArray speedBytes;
         speedBytes.append(b);
         speedBytes.append(a);
-        uint16_t normalizeIncline = (uint32_t)qRound(treadMill->currentInclination() * 10);
+        uint16_t normalizeIncline = 0;
+        if(treadMill->deviceType() == bluetoothdevice::TREADMILL)
+            normalizeIncline = (uint32_t)qRound(((treadmill*)treadMill)->currentInclination() * 10);
         a = (normalizeIncline >> 8) & 0XFF;
         b = normalizeIncline & 0XFF;
         QByteArray inclineBytes;
         inclineBytes.append(b);
         inclineBytes.append(a);
-        double ramp = qRadiansToDegrees(qAtan(treadMill->currentInclination()/100));
+        double ramp = 0;
+        if(treadMill->deviceType() == bluetoothdevice::TREADMILL)
+            ramp = qRadiansToDegrees(qAtan(((treadmill*)treadMill)->currentInclination()/100));
         int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
         a = (normalizeRamp >> 8) & 0XFF;
         b = normalizeRamp & 0XFF;

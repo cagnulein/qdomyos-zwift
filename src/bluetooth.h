@@ -18,6 +18,7 @@
 #include "treadmill.h"
 #include "domyostreadmill.h"
 #include "domyosbike.h"
+#include "domyoselliptical.h"
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
@@ -38,6 +39,7 @@ private:
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
+    domyoselliptical* domyosElliptical = 0;
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
     echelonconnectsport* echelonConnectSport = 0;

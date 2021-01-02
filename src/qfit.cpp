@@ -57,6 +57,11 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
     }
+    else if(type == bluetoothdevice::ELLIPTICAL)
+    {
+        sessionMesg.SetSport(FIT_SPORT_RUNNING);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
+    }
     else
     {
         sessionMesg.SetSport(FIT_SPORT_CYCLING);

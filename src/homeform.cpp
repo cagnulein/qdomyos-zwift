@@ -170,7 +170,7 @@ void homeform::deviceConnected()
         if(settings.value("tile_fan_enabled", true).toBool())
             dataList.append(fan);
     }
-    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
     {
         if(settings.value("tile_speed_enabled", true).toBool())
             dataList.append(speed);
@@ -260,6 +260,10 @@ void homeform::Plus(QString name)
             {
                 ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance() + 1);
             }
+            else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            {
+                ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() + 1);
+            }
         }
     }
     else if(name.contains("fan"))
@@ -302,6 +306,10 @@ void homeform::Minus(QString name)
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
             {
                 ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance() - 1);
+            }
+            else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            {
+                ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() - 1);
             }
         }
     }
@@ -401,6 +409,16 @@ void homeform::update()
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
         }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+        {
+            cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
+            resistance = ((elliptical*)bluetoothManager->device())->currentResistance();
+            watts = ((elliptical*)bluetoothManager->device())->watts();
+            watt->setValue(QString::number(watts));
+            this->peloton_resistance->setValue(QString::number(((elliptical*)bluetoothManager->device())->pelotonResistance(), 'f', 0));
+            this->resistance->setValue(QString::number(resistance));
+            this->cadence->setValue(QString::number(cadence));
+        }
 /*
         if(trainProgram)
         {
@@ -460,6 +478,11 @@ bool homeform::getZwift()
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
             ((virtualbike*)((bike*)bluetoothManager->device())->VirtualDevice())->connected())
+    {
+        return true;
+    }
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+            ((virtualtreadmill*)((elliptical*)bluetoothManager->device())->VirtualDevice())->connected())
     {
         return true;
     }

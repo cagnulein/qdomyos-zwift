@@ -21,8 +21,10 @@ SOURCES += \
    bike.cpp \
         bluetooth.cpp \
    bluetoothdevice.cpp \
+    domyoselliptical.cpp \
         domyostreadmill.cpp \
    echelonconnectsport.cpp \
+    elliptical.cpp \
    fit-sdk/fit.cpp \
    fit-sdk/fit_accumulated_field.cpp \
    fit-sdk/fit_accumulator.cpp \
@@ -77,8 +79,10 @@ HEADERS += \
    bike.h \
    bluetooth.h \
    bluetoothdevice.h \
+    domyoselliptical.h \
    domyostreadmill.h \
    echelonconnectsport.h \
+    elliptical.h \
    fit-sdk/FitDecode.h \
    fit-sdk/FitDeveloperField.h \
    fit-sdk/FitEncode.h \
