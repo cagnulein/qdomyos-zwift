@@ -17,7 +17,7 @@ import UIKit
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
         
-        w.startWatchApp()
+        //w.startWatchApp()
     }
     
     @objc public func heartRate() -> Int
