@@ -74,7 +74,7 @@ HomeForm{
             Text {
                 objectName: "value"
                 id: myValue
-                color: "white"
+                color: valueFontColor
                 y: 0
                 anchors {
                     horizontalCenter: parent.horizontalCenter

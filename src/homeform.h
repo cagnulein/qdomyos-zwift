@@ -15,6 +15,7 @@ class DataObject : public QObject
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueFontSizeChanged)
+    Q_PROPERTY(QString valueFontColor READ valueFontColor WRITE setValueFontColor NOTIFY valueFontColorChanged)
     Q_PROPERTY(int labelFontSize READ labelFontSize WRITE setLabelFontSize NOTIFY labelFontSizeChanged)
     Q_PROPERTY(bool writable READ writable NOTIFY writableChanged)
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
@@ -22,15 +23,17 @@ class DataObject : public QObject
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
 
 public:
-    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize);
+    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor = "white");
     void setValue(QString value);
     void setValueFontSize(int value);
+    void setValueFontColor(QString value);
     void setLabelFontSize(int value);
     void setVisible(bool visible);
     QString name() {return m_name;}
     QString icon() {return m_icon;}
     QString value() {return m_value;}
     int valueFontSize() {return m_valueFontSize;}
+    QString valueFontColor() {return m_valueFontColor;}
     int labelFontSize() {return m_labelFontSize;}
     bool writable() {return m_writable;}
     bool visibleItem() {return m_visible;}
@@ -42,6 +45,7 @@ public:
     QString m_icon;
     QString m_value;
     int m_valueFontSize;
+    QString m_valueFontColor = "white";
     int m_labelFontSize;
     bool m_writable;
     bool m_visible = true;
@@ -49,6 +53,7 @@ public:
 signals:
     void valueChanged(QString value);
     void valueFontSizeChanged(int value);
+    void valueFontColorChanged(QString value);
     void labelFontSizeChanged(int value);
     void nameChanged(QString value);
     void iconChanged(QString value);
@@ -98,6 +103,7 @@ private:
     DataObject* jouls;
     DataObject* elapsed;
     DataObject* peloton_resistance;
+    DataObject* ftp;
 
     QTimer* timer;
 
