@@ -7,7 +7,7 @@
 #include "gpx.h"
 #include "qfit.h"
 
-DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize)
+DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor)
 {
     m_name = name;
     m_icon = icon;
@@ -15,6 +15,7 @@ DataObject::DataObject(QString name, QString icon, QString value, bool writable,
     m_writable = writable;
     m_id = id;
     m_valueFontSize = valueFontSize;
+    m_valueFontColor = valueFontColor;
     m_labelFontSize = labelFontSize;
 
     emit plusNameChanged(plusName());
@@ -23,6 +24,7 @@ DataObject::DataObject(QString name, QString icon, QString value, bool writable,
 
 void DataObject::setValue(QString v) {m_value = v; emit valueChanged(m_value);}
 void DataObject::setValueFontSize(int value) {m_valueFontSize = value; emit valueFontSizeChanged(m_valueFontSize);}
+void DataObject::setValueFontColor(QString value) {m_valueFontColor = value; emit valueFontColorChanged(m_valueFontColor);}
 void DataObject::setLabelFontSize(int value) {m_labelFontSize = value; emit labelFontSizeChanged(m_labelFontSize);}
 void DataObject::setVisible(bool visible) {m_visible = visible; emit visibleChanged(m_visible);}
 
@@ -55,6 +57,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     peloton_resistance = new DataObject("Peloton Res. (%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
+    ftp = new DataObject("FTP %", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
@@ -89,7 +92,13 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(fit_save_clicked()),
         this, SLOT(fit_save_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
-        bluetoothManager, SLOT(restart()));
+        this, SLOT(refresh_bluetooth_devices_clicked()));
+}
+
+void homeform::refresh_bluetooth_devices_clicked()
+{
+    bluetoothManager->onlyDiscover = true;
+    bluetoothManager->restart();
 }
 
 homeform::~homeform()
@@ -161,6 +170,9 @@ void homeform::deviceConnected()
         if(settings.value("tile_avgwatt_enabled", true).toBool())
             dataList.append(avgWatt);
 
+        if(settings.value("tile_ftp_enabled", true).toBool())
+            dataList.append(ftp);
+
         if(settings.value("tile_jouls_enabled", true).toBool())
             dataList.append(jouls);
 
@@ -194,13 +206,16 @@ void homeform::deviceConnected()
             dataList.append(resistance);
 
         if(settings.value("tile_peloton_resistance_enabled", true).toBool())
-            dataList.append(peloton_resistance);
+            dataList.append(peloton_resistance);        
 
         if(settings.value("tile_watt_enabled", true).toBool())
             dataList.append(watt);
 
         if(settings.value("tile_avgwatt_enabled", true).toBool())
             dataList.append(avgWatt);
+
+        if(settings.value("tile_ftp_enabled", true).toBool())
+            dataList.append(ftp);
 
         if(settings.value("tile_jouls_enabled", true).toBool())
             dataList.append(jouls);
@@ -366,6 +381,7 @@ void homeform::update()
 
         QSettings settings;
         bool miles = settings.value("miles_unit", false).toBool();
+        double ftpSetting = settings.value("ftp", 200.0).toDouble();
         double unit_conversion = 1.0;
         if(miles)
             unit_conversion = 0.621371;
@@ -379,7 +395,7 @@ void homeform::update()
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls() / 1000.0, 'f', 1));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
-        avgWatt->setValue(QString::number(bluetoothManager->device()->avgWatt(), 'f', 0));
+        avgWatt->setValue(QString::number(bluetoothManager->device()->avgWatt(), 'f', 0));        
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
@@ -397,7 +413,7 @@ void homeform::update()
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
             watt->setValue(QString::number(watts, 'f', 0));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
-            elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));
+            elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));            
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
@@ -419,6 +435,27 @@ void homeform::update()
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
         }
+
+        double ftpPerc = 0;
+        if(ftpSetting > 0)
+            ftpPerc = (watts / ftpSetting) * 100.0;
+        ftp->setValue(QString::number(ftpPerc, 'f', 0));
+        if(ftpPerc == 0)
+            ftp->setValueFontColor("white");
+        else if(ftpPerc < 79)
+            ftp->setValueFontColor("lightskyblue");
+        else if(ftpPerc < 108)
+            ftp->setValueFontColor("turquoise");
+        else if(ftpPerc < 129)
+            ftp->setValueFontColor("darkseagreen");
+        else if(ftpPerc < 151)
+            ftp->setValueFontColor("khaki");
+        else if(ftpPerc < 171)
+            ftp->setValueFontColor("darkkhaki");
+        else if(ftpPerc < 215)
+            ftp->setValueFontColor("darkgoldenrod");
+        else
+            ftp->setValueFontColor("red");
 /*
         if(trainProgram)
         {

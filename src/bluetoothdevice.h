@@ -4,6 +4,15 @@
 #include <QObject>
 #include <QTimer>
 #include <QBluetoothDeviceInfo>
+#include <QtBluetooth/qlowenergyadvertisingdata.h>
+#include <QtBluetooth/qlowenergyadvertisingparameters.h>
+#include <QtBluetooth/qlowenergycharacteristic.h>
+#include <QtBluetooth/qlowenergycharacteristicdata.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
+#include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergyservice.h>
+#include <QtBluetooth/qlowenergyservicedata.h>
+#include <QBluetoothDeviceDiscoveryAgent>
 
 class bluetoothdevice : public QObject
 {
@@ -26,6 +35,7 @@ public:
     virtual double elevationGain();
     QBluetoothDeviceInfo bluetoothDevice;
     double avgWatt();
+    void disconnect();
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -46,6 +56,8 @@ signals:
     void connectedAndDiscovered();
 
 protected:
+    QLowEnergyController* m_control = 0;
+
     double elapsed = 0;
     double Speed = 0;
     double KCal = 0;

@@ -88,6 +88,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
 
+    if(onlyDiscover) return;
+
     bool filter = true;
     if(filterDevice.length())
     {
@@ -208,6 +210,14 @@ void bluetooth::heartRate(uint8_t heart)
 void bluetooth::restart()
 {
     QSettings settings;
+
+    if(onlyDiscover)
+    {
+        onlyDiscover = false;
+        discoveryAgent->start();
+        return;
+    }
+
     if(settings.value("bluetooth_no_reconnection", false).toBool())
         exit(0);
 
@@ -255,6 +265,7 @@ void bluetooth::restart()
     }
     if(heartRateBelt)
     {
+        //heartRateBelt->disconnect(); // to test
         delete heartRateBelt;
         heartRateBelt = 0;
     }

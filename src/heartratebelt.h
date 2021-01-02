@@ -36,7 +36,6 @@ public:
     bool connected();
 
 private:
-    QLowEnergyController* m_control = 0;
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 

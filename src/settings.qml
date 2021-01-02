@@ -16,6 +16,7 @@ import Qt.labs.settings 1.0
             property int bike_resistance_offset: 4
             property int bike_resistance_gain: 1
             property real weight: 75.0
+            property real ftp: 200.0
             property bool miles_unit: false
             property bool bike_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
@@ -30,6 +31,7 @@ import Qt.labs.settings 1.0
             property bool tile_resistance_enabled: true
             property bool tile_watt_enabled: true
             property bool tile_avgwatt_enabled: true
+            property bool tile_ftp_enabled: true
             property bool tile_heart_enabled: true
             property bool tile_fan_enabled: true
             property bool tile_jouls_enabled: true
@@ -86,6 +88,30 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.weight = weightTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelFTP
+                    text: qsTr("FTP value:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: ftpTextField
+                    text: settings.ftp
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.ftp = text
+                }
+                Button {
+                    id: okFTPButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.ftp = ftpTextField.text
                 }
             }
 
@@ -382,6 +408,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.tile_avgwatt_enabled = checked
+            }
+
+            SwitchDelegate {
+                id: ftpEnabledDelegate
+                text: qsTr("FTP %")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.tile_ftp_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.tile_ftp_enabled = checked
             }
 
             SwitchDelegate {

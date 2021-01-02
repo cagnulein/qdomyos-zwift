@@ -33,6 +33,7 @@ public:
     explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, uint8_t bikeResistanceGain = 1);
     bluetoothdevice* device();
     QList<QBluetoothDeviceInfo> devices;
+    bool onlyDiscover = false;
 
 private:
     QFile* debugCommsLog = 0;
