@@ -8,7 +8,7 @@ import Qt.labs.settings 1.0
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        id: settingsPane        
+        id: settingsPane
 
         Settings {
             id: settings
@@ -95,6 +95,12 @@ import Qt.labs.settings 1.0
                     id: labelHeartRateBelt
                     text: qsTr("Heart Belt Name:")
                     Layout.fillWidth: true
+                }
+                Button {
+                    id: refreshHeartBeltNameButton
+                    text: "refresh"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: refresh_bluetooth_devices_clicked();
                 }
                 ComboBox {
                     id: heartBeltNameTextField

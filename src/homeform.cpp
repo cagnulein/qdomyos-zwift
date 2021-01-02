@@ -88,6 +88,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()),
         this, SLOT(fit_save_clicked()));
+    QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
+        bluetoothManager, SLOT(restart()));
 }
 
 homeform::~homeform()

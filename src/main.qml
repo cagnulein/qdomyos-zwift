@@ -15,6 +15,7 @@ ApplicationWindow {
 	 signal gpx_open_clicked(url name)
     signal gpx_save_clicked()
     signal fit_save_clicked()
+    signal refresh_bluetooth_devices_clicked()
 
     Popup {
 	    id: popup

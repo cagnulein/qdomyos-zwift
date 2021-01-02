@@ -200,7 +200,7 @@ void bluetooth::restart()
 
     devices.clear();
 
-    if(device()->VirtualDevice())
+    if(device() && device()->VirtualDevice())
     {
         if(device()->deviceType() == bluetoothdevice::TREADMILL)
             delete (virtualtreadmill*)device()->VirtualDevice();
