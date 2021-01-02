@@ -117,6 +117,7 @@ private slots:
     void gpx_save_clicked();
     void fit_save_clicked();
     void trainProgramSignals();
+    void refresh_bluetooth_devices_clicked();
 
 signals:
  void changeOfdevice();
