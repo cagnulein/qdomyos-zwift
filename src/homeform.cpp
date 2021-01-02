@@ -7,11 +7,12 @@
 #include "gpx.h"
 #include "qfit.h"
 
-DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor)
+DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor, QString secondLine)
 {
     m_name = name;
     m_icon = icon;
     m_value = value;
+    m_secondLine = secondLine;
     m_writable = writable;
     m_id = id;
     m_valueFontSize = valueFontSize;
@@ -23,6 +24,7 @@ DataObject::DataObject(QString name, QString icon, QString value, bool writable,
 }
 
 void DataObject::setValue(QString v) {m_value = v; emit valueChanged(m_value);}
+void DataObject::setSecondLine(QString value) {m_secondLine = value; emit secondLineChanged(m_secondLine);}
 void DataObject::setValueFontSize(int value) {m_valueFontSize = value; emit valueFontSizeChanged(m_valueFontSize);}
 void DataObject::setValueFontColor(QString value) {m_valueFontColor = value; emit valueFontColorChanged(m_valueFontColor);}
 void DataObject::setLabelFontSize(int value) {m_labelFontSize = value; emit labelFontSizeChanged(m_labelFontSize);}
@@ -57,7 +59,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     peloton_resistance = new DataObject("Peloton Res. (%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
-    ftp = new DataObject("FTP %", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
+    ftp = new DataObject("FTP Zone", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
@@ -437,25 +439,46 @@ void homeform::update()
         }
 
         double ftpPerc = 0;
+        double ftpZone = 1;
         if(ftpSetting > 0)
             ftpPerc = (watts / ftpSetting) * 100.0;
-        ftp->setValue(QString::number(ftpPerc, 'f', 0));
-        if(ftpPerc == 0)
+        if(ftpPerc < 55)
+        {
+            ftpZone = 1;
             ftp->setValueFontColor("white");
-        else if(ftpPerc < 79)
-            ftp->setValueFontColor("lightskyblue");
-        else if(ftpPerc < 108)
-            ftp->setValueFontColor("turquoise");
-        else if(ftpPerc < 129)
-            ftp->setValueFontColor("darkseagreen");
+        }
+        else if(ftpPerc < 76)
+        {
+            ftpZone = 2;
+            ftp->setValueFontColor("limegreen");
+        }
+        else if(ftpPerc < 91)
+        {
+            ftpZone = 3;
+            ftp->setValueFontColor("gold");
+        }
+        else if(ftpPerc < 106)
+        {
+            ftpZone = 4;
+            ftp->setValueFontColor("orange");
+        }
+        else if(ftpPerc < 121)
+        {
+            ftpZone = 5;
+            ftp->setValueFontColor("darkorange");
+        }
         else if(ftpPerc < 151)
-            ftp->setValueFontColor("khaki");
-        else if(ftpPerc < 171)
-            ftp->setValueFontColor("darkkhaki");
-        else if(ftpPerc < 215)
-            ftp->setValueFontColor("darkgoldenrod");
+        {
+            ftpZone = 6;
+            ftp->setValueFontColor("orangered");
+        }
         else
+        {
+            ftpZone = 7;
             ftp->setValueFontColor("red");
+        }
+        ftp->setValue("Z" + QString::number(ftpZone, 'f', 0));
+        ftp->setSecondLine(QString::number(ftpPerc, 'f', 0) + "%");
 /*
         if(trainProgram)
         {

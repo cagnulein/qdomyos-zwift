@@ -14,6 +14,7 @@ class DataObject : public QObject
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
+    Q_PROPERTY(QString secondLine READ secondLine WRITE setSecondLine NOTIFY secondLineChanged)
     Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueFontSizeChanged)
     Q_PROPERTY(QString valueFontColor READ valueFontColor WRITE setValueFontColor NOTIFY valueFontColorChanged)
     Q_PROPERTY(int labelFontSize READ labelFontSize WRITE setLabelFontSize NOTIFY labelFontSizeChanged)
@@ -23,8 +24,9 @@ class DataObject : public QObject
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
 
 public:
-    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor = "white");
+    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor = "white", QString secondLine = "");
     void setValue(QString value);
+    void setSecondLine(QString value);
     void setValueFontSize(int value);
     void setValueFontColor(QString value);
     void setLabelFontSize(int value);
@@ -32,6 +34,7 @@ public:
     QString name() {return m_name;}
     QString icon() {return m_icon;}
     QString value() {return m_value;}
+    QString secondLine() {return m_secondLine;}
     int valueFontSize() {return m_valueFontSize;}
     QString valueFontColor() {return m_valueFontColor;}
     int labelFontSize() {return m_labelFontSize;}
@@ -44,6 +47,7 @@ public:
     QString m_name;
     QString m_icon;
     QString m_value;
+    QString m_secondLine = "";
     int m_valueFontSize;
     QString m_valueFontColor = "white";
     int m_labelFontSize;
@@ -52,6 +56,7 @@ public:
 
 signals:
     void valueChanged(QString value);
+    void secondLineChanged(QString value);
     void valueFontSizeChanged(int value);
     void valueFontColorChanged(QString value);
     void labelFontSizeChanged(int value);

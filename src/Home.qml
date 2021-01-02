@@ -85,6 +85,20 @@ HomeForm{
                 font.bold: true
             }
             Text {
+                objectName: "secondLine"
+                id: secondLineText
+                color: "white"
+                y: myValue.bottom
+                anchors {
+                    top: myValue.bottom
+                    horizontalCenter: parent.horizontalCenter
+                }
+                text: secondLine
+                horizontalAlignment: Text.AlignHCenter
+                font.pointSize: 8
+                font.bold: false
+            }
+            Text {
                 id: myText
                 anchors {
                     top: myIcon.top
