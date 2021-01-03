@@ -121,7 +121,7 @@ import Qt.labs.settings 1.0
                 Label {
                     id: labelHeartRateBelt
                     text: qsTr("Heart Belt Name:")
-                    Layout.fillWidth: true
+                    Layout.fillWidth: false
                 }
                 Button {
                     id: refreshHeartBeltNameButton
