@@ -50,7 +50,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 #endif
     speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed", 48, labelFontSize);
     inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination", 48, labelFontSize);
-    cadence = new DataObject("Cadence (bpm)", "icons/icons/cadence.png", "0", false, "cadence", 48, labelFontSize);
+    cadence = new DataObject("Cadence (rpm)", "icons/icons/cadence.png", "0", false, "cadence", 48, labelFontSize);
     elevation = new DataObject("Elev. Gain (m)", "icons/icons/elevationgain.png", "0", false, "elevation", 48, labelFontSize);
     calories = new DataObject("Calories (KCal)", "icons/icons/kcal.png", "0", false, "calories", 48, labelFontSize);
     odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer", 48, labelFontSize);
@@ -64,6 +64,14 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
     elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
+
+    if(!settings.value("top_bar_enabled", true).toBool())
+    {
+        m_topBarHeight = 0;
+        emit topBarHeightChanged(m_topBarHeight);
+        m_info = "";
+        emit infoChanged(m_info);
+    }
 
     this->bluetoothManager = bl;
     this->engine = engine;
@@ -241,6 +249,8 @@ void homeform::deviceConnected()
 
 void homeform::deviceFound(QString name)
 {
+    QSettings settings;
+    if(!settings.value("top_bar_enabled").toBool()) return;
     if(!name.trimmed().length()) return;
     m_info = name + " found";
     emit infoChanged(m_info);    

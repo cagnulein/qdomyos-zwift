@@ -14,38 +14,39 @@ Page {
 
     Item {
         width: parent.width
-        height: 120
+        height: rootItem.topBarHeight
+        id: topBar
 
         Row {
             id: row
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
-            height: 100
+            height: topBar.height - 20
             spacing: 5
             padding: 5
 
             Rectangle {
                 width: 50
-                height: 100
+                height: row.height
                 color: Material.backgroundColor
                 Column {
                     id: column
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     width: parent.width
-                    height: 100
+                    height: row.height
                     spacing: 0
                     padding: 0
                     Rectangle {
                         width: 50
-                        height: 100
+                        height: row.height
                         color: Material.backgroundColor
 
                         Image {
                             anchors.verticalCenter: parent.verticalCenter
                             id: treadmill_connection
                             width: 48
-                            height: 48
+                            height: row.height - 52
                             source: "icons/icons/bluetooth-icon.png"
                             enabled: rootItem.device
                             smooth: true
@@ -60,7 +61,7 @@ Page {
                         anchors.horizontalCenter: parent.horizontalCenter
                         id: treadmill_signal
                         width: 24
-                        height: 24
+                        height: row.height - 76
                         source: rootItem.signal
                         smooth: true
                     }
@@ -69,46 +70,46 @@ Page {
 
             Rectangle {
                 width: 120
-                height: 100
+                height: row.height
                 color: Material.backgroundColor
                 RoundButton {
                     icon.source: "icons/icons/start.png"
-                    icon.height: 46
+                    icon.height: row.height - 54
                     icon.width: 46
                     text: "Start"
                     enabled: true
                     id: start
                     width: 120
-                    height: 96
+                    height: row.height - 4
                 }
             }
 
             Rectangle {
                 width: 120
-                height: 100
+                height: row.height
                 color: Material.backgroundColor
                 RoundButton {
                     icon.source: "icons/icons/stop.png"
-                    icon.height: 46
+                    icon.height: row.height - 54
                     icon.width: 46
                     text: "Stop"
                     enabled: true
                     id: stop
                     width: 120
-                    height: 96
+                    height: row.height - 4
                 }
             }
 
             Rectangle {
                 id: item2
                 width: 50
-                height: 100
+                height: row.height
                 color: Material.backgroundColor
                 Image {
                     anchors.verticalCenter: parent.verticalCenter
                     id: zwift_connection
                     width: 48
-                    height: 48
+                    height: row.height - 52
                     source: "icons/icons/zwift-on.png"
                     enabled: rootItem.zwift
                     smooth: true
@@ -129,6 +130,7 @@ Page {
 
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
                 text: rootItem.info
             }
         }

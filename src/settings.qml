@@ -21,6 +21,8 @@ import Qt.labs.settings 1.0
             property bool bike_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
+            property bool top_bar_enabled: true
+
             property bool tile_speed_enabled: true
             property bool tile_inclination_enabled: true
             property bool tile_cadence_enabled: true
@@ -41,6 +43,7 @@ import Qt.labs.settings 1.0
             property bool bluetooth_relaxed: false
             property bool battery_service: false
             property bool service_changed: false
+            property bool virtual_device_enabled: true
         }
 
         ColumnLayout {
@@ -122,17 +125,10 @@ import Qt.labs.settings 1.0
                     text: qsTr("Heart Belt Name:")
                     Layout.fillWidth: true
                 }
-                Button {
-                    id: refreshHeartBeltNameButton
-                    text: "refresh"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: refresh_bluetooth_devices_clicked();
-                }
                 ComboBox {
                     id: heartBeltNameTextField
                     model: rootItem.bluetoothDevices
                     displayText: settings.heart_rate_belt_name
-                    Layout.fillWidth: true
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -148,6 +144,26 @@ import Qt.labs.settings 1.0
                     onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText
                 }
             }
+
+            Label {
+                id: appleWatchLabel
+                text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
+                font.bold: yes
+                font.italic: yes
+                font.pixelSize: 8
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Red)
+            }
+
+            Button {
+                id: refreshHeartBeltNameButton
+                text: "Refresh Devices List"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: refresh_bluetooth_devices_clicked();
+            }
+
 
             SwitchDelegate {
                 id: unitDelegate
@@ -186,6 +202,18 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.bike_cadence_sensor = checked
+            }
+
+            Label {
+                id: zwiftInfoLabel
+                text: qsTr("Zwift users: keep this setting off")
+                font.bold: yes
+                font.italic: yes
+                font.pixelSize: 8
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Red)
             }
 
             SwitchDelegate {
@@ -249,6 +277,30 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.bike_resistance_gain = bikeResistanceGainTextField.text
                 }
+            }
+
+            Label {
+                id: uiGeneralOptionsLabel
+                text: qsTr("General UI Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: topBarEnabledDelegate
+                text: qsTr("Top Bar Enabled")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.top_bar_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.top_bar_enabled = checked
             }
 
             Label {
@@ -552,6 +604,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.service_changed = checked
+            }
+
+            SwitchDelegate {
+                id: virtualDeviceEnabledDelegate
+                text: qsTr("Virtual Device")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.virtual_device_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.virtual_device_enabled = checked
             }
         }
     }

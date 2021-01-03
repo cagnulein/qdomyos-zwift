@@ -191,7 +191,7 @@ void bluetooth::connectedAndDiscovered()
             if(((b.name().startsWith(heartRateBeltName))) && !heartRateBelt && !heartRateBeltName.startsWith("Disabled"))
             {
                 heartRateBelt = new heartratebelt();
-                connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 heartRateBelt->deviceDiscovered(b);
