@@ -21,6 +21,8 @@ import Qt.labs.settings 1.0
             property bool bike_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
+            property bool top_bar_enabled: true
+
             property bool tile_speed_enabled: true
             property bool tile_inclination_enabled: true
             property bool tile_cadence_enabled: true
@@ -201,6 +203,18 @@ import Qt.labs.settings 1.0
                 onClicked: settings.bike_cadence_sensor = checked
             }
 
+            Label {
+                id: zwiftInfoLabel
+                text: qsTr("Zwift users: keep this setting off")
+                font.bold: yes
+                font.italic: yes
+                font.pixelSize: 8
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Red)
+            }
+
             SwitchDelegate {
                 id: switchDelegate
                 text: qsTr("Heart Rate service outside FTMS")
@@ -262,6 +276,30 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.bike_resistance_gain = bikeResistanceGainTextField.text
                 }
+            }
+
+            Label {
+                id: uiGeneralOptionsLabel
+                text: qsTr("General UI Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: topBarEnabledDelegate
+                text: qsTr("Top Bar Enabled")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.top_bar_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.top_bar_enabled = checked
             }
 
             Label {

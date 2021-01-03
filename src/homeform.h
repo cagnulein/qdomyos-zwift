@@ -73,13 +73,15 @@ class homeform: public QObject
     Q_OBJECT
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
-    Q_PROPERTY(QString info READ info NOTIFY infoChanged)
+    Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
+    Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
     ~homeform();
+    int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
     QString signal();
     QStringList bluetoothDevices();
@@ -91,6 +93,7 @@ private:
     QQmlApplicationEngine* engine;
     trainprogram* trainProgram = 0;
 
+    int m_topBarHeight = 120;
     QString m_info = "Connecting...";
 
     DataObject* speed;
@@ -135,6 +138,7 @@ signals:
  void changeOfzwift();
  void signalChanged(QString value);
  void infoChanged(QString value);
+ void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
 };
 

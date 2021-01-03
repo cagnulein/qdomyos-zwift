@@ -65,6 +65,14 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
     elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
 
+    if(!settings.value("top_bar_enabled", true).toBool())
+    {
+        m_topBarHeight = 0;
+        emit topBarHeightChanged(m_topBarHeight);
+        m_info = "";
+        emit infoChanged(m_info);
+    }
+
     this->bluetoothManager = bl;
     this->engine = engine;
     connect(bluetoothManager, SIGNAL(deviceFound(QString)), this, SLOT(deviceFound(QString)));
@@ -241,6 +249,8 @@ void homeform::deviceConnected()
 
 void homeform::deviceFound(QString name)
 {
+    QSettings settings;
+    if(!settings.value("top_bar_enabled").toBool()) return;
     if(!name.trimmed().length()) return;
     m_info = name + " found";
     emit infoChanged(m_info);    
