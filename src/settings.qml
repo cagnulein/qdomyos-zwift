@@ -123,19 +123,12 @@ import Qt.labs.settings 1.0
                 Label {
                     id: labelHeartRateBelt
                     text: qsTr("Heart Belt Name:")
-                    Layout.fillWidth: false
-                }
-                Button {
-                    id: refreshHeartBeltNameButton
-                    text: "refresh"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: refresh_bluetooth_devices_clicked();
+                    Layout.fillWidth: true
                 }
                 ComboBox {
                     id: heartBeltNameTextField
                     model: rootItem.bluetoothDevices
                     displayText: settings.heart_rate_belt_name
-                    Layout.fillWidth: true
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onActivated: {
@@ -154,7 +147,7 @@ import Qt.labs.settings 1.0
 
             Label {
                 id: appleWatchLabel
-                text: qsTr("Apple Watch users: leave it disabled, the connection it happens automatically only when this app runs on the iPhone")
+                text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
                 font.bold: yes
                 font.italic: yes
                 font.pixelSize: 8
@@ -163,6 +156,14 @@ import Qt.labs.settings 1.0
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Red)
             }
+
+            Button {
+                id: refreshHeartBeltNameButton
+                text: "Refresh Devices List"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: refresh_bluetooth_devices_clicked();
+            }
+
 
             SwitchDelegate {
                 id: unitDelegate
