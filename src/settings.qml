@@ -150,6 +150,18 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            Label {
+                id: appleWatchLabel
+                text: qsTr("Apple Watch users: leave it disabled, the connection it happens automatically only when this app runs on the iPhone")
+                font.bold: yes
+                font.italic: yes
+                font.pixelSize: 8
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Red)
+            }
+
             SwitchDelegate {
                 id: unitDelegate
                 text: qsTr("Use Miles unit in UI")
