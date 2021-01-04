@@ -26,6 +26,7 @@ HomeForm{
         anchors.topMargin: rootItem.topBarHeight + 30
         id: gridView
         objectName: "gridview"
+        onMovementEnded: { headerToolbar.visible = (contentY == 0); }
 
         //        highlight: Rectangle {
         //            width: 150

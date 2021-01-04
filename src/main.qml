@@ -49,6 +49,7 @@ ApplicationWindow {
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: Material.Purple
+        id: headerToolbar
 
         ToolButton {
             id: toolButton
