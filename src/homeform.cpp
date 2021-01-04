@@ -149,6 +149,11 @@ void homeform::trainProgramSignals()
 
 void homeform::deviceConnected()
 {
+    // if the device reconnects in the same session, the tiles shouldn't be created again
+    static bool first = false;
+    if(first) return;
+    first = true;
+
     QSettings settings;
 
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
