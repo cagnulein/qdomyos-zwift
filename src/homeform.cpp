@@ -56,7 +56,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     odometer = new DataObject("Odometer (" + unit + ")", "icons/icons/odometer.png", "0.0", false, "odometer", 48, labelFontSize);
     pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace", 48, labelFontSize);
     resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
-    peloton_resistance = new DataObject("Peloton Res. (%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
+    peloton_resistance = new DataObject("Peloton R(%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
     ftp = new DataObject("FTP Zone", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
@@ -103,6 +103,61 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(fit_save_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
+
+    //populate the UI
+#if 0
+#warning("disable me!")
+    {
+        if(settings.value("tile_speed_enabled", true).toBool())
+            dataList.append(speed);
+
+        if(settings.value("tile_cadence_enabled", true).toBool())
+            dataList.append(cadence);
+
+        if(settings.value("tile_elevation_enabled", true).toBool())
+            dataList.append(elevation);
+
+        if(settings.value("tile_elapsed_enabled", true).toBool())
+            dataList.append(elapsed);
+
+        if(settings.value("tile_calories_enabled", true).toBool())
+            dataList.append(calories);
+
+        if(settings.value("tile_odometer_enabled", true).toBool())
+            dataList.append(odometer);
+
+        if(settings.value("tile_resistance_enabled", true).toBool())
+            dataList.append(resistance);
+
+        if(settings.value("tile_peloton_resistance_enabled", true).toBool())
+            dataList.append(peloton_resistance);
+
+        if(settings.value("tile_watt_enabled", true).toBool())
+            dataList.append(watt);
+
+        if(settings.value("tile_avgwatt_enabled", true).toBool())
+            dataList.append(avgWatt);
+
+        if(settings.value("tile_ftp_enabled", true).toBool())
+            dataList.append(ftp);
+
+        if(settings.value("tile_jouls_enabled", true).toBool())
+            dataList.append(jouls);
+
+        if(settings.value("tile_heart_enabled", true).toBool())
+            dataList.append(heart);
+
+        if(settings.value("tile_fan_enabled", true).toBool())
+            dataList.append(fan);
+    }
+
+    engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
+
+    QObject::connect(home, SIGNAL(plus_clicked(QString)),
+        this, SLOT(Plus(QString)));
+    QObject::connect(home, SIGNAL(minus_clicked(QString)),
+        this, SLOT(Minus(QString)));
+#endif
 }
 
 void homeform::refresh_bluetooth_devices_clicked()

@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
+import QtQuick.Window 2.12
 
 HomeForm{
     objectName: "home"
@@ -28,6 +29,10 @@ HomeForm{
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0); }
         onWidthChanged: gridView.leftMargin = (parent.width % cellWidth) / 2;
+        Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
+        Screen.onPrimaryOrientationChanged:{
+                gridView.leftMargin = (parent.width % cellWidth) / 2;
+        }
 
         //        highlight: Rectangle {
         //            width: 150
