@@ -40,6 +40,8 @@ import Qt.labs.settings 1.0
             property bool tile_elapsed_enabled: true
             property bool tile_peloton_resistance_enabled: true
 
+            property bool domyos_treadmill_buttons: false
+
             property bool bluetooth_relaxed: false
             property bool battery_service: false
             property bool service_changed: false
@@ -550,6 +552,30 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.tile_peloton_resistance_enabled = checked
+            }
+
+            Label {
+                id: domyosTreadmillLabel
+                text: qsTr("Domyos Treadmill Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: domyosTreadmillButtonsDelegate
+                text: qsTr("Speed/Inclination Buttons")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.domyos_treadmill_buttons
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.domyos_treadmill_buttons = checked
             }
 
             Label {
