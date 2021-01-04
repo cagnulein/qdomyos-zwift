@@ -270,7 +270,7 @@ void domyostreadmill::update()
         {
             if(requestSpeed != -1)
             {
-               if(requestSpeed != currentSpeed())
+               if(requestSpeed != currentSpeed() && requestSpeed >= 0 && requestSpeed <= 22)
                {
                   debug("writing speed " + QString::number(requestSpeed));
                   double inc = Inclination;
@@ -285,7 +285,7 @@ void domyostreadmill::update()
             }
             if(requestInclination != -1)
             {
-               if(requestInclination != currentInclination())
+               if(requestInclination != currentInclination() && requestInclination >= 0 && requestInclination <= 15)
                {
                   debug("writing incline " + QString::number(requestInclination));
                   double speed = currentSpeed();
@@ -343,6 +343,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    bool domyos_treadmill_buttons = settings.value("domyos_treadmill_buttons", false).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -415,8 +416,31 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     {
         debug("decrease speed fan pressed!");
         requestDecreaseFan = 1;
+    }    
+    else if(value.at(22) == 0x08)
+    {
+        debug("increase speed button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeSpeed(currentSpeed() + 0.1);
     }
-
+    else if(value.at(22) == 0x09)
+    {
+        debug("decrease speed button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeSpeed(currentSpeed() - 0.1);
+    }
+    else if(value.at(22) == 0x0c)
+    {
+        debug("increase inclination button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeInclination(currentInclination() + 0.5);
+    }
+    else if(value.at(22) == 0x0d)
+    {
+        debug("decrease inclination button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeInclination(currentInclination() - 0.5);
+    }
     /*if ((uint8_t)value.at(1) != 0xbc && value.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;*/
 
