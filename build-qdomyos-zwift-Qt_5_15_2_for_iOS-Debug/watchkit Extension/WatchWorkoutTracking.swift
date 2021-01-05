@@ -76,7 +76,8 @@ extension WorkoutTracking {
     }
     
     private func configWorkout() {
-        configuration.activityType = .walking
+        configuration.activityType = .cycling
+        configuration.locationType = .indoor
         
         do {
             workoutSession = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
