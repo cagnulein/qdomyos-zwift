@@ -4,8 +4,11 @@
 #include <QSettings>
 #include <QQmlFile>
 #include <QStandardPaths>
-#include <QtWebEngineWidgets/QWebEngineView>
-#include <QtWebEngine/QQuickWebEngineProfile>
+#include <QAbstractOAuth2>
+#include <QNetworkAccessManager>
+#include <QOAuth2AuthorizationCodeFlow>
+#include <QOAuthHttpServerReplyHandler>
+#include <QDesktopServices>
 #include "gpx.h"
 #include "qfit.h"
 
@@ -707,31 +710,87 @@ QStringList homeform::bluetoothDevices()
     return r;
 }
 
+struct OAuth2Parameter
+{
+    QString responseType = "code";
+    QString approval_prompt = "force";
+
+    inline bool isEmpty() const{
+        return responseType.isEmpty() && approval_prompt.isEmpty();
+    }
+    QString toString() const{
+        QString msg;
+        QTextStream out(&msg);
+        out << "OAuth2Parameter{\n"
+            << "responseType: " << this->responseType << "\n"
+            << "approval_prompt: " << this->approval_prompt << "\n";
+        return msg;
+    }
+};
+
+QAbstractOAuth::ModifyParametersFunction homeform::buildModifyParametersFunction(QUrl clientIdentifier,QUrl clientIdentifierSharedKey){
+    return [clientIdentifier,clientIdentifierSharedKey]
+            (QAbstractOAuth::Stage stage, QVariantMap *parameters){
+        if(stage == QAbstractOAuth::Stage::RequestingAuthorization){
+            parameters->insert("responseType","code"); /* Request refresh token*/
+            parameters->insert("approval_prompt","force"); /* force user check scope again */
+        }
+        if(stage == QAbstractOAuth::Stage::RefreshingAccessToken){
+            parameters->insert("client_id",clientIdentifier);
+            parameters->insert("client_secret",clientIdentifierSharedKey);
+        }
+    };
+}
+
+void homeform::onStravaGranted()
+{
+    QSettings settings;
+    settings.setValue("strava_accesstoken", strava->token());
+    settings.setValue("strava_refreshtoken", strava->refreshToken());
+    qDebug() << "strava authenticathed" << strava->token() << strava->refreshToken();
+}
+
+void homeform::onStravaAuthorizeWithBrowser(const QUrl &url)
+{
+    //ui->textBrowser->append(tr("Open with browser:") + url.toString());
+    QDesktopServices::openUrl(url);
+}
+
+void homeform::replyDataReceived(QByteArray v)
+{
+    qDebug() << v;
+}
+
+QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
+{
+    QNetworkAccessManager manager;
+    OAuth2Parameter parameter;
+    auto strava = new QOAuth2AuthorizationCodeFlow(&manager, this);
+    strava->setScope("activity:read_all,activity:write");
+    strava->setClientIdentifier("7976");
+    strava->setAuthorizationUrl(QUrl("https://www.strava.com/oauth/authorize"));
+    strava->setAccessTokenUrl(QUrl("https://www.strava.com/oauth/token"));
+#ifdef STRAVA_SECRET_KEY
+    strava->setClientIdentifierSharedKey(STRAVA_SECRET_KEY);
+    qDebug() << STRAVA_SECRET_KEY;
+#endif
+    strava->setModifyParametersFunction(buildModifyParametersFunction(QUrl(""), QUrl("")));
+    auto replyHandler = new QOAuthHttpServerReplyHandler(QHostAddress("127.0.0.1"), 91, this);
+    connect(replyHandler,&QOAuthHttpServerReplyHandler::replyDataReceived, this,
+            &homeform::replyDataReceived);
+    strava->setReplyHandler(replyHandler);
+
+    return strava;
+}
+
 void homeform::strava_connect_clicked()
 {
-    m_webEngineView_visible = true;
-    emit webEngineView_visibleChanged(m_webEngineView_visible);
-
-    QObject *rootObject = engine->rootObjects().first();
-    QWebEngineView *view = (QWebEngineView*)rootObject->findChild<QObject*>("webEngineView");
-    //view->setZoomFactor(dpiXFactor);
-    //view->page()->profile()->cookieStore()->deleteAllCookies();
-    view->setContentsMargins(0,0,0,0);
-    view->page()->view()->setContentsMargins(0,0,0,0);
-    view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    view->setAcceptDrops(false);
-
-    QString urlstr = "";
-    urlstr = QString("https://www.strava.com/oauth/authorize?");
-    urlstr.append("client_id=").append(7976).append("&");
-    urlstr.append("scope=activity:read_all,activity:write&");
-    urlstr.append("redirect_uri=http://www.goldencheetah.org/&");
-    urlstr.append("response_type=code&");
-    urlstr.append("approval_prompt=force");
-
-    view->setUrl(QUrl(urlstr));
-
-    // connects
-    connect(view, SIGNAL(urlChanged(const QUrl&)), this, SLOT(urlChanged(const QUrl&)));
-    connect(view, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
+    QLoggingCategory::setFilterRules("qt.networkauth.*=true");
+    QOAuth2AuthorizationCodeFlow* strava = strava_connect();
+    connect(strava,&QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+            this,&homeform::onStravaAuthorizeWithBrowser);
+    connect(strava,&QOAuth2AuthorizationCodeFlow::granted,
+            this,&homeform::onStravaGranted);
+    strava->grant();
+    //qDebug() << QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
 }

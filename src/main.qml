@@ -2,7 +2,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
-import QtWebEngine 1.2
 
 ApplicationWindow {
     id: window
@@ -173,14 +172,6 @@ ApplicationWindow {
 						}
 					}
         }
-    }
-
-    WebEngineView {
-        id: webEngineView
-        objectName: "webEngineView"
-        anchors.fill: parent
-        visible: rootItem.webEngineView_visible
-        url: ""
     }
 
     StackView {

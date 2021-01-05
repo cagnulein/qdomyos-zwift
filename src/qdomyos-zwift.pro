@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick webenginewidgets
+QT += bluetooth widgets xml positioning quick networkauth
 
 !ios: QT+= charts
 unix:android: QT += androidextras

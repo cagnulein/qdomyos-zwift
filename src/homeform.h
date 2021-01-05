@@ -3,6 +3,7 @@
 
 #include <QQuickItem>
 #include <QQmlApplicationEngine>
+#include <QOAuth2AuthorizationCodeFlow>
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
@@ -77,14 +78,12 @@ class homeform: public QObject
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
-    Q_PROPERTY(bool webEngineView_visible READ webEngineView_visible NOTIFY webEngineView_visibleChanged)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
     ~homeform();
     int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
-    bool webEngineView_visible() {return m_webEngineView_visible;}
     QString signal();
     QStringList bluetoothDevices();
 
@@ -97,7 +96,7 @@ private:
 
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
-    bool m_webEngineView_visible = false;
+    QOAuth2AuthorizationCodeFlow* strava;
 
     DataObject* speed;
     DataObject* inclination;
@@ -118,6 +117,9 @@ private:
 
     QTimer* timer;
 
+    QOAuth2AuthorizationCodeFlow* strava_connect();
+    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(QUrl clientIdentifier,QUrl clientIdentifierSharedKey);
+
     void update();
     bool getDevice();
     bool getZwift();
@@ -136,13 +138,15 @@ private slots:
     void strava_connect_clicked();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();
+    void onStravaGranted();
+    void onStravaAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceived(QByteArray v);
 
 signals:
  void changeOfdevice();
  void changeOfzwift();
  void signalChanged(QString value);
  void infoChanged(QString value);
- void webEngineView_visibleChanged(bool value);
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
 };
