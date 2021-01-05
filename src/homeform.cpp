@@ -734,6 +734,8 @@ QAbstractOAuth::ModifyParametersFunction homeform::buildModifyParametersFunction
         if(stage == QAbstractOAuth::Stage::RequestingAuthorization){
             parameters->insert("responseType","code"); /* Request refresh token*/
             parameters->insert("approval_prompt","force"); /* force user check scope again */
+            QByteArray code = parameters->value("code").toByteArray();
+            (*parameters)["code"] = QUrl::fromPercentEncoding(code);
         }
         if(stage == QAbstractOAuth::Stage::RefreshingAccessToken){
             parameters->insert("client_id",clientIdentifier);
@@ -771,8 +773,11 @@ QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
     strava->setAuthorizationUrl(QUrl("https://www.strava.com/oauth/authorize"));
     strava->setAccessTokenUrl(QUrl("https://www.strava.com/oauth/token"));
 #ifdef STRAVA_SECRET_KEY
-    strava->setClientIdentifierSharedKey(STRAVA_SECRET_KEY);
-    qDebug() << STRAVA_SECRET_KEY;
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    strava->setClientIdentifierSharedKey(STRINGIFY(STRAVA_SECRET_KEY));
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
     strava->setModifyParametersFunction(buildModifyParametersFunction(QUrl(""), QUrl("")));
     auto replyHandler = new QOAuthHttpServerReplyHandler(QHostAddress("127.0.0.1"), 91, this);
