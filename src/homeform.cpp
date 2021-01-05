@@ -4,6 +4,8 @@
 #include <QSettings>
 #include <QQmlFile>
 #include <QStandardPaths>
+#include <QtWebEngineWidgets/QWebEngineView>
+#include <QtWebEngine/QQuickWebEngineProfile>
 #include "gpx.h"
 #include "qfit.h"
 
@@ -101,6 +103,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()),
         this, SLOT(fit_save_clicked()));
+    QObject::connect(stack, SIGNAL(strava_connect_clicked()),
+        this, SLOT(strava_connect_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
@@ -701,4 +705,33 @@ QStringList homeform::bluetoothDevices()
             r.append(b.name());
     }
     return r;
+}
+
+void homeform::strava_connect_clicked()
+{
+    m_webEngineView_visible = true;
+    emit webEngineView_visibleChanged(m_webEngineView_visible);
+
+    QObject *rootObject = engine->rootObjects().first();
+    QWebEngineView *view = (QWebEngineView*)rootObject->findChild<QObject*>("webEngineView");
+    //view->setZoomFactor(dpiXFactor);
+    //view->page()->profile()->cookieStore()->deleteAllCookies();
+    view->setContentsMargins(0,0,0,0);
+    view->page()->view()->setContentsMargins(0,0,0,0);
+    view->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    view->setAcceptDrops(false);
+
+    QString urlstr = "";
+    urlstr = QString("https://www.strava.com/oauth/authorize?");
+    urlstr.append("client_id=").append(7976).append("&");
+    urlstr.append("scope=activity:read_all,activity:write&");
+    urlstr.append("redirect_uri=http://www.goldencheetah.org/&");
+    urlstr.append("response_type=code&");
+    urlstr.append("approval_prompt=force");
+
+    view->setUrl(QUrl(urlstr));
+
+    // connects
+    connect(view, SIGNAL(urlChanged(const QUrl&)), this, SLOT(urlChanged(const QUrl&)));
+    connect(view, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
 }

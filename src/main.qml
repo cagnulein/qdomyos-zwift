@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
+import QtWebEngine 1.2
 
 ApplicationWindow {
     id: window
@@ -16,6 +17,7 @@ ApplicationWindow {
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
+    signal strava_connect_clicked()
 
     Popup {
 	    id: popup
@@ -124,6 +126,15 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
+                id: strava_connect
+                text: qsTr("Connect to Strava")
+                width: parent.width
+                onClicked: {
+                    strava_connect_clicked()
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
                 text: qsTr("by Roberto Viola")
                 width: parent.width
 /*                onClicked: {
@@ -162,6 +173,14 @@ ApplicationWindow {
 						}
 					}
         }
+    }
+
+    WebEngineView {
+        id: webEngineView
+        objectName: "webEngineView"
+        anchors.fill: parent
+        visible: rootItem.webEngineView_visible
+        url: ""
     }
 
     StackView {
