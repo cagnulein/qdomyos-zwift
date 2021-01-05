@@ -421,13 +421,13 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     {
         debug("increase speed button on console pressed!");
         if(domyos_treadmill_buttons)
-            changeSpeed(currentSpeed() + 0.1);
+            changeSpeed(currentSpeed() + 0.2);
     }
     else if(value.at(22) == 0x09)
     {
         debug("decrease speed button on console pressed!");
         if(domyos_treadmill_buttons)
-            changeSpeed(currentSpeed() - 0.1);
+            changeSpeed(currentSpeed() - 0.2);
     }
     else if(value.at(22) == 0x0c)
     {
