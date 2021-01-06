@@ -134,6 +134,16 @@ Page {
                 text: rootItem.info
             }
         }
+
+        Label {
+            id: lblHelp
+            width: parent.width
+            anchors.top: row1.bottom
+            anchors.topMargin: 30
+            text: "This app should automatically connects to your bike/treadmill. <b>If it doesn't, please check</b>:<br>1) your Echelon/Domyos App MUST be closed while qdomyos-zwift is running;<br>2) bluetooth and bluetooth permission MUST be on<br>3) your bike/treadmill should be turned on BEFORE starting this app<br>4) try to restart your device<br><br>If your bike/treadmill disconnects every 30 seconds try to disable the 'virtual device' setting on the left bar.<br><br>In case of issue, please, feel free to contact me to roberto.viola83@gmail.com.<br><br><b>Have a nice ride!</b><br>Roberto Viola"
+            wrapMode: Label.WordWrap
+            visible: rootItem.labelHelp
+        }
     }
 }
 

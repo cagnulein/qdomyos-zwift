@@ -209,6 +209,9 @@ void homeform::deviceConnected()
     if(first) return;
     first = true;
 
+    m_labelHelp = false;
+    changeLabelHelp(m_labelHelp);
+
     QSettings settings;
 
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
@@ -422,6 +425,11 @@ void homeform::Stop()
 {
     if(bluetoothManager->device())
         bluetoothManager->device()->stop();
+}
+
+bool homeform::labelHelp()
+{
+    return m_labelHelp;
 }
 
 QString homeform::signal()

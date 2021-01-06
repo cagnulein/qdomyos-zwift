@@ -71,6 +71,7 @@ signals:
 class homeform: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool labelHelp READ labelHelp NOTIFY changeLabelHelp)
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
@@ -84,6 +85,7 @@ public:
     int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
     QString signal();
+    bool labelHelp();
     QStringList bluetoothDevices();
 
 private:
@@ -95,6 +97,7 @@ private:
 
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
+    bool m_labelHelp = true;
 
     DataObject* speed;
     DataObject* inclination;
@@ -134,12 +137,14 @@ private slots:
     void refresh_bluetooth_devices_clicked();
 
 signals:
+
  void changeOfdevice();
  void changeOfzwift();
  void signalChanged(QString value);
  void infoChanged(QString value);
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
+ void changeLabelHelp(bool value);
 };
 
 #endif // HOMEFORM_H
