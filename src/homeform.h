@@ -4,6 +4,7 @@
 #include <QQuickItem>
 #include <QQmlApplicationEngine>
 #include <QOAuth2AuthorizationCodeFlow>
+#include <QNetworkReply>
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
@@ -97,6 +98,7 @@ private:
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
     QOAuth2AuthorizationCodeFlow* strava;
+    QNetworkAccessManager* manager = 0;
 
     DataObject* speed;
     DataObject* inclination;

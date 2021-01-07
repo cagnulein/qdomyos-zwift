@@ -9,6 +9,8 @@
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
 #include <QDesktopServices>
+#include <QJsonDocument>
+#include <QUrlQuery>
 #include "gpx.h"
 #include "qfit.h"
 
@@ -758,18 +760,101 @@ void homeform::onStravaAuthorizeWithBrowser(const QUrl &url)
     QDesktopServices::openUrl(url);
 }
 
+#define STRAVA_CLIENT_ID "7976"
+
 void homeform::replyDataReceived(QByteArray v)
 {
     qDebug() << v;
+
+    QByteArray data;
+    QSettings settings;
+    QString s(v);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
+    settings.setValue("strava_accesstoken", jsonResponse["access_token"]);
+    settings.setValue("strava_refreshtoken", jsonResponse["refresh_token"]);
+    settings.setValue("strava_expires", jsonResponse["expires_at"]);
+
+    qDebug() << jsonResponse["access_token"] << jsonResponse["refresh_token"] << jsonResponse["expires_at"];
+
+    QString urlstr = QString("https://www.strava.com/oauth/token?");
+    QUrlQuery params;
+    params.addQueryItem("client_id", STRAVA_CLIENT_ID);
+#ifdef STRAVA_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    params.addQueryItem("client_secret", STRINGIFY(STRAVA_SECRET_KEY));
+#endif
+
+    data.append(params.query(QUrl::FullyEncoded));
+
+    // trade-in the temporary access code retrieved by the Call-Back URL for the finale token
+    QUrl url = QUrl(urlstr);
+
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+
+    // now get the final token - but ignore errors
+    if(manager)
+    {
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )), this, SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & )));
+    connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkRequestFinished(QNetworkReply*)));
+    manager->post(request, data);
+}
+
+void homeform::onSslErrors(QNetworkReply *reply, const QList<QSslError>& error)
+{
+    reply->ignoreSslErrors();
+    qDebug() << "homeform::onSslErrors" << error;
+}
+
+void homeform::networkRequestFinished(QNetworkReply *reply)
+{
+    QSettings settings;
+
+    // we can handle SSL handshake errors, if we got here then some kind of protocol was agreed
+    if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::SslHandshakeFailedError) {
+
+        QByteArray payload = reply->readAll(); // JSON
+        QString refresh_token;
+        QString access_token;
+
+        // parse the response and extract the tokens, pretty much the same for all services
+        // although polar choose to also pass a user id, which is needed for future calls
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+        if (parseError.error == QJsonParseError::NoError) {
+            refresh_token = document["refresh_token"].toString();
+            access_token = document["access_token"].toString();
+        }
+
+        settings.setValue("strava_accesstoken", access_token);
+        settings.setValue("strava_refreshtoken", refresh_token);
+        settings.setValue("strava_lastrefresh", QDateTime::currentDateTime());
+
+    } else {
+
+            // general error getting response
+            QString error = QString(tr("Error retrieving access token, %1 (%2)")).arg(reply->errorString()).arg(reply->error());
+            qDebug() << error;
+    }
 }
 
 QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
 {
-    QNetworkAccessManager manager;
+    if(manager)
+    {
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
     OAuth2Parameter parameter;
-    auto strava = new QOAuth2AuthorizationCodeFlow(&manager, this);
+    auto strava = new QOAuth2AuthorizationCodeFlow(manager, this);
     strava->setScope("activity:read_all,activity:write");
-    strava->setClientIdentifier("7976");
+    strava->setClientIdentifier(STRAVA_CLIENT_ID);
     strava->setAuthorizationUrl(QUrl("https://www.strava.com/oauth/authorize"));
     strava->setAccessTokenUrl(QUrl("https://www.strava.com/oauth/token"));
 #ifdef STRAVA_SECRET_KEY
