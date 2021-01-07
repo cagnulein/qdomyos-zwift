@@ -8,6 +8,9 @@
 
 import UIKit
 
+@objc public class virtualdevice_ios:NSObject {
+    let v = BLEPeripheralManager()
+}
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()

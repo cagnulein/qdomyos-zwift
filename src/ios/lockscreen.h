@@ -7,6 +7,7 @@ public:
    void setTimerDisabled();
    void request();
    long heartRate();
+    void virtualbike_ios();
 };
 
 #endif // LOCKSCREEN_H

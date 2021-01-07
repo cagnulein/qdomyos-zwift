@@ -30,6 +30,10 @@
 #include "virtualbike.h"
 #include "bike.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 class echelonconnectsport : public bike
 {
     Q_OBJECT
@@ -70,6 +74,10 @@ private:
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    
+#ifdef Q_OS_IOS
+    lockscreen h;
+#endif
 
 signals:
     void disconnected();

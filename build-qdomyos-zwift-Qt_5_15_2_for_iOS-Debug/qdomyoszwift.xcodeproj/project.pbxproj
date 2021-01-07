@@ -118,6 +118,7 @@
 		87062646259480B200D06586 /* ViewController.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4F259479EE00BD5714 /* ViewController.swift */; };
 		87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E53259479EE00BD5714 /* WatchKitConnection.swift */; };
 		87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E50259479EE00BD5714 /* WorkoutTracking.swift */; };
+		871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */; };
 		873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BC259DF20000DA0F44 /* heartratebelt.cpp */; };
 		873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */; };
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
@@ -466,6 +467,7 @@
 		867187CB3CB3703D1925C88A /* fit_weather_conditions_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_weather_conditions_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_weather_conditions_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86F10E1AE2D47520E65C0543 /* fit_dive_summary_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg_listener.hpp"; sourceTree = "<absolute>"; };
+		871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BLEPeripheralManager.swift; path = ../src/ios/BLEPeripheralManager.swift; sourceTree = "<group>"; };
 		873063BC259DF20000DA0F44 /* heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = heartratebelt.cpp; path = ../src/heartratebelt.cpp; sourceTree = "<group>"; };
 		873063BD259DF20000DA0F44 /* heartratebelt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heartratebelt.h; path = ../src/heartratebelt.h; sourceTree = "<group>"; };
 		873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_heartratebelt.cpp; sourceTree = "<group>"; };
@@ -808,6 +810,7 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */,
 				876E4E4E259479EE00BD5714 /* APIFetcher.swift */,
 				876E4E52259479EE00BD5714 /* AppDelegate.swift */,
 				876E4E4D259479ED00BD5714 /* LocalNotificationHelper.swift */,
@@ -1538,6 +1541,7 @@
 				87062646259480B200D06586 /* ViewController.swift in Compile Sources */,
 				EA780CE97E201242E33E6EEE /* bike.cpp in Compile Sources */,
 				8556B13A3D02D52A21FC5E3E /* bluetooth.cpp in Compile Sources */,
+				871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */,
 				20A50533946A39CBD2C89104 /* bluetoothdevice.cpp in Compile Sources */,
 				F1F4043967BC815770C8BEEA /* domyostreadmill.cpp in Compile Sources */,
 				62D26402BFE7552BD542F6DF /* echelonconnectsport.cpp in Compile Sources */,
@@ -1975,6 +1979,9 @@
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = "";
 				SDKROOT = iphoneos;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "$(SWIFT_MODULE_NAME)-Swift1.h";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2007,6 +2014,9 @@
 				QMAKE_SHORT_VERSION = 1.7;
 				QT_LIBRARY_SUFFIX = _debug;
 				SDKROOT = iphoneos;
+				SWIFT_INSTALL_OBJC_HEADER = YES;
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "$(SWIFT_MODULE_NAME)-Swift1.h";
+				SWIFT_PRECOMPILE_BRIDGING_HEADER = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
