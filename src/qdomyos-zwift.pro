@@ -336,7 +336,9 @@ DISTFILES += \
    android/gradlew \
    android/gradlew.bat \
 	android/res/values/libs.xml \
-   android/src/MyActivity.java
+   android/src/MyActivity.java \
+   ios/AppDelegate.swift \
+   ios/BLEPeripheralManager.swift
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

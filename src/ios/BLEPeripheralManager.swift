@@ -16,10 +16,27 @@ protocol BLEPeripheralManagerDelegate {
 let heartRateServiceUUID = CBUUID(string: "0x180D")
 let heartRateCharacteristicUUID = CBUUID(string: "0x2A37")
 
+let CSCServiceUUID = CBUUID(string: "0x1816")
+let CSCFeatureCharacteristicUUID = CBUUID(string: "0x2A5C")
+let SensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
+let CSCMeasurementCharacteristicUUID = CBUUID(string: "0x2A5B")
+let SCControlPointCharacteristicUUID = CBUUID(string: "0x2A55")
+
 class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   private var peripheralManager: CBPeripheralManager!
+
   private var heartRateService: CBMutableService!
   private var heartRateCharacteristic: CBMutableCharacteristic!
+  private var heartRate!
+
+  private var CSCService: CBMutableService!
+  private var CSCFeatureCharacteristic: CBMutableCharacteristic!
+  private var SensorLocationCharacteristic: CBMutableCharacteristic!
+  private var CSCMeasurementCharacteristic: CBMutableCharacteristic!
+  private var SCControlPointCharacteristic: CBMutableCharacteristic!
+  private var crankRevolutions!
+  private var lastCrankEventTime!
+
   private var notificationTimer: Timer!
   var delegate: BLEPeripheralManagerDelegate?
 
@@ -44,7 +61,43 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
       
       heartRateService.characteristics = [heartRateCharacteristic]
       self.peripheralManager.add(heartRateService)
-      
+
+      self.CSCService = CBMutableService(type: CSCServiceUUID, primary: true)
+
+      let CSCFeatureProperties: CBCharacteristicProperties = [.read]
+		let CSCFeaturePermissions: CBAttributePermissions = [.readable]
+		self.CSCFeatureCharacteristic = CBMutableCharacteristic(type: CSCFeatureCharacteristicUUID,
+		                                                       properties: CSCFeatureProperties,
+																				 value: [0x02, 0x00],
+																				 permissions: CSCFeaturePermissions)
+
+      let SensorLocationProperties: CBCharacteristicProperties = [.read]
+		let SensorLocationPermissions: CBAttributePermissions = [.readable]
+		self.SensorLocationCharacteristic = CBMutableCharacteristic(type: SensorLocationCharacteristicUUID,
+		                                                 properties: SensorLocationProperties,
+																		 value: [13],
+																		 permissions: SensorLocationPermissions)
+
+      let CSCMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+		let CSCMeasurementPermissions: CBAttributePermissions = [.readable]
+		self.CSCMeasurementCharacteristic = CBMutableCharacteristic(type: CSCMeasurementCharacteristicUUID,
+		                                           properties: CSCMeasurementProperties,
+																 value: nil,
+																 permissions: CSCMeasurementPermissions)
+
+      let SCControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
+		let SCControlPointPermissions: CBAttributePermissions = [.writable]
+		self.SCControlPointCharacteristic = CBMutableCharacteristic(type: SCControlPointCharacteristicUUID,
+		                                     properties: SCControlPointProperties,
+														 value: nil,
+														 permissions: SCControlPointPermissions)
+
+      CSCService.characteristics = [CSCFeatureCharacteristic,
+		                              SensorLocationCharacteristic,
+												CSCMeasurementCharacteristic,
+												SCControlPointCharacteristic]
+		self.peripheralManager.add(CSCService)
+
     default:
       print("Peripheral manager is down")
     }
@@ -57,7 +110,7 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
     }
     
     let advertisementData = [CBAdvertisementDataLocalNameKey: "qDomyos-zwift",
-                             CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID]] as [String : Any]
+	                          CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, CSCServiceUUID]] as [String : Any]
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
   }
@@ -99,16 +152,10 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
     print("Peripheral manager is ready to update subscribers")
     self.startSendingDataToSubscribers()
   }
-  /// The value of a characteristic is returned as an array of 8-bit integers. If the value is small enough to fit in
-  /// one byte (between 0 and 255), it is returned in two bytes where the first bit of the first byte is 0 and the second byte contains the
-  /// actual value. In this case, the formula is:
-  /// value = secondByte
-  /// If the value is larger than 255, the first bit of the first byte is 1. In this case, the formula to get the value is:
-  /// value = (firstByte * 256^0) + (secondByte * 256^1) + (thirdByte * 256^2)... and so on.
+
   func calculateHeartRate() -> Data {
-    let randomHeartRate = UInt8.random(in: 22...222)
-    self.delegate?.BLEPeripheralManagerDidSendValue(randomHeartRate)
-    var heartRateBPM: [UInt8] = [0, randomHeartRate, 0, 0, 0, 0, 0, 0]
+    self.delegate?.BLEPeripheralManagerDidSendValue(heartRate)
+	 var heartRateBPM: [UInt8] = [0, heartRate, 0, 0, 0, 0, 0, 0]
     let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
     return heartRateData
   }

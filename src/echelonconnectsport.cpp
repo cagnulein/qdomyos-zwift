@@ -288,13 +288,19 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
             bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-            if(ios_peloton_workaround)
+            if(ios_peloton_workaround && cadence)
             {
                 qDebug() << "ios_peloton_workaround activated!";
                 h.virtualbike_ios();
             }
-            else if(virtual_device_enabled)
+            else
+#endif
+#endif
+                if(virtual_device_enabled)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
