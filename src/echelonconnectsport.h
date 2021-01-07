@@ -76,7 +76,7 @@ private:
     bool noHeartService = false;
     
 #ifdef Q_OS_IOS
-    lockscreen h;
+    lockscreen* h = 0;
 #endif
 
 signals:

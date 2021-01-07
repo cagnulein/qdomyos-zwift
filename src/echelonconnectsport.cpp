@@ -207,6 +207,18 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     }
     
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    if(ios_peloton_workaround && cadence && h)
+    {
+        h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
+        h->virtualbike_setHeartRate(currentHeart());
+    }
+#endif
+#endif
+    
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
     debug("Current Speed: " + QString::number(Speed));
     debug("Current Calculate Distance: " + QString::number(Distance));
@@ -215,7 +227,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
     debug("Current Watt: " + QString::number(watts()));
-
+    
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
@@ -295,7 +307,8 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
             if(ios_peloton_workaround && cadence)
             {
                 qDebug() << "ios_peloton_workaround activated!";
-                h.virtualbike_ios();
+                h = new lockscreen();
+                h->virtualbike_ios();
             }
             else
 #endif

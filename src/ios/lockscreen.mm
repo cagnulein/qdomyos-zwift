@@ -2,7 +2,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
-#import "qdomyoszwift-Swift1.h"
+#import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
 
 @class virtualdevice_ios;
@@ -29,5 +29,15 @@ long lockscreen::heartRate()
 void lockscreen::virtualbike_ios()
 {
     _virtualbike = [[virtualdevice_ios alloc] init];
+}
+
+void lockscreen::virtualbike_setHeartRate(unsigned short heartRate)
+{
+    [h updateHeartRate: heartRate];
+}
+
+void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime)
+{
+    [h updateCadence: crankRevolutions, lastCrankEventTime];
 }
 #endif

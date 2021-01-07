@@ -175,8 +175,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "28"
             endingLineNumber = "28"
-            landmarkName = "init()"
-            landmarkType = "7">
+            landmarkName = "BLEPeripheralManager"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -191,8 +191,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "37"
             endingLineNumber = "37"
-            landmarkName = "peripheralManagerDidUpdateState(_:)"
-            landmarkType = "7">
+            landmarkName = "BLEPeripheralManager"
+            landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -207,7 +207,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "54"
             endingLineNumber = "54"
-            landmarkName = "peripheralManager(_:didAdd:error:)"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -223,7 +223,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "77"
             endingLineNumber = "77"
-            landmarkName = "peripheralManager(_:didReceiveRead:)"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -239,7 +239,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "68"
             endingLineNumber = "68"
-            landmarkName = "peripheralManagerDidStartAdvertising(_:error:)"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -255,7 +255,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "86"
             endingLineNumber = "86"
-            landmarkName = "peripheralManager(_:central:didSubscribeTo:)"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -303,7 +303,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "90"
             endingLineNumber = "90"
-            landmarkName = "peripheralManager(_:central:didUnsubscribeFrom:)"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -319,7 +319,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "95"
             endingLineNumber = "95"
-            landmarkName = "startSendingDataToSubscribers()"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -335,7 +335,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "99"
             endingLineNumber = "99"
-            landmarkName = "peripheralManagerIsReady(toUpdateSubscribers:)"
+            landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
             <Locations>
                <Location
@@ -383,7 +383,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "108"
             endingLineNumber = "108"
-            landmarkName = "calculateHeartRate()"
+            landmarkName = "updateHeartRate(HeartRate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -399,7 +399,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "117"
             endingLineNumber = "117"
-            landmarkName = "updateSubscribers()"
+            landmarkName = "peripheralManager(_:didAdd:error:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
