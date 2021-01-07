@@ -160,6 +160,18 @@ void domyosbike::update()
            m_jouls += (w * deltaTime);
            totPower += w;
            countPower++;
+
+           totPelotonResistance += pelotonResistance();
+           countPelotonResistance++;
+
+           totResistance += currentResistance();
+           countResistance++;
+
+           if(currentResistance() > maxResistance)
+               maxResistance = currentResistance();
+
+           if(pelotonResistance() > maxPelotonResistance)
+               maxPelotonResistance = pelotonResistance();
         }
         lastTimeUpdate = current;
 

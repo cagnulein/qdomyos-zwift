@@ -32,10 +32,13 @@ public:
     uint16_t watts(double weight);
     virtual bool changeFanSpeed(uint8_t speed);
     virtual uint8_t pelotonResistance();
+    virtual uint8_t avgPelotonResistance();
     virtual double elevationGain();
     QBluetoothDeviceInfo bluetoothDevice;
     double avgWatt();
     void disconnect();
+
+    uint8_t maxPelotonResistance = 0;
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -74,6 +77,9 @@ protected:
 
     uint64_t totPower = 0;
     uint32_t countPower = 0;
+
+    uint64_t totPelotonResistance = 0;
+    uint32_t countPelotonResistance = 0;
 };
 
 #endif // BLUETOOTHDEVICE_H

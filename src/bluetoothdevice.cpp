@@ -21,6 +21,7 @@ void* bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) { Q_UNUSED(speed); return false; }
 bool bluetoothdevice::connected() { return false; }
 uint8_t bluetoothdevice::pelotonResistance() { return m_pelotonResistance; }
+uint8_t bluetoothdevice::avgPelotonResistance(){ if(countPelotonResistance) return (uint8_t)((double)totPelotonResistance/(double)countPelotonResistance); else return 0;  }
 double bluetoothdevice::elevationGain(){ return elevationAcc; }
 double bluetoothdevice::avgWatt(){ if(countPower) return (double)totPower/(double)countPower; else return 0;  }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart = heart; }

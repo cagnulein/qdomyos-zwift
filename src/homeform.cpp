@@ -504,6 +504,9 @@ void homeform::update()
             this->peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->pelotonResistance(), 'f', 0));
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
+
+            this->resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->avgResistance()) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->maxResistance));
+            this->peloton_resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->avgPelotonResistance()) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->maxPelotonResistance));
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
