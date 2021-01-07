@@ -14,7 +14,7 @@ protocol BLEPeripheralManagerDelegate {
 
 /// CBUUID will automatically convert this 16-bit number to 128-bit UUID
 let heartRateServiceUUID = CBUUID(string: "0x180D")
-let heartRateCharacteristicUUID = CBUUID(string: "2A37")
+let heartRateCharacteristicUUID = CBUUID(string: "0x2A37")
 
 class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   private var peripheralManager: CBPeripheralManager!
@@ -37,7 +37,7 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
       self.heartRateService = CBMutableService(type: heartRateServiceUUID, primary: true)
       let characteristicProperties: CBCharacteristicProperties = [.notify, .read, .write]
       let characteristicPermissions: CBAttributePermissions = [.readable]
-      self.heartRateCharacteristic = CBMutableCharacteristic(type: heartRateServiceUUID,
+      self.heartRateCharacteristic = CBMutableCharacteristic(type:          heartRateCharacteristicUUID,
                                                             properties: characteristicProperties,
                                                             value: nil,
                                                             permissions: characteristicPermissions)
@@ -56,7 +56,7 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
       return
     }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "Virtual HRM",
+    let advertisementData = [CBAdvertisementDataLocalNameKey: "qDomyos-zwift",
                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID]] as [String : Any]
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
