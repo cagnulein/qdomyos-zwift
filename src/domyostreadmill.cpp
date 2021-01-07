@@ -441,6 +441,55 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         if(domyos_treadmill_buttons)
             changeInclination(currentInclination() - 0.5);
     }
+    else if(value.at(22) == 0x11)
+    {
+        debug("22km/h speed button pressed!");
+        if(domyos_treadmill_buttons)
+            changeSpeed(22.0);
+    }
+    else if(value.at(22) == 0x10)
+    {
+        debug("16km/h speed button pressed!");
+        if(domyos_treadmill_buttons)
+            changeSpeed(16.0);
+    }
+    else if(value.at(22) == 0x0f)
+    {
+        debug("10km/h speed button pressed!");
+        if(domyos_treadmill_buttons)
+            changeSpeed(10.0);
+    }
+    else if(value.at(22) == 0x0e)
+    {
+        debug("5km/h speed button pressed!");
+        if(domyos_treadmill_buttons)
+            changeSpeed(5.0);
+    }
+    else if(value.at(22) == 0x15)
+    {
+        debug("15% inclination button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeInclination(15.0);
+    }
+    else if(value.at(22) == 0x14)
+    {
+        debug("10% inclination button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeInclination(10.0);
+    }
+    else if(value.at(22) == 0x13)
+    {
+        debug("5% inclination button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeInclination(5.0);
+    }
+    else if(value.at(22) == 0x12)
+    {
+        debug("0% inclination button on console pressed!");
+        if(domyos_treadmill_buttons)
+            changeInclination(0.0);
+    }
+
     /*if ((uint8_t)value.at(1) != 0xbc && value.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;*/
 
