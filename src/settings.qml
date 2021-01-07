@@ -46,6 +46,7 @@ import Qt.labs.settings 1.0
             property bool battery_service: false
             property bool service_changed: false
             property bool virtual_device_enabled: true
+            property bool ios_peloton_workaround: false
         }
 
         ColumnLayout {
@@ -645,6 +646,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.virtual_device_enabled = checked
+            }
+
+            SwitchDelegate {
+                id: iosPelotonWorkaroundDelegate
+                text: qsTr("iOS Peloton Workaround")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.ios_peloton_workaround
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.ios_peloton_workaround = checked
             }
         }
     }
