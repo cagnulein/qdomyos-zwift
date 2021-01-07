@@ -143,6 +143,8 @@ private slots:
     void onStravaGranted();
     void onStravaAuthorizeWithBrowser(const QUrl &url);
     void replyDataReceived(QByteArray v);
+    void onSslErrors(QNetworkReply *reply, const QList<QSslError>& error);
+    void networkRequestFinished(QNetworkReply *reply);
 
 signals:
  void changeOfdevice();

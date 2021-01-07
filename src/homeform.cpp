@@ -835,6 +835,8 @@ void homeform::networkRequestFinished(QNetworkReply *reply)
         settings.setValue("strava_refreshtoken", refresh_token);
         settings.setValue("strava_lastrefresh", QDateTime::currentDateTime());
 
+        qDebug() << access_token << refresh_token;
+
     } else {
 
             // general error getting response
