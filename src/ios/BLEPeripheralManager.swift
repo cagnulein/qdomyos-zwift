@@ -22,20 +22,40 @@ let SensorLocationCharacteristicUUID = CBUUID(string: "0x2A5D")
 let CSCMeasurementCharacteristicUUID = CBUUID(string: "0x2A5B")
 let SCControlPointCharacteristicUUID = CBUUID(string: "0x2A55")
 
+@objc public class virtualbike_ios_swift: NSObject {
+    private var peripheralManager: BLEPeripheralManager!
+    
+    @objc public override init() {
+      super.init()
+      peripheralManager = BLEPeripheralManager()
+    }
+    
+    @objc public func updateHeartRate(HeartRate: UInt8)
+    {
+        peripheralManager.heartRate = HeartRate
+    }
+    
+    @objc public func updateCadence(CrankRevolutions: UInt16, LastCrankEventTime: UInt16)
+    {
+        peripheralManager.lastCrankEventTime = LastCrankEventTime
+        peripheralManager.crankRevolutions = CrankRevolutions
+    }
+}
+
 class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!
   private var heartRateCharacteristic: CBMutableCharacteristic!
-    private var heartRate:UInt8!
+    public var heartRate:UInt8!
 
   private var CSCService: CBMutableService!
   private var CSCFeatureCharacteristic: CBMutableCharacteristic!
   private var SensorLocationCharacteristic: CBMutableCharacteristic!
   private var CSCMeasurementCharacteristic: CBMutableCharacteristic!
   private var SCControlPointCharacteristic: CBMutableCharacteristic!
-    private var crankRevolutions: UInt16!
-    private var lastCrankEventTime: UInt16!
+    public var crankRevolutions: UInt16!
+    public var lastCrankEventTime: UInt16!
 
   private var notificationTimer: Timer!
   var delegate: BLEPeripheralManagerDelegate?
@@ -102,17 +122,6 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
       print("Peripheral manager is down")
     }
   }
-
-    func updateHeartRate(HeartRate: UInt8)
-    {
-        self.heartRate = HeartRate
-    }
-    
-    func updateCadence(CrankRevolutions: UInt16, LastCrankEventTime: UInt16)
-    {
-        self.lastCrankEventTime = LastCrankEventTime
-        self.crankRevolutions = CrankRevolutions
-    }
     
   func peripheralManager(_ peripheral: CBPeripheralManager, didAdd service: CBService, error: Error?) {
     if let uwError = error {

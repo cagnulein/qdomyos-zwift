@@ -211,7 +211,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #ifndef IO_UNDER_QT
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-    if(ios_peloton_workaround && cadence && h)
+    if(ios_peloton_workaround && cadence && h && firstStateChanged)
     {
         h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
         h->virtualbike_setHeartRate(currentHeart());

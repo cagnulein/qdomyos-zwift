@@ -2,14 +2,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
+#import <CoreBluetooth/CoreBluetooth.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
 
-@class virtualdevice_ios;
+@class virtualbike_ios_swift;
 @class healthkit;
 
 static healthkit* h = 0;
-static virtualdevice_ios* _virtualbike;
+static virtualbike_ios_swift* _virtualbike = nil;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -28,16 +29,18 @@ long lockscreen::heartRate()
 
 void lockscreen::virtualbike_ios()
 {
-    _virtualbike = [[virtualdevice_ios alloc] init];
+    _virtualbike = [[virtualbike_ios_swift alloc] init];
 }
 
-void lockscreen::virtualbike_setHeartRate(unsigned short heartRate)
+void lockscreen::virtualbike_setHeartRate(unsigned char heartRate)
 {
-    [h updateHeartRate: heartRate];
+    if(_virtualbike != nil)
+        [_virtualbike updateHeartRateWithHeartRate:heartRate];
 }
 
 void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime)
 {
-    [h updateCadence: crankRevolutions, lastCrankEventTime];
+    if(_virtualbike != nil)
+        [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 #endif

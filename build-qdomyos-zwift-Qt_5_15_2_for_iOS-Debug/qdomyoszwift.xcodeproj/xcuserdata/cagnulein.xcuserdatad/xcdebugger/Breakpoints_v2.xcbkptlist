@@ -173,8 +173,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "28"
-            endingLineNumber = "28"
+            startingLineNumber = "48"
+            endingLineNumber = "48"
             landmarkName = "BLEPeripheralManager"
             landmarkType = "3">
          </BreakpointContent>
@@ -189,10 +189,42 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "37"
-            endingLineNumber = "37"
+            startingLineNumber = "57"
+            endingLineNumber = "57"
             landmarkName = "BLEPeripheralManager"
             landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "16D24B27-D0FB-4EC3-BAE8-56101FE7949B - 1c798ec95ff8d4b7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "qdomyoszwift.BLEPeripheralManager.crankRevolutions.modify : Swift.Optional&lt;Swift.UInt16&gt;"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "10">
+               </Location>
+               <Location
+                  uuid = "16D24B27-D0FB-4EC3-BAE8-56101FE7949B - 22bf4c49d0a5ba76"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "qdomyoszwift.BLEPeripheralManager.crankRevolutions.modify : Swift.Optional&lt;Swift.UInt16&gt; with unmangled suffix &quot;.resume.0&quot;"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "57"
+                  endingLineNumber = "57"
+                  offsetFromSymbolStart = "4">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -205,8 +237,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "54"
-            endingLineNumber = "54"
+            startingLineNumber = "74"
+            endingLineNumber = "74"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -221,8 +253,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
+            startingLineNumber = "97"
+            endingLineNumber = "97"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -237,8 +269,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "68"
-            endingLineNumber = "68"
+            startingLineNumber = "88"
+            endingLineNumber = "88"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -253,42 +285,10 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "86"
-            endingLineNumber = "86"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "167ADF3B-EFCD-475C-9373-8CE22DDE0BDA - 23794495eaebb18"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "qdomyoszwift.BLEPeripheralManager.peripheralManager(_: __C.CBPeripheralManager, central: __C.CBCentral, didSubscribeTo: __C.CBCharacteristic) -&gt; ()"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "86"
-                  endingLineNumber = "86"
-                  offsetFromSymbolStart = "138">
-               </Location>
-               <Location
-                  uuid = "167ADF3B-EFCD-475C-9373-8CE22DDE0BDA - 88d28e6211933b2d"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "@objc qdomyoszwift.BLEPeripheralManager.peripheralManager(_: __C.CBPeripheralManager, central: __C.CBCentral, didSubscribeTo: __C.CBCharacteristic) -&gt; ()"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "86"
-                  endingLineNumber = "86"
-                  offsetFromSymbolStart = "207">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -301,8 +301,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "90"
-            endingLineNumber = "90"
+            startingLineNumber = "110"
+            endingLineNumber = "110"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -317,8 +317,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "95"
-            endingLineNumber = "95"
+            startingLineNumber = "115"
+            endingLineNumber = "115"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -333,57 +333,9 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "99"
-            endingLineNumber = "99"
+            startingLineNumber = "119"
+            endingLineNumber = "119"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "A080A38F-4140-4C2A-A0CF-9DD6BB41CBBA - 5b566efe7a176717"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "qdomyoszwift.BLEPeripheralManager.peripheralManagerIsReady(toUpdateSubscribers: __C.CBPeripheralManager) -&gt; ()"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "99"
-                  endingLineNumber = "99"
-                  offsetFromSymbolStart = "50">
-               </Location>
-               <Location
-                  uuid = "A080A38F-4140-4C2A-A0CF-9DD6BB41CBBA - f60cec30148c9bab"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "@objc qdomyoszwift.BLEPeripheralManager.peripheralManagerIsReady(toUpdateSubscribers: __C.CBPeripheralManager) -&gt; ()"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "99"
-                  endingLineNumber = "99"
-                  offsetFromSymbolStart = "64">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "17F2D99E-BEBC-456C-925B-EAAD3D7FF5BA"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "../src/ios/BLEPeripheralManager.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "108"
-            endingLineNumber = "108"
-            landmarkName = "updateHeartRate(HeartRate:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -397,9 +349,153 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "117"
-            endingLineNumber = "117"
+            startingLineNumber = "126"
+            endingLineNumber = "126"
             landmarkName = "peripheralManager(_:didAdd:error:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "4503166F-EDC7-4ED3-AC2F-584ADF0E3FA5"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/lockscreen.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "38"
+            endingLineNumber = "38"
+            landmarkName = "lockscreen::virtualbike_setHeartRate(heartRate)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FE5697FF-F44C-43C2-A98D-C400EE56F047"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/lockscreen.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "44"
+            endingLineNumber = "44"
+            landmarkName = "lockscreen::virtualbike_setCadence(crankRevolutions, lastCrankEventTime)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "E8938847-29A7-4789-B7F5-B65386A6C6A0"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/lockscreen.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "37"
+            endingLineNumber = "37"
+            landmarkName = "lockscreen::virtualbike_setHeartRate(heartRate)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3DBE0495-050A-4979-85D4-28B78676F212"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/lockscreen.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "43"
+            endingLineNumber = "43"
+            landmarkName = "lockscreen::virtualbike_setCadence(crankRevolutions, lastCrankEventTime)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F3A2C1ED-B1A6-4772-913E-09143C997B67"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/lockscreen.mm"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "32"
+            endingLineNumber = "32"
+            landmarkName = "lockscreen::virtualbike_ios()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/BLEPeripheralManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "updateHeartRate(HeartRate:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 7d1f106582667437"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "qdomyoszwift.virtualbike_ios_swift.updateHeartRate(HeartRate: Swift.UInt8) -&gt; ()"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "22">
+               </Location>
+               <Location
+                  uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 4daffae51fb2d733"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "@objc qdomyoszwift.virtualbike_ios_swift.updateHeartRate(HeartRate: Swift.UInt8) -&gt; ()"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "1BED435D-636C-4FD8-9F5E-AB4351DAEC8F"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "../src/ios/BLEPeripheralManager.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "40"
+            endingLineNumber = "40"
+            landmarkName = "updateCadence(CrankRevolutions:LastCrankEventTime:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
