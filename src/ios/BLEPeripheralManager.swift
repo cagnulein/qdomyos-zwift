@@ -47,15 +47,15 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
 
   private var heartRateService: CBMutableService!
   private var heartRateCharacteristic: CBMutableCharacteristic!
-    public var heartRate:UInt8!
+    public var heartRate:UInt8! = 0
 
   private var CSCService: CBMutableService!
   private var CSCFeatureCharacteristic: CBMutableCharacteristic!
   private var SensorLocationCharacteristic: CBMutableCharacteristic!
   private var CSCMeasurementCharacteristic: CBMutableCharacteristic!
   private var SCControlPointCharacteristic: CBMutableCharacteristic!
-    public var crankRevolutions: UInt16!
-    public var lastCrankEventTime: UInt16!
+    public var crankRevolutions: UInt16! = 0
+    public var lastCrankEventTime: UInt16! = 0
 
   private var notificationTimer: Timer!
   var delegate: BLEPeripheralManagerDelegate?
@@ -98,8 +98,8 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
 																		 value: Data (bytes: [0x13]),
 																		 permissions: SensorLocationPermissions)
 
-      let CSCMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
-		let CSCMeasurementPermissions: CBAttributePermissions = [.readable]
+        let CSCMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+        let CSCMeasurementPermissions: CBAttributePermissions = [.readable]
 		self.CSCMeasurementCharacteristic = CBMutableCharacteristic(type: CSCMeasurementCharacteristicUUID,
 		                                           properties: CSCMeasurementProperties,
 																 value: nil,
@@ -161,11 +161,12 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
     print("Successfully subscribed")
+    updateSubscribers();
     self.startSendingDataToSubscribers()
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
-    self.notificationTimer.invalidate()
+    //self.notificationTimer.invalidate()
     print("Successfully unsubscribed")
   }
 
@@ -175,6 +176,7 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
     print("Peripheral manager is ready to update subscribers")
+    updateSubscribers();
     self.startSendingDataToSubscribers()
   }
 
@@ -196,8 +198,10 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
     let cadenceData = self.calculateCadence()
-    self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
-    self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
+    if self.peripheralManager != nil && self.heartRateCharacteristic != nil && self.CSCMeasurementCharacteristic != nil {
+        self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
+        self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
+    }
   }
   
 } /// class-end
