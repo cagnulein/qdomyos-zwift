@@ -119,8 +119,12 @@ private:
 
     QTimer* timer;
 
+    QString strava_code;
     QOAuth2AuthorizationCodeFlow* strava_connect();
+    void strava_refreshtoken();
+    QNetworkReply *replyStrava;
     QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(QUrl clientIdentifier,QUrl clientIdentifierSharedKey);
+    bool strava_upload_file(QByteArray &data, QString remotename);
 
     void update();
     bool getDevice();
@@ -145,6 +149,9 @@ private slots:
     void replyDataReceived(QByteArray v);
     void onSslErrors(QNetworkReply *reply, const QList<QSslError>& error);
     void networkRequestFinished(QNetworkReply *reply);
+    void callbackReceived(const QVariantMap &values);
+    void writeFileCompleted();
+    void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
 
 signals:
  void changeOfdevice();
