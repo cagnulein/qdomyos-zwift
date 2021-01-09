@@ -335,8 +335,8 @@ void fassitreadmill::stateChanged(QLowEnergyService::ServiceState state)
     {
         //qDebug() << gattCommunicationChannelService->characteristics();
 
-        QBluetoothUuid _gattWriteCharacteristicId(        (QString)"6a4e2811-667b-11e3-949a-0800200c9a66");
-        QBluetoothUuid _gattNotifyCharacteristicId(       (QString)"6a4e2814-667b-11e3-949a-0800200c9a66");
+        QBluetoothUuid _gattWriteCharacteristicId(        (QString)"0000ffe1-0000-1000-8000-00805f9b34fb");
+        QBluetoothUuid _gattNotifyCharacteristicId(       (QString)"0000ffe4-0000-1000-8000-00805f9b34fb");
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
@@ -376,7 +376,7 @@ void fassitreadmill::characteristicWritten(const QLowEnergyCharacteristic &chara
 
 void fassitreadmill::serviceScanDone(void)
 {
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"6a4e2800-667b-11e3-949a-0800200c9a66");
+    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0000ffe0-0000-1000-8000-00805f9b34fb");
     debug("serviceScanDone");
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
