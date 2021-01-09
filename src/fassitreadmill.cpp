@@ -332,10 +332,11 @@ void fassitreadmill::stateChanged(QLowEnergyService::ServiceState state)
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if(state == QLowEnergyService::ServiceDiscovered)
     {
-        qDebug() << gattCommunicationChannelService->characteristics();
         foreach(QLowEnergyCharacteristic c, gattCommunicationChannelService->characteristics())
         {
-            qDebug() << c.descriptors();
+            qDebug() << c.uuid();
+            foreach(QLowEnergyDescriptor d, c.descriptors())
+                qDebug() << d.uuid();
         }
 
         QBluetoothUuid _gattWriteCharacteristicId((quint16)0xffe1);
