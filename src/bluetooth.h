@@ -22,6 +22,7 @@
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
+#include "fassitreadmill.h"
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -38,6 +39,7 @@ public:
 private:
     QFile* debugCommsLog = 0;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    fassitreadmill* fassiTreadmill = 0;
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
     domyoselliptical* domyosElliptical = 0;

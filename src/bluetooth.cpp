@@ -175,6 +175,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
             }
+            else if(b.name().startsWith("SW") && b.name().length() == 14 && !fassiTreadmill && filter)
+            {
+                discoveryAgent->stop();
+                fassiTreadmill = new fassitreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                stateFileRead();
+                emit(deviceConnected());
+                connect(fassiTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(fassiTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(fassiTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                connect(fassiTreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                fassiTreadmill->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), fassiTreadmill, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
         }
     }
 }
@@ -238,6 +254,11 @@ void bluetooth::restart()
         delete domyos;        
         domyos = 0;
     }
+    if(fassiTreadmill)
+    {
+        delete fassiTreadmill;
+        fassiTreadmill = 0;
+    }
     if(domyosBike)
     {
         delete domyosBike;
@@ -278,6 +299,8 @@ bluetoothdevice* bluetooth::device()
         return domyos;
     else if(domyosBike)
         return domyosBike;
+    else if(fassiTreadmill)
+        return fassiTreadmill;
     else if(domyosElliptical)
         return domyosElliptical;
     else if(toorx)
