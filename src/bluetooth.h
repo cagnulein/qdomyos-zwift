@@ -22,6 +22,7 @@
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
+#include "yesoulbike.h"
 #include "fassitreadmill.h"
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
@@ -46,6 +47,7 @@ private:
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
     echelonconnectsport* echelonConnectSport = 0;
+    yesoulbike* yesoulBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

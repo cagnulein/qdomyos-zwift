@@ -155,6 +155,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
             }
+            else if(b.name().startsWith("YESOUL") && !yesoulBike && filter)
+            {
+                discoveryAgent->stop();
+                yesoulBike = new yesoulbike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(yesoulBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                connect(yesoulBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(yesoulBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                yesoulBike->deviceDiscovered(b);
+            }
             else if((b.name().startsWith("TRX ROUTE KEY")) && !toorx && filter)
             {
                 discoveryAgent->stop();
@@ -284,6 +297,11 @@ void bluetooth::restart()
         delete echelonConnectSport;
         echelonConnectSport = 0;
     }
+    if(yesoulBike)
+    {
+        delete yesoulBike;
+        yesoulBike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -309,6 +327,8 @@ bluetoothdevice* bluetooth::device()
         return trxappgateusb;
     else if(echelonConnectSport)
         return echelonConnectSport;
+    else if(yesoulBike)
+        return yesoulBike;
     return nullptr;
 }
 

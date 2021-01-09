@@ -59,7 +59,8 @@ SOURCES += \
    sessionline.cpp \
    signalhandler.cpp \
         toorxtreadmill.cpp \
-        treadmill.cpp \        
+		  treadmill.cpp \
+		yesoulbike.cpp \
         trainprogram.cpp \
    trxappgateusbtreadmill.cpp \
     virtualbike.cpp \
@@ -318,7 +319,8 @@ HEADERS += \
    trxappgateusbtreadmill.h \
     virtualbike.h \
    virtualtreadmill.h \
-    domyosbike.h
+    domyosbike.h \
+   yesoulbike.h
 
 !ios: HEADERS += charts.h
 
