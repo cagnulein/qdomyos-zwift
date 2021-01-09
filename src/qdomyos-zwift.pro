@@ -25,6 +25,7 @@ SOURCES += \
         domyostreadmill.cpp \
    echelonconnectsport.cpp \
     elliptical.cpp \
+   fassitreadmill.cpp \
    fit-sdk/fit.cpp \
    fit-sdk/fit_accumulated_field.cpp \
    fit-sdk/fit_accumulator.cpp \
@@ -83,6 +84,7 @@ HEADERS += \
    domyostreadmill.h \
    echelonconnectsport.h \
     elliptical.h \
+   fassitreadmill.h \
    fit-sdk/FitDecode.h \
    fit-sdk/FitDeveloperField.h \
    fit-sdk/FitEncode.h \
