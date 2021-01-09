@@ -193,38 +193,6 @@
             endingLineNumber = "57"
             landmarkName = "BLEPeripheralManager"
             landmarkType = "3">
-            <Locations>
-               <Location
-                  uuid = "16D24B27-D0FB-4EC3-BAE8-56101FE7949B - 1c798ec95ff8d4b7"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "qdomyoszwift.BLEPeripheralManager.crankRevolutions.modify : Swift.Optional&lt;Swift.UInt16&gt;"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/%3Ccompiler-generated%3E"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0"
-                  offsetFromSymbolStart = "10">
-               </Location>
-               <Location
-                  uuid = "16D24B27-D0FB-4EC3-BAE8-56101FE7949B - 22bf4c49d0a5ba76"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "qdomyoszwift.BLEPeripheralManager.crankRevolutions.modify : Swift.Optional&lt;Swift.UInt16&gt; with unmangled suffix &quot;.resume.0&quot;"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "57"
-                  endingLineNumber = "57"
-                  offsetFromSymbolStart = "4">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -237,8 +205,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "74"
-            endingLineNumber = "74"
+            startingLineNumber = "76"
+            endingLineNumber = "76"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -253,8 +221,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "97"
-            endingLineNumber = "97"
+            startingLineNumber = "99"
+            endingLineNumber = "99"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -269,8 +237,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "88"
-            endingLineNumber = "88"
+            startingLineNumber = "90"
+            endingLineNumber = "90"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -285,8 +253,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "106"
-            endingLineNumber = "106"
+            startingLineNumber = "108"
+            endingLineNumber = "108"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -301,8 +269,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "110"
-            endingLineNumber = "110"
+            startingLineNumber = "112"
+            endingLineNumber = "112"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -317,8 +285,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "115"
-            endingLineNumber = "115"
+            startingLineNumber = "117"
+            endingLineNumber = "117"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -333,8 +301,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "119"
-            endingLineNumber = "119"
+            startingLineNumber = "121"
+            endingLineNumber = "121"
             landmarkName = "peripheralManagerDidUpdateState(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -349,8 +317,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
+            startingLineNumber = "128"
+            endingLineNumber = "128"
             landmarkName = "peripheralManager(_:didAdd:error:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -391,7 +359,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "E8938847-29A7-4789-B7F5-B65386A6C6A0"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/ios/lockscreen.mm"
@@ -449,38 +417,6 @@
             endingLineNumber = "35"
             landmarkName = "updateHeartRate(HeartRate:)"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 7d1f106582667437"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "qdomyoszwift.virtualbike_ios_swift.updateHeartRate(HeartRate: Swift.UInt8) -&gt; ()"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "35"
-                  endingLineNumber = "35"
-                  offsetFromSymbolStart = "22">
-               </Location>
-               <Location
-                  uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 4daffae51fb2d733"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "@objc qdomyoszwift.virtualbike_ios_swift.updateHeartRate(HeartRate: Swift.UInt8) -&gt; ()"
-                  moduleName = "qdomyoszwift"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "35"
-                  endingLineNumber = "35"
-                  offsetFromSymbolStart = "28">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -509,8 +445,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
+            startingLineNumber = "176"
+            endingLineNumber = "176"
             landmarkName = "startSendingDataToSubscribers()"
             landmarkType = "7">
          </BreakpointContent>
@@ -541,8 +477,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "199"
-            endingLineNumber = "199"
+            startingLineNumber = "201"
+            endingLineNumber = "201"
             landmarkName = "updateSubscribers()"
             landmarkType = "7">
          </BreakpointContent>
@@ -557,8 +493,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "184"
-            endingLineNumber = "184"
+            startingLineNumber = "186"
+            endingLineNumber = "186"
             landmarkName = "calculateHeartRate()"
             landmarkType = "7">
          </BreakpointContent>
@@ -573,8 +509,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "193"
-            endingLineNumber = "193"
+            startingLineNumber = "195"
+            endingLineNumber = "195"
             landmarkName = "calculateCadence()"
             landmarkType = "7">
          </BreakpointContent>
@@ -589,8 +525,8 @@
             filePath = "../src/ios/BLEPeripheralManager.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "192"
-            endingLineNumber = "192"
+            startingLineNumber = "194"
+            endingLineNumber = "194"
             landmarkName = "calculateCadence()"
             landmarkType = "7">
          </BreakpointContent>
@@ -607,8 +543,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "13"
             endingLineNumber = "13"
-            landmarkName = "BLEPeripheralManagerDelegate"
-            landmarkType = "5">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
