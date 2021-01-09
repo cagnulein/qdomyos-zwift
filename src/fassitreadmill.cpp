@@ -223,7 +223,6 @@ void fassitreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
-    bool fassi_treadmill_buttons = settings.value("fassi_treadmill_buttons", false).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -333,15 +332,27 @@ void fassitreadmill::stateChanged(QLowEnergyService::ServiceState state)
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if(state == QLowEnergyService::ServiceDiscovered)
     {
-        //qDebug() << gattCommunicationChannelService->characteristics();
+        qDebug() << gattCommunicationChannelService->characteristics();
+        foreach(QLowEnergyCharacteristic c, gattCommunicationChannelService->characteristics())
+        {
+            qDebug() << c.descriptors();
+        }
 
-        QBluetoothUuid _gattWriteCharacteristicId(        (QString)"0000ffe1-0000-1000-8000-00805f9b34fb");
-        QBluetoothUuid _gattNotifyCharacteristicId(       (QString)"0000ffe4-0000-1000-8000-00805f9b34fb");
+        QBluetoothUuid _gattWriteCharacteristicId((quint16)0xffe1);
+        QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xffe4);
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
-        Q_ASSERT(gattWriteCharacteristic.isValid());
-        Q_ASSERT(gattNotifyCharacteristic.isValid());
+        if(!gattWriteCharacteristic.isValid())
+        {
+            qDebug() << "gattWriteCharacteristic not valid";
+            return;
+        }
+        if(!gattNotifyCharacteristic.isValid())
+        {
+            qDebug() << "gattNotifyCharacteristic not valid";
+            return;
+        }
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
