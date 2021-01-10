@@ -153,8 +153,12 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Speed = 0.37497622 * ((double)Cadence);
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-    CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+
+    if(Cadence > 0)
+    {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+    }
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 

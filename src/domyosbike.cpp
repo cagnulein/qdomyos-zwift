@@ -296,8 +296,11 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if(heartRateBeltName.startsWith("Disabled"))
         Heart = newValue.at(18);
 
-    CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+    if(Cadence > 0)
+    {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+    }
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
