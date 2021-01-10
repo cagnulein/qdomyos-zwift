@@ -147,6 +147,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     double distance = GetDistanceFromPacket(newValue);
 
+    Resistance = newValue.at(4);
     Cadence = newValue.at(6);
     m_watts = ((newValue.at(7) << 8) | newValue.at(8));
     Speed = 0.37497622 * ((double)Cadence);
@@ -181,6 +182,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
 #endif
 
+    debug("Current Resistance: " + QString::number(Resistance));
     debug("Current Speed: " + QString::number(Speed));
     debug("Current Calculate Distance: " + QString::number(Distance));
     debug("Current Cadence: " + QString::number(Cadence));
