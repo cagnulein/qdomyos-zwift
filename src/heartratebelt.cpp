@@ -86,10 +86,18 @@ void heartratebelt::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(QBluetoothUuid::HeartRate);
-    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
-    gattCommunicationChannelService->discoverDetails();
+    foreach(QBluetoothUuid s, m_control->services())
+    {
+        qDebug() << "heartRateBelt services " << s.toString();
+        if(s == QBluetoothUuid::HeartRate)
+        {
+            QBluetoothUuid _gattCommunicationChannelServiceId(QBluetoothUuid::HeartRate);
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
+            gattCommunicationChannelService->discoverDetails();
+            return;
+        }
+    }
 }
 
 void heartratebelt::errorService(QLowEnergyService::ServiceError err)
