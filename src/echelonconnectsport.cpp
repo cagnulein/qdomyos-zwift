@@ -214,7 +214,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
     if(ios_peloton_workaround && cadence && h && firstStateChanged)
     {
         h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
@@ -307,7 +307,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
             if(ios_peloton_workaround && cadence)
             {
                 qDebug() << "ios_peloton_workaround activated!";

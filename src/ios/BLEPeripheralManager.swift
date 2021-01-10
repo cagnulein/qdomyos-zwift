@@ -8,10 +8,10 @@
 
 import CoreBluetooth
 
-protocol BLEPeripheralManagerDelegate {
+/*protocol BLEPeripheralManagerDelegate {
     func BLEPeripheralManagerDidSendValue(_ heartRateBPM: UInt8)
     func BLEPeripheralManagerCSCDidSendValue(_ flags: UInt8, crankRevolutions: UInt16, lastCrankEventTime: UInt16)
-}
+}*/
 /// CBUUID will automatically convert this 16-bit number to 128-bit UUID
 let heartRateServiceUUID = CBUUID(string: "0x180D")
 let heartRateCharacteristicUUID = CBUUID(string: "0x2A37")
@@ -47,18 +47,20 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
 
   private var heartRateService: CBMutableService!
   private var heartRateCharacteristic: CBMutableCharacteristic!
-    public var heartRate:UInt8!
+    public var heartRate:UInt8! = 0
 
   private var CSCService: CBMutableService!
   private var CSCFeatureCharacteristic: CBMutableCharacteristic!
   private var SensorLocationCharacteristic: CBMutableCharacteristic!
   private var CSCMeasurementCharacteristic: CBMutableCharacteristic!
   private var SCControlPointCharacteristic: CBMutableCharacteristic!
-    public var crankRevolutions: UInt16!
-    public var lastCrankEventTime: UInt16!
+    public var crankRevolutions: UInt16! = 0
+    public var lastCrankEventTime: UInt16! = 0
+    
+    public var serviceToggle: Bool = false
 
   private var notificationTimer: Timer!
-  var delegate: BLEPeripheralManagerDelegate?
+  //var delegate: BLEPeripheralManagerDelegate?
 
   override init() {
     super.init()
@@ -98,8 +100,8 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
 																		 value: Data (bytes: [0x13]),
 																		 permissions: SensorLocationPermissions)
 
-      let CSCMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
-		let CSCMeasurementPermissions: CBAttributePermissions = [.readable]
+        let CSCMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+        let CSCMeasurementPermissions: CBAttributePermissions = [.readable]
 		self.CSCMeasurementCharacteristic = CBMutableCharacteristic(type: CSCMeasurementCharacteristicUUID,
 		                                           properties: CSCMeasurementProperties,
 																 value: nil,
@@ -161,11 +163,12 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
     print("Successfully subscribed")
+    updateSubscribers();
     self.startSendingDataToSubscribers()
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
-    self.notificationTimer.invalidate()
+    //self.notificationTimer.invalidate()
     print("Successfully unsubscribed")
   }
 
@@ -175,11 +178,12 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {
     print("Peripheral manager is ready to update subscribers")
+    updateSubscribers();
     self.startSendingDataToSubscribers()
   }
 
   func calculateHeartRate() -> Data {
-    self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
+    //self.delegate?.BLEPeripheralManagerDidSendValue(self.heartRate)
     var heartRateBPM: [UInt8] = [0, self.heartRate, 0, 0, 0, 0, 0, 0]
     let heartRateData = Data(bytes: &heartRateBPM, count: MemoryLayout.size(ofValue: heartRateBPM))
     return heartRateData
@@ -187,7 +191,7 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
     
     func calculateCadence() -> Data {
         let flags:UInt8 = 0x02
-      self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
+      //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
         var cadence: [UInt8] = [flags, (UInt8)(crankRevolutions & 0xFF), (UInt8)((crankRevolutions >> 8) & 0xFF),  (UInt8)(lastCrankEventTime & 0xFF), (UInt8)((lastCrankEventTime >> 8) & 0xFF)]
       let cadenceData = Data(bytes: &cadence, count: MemoryLayout.size(ofValue: cadence))
       return cadenceData
@@ -196,8 +200,21 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
     let cadenceData = self.calculateCadence()
-    self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
-    self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
+    
+    if(self.serviceToggle == true)
+    {
+        let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = !self.serviceToggle
+        }
+    }
+    else
+    {
+        let ok = self.peripheralManager.updateValue(cadenceData, for: self.CSCMeasurementCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = !self.serviceToggle
+        }
+    }
   }
   
 } /// class-end

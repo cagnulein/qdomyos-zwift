@@ -46,7 +46,7 @@ import Qt.labs.settings 1.0
             property bool battery_service: false
             property bool service_changed: false
             property bool virtual_device_enabled: true
-            property bool ios_peloton_workaround: false
+            property bool ios_peloton_workaround: true
         }
 
         ColumnLayout {
