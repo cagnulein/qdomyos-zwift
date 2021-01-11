@@ -53,17 +53,19 @@ void fassitreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStrin
 
 void fassitreadmill::updateDisplay(uint16_t elapsed)
 {
-
+    Q_UNUSED(elapsed)
 }
 
 void fassitreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)
 {
-
+    Q_UNUSED(requestSpeed)
+    Q_UNUSED(requestIncline)
 }
 
 bool fassitreadmill::sendChangeFanSpeed(uint8_t speed)
 {
-   return false;
+    Q_UNUSED(speed)
+    return false;
 }
 
 bool fassitreadmill::changeFanSpeed(uint8_t speed)
@@ -116,14 +118,12 @@ void fassitreadmill::update()
 
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
             QSettings settings;
            elapsed += deltaTime;
            double w = (double)watts(settings.value("weight", 75.0).toFloat());
            m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
         }
         lastTimeUpdate = current;
 
@@ -149,10 +149,10 @@ void fassitreadmill::update()
         {
             if(requestSpeed != -1)
             {
-               if(requestSpeed != currentSpeed() && requestSpeed >= 0 && requestSpeed <= 22)
+               if(requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22)
                {
                   debug("writing speed " + QString::number(requestSpeed));
-                  double inc = Inclination;
+                  double inc = Inclination.value();
                   if(requestInclination != -1)
                   {
                       inc = requestInclination;
@@ -164,10 +164,10 @@ void fassitreadmill::update()
             }
             if(requestInclination != -1)
             {
-               if(requestInclination != currentInclination() && requestInclination >= 0 && requestInclination <= 15)
+               if(requestInclination != currentInclination().value() && requestInclination >= 0 && requestInclination <= 15)
                {
                   debug("writing incline " + QString::number(requestInclination));
-                  double speed = currentSpeed();
+                  double speed = currentSpeed().value();
                   if(requestSpeed != -1)
                   {
                       speed = requestSpeed;
@@ -207,7 +207,7 @@ void fassitreadmill::update()
             }
         }
 
-        elevationAcc += (currentSpeed() / 3600.0) * 1000.0 * (currentInclination() / 100.0) * deltaTime;
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
     }
 
     firstUpdate = false;
@@ -257,19 +257,19 @@ void fassitreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     debug("Current elapsed from treadmill: " + QString::number(seconds_elapsed));
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current Distance: " + QString::number(distance));
     debug("Current Distance Calculated: " + QString::number(DistanceCalculated));
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
-    if(Speed != speed)
+    if(Speed.value() != speed)
     {
         Speed = speed;
         emit speedChanged(speed);
     }
-    if(Inclination != incline)
+    if(Inclination.value() != incline)
     {
         Inclination = incline;
         emit inclinationChanged(incline);
@@ -341,7 +341,6 @@ void fassitreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
         QBluetoothUuid _gattWriteCharacteristicId((quint16)0xffe1);
         QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xffe4);
-
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
         if(!gattWriteCharacteristic.isValid())

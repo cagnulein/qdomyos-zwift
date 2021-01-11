@@ -55,6 +55,7 @@ SOURCES += \
    homeform.cpp \
    keepawakehelper.cpp \
         main.cpp \
+   metric.cpp \
    qfit.cpp \
    sessionline.cpp \
    signalhandler.cpp \
@@ -308,6 +309,7 @@ HEADERS += \
    ios/lockscreen.h \
    keepawakehelper.h \
    macos/lockscreen.h \
+   metric.h \
    qfit.h \
    sessionline.h \
    signalhandler.h \

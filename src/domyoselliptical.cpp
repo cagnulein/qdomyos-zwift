@@ -83,10 +83,10 @@ void domyoselliptical::updateDisplay(uint16_t elapsed)
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed()) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed()) & 0xFF;
+    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value()) >> 8)) & 0xFF;
+    display[8] = (uint8_t)(currentSpeed().value()) & 0xFF;
 
-    display[12] = currentHeart();
+    display[12] = (uint8_t)currentHeart().value();
 
     //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     //display[14] = (((uint8_t)calories())) & 0xFF;
@@ -153,13 +153,11 @@ void domyoselliptical::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            double w = (double)watts();
            m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
         }
         lastTimeUpdate = current;
 
@@ -291,7 +289,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));
     debug("Current resistance: " + QString::number(Resistance));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
@@ -616,7 +614,7 @@ uint16_t domyoselliptical::watts()
     const uint16_t watt_cad130_min = 360;
     const uint16_t watt_cad130_max = 1045;
 
-    if(currentSpeed() <= 0) return 0;
+    if(currentSpeed().value() <= 0) return 0;
 
     if(currentCadence() < 41)
         return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);

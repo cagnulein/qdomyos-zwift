@@ -249,7 +249,7 @@ void virtualtreadmill::treadmillProvider()
         value.append(0x08); // Inclination avaiable
         value.append((char)0x01); // heart rate avaiable
 
-        uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed() * 100);
+        uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
         char a = (normalizeSpeed >> 8) & 0XFF;
         char b = normalizeSpeed & 0XFF;
         QByteArray speedBytes;
@@ -257,7 +257,7 @@ void virtualtreadmill::treadmillProvider()
         speedBytes.append(a);
         uint16_t normalizeIncline = 0;
         if(treadMill->deviceType() == bluetoothdevice::TREADMILL)
-            normalizeIncline = (uint32_t)qRound(((treadmill*)treadMill)->currentInclination() * 10);
+            normalizeIncline = (uint32_t)qRound(((treadmill*)treadMill)->currentInclination().value() * 10);
         a = (normalizeIncline >> 8) & 0XFF;
         b = normalizeIncline & 0XFF;
         QByteArray inclineBytes;
@@ -265,7 +265,7 @@ void virtualtreadmill::treadmillProvider()
         inclineBytes.append(a);
         double ramp = 0;
         if(treadMill->deviceType() == bluetoothdevice::TREADMILL)
-            ramp = qRadiansToDegrees(qAtan(((treadmill*)treadMill)->currentInclination()/100));
+            ramp = qRadiansToDegrees(qAtan(((treadmill*)treadMill)->currentInclination().value()/100));
         int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
         a = (normalizeRamp >> 8) & 0XFF;
         b = normalizeRamp & 0XFF;
@@ -279,7 +279,7 @@ void virtualtreadmill::treadmillProvider()
 
         value.append(rampBytes);  //ramp angle
 
-        value.append(treadMill->currentHeart()); // current heart rate
+        value.append(treadMill->currentHeart().value()); // current heart rate
 
         QLowEnergyCharacteristic characteristic
                 = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
@@ -298,7 +298,7 @@ void virtualtreadmill::treadmillProvider()
     else
     {
         value.append(0x02); // total distance
-        uint16_t speed = treadMill->currentSpeed() / 3.6;
+        uint16_t speed = treadMill->currentSpeed().value() / 3.6;
         uint32_t distance = treadMill->odometer() * 1000.0;
         value.append((char)((speed & 0xFF)));
         value.append((char)((speed >> 8) & 0xFF));
@@ -328,7 +328,7 @@ void virtualtreadmill::treadmillProvider()
     {
         QByteArray valueHR;
         valueHR.append(char(0)); // Flags that specify the format of the value.
-        valueHR.append(char(treadMill->currentHeart())); // Actual value.
+        valueHR.append(char(treadMill->currentHeart().value())); // Actual value.
         QLowEnergyCharacteristic characteristicHR
                 = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
         Q_ASSERT(characteristicHR.isValid());

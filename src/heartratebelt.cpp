@@ -33,10 +33,10 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
     if(newValue.length() > 1)
     {
         Heart = newValue[1];
-        emit heartRate(Heart);
+        emit heartRate((uint8_t)Heart.value());
     }
 
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
 }
 
 void heartratebelt::stateChanged(QLowEnergyService::ServiceState state)

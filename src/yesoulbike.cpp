@@ -62,25 +62,11 @@ void yesoulbike::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            double w = (double)watts();
            m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
-
-           totPelotonResistance += pelotonResistance();
-           countPelotonResistance++;
-
-           totResistance += currentResistance();
-           countResistance++;
-
-           if(currentResistance() > maxResistance)
-               maxResistance = currentResistance();
-
-           if(pelotonResistance() > maxPelotonResistance)
-               maxPelotonResistance = pelotonResistance();
         }
         lastTimeUpdate = current;
 
@@ -96,7 +82,7 @@ void yesoulbike::update()
            if(requestResistance > 15) requestResistance = 15;
            else if(requestResistance == 0) requestResistance = 1;
 
-           if(requestResistance != currentResistance())
+           if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
               //forceResistance(requestResistance);
@@ -150,14 +136,14 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Resistance = newValue.at(4);
     Cadence = newValue.at(6);
     m_watts = ((newValue.at(7) << 8) | newValue.at(8));
-    Speed = 0.37497622 * ((double)Cadence);
+    Speed = 0.37497622 * ((double)Cadence.value());
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
-    Distance += ((Speed / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
-    if(Cadence > 0)
+    if(Cadence.value() > 0)
     {
         CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -186,10 +172,10 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
 #endif
 
-    debug("Current Resistance: " + QString::number(Resistance));
-    debug("Current Speed: " + QString::number(Speed));
+    debug("Current Resistance: " + QString::number(Resistance.value()));
+    debug("Current Speed: " + QString::number(Speed.value()));
     debug("Current Calculate Distance: " + QString::number(Distance));
-    debug("Current Cadence: " + QString::number(Cadence));
+    debug("Current Cadence: " + QString::number(Cadence.value()));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
@@ -373,7 +359,7 @@ void* yesoulbike::VirtualDevice()
 
 uint16_t yesoulbike::watts()
 {
-    if(currentCadence() == 0) return 0;
+    if(currentCadence().value() == 0) return 0;
 
     return m_watts;
 }

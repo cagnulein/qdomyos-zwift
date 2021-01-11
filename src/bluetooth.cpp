@@ -233,7 +233,7 @@ void bluetooth::connectedAndDiscovered()
 
 void bluetooth::heartRate(uint8_t heart)
 {
-
+    Q_UNUSED(heart)
 }
 
 void bluetooth::restart()
@@ -404,8 +404,8 @@ void bluetooth::stateFileUpdate()
     docRoot = docStatus.createElement("Gym");
     docStatus.appendChild(docRoot);
     docTreadmill = docStatus.createElement("Treadmill");
-    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed(), 'f', 1));
-    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination(), 'f', 1));
+    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed().value(), 'f', 1));
+    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination().value(), 'f', 1));
     docRoot.appendChild(docTreadmill);
     //docHeart = docStatus.createElement("Heart");
     //docHeart.setAttribute("Rate", QString::number(currentHeart));

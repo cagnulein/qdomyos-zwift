@@ -131,7 +131,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
       display[9] = 0x00; // decimal position
    }
 
-   display[12] = currentHeart();
+   display[12] = (uint8_t)currentHeart().value();
 
    display[23] = ((uint8_t)(calories()) >> 8) & 0xFF;
    display[24] = (uint8_t)(calories()) & 0xFF;
@@ -238,14 +238,12 @@ void domyostreadmill::update()
 
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
             QSettings settings;
            elapsed += deltaTime;
            double w = (double)watts(settings.value("weight", 75.0).toFloat());
            m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
         }
         lastTimeUpdate = current;
 
@@ -270,10 +268,10 @@ void domyostreadmill::update()
         {
             if(requestSpeed != -1)
             {
-               if(requestSpeed != currentSpeed() && requestSpeed >= 0 && requestSpeed <= 22)
+               if(requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22)
                {
                   debug("writing speed " + QString::number(requestSpeed));
-                  double inc = Inclination;
+                  double inc = Inclination.value();
                   if(requestInclination != -1)
                   {
                       inc = requestInclination;
@@ -285,10 +283,10 @@ void domyostreadmill::update()
             }
             if(requestInclination != -1)
             {
-               if(requestInclination != currentInclination() && requestInclination >= 0 && requestInclination <= 15)
+               if(requestInclination != currentInclination().value() && requestInclination >= 0 && requestInclination <= 15)
                {
                   debug("writing incline " + QString::number(requestInclination));
-                  double speed = currentSpeed();
+                  double speed = currentSpeed().value();
                   if(requestSpeed != -1)
                   {
                       speed = requestSpeed;
@@ -327,7 +325,7 @@ void domyostreadmill::update()
             }
         }
 
-        elevationAcc += (currentSpeed() / 3600.0) * 1000.0 * (currentInclination() / 100.0) * deltaTime;
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
     }
 
     firstUpdate = false;
@@ -421,25 +419,25 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     {
         debug("increase speed button on console pressed!");
         if(domyos_treadmill_buttons)
-            changeSpeed(currentSpeed() + 0.2);
+            changeSpeed(currentSpeed().value() + 0.2);
     }
     else if(value.at(22) == 0x09)
     {
         debug("decrease speed button on console pressed!");
         if(domyos_treadmill_buttons)
-            changeSpeed(currentSpeed() - 0.2);
+            changeSpeed(currentSpeed().value() - 0.2);
     }
     else if(value.at(22) == 0x0c)
     {
         debug("increase inclination button on console pressed!");
         if(domyos_treadmill_buttons)
-            changeInclination(currentInclination() + 0.5);
+            changeInclination(currentInclination().value() + 0.5);
     }
     else if(value.at(22) == 0x0d)
     {
         debug("decrease inclination button on console pressed!");
         if(domyos_treadmill_buttons)
-            changeInclination(currentInclination() - 0.5);
+            changeInclination(currentInclination().value() - 0.5);
     }
     else if(value.at(22) == 0x11)
     {
@@ -507,7 +505,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
     debug("Current Distance Calculated: " + QString::number(DistanceCalculated));
@@ -515,12 +513,12 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
-    if(Speed != speed)
+    if(Speed.value() != speed)
     {
         Speed = speed;
         emit speedChanged(speed);
     }
-    if(Inclination != incline)
+    if(Inclination.value() != incline)
     {
         Inclination = incline;
         emit inclinationChanged(incline);

@@ -79,7 +79,7 @@ void trxappgateusbtreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
            elapsed += ((double)lastTimeUpdate.msecsTo(QTime::currentTime()) / 1000.0);
 
         // updating the treadmill console every second
@@ -94,10 +94,10 @@ void trxappgateusbtreadmill::update()
 
         if(requestSpeed != -1)
         {
-           if(requestSpeed != currentSpeed())
+           if(requestSpeed != currentSpeed().value())
            {
               debug("writing speed " + QString::number(requestSpeed));
-              double inc = Inclination;
+              double inc = Inclination.value();
               if(requestInclination != -1)
               {
                   inc = requestInclination;
@@ -109,10 +109,10 @@ void trxappgateusbtreadmill::update()
         }
         if(requestInclination != -1)
         {
-           if(requestInclination != currentInclination())
+           if(requestInclination != currentInclination().value())
            {
               debug("writing incline " + QString::number(requestInclination));
-              double speed = currentSpeed();
+              double speed = currentSpeed().value();
               if(requestSpeed != -1)
               {
                   speed = requestSpeed;
@@ -150,7 +150,7 @@ void trxappgateusbtreadmill::update()
             requestDecreaseFan = -1;
         }
 
-        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000 * (currentInclination().value() / 100) * (refresh->interval() / 1000);
     }
 
     lastTimeUpdate = QTime::currentTime();
@@ -210,7 +210,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
     debug("Current Elapsed from the treadmill (not used): " + QString::number(GetElapsedFromPacket(newValue)));

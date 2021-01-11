@@ -81,25 +81,11 @@ void echelonconnectsport::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            double w = (double)watts();
            m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
-
-           totPelotonResistance += pelotonResistance();
-           countPelotonResistance++;
-
-           totResistance += currentResistance();
-           countResistance++;
-
-           if(currentResistance() > maxResistance)
-               maxResistance = currentResistance();
-
-           if(pelotonResistance() > maxPelotonResistance)
-               maxPelotonResistance = pelotonResistance();
         }
         lastTimeUpdate = current;
 
@@ -117,7 +103,7 @@ void echelonconnectsport::update()
            if(requestResistance > 15) requestResistance = 15;
            else if(requestResistance == 0) requestResistance = 1;
 
-           if(requestResistance != currentResistance())
+           if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
               //forceResistance(requestResistance);
@@ -169,12 +155,12 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
         Resistance = newValue.at(3);
 
         //0,0097x3 - 0,4972x2 + 10,126x - 37,08
-        double p = ((pow(Resistance,3) * 0.0097) - (0.4972 * pow(Resistance, 2)) + (10.126 * Resistance) - 37.08);
+        double p = ((pow(Resistance.value(),3) * 0.0097) - (0.4972 * pow(Resistance.value(), 2)) + (10.126 * Resistance.value()) - 37.08);
         if(p < 0)
             p = 0;
         m_pelotonResistance = p;
 
-        debug("Current resistance: " + QString::number(Resistance));
+        debug("Current resistance: " + QString::number(Resistance.value()));
         return;
     }
 
@@ -187,14 +173,14 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     double distance = GetDistanceFromPacket(newValue);
 
     Cadence = newValue.at(10);
-    Speed = 0.37497622 * ((double)Cadence);
+    Speed = 0.37497622 * ((double)Cadence.value());
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
-    Distance += ((Speed / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
-    if(Cadence > 0)
+    if(Cadence.value() > 0)
     {
         CrankRevs++;
-        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -224,9 +210,9 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
     
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
-    debug("Current Speed: " + QString::number(Speed));
+    debug("Current Speed: " + QString::number(Speed.value()));
     debug("Current Calculate Distance: " + QString::number(Distance));
-    debug("Current Cadence: " + QString::number(Cadence));
+    debug("Current Cadence: " + QString::number(Cadence.value()));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
@@ -432,11 +418,11 @@ void* echelonconnectsport::VirtualDevice()
 
 uint16_t echelonconnectsport::watts()
 {
-    if(currentCadence() == 0) return 0;
+    if(currentCadence().value() == 0) return 0;
 
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
-    if(currentCadence() < 90)
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence()))) * exp(0.095 * (double)(currentResistance())) );
+    if(currentCadence().value() < 90)
+        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
     else
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence()))) * exp(0.088 * (double)(currentResistance())) );
+        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );
 }
