@@ -247,10 +247,6 @@ void fassitreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     double incline = GetInclinationFromPacket(value);
     double distance = GetDistanceFromPacket(value);
 
-    if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);
-    FanSpeed = value.at(23);
-
     if(!firstCharacteristicChanged)
         DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
 
