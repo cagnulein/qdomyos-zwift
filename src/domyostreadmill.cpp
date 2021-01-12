@@ -82,6 +82,7 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
@@ -220,7 +221,7 @@ void domyostreadmill::update()
        initDone)
     {
         // ******************************************* virtual treadmill init *************************************        
-        if(!firstInit && searchStopped)
+        if(!firstInit && searchStopped && !virtualTreadMill)
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
@@ -661,7 +662,6 @@ void domyostreadmill::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("domyostreadmill::error " + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
-    m_control->disconnect();
 }
 
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -677,6 +677,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceScanDone()));
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
                 this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -701,6 +702,17 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
         // Connect
         m_control->connectToDevice();
         return;
+    }
+}
+
+void domyostreadmill::controllerStateChanged(QLowEnergyController::ControllerState state)
+{
+    qDebug() << "controllerStateChanged" << state;
+    if(state == QLowEnergyController::UnconnectedState && m_control)
+    {
+        qDebug() << "trying to connect back again...";
+        initDone = false;
+        m_control->connectToDevice();
     }
 }
 

@@ -21,15 +21,18 @@ yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService)
 void yesoulbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
+    QTimer timeout;
     if(wait_for_response)
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
     else
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
@@ -228,7 +231,13 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state)
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
         // ******************************************* virtual bike init *************************************
-        if(!firstStateChanged)
+        if(!firstStateChanged && !virtualBike
+        #ifdef Q_OS_IOS
+        #ifndef IO_UNDER_QT
+                && !h
+        #endif
+        #endif
+                )
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
@@ -297,8 +306,6 @@ void yesoulbike::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("yesoulbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
-
-    m_control->disconnect();
 }
 
 void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -315,6 +322,7 @@ void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceScanDone()));
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
                 this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -362,4 +370,15 @@ uint16_t yesoulbike::watts()
     if(currentCadence().value() == 0) return 0;
 
     return m_watts;
+}
+
+void yesoulbike::controllerStateChanged(QLowEnergyController::ControllerState state)
+{
+    qDebug() << "controllerStateChanged" << state;
+    if(state == QLowEnergyController::UnconnectedState && m_control)
+    {
+        qDebug() << "trying to connect back again...";
+        initDone = false;
+        m_control->connectToDevice();
+    }
 }

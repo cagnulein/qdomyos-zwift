@@ -210,7 +210,7 @@ void virtualtreadmill::reconnect()
 
     if(bluetooth_relaxed) return;
 
-    emit debug("virtualtreadmill reconnect");
+    qDebug() << "virtualtreadmill reconnect " << treadMill->connected();
     service = leController->addService(serviceData);
 
     if(noHeartService == false)

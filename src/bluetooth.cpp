@@ -106,7 +106,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
                 emit(deviceConnected());
                 connect(domyosBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 domyosBike->deviceDiscovered(b);
                 connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
@@ -119,7 +119,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 domyosElliptical = new domyoselliptical(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
                 emit(deviceConnected());
                 connect(domyosElliptical, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyosElliptical, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 domyosElliptical->deviceDiscovered(b);
                 connect(this, SIGNAL(searchingStop()), domyosElliptical, SLOT(searchingStop()));
@@ -133,7 +133,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 stateFileRead();
                 emit(deviceConnected());
                 connect(domyos, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
@@ -149,7 +149,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //stateFileRead();
                 emit(deviceConnected());
                 connect(echelonConnectSport, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
@@ -162,7 +162,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //stateFileRead();
                 emit(deviceConnected());
                 connect(yesoulBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(yesoulBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(yesoulBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(yesoulBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
@@ -174,7 +174,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 toorx = new toorxtreadmill();
                 emit(deviceConnected());
                 connect(toorx, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 toorx->deviceDiscovered(b);
             }
@@ -184,7 +184,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 trxappgateusb = new trxappgateusbtreadmill();
                 emit(deviceConnected());
                 connect(trxappgateusb, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
             }
@@ -195,7 +195,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 stateFileRead();
                 emit(deviceConnected());
                 connect(fassiTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(fassiTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(fassiTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 connect(fassiTreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
