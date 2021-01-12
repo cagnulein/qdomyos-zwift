@@ -147,7 +147,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length() && lastPacket == newValue)
+    if (lastPacket.length())
         return;
 
     lastPacket = newValue;

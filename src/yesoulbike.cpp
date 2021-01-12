@@ -126,7 +126,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length() && lastPacket == newValue)
+    if (lastPacket.length())
         return;
 
     lastPacket = newValue;
