@@ -247,6 +247,12 @@ void fassitreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     double incline = GetInclinationFromPacket(value);
     double distance = GetDistanceFromPacket(value);
 
+    if(incline > 15.0 || incline < 0.0)
+    {
+        qDebug() << "inclination out of range, resetting it to 0..." << incline;
+        incline = 0;
+    }
+
     if(!firstCharacteristicChanged)
         DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
 
