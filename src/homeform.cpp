@@ -958,6 +958,7 @@ void homeform::onStravaGranted()
     settings.setValue("strava_lastrefresh", QDateTime::currentDateTime());
     qDebug() << "strava authenticathed" << strava->token() << strava->refreshToken();
     strava_refreshtoken();
+    setGeneralPopupVisible(true);
 }
 
 void homeform::onStravaAuthorizeWithBrowser(const QUrl &url)
@@ -1102,4 +1103,15 @@ void homeform::strava_connect_clicked()
             this,&homeform::onStravaGranted);
     strava->grant();
     //qDebug() << QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
+
+bool homeform::generalPopupVisible()
+{
+    return m_generalPopupVisible;
+}
+
+void homeform::setGeneralPopupVisible(bool value)
+{
+    m_generalPopupVisible = value;
+    generalPopupVisibleChanged(m_generalPopupVisible);
 }

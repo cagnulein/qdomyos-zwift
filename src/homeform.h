@@ -80,6 +80,7 @@ class homeform: public QObject
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
+    Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
@@ -87,8 +88,10 @@ public:
     int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
     QString signal();
+    bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();
+    void setGeneralPopupVisible(bool value);
 
 private:
     QList<QObject *> dataList;
@@ -100,6 +103,7 @@ private:
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
     bool m_labelHelp = true;
+    bool m_generalPopupVisible = false;
     QOAuth2AuthorizationCodeFlow* strava;
     QNetworkAccessManager* manager = 0;
 
@@ -165,6 +169,7 @@ signals:
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
  void changeLabelHelp(bool value);
+ void generalPopupVisibleChanged(bool value);
 };
 
 #endif // HOMEFORM_H
