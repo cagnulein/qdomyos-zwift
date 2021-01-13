@@ -232,9 +232,6 @@ void fassitreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
     debug("packetReceived!");
     emit packetReceived();
 
-    if (lastPacket.length() && lastPacket == value)
-        return;
-
     lastPacket = value;
 
     if (value.length() != 17)

@@ -173,9 +173,6 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length())
-        return;
-
     lastPacket = newValue;
     if (newValue.length() != 19)
         return;

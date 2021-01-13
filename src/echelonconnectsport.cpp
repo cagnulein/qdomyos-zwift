@@ -147,9 +147,6 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length())
-        return;
-
     lastPacket = newValue;
 
     // resistance value is in another frame

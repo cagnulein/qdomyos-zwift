@@ -248,9 +248,6 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length())
-        return;
-
     lastPacket = newValue;
     if (newValue.length() != 26)
         return;
