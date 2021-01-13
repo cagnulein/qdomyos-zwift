@@ -8,13 +8,17 @@ metric::metric()
 void metric::setValue(double value)
 {
     m_value = value;
-    m_countValue++;
-    m_totValue += value;
+    if(value != 0)
+    {
+        m_countValue++;
+        m_totValue += value;
+
+        if(m_value < m_min)
+            m_min = m_value;
+    }
 
     if(m_value > m_max)
         m_max = m_value;
-    if(m_value < m_min)
-        m_min = m_value;
 }
 
 double metric::value()
