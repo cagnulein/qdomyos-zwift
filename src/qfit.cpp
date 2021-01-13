@@ -93,7 +93,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     }
 
     fit::ActivityMesg activityMesg;
-    activityMesg.SetTimestamp(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    activityMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
     activityMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
     activityMesg.SetNumSessions(1);
     activityMesg.SetType(FIT_ACTIVITY_MANUAL);
@@ -103,11 +103,36 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
     activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
 
+    fit::LapMesg lapMesg;
+    lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
+    lapMesg.SetStartTime(session.first().time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetTotalElapsedTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    lapMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    lapMesg.SetEvent(FIT_EVENT_WORKOUT);
+    lapMesg.SetEventType(FIT_EVENT_TYPE_START);
+    lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
+    if(type == bluetoothdevice::TREADMILL)
+    {
+        lapMesg.SetSport(FIT_SPORT_RUNNING);
+    }
+    else if(type == bluetoothdevice::ELLIPTICAL)
+    {
+        lapMesg.SetSport(FIT_SPORT_RUNNING);
+    }
+    else
+    {
+        lapMesg.SetSport(FIT_SPORT_CYCLING);
+    }
+    lapMesg.SetEvent(FIT_EVENT_LAP);
+    lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
+
     encode.Open(file);
     encode.Write(fileIdMesg);
     encode.Write(devIdMesg);
     encode.Write(sessionMesg);
-    //encode.Write(activityMesg);
+    encode.Write(activityMesg);
+    encode.Write(lapMesg);
 
     for (auto record : records)
     {
