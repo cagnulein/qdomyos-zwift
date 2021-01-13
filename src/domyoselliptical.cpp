@@ -248,9 +248,6 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length())
-        return;
-
     lastPacket = newValue;
     if (newValue.length() != 26)
         return;

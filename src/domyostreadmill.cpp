@@ -360,9 +360,6 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit packetReceived();
     }
 
-    if (lastPacket.length() && lastPacket == value)
-        return;
-
     QByteArray startBytes;
     startBytes.append(0xf0);
     startBytes.append(0xbc);
