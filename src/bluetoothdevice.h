@@ -13,28 +13,28 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QBluetoothDeviceDiscoveryAgent>
+#include "metric.h"
 
 class bluetoothdevice : public QObject
 {
     Q_OBJECT
 public:
     bluetoothdevice();
-    virtual unsigned char currentHeart();
-    virtual double currentSpeed();
+    virtual metric currentHeart();
+    virtual metric currentSpeed();
     virtual QTime currentPace();
     virtual double odometer();
     virtual double calories();
-    double jouls();
+    metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
     virtual bool connected();
     virtual void* VirtualDevice();
     uint16_t watts(double weight);
+    metric wattsMetric();
     virtual bool changeFanSpeed(uint8_t speed);
-    virtual uint8_t pelotonResistance();
     virtual double elevationGain();
     QBluetoothDeviceInfo bluetoothDevice;
-    double avgWatt();
     void disconnect();
 
     enum BLUETOOTH_TYPE {
@@ -59,21 +59,18 @@ protected:
     QLowEnergyController* m_control = 0;
 
     double elapsed = 0;
-    double Speed = 0;
+    metric Speed;
     double KCal = 0;
     double Distance = 0;
     uint8_t FanSpeed = 0;
-    uint8_t Heart = 0;
+    metric Heart;
     int8_t requestStart = -1;
     int8_t requestStop = -1;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
-    double m_jouls = 0;
-    uint8_t m_pelotonResistance = 0;
+    metric m_jouls;
     double elevationAcc = 0;
-
-    uint64_t totPower = 0;
-    uint32_t countPower = 0;
+    metric m_watt;
 };
 
 #endif // BLUETOOTHDEVICE_H

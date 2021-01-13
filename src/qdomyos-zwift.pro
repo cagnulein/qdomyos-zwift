@@ -27,6 +27,7 @@ SOURCES += \
         domyostreadmill.cpp \
    echelonconnectsport.cpp \
     elliptical.cpp \
+   fassitreadmill.cpp \
    fit-sdk/fit.cpp \
    fit-sdk/fit_accumulated_field.cpp \
    fit-sdk/fit_accumulator.cpp \
@@ -56,11 +57,13 @@ SOURCES += \
    homeform.cpp \
    keepawakehelper.cpp \
         main.cpp \
+   metric.cpp \
    qfit.cpp \
    sessionline.cpp \
    signalhandler.cpp \
         toorxtreadmill.cpp \
-        treadmill.cpp \        
+		  treadmill.cpp \
+		yesoulbike.cpp \
         trainprogram.cpp \
    trxappgateusbtreadmill.cpp \
     virtualbike.cpp \
@@ -85,6 +88,7 @@ HEADERS += \
    domyostreadmill.h \
    echelonconnectsport.h \
     elliptical.h \
+   fassitreadmill.h \
    fit-sdk/FitDecode.h \
    fit-sdk/FitDeveloperField.h \
    fit-sdk/FitEncode.h \
@@ -307,6 +311,7 @@ HEADERS += \
    ios/lockscreen.h \
    keepawakehelper.h \
    macos/lockscreen.h \
+   metric.h \
    qfit.h \
    sessionline.h \
    signalhandler.h \
@@ -318,7 +323,8 @@ HEADERS += \
    trxappgateusbtreadmill.h \
     virtualbike.h \
    virtualtreadmill.h \
-    domyosbike.h
+    domyosbike.h \
+   yesoulbike.h
 
 !ios: HEADERS += charts.h
 
@@ -338,7 +344,9 @@ DISTFILES += \
    android/gradlew \
    android/gradlew.bat \
 	android/res/values/libs.xml \
-   android/src/MyActivity.java
+   android/src/MyActivity.java \
+   ios/AppDelegate.swift \
+   ios/BLEPeripheralManager.swift
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

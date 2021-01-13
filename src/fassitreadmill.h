@@ -1,6 +1,5 @@
-#ifndef ECHELONCONNECTSPORT_H
-#define ECHELONCONNECTSPORT_H
-
+#ifndef FASSITREADMILL_H
+#define FASSITREADMILL_H
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -24,67 +23,73 @@
 #include <QtCore/qmutex.h>
 
 #include <QObject>
-#include <QString>
 #include <QDateTime>
 
-#include "virtualbike.h"
-#include "bike.h"
+#include "virtualtreadmill.h"
+#include "treadmill.h"
 
-#ifdef Q_OS_IOS
-#include "ios/lockscreen.h"
-#endif
-
-class echelonconnectsport : public bike
+class fassitreadmill : public treadmill
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService);
+    fassitreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false, double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
+    bool changeFanSpeed(uint8_t speed);
+    double odometer();
 
-    void* VirtualBike();
+    void setLastSpeed(double speed);
+    void setLastInclination(double inclination);
+
+    void* VirtualTreadMill();
     void* VirtualDevice();
 
 private:
+    bool sendChangeFanSpeed(uint8_t speed);
+    double GetSpeedFromPacket(QByteArray packet);
+    double GetInclinationFromPacket(QByteArray packet);
+    double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);
-    QTime GetElapsedFromPacket(QByteArray packet);
-    void btinit();
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
+    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void updateDisplay(uint16_t elapsed);
+    void btinit(bool startTape);
+    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void startDiscover();
-    void sendPoll();
-    uint16_t watts();
+    double DistanceCalculated = 0;
+    volatile bool incompletePackets = false;
+    bool noConsole = false;
+    bool noHeartService = false;
+    uint32_t pollDeviceTime = 200;
+    bool searchStopped = false;
+    double lastSpeed = 0.0;
+    double lastInclination = 0;
+    uint8_t sec1Update = 0;
+    QDateTime lastTimeUpdate;
+    bool firstUpdate = true;
+    uint8_t firstInit = 0;
+    QByteArray lastPacket;
+    QDateTime lastTimeCharacteristicChanged;
+    bool firstCharacteristicChanged = true;
 
     QTimer* refresh;
-    virtualbike* virtualBike = 0;
+    virtualtreadmill* virtualTreadMill = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
-
-    uint8_t counterPoll = 1;
-    QDateTime lastTimeUpdate;
-    bool firstUpdate = true;
-    uint8_t sec1Update = 0;
-    QByteArray lastPacket;
-    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-    uint8_t firstStateChanged = 0;
+    QLowEnergyCharacteristic gattNotifyCharacteristic;
 
     bool initDone = false;
     bool initRequest = false;
 
-    bool noWriteResistance = false;
-    bool noHeartService = false;
-    
-#ifdef Q_OS_IOS
-    lockscreen* h = 0;
-#endif
-
 signals:
     void disconnected();
     void debug(QString string);
+    void speedChanged(double speed);
+    void inclinationChanged(double inclination);
+    void packetReceived();
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void searchingStop();
 
 private slots:
 
@@ -101,4 +106,4 @@ private slots:
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // ECHELONCONNECTSPORT_H
+#endif // FASSITREADMILL_H

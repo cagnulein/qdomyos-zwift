@@ -31,6 +31,7 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
@@ -79,7 +80,7 @@ void trxappgateusbtreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
            elapsed += ((double)lastTimeUpdate.msecsTo(QTime::currentTime()) / 1000.0);
 
         // updating the treadmill console every second
@@ -94,10 +95,10 @@ void trxappgateusbtreadmill::update()
 
         if(requestSpeed != -1)
         {
-           if(requestSpeed != currentSpeed())
+           if(requestSpeed != currentSpeed().value())
            {
               debug("writing speed " + QString::number(requestSpeed));
-              double inc = Inclination;
+              double inc = Inclination.value();
               if(requestInclination != -1)
               {
                   inc = requestInclination;
@@ -109,10 +110,10 @@ void trxappgateusbtreadmill::update()
         }
         if(requestInclination != -1)
         {
-           if(requestInclination != currentInclination())
+           if(requestInclination != currentInclination().value())
            {
               debug("writing incline " + QString::number(requestInclination));
-              double speed = currentSpeed();
+              double speed = currentSpeed().value();
               if(requestSpeed != -1)
               {
                   speed = requestSpeed;
@@ -150,7 +151,7 @@ void trxappgateusbtreadmill::update()
             requestDecreaseFan = -1;
         }
 
-        elevationAcc += (currentSpeed() / 3600.0) * 1000 * (currentInclination() / 100) * (refresh->interval() / 1000);
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000 * (currentInclination().value() / 100) * (refresh->interval() / 1000);
     }
 
     lastTimeUpdate = QTime::currentTime();
@@ -172,7 +173,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length() && lastPacket == newValue)
+    if (lastPacket.length())
         return;
 
     lastPacket = newValue;
@@ -210,7 +211,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
     debug("Current Elapsed from the treadmill (not used): " + QString::number(GetElapsedFromPacket(newValue)));
@@ -343,7 +344,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
         // ******************************************* virtual treadmill init *************************************
-        if(!firstVirtualTreadmill)
+        if(!firstVirtualTreadmill && !virtualTreadMill)
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
@@ -402,7 +403,6 @@ void trxappgateusbtreadmill::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("trxappgateusbtreadmill::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
-    m_control->disconnect();
 }
 
 void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -423,6 +423,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
                 this, SLOT(serviceScanDone()));
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
                 this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -468,4 +469,15 @@ void* trxappgateusbtreadmill::VirtualDevice()
 double trxappgateusbtreadmill::odometer()
 {
     return DistanceCalculated;
+}
+
+void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state)
+{
+    qDebug() << "controllerStateChanged" << state;
+    if(state == QLowEnergyController::UnconnectedState && m_control)
+    {
+        qDebug() << "trying to connect back again...";
+        initDone = false;
+        m_control->connectToDevice();
+    }
 }

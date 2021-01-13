@@ -106,7 +106,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
                 emit(deviceConnected());
                 connect(domyosBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 domyosBike->deviceDiscovered(b);
                 connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
@@ -119,7 +119,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 domyosElliptical = new domyoselliptical(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
                 emit(deviceConnected());
                 connect(domyosElliptical, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(domyosElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyosElliptical, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 domyosElliptical->deviceDiscovered(b);
                 connect(this, SIGNAL(searchingStop()), domyosElliptical, SLOT(searchingStop()));
@@ -133,7 +133,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 stateFileRead();
                 emit(deviceConnected());
                 connect(domyos, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
@@ -149,11 +149,24 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //stateFileRead();
                 emit(deviceConnected());
                 connect(echelonConnectSport, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
+            }
+            else if(b.name().startsWith("YESOUL") && !yesoulBike && filter)
+            {
+                discoveryAgent->stop();
+                yesoulBike = new yesoulbike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(yesoulBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(yesoulBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(yesoulBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                yesoulBike->deviceDiscovered(b);
             }
             else if((b.name().startsWith("TRX ROUTE KEY")) && !toorx && filter)
             {
@@ -161,7 +174,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 toorx = new toorxtreadmill();
                 emit(deviceConnected());
                 connect(toorx, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 toorx->deviceDiscovered(b);
             }
@@ -171,9 +184,25 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 trxappgateusb = new trxappgateusbtreadmill();
                 emit(deviceConnected());
                 connect(trxappgateusb, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
+            }
+            else if(b.name().startsWith("SW") && b.name().length() == 14 && !fassiTreadmill && filter)
+            {
+                discoveryAgent->stop();
+                fassiTreadmill = new fassitreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                stateFileRead();
+                emit(deviceConnected());
+                connect(fassiTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(fassiTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(fassiTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                connect(fassiTreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                fassiTreadmill->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), fassiTreadmill, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
             }
         }
     }
@@ -204,7 +233,7 @@ void bluetooth::connectedAndDiscovered()
 
 void bluetooth::heartRate(uint8_t heart)
 {
-
+    Q_UNUSED(heart)
 }
 
 void bluetooth::restart()
@@ -238,6 +267,11 @@ void bluetooth::restart()
         delete domyos;        
         domyos = 0;
     }
+    if(fassiTreadmill)
+    {
+        delete fassiTreadmill;
+        fassiTreadmill = 0;
+    }
     if(domyosBike)
     {
         delete domyosBike;
@@ -263,6 +297,11 @@ void bluetooth::restart()
         delete echelonConnectSport;
         echelonConnectSport = 0;
     }
+    if(yesoulBike)
+    {
+        delete yesoulBike;
+        yesoulBike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -278,6 +317,8 @@ bluetoothdevice* bluetooth::device()
         return domyos;
     else if(domyosBike)
         return domyosBike;
+    else if(fassiTreadmill)
+        return fassiTreadmill;
     else if(domyosElliptical)
         return domyosElliptical;
     else if(toorx)
@@ -286,6 +327,8 @@ bluetoothdevice* bluetooth::device()
         return trxappgateusb;
     else if(echelonConnectSport)
         return echelonConnectSport;
+    else if(yesoulBike)
+        return yesoulBike;
     return nullptr;
 }
 
@@ -361,8 +404,8 @@ void bluetooth::stateFileUpdate()
     docRoot = docStatus.createElement("Gym");
     docStatus.appendChild(docRoot);
     docTreadmill = docStatus.createElement("Treadmill");
-    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed(), 'f', 1));
-    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination(), 'f', 1));
+    docTreadmill.setAttribute("Speed", QString::number(device()->currentSpeed().value(), 'f', 1));
+    docTreadmill.setAttribute("Incline", QString::number(((treadmill*)device())->currentInclination().value(), 'f', 1));
     docRoot.appendChild(docTreadmill);
     //docHeart = docStatus.createElement("Heart");
     //docHeart.setAttribute("Rate", QString::number(currentHeart));

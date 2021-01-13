@@ -43,6 +43,7 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
@@ -83,15 +84,15 @@ void domyosbike::updateDisplay(uint16_t elapsed)
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed()) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed()) & 0xFF;
+    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value()) >> 8)) & 0xFF;
+    display[8] = (uint8_t)(currentSpeed().value()) & 0xFF;
 
-    display[12] = currentHeart();
+    display[12] = (uint8_t)currentHeart().value();
 
     //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     //display[14] = (((uint8_t)calories())) & 0xFF;
 
-    display[16] = (uint8_t)currentCadence();
+    display[16] = (uint8_t)currentCadence().value();
 
     display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
     display[20] = (((uint16_t)calories())) & 0xFF;
@@ -153,18 +154,16 @@ void domyosbike::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            double w = (double)watts();
-           m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
+           m_jouls.setValue(m_jouls.value() + (w * deltaTime));
         }
         lastTimeUpdate = current;
 
         // ******************************************* virtual bike init *************************************
-        if(!firstVirtual && searchStopped)
+        if(!firstVirtual && searchStopped && !virtualBike)
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
@@ -193,7 +192,7 @@ void domyosbike::update()
         {
             if((((int)elapsed) % 5) == 0)
             {
-                uint8_t new_res = currentResistance() + 1;
+                uint8_t new_res = currentResistance().value() + 1;
                 if(new_res > 15)
                     new_res = 1;
                 forceResistance(new_res);
@@ -205,7 +204,7 @@ void domyosbike::update()
            if(requestResistance > 15) requestResistance = 15;
            else if(requestResistance == 0) requestResistance = 1;
 
-           if(requestResistance != currentResistance())
+           if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
               forceResistance(requestResistance);
@@ -249,7 +248,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length() && lastPacket == newValue)
+    if (lastPacket.length())
         return;
 
     lastPacket = newValue;
@@ -276,22 +275,25 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     Cadence = newValue.at(9);
     Resistance = newValue.at(14);
-    if(Resistance < 1)
+    if(Resistance.value() < 1)
     {
-        debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
+        debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
         Resistance = 1;
     }
     if(heartRateBeltName.startsWith("Disabled"))
         Heart = newValue.at(18);
 
-    CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+    if(Cadence.value() > 0)
+    {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence));
-    debug("Current resistance: " + QString::number(Resistance));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current cadence: " + QString::number(Cadence.value()));
+    debug("Current resistance: " + QString::number(Resistance.value()));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
@@ -481,8 +483,6 @@ void domyosbike::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("domyosbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
-
-    m_control->disconnect();
 }
 
 void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -510,6 +510,7 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceScanDone()));
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
                 this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -556,6 +557,7 @@ void* domyosbike::VirtualDevice()
 
 uint16_t domyosbike::watts()
 {
+    double v = 0;
     const uint8_t max_resistance = 15;
     // ref https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
@@ -616,45 +618,132 @@ uint16_t domyosbike::watts()
     const uint16_t watt_cad130_min = 360;
     const uint16_t watt_cad130_max = 1045;
 
-    if(currentSpeed() <= 0) return 0;
+    if(currentSpeed().value() <= 0) return 0;
 
-    if(currentCadence() < 41)
-        return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);
-    else if(currentCadence() < 46)
-        return((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad45_min);
-    else if(currentCadence() < 51)
-        return((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad50_min);
-    else if(currentCadence() < 56)
-        return((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad55_min);
-    else if(currentCadence() < 61)
-        return((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad60_min);
-    else if(currentCadence() < 66)
-        return((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad65_min);
-    else if(currentCadence() < 71)
-        return((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad70_min);
-    else if(currentCadence() < 76)
-        return((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad75_min);
-    else if(currentCadence() < 81)
-        return((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad80_min);
-    else if(currentCadence() < 86)
-        return((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad85_min);
-    else if(currentCadence() < 91)
-        return((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad90_min);
-    else if(currentCadence() < 96)
-        return((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad95_min);
-    else if(currentCadence() < 101)
-        return((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad100_min);
-    else if(currentCadence() < 106)
-        return((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad105_min);
-    else if(currentCadence() < 111)
-        return((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad110_min);
-    else if(currentCadence() < 116)
-        return((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad115_min);
-    else if(currentCadence() < 121)
-        return((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad120_min);
-    else if(currentCadence() < 126)
-        return((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad125_min);
+    if(currentCadence().value() < 41)
+    {
+        v = ((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad40_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 46)
+    {
+        v = ((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad45_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 51)
+    {
+        v = ((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad50_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 56)
+    {
+        v = ((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad55_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 61)
+    {
+        v = ((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad60_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 66)
+    {
+        v = ((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad65_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 71)
+    {
+        v = ((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad70_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 76)
+    {
+        v = ((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad75_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 81)
+    {
+        v = ((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad80_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 86)
+    {
+        v = ((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad85_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 91)
+    {
+        v = ((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad90_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 96)
+    {
+        v = ((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad95_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 101)
+    {
+        v = ((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad100_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 106)
+    {
+        v = ((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad105_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 111)
+    {
+        v = ((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad110_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 116)
+    {
+        v = ((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad115_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 121)
+    {
+        v = ((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad120_min);
+        m_watt.setValue(v);
+        return v;
+    }
+    else if(currentCadence().value() < 126)
+    {
+        v = ((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad125_min);
+        m_watt.setValue(v);
+        return v;
+    }
     else
-        return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad130_min);
+    {
+        v = ((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad130_min);
+        m_watt.setValue(v);
+        return v;
+    }
     return 0;
+}
+
+void domyosbike::controllerStateChanged(QLowEnergyController::ControllerState state)
+{
+    qDebug() << "controllerStateChanged" << state;
+    if(state == QLowEnergyController::UnconnectedState && m_control)
+    {
+        qDebug() << "trying to connect back again...";
+        initDone = false;
+        m_control->connectToDevice();
+    }
 }

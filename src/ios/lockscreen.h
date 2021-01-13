@@ -7,6 +7,10 @@ public:
    void setTimerDisabled();
    void request();
    long heartRate();
+    void virtualbike_ios();
+    void virtualbike_setHeartRate(unsigned char heartRate);
+    void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
+
 };
 
 #endif // LOCKSCREEN_H

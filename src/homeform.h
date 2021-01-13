@@ -73,6 +73,7 @@ signals:
 class homeform: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool labelHelp READ labelHelp NOTIFY changeLabelHelp)
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
@@ -86,6 +87,7 @@ public:
     int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
     QString signal();
+    bool labelHelp();
     QStringList bluetoothDevices();
 
 private:
@@ -97,6 +99,7 @@ private:
 
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
+    bool m_labelHelp = true;
     QOAuth2AuthorizationCodeFlow* strava;
     QNetworkAccessManager* manager = 0;
 
@@ -154,12 +157,14 @@ private slots:
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
 
 signals:
+
  void changeOfdevice();
  void changeOfzwift();
  void signalChanged(QString value);
  void infoChanged(QString value);
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
+ void changeLabelHelp(bool value);
 };
 
 #endif // HOMEFORM_H

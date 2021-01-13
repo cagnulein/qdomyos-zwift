@@ -22,6 +22,8 @@
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
+#include "yesoulbike.h"
+#include "fassitreadmill.h"
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -38,12 +40,14 @@ public:
 private:
     QFile* debugCommsLog = 0;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    fassitreadmill* fassiTreadmill = 0;
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
     domyoselliptical* domyosElliptical = 0;
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
     echelonconnectsport* echelonConnectSport = 0;
+    yesoulbike* yesoulBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

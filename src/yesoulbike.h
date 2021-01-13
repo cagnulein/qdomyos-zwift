@@ -1,6 +1,5 @@
-#ifndef ECHELONCONNECTSPORT_H
-#define ECHELONCONNECTSPORT_H
-
+#ifndef YESOULBIKE_H
+#define YESOULBIKE_H
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -34,11 +33,11 @@
 #include "ios/lockscreen.h"
 #endif
 
-class echelonconnectsport : public bike
+class yesoulbike : public bike
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService);
+    yesoulbike(bool noWriteResistance, bool noHeartService);
     bool connected();
 
     void* VirtualBike();
@@ -59,22 +58,21 @@ private:
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
 
-    uint8_t counterPoll = 1;
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    uint16_t m_watts = 0;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-    
+
 #ifdef Q_OS_IOS
     lockscreen* h = 0;
 #endif
@@ -101,4 +99,5 @@ private slots:
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // ECHELONCONNECTSPORT_H
+
+#endif // YESOULBIKE_H

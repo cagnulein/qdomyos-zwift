@@ -43,6 +43,7 @@ void domyoselliptical::writeCharacteristic(uint8_t* data, uint8_t data_len, QStr
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
@@ -83,10 +84,10 @@ void domyoselliptical::updateDisplay(uint16_t elapsed)
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed()) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed()) & 0xFF;
+    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value()) >> 8)) & 0xFF;
+    display[8] = (uint8_t)(currentSpeed().value()) & 0xFF;
 
-    display[12] = currentHeart();
+    display[12] = (uint8_t)currentHeart().value();
 
     //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     //display[14] = (((uint8_t)calories())) & 0xFF;
@@ -153,18 +154,16 @@ void domyoselliptical::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
            double w = (double)watts();
            m_jouls += (w * deltaTime);
-           totPower += w;
-           countPower++;
         }
         lastTimeUpdate = current;
 
         // ******************************************* virtual bike init *************************************
-        if(!firstVirtual && searchStopped)
+        if(!firstVirtual && searchStopped && !virtualTreadmill)
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
@@ -249,7 +248,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     debug(" << " + newValue.toHex(' '));
 
-    if (lastPacket.length() && lastPacket == newValue)
+    if (lastPacket.length())
         return;
 
     lastPacket = newValue;
@@ -291,7 +290,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));
     debug("Current resistance: " + QString::number(Resistance));
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
@@ -481,8 +480,6 @@ void domyoselliptical::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("domyoselliptical::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
-
-    m_control->disconnect();
 }
 
 void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -510,6 +507,7 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceScanDone()));
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
                 this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -616,7 +614,7 @@ uint16_t domyoselliptical::watts()
     const uint16_t watt_cad130_min = 360;
     const uint16_t watt_cad130_max = 1045;
 
-    if(currentSpeed() <= 0) return 0;
+    if(currentSpeed().value() <= 0) return 0;
 
     if(currentCadence() < 41)
         return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);
@@ -657,4 +655,15 @@ uint16_t domyoselliptical::watts()
     else
         return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad130_min);
     return 0;
+}
+
+void domyoselliptical::controllerStateChanged(QLowEnergyController::ControllerState state)
+{
+    qDebug() << "controllerStateChanged" << state;
+    if(state == QLowEnergyController::UnconnectedState && m_control)
+    {
+        qDebug() << "trying to connect back again...";
+        initDone = false;
+        m_control->connectToDevice();
+    }
 }

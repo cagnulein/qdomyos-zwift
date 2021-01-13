@@ -33,10 +33,10 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
     if(newValue.length() > 1)
     {
         Heart = newValue[1];
-        emit heartRate(Heart);
+        emit heartRate((uint8_t)Heart.value());
     }
 
-    debug("Current heart: " + QString::number(Heart));
+    debug("Current heart: " + QString::number(Heart.value()));
 }
 
 void heartratebelt::stateChanged(QLowEnergyService::ServiceState state)
@@ -86,10 +86,18 @@ void heartratebelt::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(QBluetoothUuid::HeartRate);
-    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
-    gattCommunicationChannelService->discoverDetails();
+    foreach(QBluetoothUuid s, m_control->services())
+    {
+        qDebug() << "heartRateBelt services " << s.toString();
+        if(s == QBluetoothUuid::HeartRate)
+        {
+            QBluetoothUuid _gattCommunicationChannelServiceId(QBluetoothUuid::HeartRate);
+            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+            connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
+            gattCommunicationChannelService->discoverDetails();
+            return;
+        }
+    }
 }
 
 void heartratebelt::errorService(QLowEnergyService::ServiceError err)
@@ -102,7 +110,6 @@ void heartratebelt::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("heartratebelt::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
-    m_control->disconnect();
 }
 
 void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device)
@@ -120,6 +127,7 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceScanDone()));
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
                 this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
 
         connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -150,4 +158,14 @@ bool heartratebelt::connected()
     if(!m_control)
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
+}
+
+void heartratebelt::controllerStateChanged(QLowEnergyController::ControllerState state)
+{
+    qDebug() << "controllerStateChanged" << state;
+    if(state == QLowEnergyController::UnconnectedState && m_control)
+    {
+        qDebug() << "trying to connect back again...";
+        m_control->connectToDevice();
+    }
 }

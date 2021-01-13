@@ -436,20 +436,20 @@ void virtualbike::bikeProvider()
         value.append((char)0x64); // speed, inst. cadence, resistance lvl, instant power
         value.append((char)0x02); // heart rate
 
-        uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed() * 100);
+        uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
         value.append((char)(normalizeSpeed & 0xFF)); // speed
         value.append((char)(normalizeSpeed >> 8) & 0xFF); // speed
 
-        value.append((char)(Bike->currentCadence() * 2)); // cadence
+        value.append((char)(Bike->currentCadence().value() * 2)); // cadence
         value.append((char)(0)); // cadence
 
-        value.append((char)Bike->currentResistance()); // resistance
+        value.append((char)Bike->currentResistance().value()); // resistance
         value.append((char)(0)); // resistance
 
         value.append((char)(Bike->watts() & 0xFF)); // watts
         value.append((char)(Bike->watts() >> 8) & 0xFF); // watts
 
-        value.append(char(Bike->currentHeart())); // Actual value.
+        value.append(char(Bike->currentHeart().value())); // Actual value.
 
         QLowEnergyCharacteristic characteristic
                 = serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
@@ -489,11 +489,11 @@ void virtualbike::bikeProvider()
         {
             value.append((char)0x03); // crank and wheel data present
 
-            if(Bike->currentSpeed())
+            if(Bike->currentSpeed().value())
             {
                 const double wheelCircumference = 2000.0; // millimeters
                 wheelRevs++;
-                lastWheelTime += (uint16_t)(1024.0 / ((Bike->currentSpeed() / 3.6) / (wheelCircumference / 1000.0) ));
+                lastWheelTime += (uint16_t)(1024.0 / ((Bike->currentSpeed().value() / 3.6) / (wheelCircumference / 1000.0) ));
             }
             value.append((char)((wheelRevs & 0xFF))); // wheel count
             value.append((char)((wheelRevs >> 8) & 0xFF)); // wheel count
@@ -541,7 +541,7 @@ void virtualbike::bikeProvider()
     {
         QByteArray valueHR;
         valueHR.append(char(0)); // Flags that specify the format of the value.
-        valueHR.append(char(Bike->currentHeart())); // Actual value.
+        valueHR.append(char(Bike->currentHeart().value())); // Actual value.
         QLowEnergyCharacteristic characteristicHR
                 = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
         Q_ASSERT(characteristicHR.isValid());

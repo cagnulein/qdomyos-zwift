@@ -1,4 +1,4 @@
-#include "echelonconnectsport.h"
+#include "yesoulbike.h"
 #include "virtualbike.h"
 #include <QFile>
 #include <QDateTime>
@@ -8,7 +8,7 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 
-echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService)
+yesoulbike::yesoulbike(bool noWriteResistance, bool noHeartService)
 {
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
@@ -18,7 +18,7 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
     refresh->start(200);
 }
 
-void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
+void yesoulbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
     QTimer timeout;
@@ -43,25 +43,7 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
     loop.exec();
 }
 
-void echelonconnectsport::sendPoll()
-{    
-    uint8_t noOpData[] = { 0xf0, 0xa0, 0x01, 0x00, 0x00 };
-
-    noOpData[3] = counterPoll;
-
-    for(uint8_t i=0; i<sizeof(noOpData)-1; i++)
-    {
-       noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
-    }
-
-    writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
-
-    counterPoll++;
-    if(!counterPoll)
-        counterPoll = 1;
-}
-
-void echelonconnectsport::update()
+void yesoulbike::update()
 {
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
@@ -79,7 +61,6 @@ void echelonconnectsport::update()
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotify1Characteristic.isValid() &&
-       gattNotify2Characteristic.isValid() &&
        initDone)
     {
         QDateTime current = QDateTime::currentDateTime();
@@ -98,8 +79,6 @@ void echelonconnectsport::update()
             sec1Update = 0;
             //updateDisplay(elapsed);
         }
-
-        sendPoll();
 
         if(requestResistance != -1)
         {
@@ -133,15 +112,15 @@ void echelonconnectsport::update()
     firstUpdate = false;
 }
 
-void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt)
+void yesoulbike::serviceDiscovered(const QBluetoothUuid &gatt)
 {
     debug("serviceDiscovered " + gatt.toString());
 }
 
-void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
-    Q_UNUSED(characteristic);    
+    Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
@@ -152,30 +131,14 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     lastPacket = newValue;
 
-    // resistance value is in another frame
-    if(newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2)
-    {
-        Resistance = newValue.at(3);
-
-        //0,0097x3 - 0,4972x2 + 10,126x - 37,08
-        double p = ((pow(Resistance.value(),3) * 0.0097) - (0.4972 * pow(Resistance.value(), 2)) + (10.126 * Resistance.value()) - 37.08);
-        if(p < 0)
-            p = 0;
-        m_pelotonResistance = p;
-
-        debug("Current resistance: " + QString::number(Resistance.value()));
+    if (newValue.length() != 12)
         return;
-    }
-
-    if (newValue.length() != 13)
-        return;
-
-    /*if ((uint8_t)(newValue.at(0)) != 0xf0 && (uint8_t)(newValue.at(1)) != 0xd1)
-        return;*/
 
     double distance = GetDistanceFromPacket(newValue);
 
-    Cadence = newValue.at(10);
+    Resistance = newValue.at(4);
+    Cadence = newValue.at(6);
+    m_watts = ((((uint16_t)newValue.at(7)) << 8) + ((uint16_t) newValue.at(8)));
     Speed = 0.37497622 * ((double)Cadence.value());
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
@@ -199,11 +162,11 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 #endif
     }
-    
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
     if(ios_peloton_workaround && cadence && h && firstStateChanged)
     {
         h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
@@ -211,8 +174,8 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     }
 #endif
 #endif
-    
-    debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
+
+    debug("Current Resistance: " + QString::number(Resistance.value()));
     debug("Current Speed: " + QString::number(Speed.value()));
     debug("Current Calculate Distance: " + QString::number(Distance));
     debug("Current Cadence: " + QString::number(Cadence.value()));
@@ -220,49 +183,30 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
     debug("Current Watt: " + QString::number(watts()));
-    
+
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
 
-QTime echelonconnectsport::GetElapsedFromPacket(QByteArray packet)
+double yesoulbike::GetDistanceFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(3) << 8) | packet.at(4);
-    QTime t(0,convertedData / 60, convertedData % 60);
-    return t;
-}
-
-double echelonconnectsport::GetDistanceFromPacket(QByteArray packet)
-{
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
     double data = ((double)convertedData) / 100.0f;
     return data;
 }
 
-void echelonconnectsport::btinit()
+void yesoulbike::btinit()
 {
-    uint8_t initData1[] = { 0xf0, 0xa1, 0x00, 0x91 };
-    uint8_t initData2[] = { 0xf0, 0xa3, 0x00, 0x93 };
-    uint8_t initData3[] = { 0xf0, 0xb0, 0x01, 0x01, 0xa2 };
+    uint8_t initData1[] = { 0xf5, 0x20, 0x20, 0x40, 0xf6 };
 
-    // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are enough
     writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
-
-    writeCharacteristic(initData2, sizeof(initData2), "init", false, true);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
-    writeCharacteristic(initData3, sizeof(initData3), "init", false, true);
-
     initDone = true;
 }
 
-void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
+void yesoulbike::stateChanged(QLowEnergyService::ServiceState state)
 {
-    QBluetoothUuid _gattWriteCharacteristicId((QString)"0bf669f2-45f2-11e7-9598-0800200c9a66");
-    QBluetoothUuid _gattNotify1CharacteristicId((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66");
-    QBluetoothUuid _gattNotify2CharacteristicId((QString)"0bf669f4-45f2-11e7-9598-0800200c9a66");
+    QBluetoothUuid _gattWriteCharacteristicId((quint16)0xFFF1);
+    QBluetoothUuid _gattNotify1CharacteristicId((quint16)0xFFF4);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -273,10 +217,8 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
-        Q_ASSERT(gattNotify2Characteristic.isValid());
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
@@ -288,21 +230,21 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-        // ******************************************* virtual bike init *************************************        
+        // ******************************************* virtual bike init *************************************
         if(!firstStateChanged && !virtualBike
         #ifdef Q_OS_IOS
         #ifndef IO_UNDER_QT
                 && !h
         #endif
         #endif
-        )
+                )
         {
             QSettings settings;
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
             if(ios_peloton_workaround && cadence)
             {
                 qDebug() << "ios_peloton_workaround activated!";
@@ -316,7 +258,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                connect(virtualBike,&virtualbike::debug ,this,&yesoulbike::debug);
             }
         }
         firstStateChanged = 1;
@@ -326,11 +268,10 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        gattCommunicationChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
-void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
+void yesoulbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
 {
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 
@@ -338,39 +279,39 @@ void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descript
     emit connectedAndDiscovered();
 }
 
-void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+void yesoulbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     Q_UNUSED(characteristic);
     debug("characteristicWritten " + newValue.toHex(' '));
 }
 
-void echelonconnectsport::serviceScanDone(void)
+void yesoulbike::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0bf669f1-45f2-11e7-9598-0800200c9a66");
+    QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xFFF0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
 }
 
-void echelonconnectsport::errorService(QLowEnergyService::ServiceError err)
+void yesoulbike::errorService(QLowEnergyService::ServiceError err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("echelonconnectsport::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    debug("yesoulbike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
-void echelonconnectsport::error(QLowEnergyController::Error err)
+void yesoulbike::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("echelonconnectsport::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    debug("yesoulbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
-void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device)
+void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("ECH"))
+    if(device.name().startsWith("YESOUL"))
     {
         bluetoothDevice = device;
 
@@ -407,35 +348,31 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 }
 
-bool echelonconnectsport::connected()
+bool yesoulbike::connected()
 {
     if(!m_control)
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void* echelonconnectsport::VirtualBike()
+void* yesoulbike::VirtualBike()
 {
     return virtualBike;
 }
 
-void* echelonconnectsport::VirtualDevice()
+void* yesoulbike::VirtualDevice()
 {
     return VirtualBike();
 }
 
-uint16_t echelonconnectsport::watts()
+uint16_t yesoulbike::watts()
 {
     if(currentCadence().value() == 0) return 0;
 
-    // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
-    if(currentCadence().value() < 90)
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
-    else
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );
+    return m_watts;
 }
 
-void echelonconnectsport::controllerStateChanged(QLowEnergyController::ControllerState state)
+void yesoulbike::controllerStateChanged(QLowEnergyController::ControllerState state)
 {
     qDebug() << "controllerStateChanged" << state;
     if(state == QLowEnergyController::UnconnectedState && m_control)
