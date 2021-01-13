@@ -1066,7 +1066,7 @@ QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
 #warning "DEFINE STRAVA_SECRET_KEY!!!"
 #endif
     strava->setModifyParametersFunction(buildModifyParametersFunction(QUrl(""), QUrl("")));
-    auto replyHandler = new QOAuthHttpServerReplyHandler(QHostAddress("127.0.0.1"), 91, this);
+    auto replyHandler = new QOAuthHttpServerReplyHandler(QHostAddress("127.0.0.1"), 8091, this);
     connect(replyHandler,&QOAuthHttpServerReplyHandler::replyDataReceived, this,
             &homeform::replyDataReceived);
     connect(replyHandler,&QOAuthHttpServerReplyHandler::callbackReceived, this,
