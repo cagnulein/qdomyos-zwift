@@ -157,8 +157,8 @@ void domyoselliptical::update()
         if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
-           double w = (double)watts();
-           m_jouls += (w * deltaTime);
+           m_watt = (double)watts();
+           m_jouls += (m_watt.value() * deltaTime);
         }
         lastTimeUpdate = current;
 
