@@ -43,7 +43,7 @@ jobs:
           version: '5.12.9'
           host: 'linux'
           target: 'desktop'
-          modules: 'qtcharts debug_info'
+          modules: 'qtcharts debug_info qtnetworkauth'
           dir: '${{ github.workspace }}/output/linux-desktop/'
 #          cached: ${{ steps.cache-qt-linux-desktop.outputs.cache-hit }}
       
