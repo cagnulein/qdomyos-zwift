@@ -38,7 +38,7 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
                 this, SLOT(canceled()));
 
         // Start a discovery
-        discoveryAgent->start();
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
 }
 
