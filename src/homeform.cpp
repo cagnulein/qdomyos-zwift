@@ -15,7 +15,9 @@
 #include <QFileInfo>
 #include "gpx.h"
 #include "qfit.h"
+#ifndef IO_UNDER_QT
 #include "secret.h"
+#endif
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor, QString secondLine)
 {

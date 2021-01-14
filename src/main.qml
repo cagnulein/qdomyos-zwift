@@ -105,7 +105,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
              width: 370
              height: 120
-             text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will automatically uploaded!")
+             text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
             }
          }
     }
