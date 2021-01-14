@@ -71,7 +71,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
              anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("Saved! Check your download folder (Android) or Files App (iOS)")
+             text: qsTr("Saved! Check your download folder (Android)<br>or Files App (iOS)")
             }
          }
     }
