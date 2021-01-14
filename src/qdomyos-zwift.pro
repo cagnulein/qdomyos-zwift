@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick
+QT += bluetooth widgets xml positioning quick networkauth
 
 !ios: QT+= charts
 unix:android: QT += androidextras
@@ -16,6 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+android: include(../android_openssl/openssl.pri)
 
 SOURCES += \
    bike.cpp \

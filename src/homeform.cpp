@@ -4,8 +4,20 @@
 #include <QSettings>
 #include <QQmlFile>
 #include <QStandardPaths>
+#include <QAbstractOAuth2>
+#include <QNetworkAccessManager>
+#include <QOAuth2AuthorizationCodeFlow>
+#include <QOAuthHttpServerReplyHandler>
+#include <QDesktopServices>
+#include <QJsonDocument>
+#include <QUrlQuery>
+#include <QHttpMultiPart>
+#include <QFileInfo>
 #include "gpx.h"
 #include "qfit.h"
+#ifndef IO_UNDER_QT
+#include "secret.h"
+#endif
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor, QString secondLine)
 {
@@ -101,6 +113,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()),
         this, SLOT(fit_save_clicked()));
+    QObject::connect(stack, SIGNAL(strava_connect_clicked()),
+        this, SLOT(strava_connect_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
@@ -674,7 +688,15 @@ void homeform::fit_save_clicked()
 #endif
 
     if(bluetoothManager->device())
-        qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", Session, bluetoothManager->device()->deviceType());
+    {
+        QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
+        qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+        QFile f(filename);
+        f.open(QFile::OpenModeFlag::ReadOnly);
+        QByteArray fitfile = f.readAll();
+        strava_upload_file(fitfile,filename);
+        f.close();
+    }
 }
 
 void homeform::gpx_open_clicked(QUrl fileName)
@@ -716,4 +738,382 @@ QStringList homeform::bluetoothDevices()
             r.append(b.name());
     }
     return r;
+}
+
+struct OAuth2Parameter
+{
+    QString responseType = "code";
+    QString approval_prompt = "force";
+
+    inline bool isEmpty() const{
+        return responseType.isEmpty() && approval_prompt.isEmpty();
+    }
+    QString toString() const{
+        QString msg;
+        QTextStream out(&msg);
+        out << "OAuth2Parameter{\n"
+            << "responseType: " << this->responseType << "\n"
+            << "approval_prompt: " << this->approval_prompt << "\n";
+        return msg;
+    }
+};
+
+QAbstractOAuth::ModifyParametersFunction homeform::buildModifyParametersFunction(QUrl clientIdentifier,QUrl clientIdentifierSharedKey){
+    return [clientIdentifier,clientIdentifierSharedKey]
+            (QAbstractOAuth::Stage stage, QVariantMap *parameters){
+        if(stage == QAbstractOAuth::Stage::RequestingAuthorization){
+            parameters->insert("responseType","code"); /* Request refresh token*/
+            parameters->insert("approval_prompt","force"); /* force user check scope again */
+            QByteArray code = parameters->value("code").toByteArray();
+            (*parameters)["code"] = QUrl::fromPercentEncoding(code);
+        }
+        if(stage == QAbstractOAuth::Stage::RefreshingAccessToken){
+            parameters->insert("client_id",clientIdentifier);
+            parameters->insert("client_secret",clientIdentifierSharedKey);
+        }
+    };
+}
+
+#define STRAVA_CLIENT_ID "7976"
+
+void homeform::strava_refreshtoken()
+{
+    QSettings settings;
+    QUrlQuery params;
+
+    if(!settings.value("strava_refreshtoken").toString().length())
+    {
+        strava_connect();
+        return;
+    }
+
+    QNetworkRequest request(QUrl("https://www.strava.com/oauth/token?"));
+    request.setRawHeader("Content-Type", "application/x-www-form-urlencoded");
+
+    // set params
+    QString data;
+    data += "client_id=" STRAVA_CLIENT_ID;
+#ifdef STRAVA_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    data += "&client_secret=";
+    data += STRINGIFY(STRAVA_SECRET_KEY);
+#endif
+    data += "&refresh_token=" + settings.value("strava_refreshtoken").toString();
+    data += "&grant_type=refresh_token";
+
+    // make request
+    if(manager)
+    {
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    QNetworkReply* reply = manager->post(request, data.toLatin1());
+
+    // blocking request
+    QEventLoop loop;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    loop.exec();
+
+    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    qDebug() << "HTTP response code: " << statusCode;
+
+    // oops, no dice
+    if (reply->error() != 0) {
+        qDebug() << "Got error" << reply->errorString().toStdString().c_str();
+        return;
+    }
+
+    // lets extract the access token, and possibly a new refresh token
+    QByteArray r = reply->readAll();
+    qDebug() << "Got response:" << r.data();
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(r, &parseError);
+
+    // failed to parse result !?
+    if (parseError.error != QJsonParseError::NoError) {
+        qDebug() << tr("JSON parser error") << parseError.errorString();
+    }
+
+    QString access_token = document["access_token"].toString();
+    QString refresh_token = document["refresh_token"].toString();
+
+    settings.setValue("strava_accesstoken", access_token);
+    settings.setValue("strava_refreshtoken", refresh_token);
+    settings.setValue("strava_lastrefresh", QDateTime::currentDateTime());
+}
+
+bool homeform::strava_upload_file(QByteArray &data, QString remotename)
+{
+    strava_refreshtoken();
+
+    QSettings settings;
+    QString token = settings.value("strava_accesstoken").toString();
+
+    // The V3 API doc said "https://api.strava.com" but it is not working yet
+    QUrl url = QUrl( "https://www.strava.com/api/v3/uploads" );
+    QNetworkRequest request = QNetworkRequest(url);
+
+    //QString boundary = QString::number(qrand() * (90000000000) / (RAND_MAX + 1) + 10000000000, 16);
+    QString boundary = QVariant(qrand()).toString() +
+        QVariant(qrand()).toString() + QVariant(qrand()).toString();
+
+    // MULTIPART *****************
+
+    QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+    multiPart->setBoundary(boundary.toLatin1());
+
+    QHttpPart accessTokenPart;
+    accessTokenPart.setHeader(QNetworkRequest::ContentDispositionHeader,
+                              QVariant("form-data; name=\"access_token\""));
+    accessTokenPart.setBody(token.toLatin1());
+    multiPart->append(accessTokenPart);
+
+    QHttpPart activityTypePart;
+    activityTypePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"activity_type\""));
+
+    // Map some known sports and default to ride for anything else
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+      activityTypePart.setBody("run");
+    else
+      activityTypePart.setBody("ride");
+    multiPart->append(activityTypePart);
+
+    QHttpPart activityNamePart;
+    activityNamePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"name\""));
+
+    // use metadata config if the user selected it
+    QString activityNameFieldname = QDateTime::currentDateTime().toString() + " #qdomyoszwiftlover";
+    QString activityName = "";
+    activityNamePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain;charset=utf-8"));
+    activityNamePart.setBody(activityName.toUtf8());
+    if (activityName != "")
+        multiPart->append(activityNamePart);
+
+    QHttpPart activityDescriptionPart;
+    activityDescriptionPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"description\""));
+    QString activityDescription = "";
+    activityDescriptionPart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain;charset=utf-8"));
+    activityDescriptionPart.setBody(activityDescription.toUtf8());
+    if (activityDescription != "")
+        multiPart->append(activityDescriptionPart);
+
+    // upload file data
+    QString filename = QFileInfo(remotename).baseName();
+
+    QHttpPart dataTypePart;
+    dataTypePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"data_type\""));
+    dataTypePart.setBody("fit");
+    multiPart->append(dataTypePart);
+
+    QHttpPart externalIdPart;
+    externalIdPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"external_id\""));
+    externalIdPart.setBody(filename.toStdString().c_str());
+    multiPart->append(externalIdPart);
+
+    QHttpPart filePart;
+    filePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("application/octet-stream"));
+    filePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"file\"; filename=\""+remotename+"\"; type=\"application/octet-stream\""));
+    filePart.setBody(data);
+    multiPart->append(filePart);
+
+    // this must be performed asyncronously and call made
+    // to notifyWriteCompleted(QString remotename, QString message) when done
+    if(manager)
+    {
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    replyStrava = manager->post(request, multiPart);
+
+    // catch finished signal
+    connect(replyStrava, SIGNAL(finished()), this, SLOT(writeFileCompleted()));
+    connect(replyStrava, SIGNAL(errorOccurred(QNetworkReply::NetworkError)), this, SLOT(errorOccurredUploadStrava(QNetworkReply::NetworkError)));
+    return true;
+}
+
+void homeform::errorOccurredUploadStrava(QNetworkReply::NetworkError code)
+{
+    qDebug() << "strava upload error!" << code;
+}
+
+void homeform::writeFileCompleted()
+{
+    qDebug() << "strava upload completed!";
+
+    QNetworkReply *reply = static_cast<QNetworkReply*>(QObject::sender());
+
+    QString response = reply->readAll();
+    QString uploadError="invalid response or parser error";
+
+    qDebug() << "reply:" << response;
+}
+
+void homeform::onStravaGranted()
+{
+    QSettings settings;
+    settings.setValue("strava_accesstoken", strava->token());
+    settings.setValue("strava_refreshtoken", strava->refreshToken());
+    settings.setValue("strava_lastrefresh", QDateTime::currentDateTime());
+    qDebug() << "strava authenticathed" << strava->token() << strava->refreshToken();
+    strava_refreshtoken();
+    setGeneralPopupVisible(true);
+}
+
+void homeform::onStravaAuthorizeWithBrowser(const QUrl &url)
+{
+    //ui->textBrowser->append(tr("Open with browser:") + url.toString());
+    QDesktopServices::openUrl(url);
+}
+
+void homeform::replyDataReceived(QByteArray v)
+{
+    qDebug() << v;
+
+    QByteArray data;
+    QSettings settings;
+    QString s(v);
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
+    settings.setValue("strava_accesstoken", jsonResponse["access_token"]);
+    settings.setValue("strava_refreshtoken", jsonResponse["refresh_token"]);
+    settings.setValue("strava_expires", jsonResponse["expires_at"]);
+
+    qDebug() << jsonResponse["access_token"] << jsonResponse["refresh_token"] << jsonResponse["expires_at"];
+
+    QString urlstr = QString("https://www.strava.com/oauth/token?");
+    QUrlQuery params;
+    params.addQueryItem("client_id", STRAVA_CLIENT_ID);
+#ifdef STRAVA_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    params.addQueryItem("client_secret", STRINGIFY(STRAVA_SECRET_KEY));
+#endif
+
+    params.addQueryItem("code", strava_code);
+    data.append(params.query(QUrl::FullyEncoded));
+
+    // trade-in the temporary access code retrieved by the Call-Back URL for the finale token
+    QUrl url = QUrl(urlstr);
+
+    QNetworkRequest request = QNetworkRequest(url);
+    request.setHeader(QNetworkRequest::ContentTypeHeader,"application/x-www-form-urlencoded");
+
+    // now get the final token - but ignore errors
+    if(manager)
+    {
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    //connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )), this, SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & )));
+    //connect(manager, SIGNAL(finished(QNetworkReply*)), this, SLOT(networkRequestFinished(QNetworkReply*)));
+    manager->post(request, data);
+}
+
+void homeform::onSslErrors(QNetworkReply *reply, const QList<QSslError>& error)
+{
+    reply->ignoreSslErrors();
+    qDebug() << "homeform::onSslErrors" << error;
+}
+
+void homeform::networkRequestFinished(QNetworkReply *reply)
+{
+    QSettings settings;
+
+    // we can handle SSL handshake errors, if we got here then some kind of protocol was agreed
+    if (reply->error() == QNetworkReply::NoError || reply->error() == QNetworkReply::SslHandshakeFailedError) {
+
+        QByteArray payload = reply->readAll(); // JSON
+        QString refresh_token;
+        QString access_token;
+
+        // parse the response and extract the tokens, pretty much the same for all services
+        // although polar choose to also pass a user id, which is needed for future calls
+        QJsonParseError parseError;
+        QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+        if (parseError.error == QJsonParseError::NoError) {
+            refresh_token = document["refresh_token"].toString();
+            access_token = document["access_token"].toString();
+        }
+
+        settings.setValue("strava_accesstoken", access_token);
+        settings.setValue("strava_refreshtoken", refresh_token);
+        settings.setValue("strava_lastrefresh", QDateTime::currentDateTime());
+
+        qDebug() << access_token << refresh_token;
+
+    } else {
+
+            // general error getting response
+            QString error = QString(tr("Error retrieving access token, %1 (%2)")).arg(reply->errorString()).arg(reply->error());
+            qDebug() << error << reply->url() << reply->readAll();
+    }
+}
+
+void homeform::callbackReceived(const QVariantMap &values)
+{
+    qDebug() << "homeform::callbackReceived" << values;
+    if(values.value("code").toString().length())
+    {
+        strava_code = values.value("code").toString();
+        qDebug() << strava_code;
+    }
+}
+
+QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
+{
+    if(manager)
+    {
+        delete manager;
+        manager = 0;
+    }
+    manager = new QNetworkAccessManager(this);
+    OAuth2Parameter parameter;
+    auto strava = new QOAuth2AuthorizationCodeFlow(manager, this);
+    strava->setScope("activity:read_all,activity:write");
+    strava->setClientIdentifier(STRAVA_CLIENT_ID);
+    strava->setAuthorizationUrl(QUrl("https://www.strava.com/oauth/authorize"));
+    strava->setAccessTokenUrl(QUrl("https://www.strava.com/oauth/token"));
+#ifdef STRAVA_SECRET_KEY
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    strava->setClientIdentifierSharedKey(STRINGIFY(STRAVA_SECRET_KEY));
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
+    strava->setModifyParametersFunction(buildModifyParametersFunction(QUrl(""), QUrl("")));
+    auto replyHandler = new QOAuthHttpServerReplyHandler(QHostAddress("127.0.0.1"), 8091, this);
+    connect(replyHandler,&QOAuthHttpServerReplyHandler::replyDataReceived, this,
+            &homeform::replyDataReceived);
+    connect(replyHandler,&QOAuthHttpServerReplyHandler::callbackReceived, this,
+            &homeform::callbackReceived);
+    strava->setReplyHandler(replyHandler);
+
+    return strava;
+}
+
+void homeform::strava_connect_clicked()
+{
+    QLoggingCategory::setFilterRules("qt.networkauth.*=true");
+    strava = strava_connect();
+    connect(strava,&QOAuth2AuthorizationCodeFlow::authorizeWithBrowser,
+            this,&homeform::onStravaAuthorizeWithBrowser);
+    connect(strava,&QOAuth2AuthorizationCodeFlow::granted,
+            this,&homeform::onStravaGranted);
+    strava->grant();
+    //qDebug() << QAbstractOAuth2::post("https://www.strava.com/oauth/authorize?client_id=7976&scope=activity:read_all,activity:write&redirect_uri=http://127.0.0.1&response_type=code&approval_prompt=force");
+}
+
+bool homeform::generalPopupVisible()
+{
+    return m_generalPopupVisible;
+}
+
+void homeform::setGeneralPopupVisible(bool value)
+{
+    m_generalPopupVisible = value;
+    generalPopupVisibleChanged(m_generalPopupVisible);
 }

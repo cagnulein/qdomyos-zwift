@@ -417,6 +417,38 @@
             endingLineNumber = "35"
             landmarkName = "updateHeartRate(HeartRate:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 7d1f106582667437"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "qdomyoszwift.virtualbike_ios_swift.updateHeartRate(HeartRate: Swift.UInt8) -&gt; ()"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "22">
+               </Location>
+               <Location
+                  uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 4daffae51fb2d733"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "@objc qdomyoszwift.virtualbike_ios_swift.updateHeartRate(HeartRate: Swift.UInt8) -&gt; ()"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "35"
+                  endingLineNumber = "35"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

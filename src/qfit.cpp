@@ -86,7 +86,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         newRecord.SetPower(session.at(i).watt);
         newRecord.SetResistance(session.at(i).resistance);
         newRecord.SetCalories(session.at(i).calories);
-        newRecord.SetAltitude(session.at(i).elevationGain);
+        newRecord.SetAltitude((session.at(i).elevationGain / 5.0) + 500.0);
         newRecord.SetTimestamp(date.GetTimeStamp());
 
         records.push_back(newRecord);

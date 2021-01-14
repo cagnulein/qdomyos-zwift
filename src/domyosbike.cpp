@@ -157,8 +157,8 @@ void domyosbike::update()
         if(currentSpeed().value() > 0.0 && !firstUpdate)
         {
            elapsed += deltaTime;
-           double w = (double)watts();
-           m_jouls.setValue(m_jouls.value() + (w * deltaTime));
+           m_watt = (double)watts();
+           m_jouls.setValue(m_jouls.value() + (m_watt.value() * deltaTime));
         }
         lastTimeUpdate = current;
 

@@ -81,6 +81,8 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_multimediawidgets_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_network.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_network_private.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_networkauth.pri \
+		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_networkauth_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_nfc.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_nfc_private.pri \
 		../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_opengl.pri \
@@ -208,6 +210,7 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/mkspecs/macx-ios-clang/qmake.conf \
 		../../Qt/5.15.2/ios/mkspecs/macx-xcode/qmake.conf \
 		../../Qt/5.15.2/ios/mkspecs/features/spec_post.prf \
+		.qmake.stash \
 		../../Qt/5.15.2/ios/mkspecs/features/exclusive_builds.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/mac/sdk.prf \
 		../../Qt/5.15.2/ios/mkspecs/features/uikit/sdk.prf \
@@ -292,15 +295,16 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 		../../Qt/5.15.2/ios/lib/libQt5Positioning_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5QmlModels_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Qml_debug.prl \
+		../../Qt/5.15.2/ios/lib/libQt5NetworkAuth_debug.prl \
 		../../Qt/5.15.2/ios/lib/libQt5Network_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick.2/libqtquick2plugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/libqtquickcontrols2plugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin_debug.prl \
+		../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQml/libqmlplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Templates.2/libqtquicktemplates2plugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate_debug.prl \
-		../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQml/Models.2/libmodelsplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQml/WorkerScript.2/libworkerscriptplugin_debug.prl \
 		../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/libdialogplugin_debug.prl \
@@ -385,6 +389,8 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_multimediawidgets_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_network.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_network_private.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_networkauth.pri:
+../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_networkauth_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_nfc.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_nfc_private.pri:
 ../../Qt/5.15.2/ios/mkspecs/modules/qt_lib_opengl.pri:
@@ -512,6 +518,7 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/mkspecs/macx-ios-clang/qmake.conf:
 ../../Qt/5.15.2/ios/mkspecs/macx-xcode/qmake.conf:
 ../../Qt/5.15.2/ios/mkspecs/features/spec_post.prf:
+.qmake.stash:
 ../../Qt/5.15.2/ios/mkspecs/features/exclusive_builds.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/mac/sdk.prf:
 ../../Qt/5.15.2/ios/mkspecs/features/uikit/sdk.prf:
@@ -596,15 +603,16 @@ qdomyoszwift.xcodeproj/project.pbxproj: ../src/qdomyos-zwift.pro ../../Qt/5.15.2
 ../../Qt/5.15.2/ios/lib/libQt5Positioning_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5QmlModels_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Qml_debug.prl:
+../../Qt/5.15.2/ios/lib/libQt5NetworkAuth_debug.prl:
 ../../Qt/5.15.2/ios/lib/libQt5Network_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick.2/libqtquick2plugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/libqtquickcontrols2plugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Controls.2/Material/libqtquickcontrols2materialstyleplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin_debug.prl:
+../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQml/libqmlplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Templates.2/libqtquicktemplates2plugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate_debug.prl:
-../../Qt/5.15.2/ios/qml/QtQuick/Window.2/libwindowplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQml/Models.2/libmodelsplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQml/WorkerScript.2/libworkerscriptplugin_debug.prl:
 ../../Qt/5.15.2/ios/qml/QtQuick/Dialogs/libdialogplugin_debug.prl:

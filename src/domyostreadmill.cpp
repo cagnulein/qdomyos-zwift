@@ -243,8 +243,8 @@ void domyostreadmill::update()
         {
             QSettings settings;
            elapsed += deltaTime;
-           double w = (double)watts(settings.value("weight", 75.0).toFloat());
-           m_jouls += (w * deltaTime);
+           m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
+           m_jouls += (m_watt.value() * deltaTime);
         }
         lastTimeUpdate = current;
 
@@ -512,15 +512,15 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
     if(Speed.value() != speed)
-    {
-        Speed = speed;
+    {        
         emit speedChanged(speed);
     }
+    Speed = speed;
     if(Inclination.value() != incline)
-    {
-        Inclination = incline;
+    {        
         emit inclinationChanged(incline);
     }
+    Inclination = incline;
 
     KCal = kcal;
     Distance = distance;    

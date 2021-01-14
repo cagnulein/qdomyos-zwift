@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.1.1" android:versionCode="40" android:installLocation="auto">
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.1.3" android:versionCode="41" android:installLocation="auto">
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
 	      Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
@@ -54,7 +54,7 @@
 				              application still try to draw after
 								  "applicationStateChanged(Qt::ApplicationSuspended)"
 								  signal is sent! -->
-								<meta-data android:name="android.app.background_running" android:value="false"/>
+								<meta-data android:name="android.app.background_running" android:value="true"/>
 				<!-- Background running -->
 				<!-- auto screen scale factor -->
 				<meta-data android:name="android.app.auto_screen_scale_factor" android:value="full"/>

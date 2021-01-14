@@ -3,6 +3,8 @@
 
 #include <QQuickItem>
 #include <QQmlApplicationEngine>
+#include <QOAuth2AuthorizationCodeFlow>
+#include <QNetworkReply>
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
@@ -78,6 +80,7 @@ class homeform: public QObject
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
+    Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
@@ -85,8 +88,10 @@ public:
     int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
     QString signal();
+    bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();
+    void setGeneralPopupVisible(bool value);
 
 private:
     QList<QObject *> dataList;
@@ -98,6 +103,9 @@ private:
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
     bool m_labelHelp = true;
+    bool m_generalPopupVisible = false;
+    QOAuth2AuthorizationCodeFlow* strava;
+    QNetworkAccessManager* manager = 0;
 
     DataObject* speed;
     DataObject* inclination;
@@ -118,6 +126,13 @@ private:
 
     QTimer* timer;
 
+    QString strava_code;
+    QOAuth2AuthorizationCodeFlow* strava_connect();
+    void strava_refreshtoken();
+    QNetworkReply *replyStrava;
+    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(QUrl clientIdentifier,QUrl clientIdentifierSharedKey);
+    bool strava_upload_file(QByteArray &data, QString remotename);
+
     void update();
     bool getDevice();
     bool getZwift();
@@ -133,8 +148,17 @@ private slots:
     void gpx_open_clicked(QUrl fileName);
     void gpx_save_clicked();
     void fit_save_clicked();
+    void strava_connect_clicked();
     void trainProgramSignals();
     void refresh_bluetooth_devices_clicked();
+    void onStravaGranted();
+    void onStravaAuthorizeWithBrowser(const QUrl &url);
+    void replyDataReceived(QByteArray v);
+    void onSslErrors(QNetworkReply *reply, const QList<QSslError>& error);
+    void networkRequestFinished(QNetworkReply *reply);
+    void callbackReceived(const QVariantMap &values);
+    void writeFileCompleted();
+    void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
 
 signals:
 
@@ -145,6 +169,7 @@ signals:
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
  void changeLabelHelp(bool value);
+ void generalPopupVisibleChanged(bool value);
 };
 
 #endif // HOMEFORM_H

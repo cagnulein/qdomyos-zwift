@@ -16,6 +16,7 @@ ApplicationWindow {
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
+    signal strava_connect_clicked()
 
     Popup {
 	    id: popup
@@ -24,7 +25,7 @@ ApplicationWindow {
        x: Math.round((parent.width - width) / 2)
 		 y: Math.round((parent.height - height) / 2)
 		 width: 380
-		 height: 50
+         height: 60
 		 modal: true
 		 focus: true
 		 palette.text: "white"
@@ -45,6 +46,69 @@ ApplicationWindow {
 			}
 		 }
 	}
+
+    Popup {
+        id: popupSaveFile
+         parent: Overlay.overlay
+
+         x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 60
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             text: qsTr("Saved! Check your download folder (Android) or Files App (iOS)")
+            }
+         }
+    }
+
+    Popup {
+        id: popupStravaConnected
+         parent: Overlay.overlay
+         enabled: rootItem.generalPopupVisible
+         onEnabledChanged: { if(rootItem.generalPopupVisible) popupStravaConnected.open() }
+         onClosed: { rootItem.generalPopupVisible = false; }
+
+         x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 120
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             width: 370
+             height: 120
+             text: qsTr("Your Strava account is now connected!<br><br>When you will save a FIT file it will<br>automatically uploaded to Strava!")
+            }
+         }
+    }
 
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
@@ -112,6 +176,7 @@ ApplicationWindow {
                 onClicked: {
                     gpx_save_clicked()
                     drawer.close()
+                    popupSaveFile.open()
                 }
             }
             ItemDelegate {
@@ -120,6 +185,16 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     fit_save_clicked()
+                    drawer.close()
+                    popupSaveFile.open()
+                }
+            }
+            ItemDelegate {
+                id: strava_connect
+                text: qsTr("Connect to Strava")
+                width: parent.width
+                onClicked: {
+                    strava_connect_clicked()
                     drawer.close()
                 }
             }
