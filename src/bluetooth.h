@@ -58,10 +58,12 @@ private:
     uint32_t pollDeviceTime = 200;
     uint8_t bikeResistanceOffset = 4;
     uint8_t bikeResistanceGain = 1;
+    bool forceHeartBeltOffForTimeout = false;
 
     bool handleSignal(int signal);
     void stateFileUpdate();
     void stateFileRead();
+    bool heartRateBeltAvaiable();
 
 signals:
     void deviceConnected();
@@ -79,6 +81,7 @@ private slots:
     void deviceUpdated(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields);
 #endif
     void canceled();
+    void finished();
     void speedChanged(double);
     void inclinationChanged(double);
     void connectedAndDiscovered();

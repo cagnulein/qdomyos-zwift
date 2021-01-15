@@ -46,6 +46,8 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     sessionMesg.SetTotalDistance(session.last().distance * 1000.0); //meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    sessionMesg.SetMinAltitude(0);
+    sessionMesg.SetMaxAltitude(session.last().elevationGain);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
     sessionMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     sessionMesg.SetFirstLapIndex(0);
@@ -55,7 +57,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     if(type == bluetoothdevice::TREADMILL)
     {
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     }
     else if(type == bluetoothdevice::ELLIPTICAL)
     {
@@ -86,7 +88,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         newRecord.SetPower(session.at(i).watt);
         newRecord.SetResistance(session.at(i).resistance);
         newRecord.SetCalories(session.at(i).calories);
-        newRecord.SetAltitude((session.at(i).elevationGain / 5.0) + 500.0);
+        newRecord.SetAltitude(session.at(i).elevationGain);
         newRecord.SetTimestamp(date.GetTimeStamp());
 
         records.push_back(newRecord);

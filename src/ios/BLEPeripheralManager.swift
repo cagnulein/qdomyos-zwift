@@ -59,7 +59,7 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
     
     public var serviceToggle: Bool = false
 
-  private var notificationTimer: Timer!
+  private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
 
   override init() {
@@ -173,7 +173,9 @@ class BLEPeripheralManager: NSObject, CBPeripheralManagerDelegate {
   }
 
   func startSendingDataToSubscribers() {
-    self.notificationTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+    if self.notificationTimer == nil {
+	    self.notificationTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+		}
   }
 
   func peripheralManagerIsReady(toUpdateSubscribers peripheral: CBPeripheralManager) {

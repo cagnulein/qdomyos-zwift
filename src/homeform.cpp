@@ -691,11 +691,16 @@ void homeform::fit_save_clicked()
     {
         QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
         qfit::save(filename, Session, bluetoothManager->device()->deviceType());
-        QFile f(filename);
-        f.open(QFile::OpenModeFlag::ReadOnly);
-        QByteArray fitfile = f.readAll();
-        strava_upload_file(fitfile,filename);
-        f.close();
+
+        QSettings settings;
+        if(settings.value("strava_accesstoken", "").toString().length())
+        {
+            QFile f(filename);
+            f.open(QFile::OpenModeFlag::ReadOnly);
+            QByteArray fitfile = f.readAll();
+            strava_upload_file(fitfile,filename);
+            f.close();
+        }
     }
 }
 

@@ -36,10 +36,29 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 #endif
         connect(discoveryAgent, SIGNAL(canceled()),
                 this, SLOT(canceled()));
+        connect(discoveryAgent, SIGNAL(finished()),
+                this, SLOT(finished()));
 
         // Start a discovery
+        discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
+}
+
+void bluetooth::finished()
+{
+    debug("BTLE scanning finished");
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+
+    if(!heartRateBeltFound && !heartRateBeltAvaiable())
+    {
+        // force heartRateBelt off
+        forceHeartBeltOffForTimeout = true;
+    }
+
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
 
 void bluetooth::canceled()
@@ -55,6 +74,21 @@ void bluetooth::debug(QString text)
         qDebug() << debug;
 }
 
+bool bluetooth::heartRateBeltAvaiable()
+{
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+
+    foreach(QBluetoothDeviceInfo b, devices)
+    {
+        if(!heartRateBeltName.compare(b.name()))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     QSettings settings;
@@ -63,14 +97,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
     if(!heartRateBeltFound)
     {
-        foreach(QBluetoothDeviceInfo b, devices)
-        {
-            if(!heartRateBeltName.compare(b.name()))
-            {
-                heartRateBeltFound = true;
-                break;
-            }
-        }
+        heartRateBeltFound = heartRateBeltAvaiable();
     }
 
     bool found = false;
@@ -96,7 +123,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         filter = (device.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
     }
 
-    if(heartRateBeltFound)
+    if(heartRateBeltFound || forceHeartBeltOffForTimeout)
     {
         foreach(QBluetoothDeviceInfo b, devices)
         {
