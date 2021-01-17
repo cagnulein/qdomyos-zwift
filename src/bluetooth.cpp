@@ -195,7 +195,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 yesoulBike->deviceDiscovered(b);
             }
-            else if(b.name().startsWith("FLYWHEEL") && !flywheelBike && filter)
+            else if(b.name().startsWith("Flywheel") && !flywheelBike && filter)
             {
                 discoveryAgent->stop();
                 flywheelBike = new flywheelbike(noWriteResistance, noHeartService);
