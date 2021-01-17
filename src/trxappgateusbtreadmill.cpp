@@ -90,8 +90,18 @@ void trxappgateusbtreadmill::update()
             //updateDisplay(elapsed);
         }
 
-        const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0xd3, 0x66 };
-        writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
+        QSettings settings;
+        bool toorx30 = settings.value("toorx_3_0", false).toBool();
+        if(toorx30 == false)
+        {
+            const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0xd3, 0x66 };
+            writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
+        }
+        else
+        {
+            const uint8_t noOpData[] = { 0xf0, 0xa2, 0x23, 0xd3, 0x88 };
+            writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
+        }
 
         if(requestSpeed != -1)
         {
@@ -126,9 +136,18 @@ void trxappgateusbtreadmill::update()
         if(requestStart != -1)
         {
            debug("starting...");
-           //btinit(true);
-           const uint8_t startTape[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b };
-           writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false, true);
+           //btinit(true);        
+           if(toorx30 == false)
+           {
+               const uint8_t startTape[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b };
+               writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false, true);
+           }
+           else
+           {
+               const uint8_t startTape[] = { 0xf0, 0xa5, 0x23, 0xd3, 0x02, 0x8d };
+               writeCharacteristic((uint8_t*)startTape, sizeof(startTape), "startTape", false, true);
+           }
+
            requestStart = -1;
            emit tapeStarted();
         }
@@ -264,40 +283,63 @@ double trxappgateusbtreadmill::GetInclinationFromPacket(QByteArray packet)
 void trxappgateusbtreadmill::btinit(bool startTape)
 {
     Q_UNUSED(startTape);
+    QSettings settings;
+    bool toorx30 = settings.value("toorx_3_0", false).toBool();
 
-    const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
-    const uint8_t initData2[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
-    const uint8_t initData3[] = { 0xf0, 0xa0, 0x01, 0xd3, 0x64 };
-    const uint8_t initData4[] = { 0xf0, 0xa1, 0x01, 0xd3, 0x65 };
-    const uint8_t initData5[] = { 0xf0, 0xa3, 0x01, 0xd3, 0x01, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x23 };
-    const uint8_t initData6[] = { 0xf0, 0xa4, 0x01, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x73 };
-    const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };    
-
-    writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    if(treadmill_type == TYPE::IRUNNING)
+    if(toorx30 == false)
     {
+        const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
+        const uint8_t initData2[] = { 0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d };
+        const uint8_t initData3[] = { 0xf0, 0xa0, 0x01, 0xd3, 0x64 };
+        const uint8_t initData4[] = { 0xf0, 0xa1, 0x01, 0xd3, 0x65 };
+        const uint8_t initData5[] = { 0xf0, 0xa3, 0x01, 0xd3, 0x01, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x23 };
+        const uint8_t initData6[] = { 0xf0, 0xa4, 0x01, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x73 };
+        const uint8_t initData7[] = { 0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75 };
+
+        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
         writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
-        QThread::msleep(400);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
         writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
-        QThread::msleep(400);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
+        if(treadmill_type == TYPE::IRUNNING)
+        {
+            writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+            QThread::msleep(400);
+            writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+            QThread::msleep(400);
+            writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+            QThread::msleep(400);
+        }
+        writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
+        if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
     }
-    writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
-    writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
-    if(treadmill_type == TYPE::IRUNNING) QThread::msleep(400);
+    else
+    {
+        const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
+        const uint8_t initData2[] = { 0xf0, 0xa5, 0x23, 0xd3, 0x04, 0x8f };
+        const uint8_t initData3[] = { 0xf0, 0xa0, 0x23, 0xd3, 0x86 };
+        const uint8_t initData4[] = { 0xf0, 0xa1, 0x23, 0xd3, 0x87 };
+        const uint8_t initData5[] = { 0xf0, 0xa3, 0x23, 0xd3, 0x01, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x45 };
+        const uint8_t initData6[] = { 0xf0, 0xa4, 0x23, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x95 };
+        const uint8_t initData7[] = { 0xf0, 0xaf, 0x23, 0xd3, 0x02, 0x97 };
+
+        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+        writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
+        writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
+        writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
+    }
     initDone = true;
 }
 

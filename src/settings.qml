@@ -42,6 +42,8 @@ import Qt.labs.settings 1.0
 
             property bool domyos_treadmill_buttons: false
 
+            property bool toorx_3_0: false
+
             property bool bluetooth_relaxed: false
             property bool battery_service: false
             property bool service_changed: false
@@ -577,6 +579,30 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.domyos_treadmill_buttons = checked
+            }
+
+            Label {
+                id: toorxTreadmillLabel
+                text: qsTr("Toorx Treadmill Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: toorxTreadmill30Delegate
+                text: qsTr("Toorx 3.0 Compatibility")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.toorx_3_0
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.toorx_3_0 = checked
             }
 
             Label {
