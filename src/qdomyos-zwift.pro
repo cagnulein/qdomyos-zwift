@@ -52,6 +52,7 @@ SOURCES += \
    fit-sdk/fit_profile.cpp \
    fit-sdk/fit_protocol_validator.cpp \
    fit-sdk/fit_unicode.cpp \
+   flywheelbike.cpp \
         gpx.cpp \
     heartratebelt.cpp \
    homeform.cpp \
@@ -306,6 +307,7 @@ HEADERS += \
    fit-sdk/fit_workout_step_mesg_listener.hpp \
    fit-sdk/fit_zones_target_mesg.hpp \
    fit-sdk/fit_zones_target_mesg_listener.hpp \
+   flywheelbike.h \
     heartratebelt.h \
    homeform.h \
    ios/lockscreen.h \
