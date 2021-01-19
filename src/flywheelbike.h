@@ -134,8 +134,8 @@ private:
 
     int dataPacketLength;
     int dataPacketIndex;
-    DecoderErrorState errorState;
-    DecoderRXState rxState;
+    DecoderErrorState errorState = MSG_NO_ERROR;
+    DecoderRXState rxState = WFSYNC_1;
     BikeDataframe bikeData;
 
     void flushDataframe(BikeDataframe *dataFrame);
