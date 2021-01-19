@@ -270,7 +270,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
-    Cadence = newValue.at(9);
+    Cadence = ((uint8_t)newValue.at(9));
     Resistance = newValue.at(14);
     if(Resistance.value() < 1)
     {
@@ -278,7 +278,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         Resistance = 1;
     }
     if(heartRateBeltName.startsWith("Disabled"))
-        Heart = newValue.at(18);
+        Heart = ((uint8_t)newValue.at(18));
 
     if(Cadence.value() > 0)
     {

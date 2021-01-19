@@ -270,7 +270,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
-    Cadence = newValue.at(9);
+    Cadence = ((uint8_t)newValue.at(9));
     Resistance = newValue.at(14);
     if(Resistance < 1)
     {
@@ -278,7 +278,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         Resistance = 1;
     }
     if(heartRateBeltName.startsWith("Disabled"))
-        Heart = newValue.at(18);
+        Heart = ((uint8_t)newValue.at(18));
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
