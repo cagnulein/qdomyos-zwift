@@ -59,6 +59,10 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
 
 void domyosbike::updateDisplay(uint16_t elapsed)
 {
+    uint16_t multiplier = 1;
+    if(bike_type == TELINK)
+        multiplier = 10;
+
     //if(bike_type == CHANG_YOW)
     {
         uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
@@ -84,18 +88,18 @@ void domyosbike::updateDisplay(uint16_t elapsed)
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value()) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed().value()) & 0xFF;
+    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value() * multiplier) >> 8)) & 0xFF;
+    display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
 
     display[12] = (uint8_t)currentHeart().value();
 
     //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     //display[14] = (((uint8_t)calories())) & 0xFF;
 
-    display[16] = (uint8_t)currentCadence().value();
+    display[16] = ((uint8_t)currentCadence().value() * multiplier);
 
-    display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
-    display[20] = (((uint16_t)calories())) & 0xFF;
+    display[19] = ((((uint16_t)calories()) * multiplier) >> 8) & 0xFF;
+    display[20] = (((uint16_t)calories()) * multiplier) & 0xFF;
 
     for(uint8_t i=0; i<sizeof(display)-1; i++)
     {
