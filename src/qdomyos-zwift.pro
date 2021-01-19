@@ -59,6 +59,7 @@ SOURCES += \
    keepawakehelper.cpp \
         main.cpp \
    metric.cpp \
+   proformbike.cpp \
    qfit.cpp \
    sessionline.cpp \
    signalhandler.cpp \
@@ -314,6 +315,7 @@ HEADERS += \
    keepawakehelper.h \
    macos/lockscreen.h \
    metric.h \
+   proformbike.h \
    qfit.h \
    sessionline.h \
    signalhandler.h \

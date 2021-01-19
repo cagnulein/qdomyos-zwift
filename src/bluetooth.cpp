@@ -195,6 +195,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 yesoulBike->deviceDiscovered(b);
             }
+            else if(b.name().startsWith("I_EB") && !proformBike && filter)
+            {
+                discoveryAgent->stop();
+                proformBike = new proformbike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(proformBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(proformBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(proformBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(proformBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                proformBike->deviceDiscovered(b);
+            }
             else if(b.name().startsWith("Flywheel") && !flywheelBike && filter)
             {
                 discoveryAgent->stop();
@@ -342,6 +355,11 @@ void bluetooth::restart()
         delete yesoulBike;
         yesoulBike = 0;
     }
+    if(proformBike)
+    {
+        delete proformBike;
+        proformBike = 0;
+    }
     if(flywheelBike)
     {
         delete flywheelBike;
@@ -374,6 +392,8 @@ bluetoothdevice* bluetooth::device()
         return echelonConnectSport;
     else if(yesoulBike)
         return yesoulBike;
+    else if(proformBike)
+        return proformBike;
     else if(flywheelBike)
         return flywheelBike;
     return nullptr;
