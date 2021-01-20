@@ -45,6 +45,12 @@ void flywheelbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString 
 
 void flywheelbike::update()
 {
+    qDebug() << m_control->state() << bluetoothDevice.isValid() <<
+                gattCommunicationChannelService <<
+                gattWriteCharacteristic.isValid() <<
+                gattNotify1Characteristic.isValid() <<
+                initDone;
+
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
         emit disconnected();
@@ -57,7 +63,8 @@ void flywheelbike::update()
         btinit();
     }
     else if(bluetoothDevice.isValid() &&
-       m_control->state() == QLowEnergyController::DiscoveredState &&
+       //workaround: the flywheel keep stay in error even if it connected "Error occurred trying to connect to remote device."
+       //m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotify1Characteristic.isValid() &&
