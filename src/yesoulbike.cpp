@@ -45,6 +45,12 @@ void yesoulbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
 
 void yesoulbike::update()
 {
+    qDebug() << m_control->state() << bluetoothDevice.isValid() <<
+                gattCommunicationChannelService <<
+                gattWriteCharacteristic.isValid() <<
+                gattNotify1Characteristic.isValid() <<
+                initDone;
+
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
         emit disconnected();
@@ -197,6 +203,12 @@ void yesoulbike::btinit()
     uint8_t initData1[] = { 0xf5, 0x20, 0x20, 0x40, 0xf6 };
 
     writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
+
+    QByteArray descriptor;
+    descriptor.append((char)0x01);
+    descriptor.append((char)0x00);
+    gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
     initDone = true;
 }
 
@@ -261,19 +273,15 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state)
         firstStateChanged = 1;
         // ********************************************************************************************************
 
-        QByteArray descriptor;
-        descriptor.append((char)0x01);
-        descriptor.append((char)0x00);
-        gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        // this devices requires first to be initialized and then you can subscribe to its notification
+        initRequest = true;
+        emit connectedAndDiscovered();
     }
 }
 
 void yesoulbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
 {
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
-
-    initRequest = true;
-    emit connectedAndDiscovered();
 }
 
 void yesoulbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
