@@ -60,6 +60,7 @@ SOURCES += \
         main.cpp \
    metric.cpp \
    proformbike.cpp \
+   proformtreadmill.cpp \
    qfit.cpp \
    sessionline.cpp \
    signalhandler.cpp \
@@ -316,6 +317,7 @@ HEADERS += \
    macos/lockscreen.h \
    metric.h \
    proformbike.h \
+   proformtreadmill.h \
    qfit.h \
    sessionline.h \
    signalhandler.h \

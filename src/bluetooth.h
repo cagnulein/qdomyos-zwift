@@ -26,6 +26,7 @@
 #include "flywheelbike.h"
 #include "fassitreadmill.h"
 #include "proformbike.h"
+#include "proformtreadmill.h"
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -52,6 +53,7 @@ private:
     yesoulbike* yesoulBike = 0;
     flywheelbike* flywheelBike = 0;
     proformbike* proformBike = 0;
+    proformtreadmill* proformTreadmill = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

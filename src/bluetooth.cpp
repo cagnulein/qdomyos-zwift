@@ -208,6 +208,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(proformBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 proformBike->deviceDiscovered(b);
             }
+            else if(b.name().startsWith("I_TL") && !proformTreadmill && filter)
+            {
+                discoveryAgent->stop();
+                proformTreadmill = new proformtreadmill(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(proformTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(proformtreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(proformtreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(proformtreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                proformTreadmill->deviceDiscovered(b);
+            }
             else if(b.name().startsWith("Flywheel") && !flywheelBike && filter)
             {
                 discoveryAgent->stop();
@@ -360,6 +373,11 @@ void bluetooth::restart()
         delete proformBike;
         proformBike = 0;
     }
+    if(proformTreadmill)
+    {
+        delete proformTreadmill;
+        proformTreadmill = 0;
+    }
     if(flywheelBike)
     {
         delete flywheelBike;
@@ -394,6 +412,8 @@ bluetoothdevice* bluetooth::device()
         return yesoulBike;
     else if(proformBike)
         return proformBike;
+    else if(proformTreadmill)
+        return proformTreadmill;
     else if(flywheelBike)
         return flywheelBike;
     return nullptr;
