@@ -180,7 +180,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     if(m_watts > 3000)
         m_watts = 0;
 
-    Speed = 0.29424181 * ((double)Cadence.value());
+    Speed = 0.33 * ((double)Cadence.value());
     KCal = ((((uint16_t)newValue.at(15)) << 8) + ((uint16_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
