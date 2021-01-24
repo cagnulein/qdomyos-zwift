@@ -177,8 +177,8 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     Inclination = (((uint8_t)newValue.at(11)) / 2);
     Speed = ((uint8_t)newValue.at(18));
-    m_watts = ((((uint16_t)newValue.at(13)) << 8) + ((uint16_t) newValue.at(12)));
-    KCal = ((((uint16_t)newValue.at(15)) << 8) + ((uint16_t) newValue.at(14)));
+    m_watts = (((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t) newValue.at(12)));
+    KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
