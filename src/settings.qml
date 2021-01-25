@@ -41,6 +41,7 @@ import Qt.labs.settings 1.0
             property bool tile_peloton_resistance_enabled: true
 
             property bool domyos_treadmill_buttons: false
+            property bool domyos_treadmill_distance_display: true
 
             property bool toorx_3_0: false
 
@@ -579,6 +580,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.domyos_treadmill_buttons = checked
+            }
+
+            SwitchDelegate {
+                id: domyosTreadmillDistanceDisplayDelegate
+                text: qsTr("Distance on Console")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.domyos_treadmill_distance_display
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.domyos_treadmill_distance_display = checked
             }
 
             Label {

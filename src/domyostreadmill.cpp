@@ -102,6 +102,9 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
                         0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x05, 0x01, 0x01, 0x00,
                         0x0c, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00};
 
+   QSettings settings;
+   bool distance = settings.value("domyos_treadmill_distance_display", true).toBool();
+
    if(elapsed > 5999) // 99:59
    {
        display[3] = ((elapsed / 60) / 60) & 0xFF; // high byte for elapsed time (in seconds)
@@ -113,23 +116,32 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
        display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
    }
 
-   if(odometer() < 10.0)
+   if(distance)
    {
-      display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
-      display[8] = (uint8_t)(odometer() * 100) & 0xFF;
-      display[9] = 0x02; // decimal position
-   }
-   else if(odometer() < 100.0)
-   {
-      display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
-      display[8] = (uint8_t)(odometer() * 10) & 0xFF;
-      display[9] = 0x01; // decimal position
+       if(odometer() < 10.0)
+       {
+           display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
+           display[8] = (uint8_t)(odometer() * 100) & 0xFF;
+           display[9] = 0x02; // decimal position
+       }
+       else if(odometer() < 100.0)
+       {
+           display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
+           display[8] = (uint8_t)(odometer() * 10) & 0xFF;
+           display[9] = 0x01; // decimal position
+       }
+       else
+       {
+           display[7] = ((uint8_t)(odometer()) >> 8) & 0xFF;
+           display[8] = (uint8_t)(odometer()) & 0xFF;
+           display[9] = 0x00; // decimal position
+       }
    }
    else
    {
-      display[7] = ((uint8_t)(odometer()) >> 8) & 0xFF;
-      display[8] = (uint8_t)(odometer()) & 0xFF;
-      display[9] = 0x00; // decimal position
+       display[7] = 0x00;
+       display[8] = 0x00;
+       display[9] = 0x00; // decimal position
    }
 
    display[12] = (uint8_t)currentHeart().value();
