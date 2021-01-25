@@ -17,3 +17,19 @@ uint16_t bike::watts() { return 0; }
 metric bike::pelotonResistance() { return m_pelotonResistance; }
 
 bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
+
+void bike::clearStats()
+{
+    elapsed.clear();
+    Speed.clear();
+    KCal.clear();
+    Distance.clear();
+    Heart.clear();
+    m_jouls.clear();
+    elevationAcc = 0;
+    m_watt.clear();
+
+    m_pelotonResistance.clear();
+    Cadence.clear();
+    Resistance.clear();
+}

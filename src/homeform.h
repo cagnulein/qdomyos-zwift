@@ -79,6 +79,10 @@ class homeform: public QObject
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
+    Q_PROPERTY(QString startText READ startText NOTIFY startTextChanged)
+    Q_PROPERTY(QString startIcon READ startIcon NOTIFY startIconChanged)
+    Q_PROPERTY(QString stopText READ stopText NOTIFY stopTextChanged)
+    Q_PROPERTY(QString stopIcon READ stopIcon NOTIFY stopIconChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
 
@@ -88,6 +92,10 @@ public:
     int topBarHeight() {return m_topBarHeight;}
     QString info() {return m_info;}
     QString signal();
+    QString startText();
+    QString startIcon();
+    QString stopText();
+    QString stopIcon();
     bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();
@@ -106,6 +114,9 @@ private:
     bool m_generalPopupVisible = false;
     QOAuth2AuthorizationCodeFlow* strava;
     QNetworkAccessManager* manager = 0;
+
+    bool paused = false;
+    bool stopped = false;
 
     DataObject* speed;
     DataObject* inclination;
@@ -165,6 +176,10 @@ signals:
  void changeOfdevice();
  void changeOfzwift();
  void signalChanged(QString value);
+ void startTextChanged(QString value);
+ void startIconChanged(QString value);
+ void stopTextChanged(QString value);
+ void stopIconChanged(QString value);
  void infoChanged(QString value);
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);

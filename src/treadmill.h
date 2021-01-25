@@ -14,6 +14,7 @@ public:
     virtual bool connected();
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
+    void clearStats();
 
 public slots:
     virtual void changeSpeed(double speed);

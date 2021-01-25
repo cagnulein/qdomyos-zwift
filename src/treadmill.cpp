@@ -30,3 +30,17 @@ uint16_t treadmill::watts(double weight)
     m_watt.setValue(watts);
     return watts;
 }
+
+void treadmill::clearStats()
+{
+    elapsed.clear();
+    Speed.clear();
+    KCal.clear();
+    Distance.clear();
+    Heart.clear();
+    m_jouls.clear();
+    elevationAcc = 0;
+    m_watt.clear();
+
+    Inclination.clear();
+}

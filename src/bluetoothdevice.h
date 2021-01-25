@@ -34,6 +34,7 @@ public:
     metric wattsMetric();
     virtual bool changeFanSpeed(uint8_t speed);
     virtual double elevationGain();
+    virtual void clearStats();
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnect();
 
@@ -58,10 +59,10 @@ signals:
 protected:
     QLowEnergyController* m_control = 0;
 
-    double elapsed = 0;
+    metric elapsed;
     metric Speed;
-    double KCal = 0;
-    double Distance = 0;
+    metric KCal;
+    metric Distance;
     uint8_t FanSpeed = 0;
     metric Heart;
     int8_t requestStart = -1;

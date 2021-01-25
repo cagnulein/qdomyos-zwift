@@ -11,10 +11,10 @@ void bluetoothdevice::start(){ requestStart = 1; }
 void bluetoothdevice::stop(){ requestStop = 1; }
 metric bluetoothdevice::currentHeart(){ return Heart; }
 metric bluetoothdevice::currentSpeed(){ return Speed; }
-QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed/3600.0); return QTime(hours, (int)(elapsed-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed) % 60,0); }
+QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed.value()/3600.0); return QTime(hours, (int)(elapsed.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.value()) % 60,0); }
 QTime bluetoothdevice::currentPace(){ if(Speed.value() == 0) return QTime(0,0,0,0); else return QTime(0, (int)(1.0 / (Speed.value() / 60.0)), (((double)(1.0 / (Speed.value() / 60.0)) - ((double)((int)(1.0 / (Speed.value() / 60.0))))) * 60.0), 0  ); }
-double bluetoothdevice::odometer(){ return Distance; }
-double bluetoothdevice::calories(){ return KCal; }
+double bluetoothdevice::odometer(){ return Distance.value(); }
+double bluetoothdevice::calories(){ return KCal.value(); }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void* bluetoothdevice::VirtualDevice() { return nullptr; }
@@ -24,3 +24,15 @@ double bluetoothdevice::elevationGain(){ return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
 void bluetoothdevice::disconnect() {if(m_control) m_control->disconnect();}
 metric bluetoothdevice::wattsMetric() {return m_watt;}
+
+void bluetoothdevice::clearStats()
+{
+    elapsed.clear();
+    Speed.clear();
+    KCal.clear();
+    Distance.clear();
+    Heart.clear();
+    m_jouls.clear();
+    elevationAcc = 0;
+    m_watt.clear();
+}

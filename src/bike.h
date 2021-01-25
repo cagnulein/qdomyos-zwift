@@ -19,6 +19,7 @@ public:
     virtual uint16_t watts();
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
+    void clearStats();
 
 public slots:
     virtual void changeResistance(int8_t res);

@@ -118,6 +118,11 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
+    emit stopIconChanged(stopIcon());
+    emit stopTextChanged(stopText());
+    emit startIconChanged(startIcon());
+    emit startTextChanged(startText());
+
     //populate the UI
 #if 0
 #warning("disable me!")
@@ -433,17 +438,69 @@ void homeform::Start()
     trainProgram->restart();
     if(bluetoothManager->device())
         bluetoothManager->device()->start();
+
+    if(stopped)
+    {
+        if(bluetoothManager->device())
+            bluetoothManager->device()->clearStats();
+        Session.clear();
+    }
+
+    paused = false;
+    stopped = false;
+
+    emit stopIconChanged(stopIcon());
+    emit stopTextChanged(stopText());
 }
 
 void homeform::Stop()
 {
     if(bluetoothManager->device())
         bluetoothManager->device()->stop();
+
+    if(!paused)
+    {
+        paused = true;
+    }
+    else
+    {
+        paused = false;
+        stopped = true;
+    }
+    emit stopIconChanged(stopIcon());
+    emit stopTextChanged(stopText());
 }
 
 bool homeform::labelHelp()
 {
     return m_labelHelp;
+}
+
+QString homeform::stopText()
+{
+    if(paused || stopped)
+        return "Stop";
+    else
+        return "Pause";
+}
+
+QString homeform::stopIcon()
+{
+    if(paused || stopped)
+        return "icons/icons/stop.png";
+    else
+        return "icons/icons/pause.png";
+}
+
+
+QString homeform::startText()
+{
+    return "Start";
+}
+
+QString homeform::startIcon()
+{
+    return "icons/icons/start.png";
 }
 
 QString homeform::signal()
@@ -595,17 +652,20 @@ void homeform::update()
         }
 */
 
-        SessionLine s(
-                      bluetoothManager->device()->currentSpeed().value(),
-                      inclination,
-                      bluetoothManager->device()->odometer(),
-                      watts,
-                      resistance,
-                      (uint8_t)bluetoothManager->device()->currentHeart().value(),
-                      pace, cadence, bluetoothManager->device()->calories(),
-                      bluetoothManager->device()->elevationGain());
+        if(!stopped)
+        {
+            SessionLine s(
+                        bluetoothManager->device()->currentSpeed().value(),
+                        inclination,
+                        bluetoothManager->device()->odometer(),
+                        watts,
+                        resistance,
+                        (uint8_t)bluetoothManager->device()->currentHeart().value(),
+                        pace, cadence, bluetoothManager->device()->calories(),
+                        bluetoothManager->device()->elevationGain());
 
-        Session.append(s);
+            Session.append(s);
+        }
     }
 
     emit changeOfdevice();

@@ -134,7 +134,7 @@ void fassitreadmill::update()
             if(incompletePackets == false && noConsole == false)
             {
                 sec1Update = 0;
-                updateDisplay(elapsed);
+                updateDisplay(elapsed.value());
             }
         }
         else

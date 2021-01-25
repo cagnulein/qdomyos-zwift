@@ -5,25 +5,34 @@ metric::metric()
 
 }
 
-void metric::setValue(double value)
+void metric::setValue(double v)
 {
-    m_value = value;
-    if(value != 0)
+    m_value = v;
+    if(value() != 0)
     {
         m_countValue++;
-        m_totValue += value;
+        m_totValue += value();
 
-        if(m_value < m_min)
-            m_min = m_value;
+        if(value() < m_min)
+            m_min = value();
     }
 
-    if(m_value > m_max)
-        m_max = m_value;
+    if(value() > m_max)
+        m_max = value();
+}
+
+void metric::clear()
+{
+    m_offset = m_value;
+    m_max = 0;
+    m_totValue = 0;
+    m_countValue = 0;
+    m_min = 999999999;
 }
 
 double metric::value()
 {
-    return m_value;
+    return m_value - m_offset;
 }
 
 double metric::average()

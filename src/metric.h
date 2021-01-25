@@ -12,6 +12,7 @@ public:
     double average();
     double min();
     double max();
+    void clear();
     void operator = (double);
     void operator += (double);
 
@@ -21,6 +22,7 @@ private:
     double m_countValue = 0;
     double m_min = 999999999;
     double m_max = 0;
+    double m_offset = 0;
 };
 
 #endif // METRIC_H

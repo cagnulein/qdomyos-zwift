@@ -211,7 +211,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     
     debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
     debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance));
+    debug("Current Calculate Distance: " + QString::number(Distance.value()));
     debug("Current Cadence: " + QString::number(Cadence.value()));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));

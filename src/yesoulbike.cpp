@@ -180,7 +180,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     debug("Current Resistance: " + QString::number(Resistance.value()));
     debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance));
+    debug("Current Calculate Distance: " + QString::number(Distance.value()));
     debug("Current Cadence: " + QString::number(Cadence.value()));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
