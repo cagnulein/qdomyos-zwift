@@ -7,6 +7,9 @@
 
 bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
+    QSettings settings;
+    bool trx_route_key = settings.value("trx_route_key", false).toBool();
+
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->testResistance = testResistance;
@@ -41,7 +44,10 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
         // Start a discovery
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        if(!trx_route_key)
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        else
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
 }
 
@@ -50,6 +56,7 @@ void bluetooth::finished()
     debug("BTLE scanning finished");
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    bool trx_route_key = settings.value("trx_route_key", false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
 
     if(!heartRateBeltFound && !heartRateBeltAvaiable())
@@ -58,7 +65,10 @@ void bluetooth::finished()
         forceHeartBeltOffForTimeout = true;
     }
 
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    if(!trx_route_key)
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    else
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
 
 void bluetooth::canceled()

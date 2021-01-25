@@ -44,6 +44,7 @@ import Qt.labs.settings 1.0
             property bool domyos_treadmill_distance_display: true
 
             property bool toorx_3_0: false
+            property bool trx_route_key: false
 
             property bool bluetooth_relaxed: false
             property bool battery_service: false
@@ -604,6 +605,21 @@ import Qt.labs.settings 1.0
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: toorxRouteKeyDelegate
+                text: qsTr("TRX ROUTE KEY Compatibility")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.trx_route_key
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.trx_route_key = checked
             }
 
             SwitchDelegate {
