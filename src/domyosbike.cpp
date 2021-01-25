@@ -64,7 +64,11 @@ void domyosbike::updateDisplay(uint16_t elapsed)
     if(bike_type == TELINK)
         multiplier = 10;
 
+    QSettings settings;
+    bool distance = settings.value("domyos_treadmill_distance_display", true).toBool();
+
     //if(bike_type == CHANG_YOW)
+    if(distance)
     {
         uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff,
                               0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
