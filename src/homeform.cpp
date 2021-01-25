@@ -466,6 +466,8 @@ void homeform::Stop()
     {
         paused = false;
         stopped = true;
+
+        fit_save_clicked();
     }
     emit stopIconChanged(stopIcon());
     emit stopTextChanged(stopText());
