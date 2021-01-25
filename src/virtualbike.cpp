@@ -325,8 +325,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              reply.append((quint8)FTMS_SUCCESS);
 
              int16_t iresistance = (newValue.at(3) + (newValue.at(4) << 8));
-             double resistance = ((double)iresistance) / 100.0;
-             Bike->changeResistance((uint8_t)(resistance * bikeResistanceGain) + bikeResistanceOffset + 1); // resistance start from 1
+             emit debug("new requested resistance zwift erg grade " + QString::number(iresistance));
+             double resistance = ((double)iresistance * 1.5) / 100.0;
+             emit debug("calculated erg grade " + QString::number(resistance));
+             Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)
          {

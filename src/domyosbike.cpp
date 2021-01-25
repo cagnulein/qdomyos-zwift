@@ -207,7 +207,7 @@ void domyosbike::update()
         if(requestResistance != -1)
         {
            if(requestResistance > 15) requestResistance = 15;
-           else if(requestResistance == 0) requestResistance = 1;
+           else if(requestResistance < 1) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
            {
