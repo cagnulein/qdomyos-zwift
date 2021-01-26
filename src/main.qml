@@ -201,10 +201,10 @@ ApplicationWindow {
             ItemDelegate {
                 text: qsTr("by Roberto Viola")
                 width: parent.width
-/*                onClicked: {
-                    stackView.push("Page2Form.ui.qml")
-                    drawer.close()
-                }*/
+            }
+            ItemDelegate {
+                text: "version " + Qt.application.version
+                width: parent.width
             }
             FileDialog {
 				    id: fileDialogTrainProgram

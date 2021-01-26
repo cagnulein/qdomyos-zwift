@@ -378,6 +378,7 @@ ios {
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 
     TARGET = qdomyoszwift
-	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
-	 VERSION = 1.7.0
+	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein	 
 }
+
+VERSION = 2.3.2
