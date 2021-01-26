@@ -435,6 +435,8 @@ void homeform::Minus(QString name)
 
 void homeform::Start()
 {
+    qDebug() << "Start pressed - paused" << paused << "stopped" << stopped;
+
     trainProgram->restart();
     if(bluetoothManager->device())
         bluetoothManager->device()->start();
@@ -455,6 +457,8 @@ void homeform::Start()
 
 void homeform::Stop()
 {
+    qDebug() << "Stop pressed - paused" << paused << "stopped" << stopped;
+
     if(bluetoothManager->device())
         bluetoothManager->device()->stop();
 
