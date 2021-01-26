@@ -118,10 +118,13 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
-    emit stopIconChanged(stopIcon());
-    emit stopTextChanged(stopText());
-    emit startIconChanged(startIcon());
-    emit startTextChanged(startText());
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+        emit startIconChanged(startIcon());
+        emit startTextChanged(startText());
+    }
 
     //populate the UI
 #if 0
@@ -451,8 +454,12 @@ void homeform::Start()
     paused = false;
     stopped = false;
 
-    emit stopIconChanged(stopIcon());
-    emit stopTextChanged(stopText());
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+    }
 }
 
 void homeform::Stop()
@@ -473,8 +480,12 @@ void homeform::Stop()
 
         fit_save_clicked();
     }
-    emit stopIconChanged(stopIcon());
-    emit stopTextChanged(stopText());
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+    }
 }
 
 bool homeform::labelHelp()
