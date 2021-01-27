@@ -15,6 +15,7 @@
 #include <QFileInfo>
 #include "gpx.h"
 #include "qfit.h"
+#include "material.h"
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -124,6 +125,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         emit stopTextChanged(stopText());
         emit startIconChanged(startIcon());
         emit startTextChanged(startText());
+        emit stopColorChanged(stopColor());
     }
 
     //populate the UI
@@ -180,6 +182,25 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
 #endif
+}
+
+QString homeform::stopColor()
+{
+    static uint8_t stopColorToggle = 0;
+    if(paused)
+    {
+        if(stopColorToggle)
+        {
+            stopColorToggle = 0;
+            return "red";
+        }
+        else
+        {
+            stopColorToggle = 1;
+            return "#00000000";
+        }
+    }
+    return "#00000000";
 }
 
 void homeform::refresh_bluetooth_devices_clicked()
@@ -459,6 +480,7 @@ void homeform::Start()
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
+        emit stopColorChanged(stopColor());
     }
 
     if(bluetoothManager->device())
@@ -492,6 +514,7 @@ void homeform::Stop()
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
+        emit stopColorChanged(stopColor());
     }
 }
 
@@ -545,7 +568,12 @@ QString homeform::signal()
 }
 
 void homeform::update()
-{    
+{
+    QSettings settings;
+
+    if(paused && settings.value("top_bar_enabled", true).toBool())
+        emit stopColorChanged(stopColor());
+
     if(bluetoothManager->device())
     {
         double inclination = 0;
@@ -554,7 +582,6 @@ void homeform::update()
         double pace = 0;
         uint8_t cadence = 0;
 
-        QSettings settings;
         bool miles = settings.value("miles_unit", false).toBool();
         double ftpSetting = settings.value("ftp", 200.0).toDouble();
         double unit_conversion = 1.0;

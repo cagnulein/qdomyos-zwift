@@ -88,6 +88,7 @@ Page {
                 width: 120
                 height: row.height
                 color: Material.backgroundColor
+
                 RoundButton {
                     icon.source: rootItem.stopIcon
                     icon.height: row.height - 54
@@ -97,6 +98,12 @@ Page {
                     id: stop
                     width: 120
                     height: row.height - 4
+                }
+                ColorOverlay {
+                    anchors.fill: stop
+                    source: stop
+                    color: rootItem.stopColor
+                    enabled: rootItem.stopColor === "red" ? true : false
                 }
             }
 

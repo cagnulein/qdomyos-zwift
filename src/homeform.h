@@ -83,6 +83,7 @@ class homeform: public QObject
     Q_PROPERTY(QString startIcon READ startIcon NOTIFY startIconChanged)
     Q_PROPERTY(QString stopText READ stopText NOTIFY stopTextChanged)
     Q_PROPERTY(QString stopIcon READ stopIcon NOTIFY stopIconChanged)
+    Q_PROPERTY(QString stopColor READ stopColor NOTIFY stopColorChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
 
@@ -96,6 +97,7 @@ public:
     QString startIcon();
     QString stopText();
     QString stopIcon();
+    QString stopColor();
     bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();
@@ -180,6 +182,7 @@ signals:
  void startIconChanged(QString value);
  void stopTextChanged(QString value);
  void stopIconChanged(QString value);
+ void stopColorChanged(QString value);
  void infoChanged(QString value);
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);

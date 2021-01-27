@@ -318,6 +318,7 @@ HEADERS += \
    ios/lockscreen.h \
    keepawakehelper.h \
    macos/lockscreen.h \
+   material.h \
    metric.h \
    proformbike.h \
    proformtreadmill.h \
