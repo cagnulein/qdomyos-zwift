@@ -12,7 +12,7 @@ public:
     double average();
     double min();
     double max();
-    void clear();
+    void clear(bool accumulator);
     void operator = (double);
     void operator += (double);
 

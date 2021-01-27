@@ -967,8 +967,15 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
     activityNamePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"name\""));
 
     // use metadata config if the user selected it
-    QString activityNameFieldname = QDateTime::currentDateTime().toString() + " #qdomyoszwiftlover";
-    QString activityName = "";
+    QString activityName = " #qdomyos-zwift";
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+    {
+        activityName = "Run" + activityName;
+    }
+    else
+    {
+        activityName = "Ride" + activityName;
+    }
     activityNamePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain;charset=utf-8"));
     activityNamePart.setBody(activityName.toUtf8());
     if (activityName != "")

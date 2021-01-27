@@ -20,16 +20,16 @@ bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIK
 
 void bike::clearStats()
 {
-    elapsed.clear();
-    Speed.clear();
-    KCal.clear();
-    Distance.clear();
-    Heart.clear();
-    m_jouls.clear();
+    elapsed.clear(true);
+    Speed.clear(false);
+    KCal.clear(true);
+    Distance.clear(true);
+    Heart.clear(false);
+    m_jouls.clear(true);
     elevationAcc = 0;
-    m_watt.clear();
+    m_watt.clear(false);
 
-    m_pelotonResistance.clear();
-    Cadence.clear();
-    Resistance.clear();
+    m_pelotonResistance.clear(false);
+    Cadence.clear(false);
+    Resistance.clear(false);
 }

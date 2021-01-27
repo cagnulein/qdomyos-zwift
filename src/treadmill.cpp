@@ -33,14 +33,14 @@ uint16_t treadmill::watts(double weight)
 
 void treadmill::clearStats()
 {
-    elapsed.clear();
-    Speed.clear();
-    KCal.clear();
-    Distance.clear();
-    Heart.clear();
-    m_jouls.clear();
+    elapsed.clear(true);
+    Speed.clear(false);
+    KCal.clear(true);
+    Distance.clear(true);
+    Heart.clear(false);
+    m_jouls.clear(true);
     elevationAcc = 0;
-    m_watt.clear();
+    m_watt.clear(false);
 
-    Inclination.clear();
+    Inclination.clear(false);
 }

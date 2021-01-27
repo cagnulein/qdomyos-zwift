@@ -21,9 +21,10 @@ void metric::setValue(double v)
         m_max = value();
 }
 
-void metric::clear()
+void metric::clear(bool accumulator)
 {
-    m_offset = m_value;
+    if(accumulator)
+        m_offset = m_value;
     m_max = 0;
     m_totValue = 0;
     m_countValue = 0;
