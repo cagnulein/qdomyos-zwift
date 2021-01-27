@@ -615,7 +615,7 @@ void homeform::update()
             watts = ((treadmill*)bluetoothManager->device())->watts(settings.value("weight", 75.0).toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination().value();
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
-            watt->setValue(QString::number(watts, 'f', 0));
+            watt->setValue(QString::number(watts, 'f', 0));            
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine("AVG: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().average(), 'f', 1) + " MAX: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));            
@@ -644,6 +644,7 @@ void homeform::update()
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
         }
+        watt->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
         double ftpPerc = 0;
         double ftpZone = 1;
