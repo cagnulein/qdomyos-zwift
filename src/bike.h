@@ -20,6 +20,7 @@ public:
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
+    void setPaused(bool p);
 
 public slots:
     virtual void changeResistance(int8_t res);

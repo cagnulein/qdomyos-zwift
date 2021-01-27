@@ -15,6 +15,7 @@ public:
     void clear(bool accumulator);
     void operator = (double);
     void operator += (double);
+    void setPaused(bool p);
 
 private:
     double m_value = 0;
@@ -23,6 +24,8 @@ private:
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+
+    bool paused = false;
 };
 
 #endif // METRIC_H

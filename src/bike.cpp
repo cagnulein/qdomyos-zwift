@@ -33,3 +33,18 @@ void bike::clearStats()
     Cadence.clear(false);
     Resistance.clear(false);
 }
+
+void bike::setPaused(bool p)
+{
+    paused = p;
+    elapsed.setPaused(p);
+    Speed.setPaused(p);
+    KCal.setPaused(p);
+    Distance.setPaused(p);
+    Heart.setPaused(p);
+    m_jouls.setPaused(p);
+    m_watt.setPaused(p);
+    m_pelotonResistance.setPaused(p);
+    Cadence.setPaused(p);
+    Resistance.setPaused(p);
+}

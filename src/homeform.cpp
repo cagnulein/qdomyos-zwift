@@ -484,7 +484,7 @@ void homeform::Start()
     }
 
     if(bluetoothManager->device())
-        bluetoothManager->device()->paused = (paused | stopped);
+        bluetoothManager->device()->setPaused(paused | stopped);
 }
 
 void homeform::Stop()
@@ -507,7 +507,7 @@ void homeform::Stop()
     }
 
     if(bluetoothManager->device())
-        bluetoothManager->device()->paused = (paused | stopped);
+        bluetoothManager->device()->setPaused(paused | stopped);
 
     QSettings settings;
     if(settings.value("top_bar_enabled").toBool())

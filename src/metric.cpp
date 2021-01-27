@@ -8,6 +8,9 @@ metric::metric()
 void metric::setValue(double v)
 {
     m_value = v;
+
+    if(paused) return;
+
     if(value() != 0)
     {
         m_countValue++;
@@ -60,4 +63,9 @@ double metric::min()
 double metric::max()
 {
     return m_max;
+}
+
+void metric::setPaused(bool p)
+{
+    paused = p;
 }

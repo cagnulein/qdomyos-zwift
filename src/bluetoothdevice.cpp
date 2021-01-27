@@ -36,3 +36,15 @@ void bluetoothdevice::clearStats()
     elevationAcc = 0;
     m_watt.clear(false);
 }
+
+void bluetoothdevice::setPaused(bool p)
+{
+    paused = p;
+    elapsed.setPaused(p);
+    Speed.setPaused(p);
+    KCal.setPaused(p);
+    Distance.setPaused(p);
+    Heart.setPaused(p);
+    m_jouls.setPaused(p);
+    m_watt.setPaused(p);
+}

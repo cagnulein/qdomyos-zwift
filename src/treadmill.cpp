@@ -44,3 +44,16 @@ void treadmill::clearStats()
 
     Inclination.clear(false);
 }
+
+void treadmill::setPaused(bool p)
+{
+    paused = p;
+    elapsed.setPaused(p);
+    Speed.setPaused(p);
+    KCal.setPaused(p);
+    Distance.setPaused(p);
+    Heart.setPaused(p);
+    m_jouls.setPaused(p);
+    m_watt.setPaused(p);
+    Inclination.setPaused(p);
+}

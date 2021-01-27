@@ -37,7 +37,7 @@ public:
     virtual void clearStats();
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnect();
-    bool paused = false;
+    virtual void setPaused(bool p);
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -73,6 +73,8 @@ protected:
     metric m_jouls;
     double elevationAcc = 0;
     metric m_watt;
+
+    bool paused = false;
 };
 
 #endif // BLUETOOTHDEVICE_H
