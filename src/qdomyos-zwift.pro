@@ -53,6 +53,7 @@ SOURCES += \
    fit-sdk/fit_protocol_validator.cpp \
    fit-sdk/fit_unicode.cpp \
    flywheelbike.cpp \
+   ftmsbike.cpp \
         gpx.cpp \
     heartratebelt.cpp \
    homeform.cpp \
@@ -62,6 +63,7 @@ SOURCES += \
    proformbike.cpp \
    proformtreadmill.cpp \
    qfit.cpp \
+   schwinnic4bike.cpp \
    sessionline.cpp \
    signalhandler.cpp \
         toorxtreadmill.cpp \
@@ -310,6 +312,7 @@ HEADERS += \
    fit-sdk/fit_zones_target_mesg.hpp \
    fit-sdk/fit_zones_target_mesg_listener.hpp \
    flywheelbike.h \
+   ftmsbike.h \
     heartratebelt.h \
    homeform.h \
    ios/lockscreen.h \
@@ -319,6 +322,7 @@ HEADERS += \
    proformbike.h \
    proformtreadmill.h \
    qfit.h \
+   schwinnic4bike.h \
    sessionline.h \
    signalhandler.h \
    toorxtreadmill.h \

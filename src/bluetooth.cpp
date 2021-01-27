@@ -192,6 +192,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
             }
+            else if((b.name().toUpper().startsWith("IC BIKE") || b.name().toUpper().startsWith("F80")) && !schwinnIC4Bike && filter)
+            {
+                discoveryAgent->stop();
+                schwinnIC4Bike = new schwinnIC4bike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(schwinnIC4Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                schwinnIC4Bike->deviceDiscovered(b);
+            }
             else if(b.name().startsWith("YESOUL") && !yesoulBike && filter)
             {
                 discoveryAgent->stop();
@@ -393,6 +406,11 @@ void bluetooth::restart()
         delete flywheelBike;
         flywheelBike = 0;
     }
+    if(schwinnIC4Bike)
+    {
+        delete schwinnIC4Bike;
+        schwinnIC4Bike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -426,6 +444,8 @@ bluetoothdevice* bluetooth::device()
         return proformTreadmill;
     else if(flywheelBike)
         return flywheelBike;
+    else if(schwinnIC4Bike)
+        return schwinnIC4Bike;
     return nullptr;
 }
 

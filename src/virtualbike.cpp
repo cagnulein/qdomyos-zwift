@@ -442,8 +442,8 @@ void virtualbike::bikeProvider()
         value.append((char)(normalizeSpeed & 0xFF)); // speed
         value.append((char)(normalizeSpeed >> 8) & 0xFF); // speed
 
-        value.append((char)(Bike->currentCadence().value() * 2)); // cadence
-        value.append((char)(0)); // cadence
+        value.append((char)((uint16_t)(Bike->currentCadence().value() * 2) & 0xFF)); // cadence
+        value.append((char)(((uint16_t)(Bike->currentCadence().value() * 2) >> 8) & 0xFF)); // cadence
 
         value.append((char)Bike->currentResistance().value()); // resistance
         value.append((char)(0)); // resistance

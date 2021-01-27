@@ -22,6 +22,7 @@
 #include "trxappgateusbtreadmill.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
+#include "schwinnic4bike.h"
 #include "yesoulbike.h"
 #include "flywheelbike.h"
 #include "fassitreadmill.h"
@@ -54,6 +55,7 @@ private:
     flywheelbike* flywheelBike = 0;
     proformbike* proformBike = 0;
     proformtreadmill* proformTreadmill = 0;
+    schwinnIC4bike* schwinnIC4Bike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;
