@@ -66,7 +66,7 @@ void proformbike::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
            elapsed += deltaTime;
            m_watt = (double)watts();

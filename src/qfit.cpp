@@ -41,11 +41,11 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(0).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(0).time.toSecsSinceEpoch() - 631065600L);
-    sessionMesg.SetTotalElapsedTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
-    sessionMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
+    sessionMesg.SetTotalTimerTime(session.last().elapsedTime);
     sessionMesg.SetTotalDistance(session.last().distance * 1000.0); //meters
     sessionMesg.SetTotalCalories(session.last().calories);
-    sessionMesg.SetTotalMovingTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetMinAltitude(0);
     sessionMesg.SetMaxAltitude(session.last().elevationGain);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
@@ -77,10 +77,11 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     }
     devIdMesg.SetDeveloperDataIndex(0);
 
+    fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
     for (int i = 0; i < session.length(); i++)
     {
         fit::RecordMesg newRecord;
-        fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
+        //fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(session.at(i).heart);
         newRecord.SetCadence(session.at(i).cadence);
         newRecord.SetDistance(session.at(i).distance * 1000.0); //meters
@@ -89,14 +90,18 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         newRecord.SetResistance(session.at(i).resistance);
         newRecord.SetCalories(session.at(i).calories);
         newRecord.SetAltitude(session.at(i).elevationGain);
-        newRecord.SetTimestamp(date.GetTimeStamp());
+
+        // using just the start point as reference in order to avoid pause time
+        // strava ignore the elapsed field
+        // this workaround could leads an accuracy issue.
+        newRecord.SetTimestamp(date.GetTimeStamp() + i);
 
         records.push_back(newRecord);
     }
 
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
-    activityMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    activityMesg.SetTotalTimerTime(session.last().elapsedTime);
     activityMesg.SetNumSessions(1);
     activityMesg.SetType(FIT_ACTIVITY_MANUAL);
     activityMesg.SetEvent(FIT_EVENT_WORKOUT);
@@ -109,8 +114,8 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
     lapMesg.SetStartTime(session.first().time.toSecsSinceEpoch() - 631065600L);
     lapMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
-    lapMesg.SetTotalElapsedTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
-    lapMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.first().time.toSecsSinceEpoch());
+    lapMesg.SetTotalElapsedTime(session.last().elapsedTime);
+    lapMesg.SetTotalTimerTime(session.last().elapsedTime);
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
     lapMesg.SetEventType(FIT_EVENT_TYPE_START);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);

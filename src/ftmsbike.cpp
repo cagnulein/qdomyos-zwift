@@ -59,12 +59,12 @@ void ftmsbike::update()
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        //gattWriteCharacteristic.isValid() &&
-       gattNotify1Characteristic.isValid() &&
-       initDone)
+       gattNotify1Characteristic.isValid() /*&&
+       initDone*/)
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
            elapsed += deltaTime;
            m_watt = (double)watts();

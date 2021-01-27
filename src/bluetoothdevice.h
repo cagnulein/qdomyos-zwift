@@ -37,6 +37,7 @@ public:
     virtual void clearStats();
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnect();
+    bool paused = false;
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,

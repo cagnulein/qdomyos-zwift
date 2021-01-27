@@ -460,6 +460,9 @@ void homeform::Start()
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
     }
+
+    if(bluetoothManager->device())
+        bluetoothManager->device()->paused = (paused | stopped);
 }
 
 void homeform::Stop()
@@ -480,6 +483,10 @@ void homeform::Stop()
 
         fit_save_clicked();
     }
+
+    if(bluetoothManager->device())
+        bluetoothManager->device()->paused = (paused | stopped);
+
     QSettings settings;
     if(settings.value("top_bar_enabled").toBool())
     {
@@ -669,7 +676,7 @@ void homeform::update()
         }
 */
 
-        if(!stopped)
+        if(!stopped && !paused)
         {
             SessionLine s(
                         bluetoothManager->device()->currentSpeed().value(),
@@ -679,7 +686,8 @@ void homeform::update()
                         resistance,
                         (uint8_t)bluetoothManager->device()->currentHeart().value(),
                         pace, cadence, bluetoothManager->device()->calories(),
-                        bluetoothManager->device()->elevationGain());
+                        bluetoothManager->device()->elevationGain(),
+                        bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600));
 
             Session.append(s);
         }
