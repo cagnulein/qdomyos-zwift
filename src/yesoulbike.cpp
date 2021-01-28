@@ -71,7 +71,7 @@ void yesoulbike::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
            elapsed += deltaTime;
            m_watt = (double)watts();
@@ -180,7 +180,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     debug("Current Resistance: " + QString::number(Resistance.value()));
     debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance));
+    debug("Current Calculate Distance: " + QString::number(Distance.value()));
     debug("Current Cadence: " + QString::number(Cadence.value()));
     debug("Current Distance: " + QString::number(distance));
     debug("Current CrankRevs: " + QString::number(CrankRevs));

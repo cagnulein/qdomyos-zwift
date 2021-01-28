@@ -7,6 +7,9 @@
 
 bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
+    QSettings settings;
+    bool trx_route_key = settings.value("trx_route_key", false).toBool();
+
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
     this->testResistance = testResistance;
@@ -41,7 +44,10 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
         // Start a discovery
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
-        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        if(!trx_route_key)
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        else
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
 }
 
@@ -50,6 +56,7 @@ void bluetooth::finished()
     debug("BTLE scanning finished");
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    bool trx_route_key = settings.value("trx_route_key", false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
 
     if(!heartRateBeltFound && !heartRateBeltAvaiable())
@@ -58,7 +65,10 @@ void bluetooth::finished()
         forceHeartBeltOffForTimeout = true;
     }
 
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    if(!trx_route_key)
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    else
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
 
 void bluetooth::canceled()
@@ -181,6 +191,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
+            }
+            else if((b.name().toUpper().startsWith("IC BIKE") || b.name().toUpper().startsWith("F80")) && !schwinnIC4Bike && filter)
+            {
+                discoveryAgent->stop();
+                schwinnIC4Bike = new schwinnIC4bike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(schwinnIC4Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                schwinnIC4Bike->deviceDiscovered(b);
             }
             else if(b.name().startsWith("YESOUL") && !yesoulBike && filter)
             {
@@ -383,6 +406,11 @@ void bluetooth::restart()
         delete flywheelBike;
         flywheelBike = 0;
     }
+    if(schwinnIC4Bike)
+    {
+        delete schwinnIC4Bike;
+        schwinnIC4Bike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -416,6 +444,8 @@ bluetoothdevice* bluetooth::device()
         return proformTreadmill;
     else if(flywheelBike)
         return flywheelBike;
+    else if(schwinnIC4Bike)
+        return schwinnIC4Bike;
     return nullptr;
 }
 

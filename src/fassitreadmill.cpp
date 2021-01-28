@@ -119,7 +119,7 @@ void fassitreadmill::update()
 
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
             QSettings settings;
            elapsed += deltaTime;
@@ -134,7 +134,7 @@ void fassitreadmill::update()
             if(incompletePackets == false && noConsole == false)
             {
                 sec1Update = 0;
-                updateDisplay(elapsed);
+                updateDisplay(elapsed.value());
             }
         }
         else

@@ -23,6 +23,7 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, SLOT(serviceDiscovered(QBluetoothServiceInfo)));
 
         // Start a discovery
+        qDebug() << "toorxtreadmill::deviceDiscovered";
         discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
     }
@@ -31,12 +32,13 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 // In your local slot, read information about the found devices
 void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 {
+    qDebug() << "toorxtreadmill::serviceDiscovered" << service;
     if(service.device().address() == bluetoothDevice.address())
     {
         debug("Found new service: " + service.serviceName()
                  + '(' + service.serviceUuid().toString() + ')');
 
-        if(service.serviceName().contains("SerialPort"))
+        if(service.serviceName().startsWith("SerialPort") || service.serviceName().startsWith("Serial Port"))
         {
             debug("Serial port service found");
             discoveryAgent->stop();

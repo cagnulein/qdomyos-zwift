@@ -1,11 +1,19 @@
 #include <QDebug>
 #ifdef Q_OS_ANDROID
+#include <QSettings>
 #include <QAndroidJniObject>
 #include "keepawakehelper.h"
 #include "jni.h"
 
 KeepAwakeHelper::KeepAwakeHelper()
 {
+    QSettings settings;
+    bool wake = settings.value("android_wakelock", true).toBool();
+    if(!wake)
+    {
+        return;
+    }
+
     QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
     if ( activity.isValid() )
     {

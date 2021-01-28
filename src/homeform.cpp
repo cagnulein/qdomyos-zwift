@@ -15,6 +15,7 @@
 #include <QFileInfo>
 #include "gpx.h"
 #include "qfit.h"
+#include "material.h"
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -118,6 +119,15 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+        emit startIconChanged(startIcon());
+        emit startTextChanged(startText());
+        emit stopColorChanged(stopColor());
+    }
+
     //populate the UI
 #if 0
 #warning("disable me!")
@@ -172,6 +182,25 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
 #endif
+}
+
+QString homeform::stopColor()
+{
+    static uint8_t stopColorToggle = 0;
+    if(paused)
+    {
+        if(stopColorToggle)
+        {
+            stopColorToggle = 0;
+            return "red";
+        }
+        else
+        {
+            stopColorToggle = 1;
+            return "#00000000";
+        }
+    }
+    return "#00000000";
 }
 
 void homeform::refresh_bluetooth_devices_clicked()
@@ -430,20 +459,95 @@ void homeform::Minus(QString name)
 
 void homeform::Start()
 {
+    qDebug() << "Start pressed - paused" << paused << "stopped" << stopped;
+
     trainProgram->restart();
     if(bluetoothManager->device())
         bluetoothManager->device()->start();
+
+    if(stopped)
+    {
+        if(bluetoothManager->device())
+            bluetoothManager->device()->clearStats();
+        Session.clear();
+    }
+
+    paused = false;
+    stopped = false;
+
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+        emit stopColorChanged(stopColor());
+    }
+
+    if(bluetoothManager->device())
+        bluetoothManager->device()->setPaused(paused | stopped);
 }
 
 void homeform::Stop()
 {
+    qDebug() << "Stop pressed - paused" << paused << "stopped" << stopped;
+
     if(bluetoothManager->device())
         bluetoothManager->device()->stop();
+
+    if(!paused)
+    {
+        paused = true;
+    }
+    else
+    {
+        paused = false;
+        stopped = true;
+
+        fit_save_clicked();
+    }
+
+    if(bluetoothManager->device())
+        bluetoothManager->device()->setPaused(paused | stopped);
+
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+        emit stopColorChanged(stopColor());
+    }
 }
 
 bool homeform::labelHelp()
 {
     return m_labelHelp;
+}
+
+QString homeform::stopText()
+{
+    if(paused || stopped)
+        return "Stop";
+    else
+        return "Pause";
+}
+
+QString homeform::stopIcon()
+{
+    if(paused || stopped)
+        return "icons/icons/stop.png";
+    else
+        return "icons/icons/pause.png";
+}
+
+
+QString homeform::startText()
+{
+    return "Start";
+}
+
+QString homeform::startIcon()
+{
+    return "icons/icons/start.png";
 }
 
 QString homeform::signal()
@@ -464,7 +568,12 @@ QString homeform::signal()
 }
 
 void homeform::update()
-{    
+{
+    QSettings settings;
+
+    if(paused && settings.value("top_bar_enabled", true).toBool())
+        emit stopColorChanged(stopColor());
+
     if(bluetoothManager->device())
     {
         double inclination = 0;
@@ -473,7 +582,6 @@ void homeform::update()
         double pace = 0;
         uint8_t cadence = 0;
 
-        QSettings settings;
         bool miles = settings.value("miles_unit", false).toBool();
         double ftpSetting = settings.value("ftp", 200.0).toDouble();
         double unit_conversion = 1.0;
@@ -507,7 +615,7 @@ void homeform::update()
             watts = ((treadmill*)bluetoothManager->device())->watts(settings.value("weight", 75.0).toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination().value();
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
-            watt->setValue(QString::number(watts, 'f', 0));
+            watt->setValue(QString::number(watts, 'f', 0));            
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine("AVG: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().average(), 'f', 1) + " MAX: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));            
@@ -536,6 +644,7 @@ void homeform::update()
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
         }
+        watt->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
         double ftpPerc = 0;
         double ftpZone = 1;
@@ -595,17 +704,21 @@ void homeform::update()
         }
 */
 
-        SessionLine s(
-                      bluetoothManager->device()->currentSpeed().value(),
-                      inclination,
-                      bluetoothManager->device()->odometer(),
-                      watts,
-                      resistance,
-                      (uint8_t)bluetoothManager->device()->currentHeart().value(),
-                      pace, cadence, bluetoothManager->device()->calories(),
-                      bluetoothManager->device()->elevationGain());
+        if(!stopped && !paused)
+        {
+            SessionLine s(
+                        bluetoothManager->device()->currentSpeed().value(),
+                        inclination,
+                        bluetoothManager->device()->odometer(),
+                        watts,
+                        resistance,
+                        (uint8_t)bluetoothManager->device()->currentHeart().value(),
+                        pace, cadence, bluetoothManager->device()->calories(),
+                        bluetoothManager->device()->elevationGain(),
+                        bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600));
 
-        Session.append(s);
+            Session.append(s);
+        }
     }
 
     emit changeOfdevice();
@@ -890,8 +1003,15 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
     activityNamePart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\"name\""));
 
     // use metadata config if the user selected it
-    QString activityNameFieldname = QDateTime::currentDateTime().toString() + " #qdomyoszwiftlover";
-    QString activityName = "";
+    QString activityName = " #qdomyos-zwift";
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+    {
+        activityName = "Run" + activityName;
+    }
+    else
+    {
+        activityName = "Ride" + activityName;
+    }
     activityNamePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain;charset=utf-8"));
     activityNamePart.setBody(activityName.toUtf8());
     if (activityName != "")

@@ -154,7 +154,7 @@ void domyoselliptical::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
            elapsed += deltaTime;
            m_watt = (double)watts();
@@ -181,7 +181,7 @@ void domyoselliptical::update()
         if(sec1Update++ == (1000 / refresh->interval()))
         {
             sec1Update = 0;
-            updateDisplay(elapsed);
+            updateDisplay(elapsed.value());
         }
         else
         {
@@ -190,7 +190,7 @@ void domyoselliptical::update()
 
         if(testResistance)
         {
-            if((((int)elapsed) % 5) == 0)
+            if((((int)elapsed.value()) % 5) == 0)
             {
                 uint8_t new_res = currentResistance() + 1;
                 if(new_res > 15)

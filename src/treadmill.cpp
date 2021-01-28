@@ -30,3 +30,30 @@ uint16_t treadmill::watts(double weight)
     m_watt.setValue(watts);
     return watts;
 }
+
+void treadmill::clearStats()
+{
+    elapsed.clear(true);
+    Speed.clear(false);
+    KCal.clear(true);
+    Distance.clear(true);
+    Heart.clear(false);
+    m_jouls.clear(true);
+    elevationAcc = 0;
+    m_watt.clear(false);
+
+    Inclination.clear(false);
+}
+
+void treadmill::setPaused(bool p)
+{
+    paused = p;
+    elapsed.setPaused(p);
+    Speed.setPaused(p);
+    KCal.setPaused(p);
+    Distance.setPaused(p);
+    Heart.setPaused(p);
+    m_jouls.setPaused(p);
+    m_watt.setPaused(p);
+    Inclination.setPaused(p);
+}

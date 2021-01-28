@@ -66,7 +66,7 @@ void proformtreadmill::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
            elapsed += deltaTime;
            m_watt = (double)watts();
@@ -175,34 +175,56 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
              && ((uint8_t)newValue.at(17)) == 0xFF && ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF))
         return;
 
-    Inclination = (((uint8_t)newValue.at(11)) / 2);
-    Speed = ((uint8_t)newValue.at(18));
+    // filter some strange values from proform
     m_watts = (((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t) newValue.at(12)));
-    KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-
-    if(heartRateBeltName.startsWith("Disabled"))
+    if(m_watts > 3000)
     {
+        m_watts = 0;
+    }
+    else
+    {
+        Inclination = (((uint8_t)newValue.at(11)) / 2);
+        Speed = ((uint8_t)newValue.at(18));
+        KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
+        //KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
+        Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+        if(heartRateBeltName.startsWith("Disabled"))
+        {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    lockscreen h;
-    long appleWatchHeartRate = h.heartRate();
-    Heart = appleWatchHeartRate;
-    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+        }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadence = settings.value("treadmill_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+        if(ios_peloton_workaround && cadence && h && firstStateChanged)
+        {
+            h->virtualtreadmill_setCadence(currentCrankRevolutions(),lastCrankEventTime());
+            h->virtualtreadmill_setHeartRate((uint8_t)currentHeart().value());
+        }
+#endif
+#endif
+
+        debug("Current Inclination: " + QString::number(Inclination.value()));
+        debug("Current Speed: " + QString::number(Speed.value()));
+        debug("Current Calculate Distance: " + QString::number(Distance.value()));
+        //debug("Current Distance: " + QString::number(distance));
+        debug("Current Watt: " + QString::number(watts()));
+
+        if(m_control->error() != QLowEnergyController::NoError)
+            qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
     }
-
-    debug("Current Inclination: " + QString::number(Inclination.value()));
-    debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance));
-    //debug("Current Distance: " + QString::number(distance));
-    debug("Current Watt: " + QString::number(watts()));
-
-    if(m_control->error() != QLowEnergyController::NoError)
-        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
 
 void proformtreadmill::btinit()

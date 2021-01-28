@@ -73,10 +73,10 @@ Page {
                 height: row.height
                 color: Material.backgroundColor
                 RoundButton {
-                    icon.source: "icons/icons/start.png"
+                    icon.source: rootItem.startIcon
                     icon.height: row.height - 54
                     icon.width: 46
-                    text: "Start"
+                    text: rootItem.startText
                     enabled: true
                     id: start
                     width: 120
@@ -88,15 +88,22 @@ Page {
                 width: 120
                 height: row.height
                 color: Material.backgroundColor
+
                 RoundButton {
-                    icon.source: "icons/icons/stop.png"
+                    icon.source: rootItem.stopIcon
                     icon.height: row.height - 54
                     icon.width: 46
-                    text: "Stop"
+                    text: rootItem.stopText
                     enabled: true
                     id: stop
                     width: 120
                     height: row.height - 4
+                }
+                ColorOverlay {
+                    anchors.fill: stop
+                    source: stop
+                    color: rootItem.stopColor
+                    enabled: rootItem.stopColor === "red" ? true : false
                 }
             }
 
