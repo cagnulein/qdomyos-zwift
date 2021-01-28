@@ -151,6 +151,8 @@
 		87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3BA025A0885D001EC5A8 /* elliptical.cpp */; };
 		87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */; };
 		87E6A85B25B5C8B900371D28 /* flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85925B5C8B900371D28 /* flywheelbike.cpp */; };
+		87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */; };
+		87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */; };
 		8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */; settings = {ATTRIBUTES = (); }; };
 		8FF7ED75180A8827C6B6AF63 /* qmldbg_inspector in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 67E53FD43BE69489B0434897 /* qmldbg_inspector */; };
 		906D4B242F504925A3CF2DBB /* GSS.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = C714C1AF3FA78E2DABBC17E8 /* GSS.framework */; };
@@ -533,6 +535,9 @@
 		87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_flywheelbike.cpp; sourceTree = "<group>"; };
 		87E6A85925B5C8B900371D28 /* flywheelbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = flywheelbike.cpp; path = ../src/flywheelbike.cpp; sourceTree = "<group>"; };
 		87E6A85A25B5C8B900371D28 /* flywheelbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = flywheelbike.h; path = ../src/flywheelbike.h; sourceTree = "<group>"; };
+		87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformtreadmill.cpp; path = ../src/proformtreadmill.cpp; sourceTree = "<group>"; };
+		87EFB56D25BD703C0039DD5A /* proformtreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformtreadmill.h; path = ../src/proformtreadmill.h; sourceTree = "<group>"; };
+		87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformtreadmill.cpp; sourceTree = "<group>"; };
 		87FD05DDC378E9BAD82A818F /* fit_ohr_settings_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ohr_settings_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ohr_settings_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		8865E12618F8B1C6C0E68392 /* fit_magnetometer_data_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_magnetometer_data_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_magnetometer_data_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		888A6DE1E4CF07F80E80394B /* fit_climb_pro_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_climb_pro_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_climb_pro_mesg.hpp"; sourceTree = "<absolute>"; };
@@ -856,6 +861,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */,
 				87586A4225B8341B00A243C4 /* moc_proformbike.cpp */,
 				87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */,
 				878A331C25AB50C300BD13E1 /* moc_fassitreadmill.cpp */,
@@ -890,6 +896,10 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */,
+				87EFB56D25BD703C0039DD5A /* proformtreadmill.h */,
+				87586A4025B8340E00A243C4 /* proformbike.cpp */,
+				87586A3F25B8340D00A243C4 /* proformbike.h */,
 				87E6A85925B5C8B900371D28 /* flywheelbike.cpp */,
 				87E6A85A25B5C8B900371D28 /* flywheelbike.h */,
 				87842E7E25AF88FB00321E69 /* secret.h */,
@@ -1372,8 +1382,6 @@
 		E8C543AB96796ECAA2E65C57 /* qdomyoszwift */ = {
 			isa = PBXGroup;
 			children = (
-				87586A4025B8340E00A243C4 /* proformbike.cpp */,
-				87586A3F25B8340D00A243C4 /* proformbike.h */,
 				2EB56BE3C2D93CDAB0C52E67 /* Sources */,
 				25B08E2869634E9BCBA333A2 /* Generated Sources */,
 				87DF60DE337FB58864343E39 /* Resources */,
@@ -1611,6 +1619,7 @@
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
 				BBBE7689F5792CB3FD1997EC /* fit_factory.cpp in Compile Sources */,
 				25F2400F80DAFBD41FE5CC75 /* fit_field.cpp in Compile Sources */,
+				87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */,
 				333C629F93DB3941862924F7 /* fit_field_base.cpp in Compile Sources */,
 				EEC10275DF646075E08DDC9B /* fit_field_definition.cpp in Compile Sources */,
 				87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */,
@@ -1654,6 +1663,7 @@
 				39FAA19B9285AB16AE3A39BA /* qrc_icons.cpp in Compile Sources */,
 				7352E0F0EE5366AC809B9D64 /* qrc_qml.cpp in Compile Sources */,
 				B38F3288D4AE4025465C1953 /* moc_bike.cpp in Compile Sources */,
+				87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */,
 				C3D1FD2587BF6F15B58BA675 /* moc_bluetooth.cpp in Compile Sources */,
 				87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */,
 				8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */,
@@ -2020,7 +2030,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.2.5;
+				CURRENT_PROJECT_VERSION = 2.2.12;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2072,7 +2082,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.2.5;
+				CURRENT_PROJECT_VERSION = 2.2.12;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2160,7 +2170,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.2.5;
+				CURRENT_PROJECT_VERSION = 2.2.12;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2250,7 +2260,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.2.5;
+				CURRENT_PROJECT_VERSION = 2.2.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2334,7 +2344,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.2.5;
+				CURRENT_PROJECT_VERSION = 2.2.12;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2421,7 +2431,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.2.5;
+				CURRENT_PROJECT_VERSION = 2.2.12;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;

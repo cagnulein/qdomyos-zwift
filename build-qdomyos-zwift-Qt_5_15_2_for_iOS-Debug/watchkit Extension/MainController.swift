@@ -19,12 +19,6 @@ class MainController: WKInterfaceController {
         
         // Configure interface objects here.
         print("AWAKE")
-        WorkoutTracking.authorizeHealthKit()
-        WorkoutTracking.shared.startWorkOut()
-        WorkoutTracking.shared.delegate = self
-        
-        WatchKitConnection.shared.delegate = self
-        WatchKitConnection.shared.startSession()
     }
     
     override func willActivate() {
@@ -43,7 +37,12 @@ class MainController: WKInterfaceController {
 
 extension MainController {
     @IBAction func startWorkout() {
+        WorkoutTracking.authorizeHealthKit()
         WorkoutTracking.shared.startWorkOut()
+        WorkoutTracking.shared.delegate = self
+        
+        WatchKitConnection.shared.delegate = self
+        WatchKitConnection.shared.startSession()
     }
     
     @IBAction func stopWorkout() {
