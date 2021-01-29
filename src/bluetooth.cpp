@@ -293,6 +293,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
+            else if(b.name().toUpper().startsWith("IC") && b.name().length() == 8 && !inspireBike && filter)
+            {
+                discoveryAgent->stop();
+                inspireBike = new inspirebike(noWriteResistance, noHeartService);
+                stateFileRead();
+                emit(deviceConnected());
+                connect(inspireBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(inspireBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(inspireBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                connect(inspireBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                inspireBike->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), inspireBike, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
         }
     }
 }
@@ -310,6 +326,11 @@ void bluetooth::connectedAndDiscovered()
             {
                 heartRateBelt = new heartratebelt();
                 //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                // when the bike/treadmill disconnects, QT disconnect the heart rate too without sending me the signal,
+                // so i have to reinitialize the connection
+                connect(this->device(), SIGNAL(disconnected()), heartRateBelt, SLOT(disconnect()));
+
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 heartRateBelt->deviceDiscovered(b);
@@ -411,6 +432,11 @@ void bluetooth::restart()
         delete schwinnIC4Bike;
         schwinnIC4Bike = 0;
     }
+    if(inspireBike)
+    {
+        delete inspireBike;
+        inspireBike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -446,6 +472,8 @@ bluetoothdevice* bluetooth::device()
         return flywheelBike;
     else if(schwinnIC4Bike)
         return schwinnIC4Bike;
+    else if(inspireBike)
+        return inspireBike;
     return nullptr;
 }
 

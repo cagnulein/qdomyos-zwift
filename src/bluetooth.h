@@ -26,6 +26,7 @@
 #include "yesoulbike.h"
 #include "flywheelbike.h"
 #include "fassitreadmill.h"
+#include "inspirebike.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
 #include "heartratebelt.h"
@@ -56,6 +57,7 @@ private:
     proformbike* proformBike = 0;
     proformtreadmill* proformTreadmill = 0;
     schwinnIC4bike* schwinnIC4Bike = 0;
+    inspirebike* inspireBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

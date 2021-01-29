@@ -57,6 +57,7 @@ SOURCES += \
         gpx.cpp \
     heartratebelt.cpp \
    homeform.cpp \
+   inspirebike.cpp \
    keepawakehelper.cpp \
         main.cpp \
    metric.cpp \
@@ -315,6 +316,7 @@ HEADERS += \
    ftmsbike.h \
     heartratebelt.h \
    homeform.h \
+   inspirebike.h \
    ios/lockscreen.h \
    keepawakehelper.h \
    macos/lockscreen.h \
@@ -386,4 +388,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein	 
 }
 
-VERSION = 2.3.2
+VERSION = 2.3.4
