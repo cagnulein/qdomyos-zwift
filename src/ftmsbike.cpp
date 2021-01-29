@@ -362,9 +362,6 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
         firstStateChanged = 1;
         // ********************************************************************************************************
 
-        // for the schwinn bike, trying to add some delays seconds...
-        QThread::sleep(5);
-
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);

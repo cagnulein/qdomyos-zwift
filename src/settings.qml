@@ -43,6 +43,8 @@ import Qt.labs.settings 1.0
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
 
+            property real proform_wheel_ratio: 0.33
+
             property bool toorx_3_0: false
             property bool trx_route_key: false
 
@@ -636,6 +638,39 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.toorx_3_0 = checked
+            }
+
+            Label {
+                id: proformBikeLabel
+                text: qsTr("Proform Bike Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelproformBikeWheelRatio
+                    text: qsTr("Wheel Ratio:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: proformBikeWheelRatioTextField
+                    text: settings.proform_wheel_ratio
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.proform_wheel_ratio = text
+                }
+                Button {
+                    id: okproformBikeWheelRatioButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text
+                }
             }
 
             Label {
