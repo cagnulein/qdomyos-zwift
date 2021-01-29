@@ -127,16 +127,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
     if(onlyDiscover) return;
 
-    bool filter = true;
-    if(filterDevice.length())
-    {
-        filter = (device.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
-    }
-
     if(heartRateBeltFound || forceHeartBeltOffForTimeout)
     {
         foreach(QBluetoothDeviceInfo b, devices)
         {
+            bool filter = true;
+            if(filterDevice.length())
+            {
+                filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
+            }
+
             if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
                 discoveryAgent->stop();
