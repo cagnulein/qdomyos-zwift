@@ -327,10 +327,6 @@ void bluetooth::connectedAndDiscovered()
                 heartRateBelt = new heartratebelt();
                 //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
-                // when the bike/treadmill disconnects, QT disconnect the heart rate too without sending me the signal,
-                // so i have to reinitialize the connection
-                connect(this->device(), SIGNAL(disconnected()), heartRateBelt, SLOT(disconnect()));
-
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 heartRateBelt->deviceDiscovered(b);
