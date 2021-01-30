@@ -388,7 +388,7 @@ void ftmsbike::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QBluetoothUuid::ServiceClassUuid)0x1826);
+    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"00001826-0000-1000-8000-00805f9b34fb");
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
