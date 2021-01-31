@@ -81,6 +81,7 @@ class homeform: public QObject
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
     Q_PROPERTY(QString startText READ startText NOTIFY startTextChanged)
     Q_PROPERTY(QString startIcon READ startIcon NOTIFY startIconChanged)
+    Q_PROPERTY(QString startColor READ startColor NOTIFY startColorChanged)
     Q_PROPERTY(QString stopText READ stopText NOTIFY stopTextChanged)
     Q_PROPERTY(QString stopIcon READ stopIcon NOTIFY stopIconChanged)
     Q_PROPERTY(QString stopColor READ stopColor NOTIFY stopColorChanged)
@@ -95,6 +96,7 @@ public:
     QString signal();
     QString startText();
     QString startIcon();
+    QString startColor();
     QString stopText();
     QString stopIcon();
     QString stopColor();
@@ -180,6 +182,7 @@ signals:
  void signalChanged(QString value);
  void startTextChanged(QString value);
  void startIconChanged(QString value);
+ void startColorChanged(QString value);
  void stopTextChanged(QString value);
  void stopIconChanged(QString value);
  void stopColorChanged(QString value);

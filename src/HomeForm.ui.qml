@@ -82,6 +82,12 @@ Page {
                     width: 120
                     height: row.height - 4
                 }
+                ColorOverlay {
+                    anchors.fill: start
+                    source: start
+                    color: rootItem.startColor
+                    enabled: rootItem.startColor === "red" ? true : false
+                }
             }
 
             Rectangle {

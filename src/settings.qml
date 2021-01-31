@@ -18,6 +18,7 @@ import Qt.labs.settings 1.0
             property real weight: 75.0
             property real ftp: 200.0
             property bool miles_unit: false
+            property bool pause_on_start: false
             property bool bike_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
@@ -188,6 +189,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.miles_unit = checked
+            }
+
+            SwitchDelegate {
+                id: pauseOnStartDelegate
+                text: qsTr("Pause when App Starts")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.pause_on_start
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.pause_on_start = checked
             }
 
             Label {
