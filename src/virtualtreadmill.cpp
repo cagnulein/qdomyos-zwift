@@ -62,11 +62,38 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice* t, bool noHeartService)
         charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); //Fitness Machine Control Point
         charData3.setProperties(QLowEnergyCharacteristic::Write);
 
+        QLowEnergyCharacteristicData charDataFIT5;
+        charDataFIT5.setUuid((QBluetoothUuid::CharacteristicType)0x2ADA); //Fitness Machine status
+        charDataFIT5.setProperties(QLowEnergyCharacteristic::Notify);
+        QByteArray descriptor5;
+        descriptor5.append((char)0x01);
+        descriptor5.append((char)0x00);
+        const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                     descriptor5);
+        charDataFIT5.addDescriptor(clientConfig5);
+
+        QLowEnergyCharacteristicData charDataFIT6;
+        charDataFIT6.setUuid((QBluetoothUuid::CharacteristicType)0x2AD3);
+        charDataFIT6.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+        QByteArray valueFIT6;
+        valueFIT6.append((char)0x00);
+        valueFIT6.append((char)0x01);
+        charDataFIT6.setValue(valueFIT6);
+        QByteArray descriptor6;
+        descriptor6.append((char)0x01);
+        descriptor6.append((char)0x00);
+        const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                     descriptor6);
+        charDataFIT6.addDescriptor(clientConfig6);
+        charDataFIT6.setProperties(QLowEnergyCharacteristic::Read);
+
         serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); //FitnessMachineServiceUuid
         serviceData.addCharacteristic(charData);
         serviceData.addCharacteristic(charData2);
         serviceData.addCharacteristic(charData3);
+        serviceData.addCharacteristic(charDataFIT5);
+        serviceData.addCharacteristic(charDataFIT6);
     }
     else
     {

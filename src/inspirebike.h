@@ -1,5 +1,5 @@
-#ifndef HEARTRATEBELT_H
-#define HEARTRATEBELT_H
+#ifndef INSPIREBIKE_H
+#define INSPIREBIKE_H
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -23,31 +23,60 @@
 #include <QtCore/qmutex.h>
 
 #include <QObject>
-#include <QTime>
+#include <QString>
+#include <QDateTime>
 
-#include "virtualtreadmill.h"
-#include "treadmill.h"
+#include "virtualbike.h"
+#include "bike.h"
 
-class heartratebelt : public treadmill
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+class inspirebike : public bike
 {
     Q_OBJECT
 public:
-    heartratebelt();
+    inspirebike(bool noWriteResistance, bool noHeartService);
     bool connected();
 
+    void* VirtualBike();
+    void* VirtualDevice();
+
 private:
+    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
+    void startDiscover();
+    uint16_t watts();
+
+    QTimer* refresh;
+    virtualbike* virtualBike = 0;
+
     QLowEnergyService* gattCommunicationChannelService = 0;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
+
+    QDateTime lastTimeUpdate;
+    bool firstUpdate = true;
+    uint8_t sec1Update = 0;
+    QByteArray lastPacket;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
+    uint16_t m_watts = 0;
+
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+
+#ifdef Q_OS_IOS
+    lockscreen* h = 0;
+#endif
 
 signals:
     void disconnected();
     void debug(QString string);
-    void packetReceived();
-    void heartRate(uint8_t heart);
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void disconnect();
 
 private slots:
 
@@ -64,4 +93,4 @@ private slots:
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // HEARTRATEBELT_H
+#endif // INSPIREBIKE_H

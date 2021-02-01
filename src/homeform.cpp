@@ -125,7 +125,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         emit stopTextChanged(stopText());
         emit startIconChanged(startIcon());
         emit startTextChanged(startText());
-        emit stopColorChanged(stopColor());
+        emit startColorChanged(startColor());
+        emit stopColorChanged(stopColor());        
     }
 
     //populate the UI
@@ -186,22 +187,28 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 
 QString homeform::stopColor()
 {
-    static uint8_t stopColorToggle = 0;
-    if(paused)
+    return "#00000000";
+}
+
+QString homeform::startColor()
+{
+    static uint8_t startColorToggle = 0;
+    if(paused || stopped)
     {
-        if(stopColorToggle)
+        if(startColorToggle)
         {
-            stopColorToggle = 0;
+            startColorToggle = 0;
             return "red";
         }
         else
         {
-            stopColorToggle = 1;
+            startColorToggle = 1;
             return "#00000000";
         }
     }
     return "#00000000";
 }
+
 
 void homeform::refresh_bluetooth_devices_clicked()
 {
@@ -256,6 +263,11 @@ void homeform::deviceConnected()
     changeLabelHelp(m_labelHelp);
 
     QSettings settings;
+
+    if(settings.value("pause_on_start", false).toBool())
+    {
+        Start();
+    }
 
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
     {
@@ -461,19 +473,28 @@ void homeform::Start()
 {
     qDebug() << "Start pressed - paused" << paused << "stopped" << stopped;
 
-    trainProgram->restart();
-    if(bluetoothManager->device())
-        bluetoothManager->device()->start();
-
-    if(stopped)
+    if(!paused && !stopped)
     {
+        paused = true;
         if(bluetoothManager->device())
-            bluetoothManager->device()->clearStats();
-        Session.clear();
+            bluetoothManager->device()->stop();
     }
+    else
+    {
+        trainProgram->restart();
+        if(bluetoothManager->device())
+            bluetoothManager->device()->start();
 
-    paused = false;
-    stopped = false;
+        if(stopped)
+        {
+            if(bluetoothManager->device())
+                bluetoothManager->device()->clearStats();
+            Session.clear();
+        }
+
+        paused = false;
+        stopped = false;
+    }
 
     QSettings settings;
     if(settings.value("top_bar_enabled").toBool())
@@ -481,6 +502,9 @@ void homeform::Start()
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
         emit stopColorChanged(stopColor());
+        emit startIconChanged(startIcon());
+        emit startTextChanged(startText());
+        emit startColorChanged(startColor());
     }
 
     if(bluetoothManager->device())
@@ -494,17 +518,10 @@ void homeform::Stop()
     if(bluetoothManager->device())
         bluetoothManager->device()->stop();
 
-    if(!paused)
-    {
-        paused = true;
-    }
-    else
-    {
-        paused = false;
-        stopped = true;
+    paused = false;
+    stopped = true;
 
-        fit_save_clicked();
-    }
+    fit_save_clicked();
 
     if(bluetoothManager->device())
         bluetoothManager->device()->setPaused(paused | stopped);
@@ -515,6 +532,9 @@ void homeform::Stop()
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
         emit stopColorChanged(stopColor());
+        emit startIconChanged(startIcon());
+        emit startTextChanged(startText());
+        emit startColorChanged(startColor());
     }
 }
 
@@ -525,29 +545,37 @@ bool homeform::labelHelp()
 
 QString homeform::stopText()
 {
-    if(paused || stopped)
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
         return "Stop";
-    else
-        return "Pause";
+    return "";
 }
 
 QString homeform::stopIcon()
 {
-    if(paused || stopped)
-        return "icons/icons/stop.png";
-    else
-        return "icons/icons/pause.png";
+    return "icons/icons/stop.png";
 }
 
 
 QString homeform::startText()
 {
-    return "Start";
+    if(paused || stopped)
+        return "Start";
+    else
+        return "Pause";
 }
 
 QString homeform::startIcon()
 {
-    return "icons/icons/start.png";
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        if(paused || stopped)
+            return "icons/icons/start.png";
+        else
+            return "icons/icons/pause.png";
+    }
+    return "";
 }
 
 QString homeform::signal()
@@ -571,8 +599,15 @@ void homeform::update()
 {
     QSettings settings;
 
-    if(paused && settings.value("top_bar_enabled", true).toBool())
+    if((paused || stopped) && settings.value("top_bar_enabled", true).toBool())
+    {
+        emit stopIconChanged(stopIcon());
+        emit stopTextChanged(stopText());
+        emit startIconChanged(startIcon());
+        emit startTextChanged(startText());
+        emit startColorChanged(startColor());
         emit stopColorChanged(stopColor());
+    }
 
     if(bluetoothManager->device())
     {

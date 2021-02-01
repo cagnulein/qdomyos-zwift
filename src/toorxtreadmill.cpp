@@ -52,6 +52,10 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error),
                     this, &toorxtreadmill::onSocketErrorOccurred);
 
+#ifdef Q_OS_ANDROID
+            socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+#endif
+
             debug("Create socket");
             socket->connectToService(serialPortService);
             debug("ConnectToService done");

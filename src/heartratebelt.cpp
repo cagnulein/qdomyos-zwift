@@ -22,6 +22,16 @@ void heartratebelt::serviceDiscovered(const QBluetoothUuid &gatt)
     debug("serviceDiscovered " + gatt.toString());
 }
 
+void heartratebelt::disconnect()
+{
+    qDebug() << "heartratebelt::disconnect" << m_control;
+
+    if(m_control)
+    {
+        m_control->disconnectFromDevice();
+    }
+}
+
 void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
