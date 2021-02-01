@@ -204,18 +204,6 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
         }
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence = settings.value("treadmill_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-        if(ios_peloton_workaround && cadence && h && firstStateChanged)
-        {
-            h->virtualtreadmill_setCadence(currentCrankRevolutions(),lastCrankEventTime());
-            h->virtualtreadmill_setHeartRate((uint8_t)currentHeart().value());
-        }
-#endif
-#endif
-
         debug("Current Inclination: " + QString::number(Inclination.value()));
         debug("Current Speed: " + QString::number(Speed.value()));
         debug("Current Calculate Distance: " + QString::number(Distance.value()));
