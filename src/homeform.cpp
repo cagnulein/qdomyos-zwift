@@ -545,7 +545,10 @@ bool homeform::labelHelp()
 
 QString homeform::stopText()
 {
-    return "Stop";
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+        return "Stop";
+    return "";
 }
 
 QString homeform::stopIcon()
@@ -564,10 +567,15 @@ QString homeform::startText()
 
 QString homeform::startIcon()
 {
-    if(paused || stopped)
-        return "icons/icons/start.png";
-    else
-        return "icons/icons/pause.png";
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        if(paused || stopped)
+            return "icons/icons/start.png";
+        else
+            return "icons/icons/pause.png";
+    }
+    return "";
 }
 
 QString homeform::signal()
