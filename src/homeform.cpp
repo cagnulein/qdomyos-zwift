@@ -559,10 +559,15 @@ QString homeform::stopIcon()
 
 QString homeform::startText()
 {
-    if(paused || stopped)
-        return "Start";
-    else
-        return "Pause";
+    QSettings settings;
+    if(settings.value("top_bar_enabled").toBool())
+    {
+        if(paused || stopped)
+            return "Start";
+        else
+            return "Pause";
+    }
+    return "";
 }
 
 QString homeform::startIcon()
