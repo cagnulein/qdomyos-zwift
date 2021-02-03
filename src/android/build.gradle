@@ -18,7 +18,6 @@ apply plugin: 'com.android.application'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
-	 implementation project(':android/android_antlib_4-14')
 }
 
 android {

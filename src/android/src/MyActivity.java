@@ -1,6 +1,7 @@
 package org.cagnulen.qdomyoszwift;
 
 import android.content.Intent;
+import ChannelService;
 
 private ChannelService.ChannelServiceComm mChannelService;
 private boolean mChannelServiceBound = false;

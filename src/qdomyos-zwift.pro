@@ -356,6 +356,7 @@ DISTFILES += \
    android/gradle/wrapper/gradle-wrapper.properties \
    android/gradlew \
    android/gradlew.bat \
+   android/libs/android_antlib_4-14-0.jar \
 	android/res/values/libs.xml \
    android/src/ChannelService.java \
    android/src/MyActivity.java \
