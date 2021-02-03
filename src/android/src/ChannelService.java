@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-package org.surfsite.iconsole;
+package org.cagnulen.qdomyoszwift;
 
 import com.dsi.ant.AntService;
 import com.dsi.ant.channel.AntChannel;

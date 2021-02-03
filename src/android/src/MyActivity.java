@@ -1,12 +1,46 @@
 package org.cagnulen.qdomyoszwift;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import ChannelService;
-
-private ChannelService.ChannelServiceComm mChannelService;
-private boolean mChannelServiceBound = false;
+import android.content.ServiceConnection;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.NumberPicker;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.util.Log;
+import android.content.Intent;
 
 public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
+
+ private ChannelService.ChannelServiceComm mChannelService;
+ private boolean mChannelServiceBound = false;
+ private static final String TAG = "MyActivity";
+ private Context mContext;
+
+
+ private static MyActivity activity_;
+
+ public MyActivity()
+ {
+	  activity_ = this;
+ }
+
  @Override
  public void onCreate(android.os.Bundle savedInstanceState){
 	 super.onCreate(savedInstanceState);
@@ -47,7 +81,7 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 
 	// Binds to ChannelService. ChannelService binds and manages connection between the
 	// app and the ANT Radio Service
-	mChannelServiceBound = getActivity().bindService(new Intent(getActivity(), ChannelService.class), mChannelServiceConnection , Context.BIND_AUTO_CREATE);
+	mChannelServiceBound = activity_.bindService(new Intent(activity_, ChannelService.class), mChannelServiceConnection , Context.BIND_AUTO_CREATE);
 
 	if(!mChannelServiceBound)   //If the bind returns false, run the unbind method to update the GUI
 	doUnbindChannelService();
@@ -63,7 +97,7 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 
 	if(mChannelServiceBound)
 	{
-		getActivity().unbindService(mChannelServiceConnection);
+		activity_.unbindService(mChannelServiceConnection);
 
 		mChannelServiceBound = false;
 		}
@@ -71,7 +105,7 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 	Log.v(TAG, "...doUnbindChannelService");
 	}
 
- public void setCadenceSpeedPower(float speed, float power, int cadence)
+ public void setCadenceSpeedPower(float speed, int power, int cadence)
  {
 	 mChannelService.setSpeed(speed / 10.0);
 	 mChannelService.setPower(power / 10);
