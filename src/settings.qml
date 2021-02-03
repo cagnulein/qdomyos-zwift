@@ -22,6 +22,8 @@ import Qt.labs.settings 1.0
             property bool bike_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
+            property bool ant_cadence: false
+
             property bool top_bar_enabled: true
 
             property bool tile_speed_enabled: true
@@ -303,6 +305,30 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.bike_resistance_gain = bikeResistanceGainTextField.text
                 }
+            }
+
+            Label {
+                id: uiAntOptionsLabel
+                text: qsTr("Ant+ Options (only for some Android)")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: antCadenceDelegate
+                text: qsTr("Ant+ Cadence")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.ant_cadence
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.ant_cadence = checked
             }
 
             Label {

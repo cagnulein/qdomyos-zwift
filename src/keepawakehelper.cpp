@@ -14,7 +14,7 @@ KeepAwakeHelper::KeepAwakeHelper()
         return;
     }
 
-    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
     if ( activity.isValid() )
     {
         QAndroidJniObject serviceName = QAndroidJniObject::getStaticObjectField<jstring>("android/content/Context","POWER_SERVICE");
@@ -29,6 +29,11 @@ KeepAwakeHelper::KeepAwakeHelper()
 
                 m_wakeLock = powerMgr.callObjectMethod("newWakeLock", "(ILjava/lang/String;)Landroid/os/PowerManager$WakeLock;", levelAndFlags,tag.object<jstring>());
             }
+        }
+
+        if(settings.value("ant_cadence", false).toBool())
+        {
+            activity.callStaticMethod<jint>("MyActivity", "antStart");
         }
     }
 

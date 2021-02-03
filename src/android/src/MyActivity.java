@@ -28,10 +28,9 @@ import android.content.Intent;
 
 public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 
- private ChannelService.ChannelServiceComm mChannelService;
- private boolean mChannelServiceBound = false;
+ private static ChannelService.ChannelServiceComm mChannelService;
+ private static boolean mChannelServiceBound = false;
  private static final String TAG = "MyActivity";
- private Context mContext;
 
 
  private static MyActivity activity_;
@@ -47,10 +46,11 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 	 this.getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
  }
 
- public void antStart() {
+ public static void antStart() {
 	 if(!mChannelServiceBound) doBindChannelService();
  }
- private ServiceConnection mChannelServiceConnection = new ServiceConnection()
+
+ private static ServiceConnection mChannelServiceConnection = new ServiceConnection()
  {
 	@Override
 	public void onServiceConnected(ComponentName name, IBinder serviceBinder)
@@ -75,7 +75,7 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 		}
 	};
 
- private void doBindChannelService()
+ private static void doBindChannelService()
  {
 	Log.v(TAG, "doBindChannelService...");
 
@@ -91,7 +91,7 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 	Log.v(TAG, "...doBindChannelService");
 	}
 
- private void doUnbindChannelService()
+ private static void doUnbindChannelService()
  {
 	Log.v(TAG, "doUnbindChannelService...");
 
@@ -105,7 +105,7 @@ public class MyActivity extends org.qtproject.qt5.android.bindings.QtActivity {
 	Log.v(TAG, "...doUnbindChannelService");
 	}
 
- public void setCadenceSpeedPower(float speed, int power, int cadence)
+ public static void setCadenceSpeedPower(float speed, int power, int cadence)
  {
 	 mChannelService.setSpeed(speed / 10.0);
 	 mChannelService.setPower(power / 10);
