@@ -129,6 +129,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         emit stopColorChanged(stopColor());        
     }
 
+    emit tile_orderChanged(tile_order());
+
     //populate the UI
 #if 0
 #warning("disable me!")
@@ -252,6 +254,14 @@ void homeform::trainProgramSignals()
      }
 }
 
+QStringList homeform::tile_order()
+{
+    QStringList r;
+    for(int i = 0; i < 16; i++)
+        r.append(QString::number(i));
+    return r;
+}
+
 void homeform::deviceConnected()
 {
     // if the device reconnects in the same session, the tiles shouldn't be created again
@@ -271,88 +281,94 @@ void homeform::deviceConnected()
 
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
     {
-        if(settings.value("tile_speed_enabled", true).toBool())
+        for(int i=0; i<100; i++)
+        {
+            if(settings.value("tile_speed_enabled", true).toBool() && settings.value("tile_speed_order", 0).toInt() == i)
                 dataList.append(speed);
 
-        if(settings.value("tile_inclination_enabled", true).toBool())
-            dataList.append(inclination);
+            if(settings.value("tile_inclination_enabled", true).toBool() && settings.value("tile_inclination_order", 0).toInt() == i)
+                dataList.append(inclination);
 
-        if(settings.value("tile_elevation_enabled", true).toBool())
-            dataList.append(elevation);
+            if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
+                dataList.append(elevation);
 
-        if(settings.value("tile_elapsed_enabled", true).toBool())
-            dataList.append(elapsed);
+            if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
+                dataList.append(elapsed);
 
-        if(settings.value("tile_calories_enabled", true).toBool())
-            dataList.append(calories);
+            if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
+                dataList.append(calories);
 
-        if(settings.value("tile_odometer_enabled", true).toBool())
-            dataList.append(odometer);
+            if(settings.value("tile_odometer_enabled", true).toBool() && settings.value("tile_odometer_order", 0).toInt() == i)
+                dataList.append(odometer);
 
-        if(settings.value("tile_pace_enabled", true).toBool())
-            dataList.append(pace);
+            if(settings.value("tile_pace_enabled", true).toBool() && settings.value("tile_pace_order", 0).toInt() == i)
+                dataList.append(pace);
 
-        if(settings.value("tile_watt_enabled", true).toBool())
-            dataList.append(watt);
+            if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+                dataList.append(watt);
 
-        if(settings.value("tile_avgwatt_enabled", true).toBool())
-            dataList.append(avgWatt);
+            if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
+                dataList.append(avgWatt);
 
-        if(settings.value("tile_ftp_enabled", true).toBool())
-            dataList.append(ftp);
+            if(settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+                dataList.append(ftp);
 
-        if(settings.value("tile_jouls_enabled", true).toBool())
-            dataList.append(jouls);
+            if(settings.value("tile_jouls_enabled", true).toBool() && settings.value("tile_jouls_order", 0).toInt() == i)
+                dataList.append(jouls);
 
-        if(settings.value("tile_heart_enabled", true).toBool())
-            dataList.append(heart);
+            if(settings.value("tile_heart_enabled", true).toBool() && settings.value("tile_heart_order", 0).toInt() == i)
+                dataList.append(heart);
 
-        if(settings.value("tile_fan_enabled", true).toBool())
-            dataList.append(fan);
+            if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+                dataList.append(fan);
+        }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
     {
-        if(settings.value("tile_speed_enabled", true).toBool())
-            dataList.append(speed);
+        for(int i=0; i<100; i++)
+        {
+            if(settings.value("tile_speed_enabled", true).toBool() && settings.value("tile_speed_order", 0).toInt() == i)
+                dataList.append(speed);
 
-        if(settings.value("tile_cadence_enabled", true).toBool())
-            dataList.append(cadence);
+            if(settings.value("tile_cadence_enabled", true).toBool() && settings.value("tile_cadence_order", 0).toInt() == i)
+                dataList.append(cadence);
 
-        if(settings.value("tile_elevation_enabled", true).toBool())
-            dataList.append(elevation);
+            if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
+                dataList.append(elevation);
 
-        if(settings.value("tile_elapsed_enabled", true).toBool())
-            dataList.append(elapsed);
+            if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
+                dataList.append(elapsed);
 
-        if(settings.value("tile_calories_enabled", true).toBool())
-            dataList.append(calories);
+            if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
+                dataList.append(calories);
 
-        if(settings.value("tile_odometer_enabled", true).toBool())
-            dataList.append(odometer);
+            if(settings.value("tile_odometer_enabled", true).toBool() && settings.value("tile_odometer_order", 0).toInt() == i)
+                dataList.append(odometer);
 
-        if(settings.value("tile_resistance_enabled", true).toBool())
-            dataList.append(resistance);
+            if(settings.value("tile_resistance_enabled", true).toBool() && settings.value("tile_resistance_order", 0).toInt() == i)
+                dataList.append(resistance);
 
-        if(settings.value("tile_peloton_resistance_enabled", true).toBool())
-            dataList.append(peloton_resistance);        
+            if(settings.value("tile_peloton_resistance_enabled", true).toBool() && settings.value("tile_peloton_resistance_order", 0).toInt() == i)
+                dataList.append(peloton_resistance);
 
-        if(settings.value("tile_watt_enabled", true).toBool())
-            dataList.append(watt);
+            if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+                dataList.append(watt);
 
-        if(settings.value("tile_avgwatt_enabled", true).toBool())
-            dataList.append(avgWatt);
+            if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
+                dataList.append(avgWatt);
 
-        if(settings.value("tile_ftp_enabled", true).toBool())
-            dataList.append(ftp);
+            if(settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+                dataList.append(ftp);
 
-        if(settings.value("tile_jouls_enabled", true).toBool())
-            dataList.append(jouls);
+            if(settings.value("tile_jouls_enabled", true).toBool() && settings.value("tile_jouls_order", 0).toInt() == i)
+                dataList.append(jouls);
 
-        if(settings.value("tile_heart_enabled", true).toBool())
-            dataList.append(heart);
+            if(settings.value("tile_heart_enabled", true).toBool() && settings.value("tile_heart_order", 0).toInt() == i)
+                dataList.append(heart);
 
-        if(settings.value("tile_fan_enabled", true).toBool())
-            dataList.append(fan);
+            if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+                dataList.append(fan);
+        }
     }
 
     engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
