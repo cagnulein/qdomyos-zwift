@@ -357,7 +357,11 @@ DISTFILES += \
    android/gradlew \
    android/gradlew.bat \
 	android/res/values/libs.xml \
+   android/src/ChannelService.java \
    android/src/MyActivity.java \
+   android/src/PowerChannelController.java \
+   android/src/SpeedChannelController.java \
+   android/src/com/dsi/ant/channel/PredefinedNetwork.java \
    ios/AppDelegate.swift \
    ios/BLEPeripheralManager.swift
 
