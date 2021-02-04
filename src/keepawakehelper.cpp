@@ -2,6 +2,8 @@
 #ifdef Q_OS_ANDROID
 #include <QSettings>
 #include <QAndroidJniObject>
+#include <QtAndroidExtras/QtAndroid>
+#include <QApplication>
 #include "keepawakehelper.h"
 #include "jni.h"
 
@@ -30,11 +32,6 @@ KeepAwakeHelper::KeepAwakeHelper()
                 m_wakeLock = powerMgr.callObjectMethod("newWakeLock", "(ILjava/lang/String;)Landroid/os/PowerManager$WakeLock;", levelAndFlags,tag.object<jstring>());
             }
         }
-
-        if(settings.value("ant_cadence", false).toBool())
-        {
-            activity.callStaticMethod<jint>("MyActivity", "antStart");
-        }
     }
 
     if ( m_wakeLock.isValid() )
@@ -45,6 +42,13 @@ KeepAwakeHelper::KeepAwakeHelper()
     else
     {
         assert( false );
+    }
+
+    if(settings.value("ant_cadence", false).toBool())
+    {
+        QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+        QAndroidJniObject myJavaObject("org/cagnulen/qdomyoszwift/Ant");
+        myJavaObject.callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());
     }
 }
 

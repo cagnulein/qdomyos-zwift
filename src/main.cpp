@@ -324,6 +324,20 @@ int main(int argc, char *argv[])
             if(resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
                 qDebug() << "log unwritable!";
         }
+
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
+        if(result == QtAndroid::PermissionResult::Denied){
+            QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
+            if(resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "log unwritable!";
+        }
+
+        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
+        if(result == QtAndroid::PermissionResult::Denied){
+            QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
+            if(resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "log unwritable!";
+        }
 #endif
         engine.load(url);
         new homeform(&engine, bl);

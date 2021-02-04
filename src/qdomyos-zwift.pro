@@ -1,7 +1,7 @@
 QT += bluetooth widgets xml positioning quick networkauth
 
 !ios: QT+= charts
-unix:android: QT += androidextras
+unix:android: QT += androidextras gui-private
 
 CONFIG += c++11 console debug app_bundle
 macx: CONFIG += static
@@ -358,11 +358,12 @@ DISTFILES += \
    android/gradlew.bat \
    android/libs/android_antlib_4-14-0.jar \
 	android/res/values/libs.xml \
-   android/src/ChannelService.java \
-   android/src/MyActivity.java \
-   android/src/PowerChannelController.java \
-   android/src/SpeedChannelController.java \
-   android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+   android/src/Ant.java \
+	android/src/ChannelService.java \
+	android/src/MyActivity.java \
+	android/src/PowerChannelController.java \
+	android/src/SpeedChannelController.java \
+	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
    ios/AppDelegate.swift \
    ios/BLEPeripheralManager.swift
 
