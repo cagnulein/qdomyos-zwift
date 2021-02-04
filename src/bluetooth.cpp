@@ -4,6 +4,10 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 #include <QtXml>
+#ifdef Q_OS_ANDROID
+#include "keepawakehelper.h"
+#include <QAndroidJniObject>
+#endif
 
 bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
@@ -335,6 +339,15 @@ void bluetooth::connectedAndDiscovered()
             }
         }
     }
+
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_cadence", false).toBool())
+    {
+        QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+        ant = new QAndroidJniObject("org/cagnulen/qdomyoszwift/Ant");
+        ant->callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());
+    }
+#endif
 }
 
 void bluetooth::heartRate(uint8_t heart)

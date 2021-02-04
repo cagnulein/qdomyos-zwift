@@ -43,13 +43,6 @@ KeepAwakeHelper::KeepAwakeHelper()
     {
         assert( false );
     }
-
-    if(settings.value("ant_cadence", false).toBool())
-    {
-        QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
-        QAndroidJniObject myJavaObject("org/cagnulen/qdomyoszwift/Ant");
-        myJavaObject.callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());
-    }
 }
 
 KeepAwakeHelper::~KeepAwakeHelper()

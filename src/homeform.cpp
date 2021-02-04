@@ -762,9 +762,9 @@ void homeform::update()
 */
 
 #ifdef Q_OS_ANDROID
-        if(settings.value("ant_cadence", false).toBool())
+        if(settings.value("ant_cadence", false).toBool() && ant)
         {
-            activity.callStaticMethod<jint>("MyActivity", "setCadenceSpeedPower", "(FII)", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts, (int)cadence);
+            ant->callMethod<void>("setCadenceSpeedPower","(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts, (int)cadence);
         }
 #endif
 
