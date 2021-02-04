@@ -69,6 +69,7 @@
 					<meta-data android:name="android.app.extract_android_style" android:value="default"/>
 				<!-- extract android style -->
 				</activity>
+				<service android:name=".ChannelService"></service>
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />
 		  <!-- For adding service(s) please check: https://wiki.qt.io/AndroidServices -->
 		</application>

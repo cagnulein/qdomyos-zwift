@@ -2,6 +2,8 @@
 #ifdef Q_OS_ANDROID
 #include <QSettings>
 #include <QAndroidJniObject>
+#include <QtAndroidExtras/QtAndroid>
+#include <QApplication>
 #include "keepawakehelper.h"
 #include "jni.h"
 
@@ -14,7 +16,7 @@ KeepAwakeHelper::KeepAwakeHelper()
         return;
     }
 
-    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
     if ( activity.isValid() )
     {
         QAndroidJniObject serviceName = QAndroidJniObject::getStaticObjectField<jstring>("android/content/Context","POWER_SERVICE");
@@ -40,6 +42,13 @@ KeepAwakeHelper::KeepAwakeHelper()
     else
     {
         assert( false );
+    }
+
+    if(settings.value("ant_cadence", false).toBool())
+    {
+        QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+        QAndroidJniObject myJavaObject("org/cagnulen/qdomyoszwift/Ant");
+        myJavaObject.callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());
     }
 }
 

@@ -4,6 +4,8 @@
 
 #include <QAndroidJniObject>
 
+static QAndroidJniObject activity;
+
 class KeepAwakeHelper
 {
 public:
