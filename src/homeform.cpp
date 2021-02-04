@@ -120,7 +120,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -385,7 +385,7 @@ void homeform::deviceConnected()
 void homeform::deviceFound(QString name)
 {
     QSettings settings;
-    if(!settings.value("top_bar_enabled").toBool()) return;
+    if(!settings.value("top_bar_enabled", true).toBool()) return;
     if(!name.trimmed().length()) return;
     m_info = name + " found";
     emit infoChanged(m_info);    
@@ -514,7 +514,7 @@ void homeform::Start()
     }
 
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -544,7 +544,7 @@ void homeform::Stop()
         bluetoothManager->device()->setPaused(paused | stopped);
 
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -563,7 +563,7 @@ bool homeform::labelHelp()
 QString homeform::stopText()
 {
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
         return "Stop";
     return "";
 }
@@ -577,7 +577,7 @@ QString homeform::stopIcon()
 QString homeform::startText()
 {
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         if(paused || stopped)
             return "Start";
@@ -590,7 +590,7 @@ QString homeform::startText()
 QString homeform::startIcon()
 {
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         if(paused || stopped)
             return "icons/icons/start.png";
