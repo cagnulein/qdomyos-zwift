@@ -171,7 +171,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 discoveryAgent->stop();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                 stateFileRead();
+#endif
                 emit(deviceConnected());
                 connect(domyos, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -285,7 +287,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 discoveryAgent->stop();
                 fassiTreadmill = new fassitreadmill(this->pollDeviceTime, noConsole, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                 stateFileRead();
+#endif
                 emit(deviceConnected());
                 connect(fassiTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -301,7 +305,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 discoveryAgent->stop();
                 inspireBike = new inspirebike(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                 stateFileRead();
+#endif
                 emit(deviceConnected());
                 connect(inspireBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -344,8 +350,7 @@ void bluetooth::connectedAndDiscovered()
     if(settings.value("ant_cadence", false).toBool())
     {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
-        ant = new QAndroidJniObject("org/cagnulen/qdomyoszwift/Ant");
-        ant->callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());
+        KeepAwakeHelper::antObject(true)->callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());
     }
 #endif
 }

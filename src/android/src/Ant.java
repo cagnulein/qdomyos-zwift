@@ -103,8 +103,9 @@ public class Ant {
 
  public void setCadenceSpeedPower(float speed, int power, int cadence)
  {
-	 mChannelService.setSpeed(speed / 10.0);
-	 mChannelService.setPower(power / 10);
+	 Log.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
+	 mChannelService.setSpeed(speed);
+	 mChannelService.setPower(power);
 	 mChannelService.setCadence(cadence);
  }
 }

@@ -275,7 +275,7 @@ void homeform::deviceConnected()
 
     QSettings settings;
 
-    if(settings.value("pause_on_start", false).toBool())
+    if(settings.value("pause_on_start", false).toBool() && bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL)
     {
         Start();
     }
@@ -762,9 +762,9 @@ void homeform::update()
 */
 
 #ifdef Q_OS_ANDROID
-        if(settings.value("ant_cadence", false).toBool() && ant)
+        if(settings.value("ant_cadence", false).toBool() && KeepAwakeHelper::antObject(false))
         {
-            ant->callMethod<void>("setCadenceSpeedPower","(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts, (int)cadence);
+            KeepAwakeHelper::antObject(false)->callMethod<void>("setCadenceSpeedPower","(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts, (int)cadence);
         }
 #endif
 

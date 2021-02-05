@@ -10,6 +10,7 @@
 KeepAwakeHelper::KeepAwakeHelper()
 {
     QSettings settings;
+    ant = 0;
     bool wake = settings.value("android_wakelock", true).toBool();
     if(!wake)
     {
@@ -43,6 +44,12 @@ KeepAwakeHelper::KeepAwakeHelper()
     {
         assert( false );
     }
+}
+
+QAndroidJniObject* KeepAwakeHelper::antObject(bool forceCreate){
+    if(!ant && forceCreate)
+        ant = new QAndroidJniObject("org/cagnulen/qdomyoszwift/Ant");
+    return ant;
 }
 
 KeepAwakeHelper::~KeepAwakeHelper()
