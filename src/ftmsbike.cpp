@@ -8,7 +8,9 @@
 #include <math.h>
 #include <QThread>
 #include "ios/lockscreen.h"
-
+#ifdef Q_OS_ANDROID
+#include <QLowEnergyConnectionParameters>
+#endif
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService)
 {
     refresh = new QTimer(this);
@@ -311,7 +313,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
     foreach(QLowEnergyService* s, gattCommunicationChannelService)
     {
         qDebug() << "stateChanged" << s->serviceUuid() << s->state();
-        if(s->state() != QLowEnergyService::ServiceDiscovered)
+        if(s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService)
         {
             qDebug() << "not all services discovered";
             return;
@@ -322,42 +324,45 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
 
     foreach(QLowEnergyService* s, gattCommunicationChannelService)
     {
-        // establish hook into notifications
-        connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
-        connect(s, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
-                this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
-        connect(s, SIGNAL(error(QLowEnergyService::ServiceError)),
-                this, SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(s, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
-
-        qDebug() << s->serviceUuid() << "connected!";
-
-        foreach(QLowEnergyCharacteristic c, s->characteristics())
+        if(s->state() != QLowEnergyService::InvalidService)
         {
-            if((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify)
-            {
-                QByteArray descriptor;
-                descriptor.append((char)0x01);
-                descriptor.append((char)0x00);
-                s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            // establish hook into notifications
+            connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+                    this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
+            connect(s, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
+                    this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+            connect(s, SIGNAL(error(QLowEnergyService::ServiceError)),
+                    this, SLOT(errorService(QLowEnergyService::ServiceError)));
+            connect(s, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
+                    SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-                qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
-            }
-            else if((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate)
-            {
-                QByteArray descriptor;
-                descriptor.append((char)0x02);
-                descriptor.append((char)0x00);
-                s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            qDebug() << s->serviceUuid() << "connected!";
 
-                qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
-            }
-            else if((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read)
+            foreach(QLowEnergyCharacteristic c, s->characteristics())
             {
-                s->readCharacteristic(c);
-                qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                if((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify)
+                {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x01);
+                    descriptor.append((char)0x00);
+                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+                    qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
+                }
+                else if((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate)
+                {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x02);
+                    descriptor.append((char)0x00);
+                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+                    qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
+                }
+                else if((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read)
+                {
+                    s->readCharacteristic(c);
+                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                }
             }
         }
     }
@@ -414,6 +419,14 @@ void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteris
 void ftmsbike::serviceScanDone(void)
 {
     debug("serviceScanDone");
+
+#ifdef Q_OS_ANDROID
+    QLowEnergyConnectionParameters c;
+    c.setIntervalRange(24,40);
+    c.setLatency(0);
+    c.setSupervisionTimeout(420);
+    m_control->requestConnectionUpdate(c);
+#endif
 
     foreach(QBluetoothUuid s, m_control->services())
     {
