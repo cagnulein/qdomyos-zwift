@@ -146,6 +146,10 @@ void domyostreadmill::updateDisplay(uint16_t elapsed)
 
    display[12] = (uint8_t)currentHeart().value();
 
+   display[16] = (uint8_t)(currentInclination().value() * 10.0);
+
+   display[20] = (uint8_t)(currentSpeed().value() * 10.0);
+
    display[23] = ((uint8_t)(calories()) >> 8) & 0xFF;
    display[24] = (uint8_t)(calories()) & 0xFF;
 
