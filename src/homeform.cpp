@@ -13,6 +13,7 @@
 #include <QUrlQuery>
 #include <QHttpMultiPart>
 #include <QFileInfo>
+#include "keepawakehelper.h"
 #include "gpx.h"
 #include "qfit.h"
 #include "material.h"
@@ -119,7 +120,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
 
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -128,6 +129,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         emit startColorChanged(startColor());
         emit stopColorChanged(stopColor());        
     }
+
+    emit tile_orderChanged(tile_order());
 
     //populate the UI
 #if 0
@@ -252,6 +255,14 @@ void homeform::trainProgramSignals()
      }
 }
 
+QStringList homeform::tile_order()
+{
+    QStringList r;
+    for(int i = 0; i < 16; i++)
+        r.append(QString::number(i));
+    return r;
+}
+
 void homeform::deviceConnected()
 {
     // if the device reconnects in the same session, the tiles shouldn't be created again
@@ -264,95 +275,101 @@ void homeform::deviceConnected()
 
     QSettings settings;
 
-    if(settings.value("pause_on_start", false).toBool())
+    if(settings.value("pause_on_start", false).toBool() && bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL)
     {
         Start();
     }
 
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
     {
-        if(settings.value("tile_speed_enabled", true).toBool())
+        for(int i=0; i<100; i++)
+        {
+            if(settings.value("tile_speed_enabled", true).toBool() && settings.value("tile_speed_order", 0).toInt() == i)
                 dataList.append(speed);
 
-        if(settings.value("tile_inclination_enabled", true).toBool())
-            dataList.append(inclination);
+            if(settings.value("tile_inclination_enabled", true).toBool() && settings.value("tile_inclination_order", 0).toInt() == i)
+                dataList.append(inclination);
 
-        if(settings.value("tile_elevation_enabled", true).toBool())
-            dataList.append(elevation);
+            if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
+                dataList.append(elevation);
 
-        if(settings.value("tile_elapsed_enabled", true).toBool())
-            dataList.append(elapsed);
+            if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
+                dataList.append(elapsed);
 
-        if(settings.value("tile_calories_enabled", true).toBool())
-            dataList.append(calories);
+            if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
+                dataList.append(calories);
 
-        if(settings.value("tile_odometer_enabled", true).toBool())
-            dataList.append(odometer);
+            if(settings.value("tile_odometer_enabled", true).toBool() && settings.value("tile_odometer_order", 0).toInt() == i)
+                dataList.append(odometer);
 
-        if(settings.value("tile_pace_enabled", true).toBool())
-            dataList.append(pace);
+            if(settings.value("tile_pace_enabled", true).toBool() && settings.value("tile_pace_order", 0).toInt() == i)
+                dataList.append(pace);
 
-        if(settings.value("tile_watt_enabled", true).toBool())
-            dataList.append(watt);
+            if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+                dataList.append(watt);
 
-        if(settings.value("tile_avgwatt_enabled", true).toBool())
-            dataList.append(avgWatt);
+            if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
+                dataList.append(avgWatt);
 
-        if(settings.value("tile_ftp_enabled", true).toBool())
-            dataList.append(ftp);
+            if(settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+                dataList.append(ftp);
 
-        if(settings.value("tile_jouls_enabled", true).toBool())
-            dataList.append(jouls);
+            if(settings.value("tile_jouls_enabled", true).toBool() && settings.value("tile_jouls_order", 0).toInt() == i)
+                dataList.append(jouls);
 
-        if(settings.value("tile_heart_enabled", true).toBool())
-            dataList.append(heart);
+            if(settings.value("tile_heart_enabled", true).toBool() && settings.value("tile_heart_order", 0).toInt() == i)
+                dataList.append(heart);
 
-        if(settings.value("tile_fan_enabled", true).toBool())
-            dataList.append(fan);
+            if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+                dataList.append(fan);
+        }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
     {
-        if(settings.value("tile_speed_enabled", true).toBool())
-            dataList.append(speed);
+        for(int i=0; i<100; i++)
+        {
+            if(settings.value("tile_speed_enabled", true).toBool() && settings.value("tile_speed_order", 0).toInt() == i)
+                dataList.append(speed);
 
-        if(settings.value("tile_cadence_enabled", true).toBool())
-            dataList.append(cadence);
+            if(settings.value("tile_cadence_enabled", true).toBool() && settings.value("tile_cadence_order", 0).toInt() == i)
+                dataList.append(cadence);
 
-        if(settings.value("tile_elevation_enabled", true).toBool())
-            dataList.append(elevation);
+            if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
+                dataList.append(elevation);
 
-        if(settings.value("tile_elapsed_enabled", true).toBool())
-            dataList.append(elapsed);
+            if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
+                dataList.append(elapsed);
 
-        if(settings.value("tile_calories_enabled", true).toBool())
-            dataList.append(calories);
+            if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
+                dataList.append(calories);
 
-        if(settings.value("tile_odometer_enabled", true).toBool())
-            dataList.append(odometer);
+            if(settings.value("tile_odometer_enabled", true).toBool() && settings.value("tile_odometer_order", 0).toInt() == i)
+                dataList.append(odometer);
 
-        if(settings.value("tile_resistance_enabled", true).toBool())
-            dataList.append(resistance);
+            if(settings.value("tile_resistance_enabled", true).toBool() && settings.value("tile_resistance_order", 0).toInt() == i)
+                dataList.append(resistance);
 
-        if(settings.value("tile_peloton_resistance_enabled", true).toBool())
-            dataList.append(peloton_resistance);        
+            if(settings.value("tile_peloton_resistance_enabled", true).toBool() && settings.value("tile_peloton_resistance_order", 0).toInt() == i)
+                dataList.append(peloton_resistance);
 
-        if(settings.value("tile_watt_enabled", true).toBool())
-            dataList.append(watt);
+            if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+                dataList.append(watt);
 
-        if(settings.value("tile_avgwatt_enabled", true).toBool())
-            dataList.append(avgWatt);
+            if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
+                dataList.append(avgWatt);
 
-        if(settings.value("tile_ftp_enabled", true).toBool())
-            dataList.append(ftp);
+            if(settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+                dataList.append(ftp);
 
-        if(settings.value("tile_jouls_enabled", true).toBool())
-            dataList.append(jouls);
+            if(settings.value("tile_jouls_enabled", true).toBool() && settings.value("tile_jouls_order", 0).toInt() == i)
+                dataList.append(jouls);
 
-        if(settings.value("tile_heart_enabled", true).toBool())
-            dataList.append(heart);
+            if(settings.value("tile_heart_enabled", true).toBool() && settings.value("tile_heart_order", 0).toInt() == i)
+                dataList.append(heart);
 
-        if(settings.value("tile_fan_enabled", true).toBool())
-            dataList.append(fan);
+            if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+                dataList.append(fan);
+        }
     }
 
     engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
@@ -368,7 +385,7 @@ void homeform::deviceConnected()
 void homeform::deviceFound(QString name)
 {
     QSettings settings;
-    if(!settings.value("top_bar_enabled").toBool()) return;
+    if(!settings.value("top_bar_enabled", true).toBool()) return;
     if(!name.trimmed().length()) return;
     m_info = name + " found";
     emit infoChanged(m_info);    
@@ -497,7 +514,7 @@ void homeform::Start()
     }
 
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -527,7 +544,7 @@ void homeform::Stop()
         bluetoothManager->device()->setPaused(paused | stopped);
 
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         emit stopIconChanged(stopIcon());
         emit stopTextChanged(stopText());
@@ -546,7 +563,7 @@ bool homeform::labelHelp()
 QString homeform::stopText()
 {
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
         return "Stop";
     return "";
 }
@@ -559,16 +576,21 @@ QString homeform::stopIcon()
 
 QString homeform::startText()
 {
-    if(paused || stopped)
-        return "Start";
-    else
-        return "Pause";
+    QSettings settings;
+    if(settings.value("top_bar_enabled", true).toBool())
+    {
+        if(paused || stopped)
+            return "Start";
+        else
+            return "Pause";
+    }
+    return "";
 }
 
 QString homeform::startIcon()
 {
     QSettings settings;
-    if(settings.value("top_bar_enabled").toBool())
+    if(settings.value("top_bar_enabled", true).toBool())
     {
         if(paused || stopped)
             return "icons/icons/start.png";
@@ -626,7 +648,7 @@ void homeform::update()
         emit signalChanged(signal());
 
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
-        speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average(), 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max(), 'f', 1));
+        speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value()));
         heart->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
         odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
@@ -738,6 +760,13 @@ void homeform::update()
                 trainProgramTotalDistance->setText("N/A");
         }
 */
+
+#ifdef Q_OS_ANDROID
+        if(settings.value("ant_cadence", false).toBool() && KeepAwakeHelper::antObject(false))
+        {
+            KeepAwakeHelper::antObject(false)->callMethod<void>("setCadenceSpeedPower","(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts, (int)cadence);
+        }
+#endif
 
         if(!stopped && !paused)
         {

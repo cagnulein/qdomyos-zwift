@@ -57,11 +57,11 @@ void ftmsbike::update()
         initRequest = false;
     }
     else if(bluetoothDevice.isValid() &&
-       m_control->state() == QLowEnergyController::DiscoveredState &&
-       gattCommunicationChannelService &&
+       m_control->state() == QLowEnergyController::DiscoveredState //&&
+       //gattCommunicationChannelService &&
        //gattWriteCharacteristic.isValid() &&
-       gattNotify1Characteristic.isValid() /*&&
-       initDone*/)
+       //gattNotify1Characteristic.isValid() &&
+       /*initDone*/)
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -126,7 +126,10 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     debug(" << " + newValue.toHex(' '));
 
-    lastPacket = newValue;
+    if(characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2))
+        return;
+
+    lastPacket = newValue;        
 
     union flags
     {
@@ -302,72 +305,96 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
 void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
 {
-    QBluetoothUuid _gattNotify1CharacteristicId((QBluetoothUuid::CharacteristicType)0x2AD2); //indoor bike
-
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    if(state == QLowEnergyService::ServiceDiscovered)
+    foreach(QLowEnergyService* s, gattCommunicationChannelService)
     {
-        //qDebug() << gattCommunicationChannelService->characteristics();
+        qDebug() << "stateChanged" << s->serviceUuid() << s->state();
+        if(s->state() != QLowEnergyService::ServiceDiscovered)
+        {
+            qDebug() << "not all services discovered";
+            return;
+        }
+    }
 
-        //gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-        //gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
-        //Q_ASSERT(gattWriteCharacteristic.isValid());
-        Q_ASSERT(gattNotify1Characteristic.isValid());
-        //Q_ASSERT(gattNotify2Characteristic.isValid());
+    qDebug() << "all services discovered!";
 
+    foreach(QLowEnergyService* s, gattCommunicationChannelService)
+    {
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+        connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
                 this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
+        connect(s, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
                 this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)),
+        connect(s, SIGNAL(error(QLowEnergyService::ServiceError)),
                 this, SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
+        connect(s, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
-        // ******************************************* virtual bike init *************************************
-        if(!firstStateChanged && !virtualBike
+        qDebug() << s->serviceUuid() << "connected!";
+
+        foreach(QLowEnergyCharacteristic c, s->characteristics())
+        {
+            if((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify)
+            {
+                QByteArray descriptor;
+                descriptor.append((char)0x01);
+                descriptor.append((char)0x00);
+                s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+                qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
+            }
+            else if((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate)
+            {
+                QByteArray descriptor;
+                descriptor.append((char)0x02);
+                descriptor.append((char)0x00);
+                s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+                qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
+            }
+            else if((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read)
+            {
+                s->readCharacteristic(c);
+                qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+            }
+        }
+    }
+
+    // ******************************************* virtual bike init *************************************
+    if(!firstStateChanged && !virtualBike
         #ifdef Q_OS_IOS
         #ifndef IO_UNDER_QT
-                && !h
+            && !h
         #endif
         #endif
-        )
-        {
-            QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            )
+    {
+        QSettings settings;
+        bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-            if(ios_peloton_workaround && cadence)
-            {
-                qDebug() << "ios_peloton_workaround activated!";
-                h = new lockscreen();
-                h->virtualbike_ios();
-            }
-            else
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        if(ios_peloton_workaround && cadence)
+        {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+            h->virtualbike_ios();
+        }
+        else
 #endif
 #endif
-                if(virtual_device_enabled)
+            if(virtual_device_enabled)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             }
-        }
-        firstStateChanged = 1;
-        // ********************************************************************************************************
-
-        QByteArray descriptor;
-        descriptor.append((char)0x01);
-        descriptor.append((char)0x00);
-        gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        //gattCommunicationChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
+    firstStateChanged = 1;
+    // ********************************************************************************************************
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
@@ -388,11 +415,12 @@ void ftmsbike::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"00001826-0000-1000-8000-00805f9b34fb");
-
-    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
-    gattCommunicationChannelService->discoverDetails();
+    foreach(QBluetoothUuid s, m_control->services())
+    {
+        gattCommunicationChannelService.append(m_control->createServiceObject(s));
+        connect(gattCommunicationChannelService.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
+        gattCommunicationChannelService.last()->discoverDetails();
+    }
 }
 
 void ftmsbike::errorService(QLowEnergyService::ServiceError err)

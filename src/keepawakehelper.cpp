@@ -2,19 +2,22 @@
 #ifdef Q_OS_ANDROID
 #include <QSettings>
 #include <QAndroidJniObject>
+#include <QtAndroidExtras/QtAndroid>
+#include <QApplication>
 #include "keepawakehelper.h"
 #include "jni.h"
 
 KeepAwakeHelper::KeepAwakeHelper()
 {
     QSettings settings;
+    ant = 0;
     bool wake = settings.value("android_wakelock", true).toBool();
     if(!wake)
     {
         return;
     }
 
-    QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+    activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
     if ( activity.isValid() )
     {
         QAndroidJniObject serviceName = QAndroidJniObject::getStaticObjectField<jstring>("android/content/Context","POWER_SERVICE");
@@ -41,6 +44,12 @@ KeepAwakeHelper::KeepAwakeHelper()
     {
         assert( false );
     }
+}
+
+QAndroidJniObject* KeepAwakeHelper::antObject(bool forceCreate){
+    if(!ant && forceCreate)
+        ant = new QAndroidJniObject("org/cagnulen/qdomyoszwift/Ant");
+    return ant;
 }
 
 KeepAwakeHelper::~KeepAwakeHelper()

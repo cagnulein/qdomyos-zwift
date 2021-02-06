@@ -4,11 +4,15 @@
 
 #include <QAndroidJniObject>
 
+static QAndroidJniObject activity;
+static QAndroidJniObject* ant;
+
 class KeepAwakeHelper
-{
+{       
 public:
     KeepAwakeHelper();
-    virtual ~KeepAwakeHelper();
+    virtual ~KeepAwakeHelper();    
+    static QAndroidJniObject* antObject(bool forceCreate);
 
 private:
     QAndroidJniObject m_wakeLock;

@@ -22,24 +22,42 @@ import Qt.labs.settings 1.0
             property bool bike_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
+            property bool ant_cadence: false
+
             property bool top_bar_enabled: true
 
             property bool tile_speed_enabled: true
+            property int  tile_speed_order: 0
             property bool tile_inclination_enabled: true
+            property int  tile_inclination_order: 1
             property bool tile_cadence_enabled: true
+            property int  tile_cadence_order: 2
             property bool tile_elevation_enabled: true
+            property int  tile_elevation_order: 3
             property bool tile_calories_enabled: true
+            property int  tile_calories_order: 4
             property bool tile_odometer_enabled: true
+            property int  tile_odometer_order: 5
             property bool tile_pace_enabled: true
+            property int  tile_pace_order: 6
             property bool tile_resistance_enabled: true
+            property int  tile_resistance_order: 7
             property bool tile_watt_enabled: true
+            property int  tile_watt_order: 8
             property bool tile_avgwatt_enabled: true
+            property int  tile_avgwatt_order: 9
             property bool tile_ftp_enabled: true
+            property int  tile_ftp_order: 10
             property bool tile_heart_enabled: true
+            property int  tile_heart_order: 11
             property bool tile_fan_enabled: true
+            property int  tile_fan_order: 12
             property bool tile_jouls_enabled: true
+            property int  tile_jouls_order: 13
             property bool tile_elapsed_enabled: true
+            property int  tile_elapsed_order: 14
             property bool tile_peloton_resistance_enabled: true
+            property int  tile_peloton_resistance_order: 15
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
@@ -306,6 +324,30 @@ import Qt.labs.settings 1.0
             }
 
             Label {
+                id: uiAntOptionsLabel
+                text: qsTr("Ant+ Options (only for some Android)")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: antCadenceDelegate
+                text: qsTr("Ant+ Cadence")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.ant_cadence
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.ant_cadence = checked
+            }
+
+            Label {
                 id: uiGeneralOptionsLabel
                 text: qsTr("General UI Options")
                 textFormat: Text.PlainText
@@ -353,6 +395,32 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_speed_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelSpeedOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: speedOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_speed_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = speedOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okSpeedOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_speed_order = speedOrderTextField.displayText
+                }
+            }
+
             SwitchDelegate {
                 id: inclinationEnabledDelegate
                 text: qsTr("Inclination")
@@ -367,6 +435,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_inclination_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelinclinationOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: inclinationOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_inclination_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = inclinationOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okinclinationOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_inclination_order = inclinationOrderTextField.displayText
+                }
+            }
+
 
             SwitchDelegate {
                 id: cadenceEnabledDelegate
@@ -383,6 +478,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_cadence_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelcadenceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: cadenceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_cadence_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = cadenceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okcadenceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: elevationEnabledDelegate
                 text: qsTr("Elevation")
@@ -397,6 +519,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_elevation_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelelevationOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: elevationOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_elevation_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = elevationOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okelevationOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_elevation_order = elevationOrderTextField.displayText
+                }
+            }
+
 
             SwitchDelegate {
                 id: caloriesEnabledDelegate
@@ -413,6 +562,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_calories_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelcaloriesOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: caloriesOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_calories_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = caloriesOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okcaloriesOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_calories_order = caloriesOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: odometerEnabledDelegate
                 text: qsTr("Odometer")
@@ -427,6 +603,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_odometer_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelodometerOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: odometerOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_odometer_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = odometerOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okodometerOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_odometer_order = odometerOrderTextField.displayText
+                }
+            }
+
 
             SwitchDelegate {
                 id: paceEnabledDelegate
@@ -443,6 +646,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_pace_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelpaceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: paceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_pace_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = paceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okpaceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_pace_order = paceOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: resistanceEnabledDelegate
                 text: qsTr("Resistance")
@@ -457,6 +687,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_resistance_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelresistanceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: resistanceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_resistance_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = resistanceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okresistanceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_resistance_order = resistanceOrderTextField.displayText
+                }
+            }
+
 
             SwitchDelegate {
                 id: wattEnabledDelegate
@@ -473,6 +730,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_watt_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelwattOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: wattOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_watt_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = wattOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okwattOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_watt_order = wattOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: avgwattEnabledDelegate
                 text: qsTr("AVG Watt")
@@ -487,6 +771,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_avgwatt_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelavgwattOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: avgwattOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_avgwatt_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = avgwattOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okavgwattOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_avgwatt_order = avgwattOrderTextField.displayText
+                }
+            }
+
 
             SwitchDelegate {
                 id: ftpEnabledDelegate
@@ -503,6 +814,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_ftp_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelftpOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: ftpOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_ftp_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = ftpOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okftpOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_ftp_order = ftpOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: heartEnabledDelegate
                 text: qsTr("Heart")
@@ -517,6 +855,34 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_heart_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelheartrateOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: heartrateOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_heart_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = heartrateOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okheartrateOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_heart_order = heartrateOrderTextField.displayText
+                }
+            }
+
+
 
             SwitchDelegate {
                 id: fanEnabledDelegate
@@ -533,6 +899,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_fan_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelfanOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: fanOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_fan_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = fanOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okfanOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_fan_order = fanOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: joulsEnabledDelegate
                 text: qsTr("Jouls")
@@ -547,6 +940,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_jouls_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labeljoulsOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: joulsOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_jouls_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = joulsOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okjoulsOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_jouls_order = joulsOrderTextField.displayText
+                }
+            }
+
 
             SwitchDelegate {
                 id: elapsedEnabledDelegate
@@ -563,6 +983,33 @@ import Qt.labs.settings 1.0
                 onClicked: settings.tile_elapsed_enabled = checked
             }
 
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelelapsedOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: elapsedOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_elapsed_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = elapsedOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okelapsedOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_elapsed_order = elapsedOrderTextField.displayText
+                }
+            }
+
+
             SwitchDelegate {
                 id: pelotonResistanceEnabledDelegate
                 text: qsTr("Peloton Resistance")
@@ -577,6 +1024,33 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.tile_peloton_resistance_enabled = checked
             }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelpeloton_resistanceOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: peloton_resistanceOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_peloton_resistance_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = peloton_resistanceOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okpeloton_resistanceOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                }
+            }
+
 
             Label {
                 id: domyosTreadmillLabel

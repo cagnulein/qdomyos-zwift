@@ -51,8 +51,8 @@ private:
     QTimer* refresh;
     virtualbike* virtualBike = 0;
 
-    QLowEnergyService* gattCommunicationChannelService = 0;
-    QLowEnergyCharacteristic gattNotify1Characteristic;
+    QList<QLowEnergyService*> gattCommunicationChannelService;
+    //QLowEnergyCharacteristic gattNotify1Characteristic;
 
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;

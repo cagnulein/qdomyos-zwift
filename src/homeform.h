@@ -86,6 +86,7 @@ class homeform: public QObject
     Q_PROPERTY(QString stopIcon READ stopIcon NOTIFY stopIconChanged)
     Q_PROPERTY(QString stopColor READ stopColor NOTIFY stopColorChanged)
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
+    Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
 
 public:
@@ -103,6 +104,7 @@ public:
     bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();
+    QStringList tile_order();
     void setGeneralPopupVisible(bool value);
 
 private:
@@ -189,6 +191,7 @@ signals:
  void infoChanged(QString value);
  void topBarHeightChanged(int value);
  void bluetoothDevicesChanged(QStringList value);
+ void tile_orderChanged(QStringList value);
  void changeLabelHelp(bool value);
  void generalPopupVisibleChanged(bool value);
 };
