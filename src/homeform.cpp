@@ -648,7 +648,7 @@ void homeform::update()
         emit signalChanged(signal());
 
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
-        speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average(), 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max(), 'f', 1));
+        speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value()));
         heart->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
         odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
