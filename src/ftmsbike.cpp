@@ -345,7 +345,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
 
                 qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
             }
-            if((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate)
+            else if((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate)
             {
                 QByteArray descriptor;
                 descriptor.append((char)0x02);
@@ -353,6 +353,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
                 s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
 
                 qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
+            }
+            else if((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read)
+            {
+                s->readCharacteristic(c);
+                qDebug() << s->serviceUuid() << c.uuid() << "reading!";
             }
         }
     }
