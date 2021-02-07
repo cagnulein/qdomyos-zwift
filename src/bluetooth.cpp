@@ -360,7 +360,7 @@ void bluetooth::connectedAndDiscovered()
     }
 
 #ifdef Q_OS_ANDROID
-    if(settings.value("ant_cadence", false).toBool())
+    if(settings.value("ant_cadence", false).toBool() || settings.value("ant_heart", false).toBool())
     {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());

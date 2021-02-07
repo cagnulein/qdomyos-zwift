@@ -1,5 +1,6 @@
 #include "fassitreadmill.h"
 #include "virtualtreadmill.h"
+#include "keepawakehelper.h"
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -250,6 +251,11 @@ void fassitreadmill::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << "inclination out of range, resetting it to 0..." << incline;
         incline = 0;
     }
+
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+#endif
 
     if(!firstCharacteristicChanged)
         DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));

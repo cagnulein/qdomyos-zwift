@@ -7,6 +7,7 @@
 #include <QBluetoothLocalDevice>
 #include <math.h>
 #include "ios/lockscreen.h"
+#include "keepawakehelper.h"
 
 flywheelbike::flywheelbike(bool noWriteResistance, bool noHeartService)
 {
@@ -217,6 +218,11 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
         if (bikeData.message_id == SEND_ICG_LIVE_STREAM_DATA) {
             double distance = GetDistanceFromPacket(newValue);
+
+#ifdef Q_OS_ANDROID
+            if(settings.value("ant_heart", false).toBool())
+                Heart = (uint8_t)KeepAwakeHelper::heart();
+#endif
 
             Resistance = parsedData->brake_level;
             Cadence = parsedData->cadence;

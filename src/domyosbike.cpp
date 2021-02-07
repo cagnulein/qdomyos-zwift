@@ -1,5 +1,6 @@
 #include "domyosbike.h"
 #include "virtualbike.h"
+#include "keepawakehelper.h"
 #include <math.h>
 #include <QFile>
 #include <QDateTime>
@@ -286,8 +287,16 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
         Resistance = 1;
     }
-    if(heartRateBeltName.startsWith("Disabled"))
-        Heart = ((uint8_t)newValue.at(18));
+
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if(heartRateBeltName.startsWith("Disabled"))
+            Heart = ((uint8_t)newValue.at(18));
+    }
 
     if(Cadence.value() > 0)
     {

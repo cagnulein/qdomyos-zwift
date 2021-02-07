@@ -23,6 +23,7 @@ import Qt.labs.settings 1.0
             property string heart_rate_belt_name: "Disabled"
 
             property bool ant_cadence: false
+            property bool ant_heart: false
 
             property bool top_bar_enabled: true
 
@@ -345,6 +346,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.ant_cadence = checked
+            }
+
+            SwitchDelegate {
+                id: antHeartDelegate
+                text: qsTr("Ant+ Heart")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.ant_heart
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.ant_heart = checked
             }
 
             Label {

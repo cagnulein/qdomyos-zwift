@@ -1,5 +1,6 @@
 #include "domyoselliptical.h"
 #include "virtualtreadmill.h"
+#include "keepawakehelper.h"
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -277,8 +278,16 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
         Resistance = 1;
     }
-    if(heartRateBeltName.startsWith("Disabled"))
-        Heart = ((uint8_t)newValue.at(18));
+
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if(heartRateBeltName.startsWith("Disabled"))
+            Heart = ((uint8_t)newValue.at(18));
+    }
 
     CrankRevs++;
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));

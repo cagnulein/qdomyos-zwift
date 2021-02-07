@@ -13,6 +13,7 @@ public:
     KeepAwakeHelper();
     virtual ~KeepAwakeHelper();    
     static QAndroidJniObject* antObject(bool forceCreate);
+    static int heart();
 
 private:
     QAndroidJniObject m_wakeLock;

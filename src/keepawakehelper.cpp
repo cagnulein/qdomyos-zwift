@@ -44,6 +44,15 @@ KeepAwakeHelper::KeepAwakeHelper()
     {
         assert( false );
     }
+
+    /*antObject(true);
+    KeepAwakeHelper::antObject(true)->callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());*/
+}
+
+int KeepAwakeHelper::heart(){
+    int heart = KeepAwakeHelper::antObject(true)->callMethod<int>("getHeart","()I");
+    qDebug() << "antHeart:" << heart;
+    return heart;
 }
 
 QAndroidJniObject* KeepAwakeHelper::antObject(bool forceCreate){
@@ -57,6 +66,11 @@ KeepAwakeHelper::~KeepAwakeHelper()
     if ( m_wakeLock.isValid() )
     {
         m_wakeLock.callMethod<void>("release", "()V");
+
+        QSettings settings;
+        if((settings.value("ant_cadence", false).toBool() || settings.value("ant_heart", false).toBool()) && KeepAwakeHelper::antObject(false))
+            KeepAwakeHelper::antObject(false)->callMethod<void>("doUnbindChannelService", "()V");
+
         qDebug() << "Unlocked device, can now go to standby";
     }
 }

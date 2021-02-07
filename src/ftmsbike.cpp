@@ -11,6 +11,8 @@
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
+#include "keepawakehelper.h"
+
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService)
 {
     refresh = new QTimer(this);
@@ -243,11 +245,18 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     debug("Current KCal: " + QString::number(KCal.value()));
 
-    if(Flags.heartRate)
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
     {
-        Heart = ((double)((newValue.at(index))));
-        index += 1;
-        debug("Current Heart: " + QString::number(Heart.value()));
+        if(Flags.heartRate)
+        {
+            Heart = ((double)((newValue.at(index))));
+            index += 1;
+            debug("Current Heart: " + QString::number(Heart.value()));
+        }
     }
 
     if(Flags.metabolic)

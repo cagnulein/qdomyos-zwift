@@ -1,5 +1,6 @@
 #include "domyostreadmill.h"
 #include "virtualtreadmill.h"
+#include "keepawakehelper.h"
 #include <QFile>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -510,8 +511,15 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
 
-    if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if(heartRateBeltName.startsWith("Disabled"))
+            Heart = value.at(18);
+    }
     FanSpeed = value.at(23);
 
     if(!firstCharacteristicChanged)

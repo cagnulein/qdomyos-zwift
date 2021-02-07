@@ -8,6 +8,7 @@
 #include <math.h>
 #include <QThread>
 #include "ios/lockscreen.h"
+#include "keepawakehelper.h"
 
 proformbike::proformbike(bool noWriteResistance, bool noHeartService)
 {
@@ -201,16 +202,23 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-        if(heartRateBeltName.startsWith("Disabled"))
+#ifdef Q_OS_ANDROID
+        if(settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
         {
-    #ifdef Q_OS_IOS
-    #ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-    #endif
-    #endif
+            if(heartRateBeltName.startsWith("Disabled"))
+            {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+            }
         }
 
     #ifdef Q_OS_IOS

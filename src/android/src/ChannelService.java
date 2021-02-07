@@ -43,6 +43,7 @@ public class ChannelService extends Service {
     private AntService mAntRadioService = null;
     private AntChannelProvider mAntChannelProvider = null;
     private boolean mAllowAddChannel = false;
+	 HeartChannelController heartChannelController = null;
     PowerChannelController powerChannelController = null;
     SpeedChannelController speedChannelController = null;
 
@@ -113,6 +114,13 @@ public class ChannelService extends Service {
             }
         }
 
+	     int getHeart() {
+			  if (null != heartChannelController) {
+				   return heartChannelController.heart;
+			  }
+		     return 0;
+		  }
+
         /**
          * Closes all channels currently added.
          */
@@ -122,13 +130,16 @@ public class ChannelService extends Service {
         }
 
     public void openAllChannels() throws ChannelNotAvailableException {
+		      heartChannelController = new HeartChannelController(acquireChannel());
             powerChannelController = new PowerChannelController(acquireChannel());
             speedChannelController = new SpeedChannelController(acquireChannel());
     }
 
     private void closeAllChannels() {
-            powerChannelController.close();
+		      heartChannelController.close();
+				powerChannelController.close();
             speedChannelController.close();
+				heartChannelController = null;
             powerChannelController = null;
             speedChannelController = null;
     }

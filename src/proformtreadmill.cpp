@@ -8,6 +8,7 @@
 #include <math.h>
 #include <QThread>
 #include "ios/lockscreen.h"
+#include "keepawakehelper.h"
 
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService)
 {
@@ -192,16 +193,23 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-        if(heartRateBeltName.startsWith("Disabled"))
+#ifdef Q_OS_ANDROID
+        if(settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
         {
+            if(heartRateBeltName.startsWith("Disabled"))
+            {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+            }
         }
 
         debug("Current Inclination: " + QString::number(Inclination.value()));

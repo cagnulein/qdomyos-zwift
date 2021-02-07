@@ -87,7 +87,7 @@ public class Ant {
 	Log.v(TAG, "...doBindChannelService");
 	}
 
- private void doUnbindChannelService()
+ public void doUnbindChannelService()
  {
 	Log.v(TAG, "doUnbindChannelService...");
 
@@ -107,5 +107,11 @@ public class Ant {
 	 mChannelService.setSpeed(speed);
 	 mChannelService.setPower(power);
 	 mChannelService.setCadence(cadence);
+ }
+
+ public int getHeart()
+ {
+	Log.v(TAG, "getHeart");
+	return mChannelService.getHeart();
  }
 }

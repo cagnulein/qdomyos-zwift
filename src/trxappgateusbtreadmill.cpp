@@ -7,6 +7,7 @@
 #include <QEventLoop>
 #include <QBluetoothLocalDevice>
 #include <QSettings>
+#include "keepawakehelper.h"
 
 trxappgateusbtreadmill::trxappgateusbtreadmill()
 {
@@ -218,8 +219,15 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
-    if(heartRateBeltName.startsWith("Disabled"))
-        Heart = 0;
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if(heartRateBeltName.startsWith("Disabled"))
+            Heart = 0;
+    }
     FanSpeed = 0;
 
     if(!firstCharChanged)
