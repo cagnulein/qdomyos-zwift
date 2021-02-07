@@ -67,6 +67,7 @@ SOURCES += \
 	schwinnic4bike.cpp \
 	sessionline.cpp \
 	signalhandler.cpp \
+   sportstechbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
 		yesoulbike.cpp \
@@ -328,6 +329,7 @@ HEADERS += \
 	schwinnic4bike.h \
 	sessionline.h \
 	signalhandler.h \
+   sportstechbike.h \
 	toorxtreadmill.h \
 	gpx.h \
 	treadmill.h \
@@ -360,6 +362,7 @@ DISTFILES += \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
+   android/src/HeartChannelController.java \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \

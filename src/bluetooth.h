@@ -29,6 +29,7 @@
 #include "inspirebike.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
+#include "sportstechbike.h"
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -57,6 +58,7 @@ private:
     proformbike* proformBike = 0;
     proformtreadmill* proformTreadmill = 0;
     schwinnIC4bike* schwinnIC4Bike = 0;
+    sportstechbike* sportsTechBike = 0;
     inspirebike* inspireBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
