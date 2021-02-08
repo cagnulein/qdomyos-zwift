@@ -580,8 +580,10 @@ uint16_t domyosbike::watts()
     if(currentSpeed().value() <= 0) return 0;
 
     v = ((10.39 + 1.45 * (currentResistance().value() - 1.0)) * (exp(0.028 * (currentCadence().value()))));
-    v *= settings.value("watt_gain", 1.0).toDouble();
-    v += settings.value("watt_offset", 0.0).toDouble();
+    if(settings.value("watt_gain", 1.0).toDouble() < 1.0)
+        v *= settings.value("watt_gain", 1.0).toDouble();
+    if(settings.value("watt_offset", 0.0).toDouble() < 0)
+        v += settings.value("watt_offset", 0.0).toDouble();
     return v;
 }
 
