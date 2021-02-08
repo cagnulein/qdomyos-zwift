@@ -32,9 +32,14 @@ public class Ant {
  private boolean mChannelServiceBound = false;
  private final String TAG = "Ant";
  private Activity activity = null;
+ static boolean speedRequest = false;
+ static boolean heartRequest = false;
 
- public void antStart(Activity a) {
+ public void antStart(Activity a, boolean SpeedRequest, boolean HeartRequest) {
 	 Log.v(TAG, "antStart");
+	 speedRequest = SpeedRequest;
+	 heartRequest = HeartRequest;
+
 	 activity = a;
 	 if(a != null)
 	    Log.v(TAG, "antStart activity is valid");
