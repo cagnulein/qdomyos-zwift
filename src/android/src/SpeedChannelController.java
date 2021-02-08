@@ -51,6 +51,7 @@ public class SpeedChannelController {
 
     private boolean mIsOpen;
     double speed = 0.0;
+	 double cadence = 0.0;
 
     public SpeedChannelController(AntChannel antChannel) {
         mAntChannel = antChannel;
@@ -173,6 +174,7 @@ public class SpeedChannelController {
         int rev;
         double remWay;
         double wheel = 0.1;
+		  long unixTime = 0;
 
         @Override
         public void onChannelDeath() {
@@ -205,15 +207,11 @@ public class SpeedChannelController {
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
                         case TX:
-                            long unixTime = System.currentTimeMillis() / 1000L;
-
-                            if (lastTime != 0) {
-                                way = speed * (unixTime - lastTime) / 3.6 + remWay;
-                                rev = (int)(way / wheel + 0.5);
-                                remWay = way - rev * wheel;
-                                revCounts += rev;
-                            }
-                            lastTime = unixTime;
+								    if(cadence > 0)
+									 {
+										 revCounts++;
+										 unixTime += (long)(1024.0 / (((double)(cadence)) / 60.0));
+									 }
 
                             ucPageChange += 0x20;
                             ucPageChange &= 0xF0;
