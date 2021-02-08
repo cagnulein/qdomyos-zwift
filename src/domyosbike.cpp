@@ -572,6 +572,7 @@ void* domyosbike::VirtualDevice()
 
 uint16_t domyosbike::watts()
 {
+    QSettings settings;
     double v = 0;
     //const uint8_t max_resistance = 15;
     // ref https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
@@ -579,6 +580,8 @@ uint16_t domyosbike::watts()
     if(currentSpeed().value() <= 0) return 0;
 
     v = ((10.39 + 1.45 * (currentResistance().value() - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    v *= settings.value("watt_gain", 1.0).toDouble();
+    v += settings.value("watt_offset", 0.0).toDouble();
     return v;
 }
 

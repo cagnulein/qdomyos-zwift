@@ -68,6 +68,9 @@ import Qt.labs.settings 1.0
             property bool toorx_3_0: false
             property bool trx_route_key: false
 
+            property real watt_offset: 0
+            property real watt_gain: 1
+
             property bool bluetooth_relaxed: false
             property bool battery_service: false
             property bool service_changed: false
@@ -1176,6 +1179,63 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text
+                }
+            }
+
+            Label {
+                id: advancedSettingsLabel
+                text: qsTr("Advanced Settings")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelwattOffset
+                    text: qsTr("Watt Offset:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: wattOffsetTextField
+                    text: settings.watt_offset
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.watt_offset = text
+                }
+                Button {
+                    id: okwattOffsetButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.watt_offset = wattOffsetTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelwattGain
+                    text: qsTr("Watt Gain:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: wattGainTextField
+                    text: settings.watt_gain
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.watt_gain = text
+                }
+                Button {
+                    id: okWattGainButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.watt_gain = wattGainTextField.text
                 }
             }
 
