@@ -28,7 +28,7 @@ import android.content.Intent;
 
 public class Ant {
 
- private ChannelService.ChannelServiceComm mChannelService;
+ private ChannelService.ChannelServiceComm mChannelService = null;
  private boolean mChannelServiceBound = false;
  private final String TAG = "Ant";
  private Activity activity = null;
@@ -108,6 +108,9 @@ public class Ant {
 
  public void setCadenceSpeedPower(float speed, int power, int cadence)
  {
+	 if(mChannelService == null)
+	    return;
+
 	 Log.v(TAG, "setCadenceSpeedPower " + speed + " " + power + " " + cadence);
 	 mChannelService.setSpeed(speed);
 	 mChannelService.setPower(power);
@@ -116,6 +119,9 @@ public class Ant {
 
  public int getHeart()
  {
+	if(mChannelService == null)
+	   return 0;
+
 	Log.v(TAG, "getHeart");
 	return mChannelService.getHeart();
  }
