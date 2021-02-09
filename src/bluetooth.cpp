@@ -167,7 +167,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
-            else if(b.name().startsWith("Domyos") && !b.name().startsWith("DomyosBr") && !domyos && filter)
+            else if(b.name().startsWith("Domyos") && !b.name().startsWith("DomyosBr") && !domyos && !domyosElliptical && !domyosBike && filter)
             {
                 discoveryAgent->stop();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
