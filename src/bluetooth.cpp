@@ -459,6 +459,11 @@ void bluetooth::restart()
         delete schwinnIC4Bike;
         schwinnIC4Bike = 0;
     }
+    if(sportsTechBike)
+    {
+        delete sportsTechBike;
+        sportsTechBike = 0;
+    }
     if(inspireBike)
     {
         delete inspireBike;
@@ -499,6 +504,8 @@ bluetoothdevice* bluetooth::device()
         return flywheelBike;
     else if(schwinnIC4Bike)
         return schwinnIC4Bike;
+    else if(sportsTechBike)
+        return sportsTechBike;
     else if(inspireBike)
         return inspireBike;
     return nullptr;
