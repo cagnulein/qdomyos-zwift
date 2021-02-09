@@ -207,10 +207,10 @@ public class SpeedChannelController {
                     // Switching on event code to handle the different types of channel events
                     switch (code) {
                         case TX:
-								    if(cadence > 0)
+								    if(speed > 0)
 									 {
 										 revCounts++;
-										 unixTime += (long)(1024.0 / (((double)(cadence)) / 60.0));
+										 unixTime += (long)(1024.0 / (((double)(speed)) / 60.0));
 									 }
 
                             ucPageChange += 0x20;

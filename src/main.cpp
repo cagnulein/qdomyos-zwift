@@ -241,6 +241,7 @@ int main(int argc, char *argv[])
     noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
     bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
+    deviceName = settings.value("filter_device", "Disabled").toString();
 #else
     settings.setValue("miles_unit", miles);
     settings.setValue("bluetooth_no_reconnection", bluetooth_no_reconnection);

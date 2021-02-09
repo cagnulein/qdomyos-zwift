@@ -71,6 +71,8 @@ import Qt.labs.settings 1.0
             property real watt_offset: 0
             property real watt_gain: 1
 
+            property string filter_device: "Disabled"
+
             property bool bluetooth_relaxed: false
             property bool battery_service: false
             property bool service_changed: false
@@ -1189,6 +1191,40 @@ import Qt.labs.settings 1.0
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelFilterDevice
+                    text: qsTr("Manual Device Selection:")
+                    Layout.fillWidth: true
+                }
+                ComboBox {
+                    id: filterDeviceTextField
+                    model: rootItem.bluetoothDevices
+                    displayText: settings.filter_device
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        console.log("combomodel activated" + filterDeviceTextField.currentIndex)
+                        displayText = filterDeviceTextField.currentValue
+                     }
+
+                }
+                Button {
+                    id: okFilterDeviceButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.filter_device = filterDeviceTextField.displayText
+                }
+            }
+
+            Button {
+                id: refreshFilterDeviceButton
+                text: "Refresh Devices List"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                onClicked: refresh_bluetooth_devices_clicked();
             }
 
             RowLayout {

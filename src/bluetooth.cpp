@@ -136,7 +136,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         foreach(QBluetoothDeviceInfo b, devices)
         {
             bool filter = true;
-            if(filterDevice.length())
+            if(filterDevice.length() && !filterDevice.startsWith("Disabled"))
             {
                 filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
             }
