@@ -349,6 +349,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
 
             foreach(QLowEnergyCharacteristic c, s->characteristics())
             {
+                qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
+                foreach(QLowEnergyDescriptor d, c.descriptors())
+                    qDebug() << "descriptor uuid" << d.uuid() << "handle" << d.handle();
+
                 if((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify)
                 {
                     QByteArray descriptor;
