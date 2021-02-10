@@ -333,17 +333,21 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
 
     foreach(QLowEnergyService* s, gattCommunicationChannelService)
     {
-        if(s->state() != QLowEnergyService::InvalidService)
+        if(s->state() == QLowEnergyService::ServiceDiscovered)
         {
             // establish hook into notifications
             connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
                     this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
             connect(s, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
                     this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+            connect(s, SIGNAL(characteristicRead(const QLowEnergyCharacteristic, const QByteArray)),
+                    this, SLOT(characteristicRead(const QLowEnergyCharacteristic, const QByteArray)));
             connect(s, SIGNAL(error(QLowEnergyService::ServiceError)),
                     this, SLOT(errorService(QLowEnergyService::ServiceError)));
             connect(s, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                     SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+            connect(s, SIGNAL(descriptorRead(const QLowEnergyDescriptor, const QByteArray)), this,
+                    SLOT(descriptorRead(const QLowEnergyDescriptor, const QByteArray)));
 
             qDebug() << s->serviceUuid() << "connected!";
 
@@ -358,7 +362,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    else
+                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle() << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
                 }
@@ -367,7 +374,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    else
+                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle() << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
                 }
@@ -423,10 +433,20 @@ void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const Q
     emit connectedAndDiscovered();
 }
 
+void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
+{
+    qDebug() << "descriptorRead " << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
+}
+
 void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     Q_UNUSED(characteristic);
     debug("characteristicWritten " + newValue.toHex(' '));
+}
+
+void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+{
+    qDebug() << "characteristicRead " << characteristic.uuid() << newValue.toHex(' ');
 }
 
 void ftmsbike::serviceScanDone(void)
