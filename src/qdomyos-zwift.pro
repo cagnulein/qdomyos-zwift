@@ -58,6 +58,7 @@ SOURCES += \
 		heartratebelt.cpp \
 	homeform.cpp \
 	inspirebike.cpp \
+   jkfitnesstreadmill.cpp \
 	keepawakehelper.cpp \
 	     main.cpp \
 		metric.cpp \
@@ -319,6 +320,7 @@ HEADERS += \
 	homeform.h \
 	inspirebike.h \
 	ios/lockscreen.h \
+   jkfitnesstreadmill.h \
 	keepawakehelper.h \
 	macos/lockscreen.h \
 	material.h \

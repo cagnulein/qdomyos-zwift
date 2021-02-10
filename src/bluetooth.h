@@ -26,6 +26,7 @@
 #include "yesoulbike.h"
 #include "flywheelbike.h"
 #include "fassitreadmill.h"
+#include "jkfitnesstreadmill.h"
 #include "inspirebike.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
@@ -47,6 +48,7 @@ private:
     QFile* debugCommsLog = 0;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     fassitreadmill* fassiTreadmill = 0;
+    jkfitnesstreadmill* jkfitnessTreadmill = 0;
     domyostreadmill* domyos = 0;
     domyosbike* domyosBike = 0;
     domyoselliptical* domyosElliptical = 0;

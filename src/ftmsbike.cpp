@@ -358,7 +358,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    else
+                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle() << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
                 }
@@ -367,7 +370,10 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    if(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    else
+                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle() << " is not valid";
 
                     qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
                 }
