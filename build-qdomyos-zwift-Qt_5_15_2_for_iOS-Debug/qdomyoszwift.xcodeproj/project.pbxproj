@@ -150,6 +150,8 @@
 		878A331E25AB50C300BD13E1 /* moc_fassitreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331C25AB50C300BD13E1 /* moc_fassitreadmill.cpp */; };
 		8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */; };
 		8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A825C8602A003B50B2 /* inspirebike.cpp */; };
+		87A3EBBF25D3E7050040EB4C /* moc_jkfitnesstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3EBBE25D3E7050040EB4C /* moc_jkfitnesstreadmill.cpp */; };
+		87A3EBC025D3E70C0040EB4C /* jkfitnesstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3EBBC25D3E5A20040EB4C /* jkfitnesstreadmill.cpp */; };
 		87A4B76125AF27CB0027EF3C /* metric.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A4B75F25AF27CB0027EF3C /* metric.cpp */; };
 		87CC3B9D25A08812001EC5A8 /* moc_domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9B25A08812001EC5A8 /* moc_domyoselliptical.cpp */; };
 		87CC3B9E25A08812001EC5A8 /* moc_elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */; };
@@ -541,6 +543,9 @@
 		8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inspirebike.cpp; sourceTree = "<group>"; };
 		87A3EBB925D2CFED0040EB4C /* sportstechbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = sportstechbike.h; path = ../src/sportstechbike.h; sourceTree = "<group>"; };
 		87A3EBBA25D2CFED0040EB4C /* sportstechbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sportstechbike.cpp; path = ../src/sportstechbike.cpp; sourceTree = "<group>"; };
+		87A3EBBC25D3E5A20040EB4C /* jkfitnesstreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = jkfitnesstreadmill.cpp; path = ../src/jkfitnesstreadmill.cpp; sourceTree = "<group>"; };
+		87A3EBBD25D3E5A20040EB4C /* jkfitnesstreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jkfitnesstreadmill.h; path = ../src/jkfitnesstreadmill.h; sourceTree = "<group>"; };
+		87A3EBBE25D3E7050040EB4C /* moc_jkfitnesstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_jkfitnesstreadmill.cpp; sourceTree = "<group>"; };
 		87A4B75F25AF27CB0027EF3C /* metric.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = metric.cpp; path = ../src/metric.cpp; sourceTree = "<group>"; };
 		87A4B76025AF27CB0027EF3C /* metric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = metric.h; path = ../src/metric.h; sourceTree = "<group>"; };
 		87A659DB8BE7DBAA7B395EF4 /* fit_monitoring_info_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_monitoring_info_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_monitoring_info_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -879,6 +884,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A3EBBE25D3E7050040EB4C /* moc_jkfitnesstreadmill.cpp */,
 				8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */,
 				876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */,
 				876ED21825C3E9000065F3DC /* moc_material.cpp */,
@@ -917,6 +923,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A3EBBC25D3E5A20040EB4C /* jkfitnesstreadmill.cpp */,
+				87A3EBBD25D3E5A20040EB4C /* jkfitnesstreadmill.h */,
 				87A3EBBA25D2CFED0040EB4C /* sportstechbike.cpp */,
 				87A3EBB925D2CFED0040EB4C /* sportstechbike.h */,
 				8791A8A825C8602A003B50B2 /* inspirebike.cpp */,
@@ -1681,6 +1689,7 @@
 				0317752B0C295CAB82D37E45 /* virtualtreadmill.cpp in Compile Sources */,
 				7EC1321DD83EAAFAA2B7109C /* domyosbike.cpp in Compile Sources */,
 				614192CB787D12C3E98ADE55 /* lockscreen.mm in Compile Sources */,
+				87A3EBC025D3E70C0040EB4C /* jkfitnesstreadmill.cpp in Compile Sources */,
 				0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */,
 				FB2566376FE0FB17ED3DE94D /* FitDeveloperField.mm in Compile Sources */,
 				43FA2D5EA73D9C89F1A333B6 /* FitEncode.mm in Compile Sources */,
@@ -1691,6 +1700,7 @@
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */,
 				03F49BBCF19B73B18385B13D /* FitMesgDefinition.mm in Compile Sources */,
+				87A3EBBF25D3E7050040EB4C /* moc_jkfitnesstreadmill.cpp in Compile Sources */,
 				2D4684BE88B9B0456A50B3F0 /* qdomyoszwift_plugin_import.cpp in Compile Sources */,
 				210F6A0A7E2FA7CDD3CA0084 /* qdomyoszwift_qml_plugin_import.cpp in Compile Sources */,
 				87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */,
