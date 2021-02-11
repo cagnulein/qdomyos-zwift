@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick networkauth
+QT += bluetooth widgets xml positioning quick networkauth bluetooth-private
 
 !ios: QT+= charts
 unix:android: QT += androidextras gui-private
