@@ -35,20 +35,6 @@
 #include "ios/lockscreen.h"
 #endif
 
-QT_FORWARD_DECLARE_CLASS(QLowEnergyControllerPrivate)
-class QZQLowEnergyController : private QLowEnergyController
-{
-public:
-  QLowEnergyControllerPrivate *d() const { return d(); }
-};
-
-QT_FORWARD_DECLARE_CLASS(QLowEnergyServicePrivate)
-class QZQLowEnergyService : private QLowEnergyService
-{
-public:
-  QSharedPointer<QLowEnergyServicePrivate> d() const { return d(); }
-};
-
 class schwinnic4bike : public bike
 {
     Q_OBJECT

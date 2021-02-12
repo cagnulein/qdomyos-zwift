@@ -388,8 +388,8 @@ void schwinnic4bike::serviceScanDone(void)
 
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
 
-    QZQLowEnergyService* qzService = reinterpret_cast<QZQLowEnergyService*>(gattCommunicationChannelService);
-    reinterpret_cast<QZQLowEnergyController*>(m_control)->d()->writeDescriptor(qzService->d(), 0x30, 0x31, descriptor);
+    QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
+    m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
 }
 
 void schwinnic4bike::errorService(QLowEnergyService::ServiceError err)
