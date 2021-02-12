@@ -61,8 +61,8 @@ void schwinnic4bike::update()
     {
         initRequest = false;
     }
-    else if(bluetoothDevice.isValid() &&
-       m_control->state() == QLowEnergyController::DiscoveredState //&&
+    else if(bluetoothDevice.isValid() //&&
+       //m_control->state() == QLowEnergyController::DiscoveredState //&&
        //gattCommunicationChannelService &&
        //gattWriteCharacteristic.isValid() &&
        //gattNotify1Characteristic.isValid() &&
@@ -319,6 +319,22 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state)
 {
     if(state != QLowEnergyService::ServiceDiscovered) return;
 
+    qDebug() << state;
+
+    QByteArray descriptor;
+    descriptor.append((char)0x01);
+    descriptor.append((char)0x00);
+
+    QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
+    m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
+
+    connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+            this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
+
+    initRequest = false;
+    emit connectedAndDiscovered();
+
+
     // ******************************************* virtual bike init *************************************
     if(!firstStateChanged && !virtualBike
         #ifdef Q_OS_IOS
@@ -382,14 +398,9 @@ void schwinnic4bike::serviceScanDone(void)
 {
     debug("serviceScanDone");
 
-    QByteArray descriptor;
-    descriptor.append((char)0x01);
-    descriptor.append((char)0x00);
-
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-
-    QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
-    m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
+    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    gattCommunicationChannelService->discoverDetails();
 }
 
 void schwinnic4bike::errorService(QLowEnergyService::ServiceError err)
