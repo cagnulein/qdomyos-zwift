@@ -59,6 +59,8 @@ import Qt.labs.settings 1.0
             property int  tile_elapsed_order: 14
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
+            property bool tile_datetime_enabled: true
+            property int  tile_datetime_order: 16
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
@@ -1074,6 +1076,46 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            SwitchDelegate {
+                id: datetimeEnabledDelegate
+                text: qsTr("Time")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.tile_datetime_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.tile_datetime_enabled = checked
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labeldatetimeOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: datetimeOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_datetime_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = datetimeOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okdatetimeOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
+                }
+            }
 
             Label {
                 id: domyosTreadmillLabel

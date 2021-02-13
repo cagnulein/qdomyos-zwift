@@ -131,6 +131,7 @@ private:
     DataObject* calories;
     DataObject* odometer;
     DataObject* pace;
+    DataObject* datetime;
     DataObject* resistance;
     DataObject* watt;
     DataObject* avgWatt;
