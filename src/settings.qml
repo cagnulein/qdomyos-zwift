@@ -63,6 +63,8 @@ import Qt.labs.settings 1.0
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
 
+            property real domyos_elliptical_speed_ratio: 1.0
+
             property real proform_wheel_ratio: 0.33
 
             property bool toorx_3_0: false
@@ -1149,6 +1151,39 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.toorx_3_0 = checked
+            }
+
+            Label {
+                id: domyosEllipticalLabel
+                text: qsTr("Domyos Elliptical Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelDomyosEllipticalSpeedRatio
+                    text: qsTr("Speed Ratio:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: domyosEllipticalSpeedRatioTextField
+                    text: settings.domyos_elliptical_speed_ratio
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.domyos_elliptical_speed_ratio = text
+                }
+                Button {
+                    id: okDomyosEllipticalRatioButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
+                }
             }
 
             Label {

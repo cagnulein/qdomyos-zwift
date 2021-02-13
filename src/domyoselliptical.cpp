@@ -267,7 +267,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;*/
 
-    double speed = GetSpeedFromPacket(newValue);
+    double speed = GetSpeedFromPacket(newValue) * settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
