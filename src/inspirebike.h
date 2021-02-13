@@ -53,8 +53,6 @@ private:
 
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
-    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
