@@ -28,6 +28,7 @@
 #include "fassitreadmill.h"
 #include "jkfitnesstreadmill.h"
 #include "inspirebike.h"
+#include "eslinkertreadmill.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
 #include "sportstechbike.h"
@@ -62,6 +63,7 @@ private:
     schwinnic4bike* schwinnIC4Bike = 0;
     sportstechbike* sportsTechBike = 0;
     inspirebike* inspireBike = 0;
+    eslinkertreadmill* eslinkerTreadmill = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

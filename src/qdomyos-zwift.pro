@@ -27,6 +27,7 @@ SOURCES += \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
 	 elliptical.cpp \
+   eslinkertreadmill.cpp \
 	fassitreadmill.cpp \
 	fit-sdk/fit.cpp \
 	fit-sdk/fit_accumulated_field.cpp \
@@ -96,6 +97,7 @@ HEADERS += \
 	domyostreadmill.h \
 	echelonconnectsport.h \
 	 elliptical.h \
+   eslinkertreadmill.h \
 	fassitreadmill.h \
 	fit-sdk/FitDecode.h \
 	fit-sdk/FitDeveloperField.h \
@@ -399,4 +401,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.3.17
+VERSION = 2.3.18

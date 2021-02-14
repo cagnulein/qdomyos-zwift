@@ -260,9 +260,11 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
-        //gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
-        m_control->d_ptr->writeDescriptor(qzService, 0x18, 0x1E, descriptor);
+        gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+        // it doesn't work neither on android, always description write error
+        //QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
+        //m_control->d_ptr->writeDescriptor(qzService, 0x18, 0x1E, descriptor);
 
         emit connectedAndDiscovered();
     }
