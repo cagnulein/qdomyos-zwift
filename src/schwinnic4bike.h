@@ -9,8 +9,8 @@
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
-#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
+//#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
+//#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 

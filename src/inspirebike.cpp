@@ -8,8 +8,8 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
-#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
-#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
+//#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
+//#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 
 inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
 {
