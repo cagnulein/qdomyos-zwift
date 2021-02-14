@@ -8,6 +8,8 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
+#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
+#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 
 inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
 {
@@ -204,12 +206,12 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
 
     if(state == QLowEnergyService::ServiceDiscovered)
     {
-        qDebug() << gattCommunicationChannelService->characteristics();
+        //qDebug() << gattCommunicationChannelService->characteristics();
 
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);        
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
-        qDebug() << gattNotify1Characteristic.descriptors();
+        //qDebug() << gattNotify1Characteristic.descriptors();
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
