@@ -168,14 +168,16 @@ public class ChannelService extends Service {
                  * acquireChannel(context, PredefinedNetwork,
                  * requiredCapabilities, desiredCapabilities).
                  */
-					 mAntChannel = mAntChannelProvider.acquireChannel(this, PredefinedNetwork.ANT_PLUS_1);
-                /*
-                NetworkKey mNK = new NetworkKey(new byte[] { (byte)0xb9, (byte)0xa5, (byte)0x21, (byte)0xfb,
-                                                             (byte)0xbd, (byte)0x72, (byte)0xc3, (byte)0x45 });
-                Log.v(TAG, mNK.toString());
-                mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
-                */
-            } catch (RemoteException e) {
+					  if(Ant.garminKey == false)
+					     mAntChannel = mAntChannelProvider.acquireChannel(this, PredefinedNetwork.ANT_PLUS_1);
+					  else
+					  {
+						  NetworkKey mNK = new NetworkKey(new byte[] { (byte)0xb9, (byte)0xa5, (byte)0x21, (byte)0xfb,
+							  (byte)0xbd, (byte)0x72, (byte)0xc3, (byte)0x45 });
+						  Log.v(TAG, mNK.toString());
+						  mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
+					  }
+				   } catch (RemoteException e) {
                 die("ACP Remote Ex");
             }
         }
