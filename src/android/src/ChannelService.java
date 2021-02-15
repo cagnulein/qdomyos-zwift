@@ -16,10 +16,13 @@
 package org.cagnulen.qdomyoszwift;
 
 import com.dsi.ant.AntService;
-import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.channel.AntChannelProvider;
-import com.dsi.ant.channel.ChannelNotAvailableException;
-import com.dsi.ant.channel.PredefinedNetwork;
+import com.dsi.ant.channel.*;
+import com.dsi.ant.message.ChannelId;
+import com.dsi.ant.message.ChannelType;
+import com.dsi.ant.message.ExtendedAssignment;
+import com.dsi.ant.message.LibConfig;
+import com.dsi.ant.message.fromant.*;
+import com.dsi.ant.message.ipc.AntMessageParcel;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -178,7 +181,9 @@ public class ChannelService extends Service {
 						  mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
 					  }
 				   } catch (RemoteException e) {
-                die("ACP Remote Ex");
+					 Log.v(TAG, "ACP Remote Ex");
+					} catch (UnsupportedFeatureException e) {
+					 Log.v(TAG, "ACP UnsupportedFeature Ex");
             }
         }
         return mAntChannel;
