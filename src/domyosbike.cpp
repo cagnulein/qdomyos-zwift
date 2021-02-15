@@ -102,7 +102,15 @@ void domyosbike::updateDisplay(uint16_t elapsed)
     //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     //display[14] = (((uint8_t)calories())) & 0xFF;
 
-    display[16] = ((uint8_t)(currentCadence().value() * multiplier));
+    if(bike_type == TELINK)
+    {
+        display[15] = ((((uint16_t)currentCadence().value()) * multiplier * 2) >> 8) & 0xFF;
+        display[16] = (((uint16_t)currentCadence().value()) * multiplier * 2) & 0xFF;
+    }
+    else
+    {
+        display[16] = ((uint8_t)(currentCadence().value() * multiplier));
+    }
 
     display[19] = ((((uint16_t)calories()) * multiplier) >> 8) & 0xFF;
     display[20] = (((uint16_t)calories()) * multiplier) & 0xFF;
