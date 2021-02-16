@@ -8,6 +8,8 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
+//#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
+//#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 
 inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
 {
@@ -198,8 +200,6 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
 {
     QBluetoothUuid _gattNotify1CharacteristicId((QString)"7ee72ad1-6fd8-4cbd-b648-a2cdcfa4e7f4");
-    QBluetoothUuid _gattNotify2CharacteristicId((QString)"7ee72a5e-6fd8-4cbd-b648-a2cdcfa4e7f4");
-    QBluetoothUuid _gattNotify3CharacteristicId((QString)"7ee72a14-6fd8-4cbd-b648-a2cdcfa4e7f4");
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -208,8 +208,10 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
     {
         //qDebug() << gattCommunicationChannelService->characteristics();
 
-        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);        
         Q_ASSERT(gattNotify1Characteristic.isValid());
+
+        //qDebug() << gattNotify1Characteristic.descriptors();
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
@@ -255,14 +257,16 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
         firstStateChanged = 1;
         // ********************************************************************************************************
 
-        emit connectedAndDiscovered();
-
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        gattCommunicationChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        gattCommunicationChannelService->writeDescriptor(gattNotify3Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+        // it doesn't work neither on android, always description write error
+        //QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
+        //m_control->d_ptr->writeDescriptor(qzService, 0x18, 0x1E, descriptor);
+
+        emit connectedAndDiscovered();
     }
 }
 

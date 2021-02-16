@@ -325,8 +325,9 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state)
     descriptor.append((char)0x01);
     descriptor.append((char)0x00);
 
-    QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
-    m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
+    // i need to remove read request from QT framework in order to get Schwinn compatibility
+    //QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
+    //m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
 
     connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
             this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));

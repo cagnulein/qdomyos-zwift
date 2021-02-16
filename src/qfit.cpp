@@ -62,7 +62,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     else if(type == bluetoothdevice::ELLIPTICAL)
     {
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     }
     else
     {

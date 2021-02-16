@@ -24,6 +24,7 @@ import Qt.labs.settings 1.0
 
             property bool ant_cadence: false
             property bool ant_heart: false
+            property bool ant_garmin: false
 
             property bool top_bar_enabled: true
 
@@ -59,9 +60,13 @@ import Qt.labs.settings 1.0
             property int  tile_elapsed_order: 14
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
+            property bool tile_datetime_enabled: true
+            property int  tile_datetime_order: 16
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
+
+            property real domyos_elliptical_speed_ratio: 1.0
 
             property real proform_wheel_ratio: 0.33
 
@@ -366,6 +371,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.ant_heart = checked
+            }
+
+            SwitchDelegate {
+                id: antGarminDelegate
+                text: qsTr("Ant+ Garmin Compatibility")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.ant_garmin
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.ant_garmin = checked
             }
 
             Label {
@@ -1072,6 +1092,46 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            SwitchDelegate {
+                id: datetimeEnabledDelegate
+                text: qsTr("Time")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.tile_datetime_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.tile_datetime_enabled = checked
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labeldatetimeOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: datetimeOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_datetime_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = datetimeOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: okdatetimeOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
+                }
+            }
 
             Label {
                 id: domyosTreadmillLabel
@@ -1149,6 +1209,39 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.toorx_3_0 = checked
+            }
+
+            Label {
+                id: domyosEllipticalLabel
+                text: qsTr("Domyos Elliptical Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelDomyosEllipticalSpeedRatio
+                    text: qsTr("Speed Ratio:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: domyosEllipticalSpeedRatioTextField
+                    text: settings.domyos_elliptical_speed_ratio
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.domyos_elliptical_speed_ratio = text
+                }
+                Button {
+                    id: okDomyosEllipticalRatioButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.domyos_elliptical_speed_ratio = domyosEllipticalSpeedRatioTextField.text
+                }
             }
 
             Label {

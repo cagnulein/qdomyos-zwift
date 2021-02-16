@@ -16,10 +16,13 @@
 package org.cagnulen.qdomyoszwift;
 
 import com.dsi.ant.AntService;
-import com.dsi.ant.channel.AntChannel;
-import com.dsi.ant.channel.AntChannelProvider;
-import com.dsi.ant.channel.ChannelNotAvailableException;
-import com.dsi.ant.channel.PredefinedNetwork;
+import com.dsi.ant.channel.*;
+import com.dsi.ant.message.ChannelId;
+import com.dsi.ant.message.ChannelType;
+import com.dsi.ant.message.ExtendedAssignment;
+import com.dsi.ant.message.LibConfig;
+import com.dsi.ant.message.fromant.*;
+import com.dsi.ant.message.ipc.AntMessageParcel;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -168,15 +171,19 @@ public class ChannelService extends Service {
                  * acquireChannel(context, PredefinedNetwork,
                  * requiredCapabilities, desiredCapabilities).
                  */
-					 mAntChannel = mAntChannelProvider.acquireChannel(this, PredefinedNetwork.ANT_PLUS_1);
-                /*
-                NetworkKey mNK = new NetworkKey(new byte[] { (byte)0xb9, (byte)0xa5, (byte)0x21, (byte)0xfb,
-                                                             (byte)0xbd, (byte)0x72, (byte)0xc3, (byte)0x45 });
-                Log.v(TAG, mNK.toString());
-                mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
-                */
-            } catch (RemoteException e) {
-                die("ACP Remote Ex");
+					  if(Ant.garminKey == false)
+					     mAntChannel = mAntChannelProvider.acquireChannel(this, PredefinedNetwork.ANT_PLUS_1);
+					  else
+					  {
+						  NetworkKey mNK = new NetworkKey(new byte[] { (byte)0xb9, (byte)0xa5, (byte)0x21, (byte)0xfb,
+							  (byte)0xbd, (byte)0x72, (byte)0xc3, (byte)0x45 });
+						  Log.v(TAG, mNK.toString());
+						  mAntChannel = mAntChannelProvider.acquireChannelOnPrivateNetwork(this, mNK);
+					  }
+				   } catch (RemoteException e) {
+					 Log.v(TAG, "ACP Remote Ex");
+					} catch (UnsupportedFeatureException e) {
+					 Log.v(TAG, "ACP UnsupportedFeature Ex");
             }
         }
         return mAntChannel;

@@ -58,9 +58,11 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 #elif defined Q_OS_ANDROID
     const int labelFontSize = 16;
     const int valueElapsedFontSize = 36;
+    const int valueTimeFontSize = 26;
 #else
     const int labelFontSize = 10;
     const int valueElapsedFontSize = 30;
+    const int valueTimeFontSize = 22;
 #endif
     speed = new DataObject("Speed (" + unit + "/h)", "icons/icons/speed.png", "0.0", true, "speed", 48, labelFontSize);
     inclination = new DataObject("Inclination (%)", "icons/icons/inclination.png", "0.0", true, "inclination", 48, labelFontSize);
@@ -78,6 +80,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
     elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
+    datetime = new DataObject("Time", "icons/icons/clock.png", QTime::currentTime().toString("hh:mm:ss"), false, "time", valueTimeFontSize, labelFontSize);
 
     if(!settings.value("top_bar_enabled", true).toBool())
     {
@@ -258,7 +261,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 16; i++)
+    for(int i = 0; i < 17; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -322,6 +325,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
                 dataList.append(fan);
+
+            if(settings.value("tile_datetime_enabled", true).toBool() && settings.value("tile_datetime_order", 0).toInt() == i)
+                dataList.append(datetime);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
@@ -369,6 +375,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
                 dataList.append(fan);
+
+            if(settings.value("tile_datetime_enabled", true).toBool() && settings.value("tile_datetime_order", 0).toInt() == i)
+                dataList.append(datetime);
         }
     }
 
@@ -657,6 +666,7 @@ void homeform::update()
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
+        datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {

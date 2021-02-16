@@ -102,7 +102,7 @@ HomeForm{
                 }
                 text: secondLine
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: 8
+                font.pointSize: 10
                 font.bold: false
             }
             Text {
