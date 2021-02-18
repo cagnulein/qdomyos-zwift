@@ -319,6 +319,9 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state)
 {
     if(state != QLowEnergyService::ServiceDiscovered) return;
 
+    QBluetoothUuid _gattNotify1CharacteristicId((quint16)0x2AD2);
+    gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+
     qDebug() << state;
 
     QByteArray descriptor;
@@ -328,6 +331,8 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state)
     // i need to remove read request from QT framework in order to get Schwinn compatibility
     //QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
     //m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
+
+    gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
 
     connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
             this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
