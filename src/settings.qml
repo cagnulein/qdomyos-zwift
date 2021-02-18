@@ -372,7 +372,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.ant_heart = checked
             }
-
+/*
             SwitchDelegate {
                 id: antGarminDelegate
                 text: qsTr("Ant+ Garmin Compatibility")
@@ -386,7 +386,7 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.ant_garmin = checked
-            }
+            }*/
 
             Label {
                 id: uiGeneralOptionsLabel
@@ -1290,7 +1290,7 @@ import Qt.labs.settings 1.0
                 spacing: 10
                 Label {
                     id: labelFilterDevice
-                    text: qsTr("Manual Device Selection:")
+                    text: qsTr("Manual Device:")
                     Layout.fillWidth: true
                 }
                 ComboBox {

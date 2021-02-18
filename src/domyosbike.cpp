@@ -104,8 +104,8 @@ void domyosbike::updateDisplay(uint16_t elapsed)
 
     if(bike_type == TELINK)
     {
-        display[15] = ((((uint16_t)currentCadence().value()) * multiplier * 2) >> 8) & 0xFF;
-        display[16] = (((uint16_t)currentCadence().value()) * multiplier * 2) & 0xFF;
+        display[15] = ((((uint16_t)currentCadence().value()) * multiplier) >> 8) & 0xFF;
+        display[16] = (((uint16_t)currentCadence().value()) * multiplier) & 0xFF;
     }
     else
     {
