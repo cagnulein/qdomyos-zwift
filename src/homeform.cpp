@@ -55,6 +55,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 #ifdef Q_OS_IOS
     const int labelFontSize = 14;
     const int valueElapsedFontSize = 36;
+    const int valueTimeFontSize = 26;
 #elif defined Q_OS_ANDROID
     const int labelFontSize = 16;
     const int valueElapsedFontSize = 36;

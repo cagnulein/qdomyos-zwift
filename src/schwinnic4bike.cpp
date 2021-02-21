@@ -166,7 +166,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if(!Flags.moreData)
     {
-        Speed = ((double)((newValue.at(index + 1) << 8) | newValue.at(index))) / 100.0;
+        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 100.0;
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }
@@ -174,14 +174,14 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if(Flags.avgSpeed)
     {
         double avgSpeed;
-        avgSpeed = ((double)((newValue.at(index + 1) << 8) | newValue.at(index))) / 100.0;
+        avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 100.0;
         index += 2;
         debug("Current Average Speed: " + QString::number(avgSpeed));
     }
 
     if(Flags.instantCadence)
     {
-        Cadence = ((double)((newValue.at(index + 1) << 8) | newValue.at(index))) / 2.0;
+        Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 20.0;
         index += 2;
         debug("Current Cadence: " + QString::number(Cadence.value()));
     }
@@ -189,14 +189,14 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if(Flags.avgCadence)
     {
         double avgCadence;
-        avgCadence = ((double)((newValue.at(index + 1) << 8) | newValue.at(index))) / 2.0;
+        avgCadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 2.0;
         index += 2;
         debug("Current Average Cadence: " + QString::number(avgCadence));
     }
 
     if(Flags.totDistance)
     {
-        Distance = ((double)((newValue.at(index + 2) << 16) | (newValue.at(index + 1) << 8) | newValue.at(index))) / 1000.0;
+        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 1)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
         index += 3;
     }
     else
@@ -208,14 +208,14 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if(Flags.resistanceLvl)
     {
-        Resistance = ((double)((newValue.at(index + 1) << 8) | newValue.at(index)));
+        Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
     }
 
     if(Flags.instantPower)
     {
-        m_watt = ((double)((newValue.at(index + 1) << 8) | newValue.at(index)));
+        m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         debug("Current Watt: " + QString::number(m_watt.value()));
     }
@@ -223,14 +223,14 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if(Flags.avgPower)
     {
         double avgPower;
-        avgPower = ((double)((newValue.at(index + 1) << 8) | newValue.at(index)));
+        avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         debug("Current Average Watt: " + QString::number(avgPower));
     }
 
     if(Flags.expEnergy)
     {
-        KCal = ((double)((newValue.at(index + 1) << 8) | newValue.at(index)));
+        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
         // energy per hour
