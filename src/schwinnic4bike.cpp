@@ -318,7 +318,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
 #endif
 
-
+    debug("Current Calculated Resistance: " + QString::number(Resistance.value()));
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
 

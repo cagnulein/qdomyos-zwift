@@ -695,7 +695,7 @@ void homeform::update()
             watts = ((bike*)bluetoothManager->device())->watts();
             watt->setValue(QString::number(watts));
             this->peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->pelotonResistance().value(), 'f', 0));
-            this->resistance->setValue(QString::number(resistance));
+            this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->cadence->setValue(QString::number(cadence));
 
             this->cadence->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max(), 'f', 0));
