@@ -281,6 +281,17 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
+    double ac=0.01243107769;
+    double bc=1.145964912;
+    double cc=-23.50977444;
+
+    double ar=0.1469553975;
+    double br=-5.841344538;
+    double cr=97.62165482;
+
+    m_pelotonResistance = (sqrt(pow(ar,2.0)-4.0*br*(cr-(Cadence.value()*132.0/(ac*pow(m_watt.value(),2.0)+bc*m_watt.value()+cc))))+cr)/(2.0*ar);
+    Resistance = m_pelotonResistance;
+
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if(heartRateBeltName.startsWith("Disabled"))
