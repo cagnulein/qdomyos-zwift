@@ -108,6 +108,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+    bool toorx_bike = settings.value("toorx_bike", false).toBool();
 
     if(!heartRateBeltFound)
     {
@@ -299,7 +300,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 toorx->deviceDiscovered(b);
             }
-            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))) && !trxappgateusb && filter)
+            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
@@ -308,6 +309,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
+            }
+            else if(b.name().toUpper().startsWith("I-CONSOLE+") && !trxappgateusb && !trxappgateusbBike && toorx_bike && filter)
+            {
+                discoveryAgent->stop();
+                trxappgateusbBike = new trxappgateusbbike();
+                emit(deviceConnected());
+                connect(trxappgateusbBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(trxappgateusbBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                trxappgateusbBike->deviceDiscovered(b);
             }
             else if((b.name().startsWith("FS-")) && !jkfitnessTreadmill && filter)
             {
@@ -452,6 +463,11 @@ void bluetooth::restart()
         delete trxappgateusb;
         trxappgateusb = 0;
     }
+    if(trxappgateusbBike)
+    {
+        delete trxappgateusbBike;
+        trxappgateusbBike = 0;
+    }
     if(jkfitnessTreadmill)
     {
         delete jkfitnessTreadmill;
@@ -525,6 +541,8 @@ bluetoothdevice* bluetooth::device()
         return toorx;
     else if(trxappgateusb)
         return trxappgateusb;
+    else if(trxappgateusbBike)
+        return trxappgateusbBike;
     else if(jkfitnessTreadmill)
         return jkfitnessTreadmill;
     else if(echelonConnectSport)

@@ -72,6 +72,7 @@ import Qt.labs.settings 1.0
 
             property bool toorx_3_0: false
             property bool trx_route_key: false
+            property bool toorx_bike: false
 
             property real watt_offset: 0
             property real watt_gain: 1
@@ -1209,6 +1210,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.toorx_3_0 = checked
+            }
+
+            SwitchDelegate {
+                id: toorxBikeDelegate
+                text: qsTr("Toorx Bike")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.toorx_bike
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.toorx_bike = checked
             }
 
             Label {

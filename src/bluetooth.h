@@ -20,6 +20,7 @@
 #include "domyosbike.h"
 #include "domyoselliptical.h"
 #include "trxappgateusbtreadmill.h"
+#include "trxappgateusbbike.h"
 #include "toorxtreadmill.h"
 #include "echelonconnectsport.h"
 #include "schwinnic4bike.h"
@@ -55,6 +56,7 @@ private:
     domyoselliptical* domyosElliptical = 0;
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
+    trxappgateusbbike* trxappgateusbBike = 0;
     echelonconnectsport* echelonConnectSport = 0;
     yesoulbike* yesoulBike = 0;
     flywheelbike* flywheelBike = 0;

@@ -72,6 +72,7 @@ SOURCES += \
    sportstechbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
+   trxappgateusbbike.cpp \
 		yesoulbike.cpp \
 		  trainprogram.cpp \
 		trxappgateusbtreadmill.cpp \
@@ -339,6 +340,7 @@ HEADERS += \
 	treadmill.h \
 	mainwindow.h \
 	trainprogram.h \
+   trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
 	 virtualbike.h \
 	virtualtreadmill.h \
@@ -401,4 +403,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.3.21
+VERSION = 2.3.22
