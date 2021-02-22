@@ -211,21 +211,21 @@ uint16_t trxappgateusbbike::GetElapsedFromPacket(QByteArray packet)
 
 double trxappgateusbbike::GetSpeedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(17) - 1) + ((packet.at(16) - 1) * 100);
-    double data = (double)(convertedData) / 100.0f;
+    uint16_t convertedData = (packet.at(7) - 1) + ((packet.at(6) - 1) * 100);
+    double data = (double)(convertedData) / 10.0f;
     return data;
 }
 
 double trxappgateusbbike::GetKcalFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = ((packet.at(12) - 1) << 8) | (packet.at(13) - 1);
+    uint16_t convertedData = ((packet.at(12) - 1) * 100) + (packet.at(13) - 1);
     return (double)(convertedData);
 }
 
 double trxappgateusbbike::GetWattFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = ((packet.at(6) - 1) << 8) | (packet.at(7) - 1);
-    double data = ((double)(convertedData)) / 3.0f;
+    uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
+    double data = ((double)(convertedData)) / 10.0f;
     return data;
 }
 
