@@ -51,6 +51,7 @@ private:
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response);
     void startDiscover();
+    uint16_t watts();
     double GetWattFromPacket(QByteArray packet);
     double GetCadenceFromPacket(QByteArray packet);
     double DistanceCalculated = 0;

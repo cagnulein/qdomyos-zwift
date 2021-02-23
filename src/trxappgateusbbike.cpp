@@ -49,7 +49,7 @@ void trxappgateusbbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QSt
 void trxappgateusbbike::forceResistance(int8_t requestResistance)
 {
     uint8_t resistance[] = { 0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00 };
-    resistance[4] = requestResistance;
+    resistance[4] = requestResistance + 1;
     for(uint8_t i=0; i<sizeof(resistance)-1; i++)
     {
        resistance[5] += resistance[i]; // the last byte is a sort of a checksum
@@ -447,6 +447,13 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         m_control->connectToDevice();
         return;
     }
+}
+
+uint16_t trxappgateusbbike::watts()
+{
+    if(currentCadence().value() == 0) return 0;
+
+    return m_watt.value();
 }
 
 bool trxappgateusbbike::connected()
