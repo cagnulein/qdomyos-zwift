@@ -20,14 +20,10 @@
                                 <action selector="startWorkout" destination="Tpn-rd-UUX" id="UaW-pR-tn6"/>
                             </connections>
                         </button>
-                        <button width="1" alignment="left" title="Stop" id="mVg-K9-PI9">
-                            <connections>
-                                <action selector="stopWorkout" destination="Tpn-rd-UUX" id="Jy7-gN-USZ"/>
-                            </connections>
-                        </button>
                     </items>
                     <connections>
                         <outlet property="heartRateLabel" destination="Nda-m1-XRw" id="1la-8R-3jG"/>
+                        <outlet property="startButton" destination="vZg-X8-uY5" id="pJc-09-kfV"/>
                         <outlet property="stepCountsLabel" destination="HpA-e9-6YV" id="Z88-ej-6oG"/>
                         <outlet property="userNameLabel" destination="SlU-M7-WGB" id="Y2O-Lg-bDx"/>
                     </connections>

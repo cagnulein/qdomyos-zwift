@@ -13,6 +13,8 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var userNameLabel: WKInterfaceLabel!
     @IBOutlet weak var stepCountsLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
+    @IBOutlet weak var startButton: WKInterfaceButton!
+    static var start: Bool! = false
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -36,17 +38,23 @@ class MainController: WKInterfaceController {
 }
 
 extension MainController {
-    @IBAction func startWorkout() {
-        WorkoutTracking.authorizeHealthKit()
-        WorkoutTracking.shared.startWorkOut()
-        WorkoutTracking.shared.delegate = self
-        
-        WatchKitConnection.shared.delegate = self
-        WatchKitConnection.shared.startSession()
-    }
     
-    @IBAction func stopWorkout() {
-        WorkoutTracking.shared.stopWorkOut()
+    @IBAction func startWorkout() {
+        if(!MainController.start){
+            MainController.start = true
+            startButton.setTitle("Stop")
+            WorkoutTracking.authorizeHealthKit()
+            WorkoutTracking.shared.startWorkOut()
+            WorkoutTracking.shared.delegate = self
+            
+            WatchKitConnection.shared.delegate = self
+            WatchKitConnection.shared.startSession()
+        }
+        else {
+            MainController.start = false
+            startButton.setTitle("Start")
+            WorkoutTracking.shared.stopWorkOut()
+        }
     }
 }
 
