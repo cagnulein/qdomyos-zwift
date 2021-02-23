@@ -436,6 +436,13 @@ void trxappgateusbtreadmill::serviceScanDone(void)
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if(gattCommunicationChannelService == nullptr)
+    {
+        qDebug() << "invalid service" << uuid;
+        return;
+    }
+
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
 }

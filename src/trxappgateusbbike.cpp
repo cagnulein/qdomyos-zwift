@@ -382,6 +382,13 @@ void trxappgateusbbike::serviceScanDone(void)
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if(gattCommunicationChannelService == nullptr)
+    {
+        qDebug() << "invalid service" << uuid;
+        return;
+    }
+
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
 }
@@ -401,12 +408,12 @@ void trxappgateusbbike::error(QLowEnergyController::Error err)
 void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-") || device.name().startsWith("i-Console+") || device.name().startsWith("i-Running"))
+    //if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-") || device.name().startsWith("i-Console+") || device.name().startsWith("i-Running"))
     {
-        if(device.name().startsWith("i-Running") || device.name().startsWith("i-Console+"))
+        //if(device.name().startsWith("i-Running") || device.name().startsWith("i-Console+"))
             bike_type = TYPE::IRUNNING;
-        else
-            bike_type = TYPE::TRXAPPGATE;
+        /*else
+            bike_type = TYPE::TRXAPPGATE;*/
 
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
