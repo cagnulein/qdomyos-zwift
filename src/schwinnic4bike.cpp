@@ -289,7 +289,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double br=-5.841344538;
     double cr=97.62165482;
 
-    m_pelotonResistance = (sqrt(pow(br,2.0)-4.0*ar*(cr-(Cadence.value()*132.0/(ac*pow(m_watt.value(),2.0)+bc*m_watt.value()+cc))))-br)/(2.0*ar);
+    m_pelotonResistance = (sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar);
     Resistance = m_pelotonResistance;
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
