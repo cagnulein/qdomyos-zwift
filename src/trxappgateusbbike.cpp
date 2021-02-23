@@ -137,7 +137,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     debug(" << " + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if (newValue.length() != 20)
+    if (newValue.length() != 21)
         return;
 
     /*
