@@ -238,6 +238,10 @@ int main(int argc, char *argv[])
     if(QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10))
         settings.setValue("bike_heartrate_service", true);
 
+    // Android 6 doesn't support wake lock
+    if(QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7))
+        settings.setValue("android_wakelock", false);
+
     noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
     bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
     bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
