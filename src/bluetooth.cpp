@@ -186,6 +186,24 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
+            else if(b.name().toUpper().startsWith("HORIZON") && !horizonTreadmill && filter)
+            {
+                discoveryAgent->stop();
+                horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit(deviceConnected());
+                connect(horizonTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(horizonTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(horizonTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                horizonTreadmill->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
             else if(b.name().startsWith("ECH") && !echelonConnectSport && filter)
             {
                 discoveryAgent->stop();
@@ -443,6 +461,11 @@ void bluetooth::restart()
         delete fassiTreadmill;
         fassiTreadmill = 0;
     }
+    if(horizonTreadmill)
+    {
+        delete horizonTreadmill;
+        horizonTreadmill = 0;
+    }
     if(domyosBike)
     {
         delete domyosBike;
@@ -545,6 +568,8 @@ bluetoothdevice* bluetooth::device()
         return trxappgateusbBike;
     else if(jkfitnessTreadmill)
         return jkfitnessTreadmill;
+    else if(horizonTreadmill)
+        return horizonTreadmill;
     else if(echelonConnectSport)
         return echelonConnectSport;
     else if(yesoulBike)

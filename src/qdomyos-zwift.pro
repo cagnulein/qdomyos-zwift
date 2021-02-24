@@ -58,6 +58,7 @@ SOURCES += \
 	     gpx.cpp \
 		heartratebelt.cpp \
 	homeform.cpp \
+   horizontreadmill.cpp \
 	inspirebike.cpp \
    jkfitnesstreadmill.cpp \
 	keepawakehelper.cpp \
@@ -321,6 +322,7 @@ HEADERS += \
 	ftmsbike.h \
 	 heartratebelt.h \
 	homeform.h \
+   horizontreadmill.h \
 	inspirebike.h \
 	ios/lockscreen.h \
    jkfitnesstreadmill.h \

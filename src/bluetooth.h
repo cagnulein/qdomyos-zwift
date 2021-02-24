@@ -29,6 +29,7 @@
 #include "fassitreadmill.h"
 #include "jkfitnesstreadmill.h"
 #include "inspirebike.h"
+#include "horizontreadmill.h"
 #include "eslinkertreadmill.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
@@ -62,6 +63,7 @@ private:
     flywheelbike* flywheelBike = 0;
     proformbike* proformBike = 0;
     proformtreadmill* proformTreadmill = 0;
+    horizontreadmill* horizonTreadmill = 0;
     schwinnic4bike* schwinnIC4Bike = 0;
     sportstechbike* sportsTechBike = 0;
     inspirebike* inspireBike = 0;
