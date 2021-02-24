@@ -322,18 +322,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool cadence = settings.value("treadmill_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-    if(ios_peloton_workaround && cadence && h && firstStateChanged)
-    {
-        h->virtualtreadmill_setCadence(currentCrankRevolutions(),lastCrankEventTime());
-        h->virtualtreadmill_setHeartRate((uint8_t)currentHeart().value());
-    }
-#endif
-#endif
-
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
@@ -377,19 +365,6 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state)
     {
         QSettings settings;
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence = settings.value("treadmill_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-        if(ios_peloton_workaround && cadence)
-        {
-            qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualtreadmill_ios();
-        }
-        else
-#endif
-#endif
             if(virtual_device_enabled)
             {
                 debug("creating virtual treadmill interface...");
