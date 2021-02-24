@@ -199,6 +199,24 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
+                id: help
+                text: qsTr("Help")
+                width: parent.width
+                onClicked: {
+                    Qt.openUrlExternally("https://robertoviola.cloud/qdomyos-zwift-guide/");
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
+                id: community
+                text: qsTr("Community")
+                width: parent.width
+                onClicked: {
+                    Qt.openUrlExternally("https://www.facebook.com/groups/149984563348738");
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
                 text: qsTr("by Roberto Viola")
                 width: parent.width
             }
