@@ -124,6 +124,7 @@ void schwinnic4bike::serviceDiscovered(const QBluetoothUuid &gatt)
 
 void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
+    double heart;
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -254,9 +255,9 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     {
         if(Flags.heartRate)
         {
-            Heart = ((double)((newValue.at(index))));
+            heart = ((double)((newValue.at(index))));
             index += 1;
-            debug("Current Heart: " + QString::number(Heart.value()));
+            debug("Current Heart: " + QString::number(heart));
         }
     }
 
@@ -296,14 +297,21 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if(heartRateBeltName.startsWith("Disabled"))
     {
+        if(heart == 0)
+        {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    lockscreen h;
-    long appleWatchHeartRate = h.heartRate();
-    Heart = appleWatchHeartRate;
-    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            lockscreen h;
+        long appleWatchHeartRate = h.heartRate();
+        Heart = appleWatchHeartRate;
+        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+        }
+        else
+        {
+            Heart = heart;
+        }
     }
 
 #ifdef Q_OS_IOS
