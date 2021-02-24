@@ -16,6 +16,7 @@
 
 schwinnic4bike::schwinnic4bike(bool noWriteResistance, bool noHeartService)
 {
+    m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;

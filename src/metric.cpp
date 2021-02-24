@@ -1,12 +1,29 @@
 #include "metric.h"
+#include <QSettings>
 
 metric::metric()
 {
 
 }
 
+void metric::setType(_metric_type t)
+{
+    m_type = t;
+}
+
 void metric::setValue(double v)
 {
+    QSettings settings;
+    if(m_type == METRIC_WATT)
+    {
+        if(v > 0)
+        {
+            if(settings.value("watt_gain", 1.0).toDouble() <= 1.25)
+                v *= settings.value("watt_gain", 1.0).toDouble();
+            if(settings.value("watt_offset", 0.0).toDouble() < 0)
+                v += settings.value("watt_offset", 0.0).toDouble();
+        }
+    }
     m_value = v;
 
     if(paused) return;

@@ -28,7 +28,7 @@ uint16_t treadmill::watts(double weight)
        watts=hwatts+vwatts;
     }
     m_watt.setValue(watts);
-    return watts;
+    return m_watt.value();
 }
 
 void treadmill::clearStats()

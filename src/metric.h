@@ -6,7 +6,14 @@
 class metric
 {
 public:
+    typedef enum _metric_type
+    {
+        METRIC_OTHER = 0,
+        METRIC_WATT = 1
+    }_metric_type;
+
     metric();
+    void setType(_metric_type t);
     void setValue(double value);
     double value();
     double average();
@@ -24,6 +31,8 @@ private:
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+
+    _metric_type m_type = METRIC_OTHER;
 
     bool paused = false;
 };

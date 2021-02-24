@@ -1340,7 +1340,7 @@ import Qt.labs.settings 1.0
                 spacing: 10
                 Label {
                     id: labelwattOffset
-                    text: qsTr("Watt Offset:")
+                    text: qsTr("Watt Offset (only <0):")
                     Layout.fillWidth: true
                 }
                 TextField {

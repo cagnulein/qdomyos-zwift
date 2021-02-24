@@ -11,6 +11,7 @@
 
 trxappgateusbtreadmill::trxappgateusbtreadmill()
 {
+    m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
