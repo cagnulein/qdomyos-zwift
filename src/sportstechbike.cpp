@@ -103,7 +103,7 @@ void sportstechbike::update()
 
         if(requestResistance != -1)
         {
-           if(requestResistance > 32) requestResistance = 32;
+           if(requestResistance > 24) requestResistance = 24;
            else if(requestResistance < 1) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
@@ -190,7 +190,7 @@ uint16_t sportstechbike::GetElapsedFromPacket(QByteArray packet)
 
 double sportstechbike::GetSpeedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
+    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = (double)(convertedData) / 10.0f;
     return data;
 }
@@ -203,7 +203,7 @@ double sportstechbike::GetKcalFromPacket(QByteArray packet)
 
 double sportstechbike::GetWattFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
+    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
     double data = ((double)(convertedData));
     return data;
 }
