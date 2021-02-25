@@ -78,7 +78,8 @@ private:
 
     typedef enum TYPE {
         TRXAPPGATE = 0,
-        IRUNNING = 1
+        IRUNNING = 1,
+        CHANGYOW = 2,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
