@@ -33,7 +33,7 @@ class trxappgateusbbike : public bike
 {
     Q_OBJECT
 public:
-    trxappgateusbbike();
+    trxappgateusbbike(bool noWriteResistance, bool noHeartService);
     bool connected();
     double odometer();
 
@@ -58,6 +58,9 @@ private:
 
     QTimer* refresh;
     virtualbike* virtualBike = 0;
+
+    bool noWriteResistance = false;
+    bool noHeartService = false;
 
     uint8_t firstVirtualBike = 0;
     bool firstUpdate = true;

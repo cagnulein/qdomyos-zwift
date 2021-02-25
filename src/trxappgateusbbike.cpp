@@ -9,10 +9,12 @@
 #include <QSettings>
 #include "keepawakehelper.h"
 
-trxappgateusbbike::trxappgateusbbike()
+trxappgateusbbike::trxappgateusbbike(bool noWriteResistance, bool noHeartService)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
+    this->noWriteResistance = noWriteResistance;
+    this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -371,7 +373,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
             if(virtual_device_enabled)
             {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this, false);
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
             }
         }

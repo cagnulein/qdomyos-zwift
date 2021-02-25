@@ -331,7 +331,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             else if((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+")) && !trxappgateusb && !trxappgateusbBike && toorx_bike && filter)
             {
                 discoveryAgent->stop();
-                trxappgateusbBike = new trxappgateusbbike();
+                trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);
                 emit(deviceConnected());
                 connect(trxappgateusbBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -341,7 +341,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             else if((b.name().startsWith("FS-")) && !jkfitnessTreadmill && filter)
             {
                 discoveryAgent->stop();
-                jkfitnessTreadmill = new jkfitnesstreadmill();
+                jkfitnessTreadmill = new jkfitnesstreadmill(this->pollDeviceTime, noConsole, noHeartService);
                 emit(deviceConnected());
                 connect(jkfitnessTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(jkfitnessTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));

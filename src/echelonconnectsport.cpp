@@ -435,11 +435,11 @@ uint16_t echelonconnectsport::watts()
     if(currentCadence().value() == 0) return 0;
 
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
-    /*if(currentCadence().value() < 90)
+    if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
     else
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );*/
-
+        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );
+/*
     const double Epsilon = 4.94065645841247E-324;
     const int wattTableFirstDimension = 33;
     const int wattTableSecondDimension = 11;
@@ -492,6 +492,7 @@ uint16_t echelonconnectsport::watts()
     }
     double watt_base = watts_of_level[watt_setp];
     return (((watts_of_level[watt_setp + 1] - watt_base) / 10.0) * ((double) (((int)(Cadence.value())) % 10))) + watt_base;
+    */
 }
 
 void echelonconnectsport::controllerStateChanged(QLowEnergyController::ControllerState state)
