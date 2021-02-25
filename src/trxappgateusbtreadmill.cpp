@@ -64,6 +64,9 @@ void trxappgateusbtreadmill::update()
 {
     //qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
+    if(!m_control)
+        return;
+
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
         emit disconnected();
