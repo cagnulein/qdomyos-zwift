@@ -368,7 +368,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
          {
              emit debug("control requested");
              reply.append((quint8)FTMS_RESPONSE_CODE);
-             reply.append((quint8)FTMS_REQUEST_CONTROL);
+             reply.append((char)FTMS_REQUEST_CONTROL);
              reply.append((quint8)FTMS_SUCCESS);
          }
          else

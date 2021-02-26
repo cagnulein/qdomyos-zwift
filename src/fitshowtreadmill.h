@@ -1,5 +1,5 @@
-#ifndef JKFITNESSTREADMILL_H
-#define JKFITNESSTREADMILL_H
+#ifndef FITSHOWTREADMILL_H
+#define FITSHOWTREADMILL_H
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -11,6 +11,7 @@
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
+#include <QtCore/qstring.h>
 
 #ifndef Q_OS_ANDROID
 #include <QtCore/qcoreapplication.h>
@@ -28,13 +29,54 @@
 #include "virtualtreadmill.h"
 #include "treadmill.h"
 
-class jkfitnesstreadmill : public treadmill
+#define FITSHOW_PKT_HEADER 2
+#define FITSHOW_PKT_FOOTER 3
+
+#define FITSHOW_SYS_CONTROL 83
+#define FITSHOW_SYS_INFO 0x50
+#define FITSHOW_SYS_DATA 0x52
+#define FITSHOW_SYS_STATUS 81
+#define FITSHOW_SYS_KEY 84
+#define FITSHOW_CONTROL_TARGET_OR_RUN 2
+#define FITSHOW_CONTROL_READY_OR_START 1
+#define FITSHOW_CONTROL_USER 0
+#define FITSHOW_CONTROL_STOP 3
+#define FITSHOW_DATE_NOT_SUPPORT ""
+#define FITSHOW_TREADMILL_SPORT_ID 0
+#define FITSHOW_INFO_MODEL 0
+#define FITSHOW_INFO_DATE 1
+#define FITSHOW_INFO_SPEED 2
+#define FITSHOW_INFO_INCLINE 3
+#define FITSHOW_INFO_TOTAL 4
+#define FITSHOW_INFO_UNKNOWN 5
+#define FITSHOW_SYS_MODE_NORMAL 0
+#define FITSHOW_SYS_MODE_TIMER 1
+#define FITSHOW_SYS_MODE_DISTANCE 2
+#define FITSHOW_SYS_MODE_CALORIE 3
+#define FITSHOW_SYS_MODE_STEPS 4
+#define FITSHOW_SYS_MODE_PROGRAMS 5
+#define FITSHOW_SYS_MODE_MATCH 6
+#define FITSHOW_STATUS_NORMAL 0
+#define FITSHOW_STATUS_END 1
+#define FITSHOW_STATUS_START 2
+#define FITSHOW_STATUS_RUNNING 3
+#define FITSHOW_STATUS_STOP 4
+#define FITSHOW_STATUS_ERROR 5
+#define FITSHOW_STATUS_SAFETY 6
+#define FITSHOW_STATUS_STUDY 7
+#define FITSHOW_STATUS_PAUSED 10
+#define FITSHOW_DATA_SPORT 0
+#define FITSHOW_DATA_INFO 1
+#define FITSHOW_DATA_SPEED 2
+#define FITSHOW_DATA_INCLINE 3
+#define FITSHOW_DATA_CACHECACHE 4
+
+class fitshowtreadmill : public treadmill
 {
     Q_OBJECT
 public:
-    jkfitnesstreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false, double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    fitshowtreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false, double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
     double odometer();
 
     void setLastSpeed(double speed);
@@ -44,19 +86,19 @@ public:
     void* VirtualDevice();
 
 private:
-    bool sendChangeFanSpeed(uint8_t speed);
-    double GetSpeedFromPacket(QByteArray packet);
-    double GetInclinationFromPacket(QByteArray packet);
-    double GetKcalFromPacket(QByteArray packet);
-    double GetDistanceFromPacket(QByteArray packet);
+    bool checkIncomingPacket(const uint8_t* data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+    void writeCharacteristic(const uint8_t* data, uint8_t data_len, const QString& info = QString());
+    bool writePayload(const uint8_t* data, uint8_t data_len, const QString& info = QString());
+    void scheduleWrite(const uint8_t* data, uint8_t data_len, const QString& info = QString());
     void startDiscover();
+    void sendSportData();
+    void removeFromBuffer();
+    QBluetoothUuid serviceId;
+    int retrySend = 0;
     double DistanceCalculated = 0;
-    volatile bool incompletePackets = false;
-    bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
@@ -69,6 +111,33 @@ private:
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+    int MAX_INCLINE = 0;
+    int COUNTDOWN_VALUE = 0;
+    int MAX_SPEED = 0;
+    int MIN_INCLINE = 0;
+    int MIN_SPEED = 0;
+    int UNIT = -100;
+    int SPORT_ID;
+    int USER_ID;
+    bool IS_PAUSE = false;
+    QString DEVICE_ID_NAME;
+    int TOTAL = 0;
+    QDate FACTORY_DATE;
+    bool IS_STATUS_STUDY = false;
+    bool IS_STATUS_ERRO = false;
+    bool IS_STATUS_SAFETY = false;
+    bool IS_RUNNING = false;
+    int ERRNO = -1;
+    int SYS_CONTROL_CMD = 0;
+    int CURRENT_STATUS = 0;
+    int INDOORRUN_MODE = 0;
+    int INDOORRUN_CALORIE_DATA = 0;
+    int INDOORRUN_TIME_DATA = 0;
+    int INDOORRUN_PARAM_NUM = 0;
+    int INDOORRUN_DISTANCE_DATA = 0;
+    int RUN_WAY = 0;
+    QStringList debugMsgs;
+    QByteArray bufferWrite;
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;
@@ -106,4 +175,4 @@ private slots:
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // JKFITNESSTREADMILL_H
+#endif // FITSHOWTREADMILL_H

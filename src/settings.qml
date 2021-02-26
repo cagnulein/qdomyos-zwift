@@ -70,6 +70,8 @@ import Qt.labs.settings 1.0
 
             property real proform_wheel_ratio: 0.33
 
+            property int  fitshow_user_id: 0x006E13AA
+
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
@@ -1290,6 +1292,39 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text
+                }
+            }
+
+            Label {
+                id: fitshowTreadmillLabel
+                text: qsTr("Fitshow Treadmill Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelfitshowTreadmillUserId
+                    text: qsTr("User ID:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: fitshowTreadmillUserIdTextField
+                    text: settings.fitshow_user_id
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.fitshow_user_id = text
+                }
+                Button {
+                    id: okfitshowTreadmillUserIdButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
                 }
             }
 
