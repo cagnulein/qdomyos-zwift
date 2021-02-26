@@ -180,7 +180,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = 0;
+            Heart = ((uint8_t)(newValue.at(15)) - 1);
     }
     FanSpeed = 0;
 
