@@ -124,7 +124,7 @@ import Qt.labs.settings 1.0
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    inputMethodHints: Qt.ImhDigitsOnly
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
                     onAccepted: settings.weight = text
                 }
                 Button {
@@ -324,7 +324,7 @@ import Qt.labs.settings 1.0
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    inputMethodHints: Qt.ImhDigitsOnly
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
                     onAccepted: settings.bike_resistance_gain = text
                 }
                 Button {
@@ -1249,7 +1249,7 @@ import Qt.labs.settings 1.0
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    inputMethodHints: Qt.ImhDigitsOnly
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
                     onAccepted: settings.domyos_elliptical_speed_ratio = text
                 }
                 Button {
@@ -1282,7 +1282,7 @@ import Qt.labs.settings 1.0
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    inputMethodHints: Qt.ImhDigitsOnly
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
                     onAccepted: settings.proform_wheel_ratio = text
                 }
                 Button {
@@ -1373,7 +1373,7 @@ import Qt.labs.settings 1.0
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    inputMethodHints: Qt.ImhDigitsOnly
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
                     onAccepted: settings.watt_gain = text
                 }
                 Button {
