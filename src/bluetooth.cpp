@@ -346,6 +346,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(fitshowTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 connect(fitshowTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 fitshowTreadmill->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), fitshowTreadmill, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
             }
             else if(b.name().toUpper().startsWith("IC") && b.name().length() == 8 && !inspireBike && filter)
             {
