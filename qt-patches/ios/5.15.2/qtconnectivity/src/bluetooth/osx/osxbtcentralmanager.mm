@@ -555,7 +555,7 @@ QT_USE_NAMESPACE
 
     if (!service.characteristics || !service.characteristics.count)
         return [self serviceDetailsDiscoveryFinished:service];
-
+/* rviola
     NSArray *const cs = service.characteristics;
     for (CBCharacteristic *c in cs) {
         if (c.properties & CBCharacteristicPropertyRead) {
@@ -563,7 +563,7 @@ QT_USE_NAMESPACE
             return [peripheral readValueForCharacteristic:c];
         }
     }
-
+*/
     // No readable properties? Discover descriptors then:
     [self discoverDescriptors:service];
 }
@@ -602,7 +602,7 @@ QT_USE_NAMESPACE
     Q_ASSERT_X(peripheral, Q_FUNC_INFO, "invalid peripheral (nil)");
 
     QT_BT_MAC_AUTORELEASEPOOL;
-
+/* rviola
     NSArray *const cs = service.characteristics;
     // We can never be here if we have no characteristics.
     Q_ASSERT_X(cs && cs.count, Q_FUNC_INFO, "invalid service");
@@ -613,7 +613,7 @@ QT_USE_NAMESPACE
             return [peripheral readValueForDescriptor:desc];
         }
     }
-
+*/
     // No descriptors to read, done.
     [self serviceDetailsDiscoveryFinished:service];
 }
