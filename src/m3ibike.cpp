@@ -266,7 +266,7 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device)
     {
         bluetoothDevice = device;
         QSettings settings;
-        int id = settings.value("m3i_bike_id", 163).toInt();
+        int id = settings.value("m3i_bike_id", 256).toInt();
         int buffSize = settings.value("m3i_bike_speed_buffsize", 150).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);

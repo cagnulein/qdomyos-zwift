@@ -46,8 +46,15 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
         connect(discoveryAgent, SIGNAL(finished()),
                 this, SLOT(finished()));
 
+        QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+        bool trx_route_key = settings.value("trx_route_key", false).toBool();
+        bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+        int m3i_id = settings.value("m3i_bike_id", 256).toInt();
+        if (m3i_id == 256 || !heartRateBeltFound)
+            discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+        else
+            discoveryAgent->setLowEnergyDiscoveryTimeout(0);
         // Start a discovery
-        discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
         if(!trx_route_key)
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         else
@@ -62,6 +69,9 @@ void bluetooth::finished()
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     bool trx_route_key = settings.value("trx_route_key", false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+    int m3i_id = settings.value("m3i_bike_id", 256).toInt();
+    if (m3i_id < 256)
+        discoveryAgent->setLowEnergyDiscoveryTimeout(0);
 
     if(!heartRateBeltFound && !heartRateBeltAvaiable())
     {
@@ -145,13 +155,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 if (!m3iBike) {
                     m3iBike = new m3ibike(noWriteResistance, noHeartService);
+                    emit(deviceConnected());
+                    connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                    //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 }
-                emit(deviceConnected());
-                connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 m3iBike->deviceDiscovered(b);
             }
+            else if (m3iBike)
+                return;
             else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
                 discoveryAgent->stop();
