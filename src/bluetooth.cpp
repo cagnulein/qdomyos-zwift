@@ -141,8 +141,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
             }
-
-            if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
+            if(b.name().startsWith("M3") && filter)
+            {
+                if (!m3iBike) {
+                    m3iBike = new m3ibike(noWriteResistance, noHeartService);
+                }
+                emit(deviceConnected());
+                connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                m3iBike->deviceDiscovered(b);
+            }
+            else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
                 discoveryAgent->stop();
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
@@ -455,6 +465,11 @@ void bluetooth::restart()
     {        
         delete domyos;        
         domyos = 0;
+    }
+    if(m3iBike)
+    {
+        delete m3iBike;
+        m3iBike = 0;
     }
     if(fassiTreadmill)
     {

@@ -27,6 +27,7 @@
 #include "yesoulbike.h"
 #include "flywheelbike.h"
 #include "fassitreadmill.h"
+#include "m3ibike.h"
 #include "jkfitnesstreadmill.h"
 #include "inspirebike.h"
 #include "horizontreadmill.h"
@@ -68,6 +69,7 @@ private:
     sportstechbike* sportsTechBike = 0;
     inspirebike* inspireBike = 0;
     eslinkertreadmill* eslinkerTreadmill = 0;
+    m3ibike* m3iBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

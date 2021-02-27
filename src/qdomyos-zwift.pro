@@ -28,7 +28,6 @@ SOURCES += \
 		echelonconnectsport.cpp \
 	 elliptical.cpp \
    eslinkertreadmill.cpp \
-	fassitreadmill.cpp \
 	fit-sdk/fit.cpp \
 	fit-sdk/fit_accumulated_field.cpp \
 	fit-sdk/fit_accumulator.cpp \
@@ -60,7 +59,6 @@ SOURCES += \
 	homeform.cpp \
    horizontreadmill.cpp \
 	inspirebike.cpp \
-   jkfitnesstreadmill.cpp \
 	keepawakehelper.cpp \
 	     main.cpp \
 		metric.cpp \
@@ -79,6 +77,9 @@ SOURCES += \
 		trxappgateusbtreadmill.cpp \
 	 virtualbike.cpp \
 	     virtualtreadmill.cpp \
+             m3ibike.cpp \
+             fassitreadmill.cpp \
+             jkfitnesstreadmill.cpp \
 		domyosbike.cpp
 
 macx: SOURCES += macos/lockscreen.mm
@@ -100,7 +101,9 @@ HEADERS += \
 	echelonconnectsport.h \
 	 elliptical.h \
    eslinkertreadmill.h \
-	fassitreadmill.h \
+   m3ibike.h \
+        fassitreadmill.h \
+        jkfitnesstreadmill.h \
 	fit-sdk/FitDecode.h \
 	fit-sdk/FitDeveloperField.h \
 	fit-sdk/FitEncode.h \
@@ -325,7 +328,6 @@ HEADERS += \
    horizontreadmill.h \
 	inspirebike.h \
 	ios/lockscreen.h \
-   jkfitnesstreadmill.h \
 	keepawakehelper.h \
 	macos/lockscreen.h \
 	material.h \

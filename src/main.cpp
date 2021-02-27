@@ -2,7 +2,11 @@
 #include <QStyleFactory>
 #include <stdio.h>
 #include <stdlib.h>
+#ifdef Q_OS_LINUX
+#ifndef Q_OS_ANDROID
 #include <unistd.h> // getuid
+#endif
+#endif
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
