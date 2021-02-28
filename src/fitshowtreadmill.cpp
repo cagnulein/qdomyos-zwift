@@ -646,7 +646,7 @@ void fitshowtreadmill::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(serviceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
-#ifdef Q_OS_WIN
+#ifdef _MSC_VER
     //QTBluetooth bug on Win10 (https://bugreports.qt.io/browse/QTBUG-78488)
     QTimer::singleShot(0, [ = ] () {
         gattCommunicationChannelService->discoverDetails();
