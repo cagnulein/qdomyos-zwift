@@ -113,6 +113,7 @@ private:
     int nActiveUpdates = 0;
     qint64 sessionStart = 0;
     qint64 lastUpdateTime = 0;
+    bool oldPause = true;
 
     void _set_offsets();
 
@@ -122,7 +123,7 @@ private:
 
     double calcSpeed(keiser_m3i_out_t * f, bool pause);
 
-    bool inPause() const;
+    bool inPause(qint64 ud) const;
 
     void detectPause(const keiser_m3i_out_t * f);
 };

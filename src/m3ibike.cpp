@@ -65,6 +65,7 @@ void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
     this->old_time_orig = -1;
     this->nActiveUpdates = 0;
     this->lastUpdateTime = 0;
+    this->oldPause = true;
 }
 
 double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t * f, bool pause) {
@@ -119,15 +120,14 @@ double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t * f, bool pause) {
     return f->speed;
 }
 
-bool KeiserM3iDeviceSimulator::inPause() const {
-    return this->equalTime >= M3I_EQUAL_TIME_THRESHOLD || QDateTime::currentMSecsSinceEpoch() - this->lastUpdateTime >= M3I_PAUSE_DELAY_DETECT_THRESHOLD;
+bool KeiserM3iDeviceSimulator::inPause(qint64 ud) const {
+    return this->equalTime >= M3I_EQUAL_TIME_THRESHOLD || ud >= M3I_PAUSE_DELAY_DETECT_THRESHOLD;
 }
 
 void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t * f) {
     if (f->time == this->old_time_orig) {
         if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
             this->equalTime += 1;
-        qDebug() << "EqualTime " << this->equalTime;
     }
     else {
         this->equalTime = 0;
@@ -155,10 +155,12 @@ bool KeiserM3iDeviceSimulator::inner_step(keiser_m3i_out_t * f) {
 }
 
 bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
-    bool wasinpause = this->inPause();
     this->detectPause(f);
-    if (!wasinpause && !this->inPause()) {
-        this->sumTime += (now - this->lastUpdateTime);
+    qint64 updateDiff = now - lastUpdateTime;
+    bool nowpause = this->inPause(updateDiff);
+    qDebug() << "ET=" << this->equalTime << " UD="<< updateDiff << " OP=" << oldPause << " NP=" << nowpause;
+    if (!this->oldPause && !nowpause) {
+        this->sumTime += updateDiff;
         this->fillTimeRFields(f, now);
         this->nActiveUpdates += 1;
         this->sumSpeed += this->calcSpeed(f, false);
@@ -191,7 +193,8 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
     this->calorie_old = f->calorie;
     this->distance_old = f->distance;
     this->lastUpdateTime = now;
-    return !this->inPause();
+    this->oldPause = nowpause;
+    return !nowpause;
 }
 
 
@@ -222,7 +225,7 @@ m3ibike::~m3ibike() {
 }
 
 bool m3ibike::valid_id(int id) {
-    return id >= 0 || id <= 255;
+    return id >= 0 && id <= 255;
 }
 
 bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
