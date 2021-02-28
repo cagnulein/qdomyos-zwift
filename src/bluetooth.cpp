@@ -138,7 +138,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(!found)
         devices.append(device);
 
-    emit deviceFound(device.name());
+    if (!m3iBike)
+        emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
 
     if(onlyDiscover) return;

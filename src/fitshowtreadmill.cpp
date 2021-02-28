@@ -19,7 +19,9 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
 
     if (forceInitInclination > 0)
         lastInclination = forceInitInclination;
-
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    h = new lockscreen();
+#endif
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
@@ -138,10 +140,6 @@ void fitshowtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 firstInit = 1;
             }
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-            if (!h)
-                h = new lockscreen();
-#endif
         }
         // ********************************************************************************************************
 
