@@ -162,7 +162,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
     Speed = speed;
-    Resistance = resistance;
+    Resistance = requestResistance;
     KCal = kcal;
     Distance = DistanceCalculated;
     Cadence = cadence;

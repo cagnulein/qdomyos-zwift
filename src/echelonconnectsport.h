@@ -38,7 +38,7 @@ class echelonconnectsport : public bike
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService);
+    echelonconnectsport(bool noWriteResistance, bool noHeartService);    
     bool connected();
 
     void* VirtualBike();
@@ -50,6 +50,7 @@ private:
     void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
     void startDiscover();
+    void forceResistance(int8_t requestResistance);
     void sendPoll();
     uint16_t watts();
 
