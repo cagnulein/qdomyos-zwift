@@ -63,7 +63,10 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
 void bluetooth::finished()
 {
-    debug("BTLE scanning finished");
+    int tout = discoveryAgent->lowEnergyDiscoveryTimeout();
+    debug(QString("BTLE scanning %1").arg(tout?"finished":"cancelled"));
+    if (!tout)//this is necessary because finished is called instead of cancelled when scan is started with 0 timeout (see qt android source code)
+        return;
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     bool trx_route_key = settings.value("trx_route_key", false).toBool();
