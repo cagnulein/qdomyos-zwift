@@ -98,21 +98,12 @@ void sportstechbike::update()
         }
 
         QSettings settings;
-        const uint8_t noOpData[] = { 0xf2, 0xc3, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbe };
+        uint8_t noOpData[] = { 0xf2, 0xc3, 0x07, 0x04, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xbe };
+        if(requestResistance < 0) requestResistance = 0;
+        if(requestResistance > 23) requestResistance = 23;
+        noOpData[4] = requestResistance;
+        noOpData[10] += requestResistance;
         writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
-
-        if(requestResistance != -1)
-        {
-           if(requestResistance > 24) requestResistance = 24;
-           else if(requestResistance < 1) requestResistance = 1;
-
-           if(requestResistance != currentResistance().value())
-           {
-              debug("writing resistance " + QString::number(requestResistance));
-              forceResistance(requestResistance);
-           }
-           requestResistance = -1;
-        }
     }
 
     lastTimeUpdate = QTime::currentTime();
