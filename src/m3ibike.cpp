@@ -353,7 +353,7 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 debug("Current Elapsed: " + QString::number(elapsed.value()));
                 debug("Current Resistance: " + QString::number(Resistance.value()));
                 debug("Current Speed: " + QString::number(Speed.value()));
-                debug("Current Calculate Distance: " + QString::number(Distance.value()));
+                debug("Current Calculate Distance: " + QString::number(k3.distanceR));
                 debug("Current Cadence: " + QString::number(Cadence.value()));
                 debug("Current Distance: " + QString::number(Distance.value()));
                 debug("Current CrankRevs: " + QString::number(CrankRevs));
