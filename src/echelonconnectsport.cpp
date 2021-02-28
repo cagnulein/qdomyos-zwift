@@ -119,7 +119,7 @@ void echelonconnectsport::update()
 
         if(requestResistance != -1)
         {
-           if(requestResistance > 15) requestResistance = 15;
+           if(requestResistance > 32) requestResistance = 32;
            else if(requestResistance == 0) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
