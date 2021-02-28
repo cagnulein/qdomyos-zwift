@@ -139,7 +139,10 @@ public:
     void* VirtualDevice();
     static bool parse_data(const QByteArray& data, keiser_m3i_out_t * f);
     static bool valid_id(int id);
+    bool isMe(QBluetoothDeviceInfo d) const;
+    bool identified() const;
 private:
+    QBluetoothAddress myAddress;
     uint16_t watts();
     QTimer* detectDisc = 0;
     KeiserM3iDeviceSimulator k3s;

@@ -144,8 +144,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if (!m3iBike)
         emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
-
-    if(onlyDiscover) return;
+    if(onlyDiscover)
+        return;
+    else if (m3iBike && m3iBike->identified()) {
+        if (m3iBike->isMe(device))
+            m3iBike->deviceDiscovered(device);
+        return;
+    }
 
     if(heartRateBeltFound || forceHeartBeltOffForTimeout)
     {
@@ -167,8 +172,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 }
                 m3iBike->deviceDiscovered(b);
             }
-            else if (m3iBike)
-                continue;
             else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
                 discoveryAgent->stop();

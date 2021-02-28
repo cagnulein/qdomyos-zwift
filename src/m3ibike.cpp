@@ -197,6 +197,13 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
     return !nowpause;
 }
 
+bool m3ibike::isMe(QBluetoothDeviceInfo d) const {
+    return myAddress == d.address();
+}
+
+bool m3ibike::identified() const {
+    return !myAddress.isNull();
+}
 
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
@@ -207,10 +214,11 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     connect(detectDisc, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
         emit disconnected();
+        debug("M3i detected disconnection");
         initDone = false;
         detectDisc->stop();
     });
-    detectDisc->start(2000);
+    detectDisc->start(5000);
 }
 
 m3ibike::~m3ibike() {
@@ -282,8 +290,8 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             i.next();
             debug(" << " + i.value().toHex(' '));
             if (parse_data(i.value(), &k3) && k3.system_id == id) {
+                detectDisc->start(5000);
                 if (!initDone) {
-                    k3s.inner_reset(buffSize);
                     initDone = true;
                     if (!virtualBike
         #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
@@ -306,8 +314,12 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                             connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                         }
+                        k3s.inner_reset(buffSize);
+                        myAddress = device.address();
                     }
                     emit connectedAndDiscovered();
+                    emit bikeStarted();
+                    debug("M3i (re)connected");
                 }
                 k3s.inner_step(&k3);
                 QSettings settings;
