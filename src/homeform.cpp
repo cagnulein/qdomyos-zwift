@@ -1281,6 +1281,8 @@ QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
 #define _STR(x) #x
 #define STRINGIFY(x)  _STR(x)
     strava->setClientIdentifierSharedKey(STRINGIFY(STRAVA_SECRET_KEY));
+#elif defined (WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
 #else
 #warning "DEFINE STRAVA_SECRET_KEY!!!"
 #endif

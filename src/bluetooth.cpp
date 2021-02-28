@@ -338,31 +338,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusbBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusbBike->deviceDiscovered(b);
             }
-            else if((b.name().startsWith("FS-")) && !jkfitnessTreadmill && filter)
+            else if((b.name().startsWith("FS-") || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
             {
                 discoveryAgent->stop();
-                jkfitnessTreadmill = new jkfitnesstreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
                 emit(deviceConnected());
-                connect(jkfitnessTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                //connect(jkfitnessTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(jkfitnessTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                jkfitnessTreadmill->deviceDiscovered(b);
-            }
-            else if(b.name().startsWith("SW") && b.name().length() == 14 && !fassiTreadmill && filter)
-            {
-                discoveryAgent->stop();
-                fassiTreadmill = new fassitreadmill(this->pollDeviceTime, noConsole, noHeartService);
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-                stateFileRead();
-#endif
-                emit(deviceConnected());
-                connect(fassiTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(fassiTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                connect(fassiTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                connect(fassiTreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-                fassiTreadmill->deviceDiscovered(b);
-                connect(this, SIGNAL(searchingStop()), fassiTreadmill, SLOT(searchingStop()));
+                connect(fitshowTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                connect(fitshowTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                fitshowTreadmill->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), fitshowTreadmill, SLOT(searchingStop()));
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
@@ -375,7 +359,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 #endif
                 emit(deviceConnected());
                 connect(inspireBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                //connect(fassiTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(inspireBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(inspireBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 connect(inspireBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
@@ -456,10 +439,10 @@ void bluetooth::restart()
         delete domyos;        
         domyos = 0;
     }
-    if(fassiTreadmill)
+    if(fitshowTreadmill)
     {
-        delete fassiTreadmill;
-        fassiTreadmill = 0;
+        delete fitshowTreadmill;
+        fitshowTreadmill = 0;
     }
     if(horizonTreadmill)
     {
@@ -490,11 +473,6 @@ void bluetooth::restart()
     {
         delete trxappgateusbBike;
         trxappgateusbBike = 0;
-    }
-    if(jkfitnessTreadmill)
-    {
-        delete jkfitnessTreadmill;
-        jkfitnessTreadmill = 0;
     }
     if(echelonConnectSport)
     {
@@ -556,8 +534,8 @@ bluetoothdevice* bluetooth::device()
         return domyos;
     else if(domyosBike)
         return domyosBike;
-    else if(fassiTreadmill)
-        return fassiTreadmill;
+    else if(fitshowTreadmill)
+        return fitshowTreadmill;
     else if(domyosElliptical)
         return domyosElliptical;
     else if(toorx)
@@ -566,8 +544,6 @@ bluetoothdevice* bluetooth::device()
         return trxappgateusb;
     else if(trxappgateusbBike)
         return trxappgateusbBike;
-    else if(jkfitnessTreadmill)
-        return jkfitnessTreadmill;
     else if(horizonTreadmill)
         return horizonTreadmill;
     else if(echelonConnectSport)
