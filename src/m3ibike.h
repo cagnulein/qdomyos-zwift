@@ -125,11 +125,9 @@ private:
     bool inPause() const;
 
     void detectPause(const keiser_m3i_out_t * f);
-
 };
 
-class m3ibike : public bike
-{
+class m3ibike : public bike {
     Q_OBJECT
 public:
     m3ibike(bool noWriteResistance, bool noHeartService);
@@ -139,7 +137,7 @@ public:
     void* VirtualBike();
     void* VirtualDevice();
     static bool parse_data(const QByteArray& data, keiser_m3i_out_t * f);
-
+    static bool valid_id(int id);
 private:
     uint16_t watts();
     QTimer* detectDisc = 0;

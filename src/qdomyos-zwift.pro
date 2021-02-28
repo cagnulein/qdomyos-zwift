@@ -27,7 +27,8 @@ SOURCES += \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
 	 elliptical.cpp \
-   eslinkertreadmill.cpp \
+	eslinkertreadmill.cpp \
+	fitshowtreadmill.cpp \
 	fit-sdk/fit.cpp \
 	fit-sdk/fit_accumulated_field.cpp \
 	fit-sdk/fit_accumulator.cpp \
@@ -78,8 +79,6 @@ SOURCES += \
 	 virtualbike.cpp \
 	     virtualtreadmill.cpp \
              m3ibike.cpp \
-             fassitreadmill.cpp \
-             jkfitnesstreadmill.cpp \
 		domyosbike.cpp
 
 macx: SOURCES += macos/lockscreen.mm
@@ -102,8 +101,7 @@ HEADERS += \
 	 elliptical.h \
    eslinkertreadmill.h \
    m3ibike.h \
-        fassitreadmill.h \
-        jkfitnesstreadmill.h \
+        fitshowtreadmill.h \
 	fit-sdk/FitDecode.h \
 	fit-sdk/FitDeveloperField.h \
 	fit-sdk/FitEncode.h \

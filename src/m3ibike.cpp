@@ -14,7 +14,6 @@ KeiserM3iDeviceSimulator::~KeiserM3iDeviceSimulator() {
     if (dist_buff_time) delete[] dist_buff_time;
 }
 KeiserM3iDeviceSimulator::KeiserM3iDeviceSimulator() {
-
 }
 
 void KeiserM3iDeviceSimulator::_set_offsets() {
@@ -32,14 +31,14 @@ void KeiserM3iDeviceSimulator::fillTimeRFields(keiser_m3i_out_t * f, qint64 upda
 }
 
 void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
-    if (dist_buff && this->buffSize!=buffSize) {
+    if (dist_buff && this->buffSize != buffSize) {
         delete[] dist_buff;
         dist_buff = 0;
         delete[] dist_buff_time;
         dist_buff_time = 0;
     }
     this->buffSize = buffSize;
-    if (!dist_buff)  {
+    if (!dist_buff) {
         this->dist_buff = new double[this->buffSize];
         this->dist_buff_time = new int [this->buffSize];
     }
@@ -196,8 +195,7 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
 }
 
 
-m3ibike::m3ibike(bool noWriteResistance, bool noHeartService)
-{
+m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -217,10 +215,18 @@ m3ibike::~m3ibike() {
         detectDisc->stop();
         delete detectDisc;
     }
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+    if (h)
+        delete h;
+#endif
+}
+
+bool m3ibike::valid_id(int id) {
+    return id >= 0 || id <= 255;
 }
 
 bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
-    const uint8_t * arr = (const uint8_t *)data.constData();
+    const uint8_t * arr = (const uint8_t*)data.constData();
     int len = data.size();
     if (len < 4 || len > 19)
         return false;
@@ -237,14 +243,15 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
             k3->firmware = mayor;
             k3->software = minor;
             k3->system_id = arr[index + 1];
-        };
+        }
+        ;
         k3->rpm = arr[index + 2] | arr[index + 3] << 8;
-        k3->pulse = arr[index + 4] |  arr[index + 5] << 8;
-        k3->watt = arr[index + 6] |  arr[index + 7] << 8;
-        k3->calorie = arr[index + 8] |  arr[index + 9] << 8;
+        k3->pulse = arr[index + 4] | arr[index + 5] << 8;
+        k3->watt = arr[index + 6] | arr[index + 7] << 8;
+        k3->calorie = arr[index + 8] | arr[index + 9] << 8;
         k3->time = arr[index + 10] * 60;
         k3->time += arr[index + 11];
-        uint16_t dist = arr[index + 12] |  arr[index + 13] << 8;
+        uint16_t dist = arr[index + 12] | arr[index + 13] << 8;
         if (dist & 32768)
             k3->distance = (dist & 0x7FFF) / 10.0;
         else
@@ -259,11 +266,9 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
         return false;
 }
 
-void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device)
-{
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("M3"))
-    {
+void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    debug("m3ibike new device: " + device.name() + " (" + device.address().toString() + ')');
+    if (device.name().startsWith("M3")) {
         bluetoothDevice = device;
         QSettings settings;
         int id = settings.value("m3i_bike_id", 256).toInt();
@@ -272,130 +277,109 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
             i.next();
+            debug(" << " + i.value().toHex(' '));
             if (parse_data(i.value(), &k3) && k3.system_id == id) {
                 if (!initDone) {
                     k3s.inner_reset(buffSize);
                     initDone = true;
-                    if(!virtualBike
-                    #ifdef Q_OS_IOS
-                    #ifndef IO_UNDER_QT
-                            && !h
-                    #endif
-                    #endif
-                            )
-                    {
-                        QSettings settings;
+                    if (!virtualBike
+        #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                        && !h
+        #endif
+                        ) {
                         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            #ifdef Q_OS_IOS
-            #ifndef IO_UNDER_QT
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                        h = new lockscreen();
                         bool cadence = settings.value("bike_cadence_sensor", false).toBool();
                         bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-                        if(ios_peloton_workaround && cadence)
-                        {
+                        if (ios_peloton_workaround && cadence) {
                             qDebug() << "ios_peloton_workaround activated!";
-                            h = new lockscreen();
                             h->virtualbike_ios();
                         }
                         else
-            #endif
-            #endif
-                            if(virtual_device_enabled)
-                        {
+#endif
+                        if (virtual_device_enabled) {
                             debug("creating virtual bike interface...");
                             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                            connect(virtualBike,&virtualbike::debug ,this,&m3ibike::debug);
+                            connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                         }
                     }
                     emit connectedAndDiscovered();
                 }
-            }
-            k3s.inner_step(&k3);
-            QSettings settings;
-            QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+                k3s.inner_step(&k3);
+                QSettings settings;
+                QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
-            debug(" << " + i.value().toHex(' '));
 
-            Resistance = k3.incline;
-            Cadence = k3.rpm;
-            m_watts = k3.watt;
-            Speed = k3.speed;
-            KCal = k3.calorie;
-            Distance = k3.distance;
-            elapsed = k3.time;
+                Resistance = k3.incline;
+                Cadence = k3.rpm;
+                m_watts = k3.watt;
+                Speed = k3.speed;
+                KCal = k3.calorie;
+                Distance = k3.distance;
+                elapsed = k3.time;
 
-            if(Cadence.value() > 0)
-            {
-                CrankRevs++;
-                LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-            }
-
-        #ifdef Q_OS_ANDROID
-            if(settings.value("ant_heart", false).toBool())
-                Heart = (uint8_t)KeepAwakeHelper::heart();
-            else
-        #endif
-            {
-                if(heartRateBeltName.startsWith("Disabled"))
-                {
-        #if defined(Q_OS_IOS) && ! defined(IO_UNDER_QT)
-                    lockscreen h;
-                    long appleWatchHeartRate = h.heartRate();
-                    Heart = appleWatchHeartRate;
-                    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-        #else
-                    Heart = k3.pulse;
-        #endif
+                if (Cadence.value() > 0) {
+                    CrankRevs++;
+                    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
                 }
+
+#ifdef Q_OS_ANDROID
+                if (settings.value("ant_heart", false).toBool())
+                    Heart = (uint8_t)KeepAwakeHelper::heart();
+                else
+#endif
+                {
+                    if (heartRateBeltName.startsWith("Disabled")) {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                        long appleWatchHeartRate = h->heartRate();
+                        Heart = appleWatchHeartRate;
+                        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#else
+                        Heart = k3.pulse;
+#endif
+                    }
+                }
+
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+                bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+                if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+                    h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+                    h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+                }
+#endif
+
+                debug("Current Elapsed: " + QString::number(elapsed.value()));
+                debug("Current Resistance: " + QString::number(Resistance.value()));
+                debug("Current Speed: " + QString::number(Speed.value()));
+                debug("Current Calculate Distance: " + QString::number(Distance.value()));
+                debug("Current Cadence: " + QString::number(Cadence.value()));
+                debug("Current Distance: " + QString::number(Distance.value()));
+                debug("Current CrankRevs: " + QString::number(CrankRevs));
+                debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
+                debug("Current Watt: " + QString::number(watts()));
+                debug("Current Heart: " + QString::number(Heart.value()));
+                return;
             }
-
-        #if defined(Q_OS_IOS) && ! defined(IO_UNDER_QT)
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-            if(ios_peloton_workaround && cadence && h && firstStateChanged)
-            {
-                h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
-                h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
-            }
-        #endif
-
-            debug("Current Resistance: " + QString::number(Resistance.value()));
-            debug("Current Speed: " + QString::number(Speed.value()));
-            debug("Current Calculate Distance: " + QString::number(Distance.value()));
-            debug("Current Cadence: " + QString::number(Cadence.value()));
-            debug("Current Distance: " + QString::number(Distance.value()));
-            debug("Current CrankRevs: " + QString::number(CrankRevs));
-            debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-            debug("Current Watt: " + QString::number(watts()));
-            debug("Current Heart: " + QString::number(Heart.value()));
-
-            if(m_control->error() != QLowEnergyController::NoError)
-                qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
-            return;
         }
-
     }
 }
 
-bool m3ibike::connected()
-{
-    if(!m_control)
-        return false;
+bool m3ibike::connected() {
     return initDone;
 }
 
-void* m3ibike::VirtualBike()
-{
+void* m3ibike::VirtualBike() {
     return virtualBike;
 }
 
-void* m3ibike::VirtualDevice()
-{
+void* m3ibike::VirtualDevice() {
     return VirtualBike();
 }
 
-uint16_t m3ibike::watts()
-{
-    if(currentCadence().value() == 0) return 0;
+uint16_t m3ibike::watts() {
+    if (currentCadence().value() == 0) return 0;
 
     return m_watts;
 }
