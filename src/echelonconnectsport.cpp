@@ -47,7 +47,7 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
 
 void echelonconnectsport::forceResistance(int8_t requestResistance)
 {
-    uint8_t noOpData[] = { 0xf0, 0xb2, 0x01, 0x00, 0x00 };
+    uint8_t noOpData[] = { 0xf0, 0xb1, 0x01, 0x00, 0x00 };
 
     noOpData[3] = requestResistance;
 
