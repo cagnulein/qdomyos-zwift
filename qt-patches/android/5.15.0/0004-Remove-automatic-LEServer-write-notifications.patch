@@ -1,0 +1,38 @@
+From 64294a1dc4de8490f91588f8fdc06671cac67991 Mon Sep 17 00:00:00 2001
+From: Robert Daniels <c_robert_daniels@hotmail.com>
+Date: Wed, 13 Jan 2021 16:28:53 -0700
+Subject: [PATCH 4/4] Remove automatic LEServer write notifications
+
+---
+ .../qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java  | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
+index ca39898c..bdcfff72 100644
+--- a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
++++ b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
+@@ -372,12 +372,10 @@ public class QtBluetoothLEServer {
+         {
+             Log.w(TAG, "onCharacteristicWriteRequest");
+             int resultStatus = BluetoothGatt.GATT_SUCCESS;
+-            boolean sendNotificationOrIndication = false;
+             if (!preparedWrite) { // regular write
+                 if (offset == 0) {
+                     characteristic.setValue(value);
+                     leServerCharacteristicChanged(qtObject, characteristic, value);
+-                    sendNotificationOrIndication = true;
+                 } else {
+                     // This should not really happen as per Bluetooth spec
+                     Log.w(TAG, "onCharacteristicWriteRequest: !preparedWrite, offset " + offset + ", Not supported");
+@@ -397,8 +395,6 @@ public class QtBluetoothLEServer {
+ 
+             if (responseNeeded)
+                 mGattServer.sendResponse(device, requestId, resultStatus, offset, value);
+-            if (sendNotificationOrIndication)
+-                sendNotificationsOrIndications(characteristic);
+ 
+             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
+         }
+-- 
+2.25.1
+
