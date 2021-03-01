@@ -33,15 +33,23 @@ void trainprogram::scheduler()
     // entry point
     if(ticks == 1 && currentStep == 0)
     {
-        if(rows[0].forcespeed && rows[0].speed)
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
-            qDebug() << "trainprogram change speed" + QString::number(rows[0].speed);
-            emit changeSpeedAndInclination(rows[0].speed, rows[0].inclination);
+            if(rows[0].forcespeed && rows[0].speed)
+            {
+                qDebug() << "trainprogram change speed" + QString::number(rows[0].speed);
+                emit changeSpeedAndInclination(rows[0].speed, rows[0].inclination);
+            }
+            else
+            {
+                qDebug() << "trainprogram change inclination" + QString::number(rows[0].inclination);
+                emit changeInclination(rows[0].inclination);
+            }
         }
         else
         {
-            qDebug() << "trainprogram change inclination" + QString::number(rows[0].inclination);
-            emit changeInclination(rows[0].inclination);
+            qDebug() << "trainprogram change resistance" + QString::number(rows[0].resistance);
+            emit changeResistance(rows[0].resistance);
         }
     }
 
@@ -65,13 +73,21 @@ void trainprogram::scheduler()
             currentStep++;
             ticksCurrentRow = 0;
             elapsedCurrentRow = 0;
-            if(rows[currentStep].forcespeed && rows[currentStep].speed)
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
             {
-                qDebug() << "trainprogram change speed" + QString::number(rows[currentStep].speed);
-                emit changeSpeedAndInclination(rows[currentStep].speed, rows[currentStep].inclination);
+                if(rows[currentStep].forcespeed && rows[currentStep].speed)
+                {
+                    qDebug() << "trainprogram change speed" + QString::number(rows[currentStep].speed);
+                    emit changeSpeedAndInclination(rows[currentStep].speed, rows[currentStep].inclination);
+                }
+                qDebug() << "trainprogram change inclination" + QString::number(rows[currentStep].inclination);
+                emit changeInclination(rows[currentStep].inclination);
             }
-            qDebug() << "trainprogram change inclination" + QString::number(rows[currentStep].inclination);
-            emit changeInclination(rows[currentStep].inclination);
+            else
+            {
+                qDebug() << "trainprogram change resistance" + QString::number(rows[currentStep].resistance);
+                emit changeResistance(rows[currentStep].resistance);
+            }
         }
         else
         {
@@ -110,6 +126,7 @@ void trainprogram::save(QString filename)
         stream.writeAttribute("duration", row.duration.toString());
         stream.writeAttribute("speed", QString::number(row.speed));
         stream.writeAttribute("inclination", QString::number(row.inclination));
+        stream.writeAttribute("resistance", QString::number(row.resistance));
         stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
         stream.writeEndElement();
     }
@@ -133,6 +150,7 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
             row.duration = QTime::fromString(atts.value("duration").toString(), "hh:mm:ss");
             row.speed = atts.value("speed").toDouble();
             row.inclination = atts.value("inclination").toDouble();
+            row.resistance = atts.value("resistance").toDouble();
             row.forcespeed = atts.value("forcespeed").toInt()?true:false ;
             list.append(row);
         }

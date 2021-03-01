@@ -11,6 +11,7 @@ public:
     QTime duration;
     double speed;
     double inclination;
+    double resistance;
     bool forcespeed;
 };
 
@@ -44,6 +45,7 @@ signals:
     void stop();
     void changeSpeed(double speed);
     void changeInclination(double inclination);
+    void changeResistance(double resistance);
     void changeSpeedAndInclination(double speed, double inclination);
 
 private:
