@@ -87,6 +87,7 @@ import Qt.labs.settings 1.0
             property bool virtual_device_enabled: true
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
+            property bool log_debug: false
         }
 
         ColumnLayout {
@@ -1516,6 +1517,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.android_wakelock = checked
+            }
+
+            SwitchDelegate {
+                id: logDebugDelegate
+                text: qsTr("Debug Log")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.log_debug
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.log_debug = checked
             }
         }
     }
