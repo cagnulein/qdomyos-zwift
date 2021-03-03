@@ -9,12 +9,14 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 
-echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService)
+echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -335,7 +337,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
                 if(virtual_device_enabled)
             {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
             }
         }

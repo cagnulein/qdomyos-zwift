@@ -38,7 +38,7 @@ class echelonconnectsport : public bike
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService);    
+    echelonconnectsport(bool noWriteResistance, bool noHeartService, , uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
     bool connected();
 
     void* VirtualBike();
@@ -62,6 +62,8 @@ private:
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
 
+    uint8_t bikeResistanceOffset = 4;
+    uint8_t bikeResistanceGain = 1;
     uint8_t counterPoll = 1;
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
