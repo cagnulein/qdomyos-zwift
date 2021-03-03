@@ -104,6 +104,10 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     connect(timer, &QTimer::timeout, this, &homeform::update);
     timer->start(1000);
 
+    backupTimer = new QTimer(this);
+    connect(backupTimer, &QTimer::timeout, this, &homeform::backup);
+    backupTimer->start(60000);
+
     QObject *rootObject = engine->rootObjects().first();
     QObject *home = rootObject->findChild<QObject*>("home");
     QObject *stack = rootObject;
@@ -190,6 +194,24 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
 #endif
+}
+
+void homeform::backup()
+{
+    qDebug() << "saving fit file backup...";
+
+    QString path = "";
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#endif
+
+    if(bluetoothManager->device())
+    {
+        QString filename = path + backupFitFileName;
+        qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+    }
 }
 
 QString homeform::stopColor()

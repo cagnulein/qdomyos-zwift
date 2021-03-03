@@ -113,6 +113,7 @@ private:
     bluetooth* bluetoothManager = 0;
     QQmlApplicationEngine* engine;
     trainprogram* trainProgram = 0;
+    QString backupFitFileName = "QZ-backup-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
 
     int m_topBarHeight = 120;
     QString m_info = "Connecting...";
@@ -143,6 +144,7 @@ private:
     DataObject* ftp;
 
     QTimer* timer;
+    QTimer* backupTimer;
 
     QString strava_code;
     QOAuth2AuthorizationCodeFlow* strava_connect();
@@ -152,6 +154,7 @@ private:
     bool strava_upload_file(QByteArray &data, QString remotename);
 
     void update();
+    void backup();
     bool getDevice();
     bool getZwift();
 
