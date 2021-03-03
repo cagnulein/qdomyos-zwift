@@ -38,7 +38,7 @@ class echelonconnectsport : public bike
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService, , uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
+    echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
     bool connected();
 
     void* VirtualBike();
