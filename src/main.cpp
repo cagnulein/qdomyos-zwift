@@ -168,6 +168,11 @@ QCoreApplication* createApplication(int &argc, char *argv[])
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
+    QSettings settings;
+    static bool debuglog = settings.value("log_debug", false).toBool();
+    if(debuglog == false)
+        return;
+
     QByteArray localMsg = msg.toLocal8Bit();
     const char *file = context.file ? context.file : "";
     const char *function = context.function ? context.function : "";

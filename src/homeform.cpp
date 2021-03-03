@@ -17,6 +17,7 @@
 #include "gpx.h"
 #include "qfit.h"
 #include "material.h"
+#include "screencapture.h"
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -103,6 +104,10 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &homeform::update);
     timer->start(1000);
+
+    backupTimer = new QTimer(this);
+    connect(backupTimer, &QTimer::timeout, this, &homeform::backup);
+    backupTimer->start(60000);
 
     QObject *rootObject = engine->rootObjects().first();
     QObject *home = rootObject->findChild<QObject*>("home");
@@ -192,6 +197,30 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 #endif
 }
 
+void homeform::backup()
+{
+    static uint8_t index = 0;
+    qDebug() << "saving fit file backup...";
+
+    QString path = "";
+#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#endif
+
+    if(bluetoothManager->device())
+    {
+        QString filename = path + QString::number(index) + backupFitFileName;
+        QFile::remove(filename);
+        qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+
+        index++;
+        if(index > 1)
+            index = 0;
+    }
+}
+
 QString homeform::stopColor()
 {
     return "#00000000";
@@ -237,6 +266,7 @@ void homeform::trainProgramSignals()
          disconnect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
          disconnect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
          disconnect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
+         disconnect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          disconnect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
          disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
@@ -245,6 +275,7 @@ void homeform::trainProgramSignals()
          connect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
          connect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
          connect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
+         connect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
          connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          connect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
@@ -716,45 +747,61 @@ void homeform::update()
 
         double ftpPerc = 0;
         double ftpZone = 1;
+        QString ftpMinW = "0";
+        QString ftpMaxW = "0";
         if(ftpSetting > 0)
             ftpPerc = (watts / ftpSetting) * 100.0;
         if(ftpPerc < 55)
         {
+            ftpMinW = QString::number(0, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
             ftpZone = 1;
             ftp->setValueFontColor("white");
         }
         else if(ftpPerc < 76)
         {
+            ftpMinW = QString::number(ftpSetting * 0.55, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
             ftpZone = 2;
             ftp->setValueFontColor("limegreen");
         }
         else if(ftpPerc < 91)
         {
+            ftpMinW = QString::number(ftpSetting * 0.76, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
             ftpZone = 3;
             ftp->setValueFontColor("gold");
         }
         else if(ftpPerc < 106)
         {
+            ftpMinW = QString::number(ftpSetting * 0.91, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
             ftpZone = 4;
             ftp->setValueFontColor("orange");
         }
         else if(ftpPerc < 121)
         {
+            ftpMinW = QString::number(ftpSetting * 1.06, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
             ftpZone = 5;
             ftp->setValueFontColor("darkorange");
         }
         else if(ftpPerc < 151)
         {
+            ftpMinW = QString::number(ftpSetting * 1.21, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
             ftpZone = 6;
             ftp->setValueFontColor("orangered");
         }
         else
         {
+            ftpMinW = QString::number(ftpSetting * 1.51, 'f', 0);
+            ftpMaxW = "∞";
             ftpZone = 7;
             ftp->setValueFontColor("red");
         }
         ftp->setValue("Z" + QString::number(ftpZone, 'f', 0));
-        ftp->setSecondLine(QString::number(ftpPerc, 'f', 0) + "%");
+        ftp->setSecondLine(ftpMinW + "-" + ftpMaxW + "W " + QString::number(ftpPerc, 'f', 0) + "%");
 /*
         if(trainProgram)
         {
@@ -877,6 +924,12 @@ void homeform::fit_save_clicked()
 
     if(bluetoothManager->device())
     {
+        QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".jpg";
+        QObject *rootObject = engine->rootObjects().first();
+        QObject *stack = rootObject;
+        screenCapture s((QQuickView*) stack);
+        s.capture(filenameScreenshot);
+
         QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
         qfit::save(filename, Session, bluetoothManager->device()->deviceType());
 

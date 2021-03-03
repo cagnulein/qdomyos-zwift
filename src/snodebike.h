@@ -1,5 +1,5 @@
-#ifndef ECHELONCONNECTSPORT_H
-#define ECHELONCONNECTSPORT_H
+#ifndef SNODEBIKE_H
+#define SNODEBIKE_H
 
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -10,6 +10,8 @@
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+//#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
+//#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 
@@ -34,35 +36,27 @@
 #include "ios/lockscreen.h"
 #endif
 
-class echelonconnectsport : public bike
+class snodebike : public bike
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService);    
+    snodebike(bool noWriteResistance, bool noHeartService);
     bool connected();
 
     void* VirtualBike();
     void* VirtualDevice();
 
 private:
-    double GetDistanceFromPacket(QByteArray packet);
-    QTime GetElapsedFromPacket(QByteArray packet);
-    void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
     void startDiscover();
-    void forceResistance(int8_t requestResistance);
-    void sendPoll();
     uint16_t watts();
 
     QTimer* refresh;
     virtualbike* virtualBike = 0;
 
-    QLowEnergyService* gattCommunicationChannelService = 0;
-    QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyService* gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
 
-    uint8_t counterPoll = 1;
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
     uint8_t sec1Update = 0;
@@ -75,7 +69,7 @@ private:
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-    
+
 #ifdef Q_OS_IOS
     lockscreen* h = 0;
 #endif
@@ -92,6 +86,8 @@ private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
@@ -102,4 +98,4 @@ private slots:
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // ECHELONCONNECTSPORT_H
+#endif // SNODEBIKE_H

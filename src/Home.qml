@@ -120,6 +120,7 @@ HomeForm{
             }
             RoundButton {
                 objectName: minusName
+                autoRepeat: true
                 text: "-"
                 onClicked: minus_clicked(objectName)
                 visible: writable
@@ -130,6 +131,7 @@ HomeForm{
                 height: 48
             }
             RoundButton {
+                autoRepeat: true
                 objectName: plusName
                 text: "+"
                 onClicked: plus_clicked(objectName)

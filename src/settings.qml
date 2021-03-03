@@ -78,6 +78,7 @@ import Qt.labs.settings 1.0
 
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 150
+            property bool snode_bike: false
 
             property real watt_offset: 0
             property real watt_gain: 1
@@ -90,6 +91,7 @@ import Qt.labs.settings 1.0
             property bool virtual_device_enabled: true
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
+            property bool log_debug: false
         }
 
         ColumnLayout {
@@ -1233,6 +1235,30 @@ import Qt.labs.settings 1.0
             }
 
             Label {
+                id: snodeBikeLabel
+                text: qsTr("Snode Bike Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: snodeBikeDelegate
+                text: qsTr("Snode Bike")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.snode_bike
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.snode_bike = checked
+            }
+
+            Label {
                 id: domyosEllipticalLabel
                 text: qsTr("Domyos Elliptical Options")
                 textFormat: Text.PlainText
@@ -1502,7 +1528,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.bluetooth_relaxed = checked
             }
-
+/*
             SwitchDelegate {
                 id: batteryServiceDelegate
                 text: qsTr("Simulate Battery Service")
@@ -1532,7 +1558,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.service_changed = checked
             }
-
+*/
             SwitchDelegate {
                 id: virtualDeviceEnabledDelegate
                 text: qsTr("Virtual Device")
@@ -1562,7 +1588,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.ios_peloton_workaround = checked
             }
-
+/*
             SwitchDelegate {
                 id: androidWakeLockDelegate
                 text: qsTr("Android WakeLock")
@@ -1576,6 +1602,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.android_wakelock = checked
+            }
+*/
+            SwitchDelegate {
+                id: logDebugDelegate
+                text: qsTr("Debug Log")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.log_debug
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.log_debug = checked
             }
         }
     }

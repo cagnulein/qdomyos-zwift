@@ -51,6 +51,7 @@ private:
     void startDiscover();
     void sendPoll();
     uint16_t watts();
+    void forceResistance(int8_t requestResistance);
 
     QTimer* refresh;
     virtualbike* virtualBike = 0;

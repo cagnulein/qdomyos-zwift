@@ -7,6 +7,7 @@ treadmill::treadmill()
 
 void treadmill::changeSpeed(double speed){ requestSpeed = speed;}
 void treadmill::changeInclination(double inclination){ requestInclination = inclination; }
+bool treadmill::changeFanSpeed(uint8_t speed){ requestFanSpeed = speed; }
 void treadmill::changeSpeedAndInclination(double speed, double inclination){ requestSpeed = speed; requestInclination = inclination;}
 metric treadmill::currentInclination(){ return Inclination; }
 uint8_t treadmill::fanSpeed() { return FanSpeed; };

@@ -45,6 +45,20 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
     loop.exec();
 }
 
+void echelonconnectsport::forceResistance(int8_t requestResistance)
+{
+    uint8_t noOpData[] = { 0xf0, 0xb1, 0x01, 0x00, 0x00 };
+
+    noOpData[3] = requestResistance;
+
+    for(uint8_t i=0; i<sizeof(noOpData)-1; i++)
+    {
+       noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(noOpData, sizeof(noOpData), "force resistance", true);
+}
+
 void echelonconnectsport::sendPoll()
 {    
     uint8_t noOpData[] = { 0xf0, 0xa0, 0x01, 0x00, 0x00 };
@@ -105,13 +119,13 @@ void echelonconnectsport::update()
 
         if(requestResistance != -1)
         {
-           if(requestResistance > 15) requestResistance = 15;
+           if(requestResistance > 32) requestResistance = 32;
            else if(requestResistance == 0) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
-              //forceResistance(requestResistance);
+              forceResistance(requestResistance);
            }
            requestResistance = -1;
         }

@@ -11,6 +11,8 @@
 
 bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
 {
+    QSettings settings;
+    bool trx_route_key = settings.value("trx_route_key", false).toBool();
 
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -31,8 +33,6 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
     else
 #endif
     {
-        QSettings settings;
-        bool trx_route_key = settings.value("trx_route_key", false).toBool();
         // Create a discovery agent and connect to its signals
         discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
         connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
@@ -46,14 +46,8 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
         connect(discoveryAgent, SIGNAL(finished()),
                 this, SLOT(finished()));
 
-        QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
-        bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
-        int m3i_id = settings.value("m3i_bike_id", 256).toInt();
-        if (!m3ibike::valid_id(m3i_id) || !heartRateBeltFound)
-            discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
-        else
-            discoveryAgent->setLowEnergyDiscoveryTimeout(0);
         // Start a discovery
+        discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
         if(!trx_route_key)
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         else
@@ -63,17 +57,11 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
 void bluetooth::finished()
 {
-    int tout = discoveryAgent->lowEnergyDiscoveryTimeout();
-    debug(QString("BTLE scanning %1").arg(tout?"finished":"cancelled"));
-    if (!tout)//this is necessary because finished is called instead of cancelled when scan is started with 0 timeout (see qt android source code)
-        return;
+    debug("BTLE scanning finished");
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     bool trx_route_key = settings.value("trx_route_key", false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
-    int m3i_id = settings.value("m3i_bike_id", 256).toInt();
-    if (m3ibike::valid_id(m3i_id))
-        discoveryAgent->setLowEnergyDiscoveryTimeout(0);
 
     if(!heartRateBeltFound && !heartRateBeltAvaiable())
     {
@@ -121,6 +109,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
+    bool snode_bike = settings.value("snode_bike", false).toBool();
 
     if(!heartRateBeltFound)
     {
@@ -141,16 +130,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(!found)
         devices.append(device);
 
-    if (!m3iBike)
-        emit deviceFound(device.name());
+    emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
-    if(onlyDiscover)
-        return;
-    else if (m3iBike && m3iBike->identified()) {
-        if (m3iBike->isMe(device))
-            m3iBike->deviceDiscovered(device);
-        return;
-    }
+
+    if(onlyDiscover) return;
 
     if(heartRateBeltFound || forceHeartBeltOffForTimeout)
     {
@@ -161,16 +144,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
             }
-            if(b.name().startsWith("M3") && filter)
+            if(b.name().startsWith("M3") && !m3iBike && filter)
             {
-                if (!m3iBike) {
-                    m3iBike = new m3ibike(noWriteResistance, noHeartService);
-                    emit(deviceConnected());
-                    connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                    //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                    connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                }
+                discoveryAgent->stop();
+                m3iBike = new m3ibike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 m3iBike->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
             }
             else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
@@ -368,7 +353,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusbBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusbBike->deviceDiscovered(b);
             }
-            else if((b.name().startsWith("FS-") || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
+            else if((b.name().startsWith("FS-") && snode_bike) && !snodeBike && filter)
+            {
+                discoveryAgent->stop();
+                snodeBike = new snodebike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(snodeBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(snodeBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                snodeBike->deviceDiscovered(b);
+            }
+            else if(((b.name().startsWith("FS-") && !snode_bike) || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
             {
                 discoveryAgent->stop();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -554,6 +549,11 @@ void bluetooth::restart()
         delete inspireBike;
         inspireBike = 0;
     }
+    if(snodeBike)
+    {
+        delete snodeBike;
+        snodeBike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -601,6 +601,8 @@ bluetoothdevice* bluetooth::device()
         return inspireBike;
     else if(m3iBike)
         return m3iBike;
+    else if(snodeBike)
+        return snodeBike;
     return nullptr;
 }
 

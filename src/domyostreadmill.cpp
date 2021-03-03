@@ -209,10 +209,7 @@ bool domyostreadmill::sendChangeFanSpeed(uint8_t speed)
 
 bool domyostreadmill::changeFanSpeed(uint8_t speed)
 {
-   if(speed > FanSpeed)
-       requestIncreaseFan = 1;
-   else if(speed < FanSpeed)
-       requestDecreaseFan = 1;
+   requestFanSpeed = speed;
 
    return true;
 }
@@ -329,6 +326,12 @@ void domyostreadmill::update()
                 debug("stopping...");
                 writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
                 requestStop = -1;
+            }
+            if(requestFanSpeed != -1)
+            {
+                debug("changing fan speed...");
+                sendChangeFanSpeed(requestFanSpeed);
+                requestFanSpeed = -1;
             }
             if(requestIncreaseFan != -1)
             {

@@ -18,6 +18,7 @@ public:
     void setPaused(bool p);
 
 public slots:
+    virtual bool changeFanSpeed(uint8_t speed);
     virtual void changeSpeed(double speed);
     virtual void changeInclination(double inclination);
     virtual void changeSpeedAndInclination(double speed, double inclination);
@@ -29,6 +30,7 @@ protected:
     metric Inclination;
     double requestSpeed = -1;
     double requestInclination = -1;
+    double requestFanSpeed = -1;
 };
 
 #endif // TREADMILL_H

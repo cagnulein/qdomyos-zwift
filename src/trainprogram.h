@@ -10,7 +10,9 @@ class trainrow
 public:
     QTime duration;
     double speed;
+    double fanspeed = -1;
     double inclination;
+    double resistance;
     bool forcespeed;
 };
 
@@ -43,7 +45,9 @@ signals:
     void start();
     void stop();
     void changeSpeed(double speed);
+    bool changeFanSpeed(uint8_t speed);
     void changeInclination(double inclination);
+    void changeResistance(double resistance);
     void changeSpeedAndInclination(double speed, double inclination);
 
 private:
