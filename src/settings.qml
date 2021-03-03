@@ -76,6 +76,8 @@ import Qt.labs.settings 1.0
             property bool trx_route_key: false
             property bool toorx_bike: false
 
+            property bool snode_bike: false
+
             property real watt_offset: 0
             property real watt_gain: 1
 
@@ -1228,6 +1230,30 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.toorx_bike = checked
+            }
+
+            Label {
+                id: snodeBikeLabel
+                text: qsTr("Snode Bike Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: snodeBikeDelegate
+                text: qsTr("Snode Bike")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.snode_bike
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.snode_bike = checked
             }
 
             Label {

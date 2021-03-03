@@ -109,6 +109,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
+    bool snode_bike = settings.value("snode_bike", false).toBool();
 
     if(!heartRateBeltFound)
     {
@@ -338,7 +339,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusbBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusbBike->deviceDiscovered(b);
             }
-            else if((b.name().startsWith("FS-") || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
+            else if((b.name().startsWith("FS-") && snode_bike) && !snodeBike && filter)
+            {
+                discoveryAgent->stop();
+                snodeBike = new snodebike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(snodeBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(snodeBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                snodeBike->deviceDiscovered(b);
+            }
+            else if(((b.name().startsWith("FS-") && !snode_bike) || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
             {
                 discoveryAgent->stop();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -519,6 +530,11 @@ void bluetooth::restart()
         delete inspireBike;
         inspireBike = 0;
     }
+    if(snodeBike)
+    {
+        delete snodeBike;
+        snodeBike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnect(); // to test
@@ -564,6 +580,8 @@ bluetoothdevice* bluetooth::device()
         return sportsTechBike;
     else if(inspireBike)
         return inspireBike;
+    else if(snodeBike)
+        return snodeBike;
     return nullptr;
 }
 

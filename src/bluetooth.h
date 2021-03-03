@@ -28,6 +28,7 @@
 #include "flywheelbike.h"
 #include "fitshowtreadmill.h"
 #include "inspirebike.h"
+#include "snodebike.h"
 #include "horizontreadmill.h"
 #include "eslinkertreadmill.h"
 #include "proformbike.h"
@@ -65,6 +66,7 @@ private:
     schwinnic4bike* schwinnIC4Bike = 0;
     sportstechbike* sportsTechBike = 0;
     inspirebike* inspireBike = 0;
+    snodebike* snodeBike = 0;
     eslinkertreadmill* eslinkerTreadmill = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
