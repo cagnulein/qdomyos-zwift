@@ -1443,7 +1443,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.bluetooth_relaxed = checked
             }
-
+/*
             SwitchDelegate {
                 id: batteryServiceDelegate
                 text: qsTr("Simulate Battery Service")
@@ -1473,7 +1473,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.service_changed = checked
             }
-
+*/
             SwitchDelegate {
                 id: virtualDeviceEnabledDelegate
                 text: qsTr("Virtual Device")
@@ -1503,7 +1503,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.ios_peloton_workaround = checked
             }
-
+/*
             SwitchDelegate {
                 id: androidWakeLockDelegate
                 text: qsTr("Android WakeLock")
@@ -1518,7 +1518,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.android_wakelock = checked
             }
-
+*/
             SwitchDelegate {
                 id: logDebugDelegate
                 text: qsTr("Debug Log")
