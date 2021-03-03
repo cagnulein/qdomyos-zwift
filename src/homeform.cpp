@@ -17,6 +17,7 @@
 #include "gpx.h"
 #include "qfit.h"
 #include "material.h"
+#include "screencapture.h"
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -917,6 +918,12 @@ void homeform::fit_save_clicked()
 
     if(bluetoothManager->device())
     {
+        QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".jpg";
+        QObject *rootObject = engine->rootObjects().first();
+        QObject *stack = rootObject;
+        screenCapture s((QQuickView*) stack);
+        s.capture(filenameScreenshot);
+
         QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
         qfit::save(filename, Session, bluetoothManager->device()->deviceType());
 

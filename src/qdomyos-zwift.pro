@@ -67,6 +67,7 @@ SOURCES += \
 	proformtreadmill.cpp \
 	qfit.cpp \
 	schwinnic4bike.cpp \
+   screencapture.cpp \
 	sessionline.cpp \
 	signalhandler.cpp \
    sportstechbike.cpp \
@@ -332,6 +333,7 @@ HEADERS += \
 	proformtreadmill.h \
 	qfit.h \
 	schwinnic4bike.h \
+   screencapture.h \
 	sessionline.h \
 	signalhandler.h \
    sportstechbike.h \
