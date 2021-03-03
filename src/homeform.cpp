@@ -199,6 +199,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 
 void homeform::backup()
 {
+    static uint8_t index = 0;
     qDebug() << "saving fit file backup...";
 
     QString path = "";
@@ -210,8 +211,13 @@ void homeform::backup()
 
     if(bluetoothManager->device())
     {
-        QString filename = path + backupFitFileName;
+        QString filename = path + QString::number(index) + backupFitFileName;
+        QFile::remove(filename);
         qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+
+        index++;
+        if(index > 1)
+            index = 0;
     }
 }
 
