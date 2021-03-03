@@ -193,10 +193,6 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
-    // in order to give better responsiveness to the UI, the resistance value will get the requested one during the changing process
-    if(requestResistance != -1)
-        Resistance = requestResistance;
-
     if(Cadence.value() > 0)
     {
         CrankRevs++;
