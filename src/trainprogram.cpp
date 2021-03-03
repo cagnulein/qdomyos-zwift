@@ -51,6 +51,12 @@ void trainprogram::scheduler()
             qDebug() << "trainprogram change resistance" + QString::number(rows[0].resistance);
             emit changeResistance(rows[0].resistance);
         }
+
+        if(rows[0].fanspeed != -1)
+        {
+            qDebug() << "trainprogram change fanspeed" + QString::number(rows[0].fanspeed);
+            emit changeFanSpeed(rows[0].fanspeed);
+        }
     }
 
     uint32_t currentRowLen = rows[currentStep].duration.second() +
@@ -87,6 +93,12 @@ void trainprogram::scheduler()
             {
                 qDebug() << "trainprogram change resistance" + QString::number(rows[currentStep].resistance);
                 emit changeResistance(rows[currentStep].resistance);
+            }
+
+            if(rows[currentStep].fanspeed != -1)
+            {
+                qDebug() << "trainprogram change fanspeed" + QString::number(rows[currentStep].fanspeed);
+                emit changeFanSpeed(rows[currentStep].fanspeed);
             }
         }
         else
@@ -128,6 +140,7 @@ void trainprogram::save(QString filename)
         stream.writeAttribute("inclination", QString::number(row.inclination));
         stream.writeAttribute("resistance", QString::number(row.resistance));
         stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
+        stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
         stream.writeEndElement();
     }
     stream.writeEndElement();
@@ -149,6 +162,10 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
         {
             row.duration = QTime::fromString(atts.value("duration").toString(), "hh:mm:ss");
             row.speed = atts.value("speed").toDouble();
+            if(atts.hasAttribute("fanspeed"))
+                row.fanspeed = atts.value("fanspeed").toDouble();
+            else
+                row.fanspeed = -1;
             row.inclination = atts.value("inclination").toDouble();
             row.resistance = atts.value("resistance").toDouble();
             row.forcespeed = atts.value("forcespeed").toInt()?true:false ;

@@ -237,6 +237,7 @@ void homeform::trainProgramSignals()
          disconnect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
          disconnect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
          disconnect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
+         disconnect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          disconnect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
          disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
@@ -245,6 +246,7 @@ void homeform::trainProgramSignals()
          connect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
          connect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
          connect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
+         connect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
          connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          connect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
