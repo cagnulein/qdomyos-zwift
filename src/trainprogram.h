@@ -12,7 +12,7 @@ public:
     double speed;
     double fanspeed = -1;
     double inclination;
-    double resistance;
+    int8_t resistance;
     bool forcespeed;
 };
 
@@ -47,7 +47,7 @@ signals:
     void changeSpeed(double speed);
     bool changeFanSpeed(uint8_t speed);
     void changeInclination(double inclination);
-    void changeResistance(double resistance);
+    void changeResistance(int8_t resistance);
     void changeSpeedAndInclination(double speed, double inclination);
 
 private:
