@@ -260,8 +260,8 @@ homeform::~homeform()
 
 void homeform::aboutToQuit()
 {
-    if(bluetoothManager->device())
-        bluetoothManager->device()->disconnectBluetooth();
+    /*if(bluetoothManager->device())
+        bluetoothManager->device()->disconnectBluetooth();*/
 }
 
 void homeform::trainProgramSignals()

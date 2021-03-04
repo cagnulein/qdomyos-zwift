@@ -57,10 +57,10 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
 bluetooth::~bluetooth()
 {
-    if(device())
+    /*if(device())
     {
         device()->disconnectBluetooth();
-    }
+    }*/
 }
 
 void bluetooth::finished()
