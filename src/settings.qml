@@ -90,6 +90,7 @@ import Qt.labs.settings 1.0
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
             property bool log_debug: false
+            property bool virtual_device_onlyheart: false
         }
 
         ColumnLayout {
@@ -1513,6 +1514,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.virtual_device_enabled = checked
+            }
+
+            SwitchDelegate {
+                id: virtualDeviceOnlyHeartDelegate
+                text: qsTr("Virtual Heart Only")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.virtual_device_onlyheart
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.virtual_device_onlyheart = checked
             }
 
             SwitchDelegate {
