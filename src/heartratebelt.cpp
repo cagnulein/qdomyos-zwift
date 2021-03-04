@@ -22,7 +22,7 @@ void heartratebelt::serviceDiscovered(const QBluetoothUuid &gatt)
     debug("serviceDiscovered " + gatt.toString());
 }
 
-void heartratebelt::disconnect()
+void heartratebelt::disconnectBluetooth()
 {
     qDebug() << "heartratebelt::disconnect" << m_control;
 

@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
                          qobject_cast<QGuiApplication *>(app.data()), [url](QObject *obj, const QUrl &objUrl) {
             if (!obj && url == objUrl)
                 QCoreApplication::exit(-1);
-        }, Qt::QueuedConnection);
+        }, Qt::QueuedConnection);        
 
 #if defined(Q_OS_ANDROID)
         auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
@@ -354,7 +354,8 @@ int main(int argc, char *argv[])
         }
 #endif
         engine.load(url);
-        new homeform(&engine, bl);
+        homeform* h = new homeform(&engine, bl);
+        QObject::connect(qobject_cast<QCoreApplication *>(app.data()), &QCoreApplication::aboutToQuit, h, &homeform::aboutToQuit);
 
         {
 #ifdef Q_OS_ANDROID

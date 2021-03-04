@@ -36,7 +36,7 @@ public:
     virtual double elevationGain();
     virtual void clearStats();
     QBluetoothDeviceInfo bluetoothDevice;
-    void disconnect();
+    void disconnectBluetooth();
     virtual void setPaused(bool p);
 
     enum BLUETOOTH_TYPE {

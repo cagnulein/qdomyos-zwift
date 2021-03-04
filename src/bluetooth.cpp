@@ -55,6 +55,14 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
     }
 }
 
+bluetooth::~bluetooth()
+{
+    if(device())
+    {
+        device()->disconnectBluetooth();
+    }
+}
+
 void bluetooth::finished()
 {
     debug("BTLE scanning finished");
@@ -537,7 +545,7 @@ void bluetooth::restart()
     }
     if(heartRateBelt)
     {
-        //heartRateBelt->disconnect(); // to test
+        //heartRateBelt->disconnectBluetooth(); // to test
         delete heartRateBelt;
         heartRateBelt = 0;
     }

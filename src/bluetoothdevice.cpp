@@ -22,7 +22,7 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) { Q_UNUSED(speed); return fa
 bool bluetoothdevice::connected() { return false; }
 double bluetoothdevice::elevationGain(){ return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
-void bluetoothdevice::disconnect() {if(m_control) m_control->disconnect();}
+void bluetoothdevice::disconnectBluetooth() {if(m_control) m_control->disconnectFromDevice();}
 metric bluetoothdevice::wattsMetric() {return m_watt;}
 
 void bluetoothdevice::clearStats()

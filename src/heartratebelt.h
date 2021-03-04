@@ -47,7 +47,7 @@ signals:
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void disconnect();
+    void disconnectBluetooth();
 
 private slots:
 

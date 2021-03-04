@@ -258,6 +258,12 @@ homeform::~homeform()
     fit_save_clicked();
 }
 
+void homeform::aboutToQuit()
+{
+    if(bluetoothManager->device())
+        bluetoothManager->device()->disconnectBluetooth();
+}
+
 void homeform::trainProgramSignals()
 {
      if(bluetoothManager->device())
