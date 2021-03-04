@@ -309,11 +309,6 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
          break;
         }
 
-        Resistance = (((uint8_t)newValue.at(11)) / 2);
-
-        if(Resistance.value() > 4)
-            Resistance =  Resistance.value() - 1;
-
         Cadence = ((uint8_t)newValue.at(18));
 
         Speed = (settings.value("proform_wheel_ratio", 0.33).toDouble()) * ((double)Cadence.value());
