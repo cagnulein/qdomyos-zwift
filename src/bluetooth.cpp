@@ -337,7 +337,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
             }
-            else if((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+")) && !trxappgateusb && !trxappgateusbBike && toorx_bike && filter)
+            // BFCP0000 = Skandika Wiri bike
+            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+")) && toorx_bike) || b.name().toUpper().startsWith("BFCP")) && !trxappgateusb && !trxappgateusbBike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);
