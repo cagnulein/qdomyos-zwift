@@ -15,6 +15,7 @@ import Qt.labs.settings 1.0
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
             property int bike_resistance_gain: 1
+            property int bike_resistance_start: 1
             property real weight: 75.0
             property real ftp: 200.0
             property bool miles_unit: false
@@ -338,6 +339,30 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.bike_resistance_gain = bikeResistanceGainTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelBikeResistanceStart
+                    text: qsTr("Resistance at Startup:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: bikeResistanceStartTextField
+                    text: settings.bike_resistance_start
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.bike_resistance_start = text
+                }
+                Button {
+                    id: okBikeResistanceStartButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.bike_resistance_start = bikeResistanceStartTextField.text
                 }
             }
 

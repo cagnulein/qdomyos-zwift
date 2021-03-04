@@ -392,8 +392,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
 void bluetooth::connectedAndDiscovered()
 {
+    static bool firstConnected = true;
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+
+    // only at the first very connection, setting the user default resistance
+    if(device() && firstConnected &&
+       (device()->deviceType() == bluetoothdevice::BIKE || device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
+       settings.value("bike_resistance_start", 1).toUInt() != 1)
+    {
+        ((bike*)device())->changeResistance(settings.value("bike_resistance_start", 1).toUInt());
+    }
 
     if(this->device() != nullptr)
     {
@@ -420,6 +429,8 @@ void bluetooth::connectedAndDiscovered()
         KeepAwakeHelper::antObject(true)->callMethod<void>("antStart","(Landroid/app/Activity;ZZZ)V", activity.object<jobject>(), settings.value("ant_cadence", false).toBool(), settings.value("ant_heart", false).toBool(), settings.value("ant_garmin", false).toBool());
     }
 #endif
+
+    firstConnected = false;
 }
 
 void bluetooth::heartRate(uint8_t heart)
