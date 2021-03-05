@@ -78,6 +78,7 @@ import Qt.labs.settings 1.0
 
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 150
+            property bool m3i_bike_qt_search: false
             property bool snode_bike: false
 
             property real watt_offset: 0
@@ -1364,6 +1365,20 @@ import Qt.labs.settings 1.0
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Grey)
+            }
+            SwitchDelegate {
+                id: m3iBiQtSearchkeDelegate
+                text: qsTr("Use QT search on Android")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.m3i_bike_qt_search
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.m3i_bike_qt_search = checked
             }
 
             RowLayout {

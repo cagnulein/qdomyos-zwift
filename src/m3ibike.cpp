@@ -232,18 +232,17 @@ m3ibike::~m3ibike() {
     if (bluetoothScanner.isValid() && scannerActive)
         bluetoothScanner.callObjectMethod("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
     scannerActive = false;
-#else
+#endif
     if (discoveryAgent) {
         if (discoveryAgent->isActive()) {
             QObject::disconnect(discoveryAgent, SIGNAL(canceled()),
-                        this, SLOT(discoveryFinished()));
+                        this, SLOT(discoveryFinishedPriv()));
             QObject::disconnect(discoveryAgent, SIGNAL(finished()),
-                        this, SLOT(discoveryFinished()));
+                        this, SLOT(discoveryFinishedPriv()));
             discoveryAgent->stop();
         }
         delete discoveryAgent;
     }
-#endif
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
         delete h;
@@ -265,102 +264,116 @@ void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
     //m_instance->restartScan();
     QMetaObject::invokeMethod(m_instance, "restartScan", Qt::QueuedConnection);
 }
+#endif
 void m3ibike::restartScan() {
     initScan();
-    if (scannerActive) {
-        qDebug() << "Stop scan Needed";
-        bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
-        qDebug() << "Stop Called";
-        scannerActive = false;
-    }
-    bluetoothScanner.callMethod<void>("startScan", "(Ljava/util/List;Landroid/bluetooth/le/ScanSettings;Landroid/bluetooth/le/ScanCallback;)V", listOfFilters.object(), settingsObject.object(), scanCallback.object());
-    qDebug() << "Start called";
-    scannerActive = true;
-}
-void m3ibike::initScan() {
-    if (!bluetoothScanner.isValid()) {
-        QAndroidJniObject bluetoothManager = QtAndroid::androidActivity().callObjectMethod(
-                    "getSystemService",
-                    "(Ljava/lang/String;)Ljava/lang/Object;",
-                    QAndroidJniObject::fromString("bluetooth").object<jstring>());
-        bluetoothAdapter =  bluetoothManager.callObjectMethod("getAdapter","()Landroid/bluetooth/BluetoothAdapter;");
-        if (!bluetoothAdapter.isValid()) {
-            debug("BluetoothAdapter Invalid!");
-            return;
+#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+    QSettings settings;
+    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+    if (!qt_search) {
+        if (scannerActive) {
+            qDebug() << "Stop scan Needed";
+            bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
+            qDebug() << "Stop Called";
+            scannerActive = false;
         }
-        bluetoothScanner = bluetoothAdapter.callObjectMethod("getBluetoothLeScanner","()Landroid/bluetooth/le/BluetoothLeScanner;");
-        if (!bluetoothScanner.isValid()) {
-            debug("BluetoothScanner Invalid!");
-            return;
-        }
-        JNINativeMethod methods[] {
-            {"newScanResult", "(Lorg/cagnulen/qdomyoszwift/ScanRecordResult;)V", reinterpret_cast<void *>(newAndroidScanResult)},
-            {"scanError", "(I)V", reinterpret_cast<void *>(newAndroidScanError)}};
-        QAndroidJniObject javaClass("org/cagnulen/qdomyoszwift/NativeScanCallback");
-        qDebug() << " nscc = " << javaClass.isValid();
-        QAndroidJniEnvironment env;
-        jclass objectClass = env->GetObjectClass(javaClass.object<jobject>());
-        qDebug() << "oc = " << objectClass;
-        jint res = env->RegisterNatives(objectClass,
-                             methods,
-                             sizeof(methods) / sizeof(methods[0]));
-        qDebug() << "reg natives = "<<res;
-        env->DeleteLocalRef(objectClass);
-        qDebug() << "Del object class";
-        listOfFilters = QAndroidJniObject("java/util/ArrayList");
-        qDebug() << "lof "<<listOfFilters.isValid();
-        QAndroidJniObject filterBuilder("android/bluetooth/le/ScanFilter$Builder");
-        qDebug() << "fib "<<filterBuilder.isValid() << " add = "<< bluetoothDevice.address().toString();
-        QAndroidJniObject nameString = QAndroidJniObject::fromString(bluetoothDevice.address().toString());
-        QAndroidJniObject filterBuilder2 = filterBuilder.callObjectMethod("setDeviceAddress","(Ljava/lang/String;)Landroid/bluetooth/le/ScanFilter$Builder;", nameString.object<jstring>());
-        qDebug() << "fib3 "<<filterBuilder2.isValid();
-        filterObject0 = filterBuilder2.callObjectMethod("build","()Landroid/bluetooth/le/ScanFilter;");
-        qDebug() << "fo = "  << filterObject0.isValid();
-        jboolean added = listOfFilters.callMethod<jboolean>("add","(Ljava/lang/Object;)Z", filterObject0.object());
-        qDebug() << "ad0 = "  << added << " sz = " << listOfFilters.callMethod<jint>("size");
-        QAndroidJniObject settingsBuilder("android/bluetooth/le/ScanSettings$Builder");
-        qDebug() << "sb0 = "  << settingsBuilder.isValid();
-        settingsBuilder = settingsBuilder.callObjectMethod("setScanMode","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 2);//SCAN_MODE_LOW_LATENCY
-        qDebug() << "sb1 = "  << settingsBuilder.isValid();
-        settingsBuilder = settingsBuilder.callObjectMethod("setMatchMode","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 1);//MATCH_MODE_AGGRESSIVE
-        qDebug() << "sb2 = "  << settingsBuilder.isValid();
-        settingsBuilder = settingsBuilder.callObjectMethod("setNumOfMatches","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 3);//MATCH_NUM_MAX_ADVERTISEMENT
-        qDebug() << "sb3 = "  << settingsBuilder.isValid();
-        settingsBuilder = settingsBuilder.callObjectMethod("setCallbackType","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 1);//CALLBACK_TYPE_ALL_MATCHES
-        qDebug() << "sb4 = "  << settingsBuilder.isValid();
-        settingsBuilder = settingsBuilder.callObjectMethod("setReportDelay","(J)Landroid/bluetooth/le/ScanSettings$Builder;", (jlong)0);//0ms
-        qDebug() << "sb5 = "  << settingsBuilder.isValid();
-        settingsObject = settingsBuilder.callObjectMethod("build","()Landroid/bluetooth/le/ScanSettings;");
-        qDebug() << "so = "  << settingsObject.isValid();
-        scanCallback = QAndroidJniObject("org/cagnulen/qdomyoszwift/NativeScanCallback");
-        qDebug() << "sca = "  << scanCallback.isValid();
+        bluetoothScanner.callMethod<void>("startScan", "(Ljava/util/List;Landroid/bluetooth/le/ScanSettings;Landroid/bluetooth/le/ScanCallback;)V", listOfFilters.object(), settingsObject.object(), scanCallback.object());
+        qDebug() << "Start called";
+        scannerActive = true;
     }
-}
-#else
-void m3ibike::initScan() {
-    if (!discoveryAgent) {
-        discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
-        connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
-                this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
-    #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-        connect(discoveryAgent, SIGNAL(deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)),
-                this, SLOT(deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)));
-    #endif
-        connect(discoveryAgent, SIGNAL(canceled()),
-                this, SLOT(discoveryFinished()));
-        connect(discoveryAgent, SIGNAL(finished()),
-                this, SLOT(discoveryFinished()));
-
-        // Start a discovery
-        discoveryAgent->setLowEnergyDiscoveryTimeout(600000);
-    }
-}
-void m3ibike::restartScan() {
-    initScan();
-    if (discoveryAgent->isActive())
-        discoveryAgent->stop();
     else
-        discoveryFinishedPriv();
+#endif
+    {
+        if (discoveryAgent->isActive())
+            discoveryAgent->stop();
+        else
+            discoveryFinishedPriv();
+    }
+
+}
+void m3ibike::initScan() {
+#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+    QSettings settings;
+    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+    if (!qt_search) {
+        if (!bluetoothScanner.isValid()) {
+            QAndroidJniObject bluetoothManager = QtAndroid::androidActivity().callObjectMethod(
+                        "getSystemService",
+                        "(Ljava/lang/String;)Ljava/lang/Object;",
+                        QAndroidJniObject::fromString("bluetooth").object<jstring>());
+            bluetoothAdapter =  bluetoothManager.callObjectMethod("getAdapter","()Landroid/bluetooth/BluetoothAdapter;");
+            if (!bluetoothAdapter.isValid()) {
+                debug("BluetoothAdapter Invalid!");
+                return;
+            }
+            bluetoothScanner = bluetoothAdapter.callObjectMethod("getBluetoothLeScanner","()Landroid/bluetooth/le/BluetoothLeScanner;");
+            if (!bluetoothScanner.isValid()) {
+                debug("BluetoothScanner Invalid!");
+                return;
+            }
+            JNINativeMethod methods[] {
+                {"newScanResult", "(Lorg/cagnulen/qdomyoszwift/ScanRecordResult;)V", reinterpret_cast<void *>(newAndroidScanResult)},
+                {"scanError", "(I)V", reinterpret_cast<void *>(newAndroidScanError)}};
+            QAndroidJniObject javaClass("org/cagnulen/qdomyoszwift/NativeScanCallback");
+            qDebug() << " nscc = " << javaClass.isValid();
+            QAndroidJniEnvironment env;
+            jclass objectClass = env->GetObjectClass(javaClass.object<jobject>());
+            qDebug() << "oc = " << objectClass;
+            jint res = env->RegisterNatives(objectClass,
+                                 methods,
+                                 sizeof(methods) / sizeof(methods[0]));
+            qDebug() << "reg natives = "<<res;
+            env->DeleteLocalRef(objectClass);
+            qDebug() << "Del object class";
+            listOfFilters = QAndroidJniObject("java/util/ArrayList");
+            qDebug() << "lof "<<listOfFilters.isValid();
+            QAndroidJniObject filterBuilder("android/bluetooth/le/ScanFilter$Builder");
+            qDebug() << "fib "<<filterBuilder.isValid() << " add = "<< bluetoothDevice.address().toString();
+            QAndroidJniObject nameString = QAndroidJniObject::fromString(bluetoothDevice.address().toString());
+            QAndroidJniObject filterBuilder2 = filterBuilder.callObjectMethod("setDeviceAddress","(Ljava/lang/String;)Landroid/bluetooth/le/ScanFilter$Builder;", nameString.object<jstring>());
+            qDebug() << "fib3 "<<filterBuilder2.isValid();
+            filterObject0 = filterBuilder2.callObjectMethod("build","()Landroid/bluetooth/le/ScanFilter;");
+            qDebug() << "fo = "  << filterObject0.isValid();
+            jboolean added = listOfFilters.callMethod<jboolean>("add","(Ljava/lang/Object;)Z", filterObject0.object());
+            qDebug() << "ad0 = "  << added << " sz = " << listOfFilters.callMethod<jint>("size");
+            QAndroidJniObject settingsBuilder("android/bluetooth/le/ScanSettings$Builder");
+            qDebug() << "sb0 = "  << settingsBuilder.isValid();
+            settingsBuilder = settingsBuilder.callObjectMethod("setScanMode","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 2);//SCAN_MODE_LOW_LATENCY
+            qDebug() << "sb1 = "  << settingsBuilder.isValid();
+            settingsBuilder = settingsBuilder.callObjectMethod("setMatchMode","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 1);//MATCH_MODE_AGGRESSIVE
+            qDebug() << "sb2 = "  << settingsBuilder.isValid();
+            settingsBuilder = settingsBuilder.callObjectMethod("setNumOfMatches","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 3);//MATCH_NUM_MAX_ADVERTISEMENT
+            qDebug() << "sb3 = "  << settingsBuilder.isValid();
+            settingsBuilder = settingsBuilder.callObjectMethod("setCallbackType","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 1);//CALLBACK_TYPE_ALL_MATCHES
+            qDebug() << "sb4 = "  << settingsBuilder.isValid();
+            settingsBuilder = settingsBuilder.callObjectMethod("setReportDelay","(J)Landroid/bluetooth/le/ScanSettings$Builder;", (jlong)0);//0ms
+            qDebug() << "sb5 = "  << settingsBuilder.isValid();
+            settingsObject = settingsBuilder.callObjectMethod("build","()Landroid/bluetooth/le/ScanSettings;");
+            qDebug() << "so = "  << settingsObject.isValid();
+            scanCallback = QAndroidJniObject("org/cagnulen/qdomyoszwift/NativeScanCallback");
+            qDebug() << "sca = "  << scanCallback.isValid();
+        }
+    }
+    else
+#endif
+    {
+        if (!discoveryAgent) {
+            discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+            connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+                    this, SLOT(deviceDiscoveredPriv(QBluetoothDeviceInfo)));
+        #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+            connect(discoveryAgent, SIGNAL(deviceUpdated(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)),
+                    this, SLOT(deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)));
+        #endif
+            connect(discoveryAgent, SIGNAL(canceled()),
+                    this, SLOT(discoveryFinishedPriv()));
+            connect(discoveryAgent, SIGNAL(finished()),
+                    this, SLOT(discoveryFinishedPriv()));
+
+            // Start a discovery
+            discoveryAgent->setLowEnergyDiscoveryTimeout(600000);
+        }
+    }
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
@@ -386,7 +399,6 @@ void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo& device) {
 void m3ibike::discoveryFinishedPriv() {
     discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
-#endif
 
 
 void m3ibike::searchingStop() {

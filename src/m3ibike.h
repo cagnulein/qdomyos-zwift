@@ -177,7 +177,7 @@ private:
     QAndroidJniObject settingsObject;
     QAndroidJniObject filterObject0;
     bool scannerActive = false;
-#else
+#endif
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = 0;
 #ifdef Q_OS_IOS
     lockscreen* h = 0;
@@ -186,7 +186,6 @@ private slots:
     void deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields);
     void discoveryFinishedPriv();
     void deviceDiscoveredPriv(const QBluetoothDeviceInfo &device);
-#endif
 };
 
 
