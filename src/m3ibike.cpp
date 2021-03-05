@@ -227,10 +227,13 @@ m3ibike::~m3ibike() {
         detectDisc->stop();
         delete detectDisc;
     }
+    if(virtualBike)
+        delete virtualBike;
     m_instance = 0;
+    disconnecting = true;
 #if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
     if (bluetoothScanner.isValid() && scannerActive)
-        bluetoothScanner.callObjectMethod("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
+        bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
     scannerActive = false;
 #endif
     if (discoveryAgent) {
@@ -249,20 +252,41 @@ m3ibike::~m3ibike() {
 #endif
 }
 
+void m3ibike::disconnectBluetooth() {
+    if (detectDisc)
+        detectDisc->stop();
+    disconnecting = true;
+#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+    if (bluetoothScanner.isValid() && scannerActive)
+        bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
+    scannerActive = false;
+#endif
+    if (discoveryAgent) {
+        discoveryAgent->stop();
+    }
+    emit disconnected();
+    debug("M3i detected disconnection");
+    initDone = false;
+}
+
 #if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
 void newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
-    ScanRecordResult srr(ScanRecordResult::fromJObject(env, record));
-    qDebug() << "NEW ADV " << srr.toString();
-    QByteArray data = srr.getData();
-    QMetaObject::invokeMethod(m_instance, "processAdvertising", Qt::QueuedConnection,
-                              Q_ARG(QByteArray, data));
-    //m_instance->processAdvertising(srr.getData());
+    if (m_instance) {
+        ScanRecordResult srr(ScanRecordResult::fromJObject(env, record));
+        qDebug() << "NEW ADV " << srr.toString();
+        QByteArray data = srr.getData();
+        QMetaObject::invokeMethod(m_instance, "processAdvertising", Qt::QueuedConnection,
+                                  Q_ARG(QByteArray, data));
+        //m_instance->processAdvertising(srr.getData());
+    }
 }
 
 void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
-    qDebug() << "SCAN ERROR " << code;
-    //m_instance->restartScan();
-    QMetaObject::invokeMethod(m_instance, "restartScan", Qt::QueuedConnection);
+    if (m_instance) {
+        qDebug() << "SCAN ERROR " << code;
+        //m_instance->restartScan();
+        QMetaObject::invokeMethod(m_instance, "restartScan", Qt::QueuedConnection);
+    }
 }
 #endif
 void m3ibike::restartScan() {
@@ -397,7 +421,8 @@ void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo& device) {
 }
 
 void m3ibike::discoveryFinishedPriv() {
-    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    if (!disconnecting && discoveryAgent)
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
 }
 
 
@@ -468,11 +493,13 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
 }
 
 void m3ibike::processAdvertising(const QByteArray& data) {
+    if (disconnecting)
+        return;
     QSettings settings;
-    int buffSize = settings.value("m3i_bike_speed_buffsize", 150).toInt();
+    int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
-        detectDisc->start(10000);
+        detectDisc->start(6000);
         if (!initDone) {
             initDone = true;
             if (!virtualBike
@@ -561,6 +588,8 @@ void m3ibike::processAdvertising(const QByteArray& data) {
 
 void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
+    initDone = false;
+    disconnecting = false;
 }
 
 bool m3ibike::connected() {

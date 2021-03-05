@@ -1,0 +1,49 @@
+From 62f6e4744831207698a2aadebddef99e457922c1 Mon Sep 17 00:00:00 2001
+From: "C. Robert Daniels III" <c_robert_daniels@hotmail.com>
+Date: Tue, 20 Oct 2020 16:47:03 -0600
+Subject: [PATCH 2/4] Applied BLE peripheral patch.
+
+Change-Id: I08d02d5f6a8c9e0b5221d8a679b968e9ac3e5dd3
+---
+ .../qt5/android/bluetooth/QtBluetoothLEServer.java    | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
+index 9ef254f5..8d859b1e 100644
+--- a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
++++ b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
+@@ -236,8 +236,6 @@ public class QtBluetoothLEServer {
+                 case BluetoothProfile.STATE_DISCONNECTED:
+                     qtControllerState = 0; // QLowEnergyController::UnconnectedState
+                     clientCharacteristicManager.markDeviceConnectivity(device, false);
+-                    mGattServer.close();
+-                    mGattServer = null;
+                     break;
+                 case BluetoothProfile.STATE_CONNECTED:
+                     clientCharacteristicManager.markDeviceConnectivity(device, true);
+@@ -257,8 +255,6 @@ public class QtBluetoothLEServer {
+                     qtErrorCode = status;
+                     break;
+             }
+-
+-            leServerConnectionStateChange(qtObject, qtErrorCode, qtControllerState);
+         }
+ 
+         @Override
+@@ -413,7 +409,12 @@ public class QtBluetoothLEServer {
+ 
+         mGattServer = manager.openGattServer(qtContext, mGattServerListener);
+ 
+-        return (mGattServer != null);
++        if (mGattServer != null) {
++            leServerConnectionStateChange(qtObject, 0 /*NoError*/, 2 /*QLowEnergyController::ConnectedState*/);
++            return true;
++        }
++
++        return false;
+     }
+ 
+     public void disconnectServer()
+-- 
+2.25.1
+

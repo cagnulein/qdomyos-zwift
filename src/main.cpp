@@ -361,7 +361,8 @@ int main(int argc, char *argv[])
         }
 #endif
         engine.load(url);
-        new homeform(&engine, bl);
+        homeform* h = new homeform(&engine, bl);
+        QObject::connect(qobject_cast<QCoreApplication *>(app.data()), &QCoreApplication::aboutToQuit, h, &homeform::aboutToQuit);
 
         {
 #ifdef Q_OS_ANDROID

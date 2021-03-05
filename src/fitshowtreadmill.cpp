@@ -33,6 +33,8 @@ fitshowtreadmill::~fitshowtreadmill() {
         refresh->stop();
         delete refresh;
     }
+    if (virtualTreadMill)
+        delete virtualTreadMill;
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
         delete h;

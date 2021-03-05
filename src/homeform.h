@@ -158,7 +158,10 @@ private:
     bool getDevice();
     bool getZwift();
 
-private slots:
+public slots:
+    void aboutToQuit();
+
+private slots:    
     void Start();
     void Stop();
     void Minus(QString);

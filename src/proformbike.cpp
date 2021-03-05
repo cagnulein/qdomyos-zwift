@@ -254,10 +254,60 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     }
     else
     {
-        Resistance = (((uint8_t)newValue.at(11)) / 2);
-
-        if(Resistance.value() > 4)
-            Resistance =  Resistance.value() - 1;
+        switch((uint8_t)newValue.at(11))
+        {
+        case 0x02:
+         Resistance = 1;
+         break;
+        case 0x04:
+         Resistance = 2;
+         break;
+        case 0x07:
+         Resistance = 3;
+         break;
+        case 0x09:
+         Resistance = 4;
+         break;
+        case 0x0b:
+         Resistance = 5;
+         break;
+        case 0x0e:
+         Resistance = 6;
+         break;
+        case 0x10:
+         Resistance = 7;
+         break;
+        case 0x13:
+         Resistance = 8;
+         break;
+        case 0x15:
+         Resistance = 9;
+         break;
+        case 0x18:
+         Resistance = 10;
+         break;
+        case 0x1a:
+         Resistance = 11;
+         break;
+        case 0x1d:
+         Resistance = 12;
+         break;
+        case 0x1f:
+         Resistance = 13;
+         break;
+        case 0x21:
+         Resistance = 14;
+         break;
+        case 0x24:
+         Resistance = 15;
+         break;
+        case 0x26:
+         Resistance = 16;
+         break;
+        default:
+         Resistance = 0;
+         break;
+        }
 
         Cadence = ((uint8_t)newValue.at(18));
 

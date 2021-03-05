@@ -167,7 +167,7 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
             else
                 row.fanspeed = -1;
             row.inclination = atts.value("inclination").toDouble();
-            row.resistance = atts.value("resistance").toDouble();
+            row.resistance = atts.value("resistance").toInt();
             row.forcespeed = atts.value("forcespeed").toInt()?true:false ;
             list.append(row);
         }

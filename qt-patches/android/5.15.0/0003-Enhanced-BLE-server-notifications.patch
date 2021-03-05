@@ -1,0 +1,215 @@
+From 974d3d044a6ebc16ab7cf682dafcbab18b24f13f Mon Sep 17 00:00:00 2001
+From: "C. Robert Daniels III" <c_robert_daniels@hotmail.com>
+Date: Sat, 2 Jan 2021 08:07:01 -0700
+Subject: [PATCH 3/4] Enhanced BLE server notifications
+
+Change-Id: Iee2acdeb1a8f36816e8a7fecc56eb0ec014adaff
+---
+ .../bluetooth/QtBluetoothLEServer.java        | 140 ++++++++++++++++--
+ 1 file changed, 131 insertions(+), 9 deletions(-)
+
+diff --git a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
+index 8d859b1e..ca39898c 100644
+--- a/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
++++ b/src/android/bluetooth/src/org/qtproject/qt5/android/bluetooth/QtBluetoothLEServer.java
+@@ -56,6 +56,8 @@ import android.bluetooth.le.AdvertiseData.Builder;
+ import android.bluetooth.le.AdvertiseSettings;
+ import android.bluetooth.le.BluetoothLeAdvertiser;
+ import android.os.ParcelUuid;
++import android.os.Handler;
++import android.os.Looper;
+ import android.util.Log;
+ 
+ import java.util.ArrayList;
+@@ -66,6 +68,7 @@ import java.util.List;
+ import java.util.ListIterator;
+ import java.util.HashMap;
+ import java.util.UUID;
++import java.util.Deque;
+ 
+ public class QtBluetoothLEServer {
+     private static final String TAG = "QtBluetoothGattServer";
+@@ -88,6 +91,9 @@ public class QtBluetoothLEServer {
+     private String mRemoteAddress = "";
+     public String remoteAddress() { return mRemoteAddress; }
+ 
++    private final long RUNNABLE_TIMEOUT = 750; // 0.75 seconds
++    private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
++
+     /*
+         As per Bluetooth specification each connected device can have individual and persistent
+         Client characteristic configurations (see Bluetooth Spec 5.0 Vol 3 Part G 3.3.3.3)
+@@ -193,9 +199,90 @@ public class QtBluetoothLEServer {
+         }
+     }
+ 
++    private class ClientCharacteristicNotificationManager {
++        private final Deque<Entry> notificationQueue = new LinkedList<Entry>();
++        private boolean sending = false;
++        private class Entry {
++            BluetoothGattCharacteristic characteristic = null;
++            Deque<BluetoothDevice> devices = null;
++
++            Entry(BluetoothGattCharacteristic characteristic, BluetoothDevice device) {
++                this.characteristic = characteristic;
++                devices = new LinkedList<BluetoothDevice>();
++                devices.add(device);
++            }
++        }
++
++        public class Notification {
++            BluetoothGattCharacteristic characteristic = null;
++            BluetoothDevice device = null;
++
++            Notification(BluetoothGattCharacteristic characteristic, BluetoothDevice device) {
++                this.characteristic = characteristic;
++                this.device = device;
++            }
++        }
++
++        public synchronized void sendComplete() {
++            sending = false;
++            timeoutHandler.removeCallbacksAndMessages(null);
++        }
++
++        public synchronized void pushNotification(BluetoothGattCharacteristic characteristic, BluetoothDevice device) {
++            for (Iterator<Entry> it = notificationQueue.iterator(); it.hasNext(); ) {
++                Entry entry = it.next();
++                if (entry.characteristic.equals(characteristic)) {
++                    if (entry.devices.contains(device) == false) {
++                        entry.devices.add(device);
++                    }
++                    return;
++                }
++            }
++            notificationQueue.add(new Entry(characteristic, device));
++        }
++
++        public synchronized Notification popNotification() {
++            if (sending == true) {
++                return null;
++            }
++            if (notificationQueue.size() > 0) {
++                sending = true;
++                Entry entry = notificationQueue.getFirst();
++                Notification notification = new Notification(entry.characteristic, entry.devices.poll());
++                if (entry.devices.size() == 0) notificationQueue.poll();
++                if (notification.device == null) {
++                    sending = false;
++                    return null;
++                }
++
++                // Set up a timeout if this notification is never marked as sent.
++                timeoutHandler.removeCallbacksAndMessages(null);
++                timeoutHandler.postDelayed(new Runnable(){
++                    @Override public void run() {
++                        Log.w(TAG, "Timed out waiting for notify sent message.");
++                        mGattServerListener.onNotificationSent(null, 0);
++                    }
++                }, RUNNABLE_TIMEOUT);
++                return notification;
++            }
++            return null;
++        }
++
++        public synchronized void removeDevice(BluetoothDevice device) {
++            Iterator<Entry> it = notificationQueue.iterator();
++            while (it.hasNext()) {
++                Entry entry = it.next();
++                if (entry.devices.remove(device) && (entry.devices.size() == 0)) {
++                    it.remove();
++                }
++            }
++        }
++    }
++
+     private static final UUID CLIENT_CHARACTERISTIC_CONFIGURATION_UUID = UUID
+             .fromString("00002902-0000-1000-8000-00805f9b34fb");
+     ClientCharacteristicManager clientCharacteristicManager = new ClientCharacteristicManager();
++    ClientCharacteristicNotificationManager clientCharacteristicNotificationManager = new ClientCharacteristicNotificationManager();
+ 
+     public QtBluetoothLEServer(Context context)
+     {
+@@ -236,6 +323,7 @@ public class QtBluetoothLEServer {
+                 case BluetoothProfile.STATE_DISCONNECTED:
+                     qtControllerState = 0; // QLowEnergyController::UnconnectedState
+                     clientCharacteristicManager.markDeviceConnectivity(device, false);
++                    clientCharacteristicNotificationManager.removeDevice(device);
+                     break;
+                 case BluetoothProfile.STATE_CONNECTED:
+                     clientCharacteristicManager.markDeviceConnectivity(device, true);
+@@ -385,8 +473,10 @@ public class QtBluetoothLEServer {
+ 
+         @Override
+         public void onNotificationSent(BluetoothDevice device, int status) {
++            Log.w(TAG, "onNotificationSent: " + device + " " + status);
+             super.onNotificationSent(device, status);
+-            Log.w(TAG, "onNotificationSent" + device + " " + status);
++            clientCharacteristicNotificationManager.sendComplete();
++            sendNextNotificationOrIndication();
+         }
+ 
+         // MTU change disabled since it requires API level 22. Right now we only enforce lvl 21
+@@ -476,19 +566,51 @@ public class QtBluetoothLEServer {
+         final ListIterator<BluetoothDevice> iter =
+                 clientCharacteristicManager.getToBeUpdatedDevices(characteristic).listIterator();
+ 
+-        // TODO This quick loop over multiple devices should be synced with onNotificationSent().
+-        //      The next notifyCharacteristicChanged() call must wait until onNotificationSent()
+-        //      was received. At this becomes an issue when the server accepts multiple remote
+-        //      devices at the same time.
+         while (iter.hasNext()) {
+-            final BluetoothDevice device = iter.next();
+-            final byte[] clientCharacteristicConfig = clientCharacteristicManager.valueFor(characteristic, device);
++            clientCharacteristicNotificationManager.pushNotification(characteristic, iter.next());
++        }
++
++        sendNextNotificationOrIndication();
++    }
++
++    public static String hex(byte[] bytes) {
++        StringBuilder result = new StringBuilder();
++        for (byte aByte : bytes) {
++            result.append(String.format("%02X", aByte));
++        }
++        return result.toString();
++    }
++
++
++    private void sendNextNotificationOrIndication() {
++        ClientCharacteristicNotificationManager.Notification notification = clientCharacteristicNotificationManager.popNotification();
++        while (notification != null) {
++            final byte[] clientCharacteristicConfig = clientCharacteristicManager.valueFor(notification.characteristic, notification.device);
+             if (clientCharacteristicConfig != null) {
++                boolean confirm = false;
+                 if (Arrays.equals(clientCharacteristicConfig, BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE)) {
+-                    mGattServer.notifyCharacteristicChanged(device, characteristic, false);
++                    confirm = false;
+                 } else if (Arrays.equals(clientCharacteristicConfig, BluetoothGattDescriptor.ENABLE_INDICATION_VALUE)) {
+-                    mGattServer.notifyCharacteristicChanged(device, characteristic, true);
++                    confirm = true;
++                } else {
++                    clientCharacteristicNotificationManager.sendComplete();
++                    notification = clientCharacteristicNotificationManager.popNotification();
++                    continue;
++                }
++                
++                if (mGattServer.notifyCharacteristicChanged(notification.device, notification.characteristic, confirm) == false) {
++                    Log.w(TAG, "Failed to notify characteristic change");
++                    notification = clientCharacteristicNotificationManager.popNotification();
++                    continue;
+                 }
++
++                // We're done sending the notification
++                notification = null;
++            } else {
++                Log.w(TAG, "Client characteristic config not available - can't send notification.");
++                // Mark the send complete since we didn't actually send anything.
++                clientCharacteristicNotificationManager.sendComplete();
++                notification = clientCharacteristicNotificationManager.popNotification();
+             }
+         }
+     }
+-- 
+2.25.1
+

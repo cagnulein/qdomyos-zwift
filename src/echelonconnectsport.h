@@ -38,7 +38,7 @@ class echelonconnectsport : public bike
 {
     Q_OBJECT
 public:
-    echelonconnectsport(bool noWriteResistance, bool noHeartService);    
+    echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
     bool connected();
 
     void* VirtualBike();
@@ -58,10 +58,13 @@ private:
     virtualbike* virtualBike = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
+    QList<QLowEnergyService*> gattCommunicationChannelServiceArray;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
 
+    uint8_t bikeResistanceOffset = 4;
+    uint8_t bikeResistanceGain = 1;
     uint8_t counterPoll = 1;
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
@@ -94,6 +97,8 @@ private slots:
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

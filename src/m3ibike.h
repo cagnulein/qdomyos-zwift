@@ -145,6 +145,7 @@ public:
     static bool isCorrectUnit(const QBluetoothDeviceInfo &device);
     Q_INVOKABLE void processAdvertising(const QByteArray& data);
     Q_INVOKABLE void restartScan();
+    void disconnectBluetooth();
 private:
     void initScan();
     uint16_t watts();
@@ -169,6 +170,7 @@ public slots:
     void searchingStop();
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 private:
+    bool disconnecting = false;
 #if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
     QAndroidJniObject bluetoothAdapter;
     QAndroidJniObject bluetoothScanner;
