@@ -81,8 +81,9 @@ SOURCES += \
 	 virtualbike.cpp \
 	     virtualtreadmill.cpp \
              m3ibike.cpp \
-		domyosbike.cpp
+                domyosbike.cpp
 
+android: SOURCES += scanrecordresult.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
@@ -351,7 +352,9 @@ HEADERS += \
 	 virtualbike.h \
 	virtualtreadmill.h \
 	 domyosbike.h \
-	yesoulbike.h
+        yesoulbike.h
+
+android: HEADERS += scanrecordresult.h
 
 !ios: HEADERS += charts.h
 
@@ -374,6 +377,8 @@ DISTFILES += \
 	android/res/values/libs.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
+        android/src/ScanRecordResult.java \
+        android/src/NativeScanCallback.java \
    android/src/HeartChannelController.java \
 	android/src/MyActivity.java \
 	android/src/PowerChannelController.java \

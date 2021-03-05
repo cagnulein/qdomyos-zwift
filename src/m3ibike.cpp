@@ -8,6 +8,14 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
+#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#include <QAndroidJniEnvironment>
+#include <QtAndroid>
+#include "scanrecordresult.h"
+#include <QMetaObject>
+#endif
+
+static m3ibike * m_instance = 0;
 
 KeiserM3iDeviceSimulator::~KeiserM3iDeviceSimulator() {
     if (dist_buff) delete[] dist_buff;
@@ -197,28 +205,21 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
     return !nowpause;
 }
 
-bool m3ibike::isMe(QBluetoothDeviceInfo d) const {
-    return myAddress == d.address();
-}
-
-bool m3ibike::identified() const {
-    return !myAddress.isNull();
-}
-
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
     detectDisc = new QTimer(this);
+    m_instance = this;
     connect(detectDisc, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
         emit disconnected();
         debug("M3i detected disconnection");
         initDone = false;
         detectDisc->stop();
+        restartScan();
     });
-    detectDisc->start(5000);
 }
 
 m3ibike::~m3ibike() {
@@ -226,10 +227,170 @@ m3ibike::~m3ibike() {
         detectDisc->stop();
         delete detectDisc;
     }
+    m_instance = 0;
+#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+    if (bluetoothScanner.isValid() && scannerActive)
+        bluetoothScanner.callObjectMethod("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
+    scannerActive = false;
+#else
+    if (discoveryAgent) {
+        if (discoveryAgent->isActive()) {
+            QObject::disconnect(discoveryAgent, SIGNAL(canceled()),
+                        this, SLOT(discoveryFinished()));
+            QObject::disconnect(discoveryAgent, SIGNAL(finished()),
+                        this, SLOT(discoveryFinished()));
+            discoveryAgent->stop();
+        }
+        delete discoveryAgent;
+    }
+#endif
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     if (h)
         delete h;
 #endif
+}
+
+#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+void newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
+    ScanRecordResult srr(ScanRecordResult::fromJObject(env, record));
+    qDebug() << "NEW ADV " << srr.toString();
+    QByteArray data = srr.getData();
+    QMetaObject::invokeMethod(m_instance, "processAdvertising", Qt::QueuedConnection,
+                              Q_ARG(QByteArray, data));
+    //m_instance->processAdvertising(srr.getData());
+}
+
+void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
+    qDebug() << "SCAN ERROR " << code;
+    //m_instance->restartScan();
+    QMetaObject::invokeMethod(m_instance, "restartScan", Qt::QueuedConnection);
+}
+void m3ibike::restartScan() {
+    initScan();
+    if (scannerActive) {
+        qDebug() << "Stop scan Needed";
+        bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
+        qDebug() << "Stop Called";
+        scannerActive = false;
+    }
+    bluetoothScanner.callMethod<void>("startScan", "(Ljava/util/List;Landroid/bluetooth/le/ScanSettings;Landroid/bluetooth/le/ScanCallback;)V", listOfFilters.object(), settingsObject.object(), scanCallback.object());
+    qDebug() << "Start called";
+    scannerActive = true;
+}
+void m3ibike::initScan() {
+    if (!bluetoothScanner.isValid()) {
+        QAndroidJniObject bluetoothManager = QtAndroid::androidActivity().callObjectMethod(
+                    "getSystemService",
+                    "(Ljava/lang/String;)Ljava/lang/Object;",
+                    QAndroidJniObject::fromString("bluetooth").object<jstring>());
+        bluetoothAdapter =  bluetoothManager.callObjectMethod("getAdapter","()Landroid/bluetooth/BluetoothAdapter;");
+        if (!bluetoothAdapter.isValid()) {
+            debug("BluetoothAdapter Invalid!");
+            return;
+        }
+        bluetoothScanner = bluetoothAdapter.callObjectMethod("getBluetoothLeScanner","()Landroid/bluetooth/le/BluetoothLeScanner;");
+        if (!bluetoothScanner.isValid()) {
+            debug("BluetoothScanner Invalid!");
+            return;
+        }
+        JNINativeMethod methods[] {
+            {"newScanResult", "(Lorg/cagnulen/qdomyoszwift/ScanRecordResult;)V", reinterpret_cast<void *>(newAndroidScanResult)},
+            {"scanError", "(I)V", reinterpret_cast<void *>(newAndroidScanError)}};
+        QAndroidJniObject javaClass("org/cagnulen/qdomyoszwift/NativeScanCallback");
+        qDebug() << " nscc = " << javaClass.isValid();
+        QAndroidJniEnvironment env;
+        jclass objectClass = env->GetObjectClass(javaClass.object<jobject>());
+        qDebug() << "oc = " << objectClass;
+        jint res = env->RegisterNatives(objectClass,
+                             methods,
+                             sizeof(methods) / sizeof(methods[0]));
+        qDebug() << "reg natives = "<<res;
+        env->DeleteLocalRef(objectClass);
+        qDebug() << "Del object class";
+        listOfFilters = QAndroidJniObject("java/util/ArrayList");
+        qDebug() << "lof "<<listOfFilters.isValid();
+        QAndroidJniObject filterBuilder("android/bluetooth/le/ScanFilter$Builder");
+        qDebug() << "fib "<<filterBuilder.isValid() << " add = "<< bluetoothDevice.address().toString();
+        QAndroidJniObject nameString = QAndroidJniObject::fromString(bluetoothDevice.address().toString());
+        QAndroidJniObject filterBuilder2 = filterBuilder.callObjectMethod("setDeviceAddress","(Ljava/lang/String;)Landroid/bluetooth/le/ScanFilter$Builder;", nameString.object<jstring>());
+        qDebug() << "fib3 "<<filterBuilder2.isValid();
+        filterObject0 = filterBuilder2.callObjectMethod("build","()Landroid/bluetooth/le/ScanFilter;");
+        qDebug() << "fo = "  << filterObject0.isValid();
+        jboolean added = listOfFilters.callMethod<jboolean>("add","(Ljava/lang/Object;)Z", filterObject0.object());
+        qDebug() << "ad0 = "  << added << " sz = " << listOfFilters.callMethod<jint>("size");
+        QAndroidJniObject settingsBuilder("android/bluetooth/le/ScanSettings$Builder");
+        qDebug() << "sb0 = "  << settingsBuilder.isValid();
+        settingsBuilder = settingsBuilder.callObjectMethod("setScanMode","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 2);//SCAN_MODE_LOW_LATENCY
+        qDebug() << "sb1 = "  << settingsBuilder.isValid();
+        settingsBuilder = settingsBuilder.callObjectMethod("setMatchMode","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 1);//MATCH_MODE_AGGRESSIVE
+        qDebug() << "sb2 = "  << settingsBuilder.isValid();
+        settingsBuilder = settingsBuilder.callObjectMethod("setNumOfMatches","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 3);//MATCH_NUM_MAX_ADVERTISEMENT
+        qDebug() << "sb3 = "  << settingsBuilder.isValid();
+        settingsBuilder = settingsBuilder.callObjectMethod("setCallbackType","(I)Landroid/bluetooth/le/ScanSettings$Builder;", 1);//CALLBACK_TYPE_ALL_MATCHES
+        qDebug() << "sb4 = "  << settingsBuilder.isValid();
+        settingsBuilder = settingsBuilder.callObjectMethod("setReportDelay","(J)Landroid/bluetooth/le/ScanSettings$Builder;", (jlong)0);//0ms
+        qDebug() << "sb5 = "  << settingsBuilder.isValid();
+        settingsObject = settingsBuilder.callObjectMethod("build","()Landroid/bluetooth/le/ScanSettings;");
+        qDebug() << "so = "  << settingsObject.isValid();
+        scanCallback = QAndroidJniObject("org/cagnulen/qdomyoszwift/NativeScanCallback");
+        qDebug() << "sca = "  << scanCallback.isValid();
+    }
+}
+#else
+void m3ibike::initScan() {
+    if (!discoveryAgent) {
+        discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+        connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
+                this, SLOT(deviceDiscovered(QBluetoothDeviceInfo)));
+    #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+        connect(discoveryAgent, SIGNAL(deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)),
+                this, SLOT(deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)));
+    #endif
+        connect(discoveryAgent, SIGNAL(canceled()),
+                this, SLOT(discoveryFinished()));
+        connect(discoveryAgent, SIGNAL(finished()),
+                this, SLOT(discoveryFinished()));
+
+        // Start a discovery
+        discoveryAgent->setLowEnergyDiscoveryTimeout(600000);
+    }
+}
+void m3ibike::restartScan() {
+    initScan();
+    if (discoveryAgent->isActive())
+        discoveryAgent->stop();
+    else
+        discoveryFinishedPriv();
+}
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields)
+{
+    debug("deviceUpdated " + device.name() + " " + updateFields);
+}
+#endif
+
+void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo& device) {
+    if (device.address() == bluetoothDevice.address()) {
+        debug("NEW ADV " + bluetoothDevice.name());
+        QHash<quint16, QByteArray> datas = device.manufacturerData();
+        QHashIterator<quint16, QByteArray> i(datas);
+        while (i.hasNext()) {
+            i.next();
+            processAdvertising(i.value());
+            return;
+        }
+    }
+}
+
+void m3ibike::discoveryFinishedPriv() {
+    discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+}
+#endif
+
+
+void m3ibike::searchingStop() {
+    restartScan();
 }
 
 bool m3ibike::valid_id(int id) {
@@ -277,108 +438,117 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
         return false;
 }
 
-void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("m3ibike new device: " + device.name() + " (" + device.address().toString() + ')');
+bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
     if (device.name().startsWith("M3")) {
-        bluetoothDevice = device;
+        keiser_m3i_out_t k3;
         QSettings settings;
         int id = settings.value("m3i_bike_id", 256).toInt();
-        int buffSize = settings.value("m3i_bike_speed_buffsize", 150).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
             i.next();
-            debug(" << " + i.value().toHex(' '));
             if (parse_data(i.value(), &k3) && k3.system_id == id) {
-                detectDisc->start(5000);
-                if (!initDone) {
-                    initDone = true;
-                    if (!virtualBike
-        #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                        && !h
-        #endif
-                        ) {
-                        bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                        h = new lockscreen();
-                        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-                        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-                        if (ios_peloton_workaround && cadence) {
-                            qDebug() << "ios_peloton_workaround activated!";
-                            h->virtualbike_ios();
-                        }
-                        else
-#endif
-                        if (virtual_device_enabled) {
-                            debug("creating virtual bike interface...");
-                            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                            connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
-                        }
-                        k3s.inner_reset(buffSize);
-                        myAddress = device.address();
-                    }
-                    emit connectedAndDiscovered();
-                    emit bikeStarted();
-                    debug("M3i (re)connected");
-                }
-                k3s.inner_step(&k3);
-                QSettings settings;
-                QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
-
-
-                Resistance = k3.incline;
-                Cadence = k3.rpm;
-                m_watts = k3.watt;
-                Speed = k3.speed;
-                KCal = k3.calorie;
-                Distance = k3.distance;
-                elapsed = k3.time;
-
-                if (Cadence.value() > 0) {
-                    CrankRevs++;
-                    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-                }
-
-#ifdef Q_OS_ANDROID
-                if (settings.value("ant_heart", false).toBool())
-                    Heart = (uint8_t)KeepAwakeHelper::heart();
-                else
-#endif
-                {
-                    if (heartRateBeltName.startsWith("Disabled")) {
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                        long appleWatchHeartRate = h->heartRate();
-                        Heart = appleWatchHeartRate;
-                        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#else
-                        Heart = k3.pulse;
-#endif
-                    }
-                }
-
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-                bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-                bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-                if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-                    h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-                    h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
-                }
-#endif
-
-                debug("Current Elapsed: " + QString::number(elapsed.value()));
-                debug("Current Resistance: " + QString::number(Resistance.value()));
-                debug("Current Speed: " + QString::number(Speed.value()));
-                debug("Current Calculate Distance: " + QString::number(k3.distanceR));
-                debug("Current Cadence: " + QString::number(Cadence.value()));
-                debug("Current Distance: " + QString::number(Distance.value()));
-                debug("Current CrankRevs: " + QString::number(CrankRevs));
-                debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-                debug("Current Watt: " + QString::number(watts()));
-                debug("Current Heart: " + QString::number(Heart.value()));
-                return;
+                return true;
             }
         }
     }
+    return false;
+}
+
+void m3ibike::processAdvertising(const QByteArray& data) {
+    QSettings settings;
+    int buffSize = settings.value("m3i_bike_speed_buffsize", 150).toInt();
+    debug(" << " + data.toHex(' '));
+    if (parse_data(data, &k3)) {
+        detectDisc->start(10000);
+        if (!initDone) {
+            initDone = true;
+            if (!virtualBike
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                && !h
+#endif
+                ) {
+                bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                h = new lockscreen();
+                bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+                bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+                if (ios_peloton_workaround && cadence) {
+                    qDebug() << "ios_peloton_workaround activated!";
+                    h->virtualbike_ios();
+                }
+                else
+#endif
+                if (virtual_device_enabled) {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
+                }
+                k3s.inner_reset(buffSize);
+            }
+            emit connectedAndDiscovered();
+            emit bikeStarted();
+            debug("M3i (re)connected");
+        }
+        k3s.inner_step(&k3);
+        QSettings settings;
+        QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+
+
+        Resistance = k3.incline;
+        Cadence = k3.rpm;
+        m_watts = k3.watt;
+        Speed = k3.speed;
+        KCal = k3.calorie;
+        Distance = k3.distance;
+        elapsed = k3.time;
+
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+
+#ifdef Q_OS_ANDROID
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
+        {
+            if (heartRateBeltName.startsWith("Disabled")) {
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+                long appleWatchHeartRate = h->heartRate();
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#else
+                Heart = k3.pulse;
+#endif
+            }
+        }
+
+#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+        }
+#endif
+
+        debug("Current Elapsed: " + QString::number(elapsed.value()));
+        debug("Current Resistance: " + QString::number(Resistance.value()));
+        debug("Current Speed: " + QString::number(Speed.value()));
+        debug("Current Calculate Distance: " + QString::number(k3.distanceR));
+        debug("Current Cadence: " + QString::number(Cadence.value()));
+        debug("Current Distance: " + QString::number(Distance.value()));
+        debug("Current CrankRevs: " + QString::number(CrankRevs));
+        debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
+        debug("Current Watt: " + QString::number(watts()));
+        debug("Current Heart: " + QString::number(Heart.value()));
+    }
+}
+
+void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    bluetoothDevice = device;
 }
 
 bool m3ibike::connected() {

@@ -83,9 +83,8 @@ void bluetooth::canceled()
 
 void bluetooth::debug(QString text)
 {
-    QString debug = QDateTime::currentDateTime().toString() + " " + QString::number(QDateTime::currentMSecsSinceEpoch()) + " " + text;
     if(logs)
-        qDebug() << debug;
+        qDebug() << text;
 }
 
 bool bluetooth::heartRateBeltAvaiable()
@@ -146,16 +145,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             }
             if(b.name().startsWith("M3") && !m3iBike && filter)
             {
-                discoveryAgent->stop();
-                m3iBike = new m3ibike(noWriteResistance, noHeartService);
-                emit(deviceConnected());
-                connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                m3iBike->deviceDiscovered(b);
-                connect(this, SIGNAL(searchingStop()), domyosBike, SLOT(searchingStop()));
-                if(!discoveryAgent->isActive())
-                    emit searchingStop();
+                if (m3ibike::isCorrectUnit(b)) {
+                    discoveryAgent->stop();
+                    m3iBike = new m3ibike(noWriteResistance, noHeartService);
+                    emit(deviceConnected());
+                    connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                    //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                    m3iBike->deviceDiscovered(b);
+                    connect(this, SIGNAL(searchingStop()), m3iBike, SLOT(searchingStop()));
+                    if(!discoveryAgent->isActive())
+                        emit searchingStop();
+                }
             }
             else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
