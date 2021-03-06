@@ -365,7 +365,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             else if(b.name().toUpper().startsWith("BFCP") && !skandikaWiriBike && filter)
             {
                 discoveryAgent->stop();
-                skandikaWiriBike = new skandikawiribike(noWriteResistance, noHeartService);
+                skandikaWiriBike = new skandikawiribike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit(deviceConnected());
                 connect(skandikaWiriBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(skandikaWiriBike, SIGNAL(disconnected()), this, SLOT(restart()));

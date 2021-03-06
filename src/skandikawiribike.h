@@ -37,7 +37,7 @@ class skandikawiribike : public bike
 {
     Q_OBJECT
 public:
-    skandikawiribike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
+    skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
     ~skandikawiribike();
     bool connected();
 
