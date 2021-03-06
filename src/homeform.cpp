@@ -75,6 +75,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     pace = new DataObject("Pace (m/km)", "icons/icons/pace.png", "0:00", false, "pace", 48, labelFontSize);
     resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
     peloton_resistance = new DataObject("Peloton R(%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
+    target_resistance = new DataObject("Target R(%)", "icons/icons/resistance.png", "0", false, "target_resistance", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
     ftp = new DataObject("FTP Zone", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
@@ -299,7 +300,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 17; i++)
+    for(int i = 0; i < 18; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -416,6 +417,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_datetime_enabled", true).toBool() && settings.value("tile_datetime_order", 0).toInt() == i)
                 dataList.append(datetime);
+
+            if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
+                dataList.append(target_resistance);
         }
     }
 
@@ -696,7 +700,7 @@ void homeform::update()
 
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
-        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value()));
+        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
         heart->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
         odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
@@ -732,6 +736,7 @@ void homeform::update()
             watts = ((bike*)bluetoothManager->device())->watts();
             watt->setValue(QString::number(watts));
             this->peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->pelotonResistance().value(), 'f', 0));
+            this->target_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->cadence->setValue(QString::number(cadence));
 

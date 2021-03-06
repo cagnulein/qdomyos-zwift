@@ -247,8 +247,8 @@ int main(int argc, char *argv[])
     if(QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10))
         settings.setValue("bike_heartrate_service", true);
 
-    // Android 6 doesn't support wake lock
-    if(QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7))
+    // some Android 6 doesn't support wake lock
+    if(QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) && !settings.value("android_wakelock").isValid())
         settings.setValue("android_wakelock", false);
 
     noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
@@ -323,7 +323,7 @@ int main(int argc, char *argv[])
                          qobject_cast<QGuiApplication *>(app.data()), [url](QObject *obj, const QUrl &objUrl) {
             if (!obj && url == objUrl)
                 QCoreApplication::exit(-1);
-        }, Qt::QueuedConnection);
+        }, Qt::QueuedConnection);        
 
 #if defined(Q_OS_ANDROID)
         auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));

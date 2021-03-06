@@ -219,7 +219,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if(Flags.totalDistance)
     {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 1)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
         index += 3;
     }
     else

@@ -80,7 +80,7 @@ void trxappgateusbbike::update()
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
        gattNotify1Characteristic.isValid() &&
-       gattNotify2Characteristic.isValid() &&
+       //gattNotify2Characteristic.isValid() &&
        initDone)
     {
         if(currentSpeed().value() > 0.0 && !firstUpdate)
@@ -350,10 +350,13 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW)
+            gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
-        Q_ASSERT(gattNotify2Characteristic.isValid());
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW)
+            Q_ASSERT(gattNotify2Characteristic.isValid());
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
@@ -384,7 +387,8 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-        gattCommunicationChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW)
+            gattCommunicationChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -449,6 +453,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         {
             bike_type = TYPE::CHANGYOW;
             qDebug() << "CHANGYOW bike found";
+        }
+        else if(device.name().toUpper().startsWith("BFCP"))
+        {
+            bike_type = TYPE::SKANDIKAWIRY;
+            qDebug() << "SKANDIKAWIRY bike found";
         }
 
         bluetoothDevice = device;

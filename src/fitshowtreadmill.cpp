@@ -22,6 +22,7 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
     h = new lockscreen();
 #endif
+
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
@@ -70,6 +71,7 @@ bool fitshowtreadmill::checkIncomingPacket(const uint8_t* data, uint8_t data_len
         int n4 = 0;
         int n5 = 1;
         int n6 = data_len - 2;
+
         while (true) {
             if (n5 >= n6) {
                 break;
@@ -111,6 +113,7 @@ void fitshowtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
             requestIncline = MAX_INCLINE;
         else if (requestIncline <= MIN_INCLINE)
             requestIncline = MIN_INCLINE;
+
         uint8_t writeIncline[] = { FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_TARGET_OR_RUN, (uint8_t)(requestSpeed + 0.5), (uint8_t)requestIncline };
         scheduleWrite(writeIncline, sizeof(writeIncline), "forceSpeedOrIncline speed=" + QString::number(requestSpeed) + " incline=" + QString::number(requestIncline));
     }
@@ -140,6 +143,7 @@ void fitshowtreadmill::update() {
                 debug("creating virtual treadmill interface...");
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
+
                 firstInit = 1;
             }
         }
@@ -149,6 +153,7 @@ void fitshowtreadmill::update() {
 
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+
         if (currentSpeed().value() > 0.0 && !firstUpdate && !paused) {
             m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
             m_jouls += (m_watt.value() * deltaTime);
@@ -175,6 +180,7 @@ void fitshowtreadmill::update() {
             }
             requestSpeed = -1;
         }
+
         if (requestInclination != -1) {
             double inc = currentInclination().value();
             if (requestInclination != inc) {
@@ -276,6 +282,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     const uint8_t * array = full_array + 1;
     const uint8_t cmd = array[0];
     const uint8_t par = array[1];
+
     const uint8_t * array_expected = (const uint8_t*)bufferWrite.constData() + 1;
     uint8_t len = full_len - 3;
     if (cmd != FITSHOW_SYS_STATUS && bufferWrite.length() && *array_expected == cmd && *(array_expected + 1) == par) {
@@ -536,6 +543,7 @@ void fitshowtreadmill::btinit(bool startTape) {
                             FITSHOW_INFO_TOTAL,
                             FITSHOW_INFO_DATE };
     uint8_t initDataStart1[] = { FITSHOW_SYS_INFO, 0 };
+
     QDateTime now = QDateTime::currentDateTime();
     uint8_t initDataStart0[] = { FITSHOW_SYS_INFO,
                                  FITSHOW_INFO_MODEL,
