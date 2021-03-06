@@ -29,7 +29,10 @@ static m3ibike * m_instance = 0;
     OP(23,24,90,V,D)
 
 #define SET_PELOTON_RESISTANCE(MINV,MAXV,ZWIFTV,KEISERV,DEST)\
-    else if (KEISERV>=MINV && KEISERV<=MAXV) DEST = (double)ZWIFTV;
+    else if (KEISERV>=MINV && KEISERV<=MAXV) {\
+        angular_coeff = 10.0/(MAXV+1-MINV); \
+        DEST = angular_coeff * KEISERV + ZWIFTV - angular_coeff * MINV; \
+    }
 
 KeiserM3iDeviceSimulator::~KeiserM3iDeviceSimulator() {
     if (dist_buff) delete[] dist_buff;
@@ -545,6 +548,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         }
         k3s.inner_step(&k3);
         QSettings settings;
+        double angular_coeff;
         QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
         if ((int)(Resistance.value() + 0.5) != k3.incline) {
