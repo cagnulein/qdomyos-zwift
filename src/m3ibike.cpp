@@ -270,7 +270,7 @@ void m3ibike::disconnectBluetooth() {
 }
 
 #if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
-void newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
+void m3ibike::newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
     if (m_instance) {
         ScanRecordResult srr(ScanRecordResult::fromJObject(env, record));
         qDebug() << "NEW ADV " << srr.toString();
@@ -281,7 +281,7 @@ void newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
     }
 }
 
-void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
+void m3ibike::newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
     if (m_instance) {
         qDebug() << "SCAN ERROR " << code;
         //m_instance->restartScan();
@@ -336,8 +336,8 @@ void m3ibike::initScan() {
                 return;
             }
             JNINativeMethod methods[] {
-                {"newScanResult", "(Lorg/cagnulen/qdomyoszwift/ScanRecordResult;)V", reinterpret_cast<void *>(newAndroidScanResult)},
-                {"scanError", "(I)V", reinterpret_cast<void *>(newAndroidScanError)}};
+                {"newScanResult", "(Lorg/cagnulen/qdomyoszwift/ScanRecordResult;)V", reinterpret_cast<void *>(m3ibike::newAndroidScanResult)},
+                {"scanError", "(I)V", reinterpret_cast<void *>(m3ibike::newAndroidScanError)}};
             QAndroidJniObject javaClass("org/cagnulen/qdomyoszwift/NativeScanCallback");
             qDebug() << " nscc = " << javaClass.isValid();
             QAndroidJniEnvironment env;

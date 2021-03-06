@@ -143,11 +143,18 @@ public:
     static bool parse_data(const QByteArray& data, keiser_m3i_out_t * f);
     static bool valid_id(int id);
     static bool isCorrectUnit(const QBluetoothDeviceInfo &device);
+    void disconnectBluetooth();
+signals:
+    void disconnected();
+    void debug(QString string);
+public slots:
+    void searchingStop();
+    void deviceDiscovered(const QBluetoothDeviceInfo &device);
+private:
+    bool disconnecting = false;
+    void initScan();
     Q_INVOKABLE void processAdvertising(const QByteArray& data);
     Q_INVOKABLE void restartScan();
-    void disconnectBluetooth();
-private:
-    void initScan();
     uint16_t watts();
     QTimer* detectDisc = 0;
     KeiserM3iDeviceSimulator k3s;
@@ -162,15 +169,6 @@ private:
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-signals:
-    void disconnected();
-    void debug(QString string);
-public slots:
-    void searchingStop();
-    void deviceDiscovered(const QBluetoothDeviceInfo &device);
-private:
-    bool disconnecting = false;
 #if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
     QAndroidJniObject bluetoothAdapter;
     QAndroidJniObject bluetoothScanner;
@@ -179,6 +177,8 @@ private:
     QAndroidJniObject settingsObject;
     QAndroidJniObject filterObject0;
     bool scannerActive = false;
+    static void newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record);
+    static void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code);
 #endif
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = 0;
 #ifdef Q_OS_IOS
