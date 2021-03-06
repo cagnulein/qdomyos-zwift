@@ -140,6 +140,8 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     lastPacket = newValue;
 
+    // 54 09 default flags for this bike
+
     union flags
     {
        struct
@@ -200,7 +202,7 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if(Flags.totDistance)
     {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 1)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
         index += 3;
     }
     else
