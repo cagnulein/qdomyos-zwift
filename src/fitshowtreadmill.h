@@ -71,11 +71,11 @@
 #define FITSHOW_DATA_INCLINE 3
 #define FITSHOW_DATA_CACHECACHE 4
 
-class fitshowtreadmill : public treadmill
-{
+class fitshowtreadmill : public treadmill {
     Q_OBJECT
 public:
     fitshowtreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false, double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    virtual ~fitshowtreadmill();
     bool connected();
     double odometer();
 
@@ -88,7 +88,6 @@ public:
 private:
     bool checkIncomingPacket(const uint8_t* data, uint8_t data_len) const;
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
-    void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(const uint8_t* data, uint8_t data_len, const QString& info = QString());
     bool writePayload(const uint8_t* data, uint8_t data_len, const QString& info = QString());
@@ -104,7 +103,6 @@ private:
     bool searchStopped = false;
     double lastSpeed = 0.0;
     double lastInclination = 0;
-    uint8_t sec1Update = 0;
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
     uint8_t firstInit = 0;
@@ -148,7 +146,9 @@ private:
 
     bool initDone = false;
     bool initRequest = false;
-
+#ifdef Q_OS_IOS
+    lockscreen* h = 0;
+#endif
 signals:
     void disconnected();
     void debug(QString string);

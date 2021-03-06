@@ -79,6 +79,10 @@ import Qt.labs.settings 1.0
             property bool trx_route_key: false
             property bool toorx_bike: false
 
+            property int  m3i_bike_id: 256
+            property int  m3i_bike_speed_buffsize: 90
+            property bool m3i_bike_qt_search: false
+
             property bool snode_bike: false
 
             property real watt_offset: 0
@@ -1421,6 +1425,77 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                }
+            }
+
+            Label {
+                id: m3iBikeLabel
+                text: qsTr("M3i Bike Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+            SwitchDelegate {
+                id: m3iBiQtSearchkeDelegate
+                text: qsTr("Use QT search on Android")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.m3i_bike_qt_search
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.m3i_bike_qt_search = checked
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelm3iBikeId
+                    text: qsTr("Bike ID:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: m3iBikeIdTextField
+                    text: settings.m3i_bike_id
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.m3i_bike_id = text
+                }
+                Button {
+                    id: okm3iBikeIdButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.m3i_bike_id = m3iBikeIdTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelm3iBikeSpeedBuffsize
+                    text: qsTr("Speed Buffer Size:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: m3iBikeSpeedBuffsizeTextField
+                    text: settings.m3i_bike_speed_buffsize
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.m3i_bike_speed_buffsize = text
+                }
+                Button {
+                    id: okm3iBikeSpeedBuffsizeButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text
                 }
             }
 

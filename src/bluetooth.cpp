@@ -91,9 +91,8 @@ void bluetooth::canceled()
 
 void bluetooth::debug(QString text)
 {
-    QString debug = QDateTime::currentDateTime().toString() + " " + QString::number(QDateTime::currentMSecsSinceEpoch()) + " " + text;
     if(logs)
-        qDebug() << debug;
+        qDebug() << text;
 }
 
 bool bluetooth::heartRateBeltAvaiable()
@@ -125,11 +124,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 
     bool found = false;
-    foreach(QBluetoothDeviceInfo b, devices)
-    {
-        if(!device.name().compare(b.name()))
+    QMutableListIterator<QBluetoothDeviceInfo> i(devices);
+    while (i.hasNext()) {
+        QBluetoothDeviceInfo b = i.next();
+        if(b.address()==device.address())
         {
             found = true;
+            i.setValue(device);
             break;
         }
     }
@@ -150,8 +151,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             {
                 filter = (b.name().compare(filterDevice, Qt::CaseInsensitive) == 0);
             }
-
-            if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
+            if(b.name().startsWith("M3") && !m3iBike && filter)
+            {
+                if (m3ibike::isCorrectUnit(b)) {
+                    discoveryAgent->stop();
+                    m3iBike = new m3ibike(noWriteResistance, noHeartService);
+                    emit(deviceConnected());
+                    connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                    //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(m3iBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                    m3iBike->deviceDiscovered(b);
+                    connect(this, SIGNAL(searchingStop()), m3iBike, SLOT(searchingStop()));
+                    if(!discoveryAgent->isActive())
+                        emit searchingStop();
+                }
+            }
+            else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
                 discoveryAgent->stop();
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
@@ -470,6 +485,11 @@ void bluetooth::restart()
         delete domyos;        
         domyos = 0;
     }
+    if(m3iBike)
+    {
+        delete m3iBike;
+        m3iBike = 0;
+    }
     if(fitshowTreadmill)
     {
         delete fitshowTreadmill;
@@ -600,6 +620,8 @@ bluetoothdevice* bluetooth::device()
         return sportsTechBike;
     else if(inspireBike)
         return inspireBike;
+    else if(m3iBike)
+        return m3iBike;
     else if(snodeBike)
         return snodeBike;
     return nullptr;

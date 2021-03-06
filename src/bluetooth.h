@@ -26,6 +26,7 @@
 #include "schwinnic4bike.h"
 #include "yesoulbike.h"
 #include "flywheelbike.h"
+#include "m3ibike.h"
 #include "fitshowtreadmill.h"
 #include "inspirebike.h"
 #include "snodebike.h"
@@ -69,6 +70,7 @@ private:
     inspirebike* inspireBike = 0;
     snodebike* snodeBike = 0;
     eslinkertreadmill* eslinkerTreadmill = 0;
+    m3ibike* m3iBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

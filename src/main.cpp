@@ -176,22 +176,22 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QByteArray localMsg = msg.toLocal8Bit();
     const char *file = context.file ? context.file : "";
     const char *function = context.function ? context.function : "";
-    QString txt;
+    QString txt = QDateTime::currentDateTime().toString() + " " + QString::number(QDateTime::currentMSecsSinceEpoch()) + " ";
     switch (type) {
     case QtInfoMsg:
-        txt = QString("Info: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QString("Info: %1 %2 %3\n").arg(file).arg(function).arg(msg);
         break;
     case QtDebugMsg:
-        txt = QString("Debug: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QString("Debug: %1 %2 %3\n").arg(file).arg(function).arg(msg);
         break;
     case QtWarningMsg:
-        txt = QString("Warning: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QString("Warning: %1 %2 %3\n").arg(file).arg(function).arg(msg);
     break;
     case QtCriticalMsg:
-        txt = QString("Critical: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QString("Critical: %1 %2 %3\n").arg(file).arg(function).arg(msg);
     break;
     case QtFatalMsg:
-        txt = QString("Fatal: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QString("Fatal: %1 %2 %3\n").arg(file).arg(function).arg(msg);
         abort();
     }
 
@@ -209,7 +209,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         QTextStream ts(&outFile);
         ts << txt;
 
-        fprintf(stderr, txt.toLocal8Bit());
+        fprintf(stderr, "%s", txt.toLocal8Bit().constData());
     }
 
     (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
@@ -330,27 +330,34 @@ int main(int argc, char *argv[])
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
             if(resultHash["android.permission.WRITE_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "log unwritable!";
+                qDebug() << "WRITE_EXTERNAL_STORAGE denied!";
         }
         result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
             if(resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "log unwritable!";
+                qDebug() << "READ_EXTERNAL_STORAGE denied!";
+        }
+
+        result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
+        if(result == QtAndroid::PermissionResult::Denied){
+            QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
+            if(resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
+                qDebug() << "ACCESS_FINE_LOCATION denied!";
         }
 
         result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
             if(resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "log unwritable!";
+                qDebug() << "BLUETOOTH denied!";
         }
 
         result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
             if(resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "log unwritable!";
+                qDebug() << "BLUETOOTH_ADMIN denied!";
         }
 #endif
         engine.load(url);
