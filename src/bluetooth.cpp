@@ -352,8 +352,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
             }
-            // BFCP0000 = Skandika Wiri bike
-            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+")) && toorx_bike) || b.name().toUpper().startsWith("BFCP")) && !trxappgateusb && !trxappgateusbBike && filter)
+            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+")) && toorx_bike)) && !trxappgateusb && !trxappgateusbBike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);
@@ -362,6 +361,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(trxappgateusbBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusbBike->deviceDiscovered(b);
+            }
+            else if(b.name().toUpper().startsWith("BFCP") && !skandikaWiriBike && filter)
+            {
+                discoveryAgent->stop();
+                skandikaWiriBike = new skandikawiribike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(skandikaWiriBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(skandikaWiriBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(skandikaWiriBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                skandikaWiriBike->deviceDiscovered(b);
             }
             else if((b.name().startsWith("FS-") && snode_bike) && !snodeBike && filter)
             {
@@ -575,6 +584,11 @@ void bluetooth::restart()
         delete snodeBike;
         snodeBike = 0;
     }
+    if(skandikaWiriBike)
+    {
+        delete skandikaWiriBike;
+        skandikaWiriBike = 0;
+    }
     if(heartRateBelt)
     {
         //heartRateBelt->disconnectBluetooth(); // to test
@@ -624,6 +638,8 @@ bluetoothdevice* bluetooth::device()
         return m3iBike;
     else if(snodeBike)
         return snodeBike;
+    else if(skandikaWiriBike)
+        return skandikaWiriBike;
     return nullptr;
 }
 

@@ -35,6 +35,7 @@
 #include "proformbike.h"
 #include "proformtreadmill.h"
 #include "sportstechbike.h"
+#include "skandikawiribike.h"
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -71,6 +72,7 @@ private:
     snodebike* snodeBike = 0;
     eslinkertreadmill* eslinkerTreadmill = 0;
     m3ibike* m3iBike = 0;
+    skandikawiribike* skandikaWiriBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

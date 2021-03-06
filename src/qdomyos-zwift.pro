@@ -70,6 +70,7 @@ SOURCES += \
    screencapture.cpp \
 	sessionline.cpp \
 	signalhandler.cpp \
+    skandikawiribike.cpp \
    snodebike.cpp \
    sportstechbike.cpp \
 	     toorxtreadmill.cpp \
@@ -340,6 +341,7 @@ HEADERS += \
    screencapture.h \
 	sessionline.h \
 	signalhandler.h \
+    skandikawiribike.h \
    snodebike.h \
    sportstechbike.h \
 	toorxtreadmill.h \
