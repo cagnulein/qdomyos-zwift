@@ -200,12 +200,13 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         debug("Current Average Cadence: " + QString::number(avgCadence));
     }
 
+    // ignore the distance value because it's a total odometer
     if(Flags.totDistance)
     {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+        //Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
         index += 3;
     }
-    else
+    //else
     {
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
     }
