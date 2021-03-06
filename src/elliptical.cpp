@@ -6,7 +6,7 @@ elliptical::elliptical()
 
 }
 
-void elliptical::changeResistance(int8_t resistance) { requestResistance = resistance;}
+void elliptical::changeResistance(int8_t resistance) { requestResistance = resistance; RequestedResistance = resistance;}
 double elliptical::currentCrankRevolutions() { return CrankRevs;}
 uint16_t elliptical::lastCrankEventTime() { return LastCrankEventTime;}
 int8_t elliptical::currentResistance() { return Resistance;}

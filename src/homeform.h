@@ -141,6 +141,7 @@ private:
     DataObject* jouls;
     DataObject* elapsed;
     DataObject* peloton_resistance;
+    DataObject* target_resistance;
     DataObject* ftp;
 
     QTimer* timer;
