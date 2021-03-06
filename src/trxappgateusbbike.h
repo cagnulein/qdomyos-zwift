@@ -83,6 +83,7 @@ private:
         TRXAPPGATE = 0,
         IRUNNING = 1,
         CHANGYOW = 2,
+        SKANDIKAWIRY = 3,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
