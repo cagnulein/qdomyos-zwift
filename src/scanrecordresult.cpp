@@ -22,6 +22,7 @@ ScanRecordResult ScanRecordResult::fromJObject(JNIEnv * env, jobject java) {
         if (dataSize) {
             jbyte *dataEls = env->GetByteArrayElements(dataArray, 0);
             data.setRawData((const char *)dataEls, dataSize);
+            env->ReleaseByteArrayElements(dataArray, dataEls, 0);
         }
     }
     return ScanRecordResult(rssi, name, address, data);
