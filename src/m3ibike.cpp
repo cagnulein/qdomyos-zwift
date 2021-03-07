@@ -500,18 +500,14 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
         keiser_m3i_out_t k3;
         QSettings settings;
         int id = settings.value("m3i_bike_id", 256).toInt();
-        if (valid_id(id)) {
-            QHash<quint16, QByteArray> datas = device.manufacturerData();
-            QHashIterator<quint16, QByteArray> i(datas);
-            while (i.hasNext()) {
-                i.next();
-                if (parse_data(i.value(), &k3) && k3.system_id == id) {
-                    return true;
-                }
+        QHash<quint16, QByteArray> datas = device.manufacturerData();
+        QHashIterator<quint16, QByteArray> i(datas);
+        while (i.hasNext()) {
+            i.next();
+            if (parse_data(i.value(), &k3) && (!valid_id(id) || k3.system_id == id)) {
+                return true;
             }
         }
-        else
-            return true;
     }
     return false;
 }
