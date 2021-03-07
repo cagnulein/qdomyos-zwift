@@ -202,7 +202,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = ((uint8_t)newValue.at(18));
+            Heart = 0;
     }
 
     if(Cadence.value() > 0)
