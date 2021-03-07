@@ -39,6 +39,13 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
+    if(gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+       m_control->state() == QLowEnergyController::UnconnectedState)
+    {
+        debug("writeCharacteristic error because the connection is closed");
+        return;
+    }
+
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
 
     if(!disable_log)
