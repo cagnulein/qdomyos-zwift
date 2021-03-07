@@ -151,6 +151,8 @@ public slots:
     void searchingStop();
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 private:
+    bool heartRateBeltDisabled = true;
+    bool antHeart = false;
     bool disconnecting = false;
     void initScan();
     Q_INVOKABLE void processAdvertising(const QByteArray& data);

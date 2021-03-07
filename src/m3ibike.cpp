@@ -223,6 +223,9 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
 }
 
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
+    QSettings settings;
+    antHeart = settings.value("ant_heart", false).toBool();
+    heartRateBeltDisabled = settings.value("heart_rate_belt_name", "Disabled").toString().startsWith("Disabled");
     m_watt.setType(metric::METRIC_WATT);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -501,7 +504,7 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
             i.next();
-            if (parse_data(i.value(), &k3) && k3.system_id == id) {
+            if (parse_data(i.value(), &k3) && (!valid_id(id) || k3.system_id == id)) {
                 return true;
             }
         }
@@ -512,8 +515,6 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
 void m3ibike::processAdvertising(const QByteArray& data) {
     if (disconnecting)
         return;
-    QSettings settings;
-    int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
         detectDisc->start(6000);
@@ -524,6 +525,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                 && !h
 #endif
                 ) {
+                QSettings settings;
                 bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
@@ -540,6 +542,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                     virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                 }
+                int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
                 k3s.inner_reset(buffSize);
             }
             emit connectedAndDiscovered();
@@ -547,9 +550,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             debug("M3i (re)connected");
         }
         k3s.inner_step(&k3);
-        QSettings settings;
         double angular_coeff;
-        QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
         if ((int)(Resistance.value() + 0.5) != k3.incline) {
             Resistance = k3.incline;
@@ -571,12 +572,12 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         }
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (antHeart)
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
         {
-            if (heartRateBeltName.startsWith("Disabled")) {
+            if (heartRateBeltDisabled) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 long appleWatchHeartRate = h->heartRate();
                 Heart = appleWatchHeartRate;
