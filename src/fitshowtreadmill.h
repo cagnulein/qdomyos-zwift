@@ -29,6 +29,10 @@
 #include "virtualtreadmill.h"
 #include "treadmill.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 #define FITSHOW_PKT_HEADER 2
 #define FITSHOW_PKT_FOOTER 3
 
