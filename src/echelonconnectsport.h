@@ -58,7 +58,6 @@ private:
     virtualbike* virtualBike = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
-    QList<QLowEnergyService*> gattCommunicationChannelServiceArray;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
@@ -97,8 +96,6 @@ private slots:
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
-    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
-    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

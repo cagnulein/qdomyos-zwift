@@ -96,10 +96,8 @@ void echelonconnectsport::update()
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
-#ifndef Q_OS_IOS
        gattNotify1Characteristic.isValid() &&
        gattNotify2Characteristic.isValid() &&
-#endif
        initDone)
     {
         QDateTime current = QDateTime::currentDateTime();
@@ -291,90 +289,11 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-#ifdef Q_OS_IOS
-    foreach(QLowEnergyService* s, gattCommunicationChannelServiceArray)
-    {
-        qDebug() << "stateChanged" << s->serviceUuid() << s->state();
-        if(s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService)
-        {
-            qDebug() << "not all services discovered";
-            return;
-        }
-    }
-
-    qDebug() << "all services discovered!";
-
-    foreach(QLowEnergyService* s, gattCommunicationChannelServiceArray)
-    {
-        if(s->state() == QLowEnergyService::ServiceDiscovered)
-        {
-            // establish hook into notifications
-            connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
-                    this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
-            connect(s, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)),
-                    this, SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
-            connect(s, SIGNAL(characteristicRead(const QLowEnergyCharacteristic, const QByteArray)),
-                    this, SLOT(characteristicRead(const QLowEnergyCharacteristic, const QByteArray)));
-            connect(s, SIGNAL(error(QLowEnergyService::ServiceError)),
-                    this, SLOT(errorService(QLowEnergyService::ServiceError)));
-            connect(s, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                    SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
-            connect(s, SIGNAL(descriptorRead(const QLowEnergyDescriptor, const QByteArray)), this,
-                    SLOT(descriptorRead(const QLowEnergyDescriptor, const QByteArray)));
-
-            qDebug() << s->serviceUuid() << "connected!";
-
-            foreach(QLowEnergyCharacteristic c, s->characteristics())
-            {
-                qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
-                foreach(QLowEnergyDescriptor d, c.descriptors())
-                {
-                    qDebug() << "descriptor uuid" << d.uuid() << "handle" << d.handle();
-                    /*if(d.uuid() != QBluetoothUuid::ClientCharacteristicConfiguration)
-                        s->readDescriptor(d);*/
-                }
-
-                if((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify)
-                {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x01);
-                    descriptor.append((char)0x00);
-                    if(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    else
-                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle() << " is not valid";
-
-                    qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
-                }
-                else if((c.properties() & QLowEnergyCharacteristic::Indicate) == QLowEnergyCharacteristic::Indicate)
-                {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x02);
-                    descriptor.append((char)0x00);
-                    if(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    else
-                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid() << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle() << " is not valid";
-
-                    qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
-                }
-                else if((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read)
-                {
-                    s->readCharacteristic(c);
-                    qDebug() << s->serviceUuid() << c.uuid() << "reading!";
-                }
-            }
-        }
-    }
-#endif
-
     if(state == QLowEnergyService::ServiceDiscovered)
     {
         //qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
-
-#ifndef Q_OS_IOS
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
@@ -390,7 +309,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
                 this, SLOT(errorService(QLowEnergyService::ServiceError)));
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
-#endif
+
         // ******************************************* virtual bike init *************************************        
         if(!firstStateChanged && !virtualBike
         #ifdef Q_OS_IOS
@@ -424,13 +343,12 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
         }
         firstStateChanged = 1;
         // ********************************************************************************************************
-#ifndef Q_OS_IOS
+
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
         gattCommunicationChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-#endif
     }
 }
 
@@ -442,16 +360,6 @@ void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descript
     emit connectedAndDiscovered();
 }
 
-void echelonconnectsport::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
-{
-    qDebug() << "descriptorRead " << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
-}
-
-void echelonconnectsport::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
-{
-    qDebug() << "characteristicRead " << characteristic.uuid() << newValue.toHex(' ');
-}
-
 void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     Q_UNUSED(characteristic);
@@ -461,15 +369,6 @@ void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &
 void echelonconnectsport::serviceScanDone(void)
 {
     debug("serviceScanDone");
-
-#ifdef Q_OS_IOS
-    foreach(QBluetoothUuid s, m_control->services())
-    {
-        gattCommunicationChannelServiceArray.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelServiceArray.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
-        gattCommunicationChannelServiceArray.last()->discoverDetails();
-    }
-#endif
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0bf669f1-45f2-11e7-9598-0800200c9a66");
 
