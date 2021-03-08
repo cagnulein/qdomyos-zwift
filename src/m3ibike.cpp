@@ -565,7 +565,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         }
 
         Cadence = k3.rpm;
-        m_watts = k3.watt;
+        m_watt = k3.watt;
         watts(); // to update avg and max
         Speed = k3.speed;
         KCal = k3.calorie;
@@ -642,5 +642,5 @@ void* m3ibike::VirtualDevice() {
 uint16_t m3ibike::watts() {
     if (currentCadence().value() == 0) return 0;
 
-    return m_watts;
+    return m_watt.value();
 }

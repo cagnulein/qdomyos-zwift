@@ -166,7 +166,6 @@ private:
     virtualbike* virtualBike = 0;
 
     bool firstUpdate = true;
-    uint16_t m_watts = 0;
 
     bool initDone = false;
 
