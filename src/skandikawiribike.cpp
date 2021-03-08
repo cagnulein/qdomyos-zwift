@@ -106,7 +106,7 @@ void skandikawiribike::update()
         else
         {
             noOpData[1] = 0x01;
-            noOpData[2] = lastRequestedResistance().value() + ((lastRequestedResistance().value() / 10) * 6);
+            noOpData[2] = lastRequestedResistance().value(); // + ((lastRequestedResistance().value() / 10) * 6);
             if(noOpData[2] == 0)
                 noOpData[2] = 1;
 
