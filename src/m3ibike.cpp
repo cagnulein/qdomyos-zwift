@@ -558,12 +558,19 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                 m_pelotonResistance = 0.0;
             RESISTANCE_OP(SET_PELOTON_RESISTANCE,k3.incline, m_pelotonResistance)
         }
+        else
+        {
+            Resistance = Resistance.value();
+            m_pelotonResistance = m_pelotonResistance.value();
+        }
 
         Cadence = k3.rpm;
         m_watts = k3.watt;
+        watts(); // to update avg and max
         Speed = k3.speed;
         KCal = k3.calorie;
         Distance = k3.distance;
+        m_jouls += (m_watt.value() * (k3.time - elapsed.value()));
         elapsed = k3.time;
 
         if (Cadence.value() > 0) {
