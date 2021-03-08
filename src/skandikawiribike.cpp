@@ -180,8 +180,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     else if(newValue.at(1) == 0x10)
     {
-        // same position
-        double watt = GetSpeedFromPacket(newValue);
+        double watt = GetWattFromPacket(newValue);
         debug("Current watt: " + QString::number(watt));
         m_watts = watt;
     }
@@ -229,7 +228,14 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 double skandikawiribike::GetSpeedFromPacket(QByteArray packet)
 {
     uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
-    double data = (double)convertedData / 100.0f;
+    double data = (double)convertedData * 3.6f; // it is on m/s, but we want in km/h
+    return data;
+}
+
+double skandikawiribike::GetWattFromPacket(QByteArray packet)
+{
+    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
+    double data = (double)convertedData;
     return data;
 }
 
