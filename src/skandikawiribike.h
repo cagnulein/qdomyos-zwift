@@ -51,6 +51,7 @@ private:
     double GetDistanceFromPacket(QByteArray packet);
     double GetWattFromPacket(QByteArray packet);
     double GetCadenceFromPacket(QByteArray packet);
+    char* itoa(int num, char* buffer, int base);
     uint8_t convertHexToDec(uint8_t a);
     void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
