@@ -217,7 +217,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if(newValue.at(2) < 33)
         {
-            Resistance = convertHexToDec(newValue.at(2));
+            Resistance = newValue.at(2);
             debug("Current resistance: " + QString::number(Resistance.value()));
         }
         return;
