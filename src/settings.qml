@@ -14,7 +14,7 @@ import Qt.labs.settings 1.0
             id: settings
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
-            property int bike_resistance_gain: 1
+            property real bike_resistance_gain: 1.0
             property int bike_resistance_start: 1
             property real weight: 75.0
             property real ftp: 200.0
