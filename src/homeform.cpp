@@ -813,6 +813,37 @@ void homeform::update()
         }
         ftp->setValue("Z" + QString::number(ftpZone, 'f', 0));
         ftp->setSecondLine(ftpMinW + "-" + ftpMaxW + "W " + QString::number(ftpPerc, 'f', 0) + "%");
+
+        double maxHeartRate = 220.0 - settings.value("age", 35).toDouble();
+        if(maxHeartRate == 0) maxHeartRate = 190.0;
+        double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
+
+        if(percHeartRate < 70.0)
+        {
+            heart->setSecondLine("Z1");
+            heart->setValueFontColor("blue");
+        }
+        else if(percHeartRate < 80.0)
+        {
+            heart->setSecondLine("Z2");
+            heart->setValueFontColor("green");
+        }
+        else if(percHeartRate < 90.0)
+        {
+            heart->setSecondLine("Z3");
+            heart->setValueFontColor("yellow");
+        }
+        else if(percHeartRate < 100.0)
+        {
+            heart->setSecondLine("Z4");
+            heart->setValueFontColor("orange");
+        }
+        else
+        {
+            heart->setSecondLine("Z5");
+            heart->setValueFontColor("red");
+        }
+
 /*
         if(trainProgram)
         {

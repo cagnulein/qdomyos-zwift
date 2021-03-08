@@ -16,6 +16,7 @@ import Qt.labs.settings 1.0
             property int bike_resistance_offset: 4
             property real bike_resistance_gain: 1.0
             property int bike_resistance_start: 1
+            property int age: 35.0
             property real weight: 75.0
             property real ftp: 200.0
             property bool miles_unit: false
@@ -145,6 +146,30 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.weight = weightTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelAge
+                    text: qsTr("Player Age:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: ageTextField
+                    text: settings.age
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.age = text
+                }
+                Button {
+                    id: okAgeButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.age = ageTextField.text
                 }
             }
 
