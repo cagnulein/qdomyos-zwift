@@ -106,7 +106,7 @@ void skandikawiribike::update()
         else
         {
             noOpData[1] = 0x01;
-            noOpData[2] = lastRequestedResistance().value();
+            noOpData[2] = lastRequestedResistance().value() + ((lastRequestedResistance().value() / 10) * 6);
             if(noOpData[2] == 0)
                 noOpData[2] = 1;
 
@@ -150,6 +150,13 @@ void skandikawiribike::serviceDiscovered(const QBluetoothUuid &gatt)
     debug("serviceDiscovered " + gatt.toString());
 }
 
+uint8_t skandikawiribike::convertHexToDec(uint8_t a)
+{
+    char buffer[33];
+    itoa(a, buffer, 16);
+    return QString::fromLatin1(buffer).toUShort();
+}
+
 void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -164,7 +171,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if(newValue.at(2) < 33)
         {
-            Resistance = newValue.at(2);
+            Resistance = convertHexToDec(newValue.at(2));
             debug("Current resistance: " + QString::number(Resistance.value()));
         }
         return;
@@ -180,14 +187,12 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     else if(newValue.at(1) == 0x10)
     {
-        double watt = GetWattFromPacket(newValue);
-        debug("Current watt: " + QString::number(watt));
-        m_watts = watt;
+        Cadence = GetWattFromPacket(newValue);
     }
 
     double kcal = GetKcalFromPacket(newValue);
 
-    Cadence = ((uint8_t)newValue.at(10));
+    m_watts = GetWattFromPacket(newValue);
     if(Resistance.value() < 1)
     {
         debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
@@ -227,21 +232,28 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 double skandikawiribike::GetSpeedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
-    double data = (double)convertedData * 0.036f; // it is on m/s, but we want in km/h
+    uint16_t convertedData = (convertHexToDec(packet.at(2)) * 100) + convertHexToDec(packet.at(3));
+    double data = (double)convertedData / 10.0;
     return data;
 }
 
 double skandikawiribike::GetWattFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
+    uint16_t convertedData = (convertHexToDec(packet.at(9)) * 100) + convertHexToDec(packet.at(10));
+    double data = (double)convertedData;
+    return data;
+}
+
+double skandikawiribike::GetCadenceFromPacket(QByteArray packet)
+{
+    uint16_t convertedData = (convertHexToDec(packet.at(2)) * 100) + convertHexToDec(packet.at(3));
     double data = (double)convertedData;
     return data;
 }
 
 double skandikawiribike::GetKcalFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
+    uint16_t convertedData = (convertHexToDec(packet.at(6)) * 100) + convertHexToDec(packet.at(7));
     return (double)convertedData;
 }
 
