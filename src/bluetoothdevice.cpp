@@ -24,6 +24,8 @@ double bluetoothdevice::elevationGain(){ return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
 void bluetoothdevice::disconnectBluetooth() {if(m_control) m_control->disconnectFromDevice();}
 metric bluetoothdevice::wattsMetric() {return m_watt;}
+void bluetoothdevice::setDifficult(double d) {m_difficult = d;}
+double bluetoothdevice::difficult() {return m_difficult;}
 
 void bluetoothdevice::clearStats()
 {

@@ -6,7 +6,7 @@ bike::bike()
 
 }
 
-void bike::changeResistance(int8_t resistance) { requestResistance = resistance; RequestedResistance = resistance; }
+void bike::changeResistance(int8_t resistance) { requestResistance = resistance * m_difficult; RequestedResistance = resistance * m_difficult; }
 double bike::currentCrankRevolutions() { return CrankRevs;}
 uint16_t bike::lastCrankEventTime() { return LastCrankEventTime;}
 metric bike::lastRequestedResistance() { return RequestedResistance; }

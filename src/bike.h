@@ -32,7 +32,7 @@ signals:
 protected:
     metric Cadence;
     metric Resistance;
-    metric RequestedResistance;
+    metric RequestedResistance;    
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
     double CrankRevs = 0;

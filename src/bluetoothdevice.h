@@ -38,6 +38,8 @@ public:
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnectBluetooth();
     virtual void setPaused(bool p);
+    void setDifficult(double d);
+    double difficult();
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -70,6 +72,7 @@ protected:
     int8_t requestStop = -1;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
+    double m_difficult = 1.0;
     metric m_jouls;
     double elevationAcc = 0;
     metric m_watt;
