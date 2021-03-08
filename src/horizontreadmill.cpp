@@ -174,6 +174,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     lastPacket = newValue;
 
+    // default flags for this treadmill is 84 04
+
     union flags
     {
        struct
@@ -219,10 +221,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if(Flags.totalDistance)
     {
-        Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+        // ignoring the distance, because it's a total life odometer
+        //Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
         index += 3;
     }
-    else
+    //else
     {
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
     }
