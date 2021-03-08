@@ -233,7 +233,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     else if(newValue.at(1) == 0x10)
     {
-        Cadence = GetWattFromPacket(newValue);
+        Cadence = GetCadenceFromPacket(newValue);
     }
 
     double kcal = GetKcalFromPacket(newValue);

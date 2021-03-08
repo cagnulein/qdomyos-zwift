@@ -416,4 +416,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.4.13
+VERSION = 2.4.14
