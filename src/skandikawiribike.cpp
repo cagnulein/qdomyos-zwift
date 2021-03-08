@@ -228,7 +228,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
 double skandikawiribike::GetSpeedFromPacket(QByteArray packet)
 {
     uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
-    double data = (double)convertedData * 3.6f; // it is on m/s, but we want in km/h
+    double data = (double)convertedData * 0.036f; // it is on m/s, but we want in km/h
     return data;
 }
 
