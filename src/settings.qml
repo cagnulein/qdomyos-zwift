@@ -1713,7 +1713,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.ios_peloton_workaround = checked
             }
-/*
+
             SwitchDelegate {
                 id: androidWakeLockDelegate
                 text: qsTr("Android WakeLock")
@@ -1728,7 +1728,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.android_wakelock = checked
             }
-*/
+
             SwitchDelegate {
                 id: logDebugDelegate
                 text: qsTr("Debug Log")
