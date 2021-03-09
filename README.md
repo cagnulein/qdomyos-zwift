@@ -79,8 +79,11 @@ Open an issue and follow these steps!
 6. restart your phone
 7. open your machine app and play with it collecting inclination and speed
 8. Disable the option Enable Bluetooth HCI snoop log
-9. on your phone you should have a file called btsnoop_hci.log
-10. attach the log file in a new issue with a short description of the steps you did in the app when you used it
+9. in Developer Options: Bug report->Full report
+10. wait a random amount of time (10-20 seconds)
+11. A notification will appear at the top of the device. Click on it, share, email it to yourself
+12. You'll get a zip file with the entire report. In the FS/Data/Log/bt directory of the zipfile is the file you want.
+13. attach the log file in a new issue with a short description of the steps you did in the app when you used it
 
 ### No gui version
 
