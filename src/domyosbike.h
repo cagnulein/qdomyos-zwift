@@ -33,7 +33,7 @@ class domyosbike : public bike
 {
     Q_OBJECT
 public:
-    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, uint8_t bikeResistanceGain = 1);
+    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~domyosbike();
     bool connected();
 
@@ -67,7 +67,7 @@ private:
     bool noHeartService = false;
     bool testResistance = false;
     uint8_t bikeResistanceOffset = 4;
-    uint8_t bikeResistanceGain = 1;
+    double bikeResistanceGain = 1.0;
     bool searchStopped = false;
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;

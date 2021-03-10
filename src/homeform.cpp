@@ -785,7 +785,7 @@ void homeform::update()
             this->cadence->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max(), 'f', 0));
             this->resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().max(), 'f', 0));
             this->peloton_resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
-            this->target_resistance->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0,'f', 0) + "% @0%=" + QString::number((bluetoothManager->device()->difficult() * settings.value("bike_resistance_gain", 1.0).toDouble()) + settings.value("bike_resistance_offset", 4.0).toDouble(),'f', 0));
+            this->target_resistance->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0,'f', 0) + "% @0%=" + QString::number((bluetoothManager->device()->difficult() * settings.value("bike_resistance_gain_f", 1.0).toDouble()) + settings.value("bike_resistance_offset", 4.0).toDouble(),'f', 0));
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {

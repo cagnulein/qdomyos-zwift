@@ -44,7 +44,7 @@ class bluetooth : public QObject, public SignalHandler
 {
     Q_OBJECT
 public:
-    explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, uint8_t bikeResistanceGain = 1);
+    explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~bluetooth();
     bluetoothdevice* device();
     QList<QBluetoothDeviceInfo> devices;
@@ -82,7 +82,7 @@ private:
     bool logs = true;
     uint32_t pollDeviceTime = 200;
     uint8_t bikeResistanceOffset = 4;
-    uint8_t bikeResistanceGain = 1;
+    double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
 
     bool handleSignal(int signal);

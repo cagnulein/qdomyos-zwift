@@ -37,7 +37,7 @@ class skandikawiribike : public bike
 {
     Q_OBJECT
 public:
-    skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain);
+    skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     ~skandikawiribike();
     bool connected();
 
@@ -70,7 +70,7 @@ private:
     QDateTime lastTimeUpdate;
     bool firstUpdate = true;
     uint8_t bikeResistanceOffset = 4;
-    uint8_t bikeResistanceGain = 1;
+    double bikeResistanceGain = 1.0;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

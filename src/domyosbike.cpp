@@ -8,7 +8,7 @@
 #include <QBluetoothLocalDevice>
 #include <QSettings>
 
-domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
+domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);

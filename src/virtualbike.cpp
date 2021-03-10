@@ -37,7 +37,7 @@ enum FtmsResultCode {
     FTMS_CONTROL_NOT_PERMITTED
 };
 
-virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
+virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     Bike = t;
 

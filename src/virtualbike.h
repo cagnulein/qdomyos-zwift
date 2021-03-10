@@ -28,7 +28,7 @@ class virtualbike: public QObject
 {
     Q_OBJECT
 public:
-    virtualbike(bike* t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4, uint8_t bikeResistanceGain = 1);
+    virtualbike(bike* t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected();
 
 private:
@@ -52,7 +52,7 @@ private:
 
     bool noHeartService = false;
     uint8_t bikeResistanceOffset = 4;
-    uint8_t bikeResistanceGain = 1;
+    double bikeResistanceGain = 1.0;
 
     void writeCharacteristic(QLowEnergyService* service, QLowEnergyCharacteristic characteristic, QByteArray value);
 

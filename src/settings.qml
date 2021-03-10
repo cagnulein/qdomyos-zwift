@@ -14,7 +14,7 @@ import Qt.labs.settings 1.0
             id: settings
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
-            property real bike_resistance_gain: 1.0
+            property real bike_resistance_gain_f: 1.0
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -358,18 +358,18 @@ import Qt.labs.settings 1.0
                 }
                 TextField {
                     id: bikeResistanceGainTextField
-                    text: settings.bike_resistance_gain
+                    text: settings.bike_resistance_gain_f
                     horizontalAlignment: Text.AlignRight
                     Layout.fillHeight: false
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     inputMethodHints: Qt.ImhFormattedNumbersOnly
-                    onAccepted: settings.bike_resistance_gain = text
+                    onAccepted: settings.bike_resistance_gain_f = text
                 }
                 Button {
                     id: okBikeResistanceGainButton
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    onClicked: settings.bike_resistance_gain = bikeResistanceGainTextField.text
+                    onClicked: settings.bike_resistance_gain_f = bikeResistanceGainTextField.text
                 }
             }
 

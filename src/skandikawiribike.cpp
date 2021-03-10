@@ -8,7 +8,7 @@
 #include <QBluetoothLocalDevice>
 #include <QSettings>
 
-skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
+skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);

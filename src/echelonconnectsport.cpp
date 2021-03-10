@@ -9,7 +9,7 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 
-echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
+echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);

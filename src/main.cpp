@@ -53,7 +53,7 @@ QString trainProgram;
 QString deviceName = "";
 uint32_t pollDeviceTime = 200;
 uint8_t bikeResistanceOffset = 4;
-uint8_t bikeResistanceGain = 1;
+double bikeResistanceGain = 1.0;
 static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log";
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
@@ -115,7 +115,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         }
         if (!qstrcmp(argv[i], "-bike-resistance-gain"))
         {
-            bikeResistanceGain = atoi(argv[++i]);
+            bikeResistanceGain = atof(argv[++i]);
         }
         if (!qstrcmp(argv[i], "-bike-resistance-offset"))
         {
@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
 
     noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
     bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
-    bikeResistanceGain = settings.value("bike_resistance_gain", bikeResistanceGain).toInt();
+    bikeResistanceGain = settings.value("bike_resistance_gain_f", bikeResistanceGain).toDouble();
     deviceName = settings.value("filter_device", "Disabled").toString();
 #else
     settings.setValue("miles_unit", miles);

@@ -9,7 +9,7 @@
 #include <QAndroidJniObject>
 #endif
 
-bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, uint8_t bikeResistanceGain)
+bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     QSettings settings;
     bool trx_route_key = settings.value("trx_route_key", false).toBool();
