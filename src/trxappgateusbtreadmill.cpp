@@ -466,9 +466,9 @@ void trxappgateusbtreadmill::error(QLowEnergyController::Error err)
 void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-") || device.name().startsWith("i-Console+") || device.name().startsWith("i-Running")  || device.name().startsWith("F63"))
+    if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-") || device.name().startsWith("i-Console+") || device.name().startsWith("i-Running")  || device.name().startsWith("F63") || device.name().toUpper().startsWith("XT485"))
     {
-        if(device.name().startsWith("i-Running") || device.name().startsWith("i-Console+") || device.name().startsWith("F63"))
+        if(device.name().startsWith("i-Running") || device.name().startsWith("i-Console+") || device.name().startsWith("F63") || device.name().toUpper().startsWith("XT485"))
             treadmill_type = TYPE::IRUNNING;
         else
             treadmill_type = TYPE::TRXAPPGATE;
