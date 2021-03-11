@@ -407,8 +407,7 @@ ios {
 	 fit-sdk/FitMesg.mm \
          fit-sdk/FitMesgDefinition.mm \
          ios/M3iNS.mm \
-
-    SOURCES += ios/M3iNS.cpp
+         ios/M3iNSQT.mm
 
     OBJECTIVE_HEADERS += ios/M3iNS.h
 
@@ -417,7 +416,7 @@ ios {
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 
     TARGET = qdomyoszwift
-	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+         QMAKE_TARGET_BUNDLE_PREFIX = org.p3g4asus
 }
 
 VERSION = 2.4.16

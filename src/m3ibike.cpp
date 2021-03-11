@@ -328,11 +328,11 @@ void m3ibike::restartScan() {
     if (!qt_search) {
         if (m3iIOS->isScanning()) {
             qDebug() << "Stop scan Needed";
-            m3iIOS->stopScan()
+            m3iIOS->stopScan();
             qDebug() << "Stop Called";
         }
-        m3i_ios_result.major = k3.major;
-        m3i_ios_result.minor = k3.minor;
+        m3i_ios_result.major = k3.firmware;
+        m3i_ios_result.minor = k3.software;
         m3i_ios_result.idval = k3.system_id;
         m3iIOS->startScan(&m3i_ios_result);
         qDebug() << "Start called";

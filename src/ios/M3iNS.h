@@ -8,20 +8,14 @@
 #ifndef M3iIOS_h
 #define M3iIOS_h
 #import "M3iIOS-Interface.h"
-@import CoreBluetooth;
+#include <Foundation/Foundation.h>
+#include <CoreBluetooth/CoreBluetooth.h>
 
 @interface M3iNS:NSObject<CBCentralManagerDelegate>
-{
-    m3i_result_t * conf;
-    void * objref;
-    NSUUID * devUid;
-    CBCentralManager *cbCentralManager;
-    BOOL startRequested;
-}
 
 - (instancetype)initWithObj:(void *) obj;
-- (void)startScan: (m3i_result_t * initStr);
-- (void)stopScan();
+- (void)startScan: (m3i_result_t *)initStr;
+- (void)stopScan;
 
 @end
 

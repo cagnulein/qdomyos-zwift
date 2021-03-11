@@ -2,7 +2,10 @@
 #define SCANRECORDRESULT_H
 #include <QString>
 #include <QByteArray>
+#include <QMetaType>
+#if defined(Q_OS_ANDROID)
 #include <QAndroidJniObject>
+#endif
 
 class ScanRecordResult
 {

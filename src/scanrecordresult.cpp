@@ -1,6 +1,4 @@
 #include "scanrecordresult.h"
-#include <QAndroidJniEnvironment>
-#include <QAndroidJniObject>
 
 static const int ScanTypeId = qRegisterMetaType<ScanRecordResult>();
 
