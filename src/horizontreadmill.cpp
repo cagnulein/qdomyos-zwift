@@ -280,9 +280,14 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if(Flags.heartRate)
         {
-            heart = ((double)((newValue.at(index))));
-            index += 1;
-            debug("Current Heart: " + QString::number(heart));
+            if(index < newValue.length())
+            {
+                heart = ((double)((newValue.at(index))));
+                debug("Current Heart: " + QString::number(heart));
+            }
+            else
+                debug("Error on parsing heart!");
+            index += 1;            
         }
     }
 
