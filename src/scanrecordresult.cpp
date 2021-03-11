@@ -21,7 +21,7 @@ ScanRecordResult ScanRecordResult::fromJObject(JNIEnv * env, jobject java) {
         jsize dataSize = env->GetArrayLength(dataArray);
         if (dataSize) {
             jbyte *dataEls = env->GetByteArrayElements(dataArray, 0);
-            data.setRawData((const char *)dataEls, dataSize);
+            data.append((const char *)dataEls, dataSize);
             env->ReleaseByteArrayElements(dataArray, dataEls, 0);
         }
     }
