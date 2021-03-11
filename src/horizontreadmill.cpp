@@ -426,6 +426,9 @@ void horizontreadmill::error(QLowEnergyController::Error err)
 
 void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
+    // ***************************************************************************************************************
+    // horizon treadmill and F80 treadmill, so if we want to add inclination support we have to separate the 2 devices
+    // ***************************************************************************************************************
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     {
         bluetoothDevice = device;

@@ -210,7 +210,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
-            else if(b.name().toUpper().startsWith("HORIZON") && !horizonTreadmill && filter)
+            else if((b.name().toUpper().startsWith("HORIZON") || b.name().toUpper().startsWith("F80")) && !horizonTreadmill && filter)
             {
                 discoveryAgent->stop();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
@@ -241,7 +241,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
             }
-            else if((b.name().toUpper().startsWith("IC BIKE") || b.name().toUpper().startsWith("F80")) && !schwinnIC4Bike && filter)
+            else if((b.name().toUpper().startsWith("IC BIKE")) && !schwinnIC4Bike && filter)
             {
                 discoveryAgent->stop();
                 schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
