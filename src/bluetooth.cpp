@@ -153,9 +153,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             }
             if(b.name().startsWith("M3") && !m3iBike && filter)
             {
-                if (m3ibike::isCorrectUnit(b)) {
+                keiser_m3i_out_t resOut;
+                if (m3ibike::isCorrectUnit(b, resOut)) {
                     discoveryAgent->stop();
-                    m3iBike = new m3ibike(noWriteResistance, noHeartService);
+                    m3iBike = new m3ibike(resOut, noWriteResistance, noHeartService);
                     emit(deviceConnected());
                     connect(m3iBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                     //connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));

@@ -34,6 +34,7 @@
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#include "ios/M3iIOS-Interface.h"
 #endif
 
 typedef struct keiser_m3i_out_s {
@@ -134,7 +135,7 @@ private:
 class m3ibike : public bike {
     Q_OBJECT
 public:
-    m3ibike(bool noWriteResistance, bool noHeartService);
+    m3ibike(const keiser_m3i_out_t& resOut, bool noWriteResistance, bool noHeartService);
     virtual ~m3ibike();
     bool connected();
 
@@ -142,7 +143,7 @@ public:
     void* VirtualDevice();
     static bool parse_data(const QByteArray& data, keiser_m3i_out_t * f);
     static bool valid_id(int id);
-    static bool isCorrectUnit(const QBluetoothDeviceInfo &device);
+    static bool isCorrectUnit(const QBluetoothDeviceInfo &device, keiser_m3i_out_t& resOut);
     void disconnectBluetooth();
 signals:
     void disconnected();
@@ -184,7 +185,9 @@ private:
 #endif
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = 0;
 #ifdef Q_OS_IOS
+    M3iIOS * m3iIOS = 0;
     lockscreen* h = 0;
+    m3i_result_t m3i_ios_result;
 #endif
 private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))

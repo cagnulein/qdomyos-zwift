@@ -1,0 +1,118 @@
+#import "M3iNS.h"
+#import "M3iIOS-Interface.h"
+#include <Foundation/NSString.h>
+
+
+M3iIOS::M3iIOS ( void ) {
+    self = 0;
+}
+
+M3iIOS::~M3iIOS( void ) {
+    if (self)
+        [(id)self dealloc];
+}
+
+void M3iIOS::init( void * objref ) {
+    self = [[M3iNS alloc] initWithObj:objref];
+}
+
+void  M3iIOS::startScan( m3i_result_t * conf) {
+    if (self)
+        [(id)self startScan:conf];
+}
+
+bool M3iIOS::isScanning() const {
+    if (self)
+        return (bool)[(id)self isScanning];
+    else
+        return false;
+}
+    
+void M3iIOS::stopScan() {
+    if (self)
+        [(id)self stopScan];
+}
+
+@implementation M3iNS
+
+- (instancetype)initWithObj:(void *) obj {
+    self = [super init];
+    if (self) {
+        self.objref = obj;
+        self.conf = 0;
+        self.devUid = 0;
+        self.startRequested = NO;
+        self.cbCentralManager = [[CBCentralManager alloc] initWithDelegate:self queue: dispatch_get_main_queue()];
+    }
+}
+
+-(void)centralManagerDidUpdateState:(CBCentralManager *)central {
+    if (central.state == CBManagerStatePoweredOn && self.startRequested){
+        [self startScan:self.conf]
+    } else {
+        NSLog(@"bluetooth not on");
+    }
+}
+
+- (void)stopScan:(void) {
+    if ([cbCentralManager isScanning])
+        [cbCentralManager stopScan];
+}
+
+- (void)startScan:(m3i_result_t *) conf {
+    self.conf = conf;
+    if (cbCentralManager.state == CBManagerStatePoweredOn) {
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBoo:YES], CBCentralManagerScanOptionAllowDuplicatesKey, nil];
+        [ cbCentralManager scanForPeripheralsWithServices:nil options:options ];
+        self.startRequested = NO;
+    }
+}
+
+-(void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
+    NSString * name = [peripheral name];
+    if (name == 0) name = @"N/A";
+    NSString * uuidstring = [peripheral.identifier UUIDString];
+    NSString * logString = [NSString stringWithFormat:@"Received %@ (%@)[%d]", uuidstring, name, (int)RSSI.integerValue()];
+    NSLog(logString);
+    qt_log(logString);
+    if (self.devUid != 0) {
+        NSData * data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
+        if (data) {
+            NSUInteger dataLength = [data length];
+            const unsigned char *arr = (const unsigned char *)[data bytes];
+            if (arr && dataLength>=10) {
+                int index = 0;
+                if (arr[index] == 2 && arr[index + 1] == 1)
+                    index += 2;
+                unsigned char mayor = arr[index];
+                index += 1;
+                unsigned char mayor minor = arr[index];
+                index += 1;
+                if (mayor == conf.major && minor == conf.minor && dataLength > index + 13) {
+                    unsigned char dt = arr[index];
+                    if ((dt == 0 || dt >= 128 || dt <= 227) && conf.idval == arr[index+1]) {
+                        devUid = peripheral.identifier;
+                        [uuidstring getCString:conf.uuid maxLength:sizeof(conf.uuid)/sizeof(*conf.uuid) encoding:NSUTF8StringEncoding];
+                    }
+                }
+            }
+        }
+    }
+    if (devUid != 0) {
+        if ([devUid isEqual:peripheral.identifier]) {
+            NSData * data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
+        if (data) {
+            NSUInteger dataLength = [data length];
+            const unsigned char *arr = (const unsigned char *)[data bytes];
+            if (arr && dataLength>=10) {
+                conf.rssi = (int)[RSSI integerValue];
+                conf.nbytes = dataLength > sizeof(conf.nbytes)?sizeof(conf.nbytes): dataLength;
+                memcpy(conf.bytes, arr, conf.nbytes);
+                [name getCString:conf.name maxLength:sizeof(conf.name)/sizeof(*conf.name) encoding:NSUTF8StringEncoding];
+                m3i_callback(self.objref, conf);
+            }
+        }
+    }
+}
+
+@end

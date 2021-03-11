@@ -82,9 +82,8 @@ SOURCES += \
 	 virtualbike.cpp \
 	     virtualtreadmill.cpp \
              m3ibike.cpp \
-                domyosbike.cpp
-
-android: SOURCES += scanrecordresult.cpp
+                domyosbike.cpp \
+               scanrecordresult.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
@@ -332,6 +331,7 @@ HEADERS += \
 	ios/lockscreen.h \
 	keepawakehelper.h \
 	macos/lockscreen.h \
+        ios/M3iIOS-Interface.h \
 	material.h \
 	metric.h \
 	proformbike.h \
@@ -354,9 +354,8 @@ HEADERS += \
 	 virtualbike.h \
 	virtualtreadmill.h \
 	 domyosbike.h \
-        yesoulbike.h
-
-android: HEADERS += scanrecordresult.h
+        yesoulbike.h \
+        scanrecordresult.h
 
 !ios: HEADERS += charts.h
 
@@ -406,7 +405,12 @@ ios {
 	 fit-sdk/FitField.mm \
 	 fit-sdk/FitFieldDefinition.mm \
 	 fit-sdk/FitMesg.mm \
-	 fit-sdk/FitMesgDefinition.mm
+         fit-sdk/FitMesgDefinition.mm \
+         ios/M3iNS.mm \
+
+    SOURCES += ios/M3iNS.cpp
+
+    OBJECTIVE_HEADERS += ios/M3iNS.h
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
