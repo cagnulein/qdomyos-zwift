@@ -73,6 +73,8 @@ char logs[512];
         [ cbCentralManager scanForPeripheralsWithServices:nil options:options ];
         startRequested = NO;
     }
+    else
+        startRequested = YES;
 }
 
 -(void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {

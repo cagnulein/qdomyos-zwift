@@ -553,7 +553,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
 #if defined(Q_OS_IOS) //IOS devices cannot be distinguished by bluetooth address (always 0)
-        if (m3i_ios_result.major != k3.firmware || m3i_ios_result.minor != k3.software || m3i_ios_result.idval != k3.system_id)
+        if (qt_search && (m3i_ios_result.major != k3.firmware || m3i_ios_result.minor != k3.software || m3i_ios_result.idval != k3.system_id))
             return;
 #endif
         detectDisc->start(6000);
