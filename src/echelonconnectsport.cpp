@@ -65,7 +65,7 @@ void echelonconnectsport::forceResistance(int8_t requestResistance)
        noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
     }
 
-    writeCharacteristic(noOpData, sizeof(noOpData), "force resistance", true);
+    writeCharacteristic(noOpData, sizeof(noOpData), "force resistance", false, true);
 }
 
 void echelonconnectsport::sendPoll()
@@ -79,7 +79,7 @@ void echelonconnectsport::sendPoll()
        noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
     }
 
-    writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true);
+    writeCharacteristic(noOpData, sizeof(noOpData), "noOp", false, true);
 
     counterPoll++;
     if(!counterPoll)
