@@ -16,9 +16,7 @@
 #include <QtCore/qcoreapplication.h>
 #else
 #include <QtGui/qguiapplication.h>
-#if !defined(M3I_QT_SCAN)
 #include <QAndroidJniObject>
-#endif
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qscopedpointer.h>
@@ -135,7 +133,7 @@ private:
 class m3ibike : public bike {
     Q_OBJECT
 public:
-    m3ibike(const keiser_m3i_out_t& resOut, bool noWriteResistance, bool noHeartService);
+    m3ibike(bool noWriteResistance, bool noHeartService);
     virtual ~m3ibike();
     bool connected();
 
@@ -143,7 +141,7 @@ public:
     void* VirtualDevice();
     static bool parse_data(const QByteArray& data, keiser_m3i_out_t * f);
     static bool valid_id(int id);
-    static bool isCorrectUnit(const QBluetoothDeviceInfo &device, keiser_m3i_out_t& resOut);
+    static bool isCorrectUnit(const QBluetoothDeviceInfo &device);
     void disconnectBluetooth();
 signals:
     void disconnected();
@@ -172,7 +170,7 @@ private:
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
     QAndroidJniObject bluetoothAdapter;
     QAndroidJniObject bluetoothScanner;
     QAndroidJniObject scanCallback;

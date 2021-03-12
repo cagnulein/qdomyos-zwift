@@ -39,6 +39,7 @@ void * objref;
 NSUUID * devUid;
 CBCentralManager *cbCentralManager;
 BOOL startRequested;
+char logs[512];
 
 - (instancetype)initWithObj:(void *) obj {
     self = [super init];
@@ -80,6 +81,7 @@ BOOL startRequested;
     NSString * uuidstring = [peripheral.identifier UUIDString];
     NSString * logString = [NSString stringWithFormat:@"Received %@ (%@)[%d]", uuidstring, name, (int)[RSSI integerValue]];
     NSLog(@"%@", logString);
+    [logString getCString:conf->uuid maxLength:sizeof(logs)/sizeof(*logs)-1 encoding:NSUTF8StringEncoding];
     qt_log(logString);
     if (devUid != 0) {
         NSData * data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
@@ -98,7 +100,7 @@ BOOL startRequested;
                     unsigned char dt = arr[index];
                     if ((dt == 0 || dt >= 128 || dt <= 227) && conf->idval == arr[index+1]) {
                         devUid = peripheral.identifier;
-                        [uuidstring getCString:conf->uuid maxLength:sizeof(conf->uuid)/sizeof(*conf->uuid) encoding:NSUTF8StringEncoding];
+                        [uuidstring getCString:conf->uuid maxLength:sizeof(conf->uuid)/sizeof(*conf->uuid)-1 encoding:NSUTF8StringEncoding];
                     }
                 }
             }
@@ -114,7 +116,7 @@ BOOL startRequested;
                     conf->rssi = (int)[RSSI integerValue];
                     conf->nbytes = dataLength > sizeof(conf->nbytes)?sizeof(conf->nbytes): dataLength;
                     memcpy(conf->bytes, arr, conf->nbytes);
-                    [name getCString:conf->name maxLength:sizeof(conf->name)/sizeof(*conf->name) encoding:NSUTF8StringEncoding];
+                    [name getCString:conf->name maxLength:sizeof(conf->name)/sizeof(*conf->name)-1 encoding:NSUTF8StringEncoding];
                     m3i_callback(objref, conf);
                 }
             }

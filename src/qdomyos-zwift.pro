@@ -407,7 +407,8 @@ ios {
 	 fit-sdk/FitMesg.mm \
          fit-sdk/FitMesgDefinition.mm \
          ios/M3iNS.mm \
-         ios/M3iNSQT.mm
+
+    SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h
 

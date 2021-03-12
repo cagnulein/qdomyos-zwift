@@ -15,7 +15,7 @@ typedef struct {
 } m3i_result_t;
 
 void m3i_callback(void * objref, m3i_result_t * res);
-void qt_log(const void * msg);
+void qt_log(const char * msg);
 #ifdef __cplusplus
 }
 #endif

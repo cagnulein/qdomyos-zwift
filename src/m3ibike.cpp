@@ -8,7 +8,7 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
 #include <QAndroidJniEnvironment>
 #include <QtAndroid>
 #include "scanrecordresult.h"
@@ -222,7 +222,7 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
     return !nowpause;
 }
 
-m3ibike::m3ibike(const keiser_m3i_out_t& resOut, bool noWriteResistance, bool noHeartService) {
+m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
     antHeart = settings.value("ant_heart", false).toBool();
     heartRateBeltDisabled = settings.value("heart_rate_belt_name", "Disabled").toString().startsWith("Disabled");
@@ -231,7 +231,6 @@ m3ibike::m3ibike(const keiser_m3i_out_t& resOut, bool noWriteResistance, bool no
     this->noHeartService = noHeartService;
     initDone = false;
     detectDisc = new QTimer(this);
-    k3 = resOut;
     m_instance = this;
     connect(detectDisc, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
@@ -252,7 +251,7 @@ m3ibike::~m3ibike() {
         delete virtualBike;
     m_instance = 0;
     disconnecting = true;
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
     if (bluetoothScanner.isValid() && scannerActive)
         bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
     scannerActive = false;
@@ -287,7 +286,7 @@ void m3ibike::disconnectBluetooth() {
     if (m3iIOS)
         m3iIOS->stopScan();
 #endif
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
     if (bluetoothScanner.isValid() && scannerActive)
         bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
     scannerActive = false;
@@ -300,7 +299,7 @@ void m3ibike::disconnectBluetooth() {
     initDone = false;
 }
 
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
 void m3ibike::newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
     if (m_instance) {
         ScanRecordResult srr(ScanRecordResult::fromJObject(env, record));
@@ -322,26 +321,23 @@ void m3ibike::newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
 #endif
 void m3ibike::restartScan() {
     initScan();
-#if defined(Q_OS_IOS)
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QSettings settings;
     bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#endif
+#if defined(Q_OS_IOS)
     if (!qt_search) {
         if (m3iIOS->isScanning()) {
             qDebug() << "Stop scan Needed";
             m3iIOS->stopScan();
             qDebug() << "Stop Called";
         }
-        m3i_ios_result.major = k3.firmware;
-        m3i_ios_result.minor = k3.software;
-        m3i_ios_result.idval = k3.system_id;
         m3iIOS->startScan(&m3i_ios_result);
         qDebug() << "Start called";
     }
     else
 #endif
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
-    QSettings settings;
-    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#if defined(Q_OS_ANDROID)
     if (!qt_search) {
         if (scannerActive) {
             qDebug() << "Stop scan Needed";
@@ -364,9 +360,11 @@ void m3ibike::restartScan() {
 
 }
 void m3ibike::initScan() {
-#if defined(Q_OS_IOS)
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     QSettings settings;
     bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#endif
+#if defined(Q_OS_IOS)
     if (!qt_search) {
         if (!m3iIOS) {
             m3iIOS = new M3iIOS();
@@ -375,9 +373,7 @@ void m3ibike::initScan() {
     }
     else
 #endif
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
-    QSettings settings;
-    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#if defined(Q_OS_ANDROID)
     if (!qt_search) {
         if (!bluetoothScanner.isValid()) {
             QAndroidJniObject bluetoothManager = QtAndroid::androidActivity().callObjectMethod(
@@ -534,9 +530,10 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
         return false;
 }
 
-bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device, keiser_m3i_out_t& k3) {
+bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
     if (device.name().startsWith("M3")) {
         QSettings settings;
+        keiser_m3i_out_t k3;
         int id = settings.value("m3i_bike_id", 256).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
@@ -555,6 +552,10 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         return;
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
+#if defined(Q_OS_IOS) //IOS devices cannot be distinguished by bluetooth address (always 0)
+        if (m3i_ios_result.major != k3.firmware || m3i_ios_result.minor != k3.software || !m3i_ios_result.idval = k3.system_id)
+            return;
+#endif
         detectDisc->start(6000);
         if (!initDone) {
             initDone = true;
@@ -663,6 +664,19 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
     initDone = false;
     disconnecting = false;
+#if defined(Q_OS_IOS)
+    QHash<quint16, QByteArray> datas = device.manufacturerData();
+    QHashIterator<quint16, QByteArray> i(datas);
+    while (i.hasNext()) {
+        i.next();
+        if (parse_data(i.value(), &k3)) {
+            m3i_ios_result.major = k3.firmware;
+            m3i_ios_result.minor = k3.software;
+            m3i_ios_result.idval = k3.system_id;
+            break;
+        }
+    }
+#endif
 }
 
 bool m3ibike::connected() {
