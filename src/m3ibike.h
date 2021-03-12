@@ -187,6 +187,9 @@ private:
     lockscreen* h = 0;
     m3i_result_t m3i_ios_result;
 #endif
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    bool qt_search;
+#endif
 private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields);

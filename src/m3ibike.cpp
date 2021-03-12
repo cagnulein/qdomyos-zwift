@@ -225,6 +225,9 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
     antHeart = settings.value("ant_heart", false).toBool();
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#endif
     heartRateBeltDisabled = settings.value("heart_rate_belt_name", "Disabled").toString().startsWith("Disabled");
     m_watt.setType(metric::METRIC_WATT);
     this->noWriteResistance = noWriteResistance;
@@ -321,10 +324,6 @@ void m3ibike::newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
 #endif
 void m3ibike::restartScan() {
     initScan();
-#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
-    QSettings settings;
-    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
-#endif
 #if defined(Q_OS_IOS)
     if (!qt_search) {
         if (m3iIOS->isScanning()) {
@@ -360,10 +359,6 @@ void m3ibike::restartScan() {
 
 }
 void m3ibike::initScan() {
-#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
-    QSettings settings;
-    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
-#endif
 #if defined(Q_OS_IOS)
     if (!qt_search) {
         if (!m3iIOS) {
