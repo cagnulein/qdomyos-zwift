@@ -82,7 +82,7 @@ char logs[512];
     NSString * logString = [NSString stringWithFormat:@"Received %@ (%@)[%d]", uuidstring, name, (int)[RSSI integerValue]];
     NSLog(@"%@", logString);
     [logString getCString:conf->uuid maxLength:sizeof(logs)/sizeof(*logs)-1 encoding:NSUTF8StringEncoding];
-    qt_log(logString);
+    qt_log(logs);
     if (devUid != 0) {
         NSData * data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
         if (data) {

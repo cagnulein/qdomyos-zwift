@@ -976,6 +976,21 @@
 					);
 			};
 		};
+		BEA464E1F419724CE6EC732F = {
+			isa = PBXFileReference;
+			path = "/Users/matteo/develop/qdomyos-zwift/src/ios/M3iNSQT.cpp";
+			name = "M3iNSQT.cpp";
+			sourceTree = "<absolute>";
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		48D9240C76B41F0D7D2D16FD = {
+			fileRef = "BEA464E1F419724CE6EC732F";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
 		054D49E3A7FE356B6BEB10B6 = {
 			isa = PBXFileReference;
 			path = "/Users/matteo/develop/qdomyos-zwift/src/ios/lockscreen.mm";
@@ -1105,21 +1120,6 @@
 		};
 		D734ED647746EEF3C65F5CF6 = {
 			fileRef = "4406DDD31785987A17348EF5";
-			isa = PBXBuildFile;
-			settings = {
-				ATTRIBUTES = (
-					);
-			};
-		};
-		55A2C0D8F74C28EBEDA39F2F = {
-			isa = PBXFileReference;
-			path = "/Users/matteo/develop/qdomyos-zwift/src/ios/M3iNSQT.mm";
-			name = "M3iNSQT.mm";
-			sourceTree = "<absolute>";
-			lastKnownFileType = "sourcecode.cpp.objcpp";
-		};
-		99BB212F527B96B74BADEED4 = {
-			fileRef = "55A2C0D8F74C28EBEDA39F2F";
 			isa = PBXBuildFile;
 			settings = {
 				ATTRIBUTES = (
@@ -3906,9 +3906,9 @@
 		0FF051564C679F373AD93E32 = {
 			isa = PBXGroup;
 			children = (
+				"BEA464E1F419724CE6EC732F",
 				"054D49E3A7FE356B6BEB10B6",
 				"4406DDD31785987A17348EF5",
-				"55A2C0D8F74C28EBEDA39F2F",
 				"313CA606A551E326309249EF",
 				"760B2ABD0D7B9317BF551B31");
 			name = "ios";
@@ -4106,6 +4106,7 @@
 				"DB2A57FB6F5FF5A8E7FD2EB3",
 				"D21EBF4BE0F19D591382D81E",
 				"681DB87C0199991766AF92D8",
+				"48D9240C76B41F0D7D2D16FD",
 				"E7E871BC0451A0783EBDE1A7",
 				"96B51B4EB2EB7006E4D1D140",
 				"396E3FF6436FF1016DDD9512",
@@ -4115,7 +4116,6 @@
 				"D2A657B3AB09A3DB9558F086",
 				"6FEDC57E87F58C18F061DD64",
 				"D734ED647746EEF3C65F5CF6",
-				"99BB212F527B96B74BADEED4",
 				"B5263F6CB3AF637BA45FBE1D",
 				"D53876B926029DDDF8D577FC",
 				"EFB6A43CA30553D1B43B74B3",
