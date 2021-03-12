@@ -26,6 +26,9 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
 {
     QEventLoop loop;
     QTimer timeout;
+
+    // if there are some crash here, maybe it's better to use 2 separate event for the characteristicChanged.
+    // one for the resistance changed event (spontaneous), and one for the other ones.
     if(wait_for_response)
     {
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
