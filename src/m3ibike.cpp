@@ -332,6 +332,8 @@ void m3ibike::restartScan() {
             m3iIOS->stopScan();
             qDebug() << "Stop Called";
         }
+        QString uuid = bluetoothDevice.deviceUuid().toString();
+        strncpy(m3i_ios_result.uuid,uuid.mid(1,uuid.length()-2).toUpper().toUtf8().constData(),sizeof(m3i_ios_result.uuid)/sizeof(*m3i_ios_result.uuid)-1);
         m3iIOS->startScan(&m3i_ios_result);
         qDebug() << "Start called";
     }
@@ -458,9 +460,14 @@ void m3ibike::initScan() {
 void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
     debug("deviceUpdated " + device.name() + " " + updateFields);
 }
+#if defined(Q_OS_IOS)
+#define SAME_DEVICE(device) (device.deviceUuid() == bluetoothDevice.deviceUuid())
+#else
+#define SAME_DEVICE(device) (device.address() == bluetoothDevice.address())
+#endif
 
 void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo& device) {
-    if (device.address() == bluetoothDevice.address()) {
+    if (SAME_DEVICE(device)) {
         debug("NEW ADV " + bluetoothDevice.name());
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
@@ -506,7 +513,6 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
             k3->software = minor;
             k3->system_id = arr[index + 1];
         }
-        ;
         k3->rpm = arr[index + 2] | arr[index + 3] << 8;
         k3->pulse = arr[index + 4] | arr[index + 5] << 8;
         k3->watt = arr[index + 6] | arr[index + 7] << 8;
@@ -554,10 +560,6 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         return;
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
-#if defined(Q_OS_IOS) //IOS devices cannot be distinguished by bluetooth address (always 0)
-        if (qt_search && m3i_ios_result.major !=0xFF && (m3i_ios_result.major != k3.firmware || m3i_ios_result.minor != k3.software || m3i_ios_result.idval != k3.system_id))
-            return;
-#endif
         detectDisc->start(6000);
         if (!initDone) {
             initDone = true;
@@ -666,21 +668,6 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bluetoothDevice = device;
     initDone = false;
     disconnecting = false;
-#if defined(Q_OS_IOS) && (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-    QHash<quint16, QByteArray> datas = device.manufacturerData();
-    QHashIterator<quint16, QByteArray> i(datas);
-    while (i.hasNext()) {
-        i.next();
-        if (parse_data(i.value(), &k3)) {
-            m3i_ios_result.major = k3.firmware;
-            m3i_ios_result.minor = k3.software;
-            m3i_ios_result.idval = k3.system_id;
-            break;
-        }
-    }
-#else
-    m3i_ios_result.major = 0xFF;
-#endif
 }
 
 bool m3ibike::connected() {
