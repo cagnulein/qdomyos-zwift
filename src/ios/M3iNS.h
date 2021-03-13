@@ -16,6 +16,7 @@
 - (instancetype)initWithObj:(void *) obj;
 - (void)startScan: (m3i_result_t *)initStr;
 - (void)stopScan;
+- (BOOL)isScanning;
 
 @end
 
