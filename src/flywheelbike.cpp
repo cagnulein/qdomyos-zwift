@@ -201,6 +201,7 @@ void flywheelbike::decodeReceivedData(QByteArray buffer)
 
 void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
+    static bool zero_fix_filter = false;
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -224,6 +225,15 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             if(settings.value("ant_heart", false).toBool())
                 Heart = (uint8_t)KeepAwakeHelper::heart();
 #endif
+
+            if(zero_fix_filter == false && (parsedData->cadence == 0 || parsedData->speed == 0))
+            {
+                qDebug() << "filtering crappy values";
+                zero_fix_filter = true;
+                return;
+            }
+
+            zero_fix_filter = false;
 
             Resistance = parsedData->brake_level;
             Cadence = parsedData->cadence;
