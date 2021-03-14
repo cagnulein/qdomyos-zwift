@@ -37,6 +37,7 @@
 
 typedef struct keiser_m3i_out_s {
     int time = 0;
+    int time_orig = 0;
     int timeR = 0;
     int timeRms = 0;
     int timeRAbsms = 0;
@@ -56,6 +57,7 @@ typedef struct keiser_m3i_out_s {
     int firmware = 0;
     int system_id = 0;
     void reset() {
+        time_orig = 0;
         time = 0;
         timeR = 0;
         timeRms = 0;
@@ -157,10 +159,11 @@ private:
     Q_INVOKABLE void processAdvertising(const QByteArray& data);
     Q_INVOKABLE void restartScan();
     uint16_t watts();
-    QTimer* detectDisc = 0;
+    QTimer* detectDisc = 0, * elapsedTimer = 0;
     uint8_t firstStateChanged = 0;
     KeiserM3iDeviceSimulator k3s;
     keiser_m3i_out_t k3;
+    qint64 lastTimerUpdate = -1;
 
     virtualbike* virtualBike = 0;
 
