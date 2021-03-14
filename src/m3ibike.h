@@ -89,6 +89,7 @@ public:
 private:
     #define M3I_EQUAL_TIME_THRESHOLD 8
     #define M3I_VALID_PULSE_THRESHOLD 50
+    #define M3I_EQUAL_TIME_DISTANCE_THRESHOLD 2500
     #define M3I_PAUSE_DELAY_DETECT_THRESHOLD 10000
     int buffSize = 150;
     double * dist_buff = 0;
@@ -117,6 +118,7 @@ private:
     int nActiveUpdates = 0;
     qint64 sessionStart = 0;
     qint64 lastUpdateTime = 0;
+    qint64 equalTimeDistance = 0;
     bool oldPause = true;
 
     void _set_offsets();
@@ -129,9 +131,10 @@ private:
 
     bool inPause(qint64 ud) const;
 
-    void detectPause(const keiser_m3i_out_t * f);
+    void detectPause(const keiser_m3i_out_t * f, qint64 ud);
 };
 
+#define M3i_DISCONNECT_THRESHOLD 5000
 class m3ibike : public bike {
     Q_OBJECT
 public:
@@ -163,7 +166,8 @@ private:
     uint8_t firstStateChanged = 0;
     KeiserM3iDeviceSimulator k3s;
     keiser_m3i_out_t k3;
-    qint64 lastTimerUpdate = -1;
+    qint64 lastTimerRestart = -1;
+    int lastTimerRestartOffset = 0;
 
     virtualbike* virtualBike = 0;
 

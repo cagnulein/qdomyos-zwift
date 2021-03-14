@@ -47,7 +47,7 @@ NSUUID * devUid;
 CBCentralManager *cbCentralManager;
 BOOL startRequested;
 char logs[512];
-NSTimeInterval lastRestart = -1;
+//NSTimeInterval lastRestart = -1;
 //dispatch_queue_t myQueue;
 
 - (instancetype)initWithObj:(void *) obj {
@@ -87,12 +87,12 @@ NSTimeInterval lastRestart = -1;
     conf = config;
     devUid = [[NSUUID alloc] initWithUUIDString:[NSString stringWithUTF8String:conf->uuid]];
     if (cbCentralManager.state == CBManagerStatePoweredOn) {
-        //NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], CBCentralManagerScanOptionAllowDuplicatesKey, nil];
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], CBCentralManagerScanOptionAllowDuplicatesKey, nil];
         qt_log("about to start scan");
-        [ cbCentralManager scanForPeripheralsWithServices:nil options:nil ];
+        [ cbCentralManager scanForPeripheralsWithServices:nil options:options ];
         qt_log("scan started");
         startRequested = NO;
-        lastRestart = [[NSDate date] timeIntervalSince1970];
+        //lastRestart = [[NSDate date] timeIntervalSince1970];
     }
     else
         startRequested = YES;
@@ -109,7 +109,7 @@ NSTimeInterval lastRestart = -1;
     if (name == 0) name = @"N/A";
     NSString * uuidstring = [peripheral.identifier UUIDString];
     NSString * logString = [NSString stringWithFormat:@"Received %@ (%@)[%d]", uuidstring, name, (int)[RSSI integerValue]];
-    NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+    //NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
     [self logOnQt:logString];
     if (peripheral.identifier && [devUid isEqual:peripheral.identifier]) {
         NSData * data = [advertisementData objectForKey:@"kCBAdvDataManufacturerData"];
@@ -125,11 +125,11 @@ NSTimeInterval lastRestart = -1;
             }
         }
     }
-    if (now-lastRestart >= 60) {
+    /*if (now-lastRestart >= 60) {
         [self stopScan];
         [self startScan:conf];
         lastRestart = now;
-    }
+    }*/
 }
 
 @end

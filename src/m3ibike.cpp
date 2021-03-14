@@ -51,7 +51,7 @@ void KeiserM3iDeviceSimulator::fillTimeRFields(keiser_m3i_out_t * f, qint64 upda
     if (!sessionStart)
         sessionStart = updateTime;
     f->timeRms = this->sumTime;
-    f->timeRAbsms = updateTime - sessionStart;
+    f->timeRAbsms = (int)(updateTime - sessionStart);
     f->timeR = (int)(this->sumTime / 1000.0 + 0.5);
 }
 
@@ -91,6 +91,7 @@ void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
     this->nActiveUpdates = 0;
     this->lastUpdateTime = 0;
     this->oldPause = true;
+    this->equalTimeDistance = 0;
 }
 
 double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t * f, bool pause) {
@@ -149,13 +150,17 @@ bool KeiserM3iDeviceSimulator::inPause(qint64 ud) const {
     return this->equalTime >= M3I_EQUAL_TIME_THRESHOLD || ud >= M3I_PAUSE_DELAY_DETECT_THRESHOLD;
 }
 
-void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t * f) {
+void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t * f, qint64 ud) {
     if (f->time_orig == this->old_time_orig) {
-        if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
+        this->equalTimeDistance += ud;
+        if (this->equalTimeDistance >= M3I_EQUAL_TIME_DISTANCE_THRESHOLD)
+            this->equalTime = M3I_EQUAL_TIME_THRESHOLD;
+        else if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
             this->equalTime += 1;
     }
     else {
         this->equalTime = 0;
+        this->equalTimeDistance = 0;
         this->old_time_orig = f->time_orig;
     }
 }
@@ -180,10 +185,10 @@ bool KeiserM3iDeviceSimulator::inner_step(keiser_m3i_out_t * f) {
 }
 
 bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
-    this->detectPause(f);
     qint64 updateDiff = now - lastUpdateTime;
+    this->detectPause(f, updateDiff);
     bool nowpause = this->inPause(updateDiff);
-    qDebug() << "ET=" << this->equalTime << " UD="<< updateDiff << " OP=" << oldPause << " NP=" << nowpause;
+    qDebug() << "ET=" << this->equalTime << "ETD=" << this->equalTimeDistance << " UD="<< updateDiff << " OP=" << oldPause << " NP=" << nowpause;
     if (!this->oldPause && !nowpause) {
         this->sumTime += updateDiff;
         this->fillTimeRFields(f, now);
@@ -236,6 +241,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     detectDisc = new QTimer(this);
     elapsedTimer = new QTimer(this);
     elapsedTimer->setSingleShot(false);
+    lastTimerRestart = -1;
     m_instance = this;
     connect(detectDisc, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
@@ -244,13 +250,14 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
         initDone = false;
         detectDisc->stop();
         elapsedTimer->stop();
+        lastTimerRestart = -1;
+        elapsed = lastTimerRestartOffset = k3.time;
         restartScan();
     });
     connect(elapsedTimer, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
-        qint64 now = QDateTime::currentMSecsSinceEpoch();
-        elapsed += (now - lastTimerUpdate) / 1000.0;
-        lastTimerUpdate = now;
+        if (lastTimerRestart > 0)
+            elapsed = lastTimerRestartOffset + (QDateTime::currentMSecsSinceEpoch() - lastTimerRestart) / 1000.0;
     });
 }
 
@@ -300,6 +307,7 @@ void m3ibike::disconnectBluetooth() {
     if (elapsedTimer)
         elapsedTimer->stop();
     disconnecting = true;
+    lastTimerRestart = -1;
 #if defined(Q_OS_IOS)
     if (m3iIOS)
         m3iIOS->stopScan();
@@ -570,7 +578,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         return;
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
-        detectDisc->start(6000);
+        detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
             if (!virtualBike
@@ -603,6 +611,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             emit bikeStarted();
             debug("M3i (re)connected");
         }
+        int oldtime = k3.time;
         bool not_in_pause = k3s.inner_step(&k3);
         double angular_coeff;
 
@@ -624,15 +633,17 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         Speed = k3.speed;
         KCal = k3.calorie;
         Distance = k3.distance;
-        if ((elapsed.value() == 0.0 && k3.time_orig <= 10) || !not_in_pause) {
-            // in the first ten seconds after switching on the bike the time value count be inaccurate. So reset
-            // elapsed time to the balue read from the bike (with offsets)
-            // if paused reset elapsed to cycle time and don't increment m_jouls
-            elapsedTimer->start(1000);
-            elapsed = k3.time;
-            lastTimerUpdate = QDateTime::currentMSecsSinceEpoch();
+        if (!not_in_pause || k3.time_orig <= 10) {
+            lastTimerRestart = -1;
+            elapsedTimer->stop();
+            elapsed = lastTimerRestartOffset = k3.time;
         }
-        m_jouls += (m_watt.value() * (k3.time - elapsed.value()));
+        else if (lastTimerRestart<0) {
+            elapsed = lastTimerRestartOffset = k3.time;
+            lastTimerRestart = QDateTime::currentMSecsSinceEpoch();
+            elapsedTimer->start(1000);
+        }
+        m_jouls += (m_watt.value() * (k3.time - oldtime));
 
         if (Cadence.value() > 0) {
             CrankRevs++;
