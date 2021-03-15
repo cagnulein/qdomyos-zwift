@@ -1,5 +1,6 @@
 #include "metric.h"
 #include <QSettings>
+#include <QDebug>
 
 metric::metric()
 {
@@ -19,9 +20,21 @@ void metric::setValue(double v)
         if(v > 0)
         {
             if(settings.value("watt_gain", 1.0).toDouble() <= 1.25)
+            {
+                if(settings.value("watt_gain", 1.0).toDouble() != 1.0)
+                {
+                    qDebug() << "watt value was " << v << "but it will be transformed to" << v * settings.value("watt_gain", 1.0).toDouble();
+                }
                 v *= settings.value("watt_gain", 1.0).toDouble();
+            }
             if(settings.value("watt_offset", 0.0).toDouble() < 0)
+            {
+                if(settings.value("watt_offset", 0.0).toDouble() != 0.0)
+                {
+                    qDebug() << "watt value was " << v << "but it will be transformed to" << v + settings.value("watt_offset", 0.0).toDouble();
+                }
                 v += settings.value("watt_offset", 0.0).toDouble();
+            }
         }
     }
     m_value = v;
