@@ -864,7 +864,7 @@ void homeform::update()
         if(percHeartRate < 70.0)
         {
             heart->setSecondLine("Z1");
-            heart->setValueFontColor("blue");
+            heart->setValueFontColor("lightsteelblue");
         }
         else if(percHeartRate < 80.0)
         {

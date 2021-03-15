@@ -22,6 +22,7 @@ import Qt.labs.settings 1.0
             property bool miles_unit: false
             property bool pause_on_start: false
             property bool bike_cadence_sensor: false
+            property bool run_cadence_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
             property bool ant_cadence: false
@@ -285,7 +286,7 @@ import Qt.labs.settings 1.0
 
             SwitchDelegate {
                 id: cadenceSensorDelegate
-                text: qsTr("Cadence Sensor (Peloton compatibility)")
+                text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
                 spacing: 0
                 bottomPadding: 0
                 topPadding: 0
@@ -296,6 +297,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.bike_cadence_sensor = checked
+            }
+
+            SwitchDelegate {
+                id: runCadenceSensorDelegate
+                text: qsTr("Run Cadence Sensor (Peloton compatibility)")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.run_cadence_sensor
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.run_cadence_sensor = checked
             }
 
             Label {

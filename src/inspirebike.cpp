@@ -366,11 +366,7 @@ uint16_t inspirebike::watts()
 {
     if(currentCadence().value() == 0) return 0;
 
-    // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
-    if(currentCadence().value() < 90)
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
-    else
-        return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );
+    return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) ) / 2.2);
 }
 
 void inspirebike::controllerStateChanged(QLowEnergyController::ControllerState state)

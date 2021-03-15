@@ -87,7 +87,7 @@ char logs[512];
     conf = config;
     devUid = [[NSUUID alloc] initWithUUIDString:[NSString stringWithUTF8String:conf->uuid]];
     if (cbCentralManager.state == CBManagerStatePoweredOn) {
-        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:NO], CBCentralManagerScanOptionAllowDuplicatesKey, nil];
+        NSDictionary *options = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], CBCentralManagerScanOptionAllowDuplicatesKey, nil];
         qt_log("about to start scan");
         [ cbCentralManager scanForPeripheralsWithServices:nil options:options ];
         qt_log("scan started");

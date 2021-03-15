@@ -321,7 +321,7 @@ double domyoselliptical::GetSpeedFromPacket(QByteArray packet)
 
 double domyoselliptical::GetKcalFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(10) << 8) | packet.at(11);
+    uint16_t convertedData = (packet.at(10) << 8) | ((uint8_t)packet.at(11));
     return (double)convertedData;
 }
 
