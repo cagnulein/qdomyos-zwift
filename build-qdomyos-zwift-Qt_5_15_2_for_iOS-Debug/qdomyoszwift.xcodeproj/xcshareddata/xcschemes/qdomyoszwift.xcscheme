@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5AB2CD3B6D2667D25495CA02"
+               BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
                BuildableName = "qdomyoszwift.app"
                BlueprintName = "qdomyoszwift"
                ReferencedContainer = "container:qdomyoszwift.xcodeproj">
@@ -31,7 +31,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5AB2CD3B6D2667D25495CA02"
+            BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
             BuildableName = "qdomyoszwift.app"
             BlueprintName = "qdomyoszwift"
             ReferencedContainer = "container:qdomyoszwift.xcodeproj">
@@ -73,7 +73,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5AB2CD3B6D2667D25495CA02"
+            BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
             BuildableName = "qdomyoszwift.app"
             BlueprintName = "qdomyoszwift"
             ReferencedContainer = "container:qdomyoszwift.xcodeproj">
@@ -97,7 +97,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "5AB2CD3B6D2667D25495CA02"
+            BlueprintIdentifier = "799833E5566DEFFC37E4BF1E"
             BuildableName = "qdomyoszwift.app"
             BlueprintName = "qdomyoszwift"
             ReferencedContainer = "container:qdomyoszwift.xcodeproj">
