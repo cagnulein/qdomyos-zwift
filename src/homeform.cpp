@@ -751,6 +751,8 @@ void homeform::update()
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));
+        watts = bluetoothManager->device()->wattsMetric().value();
+        watt->setValue(QString::number(watts));
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
@@ -763,10 +765,8 @@ void homeform::update()
             {
                 pace = 0;
             }
-            watts = ((treadmill*)bluetoothManager->device())->watts(settings.value("weight", 75.0).toFloat());
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination().value();
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
-            watt->setValue(QString::number(watts, 'f', 0));            
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine("AVG: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().average(), 'f', 1) + " MAX: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));            
@@ -775,8 +775,6 @@ void homeform::update()
         {
             cadence = ((bike*)bluetoothManager->device())->currentCadence().value();
             resistance = ((bike*)bluetoothManager->device())->currentResistance().value();
-            watts = ((bike*)bluetoothManager->device())->watts();
-            watt->setValue(QString::number(watts));
             this->peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->pelotonResistance().value(), 'f', 0));
             this->target_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
@@ -791,8 +789,6 @@ void homeform::update()
         {
             cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
             resistance = ((elliptical*)bluetoothManager->device())->currentResistance();
-            watts = ((elliptical*)bluetoothManager->device())->watts();
-            watt->setValue(QString::number(watts));
             //this->peloton_resistance->setValue(QString::number(((elliptical*)bluetoothManager->device())->pelotonResistance(), 'f', 0));
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
