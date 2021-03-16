@@ -55,7 +55,7 @@ void KeiserM3iDeviceSimulator::fillTimeRFields(keiser_m3i_out_t * f, qint64 upda
     f->timeR = (int)(this->sumTime / 1000.0 + 0.5);
 }
 
-void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
+void KeiserM3iDeviceSimulator::inner_reset(int buffSize, int equalTimeDist) {
     if (dist_buff && this->buffSize != buffSize) {
         delete[] dist_buff;
         dist_buff = 0;
@@ -67,6 +67,7 @@ void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
         this->dist_buff = new double[this->buffSize];
         this->dist_buff_time = new int [this->buffSize];
     }
+    this->equalTimeDistanceThreshold = equalTimeDist;
     this->dist_buff_idx = 0;
     this->dist_buff_size = 0;
     this->dist_acc = 0.0;
@@ -153,7 +154,7 @@ bool KeiserM3iDeviceSimulator::inPause(qint64 ud) const {
 void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t * f, qint64 ud) {
     if (f->time_orig == this->old_time_orig) {
         this->equalTimeDistance += ud;
-        if (this->equalTimeDistance >= M3I_EQUAL_TIME_DISTANCE_THRESHOLD)
+        if (this->equalTimeDistance >= equalTimeDistanceThreshold)
             this->equalTime = M3I_EQUAL_TIME_THRESHOLD;
         else if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
             this->equalTime += 1;
@@ -604,7 +605,13 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                     connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                 }
                 int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
-                k3s.inner_reset(buffSize);
+                k3s.inner_reset(buffSize,
+#if defined(Q_OS_ANDROID)
+                                qt_search?5000:2500
+#else
+                                2500
+#endif
+                                );
                 m_jouls = 0;
             }
             emit connectedAndDiscovered();

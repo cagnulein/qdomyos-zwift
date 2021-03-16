@@ -84,13 +84,13 @@ class KeiserM3iDeviceSimulator {
 public:
     virtual ~KeiserM3iDeviceSimulator();
     KeiserM3iDeviceSimulator();
-    void inner_reset(int buffSize);
+    void inner_reset(int buffSize, int equalTimeDist);
     bool inner_step(keiser_m3i_out_t * f);
 private:
     #define M3I_EQUAL_TIME_THRESHOLD 8
     #define M3I_VALID_PULSE_THRESHOLD 50
-    #define M3I_EQUAL_TIME_DISTANCE_THRESHOLD 2500
     #define M3I_PAUSE_DELAY_DETECT_THRESHOLD 10000
+    int equalTimeDistanceThreshold = 2500;
     int buffSize = 150;
     double * dist_buff = 0;
     int * dist_buff_time = 0;
