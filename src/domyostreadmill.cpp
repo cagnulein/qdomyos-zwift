@@ -94,7 +94,7 @@ void domyostreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QStri
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
 
     if(!disable_log)
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
