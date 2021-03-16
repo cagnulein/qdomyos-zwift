@@ -420,4 +420,4 @@ ios {
          QMAKE_TARGET_BUNDLE_PREFIX = org.p3g4asus
 }
 
-VERSION = 2.4.25
+VERSION = 2.4.26

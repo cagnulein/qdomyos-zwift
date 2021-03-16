@@ -256,7 +256,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     {
         if(Flags.heartRate)
         {
-            heart = ((double)((newValue.at(index))));
+            heart = ((double)(((uint8_t)newValue.at(index))));
             index += 1;
             debug("Current Heart: " + QString::number(heart));
         }
