@@ -416,8 +416,8 @@ ios {
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 
-    TARGET = qdom
-         QMAKE_TARGET_BUNDLE_PREFIX = org.p3g4asus
+    TARGET = qdomyoszwift
+	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
 VERSION = 2.4.26
