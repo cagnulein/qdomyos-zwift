@@ -607,7 +607,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                 int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
                 k3s.inner_reset(buffSize,
 #if defined(Q_OS_ANDROID)
-                                qt_search?5000:2500
+                                qt_search?2500:5000
 #else
                                 2500
 #endif
