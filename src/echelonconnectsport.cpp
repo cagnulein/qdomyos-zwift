@@ -120,14 +120,13 @@ void echelonconnectsport::update()
         }
         lastTimeUpdate = current;
 
-        // updating the treadmill console every second
-        if(sec1Update++ == (500 / refresh->interval()))
+        // sending poll every 2 seconds
+        if(sec1Update++ >= (2000 / refresh->interval()))
         {
             sec1Update = 0;
+            sendPoll();
             //updateDisplay(elapsed);
-        }
-
-        sendPoll();
+        }        
 
         if(requestResistance != -1)
         {
@@ -276,9 +275,10 @@ void echelonconnectsport::btinit()
     uint8_t initData1[] = { 0xf0, 0xa1, 0x00, 0x91 };
     uint8_t initData2[] = { 0xf0, 0xa3, 0x00, 0x93 };
     uint8_t initData3[] = { 0xf0, 0xb0, 0x01, 0x01, 0xa2 };
-    uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
+    //uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
 
-    writeCharacteristic(initData4, sizeof(initData4), "get sleep", false, true);
+    // useless i guess
+    //writeCharacteristic(initData4, sizeof(initData4), "get sleep", false, true);
 
     // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are enough
     writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
