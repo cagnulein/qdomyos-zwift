@@ -8,7 +8,7 @@
 #include <math.h>
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
 #include <QAndroidJniEnvironment>
 #include <QtAndroid>
 #include "scanrecordresult.h"
@@ -51,11 +51,11 @@ void KeiserM3iDeviceSimulator::fillTimeRFields(keiser_m3i_out_t * f, qint64 upda
     if (!sessionStart)
         sessionStart = updateTime;
     f->timeRms = this->sumTime;
-    f->timeRAbsms = updateTime - sessionStart;
+    f->timeRAbsms = (int)(updateTime - sessionStart);
     f->timeR = (int)(this->sumTime / 1000.0 + 0.5);
 }
 
-void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
+void KeiserM3iDeviceSimulator::inner_reset(int buffSize, int equalTimeDist) {
     if (dist_buff && this->buffSize != buffSize) {
         delete[] dist_buff;
         dist_buff = 0;
@@ -67,6 +67,7 @@ void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
         this->dist_buff = new double[this->buffSize];
         this->dist_buff_time = new int [this->buffSize];
     }
+    this->equalTimeDistanceThreshold = equalTimeDist;
     this->dist_buff_idx = 0;
     this->dist_buff_size = 0;
     this->dist_acc = 0.0;
@@ -91,11 +92,12 @@ void KeiserM3iDeviceSimulator::inner_reset(int buffSize) {
     this->nActiveUpdates = 0;
     this->lastUpdateTime = 0;
     this->oldPause = true;
+    this->equalTimeDistance = 0;
 }
 
 double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t * f, bool pause) {
     double realdist = f->distance + this->distance_o;
-    int realtime = f->time + this->time_o;
+    int realtime = f->time_orig + this->time_o;
     if (this->old_dist < 0) {
         this->old_dist = realdist;
         this->old_timeRms = realtime;
@@ -149,21 +151,25 @@ bool KeiserM3iDeviceSimulator::inPause(qint64 ud) const {
     return this->equalTime >= M3I_EQUAL_TIME_THRESHOLD || ud >= M3I_PAUSE_DELAY_DETECT_THRESHOLD;
 }
 
-void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t * f) {
-    if (f->time == this->old_time_orig) {
-        if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
+void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t * f, qint64 ud) {
+    if (f->time_orig == this->old_time_orig) {
+        this->equalTimeDistance += ud;
+        if (this->equalTimeDistance >= equalTimeDistanceThreshold)
+            this->equalTime = M3I_EQUAL_TIME_THRESHOLD;
+        else if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
             this->equalTime += 1;
     }
     else {
         this->equalTime = 0;
-        this->old_time_orig = f->time;
+        this->equalTimeDistance = 0;
+        this->old_time_orig = f->time_orig;
     }
 }
 
 bool KeiserM3iDeviceSimulator::inner_step(keiser_m3i_out_t * f) {
     qint64 nowms = QDateTime::currentMSecsSinceEpoch();
-    if (this->old_time_orig > f->time) {
-        qDebug() << "Setting offsets Km3i because " << this->old_time_orig << " > " << f->time;
+    if (this->old_time_orig > f->time_orig) {
+        qDebug() << "Setting offsets Km3i because " << this->old_time_orig << " > " << f->time_orig;
         this->_set_offsets();
     }
     f->pulseMn = 0.0;
@@ -180,10 +186,10 @@ bool KeiserM3iDeviceSimulator::inner_step(keiser_m3i_out_t * f) {
 }
 
 bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
-    this->detectPause(f);
     qint64 updateDiff = now - lastUpdateTime;
+    this->detectPause(f, updateDiff);
     bool nowpause = this->inPause(updateDiff);
-    qDebug() << "ET=" << this->equalTime << " UD="<< updateDiff << " OP=" << oldPause << " NP=" << nowpause;
+    qDebug() << "ET=" << this->equalTime << "ETD=" << this->equalTimeDistance << " UD="<< updateDiff << " OP=" << oldPause << " NP=" << nowpause;
     if (!this->oldPause && !nowpause) {
         this->sumTime += updateDiff;
         this->fillTimeRFields(f, now);
@@ -211,7 +217,7 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
         else
             f->distanceR = f->speedMn * (this->sumTime / 3600000.0);
     }
-    f->time += this->time_o;
+    f->time = f->time_orig + this->time_o;
     f->calorie += this->calorie_o;
     f->distance += this->distance_o;
     this->time_old = f->time;
@@ -225,12 +231,18 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
     antHeart = settings.value("ant_heart", false).toBool();
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    qt_search = (QT_VERSION < QT_VERSION_CHECK(5, 12, 0))?false:settings.value("m3i_bike_qt_search", false).toBool();
+#endif
     heartRateBeltDisabled = settings.value("heart_rate_belt_name", "Disabled").toString().startsWith("Disabled");
     m_watt.setType(metric::METRIC_WATT);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
     detectDisc = new QTimer(this);
+    elapsedTimer = new QTimer(this);
+    elapsedTimer->setSingleShot(false);
+    lastTimerRestart = -1;
     m_instance = this;
     connect(detectDisc, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
@@ -238,7 +250,15 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
         debug("M3i detected disconnection");
         initDone = false;
         detectDisc->stop();
+        elapsedTimer->stop();
+        lastTimerRestart = -1;
+        elapsed = lastTimerRestartOffset = k3.time;
         restartScan();
+    });
+    connect(elapsedTimer, &QTimer::timeout, this, [this]() {
+        Q_UNUSED(this);
+        if (lastTimerRestart > 0)
+            elapsed = lastTimerRestartOffset + (QDateTime::currentMSecsSinceEpoch() - lastTimerRestart) / 1000.0;
     });
 }
 
@@ -247,11 +267,15 @@ m3ibike::~m3ibike() {
         detectDisc->stop();
         delete detectDisc;
     }
+    if (elapsedTimer) {
+        elapsedTimer->stop();
+        delete elapsedTimer;
+    }
     if(virtualBike)
         delete virtualBike;
     m_instance = 0;
     disconnecting = true;
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
     if (bluetoothScanner.isValid() && scannerActive)
         bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
     scannerActive = false;
@@ -266,17 +290,30 @@ m3ibike::~m3ibike() {
         }
         delete discoveryAgent;
     }
-#if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
+#if defined(Q_OS_IOS)
+#if !defined(IO_UNDER_QT)
     if (h)
         delete h;
+#endif
+    if (m3iIOS) {
+        m3iIOS->stopScan();
+        delete m3iIOS;
+    }
 #endif
 }
 
 void m3ibike::disconnectBluetooth() {
     if (detectDisc)
         detectDisc->stop();
+    if (elapsedTimer)
+        elapsedTimer->stop();
     disconnecting = true;
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+    lastTimerRestart = -1;
+#if defined(Q_OS_IOS)
+    if (m3iIOS)
+        m3iIOS->stopScan();
+#endif
+#if defined(Q_OS_ANDROID)
     if (bluetoothScanner.isValid() && scannerActive)
         bluetoothScanner.callMethod<void>("stopScan", "(Landroid/bluetooth/le/ScanCallback;)V", scanCallback.object());
     scannerActive = false;
@@ -289,7 +326,7 @@ void m3ibike::disconnectBluetooth() {
     initDone = false;
 }
 
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
 void m3ibike::newAndroidScanResult(JNIEnv * env, jobject /*thiz*/, jobject record) {
     if (m_instance) {
         ScanRecordResult srr(ScanRecordResult::fromJObject(env, record));
@@ -311,9 +348,22 @@ void m3ibike::newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code) {
 #endif
 void m3ibike::restartScan() {
     initScan();
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
-    QSettings settings;
-    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#if defined(Q_OS_IOS)
+    if (!qt_search) {
+        qDebug() << "Starting scan";
+        if (m3iIOS->isScanning()) {
+            qDebug() << "Stop scan Needed";
+            m3iIOS->stopScan();
+            qDebug() << "Stop Called";
+        }
+        QString uuid = bluetoothDevice.deviceUuid().toString();
+        strncpy(m3i_ios_result.uuid,uuid.mid(1,uuid.length()-2).toUpper().toUtf8().constData(),sizeof(m3i_ios_result.uuid)/sizeof(*m3i_ios_result.uuid)-1);
+        m3iIOS->startScan(&m3i_ios_result);
+        qDebug() << "Start called";
+    }
+    else
+#endif
+#if defined(Q_OS_ANDROID)
     if (!qt_search) {
         if (scannerActive) {
             qDebug() << "Stop scan Needed";
@@ -336,9 +386,19 @@ void m3ibike::restartScan() {
 
 }
 void m3ibike::initScan() {
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
-    QSettings settings;
-    bool qt_search = settings.value("m3i_bike_qt_search", false).toBool();
+#if defined(Q_OS_IOS)
+    if (!qt_search) {
+        if (!m3iIOS) {
+            debug("New m3ios");
+            m3iIOS = new M3iIOS();
+            debug("init m3ios");
+            m3iIOS->init(this);
+            debug("init m3ios done");
+        }
+    }
+    else
+#endif
+#if defined(Q_OS_ANDROID)
     if (!qt_search) {
         if (!bluetoothScanner.isValid()) {
             QAndroidJniObject bluetoothManager = QtAndroid::androidActivity().callObjectMethod(
@@ -403,12 +463,12 @@ void m3ibike::initScan() {
     {
         if (!discoveryAgent) {
             discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
             connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)),
                     this, SLOT(deviceDiscoveredPriv(QBluetoothDeviceInfo)));
-        #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
             connect(discoveryAgent, SIGNAL(deviceUpdated(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)),
                     this, SLOT(deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields)));
-        #endif
+#endif
             connect(discoveryAgent, SIGNAL(canceled()),
                     this, SLOT(discoveryFinishedPriv()));
             connect(discoveryAgent, SIGNAL(finished()),
@@ -421,14 +481,12 @@ void m3ibike::initScan() {
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields)
-{
+void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
     debug("deviceUpdated " + device.name() + " " + updateFields);
 }
-#endif
 
 void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo& device) {
-    if (device.address() == bluetoothDevice.address()) {
+    if (SAME_BLUETOOTH_DEVICE(device, bluetoothDevice)) {
         debug("NEW ADV " + bluetoothDevice.name());
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
@@ -439,6 +497,7 @@ void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo& device) {
         }
     }
 }
+#endif
 
 void m3ibike::discoveryFinishedPriv() {
     if (!disconnecting && discoveryAgent)
@@ -473,13 +532,12 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
             k3->software = minor;
             k3->system_id = arr[index + 1];
         }
-        ;
         k3->rpm = arr[index + 2] | arr[index + 3] << 8;
         k3->pulse = arr[index + 4] | arr[index + 5] << 8;
         k3->watt = arr[index + 6] | arr[index + 7] << 8;
         k3->calorie = arr[index + 8] | arr[index + 9] << 8;
-        k3->time = arr[index + 10] * 60;
-        k3->time += arr[index + 11];
+        k3->time_orig = arr[index + 10] * 60;
+        k3->time_orig += arr[index + 11];
         uint16_t dist = arr[index + 12] | arr[index + 13] << 8;
         if (dist & 32768)
             k3->distance = (dist & 0x7FFF) / 10.0;
@@ -497,8 +555,9 @@ bool m3ibike::parse_data(const QByteArray& data, keiser_m3i_out_t * k3) {
 
 bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
     if (device.name().startsWith("M3")) {
-        keiser_m3i_out_t k3;
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
         QSettings settings;
+        keiser_m3i_out_t k3;
         int id = settings.value("m3i_bike_id", 256).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
@@ -508,6 +567,9 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
                 return true;
             }
         }
+#else
+        return true;
+#endif
     }
     return false;
 }
@@ -517,7 +579,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         return;
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
-        detectDisc->start(6000);
+        detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
             if (!virtualBike
@@ -543,13 +605,21 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                     connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                 }
                 int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
-                k3s.inner_reset(buffSize);
+                k3s.inner_reset(buffSize,
+#if defined(Q_OS_ANDROID)
+                                qt_search?2500:5000
+#else
+                                2500
+#endif
+                                );
+                m_jouls = 0;
             }
             emit connectedAndDiscovered();
             emit bikeStarted();
             debug("M3i (re)connected");
         }
-        k3s.inner_step(&k3);
+        int oldtime = k3.time;
+        bool not_in_pause = k3s.inner_step(&k3);
         double angular_coeff;
 
         if ((int)(Resistance.value() + 0.5) != k3.incline) {
@@ -570,8 +640,17 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         Speed = k3.speed;
         KCal = k3.calorie;
         Distance = k3.distance;
-        m_jouls += (m_watt.value() * (k3.time - elapsed.value()));
-        elapsed = k3.time;
+        if (!not_in_pause || k3.time_orig <= 10) {
+            lastTimerRestart = -1;
+            elapsedTimer->stop();
+            elapsed = lastTimerRestartOffset = k3.time;
+        }
+        else if (lastTimerRestart<0) {
+            elapsed = lastTimerRestartOffset = k3.time;
+            lastTimerRestart = QDateTime::currentMSecsSinceEpoch();
+            elapsedTimer->start(1000);
+        }
+        m_jouls += (m_watt.value() * (k3.time - oldtime));
 
         if (Cadence.value() > 0) {
             CrankRevs++;

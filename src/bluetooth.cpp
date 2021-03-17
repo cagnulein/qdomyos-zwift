@@ -124,9 +124,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 
     bool found = false;
-    foreach(QBluetoothDeviceInfo b, devices)
-    {
-        if(!device.name().compare(b.name()))
+    QMutableListIterator<QBluetoothDeviceInfo> i(devices);
+    while (i.hasNext()) {
+        QBluetoothDeviceInfo b = i.next();
+        if(SAME_BLUETOOTH_DEVICE(b,device))
         {
             found = true;
             break;

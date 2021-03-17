@@ -15,6 +15,12 @@
 #include <QBluetoothDeviceDiscoveryAgent>
 #include "metric.h"
 
+#if defined(Q_OS_IOS)
+#define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
+#else
+#define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.address() == d2.address())
+#endif
+
 class bluetoothdevice : public QObject
 {
     Q_OBJECT

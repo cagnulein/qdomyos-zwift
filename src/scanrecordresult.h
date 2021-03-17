@@ -2,7 +2,10 @@
 #define SCANRECORDRESULT_H
 #include <QString>
 #include <QByteArray>
+#include <QMetaType>
+#if defined(Q_OS_ANDROID)
 #include <QAndroidJniObject>
+#endif
 
 class ScanRecordResult
 {
@@ -13,7 +16,9 @@ public:
     ScanRecordResult();
     ~ScanRecordResult();
     ScanRecordResult(int rss, const QString& nam, const QString& addres, const QByteArray& dat);
+ #if defined(Q_OS_ANDROID)
     static ScanRecordResult fromJObject(JNIEnv * env, jobject java);
+#endif
     ScanRecordResult(const ScanRecordResult& sr);
     QString toString() const;
     int getRssi() const;

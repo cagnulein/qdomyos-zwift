@@ -16,9 +16,7 @@
 #include <QtCore/qcoreapplication.h>
 #else
 #include <QtGui/qguiapplication.h>
-#if !defined(M3I_QT_SCAN)
 #include <QAndroidJniObject>
-#endif
 #endif
 #include <QtCore/qlist.h>
 #include <QtCore/qscopedpointer.h>
@@ -34,10 +32,12 @@
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
+#include "ios/M3iIOS-Interface.h"
 #endif
 
 typedef struct keiser_m3i_out_s {
     int time = 0;
+    int time_orig = 0;
     int timeR = 0;
     int timeRms = 0;
     int timeRAbsms = 0;
@@ -57,6 +57,7 @@ typedef struct keiser_m3i_out_s {
     int firmware = 0;
     int system_id = 0;
     void reset() {
+        time_orig = 0;
         time = 0;
         timeR = 0;
         timeRms = 0;
@@ -83,12 +84,13 @@ class KeiserM3iDeviceSimulator {
 public:
     virtual ~KeiserM3iDeviceSimulator();
     KeiserM3iDeviceSimulator();
-    void inner_reset(int buffSize);
+    void inner_reset(int buffSize, int equalTimeDist);
     bool inner_step(keiser_m3i_out_t * f);
 private:
     #define M3I_EQUAL_TIME_THRESHOLD 8
     #define M3I_VALID_PULSE_THRESHOLD 50
     #define M3I_PAUSE_DELAY_DETECT_THRESHOLD 10000
+    int equalTimeDistanceThreshold = 2500;
     int buffSize = 150;
     double * dist_buff = 0;
     int * dist_buff_time = 0;
@@ -116,6 +118,7 @@ private:
     int nActiveUpdates = 0;
     qint64 sessionStart = 0;
     qint64 lastUpdateTime = 0;
+    qint64 equalTimeDistance = 0;
     bool oldPause = true;
 
     void _set_offsets();
@@ -128,9 +131,10 @@ private:
 
     bool inPause(qint64 ud) const;
 
-    void detectPause(const keiser_m3i_out_t * f);
+    void detectPause(const keiser_m3i_out_t * f, qint64 ud);
 };
 
+#define M3i_DISCONNECT_THRESHOLD 5000
 class m3ibike : public bike {
     Q_OBJECT
 public:
@@ -158,10 +162,12 @@ private:
     Q_INVOKABLE void processAdvertising(const QByteArray& data);
     Q_INVOKABLE void restartScan();
     uint16_t watts();
-    QTimer* detectDisc = 0;
+    QTimer* detectDisc = 0, * elapsedTimer = 0;
     uint8_t firstStateChanged = 0;
     KeiserM3iDeviceSimulator k3s;
     keiser_m3i_out_t k3;
+    qint64 lastTimerRestart = -1;
+    int lastTimerRestartOffset = 0;
 
     virtualbike* virtualBike = 0;
 
@@ -171,7 +177,7 @@ private:
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-#if defined(Q_OS_ANDROID) && !defined(M3I_QT_SCAN)
+#if defined(Q_OS_ANDROID)
     QAndroidJniObject bluetoothAdapter;
     QAndroidJniObject bluetoothScanner;
     QAndroidJniObject scanCallback;
@@ -184,14 +190,19 @@ private:
 #endif
     QBluetoothDeviceDiscoveryAgent *discoveryAgent = 0;
 #ifdef Q_OS_IOS
+    M3iIOS * m3iIOS = 0;
     lockscreen* h = 0;
+    m3i_result_t m3i_ios_result;
+#endif
+#if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
+    bool qt_search;
 #endif
 private slots:
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     void deviceUpdatedPriv(const QBluetoothDeviceInfo&, QBluetoothDeviceInfo::Fields);
+    void deviceDiscoveredPriv(const QBluetoothDeviceInfo &device);
 #endif
     void discoveryFinishedPriv();
-    void deviceDiscoveredPriv(const QBluetoothDeviceInfo &device);
 };
 
 

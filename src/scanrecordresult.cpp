@@ -1,9 +1,8 @@
 #include "scanrecordresult.h"
-#include <QAndroidJniEnvironment>
-#include <QAndroidJniObject>
 
 static const int ScanTypeId = qRegisterMetaType<ScanRecordResult>();
 
+#if defined(Q_OS_ANDROID)
 ScanRecordResult ScanRecordResult::fromJObject(JNIEnv * env, jobject java) {
     if (!java)
         return ScanRecordResult();
@@ -27,6 +26,7 @@ ScanRecordResult ScanRecordResult::fromJObject(JNIEnv * env, jobject java) {
     }
     return ScanRecordResult(rssi, name, address, data);
 }
+#endif
 
 bool ScanRecordResult::isValid() const {
     return !address.isEmpty();

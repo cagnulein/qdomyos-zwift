@@ -1513,8 +1513,8 @@ import Qt.labs.settings 1.0
                 color: Material.color(Material.Grey)
             }
             SwitchDelegate {
-                id: m3iBiQtSearchkeDelegate
-                text: qsTr("Use QT search on Android")
+                id: m3iBikeQtSearchDelegate
+                text: qsTr("Use QT search on Android / iOS")
                 spacing: 0
                 bottomPadding: 0
                 topPadding: 0
