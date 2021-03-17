@@ -125,6 +125,9 @@
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
 		87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4025B8340E00A243C4 /* proformbike.cpp */; };
 		87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4225B8341B00A243C4 /* moc_proformbike.cpp */; };
+		8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8762D50B2601F7EA00F6F049 /* M3iNS.mm */; };
+		8762D5102601F7EA00F6F049 /* M3iNSQT.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8762D50C2601F7EA00F6F049 /* M3iNSQT.cpp */; };
+		8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8762D5112601F89500F6F049 /* scanrecordresult.cpp */; };
 		876E4E142594748000BD5714 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 876E4E132594748000BD5714 /* Assets.xcassets */; };
 		876E4E1B2594748000BD5714 /* watchkit Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 876E4E1A2594748000BD5714 /* watchkit Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		876E4E202594748000BD5714 /* qdomyoszwiftApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876E4E1F2594748000BD5714 /* qdomyoszwiftApp.swift */; };
@@ -511,6 +514,12 @@
 		87586A3F25B8340D00A243C4 /* proformbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformbike.h; path = ../src/proformbike.h; sourceTree = "<group>"; };
 		87586A4025B8340E00A243C4 /* proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformbike.cpp; path = ../src/proformbike.cpp; sourceTree = "<group>"; };
 		87586A4225B8341B00A243C4 /* moc_proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformbike.cpp; sourceTree = "<group>"; };
+		8762D50B2601F7EA00F6F049 /* M3iNS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = M3iNS.mm; path = ../src/ios/M3iNS.mm; sourceTree = "<group>"; };
+		8762D50C2601F7EA00F6F049 /* M3iNSQT.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = M3iNSQT.cpp; path = ../src/ios/M3iNSQT.cpp; sourceTree = "<group>"; };
+		8762D50D2601F7EA00F6F049 /* M3iNS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = M3iNS.h; path = ../src/ios/M3iNS.h; sourceTree = "<group>"; };
+		8762D50E2601F7EA00F6F049 /* M3iIOS-Interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "M3iIOS-Interface.h"; path = "../src/ios/M3iIOS-Interface.h"; sourceTree = "<group>"; };
+		8762D5112601F89500F6F049 /* scanrecordresult.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scanrecordresult.cpp; path = ../src/scanrecordresult.cpp; sourceTree = "<group>"; };
+		8762D5122601F89500F6F049 /* scanrecordresult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scanrecordresult.h; path = ../src/scanrecordresult.h; sourceTree = "<group>"; };
 		876E4E112594747F00BD5714 /* watchkit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		876E4E132594748000BD5714 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		876E4E152594748000BD5714 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -966,6 +975,12 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8762D5112601F89500F6F049 /* scanrecordresult.cpp */,
+				8762D5122601F89500F6F049 /* scanrecordresult.h */,
+				8762D50E2601F7EA00F6F049 /* M3iIOS-Interface.h */,
+				8762D50D2601F7EA00F6F049 /* M3iNS.h */,
+				8762D50B2601F7EA00F6F049 /* M3iNS.mm */,
+				8762D50C2601F7EA00F6F049 /* M3iNSQT.cpp */,
 				87D2699A25F535160076AA48 /* m3ibike.cpp */,
 				87D2699925F535160076AA48 /* m3ibike.h */,
 				87D2699D25F535180076AA48 /* skandikawiribike.cpp */,
@@ -1716,6 +1731,7 @@
 				952DBD14DF6369E885020EF4 /* fit_developer_field.cpp in Compile Sources */,
 				876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */,
 				A4BD6DF51CFFF867B7B5AED4 /* fit_developer_field_definition.cpp in Compile Sources */,
+				8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */,
 				3015F9B9FF4CA6D653D46CCA /* fit_developer_field_description.cpp in Compile Sources */,
 				87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */,
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
@@ -1786,6 +1802,7 @@
 				87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */,
 				87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */,
 				87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */,
+				8762D5102601F7EA00F6F049 /* M3iNSQT.cpp in Compile Sources */,
 				E8B499F921FB0AB55C7A8A8B /* moc_gpx.cpp in Compile Sources */,
 				87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */,
 				140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */,
@@ -1796,6 +1813,7 @@
 				8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */,
 				87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */,
 				AFEC086E92015064EB841234 /* moc_trainprogram.cpp in Compile Sources */,
+				8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */,
 				EE29228550794460E7654533 /* moc_trxappgateusbtreadmill.cpp in Compile Sources */,
 				3DB7B5F0CE1E2390CEFFC1E8 /* moc_virtualbike.cpp in Compile Sources */,
 				5FE99682776C1DE51F508F6B /* moc_virtualtreadmill.cpp in Compile Sources */,
@@ -2146,7 +2164,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.4.21;
+				CURRENT_PROJECT_VERSION = 2.4.26;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2198,7 +2216,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.4.21;
+				CURRENT_PROJECT_VERSION = 2.4.26;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2286,7 +2304,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.4.21;
+				CURRENT_PROJECT_VERSION = 2.4.26;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2376,7 +2394,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.4.21;
+				CURRENT_PROJECT_VERSION = 2.4.26;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2460,7 +2478,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.4.21;
+				CURRENT_PROJECT_VERSION = 2.4.26;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2547,7 +2565,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.4.21;
+				CURRENT_PROJECT_VERSION = 2.4.26;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;
