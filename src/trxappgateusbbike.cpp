@@ -86,6 +86,8 @@ void trxappgateusbbike::update()
         if(currentSpeed().value() > 0.0 && !firstUpdate)
            elapsed += ((double)lastTimeUpdate.msecsTo(QTime::currentTime()) / 1000.0);
 
+        lastTimeUpdate = QTime::currentTime();
+
         // updating the bike console every second
         if(sec1update++ == (1000 / refresh->interval()))
         {
@@ -125,7 +127,6 @@ void trxappgateusbbike::update()
         }
     }
 
-    lastTimeUpdate = QTime::currentTime();
     firstUpdate = false;
 }
 
@@ -194,6 +195,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     debug("Current KCal: " + QString::number(kcal));
     debug("Current watt: " + QString::number(watt));
     debug("Current Elapsed from the bike (not used): " + QString::number(GetElapsedFromPacket(newValue)));
+    debug("Current Elapsed: " + QString::number(elapsed.value()));
     debug("Current Distance Calculated: " + QString::number(DistanceCalculated));
 
     if(m_control->error() != QLowEnergyController::NoError)
