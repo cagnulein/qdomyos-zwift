@@ -130,7 +130,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         if(SAME_BLUETOOTH_DEVICE(b,device))
         {
             found = true;
-            i.setValue(device);
             break;
         }
     }
