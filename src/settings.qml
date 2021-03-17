@@ -93,6 +93,7 @@ import Qt.labs.settings 1.0
             property real watt_gain: 1
 
             property string filter_device: "Disabled"
+            property string strava_suffix: "#qdomyos-zwift"
 
             property bool bluetooth_relaxed: false
             property bool battery_service: false
@@ -1663,6 +1664,38 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.watt_gain = wattGainTextField.text
+                }
+            }
+
+            Label {
+                id: stravaLabel
+                text: qsTr("Strava")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelStravaSuffix
+                    text: qsTr("Suffix activity:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: stravaSuffixTextField
+                    text: settings.strava_suffix
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onAccepted: settings.strava_suffix = text
+                }
+                Button {
+                    id: okStravaSuffixButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.strava_suffix = stravaSuffixTextField.text
                 }
             }
 
