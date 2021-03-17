@@ -87,6 +87,8 @@ import Qt.labs.settings 1.0
 
             property bool snode_bike: false
 
+            property int flywheel_filter: 2
+
             property real watt_offset: 0
             property real watt_gain: 1
 
@@ -1368,6 +1370,39 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.snode_bike = checked
+            }
+
+            Label {
+                id: flywheelBikeLabel
+                text: qsTr("Flywheel Bike Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelflywheelBikeFilter
+                    text: qsTr("Samples Filter:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: flywheelBikeFilterTextField
+                    text: settings.flywheel_filter
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.flywheel_filter = text
+                }
+                Button {
+                    id: okflywheelBikeFilterButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                }
             }
 
             Label {

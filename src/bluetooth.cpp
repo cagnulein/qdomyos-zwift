@@ -241,7 +241,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);
             }
-            else if((b.name().toUpper().startsWith("IC BIKE")) && !schwinnIC4Bike && filter)
+            else if((b.name().toUpper().startsWith("IC BIKE") || b.name().toUpper().startsWith("C7-")) && !schwinnIC4Bike && filter)
             {
                 discoveryAgent->stop();
                 schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
