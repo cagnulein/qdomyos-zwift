@@ -857,22 +857,22 @@ void homeform::update()
         if(maxHeartRate == 0) maxHeartRate = 190.0;
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
 
-        if(percHeartRate < 70.0)
+        if(percHeartRate < settings.value("heart_rate_zone1", 70.0).toDouble())
         {
             heart->setSecondLine("Z1");
             heart->setValueFontColor("lightsteelblue");
         }
-        else if(percHeartRate < 80.0)
+        else if(percHeartRate < settings.value("heart_rate_zone2", 80.0).toDouble())
         {
             heart->setSecondLine("Z2");
             heart->setValueFontColor("green");
         }
-        else if(percHeartRate < 90.0)
+        else if(percHeartRate < settings.value("heart_rate_zone3", 90.0).toDouble())
         {
             heart->setSecondLine("Z3");
             heart->setValueFontColor("yellow");
         }
-        else if(percHeartRate < 100.0)
+        else if(percHeartRate < settings.value("heart_rate_zone4", 100.0).toDouble())
         {
             heart->setSecondLine("Z4");
             heart->setValueFontColor("orange");

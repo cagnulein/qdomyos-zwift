@@ -68,6 +68,11 @@ import Qt.labs.settings 1.0
             property bool tile_target_resistance_enabled: true
             property int  tile_target_resistance_order: 15
 
+            property real heart_rate_zone1: 70.0
+            property real heart_rate_zone2: 80.0
+            property real heart_rate_zone3: 90.0
+            property real heart_rate_zone4: 100.0
+
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
 
@@ -1253,6 +1258,111 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
+                }
+            }
+
+            Label {
+                id: heartRateZoneLabel
+                text: qsTr("Heart Rate Zone Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelheartRateZone1Ratio
+                    text: qsTr("Zone 1 %:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: heartRateZone1TextField
+                    text: settings.heart_rate_zone1
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.heart_rate_zone1 = text
+                }
+                Button {
+                    id: okHeartRateZone1Button
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.heart_rate_zone1 = heartRateZone1TextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelheartRateZone2Ratio
+                    text: qsTr("Zone 2 %:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: heartRateZone2TextField
+                    text: settings.heart_rate_zone2
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.heart_rate_zone2 = text
+                }
+                Button {
+                    id: okHeartRateZone2Button
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.heart_rate_zone2 = heartRateZone2TextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelheartRateZone3Ratio
+                    text: qsTr("Zone 3 %:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: heartRateZone3TextField
+                    text: settings.heart_rate_zone3
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.heart_rate_zone3 = text
+                }
+                Button {
+                    id: okHeartRateZone3Button
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.heart_rate_zone3 = heartRateZone3TextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelheartRateZone4Ratio
+                    text: qsTr("Zone 4 %:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: heartRateZone4TextField
+                    text: settings.heart_rate_zone4
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.heart_rate_zone4 = text
+                }
+                Button {
+                    id: okHeartRateZone4Button
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.heart_rate_zone4 = heartRateZone4TextField.text
                 }
             }
 
