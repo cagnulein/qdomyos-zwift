@@ -3,6 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import QtQuick.Window 2.12
+import Qt.labs.settings 1.0
 
 HomeForm{
     objectName: "home"
@@ -10,6 +11,11 @@ HomeForm{
     signal stop_clicked;
     signal plus_clicked(string name)
     signal minus_clicked(string name)
+
+    Settings {
+        id: settings
+        property real ui_zoom: 100.0
+    }
 
     start.onClicked: { start_clicked(); }
     stop.onClicked: { stop_clicked(); }
@@ -19,8 +25,8 @@ HomeForm{
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
-        cellWidth: 175
-        cellHeight: 130
+        cellWidth: 175 * settings.ui_zoom / 100
+        cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
         leftMargin: { (parent.width % cellWidth) / 2 }
@@ -41,15 +47,15 @@ HomeForm{
         //        }
         delegate: Item {
             id: id1
-            width: 170
-            height: 125
+            width: 170 * settings.ui_zoom / 100
+            height: 125 * settings.ui_zoom / 100
 
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
             Rectangle {
-                width: 168
-                height: 123
+                width: 168 * settings.ui_zoom / 100
+                height: 123 * settings.ui_zoom / 100
                 radius: 3
                 border.width: 1
                 border.color: "purple"
@@ -74,8 +80,8 @@ HomeForm{
                 anchors {
 					     bottom: id1.bottom
                 }
-                width: 48
-                height: 48
+                width: 48 * settings.ui_zoom / 100
+                height: 48 * settings.ui_zoom / 100
                 source: icon
             }
             Text {
@@ -88,7 +94,7 @@ HomeForm{
                 }
                 text: value
                 horizontalAlignment: Text.AlignHCenter
-					 font.pointSize: valueFontSize
+                font.pointSize: valueFontSize * settings.ui_zoom / 100
                 font.bold: true
             }
             Text {
@@ -102,7 +108,7 @@ HomeForm{
                 }
                 text: secondLine
                 horizontalAlignment: Text.AlignHCenter
-                font.pointSize: 12
+                font.pointSize: 12 * settings.ui_zoom / 100
                 font.bold: false
             }
             Text {
@@ -115,8 +121,8 @@ HomeForm{
                 color: "white"
                 text: name
                 anchors.left: parent.left
-                anchors.leftMargin: 55
-                anchors.topMargin: 20
+                anchors.leftMargin: 55 * settings.ui_zoom / 100
+                anchors.topMargin: 20 * settings.ui_zoom / 100
             }
             RoundButton {
                 objectName: minusName
@@ -127,8 +133,8 @@ HomeForm{
                 anchors.top: myValue.top
                 anchors.left: parent.left
                 anchors.leftMargin: 2
-                width: 48
-                height: 48
+                width: 48 * settings.ui_zoom / 100
+                height: 48 * settings.ui_zoom / 100
             }
             RoundButton {
                 autoRepeat: true
@@ -139,8 +145,8 @@ HomeForm{
                 anchors.top: myValue.top
                 anchors.right: parent.right
                 anchors.rightMargin: 2
-                width: 48
-                height: 48
+                width: 48 * settings.ui_zoom / 100
+                height: 48 * settings.ui_zoom / 100
             }
 
             /*MouseArea {

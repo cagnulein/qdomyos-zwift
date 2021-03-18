@@ -5,6 +5,7 @@ import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 
     ScrollView {
+        contentWidth: -1
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
@@ -12,6 +13,7 @@ import Qt.labs.settings 1.0
 
         Settings {
             id: settings
+            property real ui_zoom: 100.0
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
             property real bike_resistance_gain_f: 1.0
@@ -132,6 +134,30 @@ import Qt.labs.settings 1.0
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelUiZoom
+                    text: qsTr("UI Zoom:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: uiZoomTextField
+                    text: settings.ui_zoom
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.ui_zoom = text
+                }
+                Button {
+                    id: okUiZoomButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.ui_zoom = uiZoomTextField.text
+                }
             }
 
             RowLayout {
