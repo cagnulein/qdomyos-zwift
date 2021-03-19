@@ -231,6 +231,8 @@ void domyoselliptical::update()
             writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
+
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
     }
 
     firstUpdate = false;
@@ -274,6 +276,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     Cadence = ((uint8_t)newValue.at(9));
     Resistance = newValue.at(14);
+    Inclination = newValue.at(21);
     if(Resistance < 1)
     {
         debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
@@ -297,6 +300,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(Cadence));
     debug("Current resistance: " + QString::number(Resistance));
+    debug("Current inclination: " + QString::number(Inclination.value()));
     debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current Distance: " + QString::number(distance));

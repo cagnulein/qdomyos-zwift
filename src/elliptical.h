@@ -10,6 +10,7 @@ class elliptical:public bluetoothdevice
 public:
     elliptical();
     metric lastRequestedResistance();
+    virtual metric currentInclination();
     virtual int8_t currentResistance();
     virtual uint8_t currentCadence();
     virtual uint8_t fanSpeed();
@@ -21,11 +22,14 @@ public:
 
 public slots:
     virtual void changeResistance(int8_t res);
+    virtual void changeInclination(double inclination);
 
 signals:
     void bikeStarted();
 
 protected:
+    metric Inclination;
+    double requestInclination = -1;
     metric RequestedResistance;
     uint8_t Cadence = 0;
     int8_t Resistance = 0;
