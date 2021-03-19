@@ -13,6 +13,7 @@
 #include <QUrlQuery>
 #include <QHttpMultiPart>
 #include <QFileInfo>
+#include <QRandomGenerator>
 #include "keepawakehelper.h"
 #include "gpx.h"
 #include "qfit.h"
@@ -369,7 +370,7 @@ void homeform::deviceConnected()
                 dataList.append(datetime);
         }
     }
-    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
         for(int i=0; i<100; i++)
         {
@@ -378,6 +379,62 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_cadence_enabled", true).toBool() && settings.value("tile_cadence_order", 0).toInt() == i)
                 dataList.append(cadence);
+
+            if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
+                dataList.append(elevation);
+
+            if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
+                dataList.append(elapsed);
+
+            if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
+                dataList.append(calories);
+
+            if(settings.value("tile_odometer_enabled", true).toBool() && settings.value("tile_odometer_order", 0).toInt() == i)
+                dataList.append(odometer);
+
+            if(settings.value("tile_resistance_enabled", true).toBool() && settings.value("tile_resistance_order", 0).toInt() == i)
+                dataList.append(resistance);
+
+            if(settings.value("tile_peloton_resistance_enabled", true).toBool() && settings.value("tile_peloton_resistance_order", 0).toInt() == i)
+                dataList.append(peloton_resistance);
+
+            if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+                dataList.append(watt);
+
+            if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
+                dataList.append(avgWatt);
+
+            if(settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+                dataList.append(ftp);
+
+            if(settings.value("tile_jouls_enabled", true).toBool() && settings.value("tile_jouls_order", 0).toInt() == i)
+                dataList.append(jouls);
+
+            if(settings.value("tile_heart_enabled", true).toBool() && settings.value("tile_heart_order", 0).toInt() == i)
+                dataList.append(heart);
+
+            if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+                dataList.append(fan);
+
+            if(settings.value("tile_datetime_enabled", true).toBool() && settings.value("tile_datetime_order", 0).toInt() == i)
+                dataList.append(datetime);
+
+            if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
+                dataList.append(target_resistance);
+        }
+    }
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+    {
+        for(int i=0; i<100; i++)
+        {
+            if(settings.value("tile_speed_enabled", true).toBool() && settings.value("tile_speed_order", 0).toInt() == i)
+                dataList.append(speed);
+
+            if(settings.value("tile_cadence_enabled", true).toBool() && settings.value("tile_cadence_order", 0).toInt() == i)
+                dataList.append(cadence);
+
+            if(settings.value("tile_inclination_enabled", true).toBool() && settings.value("tile_inclination_order", 0).toInt() == i)
+                dataList.append(inclination);
 
             if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
                 dataList.append(elevation);
@@ -463,6 +520,10 @@ void homeform::Plus(QString name)
             {
                 ((treadmill*)bluetoothManager->device())->changeInclination(((treadmill*)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
+            else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            {
+                ((elliptical*)bluetoothManager->device())->changeInclination(((elliptical*)bluetoothManager->device())->currentInclination().value() + 0.5);
+            }
         }
     }
     else if(name.contains("target_resistance"))
@@ -530,6 +591,10 @@ void homeform::Minus(QString name)
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
             {
                 ((treadmill*)bluetoothManager->device())->changeInclination(((treadmill*)bluetoothManager->device())->currentInclination().value() - 0.5);
+            }
+            else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            {
+                ((elliptical*)bluetoothManager->device())->changeInclination(((elliptical*)bluetoothManager->device())->currentInclination().value() - 0.5);
             }
         }
     }
@@ -792,6 +857,10 @@ void homeform::update()
             //this->peloton_resistance->setValue(QString::number(((elliptical*)bluetoothManager->device())->pelotonResistance(), 'f', 0));
             this->resistance->setValue(QString::number(resistance));
             this->cadence->setValue(QString::number(cadence));
+            inclination = ((elliptical*)bluetoothManager->device())->currentInclination().value();
+            this->inclination->setValue(QString::number(inclination, 'f', 1));
+            this->inclination->setSecondLine("AVG: " + QString::number(((elliptical*)bluetoothManager->device())->currentInclination().average(), 'f', 1) + " MAX: " + QString::number(((elliptical*)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+            elevation->setValue(QString::number(((elliptical*)bluetoothManager->device())->elevationGain(), 'f', 1));
         }
         watt->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
@@ -906,6 +975,41 @@ void homeform::update()
             KeepAwakeHelper::antObject(false)->callMethod<void>("setCadenceSpeedPower","(FII)V", (float)bluetoothManager->device()->currentSpeed().value(), (int)watts, (int)cadence);
         }
 #endif
+
+        if(settings.value("trainprogram_random", false).toBool() && !paused && !stopped)
+        {
+            static QRandomGenerator r;
+            static uint32_t last_seconds = 0;
+            uint32_t seconds = bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600);
+            if((seconds / 60) < settings.value("trainprogram_total", 60).toUInt())
+            {
+                qDebug() << "trainprogram random seconds " + QString::number(seconds) + " last_change " + last_seconds + " period " + settings.value("trainprogram_period_seconds", 60).toUInt();
+                if(last_seconds == 0 || ((seconds - last_seconds) >= settings.value("trainprogram_period_seconds", 60).toUInt()))
+                {
+                    if(last_seconds == 0) r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
+                    last_seconds = seconds;
+                    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+                    {
+                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination((double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0, (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0);
+                    }
+                    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                    {
+                        ((bike*)bluetoothManager->device())->changeResistance((double)r.bounded(settings.value("trainprogram_resistance_min", 0).toUInt(), settings.value("trainprogram_resistance_max", 32).toUInt()));
+                    }
+                }
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() > 0)
+            {
+                if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+                {
+                    ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(0,0);
+                }
+                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                {
+                    ((bike*)bluetoothManager->device())->changeResistance(1);
+                }
+            }
+        }
 
         if(!stopped && !paused)
         {

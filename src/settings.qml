@@ -96,6 +96,16 @@ import Qt.labs.settings 1.0
 
             property int flywheel_filter: 2
 
+            property bool trainprogram_random: false
+            property int trainprogram_total: 60
+            property real trainprogram_period_seconds: 60
+            property real trainprogram_speed_min: 8
+            property real trainprogram_speed_max: 16
+            property real trainprogram_incline_min: 0
+            property real trainprogram_incline_max: 15
+            property real trainprogram_resistance_min: 1
+            property real trainprogram_resistance_max: 32
+
             property real watt_offset: 0
             property real watt_gain: 1
 
@@ -1709,6 +1719,222 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text
+                }
+            }
+
+            Label {
+                id: trainingProgramRandomLabel
+                text: qsTr("Training Program Random Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: trainingProgramRandomDelegate
+                text: qsTr("Enable")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.trainprogram_random
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.trainprogram_random = checked
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomDuration
+                    text: qsTr("Duration (minutes):")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomDurationTextField
+                    text: settings.trainprogram_total
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_total = text
+                }
+                Button {
+                    id: okTrainProgramRandomDuration
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_total = trainProgramRandomDurationTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomPeriod
+                    text: qsTr("Period (seconds):")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomPeriodTextField
+                    text: settings.trainprogram_period_seconds
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_period_seconds = text
+                }
+                Button {
+                    id: okTrainProgramRandomPeriod
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_period_seconds = trainProgramRandomPeriodTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomSpeedMin
+                    text: qsTr("Speed min.:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomSpeedMinTextField
+                    text: settings.trainprogram_speed_min
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_speed_min = text
+                }
+                Button {
+                    id: okTrainProgramRandomSpeedMin
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_speed_min = trainProgramRandomSpeedMinTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomSpeedMax
+                    text: qsTr("Speed max.:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomSpeedMaxTextField
+                    text: settings.trainprogram_speed_max
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_speed_max = text
+                }
+                Button {
+                    id: okTrainProgramRandomSpeedMax
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_speed_max = trainProgramRandomSpeedMaxTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomInclineMin
+                    text: qsTr("Incline min.:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomInclineMinTextField
+                    text: settings.trainprogram_incline_min
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_incline_min = text
+                }
+                Button {
+                    id: okTrainProgramRandomInclineMin
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_incline_min = trainProgramRandomInclineMinTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomInclineMax
+                    text: qsTr("Incline max.:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomInclineMaxTextField
+                    text: settings.trainprogram_incline_max
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_incline_max = text
+                }
+                Button {
+                    id: okTrainProgramRandomInclineMax
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_incline_max = trainProgramRandomInclineMaxTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomResistanceMin
+                    text: qsTr("Resistance min.:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomResistanceMinTextField
+                    text: settings.trainprogram_resistance_min
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_resistance_min = text
+                }
+                Button {
+                    id: okTrainProgramRandomResistanceMin
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_resistance_min = trainProgramRandomResistanceMinTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelTrainProgramRandomResistanceMax
+                    text: qsTr("Resistance max.:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: trainProgramRandomResistanceMaxTextField
+                    text: settings.trainprogram_resistance_max
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAccepted: settings.trainprogram_resistance_max = text
+                }
+                Button {
+                    id: okTrainProgramRandomResistanceMax
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text
                 }
             }
 
