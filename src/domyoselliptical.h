@@ -45,7 +45,7 @@ private:
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);    
-    void forceResistance(int8_t requestResistance);
+    void forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);
     void btinit_telink(bool startTape);

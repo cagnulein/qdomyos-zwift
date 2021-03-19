@@ -109,7 +109,7 @@ void domyoselliptical::updateDisplay(uint16_t elapsed)
 
 }
 
-void domyoselliptical::forceResistance(int8_t requestResistance)
+void domyoselliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination)
 {
    uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff,
@@ -117,13 +117,16 @@ void domyoselliptical::forceResistance(int8_t requestResistance)
 
    write[10] = requestResistance;
 
+   //write[13] = ((uint16_t)(inclination*10) >> 8) & 0xFF;
+   write[14] = inclination;
+
    for(uint8_t i=0; i<sizeof(write)-1; i++)
    {
       write[22] += write[i]; // the last byte is a sort of a checksum
    }
 
-   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance));
-   writeCharacteristic(&write[20], sizeof (write) - 20, "forceResistance " + QString::number(requestResistance));
+   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination);
+   writeCharacteristic(&write[20], sizeof (write) - 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination);
 }
 
 void domyoselliptical::update()
@@ -197,7 +200,7 @@ void domyoselliptical::update()
                 uint8_t new_res = currentResistance() + 1;
                 if(new_res > 15)
                     new_res = 1;
-                forceResistance(new_res);
+                forceResistanceAndInclination(new_res, currentInclination().value());
             }
         }
 
@@ -209,9 +212,21 @@ void domyoselliptical::update()
            if(requestResistance != currentResistance())
            {
               debug("writing resistance " + QString::number(requestResistance));
-              forceResistance(requestResistance);
+              forceResistanceAndInclination(requestResistance, currentInclination().value());
            }
            requestResistance = -1;
+        }
+        else if(requestInclination != -1)
+        {
+           if(requestInclination > 15) requestInclination = 15;
+           else if(requestInclination == 0) requestInclination = 1;
+
+           if(requestInclination != currentInclination().value())
+           {
+              debug("writing inclination " + QString::number(requestInclination));
+              forceResistanceAndInclination(currentResistance(), requestInclination);
+           }
+           requestInclination = -1;
         }
         if(requestStart != -1)
         {
@@ -565,6 +580,7 @@ void* domyoselliptical::VirtualDevice()
 
 uint16_t domyoselliptical::watts()
 {
+    QSettings settings;
     const uint8_t max_resistance = 15;
     // ref https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
@@ -627,44 +643,46 @@ uint16_t domyoselliptical::watts()
 
     if(currentSpeed().value() <= 0) return 0;
 
+    double vwatts=((9.8* settings.value("weight",75).toDouble() * (currentInclination().value()/100.0)));
+
     if(currentCadence() < 41)
-        return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min);
+        return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min) + vwatts;
     else if(currentCadence() < 46)
-        return((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad45_min);
+        return((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad45_min) + vwatts;
     else if(currentCadence() < 51)
-        return((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad50_min);
+        return((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad50_min) + vwatts;
     else if(currentCadence() < 56)
-        return((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad55_min);
+        return((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad55_min) + vwatts;
     else if(currentCadence() < 61)
-        return((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad60_min);
+        return((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad60_min) + vwatts;
     else if(currentCadence() < 66)
-        return((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad65_min);
+        return((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad65_min) + vwatts;
     else if(currentCadence() < 71)
-        return((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad70_min);
+        return((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad70_min) + vwatts;
     else if(currentCadence() < 76)
-        return((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad75_min);
+        return((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad75_min) + vwatts;
     else if(currentCadence() < 81)
-        return((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad80_min);
+        return((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad80_min) + vwatts;
     else if(currentCadence() < 86)
-        return((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad85_min);
+        return((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad85_min) + vwatts;
     else if(currentCadence() < 91)
-        return((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad90_min);
+        return((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad90_min) + vwatts;
     else if(currentCadence() < 96)
-        return((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad95_min);
+        return((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad95_min) + vwatts;
     else if(currentCadence() < 101)
-        return((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad100_min);
+        return((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad100_min) + vwatts;
     else if(currentCadence() < 106)
-        return((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad105_min);
+        return((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad105_min) + vwatts;
     else if(currentCadence() < 111)
-        return((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad110_min);
+        return((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad110_min) + vwatts;
     else if(currentCadence() < 116)
-        return((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad115_min);
+        return((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad115_min) + vwatts;
     else if(currentCadence() < 121)
-        return((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad120_min);
+        return((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad120_min) + vwatts;
     else if(currentCadence() < 126)
-        return((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad125_min);
+        return((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad125_min) + vwatts;
     else
-        return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad130_min);
+        return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad130_min) + vwatts;
     return 0;
 }
 
