@@ -7,6 +7,7 @@ ApplicationWindow {
     id: window
     width: 640
     height: 480
+    visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
     title: qsTr("Stack")
