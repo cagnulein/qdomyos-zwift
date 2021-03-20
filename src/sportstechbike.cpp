@@ -142,7 +142,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = 0;
+            Heart = ((uint8_t)newValue.at(11));
     }
     FanSpeed = 0;
 
