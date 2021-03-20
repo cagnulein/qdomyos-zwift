@@ -58,7 +58,11 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 #endif
 
             debug("Create socket");
+#ifdef Q_OS_ANDROID
+            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid::Rfcomm, QIODevice::ReadWrite);
+#else
             socket->connectToService(serialPortService);
+#endif
             debug("ConnectToService done");
         }
     }
@@ -68,7 +72,7 @@ void toorxtreadmill::update()
 {
     if(initDone)
     {
-        const char poll[] = {0x55, 0x17, 0x01, 0x01, 0x53};
+        const char poll[] = {0x55, 0x17, 0x01, 0x01};
         socket->write(poll, sizeof(poll));
         debug("write poll");
     }
