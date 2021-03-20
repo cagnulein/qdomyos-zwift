@@ -274,12 +274,12 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (newValue.at(22) == 0x06)
     {
         debug("start button pressed!");
-        requestStart = 1;
+        //requestStart = 1;
     }
     else if (newValue.at(22) == 0x07)
     {
         debug("stop button pressed!");
-        requestStop = 1;
+        //requestStop = 1;
     }
 
     /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
