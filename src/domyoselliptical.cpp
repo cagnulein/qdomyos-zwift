@@ -273,12 +273,12 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (newValue.at(22) == 0x06)
     {
-        debug("start button pressed!");
+        debug("inclination up button pressed!");
         //requestStart = 1;
     }
     else if (newValue.at(22) == 0x07)
     {
-        debug("stop button pressed!");
+        debug("inclination down button pressed!"); // i guess it should be the inclination down
         //requestStop = 1;
     }
 

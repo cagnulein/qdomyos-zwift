@@ -181,20 +181,20 @@ uint16_t sportstechbike::GetElapsedFromPacket(QByteArray packet)
 
 double sportstechbike::GetSpeedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
+    uint16_t convertedData = (packet.at(12) << 8) | ((uint8_t)packet.at(13));
     double data = (double)(convertedData) / 10.0f;
     return data;
 }
 
 double sportstechbike::GetKcalFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
+    uint16_t convertedData = (packet.at(7) << 8) | ((uint8_t)packet.at(8));
     return (double)(convertedData);
 }
 
 double sportstechbike::GetWattFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
+    uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
     double data = ((double)(convertedData));
     return data;
 }
