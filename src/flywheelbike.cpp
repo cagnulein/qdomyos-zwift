@@ -235,20 +235,22 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             {
                 qDebug() << "filtering crappy values";
                 zero_fix_filter++;
-                return;
+            }
+            else
+            {
+                zero_fix_filter = 0;
+
+                Resistance = parsedData->brake_level;
+                Cadence = parsedData->cadence;
+                m_watts = power;
+                Speed = ((double)speed) / 10.0;
+
+                // https://www.facebook.com/groups/149984563348738/permalink/174268944253633/?comment_id=174366620910532&reply_comment_id=174666314213896
+                m_pelotonResistance = (Resistance.value() * 0.8173) + 9.2712;
             }
 
-            zero_fix_filter = 0;
-
-            Resistance = parsedData->brake_level;
-            Cadence = parsedData->cadence;
-            m_watts = power;
-            Speed = ((double)speed) / 10.0;
             KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
             Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-
-            // https://www.facebook.com/groups/149984563348738/permalink/174268944253633/?comment_id=174366620910532&reply_comment_id=174666314213896
-            m_pelotonResistance = (Resistance.value() * 0.8173) + 9.2712;
 
             if(Cadence.value() > 0)
             {
