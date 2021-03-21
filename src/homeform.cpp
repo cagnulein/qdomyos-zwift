@@ -807,8 +807,7 @@ void homeform::update()
 
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
-        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
-        heart->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
+        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));        
         odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
@@ -922,35 +921,37 @@ void homeform::update()
         ftp->setValue("Z" + QString::number(ftpZone, 'f', 0));
         ftp->setSecondLine(ftpMinW + "-" + ftpMaxW + "W " + QString::number(ftpPerc, 'f', 0) + "%");
 
+        QString Z;
         double maxHeartRate = 220.0 - settings.value("age", 35).toDouble();
         if(maxHeartRate == 0) maxHeartRate = 190.0;
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
 
         if(percHeartRate < settings.value("heart_rate_zone1", 70.0).toDouble())
         {
-            heart->setSecondLine("Z1");
+            Z = "Z1";
             heart->setValueFontColor("lightsteelblue");
         }
         else if(percHeartRate < settings.value("heart_rate_zone2", 80.0).toDouble())
         {
-            heart->setSecondLine("Z2");
+            Z = "Z2";
             heart->setValueFontColor("green");
         }
         else if(percHeartRate < settings.value("heart_rate_zone3", 90.0).toDouble())
         {
-            heart->setSecondLine("Z3");
+            Z = "Z3";
             heart->setValueFontColor("yellow");
         }
         else if(percHeartRate < settings.value("heart_rate_zone4", 100.0).toDouble())
         {
-            heart->setSecondLine("Z4");
+            Z = "Z4";
             heart->setValueFontColor("orange");
         }
         else
         {
-            heart->setSecondLine("Z5");
+            Z = "Z5";
             heart->setValueFontColor("red");
         }
+        heart->setSecondLine(Z + " AVG: " + QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
 
 /*
         if(trainProgram)
