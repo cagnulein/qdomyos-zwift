@@ -25,6 +25,7 @@ import Qt.labs.settings 1.0
             property bool pause_on_start: false
             property bool bike_cadence_sensor: false
             property bool run_cadence_sensor: false
+            property bool bike_power_sensor: false
             property string heart_rate_belt_name: "Disabled"
 
             property bool ant_cadence: false
@@ -2144,7 +2145,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.bluetooth_relaxed = checked
             }
-/*
+
             SwitchDelegate {
                 id: batteryServiceDelegate
                 text: qsTr("Simulate Battery Service")
@@ -2159,7 +2160,7 @@ import Qt.labs.settings 1.0
                 Layout.fillWidth: true
                 onClicked: settings.battery_service = checked
             }
-
+/*
             SwitchDelegate {
                 id: serviceChangedDelegate
                 text: qsTr("Service Changed Service")
@@ -2203,6 +2204,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.virtual_device_onlyheart = checked
+            }
+
+            SwitchDelegate {
+                id: bikePowerSensorDelegate
+                text: qsTr("Bike Power Sensor")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.bike_power_sensor
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.bike_power_sensor = checked
             }
 
             SwitchDelegate {
