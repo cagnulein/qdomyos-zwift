@@ -75,6 +75,9 @@ import Qt.labs.settings 1.0
             property real heart_rate_zone3: 90.0
             property real heart_rate_zone4: 100.0
 
+            property real peloton_gain: 1.0
+            property real peloton_offset: 0
+
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
 
@@ -1399,6 +1402,63 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.heart_rate_zone4 = heartRateZone4TextField.text
+                }
+            }
+
+            Label {
+                id: pelotonLabel
+                text: qsTr("Peloton Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelPelotonGain
+                    text: qsTr("Conversion Gain:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: pelotonGainTextField
+                    text: settings.peloton_gain
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.peloton_gain = text
+                }
+                Button {
+                    id: okPelotonGainButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.peloton_gain = pelotonGainTextField.text
+                }
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labelPelotonOffset
+                    text: qsTr("Conversion Offset:")
+                    Layout.fillWidth: true
+                }
+                TextField {
+                    id: pelotonOffsetTextField
+                    text: settings.peloton_offset
+                    horizontalAlignment: Text.AlignRight
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                    onAccepted: settings.peloton_offset = text
+                }
+                Button {
+                    id: okPelotonOffsetButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.peloton_offset = pelotonOffsetTextField.text
                 }
             }
 
