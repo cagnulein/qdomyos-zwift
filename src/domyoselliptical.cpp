@@ -118,7 +118,7 @@ void domyoselliptical::forceResistanceAndInclination(int8_t requestResistance, u
    write[10] = requestResistance;
 
    //write[13] = ((uint16_t)(inclination*10) >> 8) & 0xFF;
-   write[14] = inclination;
+   //write[14] = inclination; //need a hci snoof log about it
 
    for(uint8_t i=0; i<sizeof(write)-1; i++)
    {
