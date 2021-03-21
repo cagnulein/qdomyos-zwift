@@ -532,9 +532,9 @@ void homeform::Plus(QString name)
         {
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
             {
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.1);
+                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
                 if(bluetoothManager->device()->difficult() == 0)
-                    bluetoothManager->device()->setDifficult(0.1);
+                    bluetoothManager->device()->setDifficult(0.03);
 
                 if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                 {
@@ -604,9 +604,9 @@ void homeform::Minus(QString name)
         {
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
             {
-                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.1);
+                bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
                 if(bluetoothManager->device()->difficult() == 0)
-                    bluetoothManager->device()->setDifficult(-0.1);
+                    bluetoothManager->device()->setDifficult(-0.03);
 
                 if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                 {
