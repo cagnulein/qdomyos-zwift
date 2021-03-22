@@ -116,6 +116,7 @@ import Qt.labs.settings 1.0
             property string filter_device: "Disabled"
             property string strava_suffix: "#qdomyos-zwift"
 
+            property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
             property bool battery_service: false
             property bool service_changed: false
@@ -2204,6 +2205,21 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.virtual_device_onlyheart = checked
+            }
+
+            SwitchDelegate {
+                id: virtualBikeForceResistanceDelegate
+                text: qsTr("Zwift Force Resistance")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.virtualbike_forceresistance
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.virtualbike_forceresistance = checked
             }
 
             SwitchDelegate {

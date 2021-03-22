@@ -339,6 +339,8 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     QByteArray reply;
+    QSettings settings;
+    bool force_resistance = settings.value("virtualbike_forceresistance", true).toBool();
     qDebug() << "characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue.toHex(' ');
 
     switch(characteristic.uuid().toUInt16())
@@ -349,8 +351,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // Set Target Resistance
             uint8_t uresistance = newValue.at(1);
             uresistance = uresistance / 10;
-            Bike->changeResistance(uresistance);
-            qDebug() << "new requested resistance " + QString::number(uresistance);
+            if(force_resistance)
+                Bike->changeResistance(uresistance);
+            qDebug() << "new requested resistance " + QString::number(uresistance) + " enabled " + force_resistance;
             reply.append((quint8)FTMS_RESPONSE_CODE);
             reply.append((quint8)FTMS_SET_TARGET_RESISTANCE_LEVEL);
             reply.append((quint8)FTMS_SUCCESS);
@@ -363,10 +366,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              reply.append((quint8)FTMS_SUCCESS);
 
              int16_t iresistance = (((uint8_t)newValue.at(3)) + (newValue.at(4) << 8));
-             qDebug() << "new requested resistance zwift erg grade " + QString::number(iresistance);
+             qDebug() << "new requested resistance zwift erg grade " + QString::number(iresistance) + " enabled " + force_resistance;
              double resistance = ((double)iresistance * 1.5) / 100.0;
              qDebug() << "calculated erg grade " + QString::number(resistance);
-             Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
+             if(force_resistance)
+                 Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)
          {
