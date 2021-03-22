@@ -171,6 +171,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool debuglog = settings.value("log_debug", false).toBool();
     if(debuglog == false)
+#if defined(Q_OS_LINUX) || defined(Q_OS_WINDOWS)
+#ifndef Q_OS_ANDROID
+        if(forceQml)
+#endif
+#endif
         return;
 
     QByteArray localMsg = msg.toLocal8Bit();
