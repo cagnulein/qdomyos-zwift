@@ -49,15 +49,15 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
 
     if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
+        qDebug() << " >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info;
 
     loop.exec();
 
     if(timeout.isActive() == false)
-        debug(" exit for timeout");
+        qDebug() << " exit for timeout";
 }
 
 void domyosbike::updateDisplay(uint16_t elapsed)
@@ -188,7 +188,7 @@ void domyosbike::update()
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             if(virtual_device_enabled)
             {
-                debug("creating virtual bike interface...");
+                qDebug() << "creating virtual bike interface...";
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 //connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
                 firstVirtual = 1;
@@ -225,14 +225,14 @@ void domyosbike::update()
 
            if(requestResistance != currentResistance().value())
            {
-              debug("writing resistance " + QString::number(requestResistance));
+              qDebug() << "writing resistance " + QString::number(requestResistance);
               forceResistance(requestResistance);
            }
            requestResistance = -1;
         }
         if(requestStart != -1)
         {
-           debug("starting...");
+           qDebug() << "starting...";
 
            //if(bike_type == CHANG_YOW)
                btinit_changyow(true);
@@ -244,7 +244,7 @@ void domyosbike::update()
         }
         if(requestStop != -1)
         {
-            debug("stopping...");
+            qDebug() << "stopping...";
             writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
@@ -255,7 +255,7 @@ void domyosbike::update()
 
 void domyosbike::serviceDiscovered(const QBluetoothUuid &gatt)
 {
-    debug("serviceDiscovered " + gatt.toString());
+    qDebug() << "serviceDiscovered " + gatt.toString();
 }
 
 void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
@@ -265,7 +265,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
-    debug(" << " + newValue.toHex(' '));
+    qDebug() << " << " + newValue.toHex(' ');
 
     lastPacket = newValue;
     if (newValue.length() != 26)
@@ -273,12 +273,12 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     if (newValue.at(22) == 0x06)
     {
-        debug("start button pressed!");
+        qDebug() << "start button pressed!";
         requestStart = 1;
     }
     else if (newValue.at(22) == 0x07)
     {
-        debug("stop button pressed!");
+        qDebug() << "stop button pressed!";
         requestStop = 1;
     }
 
@@ -293,7 +293,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Resistance = newValue.at(14);
     if(Resistance.value() < 1)
     {
-        debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
+        qDebug() << "invalid resistance value " + QString::number(Resistance.value()) + " putting to default";
         Resistance = 1;
     }
 
@@ -314,15 +314,15 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence.value()));
-    debug("Current resistance: " + QString::number(Resistance.value()));
-    debug("Current heart: " + QString::number(Heart.value()));
-    debug("Current KCal: " + QString::number(kcal));
-    debug("Current Distance: " + QString::number(distance));
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-    debug("Current Watt: " + QString::number(watts()));
+    qDebug() << "Current speed: " + QString::number(speed);
+    qDebug() << "Current cadence: " + QString::number(Cadence.value());
+    qDebug() << "Current resistance: " + QString::number(Resistance.value());
+    qDebug() << "Current heart: " + QString::number(Heart.value());
+    qDebug() << "Current KCal: " + QString::number(kcal);
+    qDebug() << "Current Distance: " + QString::number(distance);
+    qDebug() << "Current CrankRevs: " + QString::number(CrankRevs);
+    qDebug() << "Last CrankEventTime: " + QString::number(LastCrankEventTime);
+    qDebug() << "Current Watt: " + QString::number(watts());
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
@@ -439,7 +439,7 @@ void domyosbike::stateChanged(QLowEnergyService::ServiceState state)
     QBluetoothUuid _gattNotifyCharacteristicId((QString)"49535343-1e4d-4bd9-ba61-23c647249616");
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    qDebug() << "BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
     if(state == QLowEnergyService::ServiceDiscovered)
     {
@@ -474,7 +474,7 @@ void domyosbike::searchingStop()
 
 void domyosbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
 {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    qDebug() << "descriptorWritten " + descriptor.name() + " " + newValue.toHex(' ');
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -483,12 +483,12 @@ void domyosbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const
 void domyosbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    qDebug() << "characteristicWritten " + newValue.toHex(' ');
 }
 
 void domyosbike::serviceScanDone(void)
 {
-    debug("serviceScanDone");
+    qDebug() << "serviceScanDone";
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)"49535343-fe7d-4ae5-8fa9-9fafd205e455");
 
@@ -500,30 +500,30 @@ void domyosbike::serviceScanDone(void)
 void domyosbike::errorService(QLowEnergyService::ServiceError err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("domyosbike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    qDebug() << "domyosbike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString();
 }
 
 void domyosbike::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("domyosbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    qDebug() << "domyosbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString();
 }
 
 void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    qDebug() << "Found new device: " + device.name() + " (" + device.address().toString() + ')';
     if(device.name().startsWith("Domyos-Bike") && !device.name().startsWith("DomyosBridge"))
     {
         bluetoothDevice = device;
 
         if(device.address().toString().startsWith("57"))
         {
-            debug("domyos telink bike found");
+            qDebug() << "domyos telink bike found";
             bike_type = TELINK;
         }
         else
         {
-            debug("domyos changyow bike found");
+            qDebug() << "domyos changyow bike found";
             bike_type = CHANG_YOW;
         }
 
@@ -540,18 +540,18 @@ void domyosbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, [this](QLowEnergyController::Error error) {
             Q_UNUSED(error);
             Q_UNUSED(this);
-            debug("Cannot connect to remote device.");
+            qDebug() << "Cannot connect to remote device.";
             searchStopped = false;
             emit disconnected();
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            qDebug() << "Controller connected. Search services...";
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            qDebug() << "LowEnergy controller disconnected";
             searchStopped = false;
             emit disconnected();
         });
