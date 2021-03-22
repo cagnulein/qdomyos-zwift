@@ -225,7 +225,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
             lockscreen h;
             long appleWatchHeartRate = h.heartRate();
             Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
 #endif
 #endif
         }
