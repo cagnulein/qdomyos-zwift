@@ -362,7 +362,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              reply.append((quint8)FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS);
              reply.append((quint8)FTMS_SUCCESS);
 
-             int16_t iresistance = (newValue.at(3) + (newValue.at(4) << 8));
+             int16_t iresistance = (((uint8_t)newValue.at(3)) + (newValue.at(4) << 8));
              qDebug() << "new requested resistance zwift erg grade " + QString::number(iresistance);
              double resistance = ((double)iresistance * 1.5) / 100.0;
              qDebug() << "calculated erg grade " + QString::number(resistance);
