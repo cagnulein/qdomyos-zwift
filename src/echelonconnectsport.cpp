@@ -291,6 +291,13 @@ void echelonconnectsport::btinit()
     writeCharacteristic(initData3, sizeof(initData3), "init", false, true);
 
     initDone = true;
+
+    if(lastResistanceBeforeDisconnection != -1)
+    {
+        qDebug() << "forcing resistance to " + QString::number(lastResistanceBeforeDisconnection) + ". It was the last value before the disconnection.";
+        forceResistance(lastResistanceBeforeDisconnection);
+        lastResistanceBeforeDisconnection = -1;
+    }
 }
 
 void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
@@ -528,6 +535,7 @@ void echelonconnectsport::controllerStateChanged(QLowEnergyController::Controlle
     qDebug() << "controllerStateChanged" << state;
     if(state == QLowEnergyController::UnconnectedState && m_control)
     {
+        lastResistanceBeforeDisconnection = Resistance.value();
         qDebug() << "trying to connect back again...";
         initDone = false;
         m_control->connectToDevice();
