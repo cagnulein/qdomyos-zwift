@@ -1543,7 +1543,7 @@ import Qt.labs.settings 1.0
 
             SwitchDelegate {
                 id: toorxBikeDelegate
-                text: qsTr("Toorx Bike")
+                text: qsTr("Toorx/iConsole Bike")
                 spacing: 0
                 bottomPadding: 0
                 topPadding: 0
