@@ -369,7 +369,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                connect(virtualBike,&virtualbike::debug ,this,&skandikawiribike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&skandikawiribike::debug);
             }
         }
         firstStateChanged = 1;

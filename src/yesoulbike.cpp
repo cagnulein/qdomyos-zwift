@@ -277,7 +277,7 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&yesoulbike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&yesoulbike::debug);
             }
         }
         firstStateChanged = 1;

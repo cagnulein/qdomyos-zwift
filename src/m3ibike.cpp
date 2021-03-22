@@ -602,7 +602,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                 if (virtual_device_enabled) {
                     debug("creating virtual bike interface...");
                     virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                    connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
+                    //connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                 }
                 int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
                 k3s.inner_reset(buffSize,

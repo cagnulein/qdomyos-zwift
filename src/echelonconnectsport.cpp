@@ -45,14 +45,14 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
     if(gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
        m_control->state() == QLowEnergyController::UnconnectedState)
     {
-        debug("writeCharacteristic error because the connection is closed");
+        qDebug() << "writeCharacteristic error because the connection is closed";
         return;
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
 
     if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
+        qDebug() << " >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info;
 
     loop.exec();
 }
@@ -135,14 +135,14 @@ void echelonconnectsport::update()
 
            if(requestResistance != currentResistance().value())
            {
-              debug("writing resistance " + QString::number(requestResistance));
+              qDebug() << "writing resistance " + QString::number(requestResistance);
               forceResistance(requestResistance);
            }
            requestResistance = -1;
         }
         if(requestStart != -1)
         {
-           debug("starting...");
+           qDebug() << "starting...";
 
            //btinit();
 
@@ -151,7 +151,7 @@ void echelonconnectsport::update()
         }
         if(requestStop != -1)
         {
-            debug("stopping...");
+            qDebug() << "stopping...";
             //writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
@@ -162,7 +162,7 @@ void echelonconnectsport::update()
 
 void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt)
 {
-    debug("serviceDiscovered " + gatt.toString());
+    qDebug() << "serviceDiscovered " + gatt.toString();
 }
 
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
@@ -172,7 +172,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
-    debug(" << " + newValue.toHex(' '));
+    qDebug() << " << " + newValue.toHex(' ');
 
     lastPacket = newValue;
 
@@ -187,7 +187,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
             p = 0;
         m_pelotonResistance = p;
 
-        debug("Current resistance: " + QString::number(Resistance.value()));
+        qDebug() << "Current resistance: " + QString::number(Resistance.value());
         return;
     }
 
@@ -243,14 +243,14 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 #endif
     
-    debug("Current Local elapsed: " + GetElapsedFromPacket(newValue).toString());
-    debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance.value()));
-    debug("Current Cadence: " + QString::number(Cadence.value()));
-    debug("Current Distance: " + QString::number(distance));
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-    debug("Current Watt: " + QString::number(watts()));
+    qDebug() << "Current Local elapsed: " + GetElapsedFromPacket(newValue).toString();
+    qDebug() << "Current Speed: " + QString::number(Speed.value());
+    qDebug() << "Current Calculate Distance: " + QString::number(Distance.value());
+    qDebug() << "Current Cadence: " + QString::number(Cadence.value());
+    qDebug() << "Current Distance: " + QString::number(distance);
+    qDebug() << "Current CrankRevs: " + QString::number(CrankRevs);
+    qDebug() << "Last CrankEventTime: " + QString::number(LastCrankEventTime);
+    qDebug() << "Current Watt: " + QString::number(watts());
     
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
@@ -300,7 +300,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
     QBluetoothUuid _gattNotify2CharacteristicId((QString)"0bf669f4-45f2-11e7-9598-0800200c9a66");
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    qDebug() << "BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state));
 
     if(state == QLowEnergyService::ServiceDiscovered)
     {
@@ -349,9 +349,9 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
 #endif
                 if(virtual_device_enabled)
             {
-                debug("creating virtual bike interface...");
+                qDebug() << "creating virtual bike interface...";
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
             }
         }
         firstStateChanged = 1;
@@ -367,7 +367,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state)
 
 void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
 {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    qDebug() << "descriptorWritten " + descriptor.name() + " " + newValue.toHex(' ');
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -376,12 +376,12 @@ void echelonconnectsport::descriptorWritten(const QLowEnergyDescriptor &descript
 void echelonconnectsport::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    qDebug() << "characteristicWritten " + newValue.toHex(' ');
 }
 
 void echelonconnectsport::serviceScanDone(void)
 {
-    debug("serviceScanDone");
+    qDebug() << "serviceScanDone";
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)"0bf669f1-45f2-11e7-9598-0800200c9a66");
 
@@ -393,18 +393,18 @@ void echelonconnectsport::serviceScanDone(void)
 void echelonconnectsport::errorService(QLowEnergyService::ServiceError err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("echelonconnectsport::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    qDebug() << "echelonconnectsport::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString();
 }
 
 void echelonconnectsport::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("echelonconnectsport::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    qDebug() << "echelonconnectsport::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString();
 }
 
 void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    qDebug() << "Found new device: " + device.name() + " (" + device.address().toString() + ')';
     if(device.name().startsWith("ECH"))
     {
         bluetoothDevice = device;
@@ -422,17 +422,17 @@ void echelonconnectsport::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 this, [this](QLowEnergyController::Error error) {
             Q_UNUSED(error);
             Q_UNUSED(this);
-            debug("Cannot connect to remote device.");
+            qDebug() << "Cannot connect to remote device.";
             emit disconnected();
         });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            qDebug() << "Controller connected. Search services...";
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            qDebug() << "LowEnergy controller disconnected";
             emit disconnected();
         });
 

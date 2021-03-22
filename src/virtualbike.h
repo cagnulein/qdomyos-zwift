@@ -56,9 +56,6 @@ private:
 
     void writeCharacteristic(QLowEnergyService* service, QLowEnergyCharacteristic characteristic, QByteArray value);
 
-signals:
-    void debug(QString string);
-
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void bikeProvider();

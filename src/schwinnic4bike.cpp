@@ -389,7 +389,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
             }
     }
     firstStateChanged = 1;

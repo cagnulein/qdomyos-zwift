@@ -275,7 +275,7 @@ void sportstechbike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&sportstechbike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&sportstechbike::debug);
             }
         }
         firstVirtualBike = 1;

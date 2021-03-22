@@ -235,7 +235,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 emit(deviceConnected());
                 connect(echelonConnectSport, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 echelonConnectSport->deviceDiscovered(b);

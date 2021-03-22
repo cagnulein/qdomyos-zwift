@@ -379,7 +379,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
             }
         }
         firstVirtualBike = 1;

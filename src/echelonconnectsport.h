@@ -84,7 +84,6 @@ private:
 
 signals:
     void disconnected();
-    void debug(QString string);
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

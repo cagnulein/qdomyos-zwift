@@ -383,7 +383,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&flywheelbike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&flywheelbike::debug);
             }
         }
         firstStateChanged = 1;

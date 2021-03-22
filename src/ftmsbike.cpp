@@ -419,7 +419,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             }
     }
     firstStateChanged = 1;

@@ -394,7 +394,7 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike,&virtualbike::debug ,this,&snodebike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&snodebike::debug);
             }
     }
     firstStateChanged = 1;

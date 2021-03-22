@@ -190,7 +190,7 @@ void domyosbike::update()
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&domyosbike::debug);
                 firstVirtual = 1;
             }
         }
