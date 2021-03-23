@@ -721,8 +721,6 @@ void virtualbike::bikeProvider()
         }
         value.append(sum);
 
-        // TODO: manage the resistance change notification
-
         QLowEnergyCharacteristic characteristic
                         = service->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
         Q_ASSERT(characteristic.isValid());
@@ -732,6 +730,23 @@ void virtualbike::bikeProvider()
             return;
         }
         writeCharacteristic(service, characteristic, value);
+
+        // resistance change notification
+        // f0 d2 01 0b ce
+        QByteArray resistance;
+        resistance.append(0xf0);
+        resistance.append(0xd2);
+        resistance.append(0x01);
+        resistance.append(Bike->currentResistance().value());
+
+        sum = 0;
+        for(uint8_t i=0; i<resistance.length(); i++)
+        {
+           sum += resistance[i]; // the last byte is a sort of a checksum
+        }
+        resistance.append(sum);
+        writeCharacteristic(service, characteristic, resistance);
+
     }
     //characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
