@@ -33,6 +33,13 @@ void toorxtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 // In your local slot, read information about the found devices
 void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 {
+    // this treadmill has more serial port, just the first one is the right one.
+    if(socket != nullptr)
+    {
+        qDebug() << "toorxtreadmill::serviceDiscovered socket already initialized";
+        return;
+    }
+
     qDebug() << "toorxtreadmill::serviceDiscovered" << service;
     if(service.device().address() == bluetoothDevice.address())
     {
