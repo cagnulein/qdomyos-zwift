@@ -148,7 +148,7 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
     //y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
-    m_pelotonResistance = ((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) + (2.575 * Resistance.value()) + 0.0444);
+    m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) + (2.575 * Resistance.value()) + 0.0444) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
 
     if(Cadence.value() > 0)
     {
