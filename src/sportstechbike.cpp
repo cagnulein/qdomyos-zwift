@@ -174,8 +174,9 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
 uint16_t sportstechbike::GetElapsedFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(3));
-    convertedData += (((uint16_t)packet.at(4)) << 8);
+    uint16_t convertedDataSec = (packet.at(4));
+    uint16_t convertedDataMin = (packet.at(3));
+    uint16_t convertedData = convertedDataMin * 60.f + convertedDataSec;
     return convertedData;
 }
 
