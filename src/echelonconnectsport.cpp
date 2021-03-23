@@ -49,6 +49,12 @@ void echelonconnectsport::writeCharacteristic(uint8_t* data, uint8_t data_len, Q
         return;
     }
 
+    if(!gattWriteCharacteristic.isValid())
+    {
+        qDebug() << "gattWriteCharacteristic is invalid";
+        return;
+    }
+
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
 
     if(!disable_log)
