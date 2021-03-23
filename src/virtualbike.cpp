@@ -472,7 +472,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     if(characteristic.uuid().toString().contains("0bf669f2-45f2-11e7-9598-0800200c9a66"))
     {
         QLowEnergyCharacteristic characteristic
-                = serviceFIT->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
+                = service->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
         Q_ASSERT(characteristic.isValid());
         if(leController->state() != QLowEnergyController::ConnectedState)
         {
@@ -724,7 +724,7 @@ void virtualbike::bikeProvider()
         // TODO: manage the resistance change notification
 
         QLowEnergyCharacteristic characteristic
-                        = serviceFIT->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
+                        = service->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
         Q_ASSERT(characteristic.isValid());
         if(leController->state() != QLowEnergyController::ConnectedState)
         {
