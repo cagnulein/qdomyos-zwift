@@ -249,52 +249,6 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 m_pelotonResistance = (Resistance.value() * 0.8173) + 9.2712;
             }
 
-            KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
-            Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-
-            if(Cadence.value() > 0)
-            {
-                CrankRevs++;
-                LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-            }
-
-            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-
-            if(heartRateBeltName.startsWith("Disabled"))
-            {
-        #ifdef Q_OS_IOS
-        #ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-        #endif
-        #endif
-            }
-
-        #ifdef Q_OS_IOS
-        #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-            if(ios_peloton_workaround && cadence && h && firstStateChanged)
-            {
-                h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
-                h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
-            }
-        #endif
-        #endif
-
-            debug("Current Resistance: " + QString::number(Resistance.value()));
-            debug("Current Speed: " + QString::number(Speed.value()));
-            debug("Current Calculate Distance: " + QString::number(Distance.value()));
-            debug("Current Cadence: " + QString::number(Cadence.value()));
-            debug("Current Distance: " + QString::number(distance));
-            debug("Current CrankRevs: " + QString::number(CrankRevs));
-            debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-            debug("Current Watt: " + QString::number(watts()));
-
-            if(m_control->error() != QLowEnergyController::NoError)
-                qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
             return;
         }
 
@@ -314,6 +268,54 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
         //[_delegate didUpdateStatus:BIKE_MESSAGE_UNKNOWN];
     }
+
+    // calculate the acculamator every time on the current data, in order to avoid holes in peloton or strava
+    KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
+    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+
+    if(Cadence.value() > 0)
+    {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
+
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+    if(heartRateBeltName.startsWith("Disabled"))
+    {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen h;
+    long appleWatchHeartRate = h.heartRate();
+    Heart = appleWatchHeartRate;
+    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+    }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    if(ios_peloton_workaround && cadence && h && firstStateChanged)
+    {
+        h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
+        h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+    }
+#endif
+#endif
+
+    debug("Current Resistance: " + QString::number(Resistance.value()));
+    debug("Current Speed: " + QString::number(Speed.value()));
+    debug("Current Calculate Distance: " + QString::number(Distance.value()));
+    debug("Current Cadence: " + QString::number(Cadence.value()));
+    //debug("Current Distance: " + QString::number(distance));
+    debug("Current CrankRevs: " + QString::number(CrankRevs));
+    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
+    debug("Current Watt: " + QString::number(watts()));
+
+    if(m_control->error() != QLowEnergyController::NoError)
+        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
 
 double flywheelbike::GetDistanceFromPacket(QByteArray packet)
