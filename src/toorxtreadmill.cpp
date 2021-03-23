@@ -58,11 +58,7 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 #endif
 
             debug("Create socket");
-#ifdef Q_OS_ANDROID
-            socket->connectToService(bluetoothDevice.address(), QBluetoothUuid::Rfcomm, QIODevice::ReadWrite);
-#else
             socket->connectToService(serialPortService);
-#endif
             debug("ConnectToService done");
         }
     }
