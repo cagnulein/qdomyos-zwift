@@ -210,7 +210,7 @@ double sportstechbike::GetCadenceFromPacket(QByteArray packet)
 
 double sportstechbike::GetResistanceFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = packet.at(18);
+    uint16_t convertedData = packet.at(15);
     double data = (convertedData);
     if (data < 0) return 0;
     return data;
