@@ -97,7 +97,7 @@ void trxappgateusbbike::update()
 
         QSettings settings;
         bool toorx30 = settings.value("toorx_3_0", false).toBool();
-        if(toorx30 == false && bike_type == TYPE::IRUNNING)
+        if(toorx30 == false && (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE))
         {
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0x01, 0x94 };
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
@@ -261,7 +261,7 @@ void trxappgateusbbike::btinit(bool startTape)
     QSettings settings;
     bool toorx30 = settings.value("toorx_3_0", false).toBool();
 
-    if(toorx30 == false && bike_type == TYPE::IRUNNING)
+    if(toorx30 == false && (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE))
     {
         const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
         const uint8_t initData2[] = { 0xf0, 0xa1, 0x01, 0x01, 0x93 };
@@ -339,7 +339,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
         QString uuidNotify1 = "0000fff1-0000-1000-8000-00805f9b34fb";
         QString uuidNotify2 = "49535343-4c8a-39b3-2f49-511cff073b7e";
 
-        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW)
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE)
         {
             uuidWrite      = "49535343-8841-43f4-a8d4-ecbe34729bb3";
             uuidNotify1    = "49535343-1E4D-4BD9-BA61-23C647249616";
@@ -413,7 +413,7 @@ void trxappgateusbbike::serviceScanDone(void)
     debug("serviceScanDone");
 
     QString uuid = "0000fff0-0000-1000-8000-00805f9b34fb";
-    if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW)
+    if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE)
             uuid = "49535343-FE7D-4AE5-8FA9-9FAFD205E455";
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)uuid);
@@ -460,6 +460,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         {
             bike_type = TYPE::SKANDIKAWIRY;
             qDebug() << "SKANDIKAWIRY bike found";
+        }
+        else if(device.name().toUpper().startsWith("ICONSOLE+"))
+        {
+            bike_type = TYPE::ICONSOLE;
+            qDebug() << "ICONSOLE bike found";
         }
 
         bluetoothDevice = device;
