@@ -1,6 +1,7 @@
 #include "toorxtreadmill.h"
 #include <QMetaEnum>
 #include <QSettings>
+#include <QDateTime>
 #include <QBluetoothLocalDevice>
 
 toorxtreadmill::toorxtreadmill()
@@ -99,7 +100,8 @@ void toorxtreadmill::update()
         if(requestStart != -1)
         {
            debug("starting...");
-           const char start[] = {0x55, 0x0a, 0x01, 0x02};
+           const char start[] = {0x55, 0x17, 0x01, 0x01,
+                                 0x55, 0xb5, 0x01, 0xff};
            socket->write(start, sizeof(start));
            start_phase = 0;
            requestStart = -1;
@@ -110,8 +112,7 @@ void toorxtreadmill::update()
             switch (start_phase) {
             case 0:
             {
-                const uint8_t start0[] = {0x55, 0x17, 0x01, 0x01,
-                                          0x55, 0xb5, 0x01, 0xff};
+                const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
                 socket->write((char*)start0, sizeof(start0));
                 start_phase++;
                 break;
@@ -148,12 +149,42 @@ void toorxtreadmill::update()
             {
                 const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
                 socket->write((char*)start4, sizeof(start4));
+                start_phase++;
+                break;
+            }
+            case 6:
+            case 7:
+            {
+                const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
+                socket->write((char*)start5, sizeof(start5));
+                start_phase++;
+                break;
+            }
+            case 8:
+            {
+                const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
+                socket->write((char*)start6, sizeof(start6));
                 start_phase = -1;
                 break;
             }
             }
             qDebug() << " start phase " << start_phase;
         }
+
+        QDateTime current = QDateTime::currentDateTime();
+        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
+        {
+           QSettings settings;
+           elapsed += deltaTime;
+           m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
+           m_jouls += (m_watt.value() * deltaTime);
+        }
+        lastTimeUpdate = current;
+
+        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+
+        firstUpdate = false;
     }
 }
 
