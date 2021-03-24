@@ -50,6 +50,8 @@ private:
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
+    virtualtreadmill* virtualTreadMill = 0;
+
     QTimer* refresh;
     bool initDone = false;
 
