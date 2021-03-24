@@ -550,6 +550,7 @@ void virtualbike::reconnect()
     qDebug() << "virtualbike::reconnect";
     leController->disconnectFromDevice();
 
+#ifndef Q_OS_IOS
     if(service_changed)
         serviceChanged = leController->addService(serviceDataChanged);
 
@@ -573,6 +574,7 @@ void virtualbike::reconnect()
 
     if(!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
+#endif
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
