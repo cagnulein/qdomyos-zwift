@@ -630,6 +630,7 @@ void virtualbike::bikeProvider()
                 value.append((char)(Bike->watts() >> 8) & 0xFF); // watts
 
                 value.append(char(Bike->currentHeart().value())); // Actual value.
+                value.append((char)0); // Bkool FTMS protocol HRM offset 1280 fix
 
                 QLowEnergyCharacteristic characteristic
                         = serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
