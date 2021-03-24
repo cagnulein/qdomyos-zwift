@@ -110,33 +110,41 @@ void toorxtreadmill::update()
             switch (start_phase) {
             case 0:
             {
+                const uint8_t start0[] = {0x55, 0x17, 0x01, 0x01,
+                                          0x55, 0xb5, 0x01, 0xff};
+                socket->write((char*)start0, sizeof(start0));
+                start_phase++;
+                break;
+            }
+            case 1:
+            {
                 const uint8_t start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
                 socket->write((char*)start, sizeof(start));
                 start_phase++;
                 break;
             }
-            case 1:
+            case 2:
             {
                 const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
                 socket->write((char*)start1, sizeof(start1));
                 start_phase++;
                 break;
             }
-            case 2:
+            case 3:
             {
                 const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
                 socket->write((char*)start2, sizeof(start2));
                 start_phase++;
                 break;
             }
-            case 3:
+            case 4:
             {
                 const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
                 socket->write((char*)start3, sizeof(start3));
                 start_phase++;
                 break;
             }
-            case 4:
+            case 5:
             {
                 const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
                 socket->write((char*)start4, sizeof(start4));
@@ -186,6 +194,7 @@ void toorxtreadmill::rfCommConnected()
     socket->write((char*)init2, sizeof(init2));
     qDebug() << " init2 write";
     initDone = true;
+    requestStart = 1;
     emit connectedAndDiscovered();
 }
 
@@ -206,13 +215,12 @@ void toorxtreadmill::readSocket()
             Speed = GetSpeedFromPacket(line);
             Inclination = GetInclinationFromPacket(line);
             Heart = GetHeartRateFromPacket(line);
-        }
-        else if(line.length() == 13)
-        {
-            const uint8_t init3[] = {0x55, 0x17, 0x01, 0x01,
-                                  0x55, 0xb5, 0x01, 0xff};
 
-            socket->write((char*)init3, sizeof(init3));
+            debug("Current speed: " + QString::number(Speed.value()));
+            debug("Current incline: " + QString::number(Inclination.value()));
+            debug("Current heart: " + QString::number(Heart.value()));
+            debug("Current KCal: " + QString::number(KCal.value()));
+            debug("Current Distance: " + QString::number(Distance.value()));
         }
     }
 }
