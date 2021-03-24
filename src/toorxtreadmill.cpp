@@ -110,36 +110,36 @@ void toorxtreadmill::update()
             switch (start_phase) {
             case 0:
             {
-                const char start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
-                socket->write(start, sizeof(start));
+                const uint8_t start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+                socket->write((char*)start, sizeof(start));
                 start_phase++;
                 break;
             }
             case 1:
             {
-                const char start1[] = {0x55, 0x15, 0x01, 0x00};
-                socket->write(start1, sizeof(start1));
+                const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
+                socket->write((char*)start1, sizeof(start1));
                 start_phase++;
                 break;
             }
             case 2:
             {
                 const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
-                socket->write(start2, sizeof(start2));
+                socket->write((char*)start2, sizeof(start2));
                 start_phase++;
                 break;
             }
             case 3:
             {
-                const char start3[] = {0x55, 0x11, 0x01, 0x01};
-                socket->write(start3, sizeof(start3));
+                const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
+                socket->write((char*)start3, sizeof(start3));
                 start_phase++;
                 break;
             }
             case 4:
             {
-                const char start4[] = {0x55, 0x08, 0x01, 0x01};
-                socket->write(start4, sizeof(start4));
+                const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
+                socket->write((char*)start4, sizeof(start4));
                 start_phase = -1;
                 break;
             }
@@ -153,10 +153,10 @@ void toorxtreadmill::rfCommConnected()
 {
     debug("connected " + socket->peerName());
 
-    const char init1[] = {0x55, 0x0c, 0x01, 0xff,
+    const uint8_t init1[] = {0x55, 0x0c, 0x01, 0xff,
                           0x55, 0xbb, 0x01, 0xff,
                           0x55, 0x24, 0x01, 0xff};
-    const char init2[] = {0x55, 0x25, 0x01, 0xff,
+    const uint8_t init2[] = {0x55, 0x25, 0x01, 0xff,
                           0x55, 0x26, 0x01, 0xff,
                           0x55, 0x27, 0x01, 0xff,
                           0x55, 0x02, 0x01, 0xff,
@@ -181,9 +181,9 @@ void toorxtreadmill::rfCommConnected()
                           0x55, 0x1a, 0x01, 0xff,
                           0x55, 0x1b, 0x01, 0xff};
 
-    socket->write(init1, sizeof(init1));
+    socket->write((char*)init1, sizeof(init1));
     qDebug() << " init1 write";
-    socket->write(init2, sizeof(init2));
+    socket->write((char*)init2, sizeof(init2));
     qDebug() << " init2 write";
     initDone = true;
     emit connectedAndDiscovered();
@@ -209,10 +209,10 @@ void toorxtreadmill::readSocket()
         }
         else if(line.length() == 13)
         {
-            const char init3[] = {0x55, 0x17, 0x01, 0x01,
+            const uint8_t init3[] = {0x55, 0x17, 0x01, 0x01,
                                   0x55, 0xb5, 0x01, 0xff};
 
-            socket->write(init3, sizeof(init3));
+            socket->write((char*)init3, sizeof(init3));
         }
     }
 }
