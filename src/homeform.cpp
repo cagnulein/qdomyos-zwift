@@ -993,11 +993,27 @@ void homeform::update()
                     last_seconds = seconds;
                     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
                     {
-                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination((double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0, (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0);
+                        double speed = settings.value("trainprogram_speed_min", 8).toUInt();
+                        double incline = settings.value("trainprogram_incline_min", 0).toUInt();
+                        if(!speed) speed = 1.0;
+                        if(settings.value("trainprogram_speed_min", 8).toUInt() != 0 && settings.value("trainprogram_speed_min", 8).toUInt() < settings.value("trainprogram_speed_max", 16).toUInt())
+                        {
+                            speed = (double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0;
+                        }
+                        if(r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt()))
+                        {
+                            incline = (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0;
+                        }
+                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(speed, incline);
                     }
                     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                     {
-                        ((bike*)bluetoothManager->device())->changeResistance((double)r.bounded(settings.value("trainprogram_resistance_min", 0).toUInt(), settings.value("trainprogram_resistance_max", 32).toUInt()));
+                        double resistance = settings.value("trainprogram_resistance_min", 1).toUInt();
+                        if(settings.value("trainprogram_resistance_min", 1).toUInt() < settings.value("trainprogram_resistance_max", 32).toUInt())
+                        {
+                            resistance = (double)r.bounded(settings.value("trainprogram_resistance_min", 1).toUInt(), settings.value("trainprogram_resistance_max", 32).toUInt());
+                        }
+                        ((bike*)bluetoothManager->device())->changeResistance(resistance);
                     }
                 }
             }
