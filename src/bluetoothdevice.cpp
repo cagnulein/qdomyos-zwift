@@ -1,5 +1,6 @@
 #include "bluetoothdevice.h"
 #include <QTime>
+#include <QSettings>
 
 bluetoothdevice::bluetoothdevice()
 {
@@ -12,7 +13,25 @@ void bluetoothdevice::stop(){ requestStop = 1; }
 metric bluetoothdevice::currentHeart(){ return Heart; }
 metric bluetoothdevice::currentSpeed(){ return Speed; }
 QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed.value()/3600.0); return QTime(hours, (int)(elapsed.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.value()) % 60,0); }
-QTime bluetoothdevice::currentPace(){ if(Speed.value() == 0) return QTime(0,0,0,0); else return QTime(0, (int)(1.0 / (Speed.value() / 60.0)), (((double)(1.0 / (Speed.value() / 60.0)) - ((double)((int)(1.0 / (Speed.value() / 60.0))))) * 60.0), 0  ); }
+
+QTime bluetoothdevice::currentPace()
+{
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+    if(Speed.value() == 0)
+    {
+        return QTime(0,0,0,0);
+    }
+    else
+    {
+        double speed = Speed.value() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+    }
+}
+
 double bluetoothdevice::odometer(){ return Distance.value(); }
 double bluetoothdevice::calories(){ return KCal.value(); }
 metric bluetoothdevice::jouls() { return m_jouls; }
