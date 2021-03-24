@@ -1,20 +1,20 @@
 # qdomyos-zwift
 Zwift bridge for Treadmills and Bike!
 
-[<img src="docs/google_play.png">](https://play.google.com/store/apps/details?id=org.cagnulen.qdomyoszwift&fbclid=IwAR3CVoYb0scvGf7gb0Y20VFh5Na5fDWwe7VACk-2c45Tm0x5s8sXpIGhGyw)
-[<img src="docs/app_store.png">](https://apps.apple.com/app/id1543684531?fbclid=IwAR10H6y3mEgwkTlGJON3e8voYOh2wt3kLFOpFzoIXaYZ_N0y0pDvKxHMUaM)
+[<img src="docs/img/google_play.png">](https://play.google.com/store/apps/details?id=org.cagnulen.qdomyoszwift&fbclid=IwAR3CVoYb0scvGf7gb0Y20VFh5Na5fDWwe7VACk-2c45Tm0x5s8sXpIGhGyw)
+[<img src="docs/img/app_store.png">](https://apps.apple.com/app/id1543684531?fbclid=IwAR10H6y3mEgwkTlGJON3e8voYOh2wt3kLFOpFzoIXaYZ_N0y0pDvKxHMUaM)
 <a href="https://www.buymeacoffee.com/cagnulein" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
-![UI](docs/treadmill-bridge-schema.png)
+![UI](docs/img/treadmill-bridge-schema.png)
 
 [![Video](https://img.youtube.com/vi/GgG3dMhmo2Y/0.jpg)](https://www.youtube.com/watch?v=GgG3dMhmo2Y)
 
-![UI](docs/ui.png)
-![UI](docs/realtime-chart.png)
+![UI](docs/img/ui.png)
+![UI](docs/img/realtime-chart.png)
 
 UI on Linux
 
-![UI](docs/ui-mac.png)
+![UI](docs/img/ui-mac.png)
 
 UI on MacOS
 
@@ -29,30 +29,13 @@ UI on MacOS
 7. Gpx import (with difficulty slider)
 8. Realtime Charts
 
-![First Success](docs/first_success.jpg)
+![First Success](docs/img/first_success.jpg)
 
-### Installation from source
+### Installation 
 
-$ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
+You can install on multiple platforms.
+Read the [installation procedure](docs/10_Installation.md)
 
-$ sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev
-
-$ git clone https://github.com/cagnulein/qdomyos-zwift.git
-
-$ cd src
-
-$ qmake
-
-$ make -j4
-
-$ sudo ./qdomyos-zwift
-
-### MacOs installation
-
-You will need to (at a minimum) to install the xcode Command Line Tools (CLI) thanks to @richardwait
-https://developer.apple.com/download/more/?=xcode
-
-Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-opensource-mac-x64-5.12.9.dmg and simply run the qdomyos-zwift relase for MacOs
 
 ### Tested on
 
@@ -66,6 +49,7 @@ Download and install http://download.qt.io/official_releases/qt/5.12/5.12.9/qt-o
 
 - Android Pixel 2 and Echelon Connect Sport
 
+- Raspberry Pi 0W and SportsTech ESX500 
 
 ### Your machine is not compatible?
 
