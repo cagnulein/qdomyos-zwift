@@ -492,12 +492,14 @@ void homeform::deviceConnected()
 
 void homeform::deviceFound(QString name)
 {
-    QSettings settings;
-    if(!settings.value("top_bar_enabled", true).toBool()) return;
     if(!name.trimmed().length()) return;
-    m_info = name + " found";
-    emit infoChanged(m_info);    
+
     emit bluetoothDevicesChanged(bluetoothDevices());
+
+    QSettings settings;
+    if(!settings.value("top_bar_enabled", true).toBool()) return;    
+    m_info = name + " found";
+    emit infoChanged(m_info);        
 }
 
 void homeform::Plus(QString name)
