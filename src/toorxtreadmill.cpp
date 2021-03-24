@@ -100,9 +100,9 @@ void toorxtreadmill::update()
         if(requestStart != -1)
         {
            debug("starting...");
-           const char start[] = {0x55, 0x17, 0x01, 0x01,
+           const uint8_t start[] = {0x55, 0x17, 0x01, 0x01,
                                  0x55, 0xb5, 0x01, 0xff};
-           socket->write(start, sizeof(start));
+           socket->write((char*)start, sizeof(start));
            start_phase = 0;
            requestStart = -1;
            emit tapeStarted();
