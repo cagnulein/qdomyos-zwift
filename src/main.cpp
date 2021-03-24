@@ -169,14 +169,9 @@ QCoreApplication* createApplication(int &argc, char *argv[])
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QSettings settings;
-    static bool debuglog = settings.value("log_debug", false).toBool();
-    if(debuglog == false)
-#if defined(Q_OS_LINUX) || defined(Q_OS_WINDOWS)
-#ifndef Q_OS_ANDROID
-        if(forceQml)
-#endif
-#endif
-        return;
+    static bool logdebug = settings.value("log_debug", false).toBool();
+    if(nologs == true && logdebug == false)
+      return;
 
     QByteArray localMsg = msg.toLocal8Bit();
     const char *file = context.file ? context.file : "";
