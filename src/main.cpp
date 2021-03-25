@@ -32,7 +32,7 @@
 #include "ios/lockscreen.h"
 #endif
 
-bool nologs = false;
+bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
 bool noConsole = false;
@@ -74,7 +74,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         if (!qstrcmp(argv[i], "-test-resistance"))
             testResistance = true;
         if (!qstrcmp(argv[i], "-no-log"))
-            nologs = true;
+            logs = false;
         if (!qstrcmp(argv[i], "-no-write-resistance"))
             noWriteResistance = true;
         if (!qstrcmp(argv[i], "-no-heart-service"))
@@ -170,8 +170,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 {
     QSettings settings;
     static bool logdebug = settings.value("log_debug", false).toBool();
-#if defined (Q_OS_LINUX)
-    if(nologs == true && logdebug == false)
+#if defined (Q_OS_LINUX) // Linux OS does not read settings file for now
+    if(logs == false)
 #elif
     if(logdebug == false)
 #endif
@@ -199,7 +199,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         abort();
     }
 
-    if(nologs == false)
+    if(logs == true || logdebug == true)
     {
         QString path = "";
 #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
         }
     }
 #endif
-    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
+    bluetooth* bl = new bluetooth(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
