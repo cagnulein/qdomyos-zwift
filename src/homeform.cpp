@@ -85,6 +85,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
     elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
     datetime = new DataObject("Clock", "icons/icons/clock.png", QTime::currentTime().toString("hh:mm:ss"), false, "time", valueTimeFontSize, labelFontSize);
+    lapElapsed = new DataObject("Lap Elapsed", "icons/icons/clock.png", "0:00:00", false, "lapElapsed", valueElapsedFontSize, labelFontSize);
 
     if(!settings.value("top_bar_enabled", true).toBool())
     {
@@ -303,7 +304,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 18; i++)
+    for(int i = 0; i < 19; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -370,6 +371,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_datetime_enabled", true).toBool() && settings.value("tile_datetime_order", 0).toInt() == i)
                 dataList.append(datetime);
+
+            if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
+                dataList.append(lapElapsed);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
@@ -423,6 +427,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
                 dataList.append(target_resistance);
+
+            if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
+                dataList.append(lapElapsed);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
@@ -479,6 +486,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
                 dataList.append(target_resistance);
+
+            if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
+                dataList.append(lapElapsed);
         }
     }
 
@@ -720,7 +730,14 @@ void homeform::Stop()
 void homeform::Lap()
 {
     qDebug() << "lap pressed";
-    lapTrigger = true;
+    if(bluetoothManager)
+    {
+        if(bluetoothManager->device())
+        {
+            bluetoothManager->device()->setLap();
+            lapTrigger = true;
+        }
+    }
 }
 
 bool homeform::labelHelp()
@@ -823,6 +840,7 @@ void homeform::update()
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
+        lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString("h:mm:ss"));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));
         watts = bluetoothManager->device()->wattsMetric().value();

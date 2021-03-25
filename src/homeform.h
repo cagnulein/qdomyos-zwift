@@ -144,6 +144,7 @@ private:
     DataObject* peloton_resistance;
     DataObject* target_resistance;
     DataObject* ftp;
+    DataObject* lapElapsed;
 
     QTimer* timer;
     QTimer* backupTimer;

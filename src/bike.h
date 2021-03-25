@@ -21,6 +21,7 @@ public:
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
+    void setLap();
     void setPaused(bool p);
 
 public slots:

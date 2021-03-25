@@ -15,6 +15,7 @@ public:
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
+    void setLap();
     void setPaused(bool p);
 
 public slots:

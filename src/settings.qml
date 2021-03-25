@@ -64,6 +64,8 @@ import Qt.labs.settings 1.0
             property int  tile_jouls_order: 13
             property bool tile_elapsed_enabled: true
             property int  tile_elapsed_order: 14
+            property bool tile_lapelapsed_enabled: false
+            property int  tile_lapelapsed_order: 17
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
@@ -1176,6 +1178,47 @@ import Qt.labs.settings 1.0
                     text: "OK"
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.tile_elapsed_order = elapsedOrderTextField.displayText
+                }
+            }
+
+            SwitchDelegate {
+                id: lapElapsedEnabledDelegate
+                text: qsTr("Lap Elapsed")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.tile_lapelapsed_enabled
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.tile_lapelapsed_enabled = checked
+            }
+
+            RowLayout {
+                spacing: 10
+                Label {
+                    id: labellapElapsedOrder
+                    text: qsTr("order index:")
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignRight
+                }
+                ComboBox {
+                    id: lapElapsedOrderTextField
+                    model: rootItem.tile_order
+                    displayText: settings.tile_lapelapsed_order
+                    Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onActivated: {
+                        displayText = lapElapsedOrderTextField.currentValue
+                     }
+                }
+                Button {
+                    id: oklapElapsedOrderButton
+                    text: "OK"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    onClicked: settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText
                 }
             }
 

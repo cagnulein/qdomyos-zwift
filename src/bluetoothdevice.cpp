@@ -13,6 +13,7 @@ void bluetoothdevice::stop(){ requestStop = 1; }
 metric bluetoothdevice::currentHeart(){ return Heart; }
 metric bluetoothdevice::currentSpeed(){ return Speed; }
 QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed.value()/3600.0); return QTime(hours, (int)(elapsed.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.value()) % 60,0); }
+QTime bluetoothdevice::lapElapsedTime() {int hours = (int)(elapsed.lapValue()/3600.0); return QTime(hours, (int)(elapsed.lapValue()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.lapValue()) % 60,0); }
 
 QTime bluetoothdevice::currentPace()
 {
@@ -68,4 +69,15 @@ void bluetoothdevice::setPaused(bool p)
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+}
+
+void bluetoothdevice::setLap()
+{
+    elapsed.setLap(true);
+    Speed.setLap(false);
+    KCal.setLap(true);
+    Distance.setLap(true);
+    Heart.setLap(false);
+    m_jouls.setLap(true);
+    m_watt.setLap(false);
 }

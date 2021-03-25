@@ -58,3 +58,16 @@ void treadmill::setPaused(bool p)
     m_watt.setPaused(p);
     Inclination.setPaused(p);
 }
+
+void treadmill::setLap()
+{
+    elapsed.setLap(true);
+    Speed.setLap(false);
+    KCal.setLap(true);
+    Distance.setLap(true);
+    Heart.setLap(false);
+    m_jouls.setLap(true);
+    m_watt.setLap(false);
+
+    Inclination.setLap(false);
+}

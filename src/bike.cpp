@@ -51,3 +51,19 @@ void bike::setPaused(bool p)
     Resistance.setPaused(p);
     RequestedResistance.setPaused(p);
 }
+
+void bike::setLap()
+{
+    elapsed.setLap(true);
+    Speed.setLap(false);
+    KCal.setLap(true);
+    Distance.setLap(true);
+    Heart.setLap(false);
+    m_jouls.setLap(true);
+    m_watt.setLap(false);
+
+    RequestedResistance.setLap(false);
+    m_pelotonResistance.setLap(false);
+    Cadence.setLap(false);
+    Resistance.setLap(false);
+}

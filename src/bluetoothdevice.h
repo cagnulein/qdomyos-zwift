@@ -34,6 +34,7 @@ public:
     metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
+    virtual QTime lapElapsedTime();
     virtual bool connected();
     virtual void* VirtualDevice();
     uint16_t watts(double weight);
@@ -44,6 +45,7 @@ public:
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnectBluetooth();
     virtual void setPaused(bool p);
+    virtual void setLap();
     void setDifficult(double d);
     double difficult();
 
