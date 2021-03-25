@@ -41,7 +41,7 @@ void ftmsbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray::fromRawData((const char*)data, data_len));
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
 
     if(!disable_log)
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
