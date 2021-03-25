@@ -10,6 +10,7 @@ Page {
 
     property alias start: start
     property alias stop: stop
+    property alias lap: lap
     property alias row: row
 
     Item {
@@ -118,19 +119,21 @@ Page {
                 width: 50
                 height: row.height
                 color: Material.backgroundColor
-                Image {
+                RoundButton {
                     anchors.verticalCenter: parent.verticalCenter
-                    id: zwift_connection
+                    id: lap
                     width: 48
                     height: row.height - 52
-                    source: "icons/icons/zwift-on.png"
-                    enabled: rootItem.zwift
+                    icon.source: "icons/icons/lap.png"
+                    icon.width: 48
+                    icon.height: 48
+                    enabled: rootItem.lap
                     smooth: true
                 }
                 ColorOverlay {
-                    anchors.fill: zwift_connection
-                    source: zwift_connection
-                    color: zwift_connection.enabled ? "#00000000" : "#B0D3d3d3"
+                    anchors.fill: lap
+                    source: lap
+                    color: lap.enabled ? "#00000000" : "#B0D3d3d3"
                 }
             }
         }

@@ -75,7 +75,7 @@ class homeform: public QObject
     Q_OBJECT
     Q_PROPERTY(bool labelHelp READ labelHelp NOTIFY changeLabelHelp)
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
-    Q_PROPERTY( bool zwift READ getZwift NOTIFY changeOfzwift)
+    Q_PROPERTY( bool lap READ getLap NOTIFY changeOflap)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
@@ -124,6 +124,7 @@ private:
 
     bool paused = false;
     bool stopped = false;
+    bool lapTrigger = false;
 
     DataObject* speed;
     DataObject* inclination;
@@ -157,7 +158,7 @@ private:
     void update();
     void backup();
     bool getDevice();
-    bool getZwift();
+    bool getLap();
 
 public slots:
     void aboutToQuit();
@@ -165,6 +166,7 @@ public slots:
 private slots:    
     void Start();
     void Stop();
+    void Lap();
     void Minus(QString);
     void Plus(QString);
     void deviceFound(QString name);
@@ -188,7 +190,7 @@ private slots:
 signals:
 
  void changeOfdevice();
- void changeOfzwift();
+ void changeOflap();
  void signalChanged(QString value);
  void startTextChanged(QString value);
  void startIconChanged(QString value);

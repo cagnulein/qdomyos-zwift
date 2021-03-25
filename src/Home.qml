@@ -9,6 +9,7 @@ HomeForm{
     objectName: "home"
     signal start_clicked;
     signal stop_clicked;
+    signal lap_clicked;
     signal plus_clicked(string name)
     signal minus_clicked(string name)
 
@@ -17,8 +18,44 @@ HomeForm{
         property real ui_zoom: 100.0
     }
 
+    Popup {
+        id: popupLap
+         parent: Overlay.overlay
+
+         x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 60
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             text: qsTr("New lap started!")
+            }
+         }
+    }
+
+    Timer {
+        id: popupLapAutoClose
+        interval: 2000; running: false; repeat: false
+        onTriggered: popupLap.close();
+    }
+
     start.onClicked: { start_clicked(); }
     stop.onClicked: { stop_clicked(); }
+    lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
     Component.onCompleted: { console.log("completed"); }
 

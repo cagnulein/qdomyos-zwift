@@ -309,6 +309,12 @@ int main(int argc, char *argv[])
         }
     }
 #endif
+
+    /* test virtual echelon
+     * settings.setValue("virtual_device_echelon", true);
+    virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
+    Q_UNUSED(V)
+    return app->exec();*/
     bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
 #ifdef Q_OS_IOS

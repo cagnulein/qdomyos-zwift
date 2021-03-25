@@ -153,8 +153,10 @@ void MainWindow::update()
                       resistance,
                       (uint8_t)bluetoothManager->device()->currentHeart().value(),
                       pace, cadence, bluetoothManager->device()->calories(),
-                      bluetoothManager->device()->elevationGain(),
-                      bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600));
+                      bluetoothManager->device()->elevationGain(),                      
+                      bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600),
+                      false // TODO add lap
+                    );
 
         Session.append(s);
 

@@ -130,6 +130,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(strava_connect_clicked()));
     QObject::connect(stack, SIGNAL(refresh_bluetooth_devices_clicked()),
         this, SLOT(refresh_bluetooth_devices_clicked()));
+    QObject::connect(home, SIGNAL(lap_clicked()),
+        this, SLOT(Lap()));
 
     if(settings.value("top_bar_enabled", true).toBool())
     {
@@ -715,6 +717,12 @@ void homeform::Stop()
     }
 }
 
+void homeform::Lap()
+{
+    qDebug() << "lap pressed";
+    lapTrigger = true;
+}
+
 bool homeform::labelHelp()
 {
     return m_labelHelp;
@@ -1040,15 +1048,19 @@ void homeform::update()
                         resistance,
                         (uint8_t)bluetoothManager->device()->currentHeart().value(),
                         pace, cadence, bluetoothManager->device()->calories(),
-                        bluetoothManager->device()->elevationGain(),
-                        bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600));
+                        bluetoothManager->device()->elevationGain(),                        
+                        bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600),
+                        lapTrigger);
 
             Session.append(s);
+
+            if(lapTrigger)
+                lapTrigger = false;
         }
     }
 
     emit changeOfdevice();
-    emit changeOfzwift();
+    emit changeOflap();
 }
 
 bool homeform::getDevice()
@@ -1063,28 +1075,11 @@ bool homeform::getDevice()
     return this->bluetoothManager->device()->connected();
 }
 
-bool homeform::getZwift()
+bool homeform::getLap()
 {
     if(!this->bluetoothManager->device())
         return false;
-    if(!this->bluetoothManager->device()->VirtualDevice())
-        return false;
-    if(this->bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
-            ((virtualtreadmill*)((treadmill*)bluetoothManager->device())->VirtualDevice())->connected())
-    {
-        return true;
-    }
-    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
-            ((virtualbike*)((bike*)bluetoothManager->device())->VirtualDevice())->connected())
-    {
-        return true;
-    }
-    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
-            ((virtualtreadmill*)((elliptical*)bluetoothManager->device())->VirtualDevice())->connected())
-    {
-        return true;
-    }
-    return false;
+    return true;
 }
 
 void homeform::trainprogram_open_clicked(QUrl fileName)

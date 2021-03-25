@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
         <file>icons/bluetooth-icon.png</file>
-        <file>icons/zwift-on.png</file>
         <file>icons/fan.png</file>
         <file>icons/speed.png</file>
         <file>icons/inclination.png</file>
@@ -25,5 +24,6 @@
         <file>icons/joul.png</file>
         <file>icons/clock.png</file>
         <file>icons/pause.png</file>
+        <file>icons/lap.png</file>
     </qresource>
 </RCC>

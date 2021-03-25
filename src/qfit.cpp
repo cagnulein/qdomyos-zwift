@@ -77,6 +77,43 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     }
     devIdMesg.SetDeveloperDataIndex(0);
 
+    fit::ActivityMesg activityMesg;
+    activityMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
+    activityMesg.SetTotalTimerTime(session.last().elapsedTime);
+    activityMesg.SetNumSessions(1);
+    activityMesg.SetType(FIT_ACTIVITY_MANUAL);
+    activityMesg.SetEvent(FIT_EVENT_WORKOUT);
+    activityMesg.SetEventType(FIT_EVENT_TYPE_START);
+    activityMesg.SetLocalTimestamp(fit::DateTime((time_t)session.last().time.toSecsSinceEpoch()).GetTimeStamp());  //seconds since 00:00 Dec d31 1989 in local time zone
+    activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
+    activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
+
+    fit::LapMesg lapMesg;
+    lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
+    lapMesg.SetStartTime(session.first().time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetEvent(FIT_EVENT_WORKOUT);
+    lapMesg.SetEventType(FIT_EVENT_TYPE_START);
+    lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
+    if(type == bluetoothdevice::TREADMILL)
+    {
+        lapMesg.SetSport(FIT_SPORT_RUNNING);
+    }
+    else if(type == bluetoothdevice::ELLIPTICAL)
+    {
+        lapMesg.SetSport(FIT_SPORT_RUNNING);
+    }
+    else
+    {
+        lapMesg.SetSport(FIT_SPORT_CYCLING);
+    }        
+
+    encode.Open(file);
+    encode.Write(fileIdMesg);
+    encode.Write(devIdMesg);
+    encode.Write(sessionMesg);
+    encode.Write(activityMesg);
+
     fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
     for (int i = 0; i < session.length(); i++)
     {
@@ -95,56 +132,27 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         // strava ignore the elapsed field
         // this workaround could leads an accuracy issue.
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
+        encode.Write(newRecord);
 
-        records.push_back(newRecord);
+        if(session.at(i).lapTrigger)
+        {
+            lapMesg.SetTotalElapsedTime(session.at(i).elapsedTime);
+            lapMesg.SetTotalTimerTime(session.at(i).elapsedTime);
+
+            encode.Write(lapMesg);
+
+            lapMesg.SetStartTime(session.at(i).time.toSecsSinceEpoch() - 631065600L);
+            lapMesg.SetTimestamp(session.at(i).time.toSecsSinceEpoch() - 631065600L);
+            lapMesg.SetEvent(FIT_EVENT_WORKOUT);
+            lapMesg.SetEventType(FIT_EVENT_LAP);
+        }
     }
 
-    fit::ActivityMesg activityMesg;
-    activityMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
-    activityMesg.SetTotalTimerTime(session.last().elapsedTime);
-    activityMesg.SetNumSessions(1);
-    activityMesg.SetType(FIT_ACTIVITY_MANUAL);
-    activityMesg.SetEvent(FIT_EVENT_WORKOUT);
-    activityMesg.SetEventType(FIT_EVENT_TYPE_START);
-    activityMesg.SetLocalTimestamp(fit::DateTime((time_t)session.last().time.toSecsSinceEpoch()).GetTimeStamp());  //seconds since 00:00 Dec d31 1989 in local time zone
-    activityMesg.SetEvent(FIT_EVENT_ACTIVITY);
-    activityMesg.SetEventType(FIT_EVENT_TYPE_STOP);
-
-    fit::LapMesg lapMesg;
-    lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
-    lapMesg.SetStartTime(session.first().time.toSecsSinceEpoch() - 631065600L);
-    lapMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
     lapMesg.SetTotalElapsedTime(session.last().elapsedTime);
     lapMesg.SetTotalTimerTime(session.last().elapsedTime);
-    lapMesg.SetEvent(FIT_EVENT_WORKOUT);
-    lapMesg.SetEventType(FIT_EVENT_TYPE_START);
-    lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
-    if(type == bluetoothdevice::TREADMILL)
-    {
-        lapMesg.SetSport(FIT_SPORT_RUNNING);
-    }
-    else if(type == bluetoothdevice::ELLIPTICAL)
-    {
-        lapMesg.SetSport(FIT_SPORT_RUNNING);
-    }
-    else
-    {
-        lapMesg.SetSport(FIT_SPORT_CYCLING);
-    }
     lapMesg.SetEvent(FIT_EVENT_LAP);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
-
-    encode.Open(file);
-    encode.Write(fileIdMesg);
-    encode.Write(devIdMesg);
-    encode.Write(sessionMesg);
-    encode.Write(activityMesg);
     encode.Write(lapMesg);
-
-    for (auto record : records)
-    {
-        encode.Write(record);
-    }
 
     if (!encode.Close())
     {
