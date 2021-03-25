@@ -54,7 +54,7 @@ qrc_icons.cpp: ../src/icons.qrc \
 		../src/icons/weight.png \
 		../src/icons/start.png \
 		../src/icons/icon.png \
-		../src/icons/zwift-on.png \
+		../src/icons/lap.png \
 		../src/icons/kcal.png \
 		../src/icons/chart.png \
 		../src/icons/joul.png \
