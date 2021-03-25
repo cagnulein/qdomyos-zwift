@@ -1,1 +1,14 @@
 .idea/
+
+src/Makefile
+src/.qmake.stash
+
+src/*.o
+
+src/moc_*
+src/qrc_*
+
+src/qdomyos-zwift
+
+src/ui_charts.h
+src/ui_mainwindow.h
