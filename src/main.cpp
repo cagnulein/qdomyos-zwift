@@ -172,7 +172,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     static bool logdebug = settings.value("log_debug", false).toBool();
 #if defined (Q_OS_LINUX) // Linux OS does not read settings file for now
     if(logs == false)
-#elif
+#else
     if(logdebug == false)
 #endif
       return;

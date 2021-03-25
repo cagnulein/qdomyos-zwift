@@ -46,7 +46,7 @@ void * objref;
 NSUUID * devUid;
 CBCentralManager *cbCentralManager;
 BOOL startRequested;
-char logs[512];
+char m3ilogs[512];
 //NSTimeInterval lastRestart = -1;
 //dispatch_queue_t myQueue;
 
@@ -100,8 +100,8 @@ char logs[512];
 
 -(void)logOnQt:(NSString *) logString {
     NSLog(@"%@", logString);
-    [logString getCString:logs maxLength:sizeof(logs)/sizeof(*logs)-1 encoding:NSUTF8StringEncoding];
-    qt_log(logs);
+    [logString getCString:m3ilogs maxLength:sizeof(m3ilogs)/sizeof(*m3ilogs)-1 encoding:NSUTF8StringEncoding];
+    qt_log(m3ilogs);
 }
 
 -(void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary<NSString *,id> *)advertisementData RSSI:(NSNumber *)RSSI {
