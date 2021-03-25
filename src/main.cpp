@@ -54,7 +54,7 @@ QString deviceName = "";
 uint32_t pollDeviceTime = 200;
 uint8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
-static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log";
+static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_").replace(" ","_").replace(".","_") + ".log";
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication* createApplication(int &argc, char *argv[])
@@ -207,6 +207,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #elif defined(Q_OS_IOS)
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
 #endif
+
+        // Linux log files are generated on binary location
 
         QFile outFile(path + logfilename);
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
