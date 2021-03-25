@@ -131,7 +131,7 @@ After=multi-user.target
 Type=idle  
 Restart=always
 RestartSec=30
-ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift -no-gui -heart-service
+ExecStart=/home/pi/qdomyos-zwift/src/qdomyos-zwift -no-gui -no-log -heart-service
 ExecStop=killall -9 qdomyos-zwift
 User=root  
 

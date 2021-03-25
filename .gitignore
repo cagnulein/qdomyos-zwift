@@ -12,3 +12,5 @@ src/qdomyos-zwift
 
 src/ui_charts.h
 src/ui_mainwindow.h
+
+src/debug-*

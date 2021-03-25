@@ -32,7 +32,7 @@
 #include "ios/lockscreen.h"
 #endif
 
-bool nologs = false;
+bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
 bool noConsole = false;
@@ -54,7 +54,7 @@ QString deviceName = "";
 uint32_t pollDeviceTime = 200;
 uint8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
-static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_") + ".log";
+static QString logfilename = "debug-" + QDateTime::currentDateTime().toString().replace(":", "_").replace(" ","_").replace(".","_") + ".log";
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication* createApplication(int &argc, char *argv[])
@@ -74,7 +74,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
         if (!qstrcmp(argv[i], "-test-resistance"))
             testResistance = true;
         if (!qstrcmp(argv[i], "-no-log"))
-            nologs = true;
+            logs = false;
         if (!qstrcmp(argv[i], "-no-write-resistance"))
             noWriteResistance = true;
         if (!qstrcmp(argv[i], "-no-heart-service"))
@@ -169,14 +169,13 @@ QCoreApplication* createApplication(int &argc, char *argv[])
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
 {
     QSettings settings;
-    static bool debuglog = settings.value("log_debug", false).toBool();
-    if(debuglog == false)
-#if defined(Q_OS_LINUX) || defined(Q_OS_WINDOWS)
-#ifndef Q_OS_ANDROID
-        if(forceQml)
+    static bool logdebug = settings.value("log_debug", false).toBool();
+#if defined (Q_OS_LINUX) // Linux OS does not read settings file for now
+    if(logs == false)
+#elif
+    if(logdebug == false)
 #endif
-#endif
-        return;
+      return;
 
     QByteArray localMsg = msg.toLocal8Bit();
     const char *file = context.file ? context.file : "";
@@ -200,7 +199,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         abort();
     }
 
-    if(nologs == false)
+    if(logs == true || logdebug == true)
     {
         QString path = "";
 #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
@@ -208,6 +207,8 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #elif defined(Q_OS_IOS)
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
 #endif
+
+        // Linux log files are generated on binary location
 
         QFile outFile(path + logfilename);
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
@@ -315,7 +316,7 @@ int main(int argc, char *argv[])
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
     Q_UNUSED(V)
     return app->exec();*/
-    bluetooth* bl = new bluetooth(!nologs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
+    bluetooth* bl = new bluetooth(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance, bikeResistanceOffset, bikeResistanceGain);
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
