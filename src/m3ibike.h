@@ -163,7 +163,6 @@ private:
     Q_INVOKABLE void restartScan();
     uint16_t watts();
     QTimer* detectDisc = 0, * elapsedTimer = 0;
-    uint8_t firstStateChanged = 0;
     KeiserM3iDeviceSimulator k3s;
     keiser_m3i_out_t k3;
     qint64 lastTimerRestart = -1;
