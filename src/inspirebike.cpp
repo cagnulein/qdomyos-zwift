@@ -148,7 +148,10 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
     //y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
-    m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) + (2.575 * Resistance.value()) + 0.0444) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
+    if(settings.value("inspire_peloton_formula", false).toBool())
+        m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) + (2.575 * Resistance.value()) + 0.0444) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
+    else
+        m_pelotonResistance = Resistance.value() * 2.5;
 
     if(Cadence.value() > 0)
     {
@@ -366,9 +369,19 @@ void* inspirebike::VirtualDevice()
 
 uint16_t inspirebike::watts()
 {
+    QSettings settings;
     if(currentCadence().value() == 0) return 0;
 
-    return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) ) / 2.2);
+    if(settings.value("inspire_peloton_formula", false).toBool())
+        return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) ) / 2.2);
+    else
+    {
+        // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
+        if(currentCadence().value() < 90)
+            return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
+        else
+            return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );
+    }
 }
 
 void inspirebike::controllerStateChanged(QLowEnergyController::ControllerState state)

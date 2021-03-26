@@ -90,6 +90,8 @@ import Qt.labs.settings 1.0
 
             property int  fitshow_user_id: 0x006E13AA
 
+            property bool inspire_peloton_formula: false
+
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
@@ -1545,6 +1547,30 @@ import Qt.labs.settings 1.0
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 Layout.fillWidth: true
                 onClicked: settings.domyos_treadmill_distance_display = checked
+            }
+
+            Label {
+                id: inspireBikeLabel
+                text: qsTr("Inspire Bike Options")
+                textFormat: Text.PlainText
+                wrapMode: Text.WordWrap
+                verticalAlignment: Text.AlignVCenter
+                color: Material.color(Material.Grey)
+            }
+
+            SwitchDelegate {
+                id: inspirePelotonFormulaDelegate
+                text: qsTr("Advanced Peloton Formula")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.inspire_peloton_formula
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.inspire_peloton_formula = checked
             }
 
             Label {
