@@ -95,6 +95,8 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
     lapMesg.SetEventType(FIT_EVENT_TYPE_START);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
+    lapMesg.SetTotalElapsedTime(0);
+    lapMesg.SetTotalTimerTime(0);
     if(type == bluetoothdevice::TREADMILL)
     {
         lapMesg.SetSport(FIT_SPORT_RUNNING);
@@ -136,8 +138,8 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
 
         if(session.at(i).lapTrigger)
         {
-            lapMesg.SetTotalElapsedTime(session.at(i).elapsedTime);
-            lapMesg.SetTotalTimerTime(session.at(i).elapsedTime);
+            lapMesg.SetTotalElapsedTime(session.at(i).elapsedTime - lapMesg.GetTotalElapsedTime());
+            lapMesg.SetTotalTimerTime(session.at(i).elapsedTime - lapMesg.GetTotalTimerTime());
 
             encode.Write(lapMesg);
 
@@ -148,8 +150,8 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         }
     }
 
-    lapMesg.SetTotalElapsedTime(session.last().elapsedTime);
-    lapMesg.SetTotalTimerTime(session.last().elapsedTime);
+    lapMesg.SetTotalElapsedTime(session.last().elapsedTime - lapMesg.GetTotalElapsedTime());
+    lapMesg.SetTotalTimerTime(session.last().elapsedTime - lapMesg.GetTotalTimerTime());
     lapMesg.SetEvent(FIT_EVENT_LAP);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     encode.Write(lapMesg);
