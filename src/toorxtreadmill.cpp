@@ -93,10 +93,6 @@ void toorxtreadmill::update()
         }
         // ********************************************************************************************************
 
-        const char poll[] = {0x55, 0x17, 0x01, 0x01};
-        socket->write(poll, sizeof(poll));
-        debug("write poll");
-
         if(requestSpeed != -1)
         {
            if(requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22)
@@ -109,7 +105,7 @@ void toorxtreadmill::update()
            }
            requestSpeed = -1;
         }
-        if(requestInclination != -1)
+        else if(requestInclination != -1)
         {
            if(requestInclination != currentInclination().value() && requestInclination >= 0 && requestInclination <= 15)
            {
@@ -120,8 +116,7 @@ void toorxtreadmill::update()
            }
            requestInclination = -1;
         }
-
-        if(requestStart != -1)
+        else if(requestStart != -1 && start_phase == -1)
         {
            debug("starting...");
            const uint8_t start[] = {0x55, 0x17, 0x01, 0x01,
@@ -133,6 +128,7 @@ void toorxtreadmill::update()
         }
         else if(start_phase != -1)
         {
+            requestStart = -1;
             switch (start_phase) {
             case 0:
             {
@@ -193,6 +189,12 @@ void toorxtreadmill::update()
             }
             }
             qDebug() << " start phase " << start_phase;
+        }
+        else
+        {
+            const char poll[] = {0x55, 0x17, 0x01, 0x01};
+            socket->write(poll, sizeof(poll));
+            debug("write poll");
         }
 
         QDateTime current = QDateTime::currentDateTime();
