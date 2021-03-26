@@ -97,6 +97,30 @@ void toorxtreadmill::update()
         socket->write(poll, sizeof(poll));
         debug("write poll");
 
+        if(requestSpeed != -1)
+        {
+           if(requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22)
+           {
+              debug("writing speed " + QString::number(requestSpeed));
+              char speed[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+              speed[3] = (uint8_t)(requestSpeed);
+              speed[4] = (uint8_t)((requestSpeed - (double)((uint8_t)(requestSpeed))) * 100.0);
+              socket->write((char*)speed, sizeof(speed));
+           }
+           requestSpeed = -1;
+        }
+        if(requestInclination != -1)
+        {
+           if(requestInclination != currentInclination().value() && requestInclination >= 0 && requestInclination <= 15)
+           {
+              debug("writing incline " + QString::number(requestInclination));
+              uint8_t incline[] = {0x55, 0x0a, 0x01, 0x01};
+              incline[3] = requestInclination;
+              socket->write((char*)incline, sizeof(incline));
+           }
+           requestInclination = -1;
+        }
+
         if(requestStart != -1)
         {
            debug("starting...");
@@ -225,7 +249,7 @@ void toorxtreadmill::rfCommConnected()
     socket->write((char*)init2, sizeof(init2));
     qDebug() << " init2 write";
     initDone = true;
-    requestStart = 1;
+    //requestStart = 1;
     emit connectedAndDiscovered();
 }
 
