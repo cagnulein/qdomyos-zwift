@@ -254,50 +254,60 @@ import Qt.labs.settings 1.0
                         }
                     }
 
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelHeartRateBelt
-                            text: qsTr("Heart Belt Name:")
-                            Layout.fillWidth: true
-                        }
-                        ComboBox {
-                            id: heartBeltNameTextField
-                            model: rootItem.bluetoothDevices
-                            displayText: settings.heart_rate_belt_name
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onActivated: {
-                                console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
-                                displayText = heartBeltNameTextField.currentValue
-                             }
+                    AccordionCheckElement {
+                        id: heartOutsideAccordion
+                        title: qsTr("Heart Rate service Enabled")
+                        linkedBoolSetting: "bike_heartrate_service"
+                        settings: settings
+                        invert: true
+                        accordionContent: ColumnLayout {
+                            spacing: 10
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelHeartRateBelt
+                                    text: qsTr("Heart Belt Name:")
+                                    Layout.fillWidth: true
+                                }
+                                ComboBox {
+                                    id: heartBeltNameTextField
+                                    model: rootItem.bluetoothDevices
+                                    displayText: settings.heart_rate_belt_name
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
+                                        displayText = heartBeltNameTextField.currentValue
+                                     }
 
-                        }
-                        Button {
-                            id: okHeartBeltNameButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText
-                        }
-                    }
+                                }
+                                Button {
+                                    id: okHeartBeltNameButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText
+                                }
+                            }
 
-                    Label {
-                        id: appleWatchLabel
-                        text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
-                        font.bold: yes
-                        font.italic: yes
-                        font.pixelSize: 8
-                        textFormat: Text.PlainText
-                        wrapMode: Text.WordWrap
-                        verticalAlignment: Text.AlignVCenter
-                        color: Material.color(Material.Red)
-                    }
+                            Label {
+                                id: appleWatchLabel
+                                text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
+                                font.bold: yes
+                                font.italic: yes
+                                font.pixelSize: 8
+                                textFormat: Text.PlainText
+                                wrapMode: Text.WordWrap
+                                verticalAlignment: Text.AlignVCenter
+                                color: Material.color(Material.Red)
+                            }
 
-                    Button {
-                        id: refreshHeartBeltNameButton
-                        text: "Refresh Devices List"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: refresh_bluetooth_devices_clicked();
+                            Button {
+                                id: refreshHeartBeltNameButton
+                                text: "Refresh Devices List"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: refresh_bluetooth_devices_clicked();
+                            }
+                        }
                     }
 
 
@@ -387,21 +397,6 @@ import Qt.labs.settings 1.0
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Red)
             }*/
-
-            SwitchDelegate {
-                id: switchDelegate
-                text: qsTr("Heart Rate service outside FTMS")
-                spacing: 0
-                bottomPadding: 0
-                topPadding: 0
-                rightPadding: 0
-                leftPadding: 0
-                clip: false
-                checked: settings.bike_heartrate_service
-                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                Layout.fillWidth: true
-                onClicked: settings.bike_heartrate_service = checked
-            }
 
             AccordionElement {
                 id: bikeResistanceOptionsAccordion
