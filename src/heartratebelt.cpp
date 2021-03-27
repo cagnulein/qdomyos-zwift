@@ -127,7 +127,7 @@ void heartratebelt::deviceDiscovered(const QBluetoothDeviceInfo &device)
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith(heartRateBeltName))
+    //if(device.name().startsWith(heartRateBeltName))
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

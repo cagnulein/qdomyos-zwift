@@ -469,10 +469,33 @@ void bluetooth::connectedAndDiscovered()
 
     if(this->device() != nullptr)
     {
+#ifdef Q_OS_IOS
+        QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+        QString b = settings.value("hrm_lastdevice_name", "").toString();
+        qDebug() << "last hrm name" << b;
+        if(!b.compare(heartRateBeltName))
+        {
+            heartRateBelt = new heartratebelt();
+            //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+            connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+            connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
+            QBluetoothDeviceInfo bt;
+            bt.setDeviceUuid(QBluetoothUuid(settings.value("hrm_lastdevice_address", "").toString()));
+            qDebug() << "UUID" << bt.deviceUuid();
+            heartRateBelt->deviceDiscovered(bt);
+        }
+#endif
         foreach(QBluetoothDeviceInfo b, devices)
         {
             if(((b.name().startsWith(heartRateBeltName))) && !heartRateBelt && !heartRateBeltName.startsWith("Disabled"))
             {
+                settings.setValue("hrm_lastdevice_name", b.name());
+#ifndef Q_OS_IOS
+                settings.setValue("hrm_lastdevice_address", b.address().toString());
+#else
+                settings.setValue("hrm_lastdevice_address", b.deviceUuid().toString());
+#endif
                 heartRateBelt = new heartratebelt();
                 //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
