@@ -949,6 +949,8 @@ void homeform::update()
         ftp->setValue("Z" + QString::number(ftpZone, 'f', 0));
         ftp->setSecondLine(ftpMinW + "-" + ftpMaxW + "W " + QString::number(ftpPerc, 'f', 0) + "%");
 
+        emit wattMaxChanged(bluetoothManager->device()->wattsMetric().max());
+
         QString Z;
         double maxHeartRate = 220.0 - settings.value("age", 35).toDouble();
         if(maxHeartRate == 0) maxHeartRate = 190.0;
@@ -1078,7 +1080,7 @@ void homeform::update()
     }
 
     emit changeOfdevice();
-    emit changeOflap();
+    emit changeOflap();    
 }
 
 bool homeform::getDevice()

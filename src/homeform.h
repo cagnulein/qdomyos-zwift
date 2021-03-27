@@ -88,11 +88,15 @@ class homeform: public QObject
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
+    Q_PROPERTY(double wattChart READ wattChart)
+    Q_PROPERTY(double wattMax READ wattMax NOTIFY wattMaxChanged)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
     ~homeform();
     int topBarHeight() {return m_topBarHeight;}
+    double wattChart() {if(bluetoothManager && bluetoothManager->device()) return bluetoothManager->device()->wattsMetric().value(); else return 0;}
+    double wattMax() {if(bluetoothManager && bluetoothManager->device()) return bluetoothManager->device()->wattsMetric().max(); else return 0;}
     QString info() {return m_info;}
     QString signal();
     QString startText();
@@ -121,6 +125,8 @@ private:
     bool m_generalPopupVisible = false;
     QOAuth2AuthorizationCodeFlow* strava;
     QNetworkAccessManager* manager = 0;
+
+    //charts
 
     bool paused = false;
     bool stopped = false;
@@ -205,6 +211,7 @@ signals:
  void tile_orderChanged(QStringList value);
  void changeLabelHelp(bool value);
  void generalPopupVisibleChanged(bool value);
+ void wattMaxChanged(double value);
 };
 
 #endif // HOMEFORM_H

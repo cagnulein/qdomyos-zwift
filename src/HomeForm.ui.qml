@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
+import QtCharts 2.15
 
 Page {
 
@@ -12,6 +13,8 @@ Page {
     property alias stop: stop
     property alias lap: lap
     property alias row: row
+
+    property alias series1: series1
 
     Item {
         width: parent.width
@@ -161,6 +164,61 @@ Page {
             visible: rootItem.labelHelp
         }
     }
+
+    footer:
+        ChartView {
+            id: chartView
+            backgroundColor: Material.backgroundColor
+            margins.bottom: 0
+            margins.left: 0
+            margins.right: 0
+            margins.top: 0
+            plotAreaColor: Material.backgroundColor
+            //title: "Spline"
+            anchors.top: gridView.bottom
+            antialiasing: true
+            legend.visible: false
+            width: parent.width
+            height: 130 * settings.ui_zoom / 100
+            //Label.visible: false
+
+            ValueAxis {
+                id: valueAxisX
+                min: 0
+                max: 60
+                tickCount: 60
+                labelFormat: "%.0f"
+                labelsVisible: false
+                gridVisible: false
+                lineVisible: false
+            }
+
+            ValueAxis {
+                id: valueAxisY
+                min: 0
+                max: rootItem.wattMax
+                //tickCount: 60
+                labelFormat: "%.0f"
+                labelsVisible: false
+                gridVisible: false
+                lineVisible: false
+            }
+
+            SplineSeries {
+                id: series1
+                useOpenGL: true
+                axisX: valueAxisX
+                axisY: valueAxisY
+                name: "SplineSeries"
+                /*XYPoint { x: 0; y: 0.0 }
+                XYPoint { x: 1.1; y: 3.2 }
+                XYPoint { x: 1.9; y: 2.4 }
+                XYPoint { x: 2.1; y: 2.1 }
+                XYPoint { x: 2.9; y: 2.6 }
+                XYPoint { x: 3.4; y: 2.3 }
+                XYPoint { x: 4.1; y: 3.1 }*/
+            }
+        }
 }
 
 /*##^##

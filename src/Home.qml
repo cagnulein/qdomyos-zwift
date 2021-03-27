@@ -53,6 +53,23 @@ HomeForm{
         onTriggered: popupLap.close();
     }
 
+    Timer {
+        id: refreshChartTimer
+        interval: 1000
+        running: true
+        repeat: true
+        property int timeline: 0
+        onTriggered: {
+            series1.append(timeline, rootItem.wattChart);
+            /*series1.append(1, 5);
+            series1.append(2, 50);
+            series1.append(3, 500);*/
+            //rootItem.dataSource.update(chartView.series(0));
+            console.log("refreshChartTimer" + timeline);
+            timeline++;
+        }
+    }
+
     start.onClicked: { start_clicked(); }
     stop.onClicked: { stop_clicked(); }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
@@ -61,9 +78,9 @@ HomeForm{
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.fill: parent
         cellWidth: 175 * settings.ui_zoom / 100
         cellHeight: 130 * settings.ui_zoom / 100
+        anchors.fill: parent
         focus: true
         model: appModel
         leftMargin: { (parent.width % cellWidth) / 2 }
@@ -115,7 +132,7 @@ HomeForm{
                 id: myIcon
                 x: 5
                 anchors {
-					     bottom: id1.bottom
+                         bottom: id1.bottom
                 }
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
@@ -154,7 +171,7 @@ HomeForm{
                     top: myIcon.top
                 }
                 font.bold: true
-					 font.pointSize: labelFontSize
+                     font.pointSize: labelFontSize
                 color: "white"
                 text: name
                 anchors.left: parent.left

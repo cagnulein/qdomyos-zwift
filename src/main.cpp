@@ -126,7 +126,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
     if(nogui)
         return new QCoreApplication(argc, argv);
     else if(forceQml)
-        return new QGuiApplication(argc, argv);
+        return new QApplication(argc, argv);
     else        
     {
         QApplication* a = new QApplication(argc, argv);
@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));            
 #else
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QScopedPointer<QGuiApplication> app(new QGuiApplication(argc, argv));
+    QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
 
     app->setOrganizationName("Roberto Viola");
