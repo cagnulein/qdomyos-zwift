@@ -48,33 +48,36 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
         // Start a discovery
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
-
-        if(!settings.value("bluetooth_lastdevice_name", "").toString().compare(settings.value("filter_device", "Disabled").toString()))
+        
+#ifdef Q_OS_IOS
+        // Schwinn bikes on iOS allows to be connected to several instances, so in this way
+        // QZ will remember the address and will try to connect to it
+        QString b = settings.value("bluetooth_lastdevice_name", "").toString();
+        qDebug() << "last device name (IC BIKE workaround)" << b;
+        if(!b.compare(settings.value("filter_device", "Disabled").toString()) &&
+           (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-")))
         {
             discoveryAgent->stop();
-            domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
-    #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-            stateFileRead();
-    #endif
+            schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
+            //stateFileRead();
             emit(deviceConnected());
-            connect(domyos, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-            //connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
-            connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-            connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-            connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
-            domyos->deviceDiscovered(settings.value("bluetooth_lastdevice_address", "").toString());
-            connect(this, SIGNAL(searchingStop()), domyos, SLOT(searchingStop()));
-            if(!discoveryAgent->isActive())
-                emit searchingStop();
+            connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+            //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+            connect(schwinnIC4Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+            //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+            //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+            QBluetoothDeviceInfo bt;
+            bt.setDeviceUuid(QBluetoothUuid(settings.value("bluetooth_lastdevice_address", "").toString()));
+            qDebug() << "UUID" << bt.deviceUuid();
+            schwinnIC4Bike->deviceDiscovered(bt);
             qDebug() << "connecting directly";
         }
+#endif
+        
+        if(!trx_route_key)
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         else
-        {
-            if(!trx_route_key)
-                discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-            else
-                discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-        }
+            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
 }
 
@@ -272,6 +275,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             }
             else if((b.name().toUpper().startsWith("IC BIKE") || b.name().toUpper().startsWith("C7-")) && !schwinnIC4Bike && filter)
             {
+                settings.setValue("bluetooth_lastdevice_name", b.name());
+#ifndef Q_OS_IOS
+                settings.setValue("bluetooth_lastdevice_address", b.address().toString());
+#else
+                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
+#endif
                 discoveryAgent->stop();
                 schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
                 //stateFileRead();
@@ -484,6 +493,14 @@ void bluetooth::connectedAndDiscovered()
     }
 #endif
 
+#ifdef Q_OS_IOS
+    // in order to allow to populate the tiles with the IC BIKE auto connect feature
+    if(firstConnected)
+    {
+        emit(deviceConnected());
+    }
+#endif
+    
     firstConnected = false;
 }
 

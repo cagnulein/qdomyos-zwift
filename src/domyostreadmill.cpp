@@ -529,7 +529,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = value.at(18);
+            Heart = ((uint8_t)value.at(18));
     }
     FanSpeed = value.at(23);
 
@@ -696,45 +696,8 @@ void domyostreadmill::error(QLowEnergyController::Error err)
     debug("domyostreadmill::error " + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
-void domyostreadmill::deviceDiscovered(QString address)
-{
-    m_control = QLowEnergyController::createCentral(QBluetoothAddress(address), QBluetoothLocalDevice().address() , this);
-    connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
-            this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
-    connect(m_control, SIGNAL(discoveryFinished()),
-            this, SLOT(serviceScanDone()));
-    connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
-            this, SLOT(error(QLowEnergyController::Error)));
-    connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
-
-    connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-            this, [this](QLowEnergyController::Error error) {
-        Q_UNUSED(error);
-        Q_UNUSED(this);
-        debug("Cannot connect to remote device.");
-        searchStopped = false;
-        emit disconnected();
-    });
-    connect(m_control, &QLowEnergyController::connected, this, [this]() {
-        Q_UNUSED(this);
-        debug("Controller connected. Search services...");
-        m_control->discoverServices();
-    });
-    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-        Q_UNUSED(this);
-        debug("LowEnergy controller disconnected");
-        searchStopped = false;
-        emit disconnected();
-    });
-
-    // Connect
-    m_control->connectToDevice();
-}
-
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if(device.name().startsWith("Domyos") && !device.name().startsWith("DomyosBridge"))
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

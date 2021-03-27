@@ -89,7 +89,6 @@ signals:
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void deviceDiscovered(QString address);
     void searchingStop();
 
 private slots:
