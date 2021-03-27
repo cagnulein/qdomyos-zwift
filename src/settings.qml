@@ -144,7 +144,7 @@ import Qt.labs.settings 1.0
                 textFormat: Text.PlainText
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter
-                color: Material.color(Material.Red)                
+                color: Material.color(Material.Red)
             }
 
             AccordionElement {
@@ -254,14 +254,28 @@ import Qt.labs.settings 1.0
                         }
                     }
 
-                    AccordionCheckElement {
-                        id: heartOutsideAccordion
-                        title: qsTr("Heart Rate service Enabled")
-                        linkedBoolSetting: "bike_heartrate_service"
-                        settings: settings
-                        invert: true
+                    AccordionElement {
+                        id: heartRateOptionsAccordion
+                        title: qsTr("Heart Rate Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 10
+                            SwitchDelegate {
+                                id: switchDelegate
+                                text: qsTr("Heart Rate service outside FTMS")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.bike_heartrate_service
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.bike_heartrate_service = checked
+                            }
                             RowLayout {
                                 spacing: 10
                                 Label {
