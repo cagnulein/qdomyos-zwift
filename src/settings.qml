@@ -357,49 +357,6 @@ import Qt.labs.settings 1.0
                 }
             }
 
-            AccordionElement {
-                id: bikeBridgeOptionsAccordion
-                title: qsTr("Bike Bridge Options (Peloton only!)")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                //width: 640
-                //anchors.top: acc1.bottom
-                //anchors.topMargin: 10
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    SwitchDelegate {
-                        id: cadenceSensorDelegate
-                        text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.bike_cadence_sensor
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.bike_cadence_sensor = checked
-                    }
-
-                    SwitchDelegate {
-                        id: runCadenceSensorDelegate
-                        text: qsTr("Run Cadence Sensor (Peloton compatibility)")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.run_cadence_sensor
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.run_cadence_sensor = checked
-                    }
-                }
-            }
-
             /*Label {
                 id: zwiftInfoLabel
                 text: qsTr("Zwift users: keep this setting off")
@@ -1363,6 +1320,49 @@ import Qt.labs.settings 1.0
                             onClicked: settings.peloton_offset = pelotonOffsetTextField.text
                         }
                     }
+                    SwitchDelegate {
+                        id: cadenceSensorDelegate
+                        text: qsTr("Cycling Cadence Sensor (Peloton compatibility)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bike_cadence_sensor
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bike_cadence_sensor = checked
+                    }
+
+                    SwitchDelegate {
+                        id: runCadenceSensorDelegate
+                        text: qsTr("Run Cadence Sensor (Peloton compatibility)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.run_cadence_sensor
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.run_cadence_sensor = checked
+                    }
+                    SwitchDelegate {
+                        id: iosPelotonWorkaroundDelegate
+                        text: qsTr("iOS Peloton Workaround")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_peloton_workaround
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ios_peloton_workaround = checked
+                    }
                 }
             }
             AccordionElement {
@@ -2153,21 +2153,6 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bike_power_sensor = checked
-                    }
-
-                    SwitchDelegate {
-                        id: iosPelotonWorkaroundDelegate
-                        text: qsTr("iOS Peloton Workaround")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.ios_peloton_workaround
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.ios_peloton_workaround = checked
                     }
 
                     SwitchDelegate {
