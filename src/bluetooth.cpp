@@ -48,10 +48,33 @@ bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool
 
         // Start a discovery
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
-        if(!trx_route_key)
-            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+
+        if(!settings.value("bluetooth_lastdevice_name", "").toString().compare(settings.value("filter_device", "Disabled").toString()))
+        {
+            discoveryAgent->stop();
+            domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
+    #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+            stateFileRead();
+    #endif
+            emit(deviceConnected());
+            connect(domyos, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+            //connect(domyos, SIGNAL(disconnected()), this, SLOT(restart()));
+            connect(domyos, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+            connect(domyos, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+            connect(domyos, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+            domyos->deviceDiscovered(settings.value("bluetooth_lastdevice_address", "").toString());
+            connect(this, SIGNAL(searchingStop()), domyos, SLOT(searchingStop()));
+            if(!discoveryAgent->isActive())
+                emit searchingStop();
+            qDebug() << "connecting directly";
+        }
         else
-            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        {
+            if(!trx_route_key)
+                discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+            else
+                discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod | QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+        }
     }
 }
 
@@ -193,6 +216,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             }
             else if(b.name().startsWith("Domyos") && !b.name().startsWith("DomyosBr") && !domyos && !domyosElliptical && !domyosBike && filter)
             {
+                settings.setValue("bluetooth_lastdevice_name", b.name());
+#ifndef Q_OS_IOS
+                settings.setValue("bluetooth_lastdevice_address", b.address().toString());
+#else
+                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
+#endif
+
                 discoveryAgent->stop();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)

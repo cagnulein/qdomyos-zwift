@@ -235,7 +235,7 @@ void domyostreadmill::update()
         initRequest = false;
         btinit((lastSpeed > 0 ? true : false));
     }
-    else if(bluetoothDevice.isValid() &&
+    else if(/*bluetoothDevice.isValid() &&*/
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -257,7 +257,7 @@ void domyostreadmill::update()
         }
         // ********************************************************************************************************
 
-        debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
+        //debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
@@ -694,6 +694,41 @@ void domyostreadmill::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     debug("domyostreadmill::error " + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+}
+
+void domyostreadmill::deviceDiscovered(QString address)
+{
+    m_control = QLowEnergyController::createCentral(QBluetoothAddress(address), QBluetoothLocalDevice().address() , this);
+    connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
+            this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
+    connect(m_control, SIGNAL(discoveryFinished()),
+            this, SLOT(serviceScanDone()));
+    connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
+            this, SLOT(error(QLowEnergyController::Error)));
+    connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+
+    connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, [this](QLowEnergyController::Error error) {
+        Q_UNUSED(error);
+        Q_UNUSED(this);
+        debug("Cannot connect to remote device.");
+        searchStopped = false;
+        emit disconnected();
+    });
+    connect(m_control, &QLowEnergyController::connected, this, [this]() {
+        Q_UNUSED(this);
+        debug("Controller connected. Search services...");
+        m_control->discoverServices();
+    });
+    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
+        Q_UNUSED(this);
+        debug("LowEnergy controller disconnected");
+        searchStopped = false;
+        emit disconnected();
+    });
+
+    // Connect
+    m_control->connectToDevice();
 }
 
 void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device)
