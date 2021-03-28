@@ -4,7 +4,7 @@ QDomyos-Zwift should support every application able to read a [FTMS](specs/FTMS_
 
 This list is not exhaustive. Please report any application known to be working with QDomyos-Zwift !
 
-|Application|Sport|Platform|Speed Captor|RPM|Power|HRM |Resistance Control|
+|Application|Sport|Platform|Speed|RPM|Power|HRM |Resistance Control|
 |-----------|-----|--------|------------|---|-----|-----|----------------|
 |[Zwift](21_applications_detail.md#zwift)|![bike](img/20_bike.png) ![run](img/20_treadmill.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)| Yes|Yes|Yes| Yes, no FTMS support | Yes |
 |[BKool](21_applications_detail.md#bkool) |![bike](img/20_bike.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)|Yes|Yes|Yes|Yes| Yes |
@@ -17,14 +17,14 @@ If it's not working, you can [ask for your device to be supported](#ask-for-devi
 
 ## Supported bikes
 
-|Manufacturer|Model|Speed Captor|RPM|Power|HRM|Resistence Control|
+|Manufacturer|Model|Speed|RPM|Power|HRM|Resistence Control|
 |------------|-----|------------|---|-----|---|------------------|
 |[Echelon](22_devices_detail.md#echelon)|Connect Sport|Yes|Yes|Yes|Yes|N/A|
 |[Sportstech](22_devices_detail.md#sportstech)|ESX500|Yes|Yes|Yes|Yes|Yes|
 
 ## Supported treadmills
 
-|Manufacturer|Model|Speed Captor|HRM|Inclinaison Control| Speed control|
+|Manufacturer|Model|Speed|HRM|Inclinaison Control| Speed control|
 |------------|-----|------------|---|-------------------|--------------|
 |Domyos|Intense Run|Yes|Yes|Yes|Yes|
 |Domyos|T900c|Yes|Yes|Yes|Yes|
