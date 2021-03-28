@@ -39,35 +39,9 @@ Read the [installation procedure](docs/10_Installation.md)
 
 ### Tested on
 
-- Raspberry PI 0W and Domyos Intense Run
+You can run the app on [Macintosh or Linux devices](docs/10_Installation.md). IOS and Android are also supported.
 
-- MacBook Air 2011 and Domyos Intense Run
-
-- Raspberry 3b+ and Domyos T900C
-
-- Raspberry 3b+ and Toorx TRX Route Key
-
-- Android Pixel 2 and Echelon Connect Sport
-
-- Raspberry Pi 0W and SportsTech ESX500 
-
-### Your machine is not compatible?
-
-Open an issue and follow these steps!
-
-1. first of all you need an android device (phone or tablet)
-2. you need to become developer on your phone https://wccftech.com/how-to/how-to-enable-developer-options-on-android-10-tutorial/
-3. Go to Settings
-4. Go into developer options
-5. Enable the option Enable Bluetooth HCI snoop log
-6. restart your phone
-7. open your machine app and play with it collecting inclination and speed
-8. Disable the option Enable Bluetooth HCI snoop log
-9. in Developer Options: Bug report->Full report
-10. wait a random amount of time (10-20 seconds)
-11. A notification will appear at the top of the device. Click on it, share, email it to yourself
-12. You'll get a zip file with the entire report. In the FS/Data/Log/bt directory of the zipfile is the file you want.
-13. attach the log file in a new issue with a short description of the steps you did in the app when you used it
+QDomyos-Zwift works on every [FTMS-compatible application](docs/20_supported_devices_and_applications.md), and virtually any [bluetooth enabled device](docs/20_supported_devices_and_applications.md).
 
 ### No gui version
 
@@ -80,6 +54,8 @@ $ sudo ./qdomyos-zwift -no-gui
 https://github.com/ProH4Ck/treadmill-bridge
 
 https://www.livestrong.com/article/422012-what-is-10-degrees-in-incline-on-a-treadmill/
+
+Icons used in this documentation comes from [flaticon.com](https://www.flaticon.com)
 
 ### Blog
 
