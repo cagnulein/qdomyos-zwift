@@ -242,7 +242,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
-            else if((b.name().toUpper().startsWith("HORIZON") || b.name().toUpper().startsWith("F80")) && !horizonTreadmill && filter)
+            else if((b.name().toUpper().startsWith("HORIZON") || b.name().toUpper().startsWith("F80") || b.name().toUpper().startsWith("ESANGLINKER")) && !horizonTreadmill && filter)
             {
                 discoveryAgent->stop();
                 horizonTreadmill = new horizontreadmill(noWriteResistance, noHeartService);
