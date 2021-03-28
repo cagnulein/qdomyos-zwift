@@ -60,12 +60,32 @@ HomeForm{
         repeat: true
         property int timeline: 0
         onTriggered: {
-            series1.append(timeline, rootItem.wattChart);
+            series1.upperSeries.append(timeline, rootItem.wattZ1);
+            series2.upperSeries.append(timeline, rootItem.wattZ2);
+            series3.upperSeries.append(timeline, rootItem.wattZ3);
+            series4.upperSeries.append(timeline, rootItem.wattZ4);
+            series5.upperSeries.append(timeline, rootItem.wattZ5);
+            series6.upperSeries.append(timeline, rootItem.wattZ6);
+            series7.upperSeries.append(timeline, rootItem.wattZ7);
+            series1.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series2.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series3.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series4.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series5.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series6.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series7.axisX.min = (timeline - 60 > 0) ? timeline - 60 : 0;
+            series1.axisX.max = (timeline - 60 > 0) ? timeline : 60;
+            series2.axisX.max = (timeline - 60 > 0) ? timeline : 60;
+            series3.axisX.max = (timeline - 60 > 0) ? timeline : 60;
+            series4.axisX.max = (timeline - 60 > 0) ? timeline : 60;
+            series5.axisX.max = (timeline - 60 > 0) ? timeline : 60;
+            series6.axisX.max = (timeline - 60 > 0) ? timeline : 60;
+            series7.axisX.max = (timeline - 60 > 0) ? timeline : 60;
             /*series1.append(1, 5);
             series1.append(2, 50);
             series1.append(3, 500);*/
             //rootItem.dataSource.update(chartView.series(0));
-            console.log("refreshChartTimer" + timeline);
+            //console.log("refreshChartTimer" + timeline);
             timeline++;
         }
     }

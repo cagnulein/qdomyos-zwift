@@ -896,13 +896,23 @@ void homeform::update()
         QString ftpMinW = "0";
         QString ftpMaxW = "0";
         if(ftpSetting > 0)
+        {
             ftpPerc = (watts / ftpSetting) * 100.0;
+            m_wattZ1Max = ftpSetting * 0.54;
+            m_wattZ2Max = ftpSetting * 0.75;
+            m_wattZ3Max = ftpSetting * 0.90;
+            m_wattZ4Max = ftpSetting * 1.05;
+            m_wattZ5Max = ftpSetting * 1.20;
+            m_wattZ6Max = ftpSetting * 1.50;
+        }
         if(ftpPerc < 55)
         {
             ftpMinW = QString::number(0, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
             ftpZone = 1;
             ftp->setValueFontColor("white");
+            m_wattZ2 = m_wattZ3 = m_wattZ4 = m_wattZ5 = m_wattZ6 = m_wattZ7 = 0;
+            m_wattZ1 = watts;
         }
         else if(ftpPerc < 76)
         {
@@ -910,6 +920,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
             ftpZone = 2;
             ftp->setValueFontColor("limegreen");
+            m_wattZ3 = m_wattZ4 = m_wattZ5 = m_wattZ6 = m_wattZ7 = 0;
+            m_wattZ2 = watts;
         }
         else if(ftpPerc < 91)
         {
@@ -917,6 +929,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
             ftpZone = 3;
             ftp->setValueFontColor("gold");
+            m_wattZ4 = m_wattZ5 = m_wattZ6 = m_wattZ7 = 0;
+            m_wattZ3 = watts;
         }
         else if(ftpPerc < 106)
         {
@@ -924,6 +938,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
             ftpZone = 4;
             ftp->setValueFontColor("orange");
+            m_wattZ5 = m_wattZ6 = m_wattZ7 = 0;
+            m_wattZ4 = watts;
         }
         else if(ftpPerc < 121)
         {
@@ -931,6 +947,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
             ftpZone = 5;
             ftp->setValueFontColor("darkorange");
+            m_wattZ6 = m_wattZ7 = 0;
+            m_wattZ5 = watts;
         }
         else if(ftpPerc < 151)
         {
@@ -938,6 +956,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
             ftpZone = 6;
             ftp->setValueFontColor("orangered");
+            m_wattZ7 = 0;
+            m_wattZ6 = watts;
         }
         else
         {
@@ -945,6 +965,7 @@ void homeform::update()
             ftpMaxW = "∞";
             ftpZone = 7;
             ftp->setValueFontColor("red");
+            m_wattZ7 = watts;
         }
         ftp->setValue("Z" + QString::number(ftpZone, 'f', 0));
         ftp->setSecondLine(ftpMinW + "-" + ftpMaxW + "W " + QString::number(ftpPerc, 'f', 0) + "%");

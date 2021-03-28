@@ -88,14 +88,38 @@ class homeform: public QObject
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
-    Q_PROPERTY(double wattChart READ wattChart)
+    Q_PROPERTY(double wattZ1 READ wattZ1)
+    Q_PROPERTY(double wattZ2 READ wattZ2)
+    Q_PROPERTY(double wattZ3 READ wattZ3)
+    Q_PROPERTY(double wattZ4 READ wattZ4)
+    Q_PROPERTY(double wattZ5 READ wattZ5)
+    Q_PROPERTY(double wattZ6 READ wattZ6)
+    Q_PROPERTY(double wattZ7 READ wattZ7)
+    Q_PROPERTY(double wattZ1Max READ wattZ1Max)
+    Q_PROPERTY(double wattZ2Max READ wattZ2Max)
+    Q_PROPERTY(double wattZ3Max READ wattZ3Max)
+    Q_PROPERTY(double wattZ4Max READ wattZ4Max)
+    Q_PROPERTY(double wattZ5Max READ wattZ5Max)
+    Q_PROPERTY(double wattZ6Max READ wattZ6Max)
     Q_PROPERTY(double wattMax READ wattMax NOTIFY wattMaxChanged)
 
 public:
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
     ~homeform();
     int topBarHeight() {return m_topBarHeight;}
-    double wattChart() {if(bluetoothManager && bluetoothManager->device()) return bluetoothManager->device()->wattsMetric().value(); else return 0;}
+    double wattZ1() {return m_wattZ1;}
+    double wattZ2() {return m_wattZ2;}
+    double wattZ3() {return m_wattZ3;}
+    double wattZ4() {return m_wattZ4;}
+    double wattZ5() {return m_wattZ5;}
+    double wattZ6() {return m_wattZ6;}
+    double wattZ7() {return m_wattZ7;}
+    double wattZ1Max() {return m_wattZ1Max;}
+    double wattZ2Max() {return m_wattZ2Max;}
+    double wattZ3Max() {return m_wattZ3Max;}
+    double wattZ4Max() {return m_wattZ4Max;}
+    double wattZ5Max() {return m_wattZ5Max;}
+    double wattZ6Max() {return m_wattZ6Max;}
     double wattMax() {if(bluetoothManager && bluetoothManager->device()) return bluetoothManager->device()->wattsMetric().max(); else return 0;}
     QString info() {return m_info;}
     QString signal();
@@ -127,6 +151,19 @@ private:
     QNetworkAccessManager* manager = 0;
 
     //charts
+    double m_wattZ1 = 0;
+    double m_wattZ2 = 0;
+    double m_wattZ3 = 0;
+    double m_wattZ4 = 0;
+    double m_wattZ5 = 0;
+    double m_wattZ6 = 0;
+    double m_wattZ7 = 0;
+    double m_wattZ1Max = 0;
+    double m_wattZ2Max = 0;
+    double m_wattZ3Max = 0;
+    double m_wattZ4Max = 0;
+    double m_wattZ5Max = 0;
+    double m_wattZ6Max = 0;
 
     bool paused = false;
     bool stopped = false;
