@@ -28,6 +28,3 @@ The application do not read the FTMS value. It is required to start the applicat
 ### Resistance management
 You can adjust resistence using arrows [up and down](img/21_zwift-resistance-buttons.jpg) rom the riding screen.
 
-# For Running
-
-# For Rolling
