@@ -8,7 +8,7 @@ This list is not exhaustive. Please report any application known to be working w
 |-----------|-----|--------|------------|---|-----|-----|----------------|
 |[Zwift](21_applications_detail.md#zwift)|![bike](img/20_bike.png) ![run](img/20_treadmill.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)| Yes|Yes|Yes| Yes, no FTMS support | Yes |
 |[BKool](21_applications_detail.md#bkool) |![bike](img/20_bike.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)|Yes|Yes|Yes|Yes| Yes |
-|[Fulgaz](21_applications_detail.md#fulgaz)|![bike](img/20_bike.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)|Yes|Yes|Yes|Yes, no FTMS support (see note)|Yes |
+|[Fulgaz](21_applications_detail.md#fulgaz)|![bike](img/20_bike.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)|Yes|Yes|Yes|Yes, no FTMS support (see note)|Yes (see note) |
 
 # Supported devices
 This list is not exhaustive. 
