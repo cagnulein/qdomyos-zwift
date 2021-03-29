@@ -14,6 +14,7 @@ Page {
     property alias lap: lap
     property alias row: row
 
+    property alias chartView: chartView
     property alias series1: series1
     property alias series2: series2
     property alias series3: series3
@@ -184,9 +185,9 @@ Page {
             //anchors.top: gridView.bottom
             antialiasing: true
             legend.visible: false
-            width: parent.width
-            height: 130 * settings.ui_zoom / 100
+            width: stackView.width
             //Label.visible: false
+            //visible: settings.chart_footer
 
             ValueAxis {
                 id: valueAxisX
@@ -200,7 +201,7 @@ Page {
             }
 
             ValueAxis {
-                id: valueAxisY1
+                id: valueAxisY
                 min: 0
                 max: rootItem.wattMax
                 //tickCount: 60
@@ -208,73 +209,14 @@ Page {
                 labelsVisible: false
                 gridVisible: false
                 lineVisible: false
-            }
-            ValueAxis {
-                id: valueAxisY2
-                min: rootItem.wattZ1Max
-                max: rootItem.wattMax
-                //tickCount: 60
-                labelFormat: "%.0f"
-                labelsVisible: false
-                gridVisible: false
-                lineVisible: false
-            }
-            ValueAxis {
-                id: valueAxisY3
-                min: rootItem.wattZ2Max
-                max: rootItem.wattMax
-                //tickCount: 60
-                labelFormat: "%.0f"
-                labelsVisible: false
-                gridVisible: false
-                lineVisible: false
-            }
-            ValueAxis {
-                id: valueAxisY4
-                min: rootItem.wattZ3Max
-                max: rootItem.wattMax
-                //tickCount: 60
-                labelFormat: "%.0f"
-                labelsVisible: false
-                gridVisible: false
-                lineVisible: false
-            }
-            ValueAxis {
-                id: valueAxisY5
-                min: rootItem.wattZ4Max
-                max: rootItem.wattMax
-                //tickCount: 60
-                labelFormat: "%.0f"
-                labelsVisible: false
-                gridVisible: false
-                lineVisible: false
-            }
-            ValueAxis {
-                id: valueAxisY6
-                min: rootItem.wattZ5Max
-                max: rootItem.wattMax
-                //tickCount: 60
-                labelFormat: "%.0f"
-                labelsVisible: false
-                gridVisible: false
-                lineVisible: false
-            }
-            ValueAxis {
-                id: valueAxisY7
-                min: rootItem.wattZ6Max
-                max: rootItem.wattMax
-                //tickCount: 60
-                labelFormat: "%.0f"
-                labelsVisible: false
-                gridVisible: false
-                lineVisible: false
+                titleVisible: false
             }
 
             AreaSeries {
                 id: series1
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY1
+                axisY: valueAxisY
                 name: "Z1"
                 color: "white"
                 borderColor: color
@@ -284,7 +226,7 @@ Page {
                 id: series2
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY2
+                axisY: valueAxisY
                 color: "limegreen"
                 borderColor: color
                 upperSeries: LineSeries {}
@@ -293,7 +235,7 @@ Page {
                 id: series3
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY3
+                axisY: valueAxisY
                 color: "gold"
                 borderColor: color
                 upperSeries: LineSeries {}
@@ -302,7 +244,7 @@ Page {
                 id: series4
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY4
+                axisY: valueAxisY
                 color: "orange"
                 borderColor: color
                 upperSeries: LineSeries {}
@@ -311,7 +253,7 @@ Page {
                 id: series5
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY5
+                axisY: valueAxisY
                 color: "darkorange"
                 borderColor: color
                 upperSeries: LineSeries {}
@@ -320,7 +262,7 @@ Page {
                 id: series6
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY6
+                axisY: valueAxisY
                 color: "orangered"
                 borderColor: color
                 upperSeries: LineSeries {}
@@ -329,7 +271,7 @@ Page {
                 id: series7
                 useOpenGL: true
                 axisX: valueAxisX
-                axisY: valueAxisY7
+                axisY: valueAxisY
                 color: "red"
                 borderColor: color
                 upperSeries: LineSeries {}

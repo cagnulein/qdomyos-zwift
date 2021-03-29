@@ -16,6 +16,7 @@ HomeForm{
     Settings {
         id: settings
         property real ui_zoom: 100.0
+        property bool chart_footer: true
     }
 
     Popup {
@@ -55,11 +56,13 @@ HomeForm{
 
     Timer {
         id: refreshChartTimer
-        interval: 1000
+        interval: 500
         running: true
         repeat: true
         property int timeline: 0
         onTriggered: {
+            if(settings.chart_footer) chartView.height = 130 * settings.ui_zoom / 100; else chartView.height = 0;
+            if(rootItem.labelHelp || rootItem.wattMax === 0 || !settings.chart_footer) return;
             series1.upperSeries.append(timeline, rootItem.wattZ1);
             series2.upperSeries.append(timeline, rootItem.wattZ2);
             series3.upperSeries.append(timeline, rootItem.wattZ3);

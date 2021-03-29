@@ -14,6 +14,7 @@ import Qt.labs.settings 1.0
         Settings {
             id: settings
             property real ui_zoom: 100.0
+            property bool chart_footer: true
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
             property real bike_resistance_gain_f: 1.0
@@ -178,6 +179,21 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                     onClicked: settings.ui_zoom = uiZoomTextField.text
                 }
+            }
+
+            SwitchDelegate {
+                id: chartFooterDelegate
+                text: qsTr("Realtime Chart")
+                spacing: 0
+                bottomPadding: 0
+                topPadding: 0
+                rightPadding: 0
+                leftPadding: 0
+                clip: false
+                checked: settings.chart_footer
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                onClicked: settings.chart_footer = checked
             }
 
             RowLayout {

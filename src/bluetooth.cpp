@@ -149,6 +149,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
         heartRateBeltFound = heartRateBeltAvaiable();
     }
 
+    if(!device.name().length()) return;
+
     bool found = false;
     QMutableListIterator<QBluetoothDeviceInfo> i(devices);
     while (i.hasNext()) {
@@ -261,7 +263,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                     emit searchingStop();
             }
             else if(b.name().startsWith("ECH") && !echelonConnectSport && filter)
-            {
+            {              
                 discoveryAgent->stop();
                 echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 //stateFileRead();
