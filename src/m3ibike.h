@@ -167,6 +167,7 @@ private:
     keiser_m3i_out_t k3;
     qint64 lastTimerRestart = -1;
     int lastTimerRestartOffset = 0;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     virtualbike* virtualBike = 0;
 
