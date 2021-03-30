@@ -579,6 +579,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         return;
     debug(" << " + data.toHex(' '));
     if (parse_data(data, &k3)) {
+        QSettings settings;
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
@@ -587,7 +588,6 @@ void m3ibike::processAdvertising(const QByteArray& data) {
                 && !h
 #endif
                 ) {
-                QSettings settings;
                 bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
@@ -637,8 +637,11 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         Cadence = k3.rpm;
         m_watt = k3.watt;
         watts(); // to update avg and max
-        Speed = k3.speed;
-        KCal = k3.calorie;
+        Speed = k3.speed;        
+        if(settings.value("m3i_bike_kcal", true).toBool())
+            KCal = k3.calorie;
+        else
+            KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         Distance = k3.distance;
         if (!not_in_pause || k3.time_orig <= 10) {
             lastTimerRestart = -1;
@@ -656,6 +659,8 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
         if (antHeart)

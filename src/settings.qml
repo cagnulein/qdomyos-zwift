@@ -99,6 +99,7 @@ import Qt.labs.settings 1.0
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 90
             property bool m3i_bike_qt_search: false
+            property bool m3i_bike_kcal: true
 
             property bool snode_bike: false
 
@@ -1693,6 +1694,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text
                         }
+                    }
+
+                    SwitchDelegate {
+                        id: m3iBikeKcalDelegate
+                        text: qsTr("Use KCal from the Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.m3i_bike_kcal
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.m3i_bike_kcal = checked
                     }
                 }
             }

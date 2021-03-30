@@ -1,16 +1,22 @@
 # Installation
 
+QDomyos-Zwift can be installed from source on MacOs, Linux, Android and IOS.
+
+Once you've installed QDomyos-Zwift, you can access the [operation guide](30_usage.md) for more information.
+
 ## On a Linux System (from source)
 
 ```buildoutcfg
 $ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
 $ sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
+$ cd qdomyos-zwift
 $ cd src
 $ qmake
 $ make -j4
 $ sudo ./qdomyos-zwift
 ```
+
 
 ## MacOs installation
 
@@ -97,6 +103,7 @@ This operation takes a moment to complete.
 `sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev`
 
 `git clone https://github.com/cagnulein/qdomyos-zwift.git`  
+`cd qdomyos-zwift`  
 `cd src`  
 `qmake`  
 `make`  
