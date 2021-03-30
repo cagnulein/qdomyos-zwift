@@ -50,6 +50,8 @@
 #include <vector>
 #include <limits>
 
+quint8 QZ_EnableDiscoveryCharsAndDescripttors = false;
+
 Q_DECLARE_METATYPE(QLowEnergyHandle)
 
 QT_BEGIN_NAMESPACE
@@ -555,15 +557,23 @@ QT_USE_NAMESPACE
 
     if (!service.characteristics || !service.characteristics.count)
         return [self serviceDetailsDiscoveryFinished:service];
-/* rviola
-    NSArray *const cs = service.characteristics;
-    for (CBCharacteristic *c in cs) {
-        if (c.properties & CBCharacteristicPropertyRead) {
-            [self watchAfter:c timeout:OperationTimeout::characteristicRead];
-            return [peripheral readValueForCharacteristic:c];
+
+    //rviola
+    if(QZ_EnableDiscoveryCharsAndDescripttors == true)
+    {
+        qCWarning(QT_BT_OSX) << "QZ_EnableDiscoveryCharsAndDescripttors turned on";
+        NSArray *const cs = service.characteristics;
+        for (CBCharacteristic *c in cs) {
+            if (c.properties & CBCharacteristicPropertyRead) {
+                [self watchAfter:c timeout:OperationTimeout::characteristicRead];
+                return [peripheral readValueForCharacteristic:c];
+            }
         }
     }
-*/
+    else
+    {
+        qCWarning(QT_BT_OSX) << "QZ_EnableDiscoveryCharsAndDescripttors turned off";
+    }
     // No readable properties? Discover descriptors then:
     [self discoverDescriptors:service];
 }
@@ -602,18 +612,26 @@ QT_USE_NAMESPACE
     Q_ASSERT_X(peripheral, Q_FUNC_INFO, "invalid peripheral (nil)");
 
     QT_BT_MAC_AUTORELEASEPOOL;
-/* rviola
-    NSArray *const cs = service.characteristics;
-    // We can never be here if we have no characteristics.
-    Q_ASSERT_X(cs && cs.count, Q_FUNC_INFO, "invalid service");
-    for (CBCharacteristic *c in cs) {
-        if (c.descriptors && c.descriptors.count) {
-            CBDescriptor *desc = [c.descriptors objectAtIndex:0];
-            [self watchAfter:desc timeout:OperationTimeout::descriptorRead];
-            return [peripheral readValueForDescriptor:desc];
+    //rviola
+    if(QZ_EnableDiscoveryCharsAndDescripttors == true)
+    {
+        qCWarning(QT_BT_OSX) << "QZ_EnableDiscoveryCharsAndDescripttors turned on";
+        NSArray *const cs = service.characteristics;
+        // We can never be here if we have no characteristics.
+        Q_ASSERT_X(cs && cs.count, Q_FUNC_INFO, "invalid service");
+        for (CBCharacteristic *c in cs) {
+            if (c.descriptors && c.descriptors.count) {
+                CBDescriptor *desc = [c.descriptors objectAtIndex:0];
+                [self watchAfter:desc timeout:OperationTimeout::descriptorRead];
+                return [peripheral readValueForDescriptor:desc];
+            }
         }
     }
-*/
+    else
+    {
+        qCWarning(QT_BT_OSX) << "QZ_EnableDiscoveryCharsAndDescripttors turned off";
+    }
+
     // No descriptors to read, done.
     [self serviceDetailsDiscoveryFinished:service];
 }
