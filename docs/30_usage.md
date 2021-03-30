@@ -1,3 +1,6 @@
+# QDomyos-Zwift operation guide
+
+
 # Usage
 
 The QDomyos-Zwift can be started in two modes : QML or NativeQT.  
@@ -9,8 +12,11 @@ On MacOS and Linux, you start QDomyos-Zwift in NativeQT mode (where settings are
 
 You can start the application in QML mode with the command-line switch -qml.
 
+## Configuration in QML mode 
+Please refer to this article for more information under [QML Operations](https://robertoviola.cloud/qdomyos-zwift-guide/) with several useful information.
 
-## Available settings in NativeQT mode
+
+## Configuration in NativeQT mode
 
 This is the list of settings available in the application. These settings needs to be appended to the binary command line.  
 *Example :* `sudo ./qdomyos-zwift -no-gui` for disabling any graphical interface.
@@ -41,4 +47,6 @@ This is the list of settings available in the application. These settings needs 
 | -poll-device-time       | Int      | 200 (ms)    | Frequency to refresh informations from QZ to Fitness equipment               |
 | -bike-resistance-gain   | Int      |             | Adjust resistance from the fitness application                               |
 | -bike-resistance-offset | Int      |             | Set another resistance point than default                                    |
+
+
 
