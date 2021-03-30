@@ -63,6 +63,7 @@ SOURCES += \
 	keepawakehelper.cpp \
 	     main.cpp \
 		metric.cpp \
+   peloton.cpp \
 	proformbike.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
@@ -334,6 +335,7 @@ HEADERS += \
         ios/M3iIOS-Interface.h \
 	material.h \
 	metric.h \
+   peloton.h \
 	proformbike.h \
 	proformtreadmill.h \
 	qfit.h \

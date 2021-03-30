@@ -34,6 +34,9 @@ import Qt.labs.settings 1.0
 
             property bool top_bar_enabled: true
 
+            property string peloton_username: "username"
+            property string peloton_password: "password"
+
             property bool tile_speed_enabled: true
             property int  tile_speed_order: 0
             property bool tile_inclination_enabled: true
@@ -1274,6 +1277,54 @@ import Qt.labs.settings 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPelotonUsername
+                            text: qsTr("Username:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonUsernameTextField
+                            text: settings.peloton_username
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.peloton_username = text
+                        }
+                        Button {
+                            id: okPelotonUsernameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_username = pelotonUsernameTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPelotonPassword
+                            text: qsTr("Password:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pelotonPasswordTextField
+                            text: settings.peloton_password
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhHiddenText
+                            onAccepted: settings.peloton_password = text
+                        }
+                        Button {
+                            id: okPelotonPasswordButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_password = pelotonPasswordTextField.text
+                        }
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
