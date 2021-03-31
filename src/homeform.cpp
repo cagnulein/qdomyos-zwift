@@ -133,6 +133,9 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(refresh_bluetooth_devices_clicked()));
     QObject::connect(home, SIGNAL(lap_clicked()),
         this, SLOT(Lap()));
+    QObject::connect(home, SIGNAL(peloton_start_workout()),
+        this, SLOT(peloton_start_workout()));
+
 
     if(settings.value("top_bar_enabled", true).toBool())
     {
@@ -145,6 +148,9 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     }
 
     emit tile_orderChanged(tile_order());
+
+    pelotonHandler = new peloton(bl);
+    connect(pelotonHandler, SIGNAL(workoutStarted(QString)), this, SLOT(pelotonWorkoutStarted(QString)));
 
     //populate the UI
 #if 0
@@ -200,6 +206,31 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
 #endif
+}
+
+void homeform::peloton_start_workout()
+{
+    if(pelotonHandler && pelotonHandler->trainrows.length())
+    {
+        if(trainProgram)
+        {
+            trainProgram->stop();
+            delete trainProgram;
+        }
+        trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
+        trainProgramSignals();
+    }
+}
+
+void homeform::pelotonWorkoutStarted(QString name)
+{
+    QSettings settings;
+    if(!settings.value("top_bar_enabled", true).toBool()) return;
+    m_info = name;
+    emit infoChanged(m_info);
+
+    m_pelotonAskStart = true;
+    emit(changePelotonAskStart(pelotonAskStart()));
 }
 
 void homeform::backup()

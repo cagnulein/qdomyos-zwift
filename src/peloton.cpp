@@ -1,12 +1,30 @@
 #include "peloton.h"
 
-peloton::peloton(QObject *parent) : QObject(parent)
+const bool log_request = false;
+
+peloton::peloton(bluetooth* bl, QObject *parent) : QObject(parent)
 {
     QSettings settings;
+    bluetoothManager = bl;
     mgr = new QNetworkAccessManager(this);
-    //connect(mgr,SIGNAL(finished(QNetworkReply*)),mgr,SLOT(deleteLater()));
-    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
+    timer = new QTimer(this);
 
+    if(!settings.value("peloton_username", "username").toString().compare("username"))
+    {
+        qDebug() << "invalid peloton credentials";
+        return;
+    }
+
+    connect(timer,SIGNAL(timeout()), this, SLOT(startEngine()));
+
+    startEngine();
+}
+
+void peloton::startEngine()
+{
+    QSettings settings;
+    timer->stop();
+    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
     QUrl url("https://api.onepeloton.com/auth/login");
     QNetworkRequest request(url);
 
@@ -19,7 +37,6 @@ peloton::peloton(QObject *parent) : QObject(parent)
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
 
-    //mgr->get(QNetworkRequest(QUrl("https://www.qt.io/developers")));
     mgr->post(request, data);
 }
 
@@ -30,7 +47,10 @@ void peloton::login_onfinish(QNetworkReply* reply)
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
 
-    qDebug() << "login_onfinish" << document;
+    if(log_request)
+        qDebug() << "login_onfinish" << document;
+    else
+        qDebug() << "login_onfinish";
 
     user_id = document["user_id"].toString();
     total_workout = document["user_data"]["total_workouts"].toInt();
@@ -47,12 +67,36 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
     QJsonObject json = current_workout.object();
     QJsonArray data = json["data"].toArray();
     qDebug() << "data" << data;
-    current_workout_id = data.at(0)["id"].toString();
+    QString id = data.at(0)["id"].toString();
+    QString status = data.at(0)["status"].toString();
+    current_workout_name = data.at(0)["name"].toString();
+    if(status.toUpper().contains("IN_PROGRESS") && !current_workout_status.contains("IN_PROGRESS"))
+    {
+        // starting a workout
+        qDebug() << "workoutlist_onfinish IN PROGRESS!";
 
-    qDebug() << "workoutlist_onfinish" << current_workout;
+        // peloton bike only
+        if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+        {
+            getSummary(current_workout_id);
+            timer->start(60000);  // timeout request
+        }
+        else
+        {
+            timer->start(10000);  // check for a status changed
+        }
+    }
+    else
+    {
+        //getSummary(current_workout_id); // debug
+        timer->start(10000);  // check for a status changed
+    }
+    current_workout_id = id;
+    current_workout_status = status;
+
+    if(log_request)
+        qDebug() << "workoutlist_onfinish" << current_workout;
     qDebug() << "current workout id" << current_workout_id;
-
-    getSummary(current_workout_id);
 }
 
 void peloton::summary_onfinish(QNetworkReply* reply)
@@ -62,7 +106,10 @@ void peloton::summary_onfinish(QNetworkReply* reply)
     QJsonParseError parseError;
     current_workout_summary = QJsonDocument::fromJson(payload, &parseError);
 
-    qDebug() << "summary_onfinish" << current_workout_summary;
+    if(log_request)
+        qDebug() << "summary_onfinish" << current_workout_summary;
+    else
+        qDebug() << "summary_onfinish";
 
     getWorkout(current_workout_id);
 }
@@ -74,7 +121,10 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     QJsonParseError parseError;
     workout = QJsonDocument::fromJson(payload, &parseError);
 
-    qDebug() << "workout_onfinish" << workout;
+    if(log_request)
+        qDebug() << "workout_onfinish" << workout;
+    else
+        qDebug() << "workout_onfinish";
 
     getPerformance(current_workout_id);
 }
@@ -84,9 +134,35 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(performance_onfinish(QNetworkReply*)));
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
-    workout = QJsonDocument::fromJson(payload, &parseError);
+    performance = QJsonDocument::fromJson(payload, &parseError);
 
-    qDebug() << "performance_onfinish" << workout;
+    if(log_request)
+        qDebug() << "performance_onfinish" << workout;
+    else
+        qDebug() << "performance_onfinish";
+
+    QJsonObject json = performance.object();
+    QJsonObject target_performance_metrics = json["target_performance_metrics"].toObject();
+    QJsonArray target_graph_metrics = target_performance_metrics["target_graph_metrics"].toArray();
+    QJsonObject resistances = target_graph_metrics[1].toObject();
+    QJsonObject graph_data = resistances["graph_data"].toObject();
+    QJsonArray averages = graph_data["average"].toArray();
+
+    trainrows.clear();
+    foreach(QJsonValue a, averages)
+    {
+        trainrow r;
+        r.duration = QTime(0,0,peloton_workout_second_resolution,0);
+        r.resistance = ((bike*)bluetoothManager->device())->pelotonToBikeResistance(a.toInt());
+        trainrows.append(r);
+    }
+
+    if(trainrows.length())
+    {
+        emit workoutStarted(current_workout_name);
+    }
+
+    timer->start(30000); // check for a status changed
 }
 
 
@@ -94,7 +170,7 @@ void peloton::getPerformance(QString workout)
 {
     connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(performance_onfinish(QNetworkReply*)));
 
-    QUrl url("https://api.onepeloton.com/api/workout/" + workout + "/performance_graph");
+    QUrl url("https://api.onepeloton.com/api/workout/" + workout + "/performance_graph?every_n=" + peloton_workout_second_resolution);
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");

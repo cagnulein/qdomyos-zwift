@@ -16,6 +16,7 @@ uint8_t bike::fanSpeed() { return FanSpeed; }
 bool bike::connected() { return false; }
 uint16_t bike::watts() { return 0; }
 metric bike::pelotonResistance() { return m_pelotonResistance; }
+int bike::pelotonToBikeResistance(int pelotonResistance) {return pelotonResistance;}
 
 bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
 

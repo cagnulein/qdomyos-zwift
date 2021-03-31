@@ -4,18 +4,32 @@ import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
+import QtQuick.Dialogs 1.1
 
 HomeForm{
     objectName: "home"
     signal start_clicked;
     signal stop_clicked;
     signal lap_clicked;
+    signal peloton_start_workout;
     signal plus_clicked(string name)
     signal minus_clicked(string name)
 
     Settings {
         id: settings
         property real ui_zoom: 100.0
+    }
+
+    MessageDialog {
+        id: messagePelotonAskStart
+        title: "Peloton Workout in progress"
+        icon: StandardIcon.Question
+        text: "Do you want to follow the resistance?"
+        standardButtons: StandardButton.Yes | StandardButton.No
+        onYes: {rootItem.pelotonAskStart = false; peloton_start_workout();}
+        onNo: rootItem.pelotonAskStart = false;
+        onDiscard: rootItem.pelotonAskStart = false;
+        visible: rootItem.pelotonAskStart
     }
 
     Popup {

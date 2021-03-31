@@ -93,7 +93,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     lapMesg.SetStartTime(session.first().time.toSecsSinceEpoch() - 631065600L);
     lapMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
-    lapMesg.SetEventType(FIT_EVENT_TYPE_START);
+    lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
     lapMesg.SetTotalElapsedTime(0);
     lapMesg.SetTotalTimerTime(0);

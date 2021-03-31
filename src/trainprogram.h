@@ -8,12 +8,12 @@
 class trainrow
 {
 public:
-    QTime duration;
-    double speed;
+    QTime duration = QTime(0,0,0,0);
+    double speed = -1;
     double fanspeed = -1;
-    double inclination;
-    int8_t resistance;
-    bool forcespeed;
+    double inclination = -1;
+    int8_t resistance = -1;
+    bool forcespeed = false;
 };
 
 class trainprogram: public QObject

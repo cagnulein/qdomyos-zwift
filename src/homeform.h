@@ -8,6 +8,7 @@
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
+#include "peloton.h"
 
 class DataObject : public QObject
 {
@@ -76,6 +77,7 @@ class homeform: public QObject
     Q_PROPERTY(bool labelHelp READ labelHelp NOTIFY changeLabelHelp)
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool lap READ getLap NOTIFY changeOflap)
+    Q_PROPERTY( bool pelotonAskStart READ pelotonAskStart NOTIFY changePelotonAskStart)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
@@ -101,6 +103,7 @@ public:
     QString stopText();
     QString stopIcon();
     QString stopColor();
+    bool pelotonAskStart() {return m_pelotonAskStart;}
     bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();
@@ -125,6 +128,9 @@ private:
     bool paused = false;
     bool stopped = false;
     bool lapTrigger = false;
+
+    peloton* pelotonHandler = 0;
+    bool m_pelotonAskStart = false;
 
     DataObject* speed;
     DataObject* inclination;
@@ -187,6 +193,8 @@ private slots:
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
+    void pelotonWorkoutStarted(QString name);
+    void peloton_start_workout();
 
 signals:
 
@@ -204,6 +212,7 @@ signals:
  void bluetoothDevicesChanged(QStringList value);
  void tile_orderChanged(QStringList value);
  void changeLabelHelp(bool value);
+ void changePelotonAskStart(bool value);
  void generalPopupVisibleChanged(bool value);
 };
 

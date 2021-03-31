@@ -136,7 +136,7 @@ void echelonconnectsport::update()
 
         if(requestResistance != -1)
         {
-           if(requestResistance > 32) requestResistance = 32;
+           if(requestResistance > max_resistance) requestResistance = max_resistance;
            else if(requestResistance <= 0) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
@@ -171,6 +171,25 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt)
     qDebug() << "serviceDiscovered " + gatt.toString();
 }
 
+int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance)
+{
+    for(int i = 1; i<max_resistance-1; i++)
+    {
+        if(bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i+1) >= pelotonResistance)
+            return i;
+    }
+    return 1;
+}
+
+double echelonconnectsport::bikeResistanceToPeloton(double resistance)
+{
+    //0,0097x3 - 0,4972x2 + 10,126x - 37,08
+    double p = ((pow(resistance,3) * 0.0097) - (0.4972 * pow(resistance, 2)) + (10.126 * resistance) - 37.08);
+    if(p < 0)
+        p = 0;
+    return p;
+}
+
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -186,12 +205,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if(newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2)
     {
         Resistance = newValue.at(3);
-
-        //0,0097x3 - 0,4972x2 + 10,126x - 37,08
-        double p = ((pow(Resistance.value(),3) * 0.0097) - (0.4972 * pow(Resistance.value(), 2)) + (10.126 * Resistance.value()) - 37.08);
-        if(p < 0)
-            p = 0;
-        m_pelotonResistance = p;
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
         qDebug() << "Current resistance: " + QString::number(Resistance.value());
         return;

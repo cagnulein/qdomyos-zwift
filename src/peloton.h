@@ -14,21 +14,33 @@
 #include <QNetworkReply>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QTimer>
+#include "trainprogram.h"
+#include "bluetooth.h"
 
 class peloton : public QObject
 {
     Q_OBJECT
 public:
-    explicit peloton(QObject *parent = nullptr);    
+    explicit peloton(bluetooth* bl, QObject *parent = nullptr);
+    QList<trainrow> trainrows;
 
 private:
+    const int peloton_workout_second_resolution = 10;
     QNetworkAccessManager * mgr = 0;
     QString user_id;
     QString current_workout_id = "";
+    QString current_workout_name = "";
+    QString current_workout_status = "";
 
     QJsonDocument current_workout;
     QJsonDocument current_workout_summary;
     QJsonDocument workout;
+    QJsonDocument performance;
+
+    QTimer* timer;
+
+    bluetooth* bluetoothManager = 0;
 
     int total_workout;
     void getWorkoutList(int num);
@@ -43,8 +55,10 @@ private slots:
     void workout_onfinish(QNetworkReply* reply);
     void performance_onfinish(QNetworkReply* reply);
 
-signals:
+    void startEngine();
 
+signals:
+    void workoutStarted(QString name);
 };
 
 #endif // PELOTON_H

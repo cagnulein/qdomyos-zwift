@@ -18,6 +18,7 @@ public:
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
     virtual uint16_t watts();
+    virtual int pelotonToBikeResistance(int pelotonResistance);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();

@@ -39,12 +39,15 @@ class echelonconnectsport : public bike
     Q_OBJECT
 public:
     echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    int pelotonToBikeResistance(int pelotonResistance);
     bool connected();
 
     void* VirtualBike();
     void* VirtualDevice();
 
 private:
+    const int max_resistance = 32;
+    double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
