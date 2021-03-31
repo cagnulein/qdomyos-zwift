@@ -1,6 +1,6 @@
 #include "peloton.h"
 
-const bool log_request = false;
+const bool log_request = true;
 
 peloton::peloton(bluetooth* bl, QObject *parent) : QObject(parent)
 {
@@ -70,6 +70,7 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
     QString id = data.at(0)["id"].toString();
     QString status = data.at(0)["status"].toString();
     current_workout_name = data.at(0)["name"].toString();
+    current_workout_id = id;
     if(status.toUpper().contains("IN_PROGRESS") && !current_workout_status.contains("IN_PROGRESS"))
     {
         // starting a workout
@@ -78,7 +79,7 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
         // peloton bike only
         if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
-            getSummary(current_workout_id);
+            getSummary(id);
             timer->start(60000);  // timeout request
         }
         else
@@ -91,7 +92,6 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
         //getSummary(current_workout_id); // debug
         timer->start(10000);  // check for a status changed
     }
-    current_workout_id = id;
     current_workout_status = status;
 
     if(log_request)
@@ -136,11 +136,6 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     QJsonParseError parseError;
     performance = QJsonDocument::fromJson(payload, &parseError);
 
-    if(log_request)
-        qDebug() << "performance_onfinish" << workout;
-    else
-        qDebug() << "performance_onfinish";
-
     QJsonObject json = performance.object();
     QJsonObject target_performance_metrics = json["target_performance_metrics"].toObject();
     QJsonArray target_graph_metrics = target_performance_metrics["target_graph_metrics"].toArray();
@@ -157,6 +152,11 @@ void peloton::performance_onfinish(QNetworkReply* reply)
         trainrows.append(r);
     }
 
+    if(log_request)
+        qDebug() << "performance_onfinish" << workout;
+    else
+        qDebug() << "performance_onfinish" << trainrows.length();
+
     if(trainrows.length())
     {
         emit workoutStarted(current_workout_name);
@@ -170,7 +170,7 @@ void peloton::getPerformance(QString workout)
 {
     connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(performance_onfinish(QNetworkReply*)));
 
-    QUrl url("https://api.onepeloton.com/api/workout/" + workout + "/performance_graph?every_n=" + peloton_workout_second_resolution);
+    QUrl url("https://api.onepeloton.com/api/workout/" + workout + "/performance_graph?every_n=" + QString::number(peloton_workout_second_resolution));
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");

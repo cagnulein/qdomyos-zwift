@@ -210,6 +210,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 
 void homeform::peloton_start_workout()
 {
+    qDebug() << "peloton_start_workout!";
     if(pelotonHandler && pelotonHandler->trainrows.length())
     {
         if(trainProgram)
@@ -219,6 +220,7 @@ void homeform::peloton_start_workout()
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
         trainProgramSignals();
+        trainProgram->restart();
     }
 }
 

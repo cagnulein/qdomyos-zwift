@@ -126,7 +126,7 @@ QCoreApplication* createApplication(int &argc, char *argv[])
     if(nogui)
         return new QCoreApplication(argc, argv);
     else if(forceQml)
-        return new QGuiApplication(argc, argv);
+        return new QApplication(argc, argv);
     else        
     {
         QApplication* a = new QApplication(argc, argv);

@@ -77,7 +77,7 @@ class homeform: public QObject
     Q_PROPERTY(bool labelHelp READ labelHelp NOTIFY changeLabelHelp)
     Q_PROPERTY( bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY( bool lap READ getLap NOTIFY changeOflap)
-    Q_PROPERTY( bool pelotonAskStart READ pelotonAskStart NOTIFY changePelotonAskStart)
+    Q_PROPERTY( bool pelotonAskStart READ pelotonAskStart NOTIFY changePelotonAskStart WRITE setPelotonAskStart)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)    
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
@@ -104,6 +104,7 @@ public:
     QString stopIcon();
     QString stopColor();
     bool pelotonAskStart() {return m_pelotonAskStart;}
+    void setPelotonAskStart(bool value) {m_pelotonAskStart = value;}
     bool generalPopupVisible();
     bool labelHelp();
     QStringList bluetoothDevices();

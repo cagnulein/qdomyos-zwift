@@ -4,7 +4,7 @@ import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import QtQuick.Window 2.12
 import Qt.labs.settings 1.0
-import QtQuick.Dialogs 1.1
+import Qt.labs.platform 1.1
 
 HomeForm{
     objectName: "home"
@@ -22,13 +22,11 @@ HomeForm{
 
     MessageDialog {
         id: messagePelotonAskStart
-        title: "Peloton Workout in progress"
-        icon: StandardIcon.Question
-        text: "Do you want to follow the resistance?"
-        standardButtons: StandardButton.Yes | StandardButton.No
-        onYes: {rootItem.pelotonAskStart = false; peloton_start_workout();}
-        onNo: rootItem.pelotonAskStart = false;
-        onDiscard: rootItem.pelotonAskStart = false;
+        text: "Peloton Workout in progress"
+        informativeText: "Do you want to follow the resistance?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
+        onNoClicked: rootItem.pelotonAskStart = false;
         visible: rootItem.pelotonAskStart
     }
 

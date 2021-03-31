@@ -153,7 +153,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     QMutableListIterator<QBluetoothDeviceInfo> i(devices);
     while (i.hasNext()) {
         QBluetoothDeviceInfo b = i.next();
-        if(SAME_BLUETOOTH_DEVICE(b,device))
+        if(SAME_BLUETOOTH_DEVICE(b,device) && b.name().length())
         {
             found = true;
             break;
@@ -164,6 +164,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
     emit deviceFound(device.name());
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " + device.majorDeviceClass() + ":" + device.minorDeviceClass());
+#if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
+    qDebug() << device.deviceUuid();
+#endif
 
     if(onlyDiscover) return;
 
