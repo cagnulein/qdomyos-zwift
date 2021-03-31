@@ -231,6 +231,7 @@ void homeform::pelotonWorkoutStarted(QString name)
     m_info = name;
     emit infoChanged(m_info);
 
+    stravaPelotonActivityName = name;
     m_pelotonAskStart = true;
     emit(changePelotonAskStart(pelotonAskStart()));
 }
@@ -1382,13 +1383,20 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
 
     // use metadata config if the user selected it
     QString activityName = " " + settings.value("strava_suffix", "#qdomyos-zwift").toString() ;
-    if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+    if(stravaPelotonActivityName.length())
     {
-        activityName = "Run" + activityName;
+        activityName = stravaPelotonActivityName + activityName;
     }
     else
     {
-        activityName = "Ride" + activityName;
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            activityName = "Run" + activityName;
+        }
+        else
+        {
+            activityName = "Ride" + activityName;
+        }
     }
     activityNamePart.setHeader(QNetworkRequest::ContentTypeHeader, QVariant("text/plain;charset=utf-8"));
     activityNamePart.setBody(activityName.toUtf8());

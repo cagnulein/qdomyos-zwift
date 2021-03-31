@@ -132,6 +132,7 @@ private:
 
     peloton* pelotonHandler = 0;
     bool m_pelotonAskStart = false;
+    QString stravaPelotonActivityName = "";
 
     DataObject* speed;
     DataObject* inclination;
