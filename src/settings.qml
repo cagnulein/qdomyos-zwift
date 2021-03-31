@@ -1315,6 +1315,7 @@ import Qt.labs.settings 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhHiddenText
+                            echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.peloton_password = text
                         }
                         Button {

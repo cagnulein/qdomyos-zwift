@@ -68,8 +68,7 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
     QJsonArray data = json["data"].toArray();
     qDebug() << "data" << data;
     QString id = data.at(0)["id"].toString();
-    QString status = data.at(0)["status"].toString();
-    current_workout_name = data.at(0)["name"].toString();
+    QString status = data.at(0)["status"].toString();    
     current_workout_id = id;
     if(status.toUpper().contains("IN_PROGRESS") && !current_workout_status.contains("IN_PROGRESS"))
     {
@@ -120,6 +119,8 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     workout = QJsonDocument::fromJson(payload, &parseError);
+    QJsonObject ride = workout.object()["ride"].toObject();
+    current_workout_name = ride["title"].toString();
 
     if(log_request)
         qDebug() << "workout_onfinish" << workout;
