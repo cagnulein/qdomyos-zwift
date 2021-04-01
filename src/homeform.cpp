@@ -856,6 +856,7 @@ void homeform::update()
         double resistance = 0;
         double watts = 0;
         double pace = 0;
+        double peloton_resistance = 0;
         uint8_t cadence = 0;
 
         bool miles = settings.value("miles_unit", false).toBool();
@@ -901,7 +902,8 @@ void homeform::update()
         {
             cadence = ((bike*)bluetoothManager->device())->currentCadence().value();
             resistance = ((bike*)bluetoothManager->device())->currentResistance().value();
-            this->peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->pelotonResistance().value(), 'f', 0));
+            peloton_resistance = ((bike*)bluetoothManager->device())->pelotonResistance().value();
+            this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
             this->target_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->cadence->setValue(QString::number(cadence));
@@ -1098,6 +1100,7 @@ void homeform::update()
                         bluetoothManager->device()->odometer(),
                         watts,
                         resistance,
+                        peloton_resistance,
                         (uint8_t)bluetoothManager->device()->currentHeart().value(),
                         pace, cadence, bluetoothManager->device()->calories(),
                         bluetoothManager->device()->elevationGain(),                        

@@ -153,6 +153,14 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
+                text: qsTr("Charts")
+                width: parent.width
+                onClicked: {
+                    stackView.push("ChartsEndWorkout.qml")
+                    drawer.close()
+                }
+            }
+            ItemDelegate {
                 id: gpx_open
                 text: qsTr("Open GPX")
                 width: parent.width

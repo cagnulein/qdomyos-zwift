@@ -55,6 +55,7 @@ void MainWindow::update()
         uint8_t cadence = 0;
         double inclination = 0;
         double resistance = 0;
+        double peloton_resistance = 0;
         double watts = 0;
         double pace = 0;
 
@@ -151,6 +152,7 @@ void MainWindow::update()
                       bluetoothManager->device()->odometer(),
                       watts,
                       resistance,
+                      peloton_resistance,
                       (uint8_t)bluetoothManager->device()->currentHeart().value(),
                       pace, cadence, bluetoothManager->device()->calories(),
                       bluetoothManager->device()->elevationGain(),                      

@@ -11,6 +11,8 @@ Item {
     property alias heartSeries: heartSeries
     property alias heartChart: heartChart
     property alias cadenceSeries: cadenceSeries
+    property alias resistanceSeries: resistanceSeries
+    property alias pelotonResistanceSeries: pelotonResistanceSeries
     property alias cadenceChart: cadenceChart
 
     Settings {
@@ -141,11 +143,12 @@ Item {
                 ValueAxis {
                     id: valueAxisY
                     min: 0
-                    max: (settings.ftp * 2)
+                    max: rootItem.wattMaxChart
                     //tickCount: 60
+                    tickCount: 6
                     labelFormat: "%.0f"
                     //labelsVisible: false
-                    gridVisible: false
+                    //gridVisible: false
                     //lineVisible: false
                 }
 
@@ -155,7 +158,7 @@ Item {
                     visible: true
                     axisX: valueAxisX
                     axisY: valueAxisY
-                    color: "white"
+                    color: "black"
                     width: 3
                 }
             }
@@ -185,10 +188,10 @@ Item {
                     id: valueAxisYHR
                     min: 0
                     max: 220
-                    //tickCount: 60
+                    tickCount: 5
                     labelFormat: "%.0f"
                     //labelsVisible: false
-                    gridVisible: false
+                    //gridVisible: false
                     //lineVisible: false
                 }
 
@@ -198,7 +201,7 @@ Item {
                     visible: true
                     axisX: valueAxisXHR
                     axisY: valueAxisYHR
-                    color: "white"
+                    color: "black"
                     width: 3
                 }
             }
@@ -209,7 +212,7 @@ Item {
                 height: 400
                 width: parent.width
                 antialiasing: true
-                legend.visible: false
+                legend.visible: true
                 anchors.top: heartChart.bottom
                 title: "Cadence"
                 titleFont.pixelSize: 20
@@ -237,12 +240,32 @@ Item {
                 }
 
                 LineSeries {
-                    //name: "Power"
+                    name: "Cadence"
                     id: cadenceSeries
                     visible: true
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
-                    color: "white"
+                    color: "black"
+                    width: 3
+                }
+
+                LineSeries {
+                    name: "Resistance"
+                    id: resistanceSeries
+                    visible: true
+                    axisX: valueAxisXCadence
+                    axisY: valueAxisYCadence
+                    color: "blue"
+                    width: 3
+                }
+
+                LineSeries {
+                    name: "Peloton Resistance"
+                    id: pelotonResistanceSeries
+                    visible: true
+                    axisX: valueAxisXCadence
+                    axisY: valueAxisYCadence
+                    color: "red"
                     width: 3
                 }
             }

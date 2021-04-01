@@ -99,35 +99,86 @@ class homeform: public QObject
     Q_PROPERTY(QList<double> workout_watt_points READ workout_watt_points)
     Q_PROPERTY(QList<double> workout_heart_points READ workout_heart_points)
     Q_PROPERTY(QList<double> workout_cadence_points READ workout_cadence_points)
+    Q_PROPERTY(QList<double> workout_peloton_resistance_points READ workout_peloton_resistance_points)
+    Q_PROPERTY(QList<double> workout_resistance_points READ workout_resistance_points)
+    Q_PROPERTY(double wattMaxChart READ wattMaxChart)
 
 public:
-    Q_INVOKABLE void update_chart(QQuickItem *item){
+    Q_INVOKABLE void update_chart_power(QQuickItem *item){
             if(QGraphicsScene *scene = item->findChild<QGraphicsScene *>()){
                 for(QGraphicsItem *it : scene->items()){
                     if(QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)){
                         // Customize chart background
                         QLinearGradient backgroundGradient;
-                        backgroundGradient.setStart(QPointF(0, 0));
+                        double maxWatt = wattMaxChart();
+                        QSettings settings;
+                        double ftpSetting = settings.value("ftp", 200.0).toDouble();
+                        /*backgroundGradient.setStart(QPointF(0, 0));
                         backgroundGradient.setFinalStop(QPointF(0, 1));
-                        backgroundGradient.setColorAt(0.0, QRgb(0xff0000));
-                        backgroundGradient.setColorAt(0.33, QRgb(0xffff55));
-                        backgroundGradient.setColorAt(1.0, QRgb(0x55aa55));
-                        backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
-                        chart->setBackgroundBrush(backgroundGradient);
+                        backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.55)) / maxWatt, QColor("white"));
+                        backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.75)) / maxWatt, QColor("limegreen"));
+                        backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.90)) / maxWatt, QColor("gold"));
+                        backgroundGradient.setColorAt((maxWatt - (ftpSetting * 1.05)) / maxWatt, QColor("orange"));
+                        backgroundGradient.setColorAt((maxWatt - (ftpSetting * 1.20)) / maxWatt, QColor("darkorange"));
+                        backgroundGradient.setColorAt((maxWatt - (ftpSetting * 1.5)) / maxWatt, QColor("orangered"));
+                        backgroundGradient.setColorAt(0.0, QColor("red"));*/
+
+                        //backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
+                        //chart->setBackgroundBrush(backgroundGradient);
                         // Customize plot area background
-                        /*QLinearGradient plotAreaGradient;
-                        plotAreaGradient.setStart(QPointF(0, 1));
-                        plotAreaGradient.setFinalStop(QPointF(1, 0));
-                        plotAreaGradient.setColorAt(0.0, QRgb(0xff0000));
-                        plotAreaGradient.setColorAt(0.33, QRgb(0xffff55));
-                        plotAreaGradient.setColorAt(1.0, QRgb(0x55aa55));
+                        QLinearGradient plotAreaGradient;
+                        plotAreaGradient.setStart(QPointF(0, 0));
+                        plotAreaGradient.setFinalStop(QPointF(0, 1));
+                        plotAreaGradient.setColorAt((maxWatt - (ftpSetting * 0.55)) / maxWatt, QColor("white"));
+                        plotAreaGradient.setColorAt((maxWatt - (ftpSetting * 0.75)) / maxWatt, QColor("limegreen"));
+                        plotAreaGradient.setColorAt((maxWatt - (ftpSetting * 0.90)) / maxWatt, QColor("gold"));
+                        plotAreaGradient.setColorAt((maxWatt - (ftpSetting * 1.05)) / maxWatt, QColor("orange"));
+                        plotAreaGradient.setColorAt((maxWatt - (ftpSetting * 1.20)) / maxWatt, QColor("darkorange"));
+                        plotAreaGradient.setColorAt((maxWatt - (ftpSetting * 1.5)) / maxWatt, QColor("orangered"));
+                        plotAreaGradient.setColorAt(0.0, QColor("red"));
                         plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
                         chart->setPlotAreaBackgroundBrush(plotAreaGradient);
-                        chart->setPlotAreaBackgroundVisible(true);*/
+                        chart->setPlotAreaBackgroundVisible(true);
                     }
                 }
             }
         }
+    Q_INVOKABLE void update_chart_heart(QQuickItem *item){
+            if(QGraphicsScene *scene = item->findChild<QGraphicsScene *>()){
+                for(QGraphicsItem *it : scene->items()){
+                    if(QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)){
+                        // Customize chart background
+                        QLinearGradient backgroundGradient;
+                        QSettings settings;
+                        double maxHeartRate = 220.0 - settings.value("age", 35).toDouble();
+                        if(maxHeartRate == 0) maxHeartRate = 190.0;
+                        /*backgroundGradient.setStart(QPointF(0, 0));
+                        backgroundGradient.setFinalStop(QPointF(0, 1));
+                        backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone1", 70.0).toDouble() / 100)) / 220, QColor("lightsteelblue"));
+                        backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone2", 80.0).toDouble() / 100)) / 220, QColor("green"));
+                        backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone3", 90.0).toDouble() / 100)) / 220, QColor("yellow"));
+                        backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone4", 100.0).toDouble() / 100)) / 220, QColor("orange"));
+                        backgroundGradient.setColorAt(0.0, QColor("red"));*/
+
+                        //backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
+                        //chart->setBackgroundBrush(backgroundGradient);
+                        // Customize plot area background
+                        QLinearGradient plotAreaGradient;
+                        plotAreaGradient.setStart(QPointF(0, 0));
+                        plotAreaGradient.setFinalStop(QPointF(0, 1));
+                        plotAreaGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone1", 70.0).toDouble() / 100)) / 220, QColor("lightsteelblue"));
+                        plotAreaGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone2", 80.0).toDouble() / 100)) / 220, QColor("green"));
+                        plotAreaGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone3", 90.0).toDouble() / 100)) / 220, QColor("yellow"));
+                        plotAreaGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone4", 100.0).toDouble() / 100)) / 220, QColor("orange"));
+                        plotAreaGradient.setColorAt(0.0, QColor("red"));
+                        plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
+                        chart->setPlotAreaBackgroundBrush(plotAreaGradient);
+                        chart->setPlotAreaBackgroundVisible(true);
+                    }
+                }
+            }
+        }
+
         Q_INVOKABLE void update_axes(QtCharts::QAbstractAxis *axisX, QtCharts::QAbstractAxis *axisY){
             if(axisX && axisY){
                 // Customize axis colors
@@ -162,9 +213,14 @@ public:
     QStringList tile_order();
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count();}
+
+    double wattMaxChart() {if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->wattsMetric().max()) return bluetoothManager->device()->wattsMetric().max(); else { QSettings settings;  return settings.value("ftp", 200.0).toDouble() * 2;} }
+
     QList<double> workout_watt_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.watt);} return l; }
     QList<double> workout_heart_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.heart);} return l; }
     QList<double> workout_cadence_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.cadence);} return l; }
+    QList<double> workout_resistance_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.resistance);} return l; }
+    QList<double> workout_peloton_resistance_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.peloton_resistance);} return l; }
 
 private:
     QList<QObject *> dataList;
@@ -251,7 +307,7 @@ private slots:
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(QString name);
-    void peloton_start_workout();
+    void peloton_start_workout();    
 
 signals:
 
