@@ -11,5 +11,7 @@
         <file>AccordionCheckElement.qml</file>
         <file>icons/arrow-collapse-vertical.png</file>
         <file>icons/arrow-expand-vertical.png</file>
+        <file>ChartsEndWorkout.qml</file>
+        <file>ChartsEndWorkoutForm.ui.qml</file>
     </qresource>
 </RCC>

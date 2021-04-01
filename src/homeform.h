@@ -5,6 +5,9 @@
 #include <QQmlApplicationEngine>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QNetworkReply>
+#include <QGraphicsScene>
+#include <QChart>
+#include <QColor>
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
@@ -90,8 +93,54 @@ class homeform: public QObject
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
+    Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
+    Q_PROPERTY(QString workoutName READ workoutName)
+    Q_PROPERTY(int workout_sample_points READ workout_sample_points)
+    Q_PROPERTY(QList<double> workout_watt_points READ workout_watt_points)
+    Q_PROPERTY(QList<double> workout_heart_points READ workout_heart_points)
+    Q_PROPERTY(QList<double> workout_cadence_points READ workout_cadence_points)
 
 public:
+    Q_INVOKABLE void update_chart(QQuickItem *item){
+            if(QGraphicsScene *scene = item->findChild<QGraphicsScene *>()){
+                for(QGraphicsItem *it : scene->items()){
+                    if(QtCharts::QChart *chart = dynamic_cast<QtCharts::QChart *>(it)){
+                        // Customize chart background
+                        QLinearGradient backgroundGradient;
+                        backgroundGradient.setStart(QPointF(0, 0));
+                        backgroundGradient.setFinalStop(QPointF(0, 1));
+                        backgroundGradient.setColorAt(0.0, QRgb(0xff0000));
+                        backgroundGradient.setColorAt(0.33, QRgb(0xffff55));
+                        backgroundGradient.setColorAt(1.0, QRgb(0x55aa55));
+                        backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
+                        chart->setBackgroundBrush(backgroundGradient);
+                        // Customize plot area background
+                        /*QLinearGradient plotAreaGradient;
+                        plotAreaGradient.setStart(QPointF(0, 1));
+                        plotAreaGradient.setFinalStop(QPointF(1, 0));
+                        plotAreaGradient.setColorAt(0.0, QRgb(0xff0000));
+                        plotAreaGradient.setColorAt(0.33, QRgb(0xffff55));
+                        plotAreaGradient.setColorAt(1.0, QRgb(0x55aa55));
+                        plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
+                        chart->setPlotAreaBackgroundBrush(plotAreaGradient);
+                        chart->setPlotAreaBackgroundVisible(true);*/
+                    }
+                }
+            }
+        }
+        Q_INVOKABLE void update_axes(QtCharts::QAbstractAxis *axisX, QtCharts::QAbstractAxis *axisY){
+            if(axisX && axisY){
+                // Customize axis colors
+                QPen axisPen(QRgb(0xd18952));
+                axisPen.setWidth(2);
+                axisX->setLinePen(axisPen);
+                axisY->setLinePen(axisPen);
+                // Customize grid lines and shades
+                axisY->setShadesPen(Qt::NoPen);
+                axisY->setShadesBrush(QBrush(QColor(0x99, 0xcc, 0xcc, 0x55)));
+            }
+        }
+
     homeform(QQmlApplicationEngine* engine, bluetooth* bl);
     ~homeform();
     int topBarHeight() {return m_topBarHeight;}
@@ -103,6 +152,8 @@ public:
     QString stopText();
     QString stopIcon();
     QString stopColor();
+    QString workoutStartDate() {if(Session.length()) return Session.first().time.toString(); else return "";}
+    QString workoutName() {if(stravaPelotonActivityName.length()) return stravaPelotonActivityName; else {if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) return "Ride"; else return "Run";}}
     bool pelotonAskStart() {return m_pelotonAskStart;}
     void setPelotonAskStart(bool value) {m_pelotonAskStart = value;}
     bool generalPopupVisible();
@@ -110,6 +161,10 @@ public:
     QStringList bluetoothDevices();
     QStringList tile_order();
     void setGeneralPopupVisible(bool value);
+    int workout_sample_points() { return Session.count();}
+    QList<double> workout_watt_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.watt);} return l; }
+    QList<double> workout_heart_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.heart);} return l; }
+    QList<double> workout_cadence_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.cadence);} return l; }
 
 private:
     QList<QObject *> dataList;
