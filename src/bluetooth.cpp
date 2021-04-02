@@ -143,6 +143,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
     bool snode_bike = settings.value("snode_bike", false).toBool();
+    bool JLL_IC400_bike = settings.value("JLL_IC400_bike", false).toBool();
 
     if(!heartRateBeltFound)
     {
@@ -383,7 +384,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(toorx, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 toorx->deviceDiscovered(b);
             }
-            else if(((b.name().startsWith("TOORX")) || b.name().toUpper().startsWith("XT485") || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (device.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && filter)
+            else if(((b.name().startsWith("TOORX")) || b.name().toUpper().startsWith("XT485") || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (device.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
@@ -393,7 +394,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 connect(trxappgateusb, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 trxappgateusb->deviceDiscovered(b);
             }
-            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+") || b.name().toUpper().startsWith("ICONSOLE+")) && toorx_bike)) && !trxappgateusb && !trxappgateusbBike && filter)
+            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+") || b.name().toUpper().startsWith("ICONSOLE+")) && (toorx_bike || JLL_IC400_bike))) && !trxappgateusb && !trxappgateusbBike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);

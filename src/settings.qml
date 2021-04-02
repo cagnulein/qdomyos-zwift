@@ -103,6 +103,7 @@ import Qt.labs.settings 1.0
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
+            property bool JLL_IC400_bike : false
 
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 90
@@ -1613,6 +1614,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.toorx_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: toorxBikeJLLIC400Delegate
+                        text: qsTr("JLL IC400 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.JLL_IC400_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.JLL_IC400_bike = checked
                     }
                 }
             }
