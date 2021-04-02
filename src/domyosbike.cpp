@@ -220,7 +220,7 @@ void domyosbike::update()
 
         if(requestResistance != -1)
         {
-           if(requestResistance > 15) requestResistance = 15;
+           if(requestResistance > max_resistance) requestResistance = max_resistance;
            else if(requestResistance < 1) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
@@ -579,16 +579,29 @@ void* domyosbike::VirtualDevice()
     return VirtualBike();
 }
 
+uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power)
+{
+    for(int i = 1; i<max_resistance-1; i++)
+    {
+        if(wattsFromResistance(i) <= power && wattsFromResistance(i+1) >= power)
+            return i;
+    }
+    return 1;
+}
+
+uint16_t domyosbike::wattsFromResistance(double resistance)
+{
+    return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+}
+
 uint16_t domyosbike::watts()
 {
-    QSettings settings;
     double v = 0;
     //const uint8_t max_resistance = 15;
     // ref https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
     if(currentSpeed().value() <= 0) return 0;
-
-    v = ((10.39 + 1.45 * (currentResistance().value() - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+    v = wattsFromResistance(currentResistance().value());
     return v;
 }
 

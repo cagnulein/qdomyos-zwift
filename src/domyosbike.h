@@ -33,7 +33,8 @@ class domyosbike : public bike
 {
     Q_OBJECT
 public:
-    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);    
+    uint8_t resistanceFromPowerRequest(uint16_t power);
     ~domyosbike();
     bool connected();
 
@@ -45,6 +46,7 @@ private:
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);    
+    uint16_t wattsFromResistance(double resistance);
     void forceResistance(int8_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);
@@ -53,6 +55,7 @@ private:
     void startDiscover();
     uint16_t watts();
 
+    const int max_resistance = 15;
     QTimer* refresh;
     virtualbike* virtualBike = 0;
     uint8_t firstVirtual = 0;
