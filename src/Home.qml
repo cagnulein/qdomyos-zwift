@@ -66,7 +66,7 @@ HomeForm{
     }
 
     start.onClicked: { start_clicked(); }
-    stop.onClicked: { stop_clicked(); stackView.push("ChartsEndWorkout.qml") }
+    stop.onClicked: { stop_clicked(); rootItem.save_screenshot(); stackView.push("ChartsEndWorkout.qml") }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
     Component.onCompleted: { console.log("completed"); }

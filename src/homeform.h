@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include <QChart>
 #include <QColor>
+#include "screencapture.h"
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
@@ -104,6 +105,22 @@ class homeform: public QObject
     Q_PROPERTY(double wattMaxChart READ wattMaxChart)
 
 public:
+    Q_INVOKABLE void save_screenshot()
+    {
+        QString path = "";
+    #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+    #elif defined(Q_OS_IOS)
+        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+    #endif
+
+        QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".jpg";
+        QObject *rootObject = engine->rootObjects().first();
+        QObject *stack = rootObject;
+        screenCapture s((QQuickView*) stack);
+        s.capture(filenameScreenshot);
+    }
+
     Q_INVOKABLE void update_chart_power(QQuickItem *item){
             if(QGraphicsScene *scene = item->findChild<QGraphicsScene *>()){
                 for(QGraphicsItem *it : scene->items()){
