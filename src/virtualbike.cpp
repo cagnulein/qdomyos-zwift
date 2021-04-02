@@ -401,6 +401,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QByteArray reply;
     QSettings settings;
     bool force_resistance = settings.value("virtualbike_forceresistance", true).toBool();
+    bool erg_mode = settings.value("zwift_erg", false).toBool();
     qDebug() << "characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue.toHex(' ');
 
     switch(characteristic.uuid().toUInt16())
@@ -411,7 +412,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // Set Target Resistance
             uint8_t uresistance = newValue.at(1);
             uresistance = uresistance / 10;
-            if(force_resistance)
+            if(force_resistance && !erg_mode)
                 Bike->changeResistance(uresistance);
             qDebug() << "new requested resistance " + QString::number(uresistance) + " enabled " + force_resistance;
             reply.append((quint8)FTMS_RESPONSE_CODE);
@@ -429,8 +430,21 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              qDebug() << "new requested resistance zwift erg grade " + QString::number(iresistance) + " enabled " + force_resistance;
              double resistance = ((double)iresistance * 1.5) / 100.0;
              qDebug() << "calculated erg grade " + QString::number(resistance);
-             if(force_resistance)
+             if(force_resistance && !erg_mode)
                  Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
+         }
+         else if((char)newValue.at(0) == FTMS_SET_TARGET_POWER) // erg mode
+         {
+             qDebug() << "erg mode";
+             reply.append((quint8)FTMS_RESPONSE_CODE);
+             reply.append((quint8)FTMS_SET_TARGET_POWER);
+             reply.append((quint8)FTMS_SUCCESS);
+
+             uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
+             qDebug() << "power erg  " + QString::number(power) + " " + erg_mode;
+             Bike->changePower(power);
+             if(force_resistance && erg_mode)
+                 Bike->changeResistance((int8_t)Bike->resistanceFromPowerRequest(power)); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)
          {

@@ -188,6 +188,16 @@ int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance)
     return 1;
 }
 
+uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power)
+{
+    for(int i = 1; i<max_resistance-1; i++)
+    {
+        if(wattsFromResistance(i) <= power && wattsFromResistance(i+1) >= power)
+            return i;
+    }
+    return 1;
+}
+
 double echelonconnectsport::bikeResistanceToPeloton(double resistance)
 {
     //0,0097x3 - 0,4972x2 + 10,126x - 37,08
@@ -496,7 +506,11 @@ void* echelonconnectsport::VirtualDevice()
 uint16_t echelonconnectsport::watts()
 {
     if(currentCadence().value() == 0) return 0;
+    wattsFromResistance(Resistance().value());
+}
 
+uint16_t echelonconnectsport::wattsFromResistance(double resistance)
+{
     // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
     /*if(currentCadence().value() < 90)
         return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
@@ -541,7 +555,7 @@ uint16_t echelonconnectsport::watts()
         {Epsilon, 12.5, 48.0, 99.3, 162.2, 232.9, 310.4, 400.3, 435.5, 530.5, 589.0},
         {Epsilon, 13.0, 53.0, 102.0, 170.3, 242.0, 320.0, 427.9, 475.2, 570.0, 625.0}};
 
-    int level = Resistance.value();
+    int level = resistance;
     if (level < 0) {
         level = 0;
     }

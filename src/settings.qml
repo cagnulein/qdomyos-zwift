@@ -17,6 +17,7 @@ import Qt.labs.settings 1.0
             property bool bike_heartrate_service: false
             property int bike_resistance_offset: 4
             property real bike_resistance_gain_f: 1.0
+            property bool zwift_erg: false
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -388,6 +389,20 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    SwitchDelegate {
+                        id: zwiftErgDelegate
+                        text: qsTr("Zwift Erg Mode")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_erg
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.zwift_erg = checked
+                    }
                     RowLayout {
                         spacing: 10
                         Label {

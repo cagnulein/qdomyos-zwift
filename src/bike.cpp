@@ -21,6 +21,7 @@ bool bike::connected() { return false; }
 uint16_t bike::watts() { return 0; }
 metric bike::pelotonResistance() { return m_pelotonResistance; }
 int bike::pelotonToBikeResistance(int pelotonResistance) {return pelotonResistance;}
+uint8_t bike::resistanceFromPowerRequest(uint16_t power) {return power / 10;} // in order to have something
 
 bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
 
