@@ -186,7 +186,7 @@ Item {
 
                 ValueAxis {
                     id: valueAxisYHR
-                    min: 0
+                    min: 60
                     max: 220
                     tickCount: 5
                     labelFormat: "%.0f"
