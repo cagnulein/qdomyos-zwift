@@ -120,6 +120,8 @@
 		87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E53259479EE00BD5714 /* WatchKitConnection.swift */; };
 		87062648259480B700D06586 /* WorkoutTracking.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E50259479EE00BD5714 /* WorkoutTracking.swift */; };
 		871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */; };
+		872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4D261750EE006A59AB /* libQt5Charts.a */; };
+		872BAB50261751FB006A59AB /* libqtchartsqml2.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4F261751FB006A59AB /* libqtchartsqml2.a */; };
 		873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BC259DF20000DA0F44 /* heartratebelt.cpp */; };
 		873063C0259DF2C500DA0F44 /* moc_heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */; };
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
@@ -510,6 +512,8 @@
 		86DD72842A64993F31E31719 /* fit_ant_rx_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_ant_rx_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_ant_rx_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		86F10E1AE2D47520E65C0543 /* fit_dive_summary_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg_listener.hpp"; sourceTree = "<absolute>"; };
 		871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BLEPeripheralManager.swift; path = ../src/ios/BLEPeripheralManager.swift; sourceTree = "<group>"; };
+		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = ../../Qt/5.15.2/ios/lib/libQt5Charts.a; sourceTree = "<group>"; };
+		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = ../../Qt/5.15.2/ios/qml/QtCharts/libqtchartsqml2.a; sourceTree = "<group>"; };
 		873063BC259DF20000DA0F44 /* heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = heartratebelt.cpp; path = ../src/heartratebelt.cpp; sourceTree = "<group>"; };
 		873063BD259DF20000DA0F44 /* heartratebelt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = heartratebelt.h; path = ../src/heartratebelt.h; sourceTree = "<group>"; };
 		873063BF259DF2C500DA0F44 /* moc_heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_heartratebelt.cpp; sourceTree = "<group>"; };
@@ -824,6 +828,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				872BAB50261751FB006A59AB /* libqtchartsqml2.a in Link Binary With Libraries */,
+				872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */,
 				8781908526150C8E0085E656 /* libqtlabsplatformplugin.a in Link Binary With Libraries */,
 				38B66B7A90741F136A02EDEB /* qios in Link Binary With Libraries */,
 				B460F624007324313696BE86 /* QuartzCore.framework in Link Binary With Libraries */,
@@ -1157,6 +1163,8 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				872BAB4F261751FB006A59AB /* libqtchartsqml2.a */,
+				872BAB4D261750EE006A59AB /* libQt5Charts.a */,
 				8781908326150C5B0085E656 /* libqtlabsplatformplugin_debug.a */,
 				8781908126150B490085E656 /* libqtlabsplatformplugin.a */,
 				2D4A13931169E5681CE465F0 /* Qt5NetworkAuth */,
@@ -2180,7 +2188,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.5.17;
+				CURRENT_PROJECT_VERSION = 2.5.19;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2234,6 +2242,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
 				);
 				MARKETING_VERSION = 2.5;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
@@ -2264,7 +2273,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.5.17;
+				CURRENT_PROJECT_VERSION = 2.5.19;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2320,6 +2329,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Universal,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
 				);
 				MARKETING_VERSION = 2.5;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2384,7 +2394,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.5.17;
+				CURRENT_PROJECT_VERSION = 2.5.19;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2474,7 +2484,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.5.17;
+				CURRENT_PROJECT_VERSION = 2.5.19;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2558,7 +2568,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.5.17;
+				CURRENT_PROJECT_VERSION = 2.5.19;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2645,7 +2655,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.5.17;
+				CURRENT_PROJECT_VERSION = 2.5.19;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;
