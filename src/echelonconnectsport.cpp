@@ -506,7 +506,7 @@ void* echelonconnectsport::VirtualDevice()
 uint16_t echelonconnectsport::watts()
 {
     if(currentCadence().value() == 0) return 0;
-    wattsFromResistance(Resistance().value());
+    return wattsFromResistance(Resistance.value());
 }
 
 uint16_t echelonconnectsport::wattsFromResistance(double resistance)
