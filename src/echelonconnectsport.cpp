@@ -185,17 +185,19 @@ int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance)
         if(bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i+1) >= pelotonResistance)
             return i;
     }
-    return 1;
+    return Resistance.value();
 }
 
 uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power)
 {
+    qDebug() << "resistanceFromPowerRequest" << Cadence.value();
+
     for(int i = 1; i<max_resistance-1; i++)
     {
         if(wattsFromResistance(i) <= power && wattsFromResistance(i+1) >= power)
             return i;
     }
-    return 1;
+    return Resistance.value();
 }
 
 double echelonconnectsport::bikeResistanceToPeloton(double resistance)

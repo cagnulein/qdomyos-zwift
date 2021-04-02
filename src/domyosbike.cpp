@@ -581,12 +581,14 @@ void* domyosbike::VirtualDevice()
 
 uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power)
 {
+    qDebug() << "resistanceFromPowerRequest" << currentCadence().value();
+
     for(int i = 1; i<max_resistance-1; i++)
     {
         if(wattsFromResistance(i) <= power && wattsFromResistance(i+1) >= power)
             return i;
     }
-    return 1;
+    return Resistance.value();
 }
 
 uint16_t domyosbike::wattsFromResistance(double resistance)
