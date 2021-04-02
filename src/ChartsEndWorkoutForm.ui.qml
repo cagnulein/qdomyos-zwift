@@ -138,6 +138,7 @@ Item {
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
+                    labelsFont.pixelSize: 10
                 }
 
                 ValueAxis {
@@ -150,6 +151,7 @@ Item {
                     //labelsVisible: false
                     //gridVisible: false
                     //lineVisible: false
+                    labelsFont.pixelSize: 10
                 }
 
                 LineSeries {
@@ -182,6 +184,7 @@ Item {
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
+                    labelsFont.pixelSize: 10
                 }
 
                 ValueAxis {
@@ -193,6 +196,7 @@ Item {
                     //labelsVisible: false
                     //gridVisible: false
                     //lineVisible: false
+                    labelsFont.pixelSize: 10
                 }
 
                 LineSeries {
@@ -226,6 +230,7 @@ Item {
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
+                    labelsFont.pixelSize: 10
                 }
 
                 ValueAxis {
@@ -237,6 +242,7 @@ Item {
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
+                    labelsFont.pixelSize: 10
                 }
 
                 LineSeries {
