@@ -1,6 +1,6 @@
 QT += bluetooth widgets xml positioning quick networkauth
 
-!ios: QT+= charts
+QT+= charts
 unix:android: QT += androidextras gui-private
 
 CONFIG += c++11 console debug app_bundle
@@ -422,4 +422,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.5.16
+VERSION = 2.5.18
