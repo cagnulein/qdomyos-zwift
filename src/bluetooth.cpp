@@ -143,7 +143,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
     bool snode_bike = settings.value("snode_bike", false).toBool();
-    bool JLL_IC400_bike = settings.value("JLL_IC400_bike", false).toBool();
+    bool JLL_IC400_bike = settings.value("jll_IC400_bike", false).toBool();
 
     if(!heartRateBeltFound)
     {

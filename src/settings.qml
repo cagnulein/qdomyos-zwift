@@ -103,7 +103,7 @@ import Qt.labs.settings 1.0
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
-            property bool JLL_IC400_bike : false
+            property bool jll_IC400_bike: false
 
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 90
@@ -537,6 +537,690 @@ import Qt.labs.settings 1.0
             }*/
 
             AccordionElement {
+                id: tileOptionsAccordion
+                title: qsTr("Tiles Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    AccordionCheckElement {
+                        id: speedEnabledAccordion
+                        title: qsTr("Speed")
+                        linkedBoolSetting: "tile_speed_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelSpeedOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: speedOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_speed_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = speedOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okSpeedOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_speed_order = speedOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: inclinationEnabledAccordion
+                        title: qsTr("Inclination")
+                        linkedBoolSetting: "tile_inclination_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelinclinationOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: inclinationOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_inclination_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = inclinationOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okinclinationOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_inclination_order = inclinationOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: cadenceEnabledAccordion
+                        title: qsTr("Cadence")
+                        linkedBoolSetting: "tile_cadence_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelcadenceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: cadenceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_cadence_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = cadenceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okcadenceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: elevationEnabledAccordion
+                        title: qsTr("Elevation")
+                        linkedBoolSetting: "tile_elevation_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelelevationOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: elevationOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_elevation_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = elevationOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okelevationOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_elevation_order = elevationOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: caloriesEnabledAccordion
+                        title: qsTr("Calories")
+                        linkedBoolSetting: "tile_calories_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelcaloriesOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: caloriesOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_calories_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = caloriesOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okcaloriesOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_calories_order = caloriesOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: odometerEnabledAccordion
+                        title: qsTr("Odometer")
+                        linkedBoolSetting: "tile_odometer_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelodometerOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: odometerOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_odometer_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = odometerOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okodometerOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_odometer_order = odometerOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: paceEnabledAccordion
+                        title: qsTr("Pace")
+                        linkedBoolSetting: "tile_pace_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelpaceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: paceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_pace_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = paceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpaceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_pace_order = paceOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: resistanceEnabledAccordion
+                        title: qsTr("Resistance")
+                        linkedBoolSetting: "tile_resistance_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelresistanceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: resistanceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_resistance_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = resistanceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okresistanceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_resistance_order = resistanceOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: wattEnabledAccordion
+                        title: qsTr("Watt")
+                        linkedBoolSetting: "tile_watt_enabled"
+                        settings: settings
+                        accordionContent:  RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelwattOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: wattOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_watt_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = wattOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okwattOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_watt_order = wattOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: avgwattEnabledAccordion
+                        title: qsTr("AVG Watt")
+                        linkedBoolSetting: "tile_avgwatt_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelavgwattOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: avgwattOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_avgwatt_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = avgwattOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okavgwattOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_avgwatt_order = avgwattOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: ftpEnabledAccordion
+                        title: qsTr("FTP %")
+                        linkedBoolSetting: "tile_ftp_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelftpOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: ftpOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_ftp_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = ftpOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okftpOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_ftp_order = ftpOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: heartEnabledAccordion
+                        title: qsTr("Heart")
+                        linkedBoolSetting: "tile_heart_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelheartrateOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: heartrateOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_heart_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = heartrateOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okheartrateOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_heart_order = heartrateOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: fanEnabledAccordion
+                        title: qsTr("Fan")
+                        linkedBoolSetting: "tile_fan_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelfanOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: fanOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_fan_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = fanOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okfanOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_fan_order = fanOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: joulsEnabledAccordion
+                        title: qsTr("Jouls")
+                        linkedBoolSetting: "tile_jouls_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeljoulsOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: joulsOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_jouls_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = joulsOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okjoulsOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_jouls_order = joulsOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: elapsedEnabledAccordion
+                        title: qsTr("Elapsed")
+                        linkedBoolSetting: "tile_elapsed_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelelapsedOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: elapsedOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_elapsed_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = elapsedOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okelapsedOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_elapsed_order = elapsedOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: lapElapsedEnabledAccordion
+                        title: qsTr("Lap Elapsed")
+                        linkedBoolSetting: "tile_lapelapsed_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labellapElapsedOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: lapElapsedOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_lapelapsed_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = lapElapsedOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oklapElapsedOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: pelotonResistanceEnabledAccordion
+                        title: qsTr("Peloton Resistance")
+                        linkedBoolSetting: "tile_peloton_resistance_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelpeloton_resistanceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: peloton_resistanceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_peloton_resistance_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = peloton_resistanceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpeloton_resistanceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: targetResistanceEnabledAccordion
+                        title: qsTr("Target Resistance")
+                        linkedBoolSetting: "tile_target_resistance_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_resistanceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_resistanceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_resistance_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_resistanceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_resistanceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText
+                            }
+                        }
+                    }
+                    AccordionCheckElement {
+                        id: targetCadenceEnabledAccordion
+                        title: qsTr("Target Cadence")
+                        linkedBoolSetting: "tile_target_cadence_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_cadenceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_cadenceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_cadence_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_cadenceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_cadenceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText
+                            }
+                        }
+                    }
+                    AccordionCheckElement {
+                        id: targetPowerEnabledAccordion
+                        title: qsTr("Target Power")
+                        linkedBoolSetting: "tile_target_power_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_powerOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_powerOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_power_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_powerOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_powerOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_power_order = target_powerOrderTextField.displayText
+                            }
+                        }
+                    }
+
+
+                    AccordionCheckElement {
+                        id: datetimeEnabledAccordion
+                        title: qsTr("Time")
+                        linkedBoolSetting: "tile_datetime_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeldatetimeOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: datetimeOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_datetime_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = datetimeOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okdatetimeOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
+                            }
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
                 id: uiGeneralOptionsAccordion
                 title: qsTr("General UI Options")
                 indicatRectColor: Material.color(Material.Grey)
@@ -560,691 +1244,7 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.top_bar_enabled = checked
-                    }
-
-                    AccordionElement {
-                        id: tileOptionsAccordion
-                        title: qsTr("Tiles Options")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Grey)
-                        color: Material.backgroundColor
-                        //width: 640
-                        //anchors.top: acc1.bottom
-                        //anchors.topMargin: 10
-                        accordionContent: ColumnLayout {
-                            spacing: 0
-                            AccordionCheckElement {
-                                id: speedEnabledAccordion
-                                title: qsTr("Speed")
-                                linkedBoolSetting: "tile_speed_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelSpeedOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: speedOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_speed_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = speedOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okSpeedOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_speed_order = speedOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: inclinationEnabledAccordion
-                                title: qsTr("Inclination")
-                                linkedBoolSetting: "tile_inclination_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelinclinationOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: inclinationOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_inclination_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = inclinationOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okinclinationOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_inclination_order = inclinationOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: cadenceEnabledAccordion
-                                title: qsTr("Cadence")
-                                linkedBoolSetting: "tile_cadence_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelcadenceOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: cadenceOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_cadence_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = cadenceOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okcadenceOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: elevationEnabledAccordion
-                                title: qsTr("Elevation")
-                                linkedBoolSetting: "tile_elevation_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelelevationOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: elevationOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_elevation_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = elevationOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okelevationOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_elevation_order = elevationOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: caloriesEnabledAccordion
-                                title: qsTr("Calories")
-                                linkedBoolSetting: "tile_calories_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelcaloriesOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: caloriesOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_calories_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = caloriesOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okcaloriesOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_calories_order = caloriesOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: odometerEnabledAccordion
-                                title: qsTr("Odometer")
-                                linkedBoolSetting: "tile_odometer_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelodometerOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: odometerOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_odometer_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = odometerOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okodometerOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_odometer_order = odometerOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: paceEnabledAccordion
-                                title: qsTr("Pace")
-                                linkedBoolSetting: "tile_pace_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelpaceOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: paceOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_pace_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = paceOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okpaceOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_pace_order = paceOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: resistanceEnabledAccordion
-                                title: qsTr("Resistance")
-                                linkedBoolSetting: "tile_resistance_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelresistanceOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: resistanceOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_resistance_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = resistanceOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okresistanceOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_resistance_order = resistanceOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: wattEnabledAccordion
-                                title: qsTr("Watt")
-                                linkedBoolSetting: "tile_watt_enabled"
-                                settings: settings
-                                accordionContent:  RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelwattOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: wattOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_watt_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = wattOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okwattOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_watt_order = wattOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: avgwattEnabledAccordion
-                                title: qsTr("AVG Watt")
-                                linkedBoolSetting: "tile_avgwatt_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelavgwattOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: avgwattOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_avgwatt_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = avgwattOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okavgwattOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_avgwatt_order = avgwattOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: ftpEnabledAccordion
-                                title: qsTr("FTP %")
-                                linkedBoolSetting: "tile_ftp_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelftpOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: ftpOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_ftp_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = ftpOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okftpOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_ftp_order = ftpOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: heartEnabledAccordion
-                                title: qsTr("Heart")
-                                linkedBoolSetting: "tile_heart_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelheartrateOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: heartrateOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_heart_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = heartrateOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okheartrateOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_heart_order = heartrateOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: fanEnabledAccordion
-                                title: qsTr("Fan")
-                                linkedBoolSetting: "tile_fan_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelfanOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: fanOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_fan_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = fanOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okfanOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_fan_order = fanOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: joulsEnabledAccordion
-                                title: qsTr("Jouls")
-                                linkedBoolSetting: "tile_jouls_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labeljoulsOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: joulsOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_jouls_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = joulsOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okjoulsOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_jouls_order = joulsOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: elapsedEnabledAccordion
-                                title: qsTr("Elapsed")
-                                linkedBoolSetting: "tile_elapsed_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelelapsedOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: elapsedOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_elapsed_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = elapsedOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okelapsedOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_elapsed_order = elapsedOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: lapElapsedEnabledAccordion
-                                title: qsTr("Lap Elapsed")
-                                linkedBoolSetting: "tile_lapelapsed_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labellapElapsedOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: lapElapsedOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_lapelapsed_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = lapElapsedOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: oklapElapsedOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_lapelapsed_order = lapElapsedOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: pelotonResistanceEnabledAccordion
-                                title: qsTr("Peloton Resistance")
-                                linkedBoolSetting: "tile_peloton_resistance_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labelpeloton_resistanceOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: peloton_resistanceOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_peloton_resistance_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = peloton_resistanceOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okpeloton_resistanceOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-                            AccordionCheckElement {
-                                id: targetResistanceEnabledAccordion
-                                title: qsTr("Target Resistance")
-                                linkedBoolSetting: "tile_target_resistance_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labeltarget_resistanceOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: target_resistanceOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_target_resistance_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = target_resistanceOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: oktarget_resistanceOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_target_resistance_order = target_resistanceOrderTextField.displayText
-                                    }
-                                }
-                            }
-                            AccordionCheckElement {
-                                id: targetCadenceEnabledAccordion
-                                title: qsTr("Target Cadence")
-                                linkedBoolSetting: "tile_target_cadence_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labeltarget_cadenceOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: target_cadenceOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_target_cadence_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = target_cadenceOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: oktarget_cadenceOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText
-                                    }
-                                }
-                            }
-                            AccordionCheckElement {
-                                id: targetPowerEnabledAccordion
-                                title: qsTr("Target Power")
-                                linkedBoolSetting: "tile_target_power_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labeltarget_powerOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: target_powerOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_target_power_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = target_powerOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: oktarget_powerOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_target_power_order = target_powerOrderTextField.displayText
-                                    }
-                                }
-                            }
-
-
-                            AccordionCheckElement {
-                                id: datetimeEnabledAccordion
-                                title: qsTr("Time")
-                                linkedBoolSetting: "tile_datetime_enabled"
-                                settings: settings
-                                accordionContent: RowLayout {
-                                    spacing: 10
-                                    Label {
-                                        id: labeldatetimeOrder
-                                        text: qsTr("order index:")
-                                        Layout.fillWidth: true
-                                        horizontalAlignment: Text.AlignRight
-                                    }
-                                    ComboBox {
-                                        id: datetimeOrderTextField
-                                        model: rootItem.tile_order
-                                        displayText: settings.tile_datetime_order
-                                        Layout.fillHeight: false
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onActivated: {
-                                            displayText = datetimeOrderTextField.currentValue
-                                         }
-                                    }
-                                    Button {
-                                        id: okdatetimeOrderButton
-                                        text: "OK"
-                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    }                    
                 }
             }
 
@@ -1565,7 +1565,7 @@ import Qt.labs.settings 1.0
             }
             AccordionElement {
                 id: toorxTreadmillAccordion
-                title: qsTr("Toorx Treadmill Options")
+                title: qsTr("Toorx/iConsole Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -1624,10 +1624,10 @@ import Qt.labs.settings 1.0
                         rightPadding: 0
                         leftPadding: 0
                         clip: false
-                        checked: settings.JLL_IC400_bike
+                        checked: settings.jll_IC400_bike
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.JLL_IC400_bike = checked
+                        onClicked: settings.jll_IC400_bike = checked
                     }
                 }
             }

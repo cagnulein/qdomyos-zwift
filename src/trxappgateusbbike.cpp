@@ -444,7 +444,7 @@ void trxappgateusbbike::error(QLowEnergyController::Error err)
 void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     QSettings settings;
-    bool JLL_IC400_bike = settings.value("JLL_IC400_bike", false).toBool();
+    bool JLL_IC400_bike = settings.value("jll_IC400_bike", false).toBool();
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     //if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-") || device.name().startsWith("i-Console+") || device.name().startsWith("i-Running"))
     {
