@@ -129,12 +129,12 @@ Item {
                 title: "Power"
                 titleFont.pixelSize: 20
 
-                ValueAxis {
+                DateTimeAxis {
                     id: valueAxisX
-                    min: 0
-                    max: rootItem.workout_sample_points
-                    //tickCount: 60
-                    labelFormat: "%.0f"
+                    tickCount: 7
+                    min: new Date(0)
+                    max: new Date(rootItem.workout_sample_points * 1000)
+                    format: "mm:ss"
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
@@ -173,12 +173,12 @@ Item {
                 title: "Heart Rate"
                 titleFont.pixelSize: 20
 
-                ValueAxis {
+                DateTimeAxis {
                     id: valueAxisXHR
-                    min: 0
-                    max: rootItem.workout_sample_points
-                    //tickCount: 60
-                    labelFormat: "%.0f"
+                    tickCount: 7
+                    min: new Date(0)
+                    max: new Date(rootItem.workout_sample_points * 1000)
+                    format: "mm:ss"
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
@@ -217,12 +217,12 @@ Item {
                 title: "Cadence"
                 titleFont.pixelSize: 20
 
-                ValueAxis {
+                DateTimeAxis {
                     id: valueAxisXCadence
-                    min: 0
-                    max: rootItem.workout_sample_points
-                    //tickCount: 60
-                    labelFormat: "%.0f"
+                    min: new Date(0)
+                    max: new Date(rootItem.workout_sample_points * 1000)
+                    format: "mm:ss"
+                    tickCount: 7
                     //labelsVisible: false
                     gridVisible: false
                     //lineVisible: false
