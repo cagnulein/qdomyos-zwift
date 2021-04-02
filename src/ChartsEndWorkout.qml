@@ -2,6 +2,8 @@ import QtQuick 2.4
 
 ChartsEndWorkoutForm {
     Component.onCompleted: {
+        headerToolbar.visible = true;
+
         //console.log("ChartsEndWorkoutForm completed " + rootItem.workout_sample_points)
         for(var i=0;i<rootItem.workout_sample_points;i+=10)
         {
