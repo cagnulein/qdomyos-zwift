@@ -103,6 +103,7 @@ class homeform: public QObject
     Q_PROPERTY(QList<double> workout_peloton_resistance_points READ workout_peloton_resistance_points)
     Q_PROPERTY(QList<double> workout_resistance_points READ workout_resistance_points)
     Q_PROPERTY(double wattMaxChart READ wattMaxChart)
+    Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
 
 public:
     Q_INVOKABLE void save_screenshot()
@@ -228,6 +229,8 @@ public:
     bool labelHelp();
     QStringList bluetoothDevices();
     QStringList tile_order();
+    bool autoResistance() {return m_autoresistance;}
+    void setAutoResistance(bool value) { m_autoresistance = value; emit autoResistanceChanged(value); if(bluetoothManager->device()) bluetoothManager->device()->setAutoResistance(value); }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count();}
 
@@ -261,6 +264,8 @@ private:
     peloton* pelotonHandler = 0;
     bool m_pelotonAskStart = false;
     QString stravaPelotonActivityName = "";
+
+    bool m_autoresistance = true;
 
     DataObject* speed;
     DataObject* inclination;
@@ -346,6 +351,7 @@ signals:
  void changeLabelHelp(bool value);
  void changePelotonAskStart(bool value);
  void generalPopupVisibleChanged(bool value);
+ void autoResistanceChanged(bool value);
 };
 
 #endif // HOMEFORM_H

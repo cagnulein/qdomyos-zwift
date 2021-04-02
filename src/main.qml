@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
+import QtGraphicalEffects 1.12
 
 ApplicationWindow {
     id: window
@@ -128,6 +129,48 @@ ApplicationWindow {
                     drawer.open()
                 }
             }
+        }
+
+        Popup {
+            id: popupAutoResistance
+             parent: Overlay.overlay
+
+             x: Math.round((parent.width - width) / 2)
+             y: Math.round((parent.height - height) / 2)
+             width: 380
+             height: 60
+             modal: true
+             focus: true
+             palette.text: "white"
+             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+             enter: Transition
+             {
+                 NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+             }
+             exit: Transition
+             {
+                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+             }
+             Column {
+                 anchors.horizontalCenter: parent.horizontalCenter
+             Label {
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 text: qsTr("Auto Resistance " + (rootItem.autoResistance?"enabled":"disabled"))
+                }
+             }
+        }
+
+        Timer {
+            id: popupAutoResistanceAutoClose
+            interval: 2000; running: false; repeat: false
+            onTriggered: popupAutoResistance.close();
+        }
+
+        ToolButton {
+            id: toolButtonAutoResistance
+            icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
+            onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
+            anchors.right: parent.right
         }
 
         Label {

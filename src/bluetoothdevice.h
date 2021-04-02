@@ -46,6 +46,8 @@ public:
     void disconnectBluetooth();
     virtual void setPaused(bool p);
     virtual void setLap();
+    void setAutoResistance(bool value) {autoResistanceEnable = value;}
+    bool autoResistance() {return autoResistanceEnable;}
     void setDifficult(double d);
     double difficult();
 
@@ -86,6 +88,7 @@ protected:
     metric m_watt;
 
     bool paused = false;
+    bool autoResistanceEnable = true;
 };
 
 #endif // BLUETOOTHDEVICE_H
