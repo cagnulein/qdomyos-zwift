@@ -140,16 +140,20 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     QJsonObject json = performance.object();
     QJsonObject target_performance_metrics = json["target_performance_metrics"].toObject();
     QJsonArray target_graph_metrics = target_performance_metrics["target_graph_metrics"].toArray();
-    QJsonObject resistances = target_graph_metrics[1].toObject();
-    QJsonObject graph_data = resistances["graph_data"].toObject();
-    QJsonArray averages = graph_data["average"].toArray();
+    QJsonObject resistances = target_graph_metrics[1].toObject();    
+    QJsonObject graph_data_resistances = resistances["graph_data"].toObject();
+    QJsonArray lower_resistances = graph_data_resistances["lower"].toArray();
+    QJsonObject cadences = target_graph_metrics[0].toObject();
+    QJsonObject graph_data_cadences = cadences["graph_data"].toObject();
+    QJsonArray lower_cadences = graph_data_cadences["lower"].toArray();
 
     trainrows.clear();
-    foreach(QJsonValue a, averages)
+    for(int i=0; i<lower_resistances.count(); i++)
     {
         trainrow r;
         r.duration = QTime(0,0,peloton_workout_second_resolution,0);
-        r.resistance = ((bike*)bluetoothManager->device())->pelotonToBikeResistance(a.toInt());
+        r.resistance = ((bike*)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
+        r.cadence = lower_cadences.at(i).toInt();
         trainrows.append(r);
     }
 

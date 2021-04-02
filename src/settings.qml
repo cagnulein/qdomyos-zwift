@@ -75,6 +75,10 @@ import Qt.labs.settings 1.0
             property int  tile_datetime_order: 16
             property bool tile_target_resistance_enabled: true
             property int  tile_target_resistance_order: 15
+            property bool tile_target_cadence_enabled: false
+            property int  tile_target_cadence_order: 19
+            property bool tile_target_power_enabled: false
+            property int  tile_target_power_order: 20
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -1128,6 +1132,70 @@ import Qt.labs.settings 1.0
                                     }
                                 }
                             }
+                            AccordionCheckElement {
+                                id: targetCadenceEnabledAccordion
+                                title: qsTr("Target Cadence")
+                                linkedBoolSetting: "tile_target_cadence_enabled"
+                                settings: settings
+                                accordionContent: RowLayout {
+                                    spacing: 10
+                                    Label {
+                                        id: labeltarget_cadenceOrder
+                                        text: qsTr("order index:")
+                                        Layout.fillWidth: true
+                                        horizontalAlignment: Text.AlignRight
+                                    }
+                                    ComboBox {
+                                        id: target_cadenceOrderTextField
+                                        model: rootItem.tile_order
+                                        displayText: settings.tile_target_cadence_order
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        onActivated: {
+                                            displayText = target_cadenceOrderTextField.currentValue
+                                         }
+                                    }
+                                    Button {
+                                        id: oktarget_cadenceOrderButton
+                                        text: "OK"
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        onClicked: settings.tile_target_cadence_order = target_cadenceOrderTextField.displayText
+                                    }
+                                }
+                            }
+                            AccordionCheckElement {
+                                id: targetPowerEnabledAccordion
+                                title: qsTr("Target Power")
+                                linkedBoolSetting: "tile_target_power_enabled"
+                                settings: settings
+                                accordionContent: RowLayout {
+                                    spacing: 10
+                                    Label {
+                                        id: labeltarget_powerOrder
+                                        text: qsTr("order index:")
+                                        Layout.fillWidth: true
+                                        horizontalAlignment: Text.AlignRight
+                                    }
+                                    ComboBox {
+                                        id: target_powerOrderTextField
+                                        model: rootItem.tile_order
+                                        displayText: settings.tile_target_power_order
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        onActivated: {
+                                            displayText = target_powerOrderTextField.currentValue
+                                         }
+                                    }
+                                    Button {
+                                        id: oktarget_powerOrderButton
+                                        text: "OK"
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        onClicked: settings.tile_target_power_order = target_powerOrderTextField.displayText
+                                    }
+                                }
+                            }
+
+
                             AccordionCheckElement {
                                 id: datetimeEnabledAccordion
                                 title: qsTr("Time")

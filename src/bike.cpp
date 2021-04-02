@@ -7,9 +7,13 @@ bike::bike()
 }
 
 void bike::changeResistance(int8_t resistance) { requestResistance = resistance * m_difficult; RequestedResistance = resistance * m_difficult; }
+void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+void bike::changePower(int32_t power) { RequestedPower = power; }
 double bike::currentCrankRevolutions() { return CrankRevs;}
 uint16_t bike::lastCrankEventTime() { return LastCrankEventTime;}
 metric bike::lastRequestedResistance() { return RequestedResistance; }
+metric bike::lastRequestedCadence() { return RequestedCadence; }
+metric bike::lastRequestedPower() { return RequestedPower; }
 metric bike::currentResistance() { return Resistance;}
 metric bike::currentCadence() { return Cadence;}
 uint8_t bike::fanSpeed() { return FanSpeed; }
@@ -32,6 +36,8 @@ void bike::clearStats()
     m_watt.clear(false);
 
     RequestedResistance.clear(false);
+    RequestedCadence.clear(false);
+    RequestedPower.clear(false);
     m_pelotonResistance.clear(false);
     Cadence.clear(false);
     Resistance.clear(false);
@@ -51,6 +57,8 @@ void bike::setPaused(bool p)
     Cadence.setPaused(p);
     Resistance.setPaused(p);
     RequestedResistance.setPaused(p);
+    RequestedCadence.setPaused(p);
+    RequestedPower.setPaused(p);
 }
 
 void bike::setLap()
@@ -64,6 +72,8 @@ void bike::setLap()
     m_watt.setLap(false);
 
     RequestedResistance.setLap(false);
+    RequestedCadence.setLap(false);
+    RequestedPower.setLap(false);
     m_pelotonResistance.setLap(false);
     Cadence.setLap(false);
     Resistance.setLap(false);

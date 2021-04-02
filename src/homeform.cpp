@@ -76,6 +76,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
     peloton_resistance = new DataObject("Peloton R(%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     target_resistance = new DataObject("Target R(%)", "icons/icons/resistance.png", "0", true, "target_resistance", 48, labelFontSize);
+    target_cadence = new DataObject("T.Cadence(rpm)", "icons/icons/cadence.png", "0", false, "target_cadence", 48, labelFontSize);
+    target_power = new DataObject("T.Power(W)", "icons/icons/watt.png", "0", false, "target_power", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
     ftp = new DataObject("FTP Zone", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
@@ -313,6 +315,8 @@ void homeform::trainProgramSignals()
          disconnect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          disconnect(trainProgram, SIGNAL(changeResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(int8_t)));
+         disconnect(trainProgram, SIGNAL(changeCadence(int16_t)), ((bike*)bluetoothManager->device()), SLOT(changeCadence(int16_t)));
+         disconnect(trainProgram, SIGNAL(changePower(int32_t)), ((bike*)bluetoothManager->device()), SLOT(changePower(int32_t)));
          disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
          disconnect(((bike*)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
 
@@ -323,6 +327,8 @@ void homeform::trainProgramSignals()
          connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
          connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          connect(trainProgram, SIGNAL(changeResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(int8_t)));
+         connect(trainProgram, SIGNAL(changeCadence(int16_t)), ((bike*)bluetoothManager->device()), SLOT(changeCadence(int16_t)));
+         connect(trainProgram, SIGNAL(changePower(int32_t)), ((bike*)bluetoothManager->device()), SLOT(changePower(int32_t)));
          connect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
          connect(((bike*)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
 
@@ -337,7 +343,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 19; i++)
+    for(int i = 0; i < 21; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -460,6 +466,12 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
                 dataList.append(target_resistance);
+
+            if(settings.value("tile_target_cadence_enabled", false).toBool() && settings.value("tile_target_cadence_order", 19).toInt() == i)
+                dataList.append(target_cadence);
+
+            if(settings.value("tile_target_power_enabled", false).toBool() && settings.value("tile_target_power_order", 20).toInt() == i)
+                dataList.append(target_power);
 
             if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
                 dataList.append(lapElapsed);
@@ -904,6 +916,8 @@ void homeform::update()
             peloton_resistance = ((bike*)bluetoothManager->device())->pelotonResistance().value();
             this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
             this->target_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
+            this->target_cadence->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
+            this->target_power->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->cadence->setValue(QString::number(cadence));
 

@@ -50,6 +50,12 @@ void trainprogram::scheduler()
         {
             qDebug() << "trainprogram change resistance" + QString::number(rows[0].resistance);
             emit changeResistance(rows[0].resistance);
+
+            if(rows[0].cadence != -1)
+            {
+                qDebug() << "trainprogram change cadence" + QString::number(rows[0].cadence);
+                emit changeCadence(rows[0].cadence);
+            }
         }
 
         if(rows[0].fanspeed != -1)
@@ -93,6 +99,12 @@ void trainprogram::scheduler()
             {
                 qDebug() << "trainprogram change resistance" + QString::number(rows[currentStep].resistance);
                 emit changeResistance(rows[currentStep].resistance);
+
+                if(rows[currentStep].cadence != -1)
+                {
+                    qDebug() << "trainprogram change cadence" + QString::number(rows[currentStep].cadence);
+                    emit changeCadence(rows[currentStep].cadence);
+                }
             }
 
             if(rows[currentStep].fanspeed != -1)
@@ -139,6 +151,7 @@ void trainprogram::save(QString filename)
         stream.writeAttribute("speed", QString::number(row.speed));
         stream.writeAttribute("inclination", QString::number(row.inclination));
         stream.writeAttribute("resistance", QString::number(row.resistance));
+        stream.writeAttribute("cadence", QString::number(row.cadence));
         stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
         stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
         stream.writeEndElement();
@@ -168,6 +181,7 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
                 row.fanspeed = -1;
             row.inclination = atts.value("inclination").toDouble();
             row.resistance = atts.value("resistance").toInt();
+            row.cadence = atts.value("cadence").toInt();
             row.forcespeed = atts.value("forcespeed").toInt()?true:false ;
             list.append(row);
         }
