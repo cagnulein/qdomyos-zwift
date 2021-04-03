@@ -113,6 +113,22 @@ void peloton::summary_onfinish(QNetworkReply* reply)
     getWorkout(current_workout_id);
 }
 
+void peloton::instructor_onfinish(QNetworkReply* reply)
+{
+    disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(instructor_onfinish(QNetworkReply*)));
+    QByteArray payload = reply->readAll(); // JSON
+    QJsonParseError parseError;
+    instructor = QJsonDocument::fromJson(payload, &parseError);
+    current_instructor_name = instructor.object()["name"].toString();
+
+    if(log_request)
+        qDebug() << "instructor_onfinish" << instructor;
+    else
+        qDebug() << "instructor_onfinish";
+
+    getPerformance(current_workout_id);
+}
+
 void peloton::workout_onfinish(QNetworkReply* reply)
 {
     disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(workout_onfinish(QNetworkReply*)));
@@ -121,13 +137,14 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject ride = workout.object()["ride"].toObject();
     current_workout_name = ride["title"].toString();
+    current_instructor_id = ride["instructor_id"].toString();
 
     if(log_request)
         qDebug() << "workout_onfinish" << workout;
     else
         qDebug() << "workout_onfinish";
 
-    getPerformance(current_workout_id);
+    getInstructor(current_instructor_id);
 }
 
 void peloton::performance_onfinish(QNetworkReply* reply)
@@ -158,18 +175,30 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     }
 
     if(log_request)
-        qDebug() << "performance_onfinish" << workout;
+        qDebug() << "performance_onfinish" << performance;
     else
         qDebug() << "performance_onfinish" << trainrows.length();
 
     if(trainrows.length())
     {
-        emit workoutStarted(current_workout_name);
+        emit workoutStarted(current_workout_name, current_instructor_name);
     }
 
     timer->start(30000); // check for a status changed
 }
 
+void peloton::getInstructor(QString instructor_id)
+{
+    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(instructor_onfinish(QNetworkReply*)));
+
+    QUrl url("https://api.onepeloton.com/api/instructor/" + instructor_id);
+    QNetworkRequest request(url);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setHeader(QNetworkRequest::UserAgentHeader, "qdomyos-zwift");
+
+    mgr->get(request);
+}
 
 void peloton::getPerformance(QString workout)
 {

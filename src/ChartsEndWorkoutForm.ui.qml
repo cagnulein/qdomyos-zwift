@@ -44,6 +44,16 @@ Item {
             verticalAlignment: Text.AlignVCenter
             anchors.horizontalCenter: parent.horizontalCenter
         }
+        Text {
+            anchors.top: title.bottom
+            id: instructor
+            text: rootItem.instructorName
+            font.pixelSize: 18
+            color: "white"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
 /*
         ChartView {
             id: caloriesChart

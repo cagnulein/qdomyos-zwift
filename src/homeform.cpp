@@ -151,7 +151,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     emit tile_orderChanged(tile_order());
 
     pelotonHandler = new peloton(bl);
-    connect(pelotonHandler, SIGNAL(workoutStarted(QString)), this, SLOT(pelotonWorkoutStarted(QString)));
+    connect(pelotonHandler, SIGNAL(workoutStarted(QString, QString)), this, SLOT(pelotonWorkoutStarted(QString, QString)));
 
     //populate the UI
 #if 0
@@ -225,7 +225,7 @@ void homeform::peloton_start_workout()
     }
 }
 
-void homeform::pelotonWorkoutStarted(QString name)
+void homeform::pelotonWorkoutStarted(QString name, QString instructor)
 {
     QSettings settings;
     if(!settings.value("top_bar_enabled", true).toBool()) return;
@@ -233,6 +233,7 @@ void homeform::pelotonWorkoutStarted(QString name)
     emit infoChanged(m_info);
 
     stravaPelotonActivityName = name;
+    stravaPelotonInstructorName = instructor;
     m_pelotonAskStart = true;
     emit(changePelotonAskStart(pelotonAskStart()));
 }
@@ -724,6 +725,9 @@ void homeform::Start()
             if(bluetoothManager->device())
                 bluetoothManager->device()->clearStats();
             Session.clear();
+
+            stravaPelotonActivityName = "";
+            stravaPelotonInstructorName = "";
         }
 
         paused = false;
@@ -753,7 +757,7 @@ void homeform::Stop()
         bluetoothManager->device()->stop();
 
     paused = false;
-    stopped = true;
+    stopped = true;    
 
     fit_save_clicked();
 
@@ -1395,7 +1399,7 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
     QString activityName = " " + settings.value("strava_suffix", "#qdomyos-zwift").toString() ;
     if(stravaPelotonActivityName.length())
     {
-        activityName = stravaPelotonActivityName + activityName;
+        activityName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName + activityName;
     }
     else
     {
