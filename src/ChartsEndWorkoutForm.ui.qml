@@ -171,7 +171,7 @@ Item {
                     axisX: valueAxisX
                     axisY: valueAxisY
                     color: "black"
-                    width: 3
+                    width: 1
                 }
             }
 
@@ -216,7 +216,7 @@ Item {
                     axisX: valueAxisXHR
                     axisY: valueAxisYHR
                     color: "black"
-                    width: 3
+                    width: 1
                 }
             }
 
@@ -262,7 +262,7 @@ Item {
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
                     color: "black"
-                    width: 3
+                    width: 1
                 }
 
                 LineSeries {
@@ -272,7 +272,7 @@ Item {
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
                     color: "blue"
-                    width: 3
+                    width: 1
                 }
 
                 LineSeries {
@@ -282,7 +282,7 @@ Item {
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
                     color: "red"
-                    width: 3
+                    width: 1
                 }
             }
         }
