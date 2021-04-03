@@ -126,7 +126,7 @@ Item {
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: title.bottom
+            anchors.top: instructor.bottom
             anchors.bottom: parent.bottom
             contentHeight: powerChart.height+heartChart.height+cadenceChart.height
 
