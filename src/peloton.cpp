@@ -215,7 +215,7 @@ void peloton::getWorkoutList(int num)
     if(num == 0)
         num = this->total_workout;
 
-    int limit = 100;
+    int limit = 1; // for now we don't need more than 1 workout
     int pages = num / limit;
     int rem = num % limit;
 
