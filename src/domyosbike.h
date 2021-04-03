@@ -64,6 +64,7 @@ private:
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
+    volatile bool incompletePackets = false;
     bool initDone = false;
     bool initRequest = false;
     bool noWriteResistance = false;
@@ -86,6 +87,7 @@ private:
 
 signals:
     void disconnected();
+    void packetReceived();
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

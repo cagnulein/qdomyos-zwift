@@ -38,7 +38,7 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
 
     if(wait_for_response)
     {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+        connect(this, SIGNAL(packetReceived()),
                 &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
@@ -47,6 +47,13 @@ void domyosbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString in
         connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
+    }
+
+    if(gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
+       m_control->state() == QLowEnergyController::UnconnectedState)
+    {
+        qDebug() << "writeCharacteristic error because the connection is closed";
+        return;
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
@@ -164,7 +171,7 @@ void domyosbike::update()
         //else
         //    btinit_telink(false);
     }
-    else if(bluetoothDevice.isValid() &&
+    else if(/*bluetoothDevice.isValid() &&*/
        m_control->state() == QLowEnergyController::DiscoveredState &&
        gattCommunicationChannelService &&
        gattWriteCharacteristic.isValid() &&
@@ -200,53 +207,58 @@ void domyosbike::update()
         if(sec1Update++ == (1000 / refresh->interval()))
         {
             sec1Update = 0;
-            updateDisplay(elapsed.value());
+            if(incompletePackets == false)
+                updateDisplay(elapsed.value());
         }
         else
         {
-            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
+            if(incompletePackets == false)
+                writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
         }
 
-        if(testResistance)
-        {
-            if((((int)elapsed.value()) % 5) == 0)
+       if(incompletePackets == false)
+       {
+            if(testResistance)
             {
-                uint8_t new_res = currentResistance().value() + 1;
-                if(new_res > 15)
-                    new_res = 1;
-                forceResistance(new_res);
+                if((((int)elapsed.value()) % 5) == 0)
+                {
+                    uint8_t new_res = currentResistance().value() + 1;
+                    if(new_res > 15)
+                        new_res = 1;
+                    forceResistance(new_res);
+                }
             }
-        }
 
-        if(requestResistance != -1)
-        {
-           if(requestResistance > max_resistance) requestResistance = max_resistance;
-           else if(requestResistance < 1) requestResistance = 1;
+            if(requestResistance != -1)
+            {
+                if(requestResistance > max_resistance) requestResistance = max_resistance;
+                else if(requestResistance < 1) requestResistance = 1;
 
-           if(requestResistance != currentResistance().value())
-           {
-              qDebug() << "writing resistance " + QString::number(requestResistance);
-              forceResistance(requestResistance);
-           }
-           requestResistance = -1;
-        }
-        if(requestStart != -1)
-        {
-           qDebug() << "starting...";
+                if(requestResistance != currentResistance().value())
+                {
+                    qDebug() << "writing resistance " + QString::number(requestResistance);
+                    forceResistance(requestResistance);
+                }
+                requestResistance = -1;
+            }
+            if(requestStart != -1)
+            {
+                qDebug() << "starting...";
 
-           //if(bike_type == CHANG_YOW)
-               btinit_changyow(true);
-           //else
-           //    btinit_telink(true);
+                //if(bike_type == CHANG_YOW)
+                btinit_changyow(true);
+                //else
+                //    btinit_telink(true);
 
-           requestStart = -1;
-           emit bikeStarted();
-        }
-        if(requestStop != -1)
-        {
-            qDebug() << "stopping...";
-            writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
-            requestStop = -1;
+                requestStart = -1;
+                emit bikeStarted();
+            }
+            if(requestStop != -1)
+            {
+                qDebug() << "stopping...";
+                writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                requestStop = -1;
+            }
         }
     }
 
@@ -264,33 +276,80 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Q_UNUSED(characteristic);    
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QByteArray value = newValue;
 
-    qDebug() << " << " + newValue.toHex(' ');
+    qDebug() << " << " + QString::number(value.length()) + " " + value.toHex(' ');
 
-    lastPacket = newValue;
-    if (newValue.length() != 26)
+    // for the init packets, the lenght is always less than 20
+    // for the display and status packets, the lenght is always grater then 20 and there are 2 cases:
+    // - intense run: it always send more than 20 bytes in one packets, so the lenght will be always != 20
+    // - t900: it splits packets with lenght grater than 20 in two distinct packets, so the first one it has lenght of 20,
+    //         and the second one with the remained byte
+    // so this simply condition will match all the cases, excluding the 20byte packet of the T900.
+    if(newValue.length() != 20)
+    {
+        qDebug() << "packetReceived!";
+        emit packetReceived();
+    }
+
+    QByteArray startBytes;
+    startBytes.append(0xf0);
+    startBytes.append(0xbc);
+
+    QByteArray startBytes2;
+    startBytes2.append(0xf0);
+    startBytes2.append(0xdb);
+
+    QByteArray startBytes3;
+    startBytes3.append(0xf0);
+    startBytes3.append(0xdd);
+
+    // on some treadmills, the 26bytes has splitted in 2 packets
+    if((lastPacket.length() == 20 && lastPacket.startsWith(startBytes) && value.length() == 6) ||
+       (lastPacket.length() == 20 && lastPacket.startsWith(startBytes2) && value.length() == 7) ||
+       (lastPacket.length() == 20 && lastPacket.startsWith(startBytes3) && value.length() == 7))
+    {
+        incompletePackets = false;
+        qDebug() << "...final bytes received";
+        lastPacket.append(value);
+        value = lastPacket;
+    }
+
+    lastPacket = value;
+
+    if (value.length() != 26)
+    {
+        // semaphore for any writing packets (for example, update display)
+        if(value.length() == 20 && (value.startsWith(startBytes) || value.startsWith(startBytes2) || value.startsWith(startBytes3)))
+        {
+            qDebug() << "waiting for other bytes...";
+            incompletePackets = true;
+        }
+
+        qDebug() << "packet ignored";
         return;
+    }
 
-    if (newValue.at(22) == 0x06)
+    if (value.at(22) == 0x06)
     {
         qDebug() << "start button pressed!";
         requestStart = 1;
     }
-    else if (newValue.at(22) == 0x07)
+    else if (value.at(22) == 0x07)
     {
         qDebug() << "stop button pressed!";
         requestStop = 1;
     }
 
-    /*if ((uint8_t)newValue.at(1) != 0xbc && newValue.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
+    /*if ((uint8_t)value.at(1) != 0xbc && value.at(2) != 0x04)  // intense run, these are the bytes for the inclination and speed status
         return;*/
 
-    double speed = GetSpeedFromPacket(newValue);
-    double kcal = GetKcalFromPacket(newValue);
-    double distance = GetDistanceFromPacket(newValue);
+    double speed = GetSpeedFromPacket(value);
+    double kcal = GetKcalFromPacket(value);
+    double distance = GetDistanceFromPacket(value);
 
-    Cadence = ((uint8_t)newValue.at(9));
-    Resistance = newValue.at(14);
+    Cadence = ((uint8_t)value.at(9));
+    Resistance = value.at(14);
     if(Resistance.value() < 1)
     {
         qDebug() << "invalid resistance value " + QString::number(Resistance.value()) + " putting to default";
@@ -304,7 +363,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = ((uint8_t)newValue.at(18));
+            Heart = ((uint8_t)value.at(18));
     }
 
     if(Cadence.value() > 0)
