@@ -76,6 +76,8 @@ import Qt.labs.settings 1.0
             property int  tile_datetime_order: 16
             property bool tile_target_resistance_enabled: true
             property int  tile_target_resistance_order: 15
+            property bool tile_target_peloton_resistance_enabled: false
+            property int  tile_target_peloton_resistance_order: 21
             property bool tile_target_cadence_enabled: false
             property int  tile_target_cadence_order: 19
             property bool tile_target_power_enabled: false
@@ -1122,6 +1124,39 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
+
+                    AccordionCheckElement {
+                        id: targetPelotonResistanceEnabledAccordion
+                        title: qsTr("Target Peloton Resistance")
+                        linkedBoolSetting: "tile_target_peloton_resistance_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_peloton_resistanceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_peloton_resistanceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_peloton_resistance_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_peloton_resistanceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_peloton_resistanceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText
+                            }
+                        }
+                    }
+
                     AccordionCheckElement {
                         id: targetCadenceEnabledAccordion
                         title: qsTr("Target Cadence")

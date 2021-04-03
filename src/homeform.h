@@ -287,6 +287,7 @@ private:
     DataObject* elapsed;
     DataObject* peloton_resistance;
     DataObject* target_resistance;
+    DataObject* target_peloton_resistance;
     DataObject* target_cadence;
     DataObject* target_power;
     DataObject* ftp;
