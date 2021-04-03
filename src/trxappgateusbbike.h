@@ -85,6 +85,7 @@ private:
         CHANGYOW = 2,
         SKANDIKAWIRY = 3,
         ICONSOLE = 4,
+        JLL_IC400 = 5,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

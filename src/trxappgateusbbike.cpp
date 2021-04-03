@@ -107,6 +107,15 @@ void trxappgateusbbike::update()
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x23, 0x01, 0xb6 };
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
         }
+        else if(bike_type == TYPE::JLL_IC400)
+        {
+            static unsigned char pollCounter = 0x0b;
+            uint8_t noOpData[] = { 0xf0, 0xa2, 0x00, 0xc8, 0x59 };
+            noOpData[2] = pollCounter;
+            noOpData[4] += pollCounter;
+            pollCounter += 0x0c;
+            writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
+        }
         else
         {
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x23, 0xd3, 0x88 };
@@ -146,7 +155,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     debug(" << " + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if (newValue.length() != 21)
+    if ((newValue.length() != 21 && bike_type != JLL_IC400) || (newValue.length() != 19 && bike_type == JLL_IC400))
         return;
 
     /*
@@ -168,11 +177,22 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
 */
 
-    double speed = GetSpeedFromPacket(newValue);
     double cadence = GetCadenceFromPacket(newValue);
-    double resistance = GetResistanceFromPacket(newValue);
-    double kcal = GetKcalFromPacket(newValue);
-    double watt = GetWattFromPacket(newValue);
+    double speed = 0;
+    double resistance = 0;
+    double kcal = 0;
+    double watt = 0;
+    if(bike_type != JLL_IC400)
+    {
+        speed = GetSpeedFromPacket(newValue);
+        resistance = GetResistanceFromPacket(newValue);
+        kcal = GetKcalFromPacket(newValue);
+        watt = GetWattFromPacket(newValue);
+    }
+    else
+    {
+        speed = cadence * 0.37407407407407407407407407407407;
+    }
 
 #ifdef Q_OS_ANDROID
     if(settings.value("ant_heart", false).toBool())
@@ -302,6 +322,43 @@ void trxappgateusbbike::btinit(bool startTape)
         writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
         QThread::msleep(400);
     }
+    else if(bike_type == TYPE::JLL_IC400)
+    {
+        const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
+        const uint8_t initData2[] = { 0xf0, 0xa0, 0x03, 0xc9, 0x5c };
+        const uint8_t initData3[] = { 0xf0, 0xa1, 0x00, 0xc8, 0x59 };
+        const uint8_t initData4[] = { 0xf0, 0xa0, 0x01, 0xc9, 0x5a };
+        const uint8_t initData5[] = { 0xf0, 0xa1, 0x05, 0xc8, 0x5e };
+        const uint8_t initData6[] = { 0xf0, 0xa2, 0x22, 0xc8, 0x7c };
+        const uint8_t initData7[] = { 0xf0, 0xa0, 0x39, 0xc9, 0x92 };
+
+        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t*)initData7, sizeof(initData7), "init", false, true);
+        QThread::msleep(400);
+    }
     else
     {
         const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
@@ -339,7 +396,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
         QString uuidNotify1 = "0000fff1-0000-1000-8000-00805f9b34fb";
         QString uuidNotify2 = "49535343-4c8a-39b3-2f49-511cff073b7e";
 
-        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE)
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE || bike_type == TYPE::JLL_IC400)
         {
             uuidWrite      = "49535343-8841-43f4-a8d4-ecbe34729bb3";
             uuidNotify1    = "49535343-1E4D-4BD9-BA61-23C647249616";
@@ -413,7 +470,7 @@ void trxappgateusbbike::serviceScanDone(void)
     debug("serviceScanDone");
 
     QString uuid = "0000fff0-0000-1000-8000-00805f9b34fb";
-    if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE)
+    if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE || bike_type == TYPE::JLL_IC400)
             uuid = "49535343-FE7D-4AE5-8FA9-9FAFD205E455";
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)uuid);
@@ -453,7 +510,12 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         /*else
             bike_type = TYPE::TRXAPPGATE;*/
 
-        if(device.address().toString().toUpper().startsWith("E8") && !JLL_IC400_bike)
+        if(JLL_IC400_bike)
+        {
+            bike_type = TYPE::JLL_IC400;
+            qDebug() << "JLL_IC400 bike found";
+        }
+        else if(device.address().toString().toUpper().startsWith("E8"))
         {
             bike_type = TYPE::CHANGYOW;
             qDebug() << "CHANGYOW bike found";
