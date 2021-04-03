@@ -45,6 +45,7 @@ public:
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnectBluetooth();
     virtual void setPaused(bool p);
+    bool isPaused() {return paused;}
     virtual void setLap();
     void setAutoResistance(bool value) {autoResistanceEnable = value;}
     bool autoResistance() {return autoResistanceEnable;}

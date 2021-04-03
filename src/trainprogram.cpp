@@ -19,7 +19,8 @@ void trainprogram::scheduler()
             started == false ||
             enabled == false ||
             bluetoothManager->device() == nullptr ||
-            bluetoothManager->device()->currentSpeed().value() <= 0
+            bluetoothManager->device()->currentSpeed().value() <= 0 ||
+            bluetoothManager->device()->isPaused()
             )
     {
         return;
