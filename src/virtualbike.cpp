@@ -402,6 +402,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QSettings settings;
     bool force_resistance = settings.value("virtualbike_forceresistance", true).toBool();
     bool erg_mode = settings.value("zwift_erg", false).toBool();
+    double erg_filter = settings.value("zwift_erg_filter", 0.0).toDouble();
     qDebug() << "characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue.toHex(' ');
 
     switch(characteristic.uuid().toUInt16())
@@ -443,7 +444,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
              qDebug() << "power erg  " + QString::number(power) + " " + erg_mode;
              Bike->changePower(power);
-             if(force_resistance && erg_mode)
+             double delta = fabs(Bike->wattsMetric().value() - ((double)power));
+             qDebug() << "filter  " + QString::number(delta) + " " + QString::number(erg_filter);
+             if(force_resistance && erg_mode && delta > erg_filter)
                  Bike->changeResistance((int8_t)Bike->resistanceFromPowerRequest(power)); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)

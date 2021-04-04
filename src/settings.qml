@@ -18,6 +18,7 @@ import Qt.labs.settings 1.0
             property int bike_resistance_offset: 4
             property real bike_resistance_gain_f: 1.0
             property bool zwift_erg: false
+            property real zwift_erg_filter: 0.0
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -451,6 +452,30 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.bike_resistance_gain_f = bikeResistanceGainTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgFilter
+                            text: qsTr("Zwift ERG Watt Filter:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgFilterTextField
+                            text: settings.zwift_erg_filter
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_filter = text
+                        }
+                        Button {
+                            id: okzwiftErgFilterButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_filter = zwiftErgFilterTextField.text
                         }
                     }
 
