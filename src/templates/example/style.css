@@ -1,0 +1,24 @@
+.normal {
+  color: black;
+  font-weight: normal;
+  font-family: Verdana; 
+  font-size: 30pt;
+}
+.Ok {
+  color: green;
+  font-weight: normal;
+  font-family: Verdana; 
+  font-size: 30pt;
+}
+.min {
+  color: #DF7401;
+  font-weight: normal;
+  font-family: Verdana; 
+  font-size: 30pt;
+}
+.err {
+  color: red;
+  font-weight: bold;
+  font-family: Verdana; 
+  font-size: 30pt;
+}

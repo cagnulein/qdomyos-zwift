@@ -13,5 +13,11 @@
         <file>icons/arrow-expand-vertical.png</file>
         <file>ChartsEndWorkout.qml</file>
         <file>ChartsEndWorkoutForm.ui.qml</file>
+        <file>TemplateTcpClient.qml</file>
+        <file>TemplateWebServer.qml</file>
+        <file>templates/vlc-TcpClient.qzt</file>
+        <file>templates/example/sethtml.js</file>
+        <file>templates/example/style.css</file>
+        <file>templates/example/workout.htm</file>
     </qresource>
 </RCC>

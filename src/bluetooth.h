@@ -39,6 +39,7 @@
 #include "heartratebelt.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
+#include "templateinfosenderbuilder.h"
 
 class bluetooth : public QObject, public SignalHandler
 {
@@ -51,6 +52,7 @@ public:
     bool onlyDiscover = false;
 
 private:
+    TemplateInfoSenderBuilder * templateManager = 0;
     QFile* debugCommsLog = 0;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     fitshowtreadmill* fitshowTreadmill = 0;

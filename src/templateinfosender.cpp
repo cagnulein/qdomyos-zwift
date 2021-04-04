@@ -1,0 +1,56 @@
+#include "templateinfosender.h"
+#include <QDebug>
+
+TemplateInfoSender::TemplateInfoSender(const QString& id, QObject * parent):QObject(parent),templateId(id) {
+
+}
+TemplateInfoSender::~TemplateInfoSender() {
+    stop();
+}
+
+bool TemplateInfoSender::init(const QString& script) {
+    jscript = script;
+    stop();
+    return init();
+}
+
+bool TemplateInfoSender::update(QJSEngine * eng) {
+    if (!jscript.isEmpty()) {
+        QJSValue jsv = eng->evaluate(jscript);
+        if (!jsv.isError()) {
+            return send(jsv.toString());
+        }
+        else {
+            qDebug() << "Scripts contains an error:"<< jscript << " error: " << jsv.errorType();
+            return false;
+        }
+    }
+    else
+        return false;
+}
+
+QString TemplateInfoSender::js() const {
+    return jscript;
+}
+
+QString TemplateInfoSender::getId() const {
+    return templateId;
+}
+
+void TemplateInfoSender::stop() {
+    retryTimer.stop();
+    innerStop();
+}
+
+void TemplateInfoSender::innerStop() {
+
+}
+
+void TemplateInfoSender::reinit() {
+    stop();
+    connect(&retryTimer, &QTimer::timeout, this, [this]() {
+        Q_UNUSED(this);
+        init();
+    });
+    retryTimer.start(5000);
+}

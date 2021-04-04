@@ -2,6 +2,12 @@ QT += bluetooth widgets xml positioning quick networkauth
 
 QT+= charts
 unix:android: QT += androidextras gui-private
+qtHaveModule(httpserver) {
+    QT += httpserver
+    DEFINES += Q_HTTPSERVER
+    SOURCES += webserverinfosender.cpp
+    HEADERS += webserverinfosender.h
+}
 
 CONFIG += c++11 console debug app_bundle
 macx: CONFIG += static
@@ -74,6 +80,9 @@ SOURCES += \
     skandikawiribike.cpp \
    snodebike.cpp \
    sportstechbike.cpp \
+    tcpclientinfosender.cpp \
+    templateinfosender.cpp \
+    templateinfosenderbuilder.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
    trxappgateusbbike.cpp \
@@ -346,6 +355,9 @@ HEADERS += \
     skandikawiribike.h \
    snodebike.h \
    sportstechbike.h \
+    tcpclientinfosender.h \
+    templateinfosender.h \
+    templateinfosenderbuilder.h \
 	toorxtreadmill.h \
 	gpx.h \
 	treadmill.h \
@@ -418,8 +430,8 @@ ios {
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets
 	 QMAKE_ASSET_CATALOGS_APP_ICON = "AppIcon"
 
-    TARGET = qdomyoszwift
-	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+    TARGET = qdom2
+         QMAKE_TARGET_BUNDLE_PREFIX = org.p3g4asus
 }
 
 VERSION = 2.5.19

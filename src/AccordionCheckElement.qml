@@ -6,13 +6,22 @@ import Qt.labs.settings 1.0
 ColumnLayout {
     property Settings settings: null
     id: rootElement
-    property bool invert: false
     property  bool linkedBoolSettingDefault: false
     property string linkedBoolSetting: "example_setting"
-    property bool isOpen: invert ? !settings[linkedBoolSetting]:settings[linkedBoolSetting]
+    property bool isOpen: false
     property string title: ""
+    property ColumnLayout placeHolderId: contentPlaceholder
     default property alias accordionContent: contentPlaceholder.data
     spacing: 0
+
+    Component.onCompleted: function() {
+        console.log("accordion check for "+linkedBoolSetting+" "+ typeof(settings[linkedBoolSetting])+" "+settings[linkedBoolSetting]+" "+settings.value(linkedBoolSetting, linkedBoolSettingDefault));
+        if (typeof(settings[linkedBoolSetting])=="undefined")
+            isOpen = settings.value(linkedBoolSetting, linkedBoolSettingDefault);
+        else
+            isOpen = settings[linkedBoolSetting];
+        console.log("accordion check2 "+ isOpen);
+    }
  
     Layout.fillWidth: true;
  
@@ -50,8 +59,15 @@ ColumnLayout {
         text: rootElement.title
         checked: rootElement.isOpen
         onClicked: {
-            rootElement.isOpen = checked
-            settings[rootElement.linkedBoolSetting] = rootElement.invert? !checked:checked
+            rootElement.isOpen = checked;
+            if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {
+                settings.setValue(rootElement.linkedBoolSetting, checked);
+                console.log("set "+rootElement.linkedBoolSetting+ " "+settings.value(rootElement.linkedBoolSetting));
+            }
+            else {
+                settings[rootElement.linkedBoolSetting] = checked;
+                console.log("set "+rootElement.linkedBoolSetting+ " "+settings[rootElement.linkedBoolSetting]);
+            }
         }
     }
  
