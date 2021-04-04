@@ -29,6 +29,10 @@
 #include "virtualbike.h"
 #include "bike.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 class domyosbike : public bike
 {
     Q_OBJECT
@@ -85,6 +89,10 @@ private:
         TELINK,
     };
     _BIKE_TYPE bike_type = CHANG_YOW;
+    
+#ifdef Q_OS_IOS
+    lockscreen* h = 0;
+#endif
 
 signals:
     void disconnected();

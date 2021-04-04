@@ -6,6 +6,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QBluetoothLocalDevice>
+#include "ios/lockscreen.h"
 
 // set speed and incline to 0
 uint8_t initData1[] = { 0xf0, 0xc8, 0x01, 0xb9 };

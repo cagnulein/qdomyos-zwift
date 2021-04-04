@@ -7,6 +7,7 @@
 #include <QMetaEnum>
 #include <QBluetoothLocalDevice>
 #include <QSettings>
+#include "ios/lockscreen.h"
 
 domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testResistance, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
@@ -391,7 +392,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
             lockscreen h;
             long appleWatchHeartRate = h.heartRate();
             Heart = appleWatchHeartRate;
-            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
 #endif
 #endif
             }
