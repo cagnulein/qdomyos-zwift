@@ -59,6 +59,7 @@ private:
     QTimer* refresh;
     virtualbike* virtualBike = 0;
     uint8_t firstVirtual = 0;
+    uint8_t firstStateChanged = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;

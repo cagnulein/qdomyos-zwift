@@ -529,7 +529,22 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = ((uint8_t)value.at(18));
+        {
+            uint8_t heart = ((uint8_t)value.at(18));
+            if(heart == 0)
+            {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+        long appleWatchHeartRate = h.heartRate();
+        Heart = appleWatchHeartRate;
+        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+            }
+            else
+                Heart = heart;
+        }
     }
     FanSpeed = value.at(23);
 
