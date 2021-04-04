@@ -83,7 +83,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     }
     else
     {
-        services << (QBluetoothUuid((QString)"0bf669f1-45f2-11e7-9598-0800200c9a66"));
+        services << (QBluetoothUuid((QString)"0bf669f0-45f2-11e7-9598-0800200c9a66"));
     }
 
     advertisingData.setServices(services);
