@@ -242,7 +242,6 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     Speed = 0.37497622 * ((double)Cadence.value());
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-    RequestedPelotonResistance = bikeResistanceToPeloton(RequestedResistance.value());
 
     if(Cadence.value() > 0)
     {

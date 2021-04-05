@@ -33,6 +33,7 @@ public slots:
     virtual void changeResistance(int8_t res);    
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
+    virtual void changeRequestedPelotonResistance(int8_t resistance);
 
 signals:
     void bikeStarted();

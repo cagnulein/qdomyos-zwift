@@ -317,6 +317,7 @@ void homeform::trainProgramSignals()
          disconnect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          disconnect(trainProgram, SIGNAL(changeResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(int8_t)));
+         disconnect(trainProgram, SIGNAL(changeRequestedPelotonResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeRequestedPelotonResistance(int8_t)));
          disconnect(trainProgram, SIGNAL(changeCadence(int16_t)), ((bike*)bluetoothManager->device()), SLOT(changeCadence(int16_t)));
          disconnect(trainProgram, SIGNAL(changePower(int32_t)), ((bike*)bluetoothManager->device()), SLOT(changePower(int32_t)));
          disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
@@ -329,6 +330,7 @@ void homeform::trainProgramSignals()
          connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
          connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          connect(trainProgram, SIGNAL(changeResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(int8_t)));
+         connect(trainProgram, SIGNAL(changeRequestedPelotonResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeRequestedPelotonResistance(int8_t)));
          connect(trainProgram, SIGNAL(changeCadence(int16_t)), ((bike*)bluetoothManager->device()), SLOT(changeCadence(int16_t)));
          connect(trainProgram, SIGNAL(changePower(int32_t)), ((bike*)bluetoothManager->device()), SLOT(changePower(int32_t)));
          connect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
