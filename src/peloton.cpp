@@ -172,6 +172,7 @@ void peloton::performance_onfinish(QNetworkReply* reply)
         trainrow r;
         r.duration = QTime(0,0,peloton_workout_second_resolution,0);
         r.resistance = ((bike*)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
+        r.requested_peloton_resistance = lower_resistances.at(i).toInt();
         r.cadence = lower_cadences.at(i).toInt();
         trainrows.append(r);
     }
