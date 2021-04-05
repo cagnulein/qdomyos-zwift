@@ -32,6 +32,10 @@
 #include "ios/lockscreen.h"
 #endif
 
+#ifdef Q_OS_IOS
+quint8 QZ_EnableDiscoveryCharsAndDescripttors = false;
+#endif
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;

@@ -18,6 +18,7 @@ import Qt.labs.settings 1.0
             property int bike_resistance_offset: 4
             property real bike_resistance_gain_f: 1.0
             property bool zwift_erg: false
+            property real zwift_erg_filter: 0.0
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -37,6 +38,7 @@ import Qt.labs.settings 1.0
 
             property string peloton_username: "username"
             property string peloton_password: "password"
+            property string peloton_difficulty: "lower"
 
             property bool tile_speed_enabled: true
             property int  tile_speed_order: 0
@@ -76,6 +78,8 @@ import Qt.labs.settings 1.0
             property int  tile_datetime_order: 16
             property bool tile_target_resistance_enabled: true
             property int  tile_target_resistance_order: 15
+            property bool tile_target_peloton_resistance_enabled: false
+            property int  tile_target_peloton_resistance_order: 21
             property bool tile_target_cadence_enabled: false
             property int  tile_target_cadence_order: 19
             property bool tile_target_power_enabled: false
@@ -449,6 +453,30 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.bike_resistance_gain_f = bikeResistanceGainTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgFilter
+                            text: qsTr("Zwift ERG Watt Filter:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgFilterTextField
+                            text: settings.zwift_erg_filter
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_filter = text
+                        }
+                        Button {
+                            id: okzwiftErgFilterButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_filter = zwiftErgFilterTextField.text
                         }
                     }
 
@@ -1122,6 +1150,39 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
+
+                    AccordionCheckElement {
+                        id: targetPelotonResistanceEnabledAccordion
+                        title: qsTr("Target Peloton Resistance")
+                        linkedBoolSetting: "tile_target_peloton_resistance_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_peloton_resistanceOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_peloton_resistanceOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_peloton_resistance_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_peloton_resistanceOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_peloton_resistanceOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_peloton_resistance_order = target_peloton_resistanceOrderTextField.displayText
+                            }
+                        }
+                    }
+
                     AccordionCheckElement {
                         id: targetCadenceEnabledAccordion
                         title: qsTr("Target Cadence")
@@ -1407,6 +1468,33 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_password = pelotonPasswordTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPelotonDifficulty
+                            text: qsTr("Difficulty:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonDifficultyTextField
+                            model: [ "lower", "upper", "average" ]
+                            displayText: settings.peloton_difficulty
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
+                                displayText = pelotonDifficultyTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okPelotonDifficultyButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_difficulty = pelotonDifficultyTextField.displayText
                         }
                     }
 
