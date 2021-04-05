@@ -44,6 +44,7 @@ private:
     QLowEnergyServiceData serviceDataFIT;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataChanged;
+    QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
     bike* Bike;
 

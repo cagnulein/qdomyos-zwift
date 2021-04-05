@@ -261,9 +261,12 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     }
     else
     {
+        serviceEchelon.setType(QLowEnergyServiceData::ServiceTypePrimary);
+        serviceEchelon.setUuid((QBluetoothUuid((QString)"0bf669f0-45f2-11e7-9598-0800200c9a66")));
+
         QLowEnergyCharacteristicData charData;
         charData.setUuid(QBluetoothUuid((QString)"0bf669f2-45f2-11e7-9598-0800200c9a66"));
-        charData.setProperties(QLowEnergyCharacteristic::Write);
+        charData.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::WriteNoResponse);
 
         QLowEnergyCharacteristicData charData2;
         charData2.setUuid(QBluetoothUuid((QString)"0bf669f4-45f2-11e7-9598-0800200c9a66"));
@@ -289,7 +292,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
         serviceData.setUuid(QBluetoothUuid((QString)"0bf669f1-45f2-11e7-9598-0800200c9a66"));
         serviceData.addCharacteristic(charData);
         serviceData.addCharacteristic(charData3);
-        serviceData.addCharacteristic(charData2);
+        serviceData.addCharacteristic(charData2);    
     }
 
     if(battery)
@@ -355,6 +358,7 @@ virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, u
     }
     else
     {
+        service = leController->addService(serviceEchelon);
         service = leController->addService(serviceData);
     }
 
@@ -583,6 +587,7 @@ void virtualbike::reconnect()
     }
     else
     {
+        service = leController->addService(serviceEchelon);
         service = leController->addService(serviceData);
     }
 
