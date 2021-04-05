@@ -2188,7 +2188,6 @@ import Qt.labs.settings 1.0
                                                                                                   linkedBoolSetting: key_enabled,
                                                                                                   accordionContent: template_object
                                                                                               });
-                                    accordionCheck.accordionContent = template_object;
                                 }
                             }
                         });
