@@ -10,17 +10,24 @@ ColumnLayout {
     property string linkedBoolSetting: "example_setting"
     property bool isOpen: false
     property string title: ""
-    property ColumnLayout placeHolderId: contentPlaceholder
     default property alias accordionContent: contentPlaceholder.data
     spacing: 0
 
+    function convertValue(val) {
+        let tpval = typeof(val);
+        if (tpval==="undefined") return false;
+        else if (tpval==="string") return val === "true";
+        else if (tpval==="number") return val !== 0;
+        else if (tpval==="boolean") return val;
+        else return false;
+
+    }
+
     Component.onCompleted: function() {
-        console.log("accordion check for "+linkedBoolSetting+" "+ typeof(settings[linkedBoolSetting])+" "+settings[linkedBoolSetting]+" "+settings.value(linkedBoolSetting, linkedBoolSettingDefault));
         if (typeof(settings[linkedBoolSetting])=="undefined")
-            isOpen = settings.value(linkedBoolSetting, linkedBoolSettingDefault);
+            isOpen = convertValue(settings.value(linkedBoolSetting, linkedBoolSettingDefault));
         else
-            isOpen = settings[linkedBoolSetting];
-        console.log("accordion check2 "+ isOpen);
+            isOpen = convertValue(settings[linkedBoolSetting]);
     }
  
     Layout.fillWidth: true;
@@ -61,12 +68,10 @@ ColumnLayout {
         onClicked: {
             rootElement.isOpen = checked;
             if (typeof(settings[rootElement.linkedBoolSetting])=="undefined") {
-                settings.setValue(rootElement.linkedBoolSetting, checked);
-                console.log("set "+rootElement.linkedBoolSetting+ " "+settings.value(rootElement.linkedBoolSetting));
+                settings.setValue(rootElement.linkedBoolSetting, rootElement.convertValue(checked));
             }
             else {
-                settings[rootElement.linkedBoolSetting] = checked;
-                console.log("set "+rootElement.linkedBoolSetting+ " "+settings[rootElement.linkedBoolSetting]);
+                settings[rootElement.linkedBoolSetting] = rootElement.convertValue(checked);
             }
         }
     }

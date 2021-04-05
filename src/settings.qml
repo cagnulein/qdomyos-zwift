@@ -2086,18 +2086,20 @@ import Qt.labs.settings 1.0
                                     componentMap[template_type] = Qt.createComponent("Template" + template_type + ".qml");
                                 let component = componentMap[template_type];
                                 if (component) {
+                                    let key_enabled = "template_" + template_id + "_enabled";
                                     console.log("Creating component object for id "+template_id);
-                                    let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
-                                                                                              {
-                                                                                                  title: template_id +" (" + template_type +")",
-                                                                                                  settings: settings,
-                                                                                                  linkedBoolSetting: 'template_' + template_id + '_enabled'
-                                                                                              });
-                                    let template_object = component.createObject(accordionCheck.placeHolderId,
+                                    let template_object = component.createObject(null,
                                                                                  {
                                                                                      settings: settings,
                                                                                      templateId: template_id
                                                                                  });
+                                    let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
+                                                                                              {
+                                                                                                  title: template_id +" (" + template_type +")",
+                                                                                                  settings: settings,
+                                                                                                  linkedBoolSetting: key_enabled,
+                                                                                                  accordionContent: template_object
+                                                                                              });
                                     accordionCheck.accordionContent = template_object;
                                 }
                             }
