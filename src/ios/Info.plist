@@ -9,7 +9,7 @@
 	<key>CFBundleIconFile</key>
 	<string>${ASSETCATALOG_COMPILER_APPICON_NAME}</string>
 	<key>CFBundleIdentifier</key>
-        <string>org.p3g4asus.qdom2</string>
+	<string>org.cagnulein.qdomyoszwift</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
