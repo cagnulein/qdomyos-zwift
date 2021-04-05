@@ -19,5 +19,8 @@
         <file>templates/example/sethtml.js</file>
         <file>templates/example/style.css</file>
         <file>templates/example/workout.htm</file>
+        <file>templates/debug/sethtml.js</file>
+        <file>templates/debug/style.css</file>
+        <file>templates/debug/workout.htm</file>
     </qresource>
 </RCC>
