@@ -80,18 +80,20 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
         {
             getSummary(id);
             timer->start(60000);  // timeout request
+            current_workout_status = status;
         }
         else
         {
             timer->start(10000);  // check for a status changed
+            // i don't need to set current_workout_status because, the bike was missing and than i didn't set the workout
         }
     }
     else
     {
         //getSummary(current_workout_id); // debug
         timer->start(10000);  // check for a status changed
-    }
-    current_workout_status = status;
+        current_workout_status = status;
+    }    
 
     if(log_request)
         qDebug() << "workoutlist_onfinish" << current_workout;
