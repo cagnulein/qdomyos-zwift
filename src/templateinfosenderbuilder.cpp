@@ -176,7 +176,7 @@ TemplateInfoSender * TemplateInfoSenderBuilder::newTemplate(const QString& id, c
         qDebug() << "Template Registered"<<id <<" type"<<tp<<" Template"<<dataTempl;
         templateInfoMap.insert(id, tempInfo);
         tempInfo->init(dataTempl);
-        connect(tempInfo, SIGNAL(onNewData(QByteArray)), this, SLOT(onDataReceived(QByteArray)));
+        connect(tempInfo, SIGNAL(onDataReceived(QByteArray)), this, SLOT(onDataReceived(QByteArray)));
     }
     return tempInfo;
 }
@@ -296,7 +296,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
         QVariant::Type typesett;
         QVariant valsett;
         int i = 0;
-        for (auto key: settings.childKeys()) {
+        for (auto& key: settings.childKeys()) {
             valsett = settings.value(key);
             typesett = valsett.type();
             if (typesett == QVariant::Int)
@@ -313,7 +313,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
                 QStringList settL = valsett.toStringList();
                 QJSValue settLJ = engine->newArray(settL.size());
                 i = 0;
-                for (auto settLK: settL)
+                for (auto& settLK: settL)
                     settLJ.setProperty(i++, settLK);
                 sett.setProperty(key, settLJ);
             }
@@ -353,9 +353,11 @@ void TemplateInfoSenderBuilder::buildContext()  {
         obj.setProperty("calories", device->calories());
         obj.setProperty("distance", device->odometer());
         obj.setProperty("heart", (dep = device->currentHeart()).value());
+        obj.setProperty("heart_avg", dep.average());
         obj.setProperty("jouls", device->jouls().value());
         obj.setProperty("elevation", device->elevationGain());
         obj.setProperty("watts", (dep = device->wattsMetric()).value());
+        obj.setProperty("watts_avg", dep.average());
         if (tp == bluetoothdevice::BIKE) {
             obj.setProperty("peloton_resistance", (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty("peloton_resistance_avg", dep.average());

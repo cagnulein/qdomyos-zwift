@@ -2,12 +2,14 @@ let pad = function(num, size) {
     num = num.toString();
     while (num.length < size) num = "0" + num;
     return num;
-}
-let workout = this.workout;
-if (!workout["deviceId"]) {
-    'osd "--:--:-- --- --- --- ---" 20000000 bottom-left\n' 
-}
-else {
-    let fn = (workout.heart? workout.heart:(workout.deviceType == workout.BIKE_TYPE?workout.cadence:workout.calories)).toFixed(0);
-    'osd "T:' + workout.elapsed_h + ':' + pad(workout.elapsed_m, 2) + ':'  + pad(workout.elapsed_s, 2) +' D:' + workout.distance.toFixed(2) + ' S:' + workout.speed.toFixed(1) + ' W:' + workout.watt.toFixes(0) + ' V:' + fn +'" 20000000 bottom-left\n'
-}
+};
+let getstring = function(workout) {
+    if (!workout["deviceId"]) {
+        return "osd \"--:--:-- --- --- --- ---\" 20000000 bottom-left\n";
+    }
+    else {
+        let fn = (parseInt(workout.heart)? workout.heart:(workout.deviceType == workout.BIKE_TYPE?workout.cadence:workout.calories)).toFixed(0);
+        return 'osd "T:' + workout.elapsed_h + ':' + pad(workout.elapsed_m, 2) + ':'  + pad(workout.elapsed_s, 2) +' D:' + workout.distance.toFixed(2) + ' S:' + workout.speed.toFixed(1) + ' W:' + workout.watts.toFixed(0) + ' V:' + fn +"\" 20000000 bottom-left\n";
+    }
+};
+getstring(this.workout)

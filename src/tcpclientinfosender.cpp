@@ -13,18 +13,28 @@ bool TcpClientInfoSender::isRunning() const {
 
 
 bool TcpClientInfoSender::send(const QString& data) {
-    return isRunning() && tcpSocket->write(data.toLatin1()) > 0;
+    if (isRunning())
+        return tcpSocket->write(data.toLatin1()) > 0;
+    else if (tcpSocket)
+        qDebug() << "TcpSocket state is "<<tcpSocket->state();
+    return false;
 }
 
 void TcpClientInfoSender::innerStop() {
     if (tcpSocket) {
         if (isRunning()) {
             tcpSocket->close();
-            disconnect(tcpSocket, SIGNAL(disconnected()));
-            connect(tcpSocket, SIGNAL(disconnected()), tcpSocket, SLOT(deleteLater()));
+            disconnect(tcpSocket, SIGNAL(connectionClosed()));
+            disconnect(tcpSocket, SIGNAL(readyRead()));
+            disconnect(tcpSocket, SIGNAL(socketError(int)));
+            disconnect(tcpSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+            connect(tcpSocket, SIGNAL(connectionClosed()), tcpSocket, SLOT(deleteLater()));
+            tcpSocket = 0;
         }
-        else
-            delete tcpSocket;
+        else {
+            tcpSocket->deleteLater();
+            tcpSocket = 0;
+        }
     }
 }
 
@@ -44,9 +54,26 @@ bool TcpClientInfoSender::init() {
     if (ip.isEmpty())
         ip = "127.0.0.1";
     tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, SIGNAL(disconnected()), this, SLOT(reinit()));
+    connect(tcpSocket, SIGNAL(connected()), this, SLOT(debugConnected()));
+    connect(tcpSocket, SIGNAL(connectionClosed()), this, SLOT(reinit()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    connect(tcpSocket, SIGNAL(error(int)), this, SLOT(socketError(int)));
+    connect(tcpSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(stateChanged(QAbstractSocket::SocketState)));
     tcpSocket->connectToHost(ip, (uint16_t)port);
     return true;
 }
 
+void TcpClientInfoSender::debugConnected() {
+    qDebug() << "Connected"<<tcpSocket->state();
+}
+
+void TcpClientInfoSender::socketError(int err) {
+    qDebug() << "SocketError"<< err;
+    reinit();
+}
+
+void TcpClientInfoSender::stateChanged(QAbstractSocket::SocketState socketState) {
+    qDebug() << "Socket State Changed to"<< socketState;
+    if (socketState == QAbstractSocket::SocketState::UnconnectedState)
+        reinit();
+}

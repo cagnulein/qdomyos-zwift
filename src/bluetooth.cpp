@@ -9,6 +9,8 @@
 #include <QAndroidJniObject>
 #endif
 
+quint8 QZ_EnableDiscoveryCharsAndDescripttors = false;
+
 bluetooth::bluetooth(bool logs, QString deviceName, bool noWriteResistance, bool noHeartService, uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     QSettings settings;

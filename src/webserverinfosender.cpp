@@ -30,7 +30,7 @@ bool WebServerInfoSender::isRunning() const {
 }
 bool WebServerInfoSender::send(const QString& data) {
     if (isRunning() && !data.isEmpty()) {
-        bool rv, oldrv = false;
+        bool rv = true, oldrv = false;
         for (QWebSocket * client: clients) {
             rv = client->sendTextMessage(data)  > 0;
             if (!oldrv)

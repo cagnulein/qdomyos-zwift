@@ -2,8 +2,13 @@
 #include <QDebug>
 
 TemplateInfoSender::TemplateInfoSender(const QString& id, QObject * parent):QObject(parent),templateId(id) {
-
+    connect(&retryTimer, &QTimer::timeout, this, [this]() {
+        Q_UNUSED(this);
+        init();
+    });
+    retryTimer.setSingleShot(true);
 }
+
 TemplateInfoSender::~TemplateInfoSender() {
     stop();
 }
@@ -18,7 +23,9 @@ bool TemplateInfoSender::update(QJSEngine * eng) {
     if (!jscript.isEmpty()) {
         QJSValue jsv = eng->evaluate(jscript);
         if (!jsv.isError()) {
-            return send(jsv.toString());
+            QString evalres = jsv.toString();
+            qDebug()<<"eval res "<<evalres;
+            return send(evalres);
         }
         else {
             qDebug() << "Scripts contains an error:"<< jscript << " error: " << jsv.errorType();
@@ -48,9 +55,5 @@ void TemplateInfoSender::innerStop() {
 
 void TemplateInfoSender::reinit() {
     stop();
-    connect(&retryTimer, &QTimer::timeout, this, [this]() {
-        Q_UNUSED(this);
-        init();
-    });
     retryTimer.start(5000);
 }

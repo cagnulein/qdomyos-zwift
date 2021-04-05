@@ -20,6 +20,9 @@ protected:
     virtual void innerStop();
 private slots:
     void readyRead();
+    void debugConnected();
+    void socketError(int err);
+    void stateChanged(QAbstractSocket::SocketState socketState);
 };
 
 #endif // TCPCLIENTINFOSENDER_H
