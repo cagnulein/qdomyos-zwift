@@ -118,7 +118,7 @@ void TemplateInfoSenderBuilder::load() {
     createTemplatesFromFolder(":/templates", dirTemplatesQrc);
     qDebug() << "Load start from local"<<path+"QZTemplates";
     createTemplatesFromFolder(path + "QZTemplates", dirTemplatesLocal);
-    for (auto tdir: dirTemplatesLocal) {
+    for (auto& tdir: dirTemplatesLocal) {
         if (dirTemplatesQrc.contains(tdir))
             dirTemplatesQrc.removeAll(tdir);
     }
@@ -126,14 +126,14 @@ void TemplateInfoSenderBuilder::load() {
     while (it.hasNext()) {
         it.setValue(path + "QZTemplates/" + it.next());
     }
-    for (auto fld: dirTemplatesQrc) {
+    for (auto& fld: dirTemplatesQrc) {
         dirTemplatesLocal.append(":/templates/" + fld);
     }
     if (!dirTemplatesLocal.isEmpty()) {
         QStringList addressList;
         qDebug()<< "Folder List"<<dirTemplatesLocal;
         const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
-        for (const QHostAddress &address: QNetworkInterface::allAddresses()) {
+        for (auto &address: QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
                  addressList += address.toString();
         }
@@ -205,7 +205,7 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
     if (val.isObject() && (keys_req = val.toObject()["keys"]).isArray() && (keys_arr = keys_req.toArray()).size()) {
         keys_to_retrieve = keys_arr.toVariantList();
         QString key;
-        for (auto kk: keys_to_retrieve) {
+        for (auto& kk: keys_to_retrieve) {
             key = kk.toString();
             if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
@@ -213,7 +213,7 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
         }
     }
     else {
-        for (auto key: settings.childKeys()) {
+        for (auto& key: settings.childKeys()) {
             outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
         }
     }
