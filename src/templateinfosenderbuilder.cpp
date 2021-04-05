@@ -97,8 +97,10 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString& folder,
         else if (fileInfo.isDir()) {
             int idx = filePath.lastIndexOf('/');
             QString pathEl = idx<0?filePath:filePath.mid(idx + 1);
-            qDebug() << "Template Dir Found"<<filePath;
-            dirTemplates += pathEl;
+            if (pathEl!="." && pathEl!="..") {
+                qDebug() << "Template Dir Found"<<filePath;
+                dirTemplates += pathEl;
+            }
         }
     }
 }
@@ -196,7 +198,6 @@ QStringList TemplateInfoSenderBuilder::templateIdList() const {
 }
 
 void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInfoSender * tempSender) {
-    QJsonDocument out = QJsonDocument::fromJson("{msg: \"R_getsettings\", content: null}");
     QJsonObject outObj;
     QStringList keys = settings.childKeys();
     QJsonValue keys_req;
@@ -217,7 +218,10 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
             outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
         }
     }
-    out.object()["content"] = outObj;
+    QJsonObject main;
+    main["msg"] = "R_getsettings";
+    main["content"] = outObj;
+    QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
 
@@ -227,9 +231,8 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonObject& obj, TemplateIn
     QJsonValue val;
     QVariant valConv;
     QVariant settingVal;
-    QJsonDocument out = QJsonDocument::fromJson("{msg: \"R_setsettings\", content: null}");
     QJsonObject outObj;
-    foreach (const QString key, keys) {
+    for (auto& key: keys) {
         if (settings.contains(key)) {
             val = obj[key];
             valConv = val.toVariant();
@@ -246,7 +249,10 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonObject& obj, TemplateIn
             outObj.insert(key, QJsonValue());
         }
     }
-    out.object()["content"] = outObj;
+    QJsonObject main;
+    main["msg"] = "R_setsettings";
+    main["content"] = outObj;
+    QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
 

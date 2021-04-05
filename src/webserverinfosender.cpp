@@ -114,9 +114,9 @@ void WebServerInfoSender::onNewConnection()
 {
     QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
     qDebug() << "WebSocket connection"<<pSocket->requestUrl();
-    connect(pSocket, SIGNAL(textMessageReceived), this, SLOT(processTextMessage));
-    connect(pSocket, SIGNAL(binaryMessageReceived), this, SLOT(processBinaryMessage));
-    connect(pSocket, SIGNAL(disconnected), this, SLOT(socketDisconnected));
+    connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
+    connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
+    connect(pSocket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 
     clients << pSocket;
 }
