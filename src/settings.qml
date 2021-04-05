@@ -38,6 +38,7 @@ import Qt.labs.settings 1.0
 
             property string peloton_username: "username"
             property string peloton_password: "password"
+            property string peloton_difficulty: "lower"
 
             property bool tile_speed_enabled: true
             property int  tile_speed_order: 0
@@ -1467,6 +1468,33 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_password = pelotonPasswordTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPelotonDifficulty
+                            text: qsTr("Difficulty:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonDifficultyTextField
+                            model: [ "lower", "upper", "average" ]
+                            displayText: settings.peloton_difficulty
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonDifficultyTextField.currentIndex)
+                                displayText = pelotonDifficultyTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okPelotonDifficultyButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_difficulty = pelotonDifficultyTextField.displayText
                         }
                     }
 

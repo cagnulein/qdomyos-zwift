@@ -149,6 +149,8 @@ void peloton::workout_onfinish(QNetworkReply* reply)
 
 void peloton::performance_onfinish(QNetworkReply* reply)
 {
+    QSettings settings;
+    QString difficulty = settings.value("peloton_difficulty", "lower").toString();
     disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(performance_onfinish(QNetworkReply*)));
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -159,10 +161,10 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     QJsonArray target_graph_metrics = target_performance_metrics["target_graph_metrics"].toArray();
     QJsonObject resistances = target_graph_metrics[1].toObject();    
     QJsonObject graph_data_resistances = resistances["graph_data"].toObject();
-    QJsonArray lower_resistances = graph_data_resistances["lower"].toArray();
+    QJsonArray lower_resistances = graph_data_resistances[difficulty].toArray();
     QJsonObject cadences = target_graph_metrics[0].toObject();
     QJsonObject graph_data_cadences = cadences["graph_data"].toObject();
-    QJsonArray lower_cadences = graph_data_cadences["lower"].toArray();
+    QJsonArray lower_cadences = graph_data_cadences[difficulty].toArray();
 
     trainrows.clear();
     for(int i=0; i<lower_resistances.count(); i++)
