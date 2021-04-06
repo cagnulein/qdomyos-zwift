@@ -731,10 +731,10 @@ void virtualbike::bikeProvider()
         value.append(0x09);
         value.append((char)0x00); // elapsed
         value.append((char)0x00); // elapsed
-        value.append((char)0x00);
-        value.append((char)0x00);
-        value.append((char)0x00); // distance
-        value.append(0x01);       // distance
+        value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 24)); // distance
+        value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 16)); // distance
+        value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 8)); // distance
+        value.append((uint8_t)(Bike->odometer() * 100));       // distance
         value.append((char)0x00);
         value.append(Bike->currentCadence().value());
         value.append((char)0x00);
