@@ -471,13 +471,19 @@ void bluetooth::connectedAndDiscovered()
         ((bike*)device())->changeResistance(settings.value("bike_resistance_start", 1).toUInt());
     }
 
+    if(heartRateBeltName.startsWith("Disabled"))
+    {
+        settings.setValue("hrm_lastdevice_name", "");
+        settings.setValue("hrm_lastdevice_address", "");
+    }
+
     if(this->device() != nullptr)
     {
 #ifdef Q_OS_IOS
         QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
         QString b = settings.value("hrm_lastdevice_name", "").toString();
         qDebug() << "last hrm name" << b;
-        if(!b.compare(heartRateBeltName))
+        if(!b.compare(heartRateBeltName) && b.length())
         {
             heartRateBelt = new heartratebelt();
             //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
