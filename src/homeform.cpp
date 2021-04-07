@@ -1086,7 +1086,7 @@ void homeform::update()
                         {
                             speed = (double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0;
                         }
-                        if(r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt()))
+                        if(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt())
                         {
                             incline = (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0;
                         }
