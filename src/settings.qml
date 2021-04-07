@@ -396,7 +396,7 @@ import Qt.labs.settings 1.0
                     spacing: 0
                     SwitchDelegate {
                         id: zwiftErgDelegate
-                        text: qsTr("Zwift Erg Mode")
+                        text: qsTr("Zwift Workout/Erg Mode")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
