@@ -78,15 +78,14 @@ HomeForm{
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        leftMargin: { (parent.width % cellWidth) / 2 }
+        leftMargin: { (Screen.width % cellWidth) / 2 }
         anchors.topMargin: rootItem.topBarHeight + 30
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0); }
-        onWidthChanged: gridView.leftMargin = (parent.width % cellWidth) / 2;
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
         Screen.onPrimaryOrientationChanged:{
-                gridView.leftMargin = (parent.width % cellWidth) / 2;
+                gridView.leftMargin = (Screen.width % cellWidth) / 2;
         }
 
         //        highlight: Rectangle {
