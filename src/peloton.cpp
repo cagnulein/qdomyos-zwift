@@ -55,6 +55,8 @@ void peloton::login_onfinish(QNetworkReply* reply)
     user_id = document["user_id"].toString();
     total_workout = document["user_data"]["total_workouts"].toInt();
 
+    emit loginState(user_id.length());
+
     getWorkoutList(1);
 }
 

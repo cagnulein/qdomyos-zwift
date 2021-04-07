@@ -63,6 +63,7 @@ private slots:
     void startEngine();
 
 signals:
+    void loginState(bool ok);
     void workoutStarted(QString name, QString instructor);
 };
 

@@ -94,6 +94,7 @@ class homeform: public QObject
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
+    Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
     Q_PROPERTY(QString workoutName READ workoutName)
     Q_PROPERTY(QString instructorName READ instructorName)
@@ -225,6 +226,7 @@ public:
     QString workoutStartDate() {if(Session.length()) return Session.first().time.toString(); else return "";}
     QString workoutName() {if(stravaPelotonActivityName.length()) return stravaPelotonActivityName; else {if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) return "Ride"; else return "Run";}}
     QString instructorName() {return stravaPelotonInstructorName;}
+    int pelotonLogin() {return m_pelotonLoginState;}
     bool pelotonAskStart() {return m_pelotonAskStart;}
     void setPelotonAskStart(bool value) {m_pelotonAskStart = value;}
     bool generalPopupVisible();
@@ -265,6 +267,7 @@ private:
 
     peloton* pelotonHandler = 0;
     bool m_pelotonAskStart = false;
+    int m_pelotonLoginState = -1;
     QString stravaPelotonActivityName = "";
     QString stravaPelotonInstructorName = "";
 
@@ -335,6 +338,7 @@ private slots:
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(QString name, QString instructor);
+    void pelotonLoginState(bool ok);
     void peloton_start_workout();    
 
 signals:
@@ -356,6 +360,7 @@ signals:
  void changePelotonAskStart(bool value);
  void generalPopupVisibleChanged(bool value);
  void autoResistanceChanged(bool value);
+ void pelotonLoginChanged(int ok);
 };
 
 #endif // HOMEFORM_H

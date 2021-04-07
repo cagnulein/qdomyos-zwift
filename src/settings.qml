@@ -4,11 +4,14 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 
+//Page {
     ScrollView {
         contentWidth: -1
         focus: true
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.fill: parent
+        //anchors.bottom: footerSettings.top
+        //anchors.bottomMargin: footerSettings.height + 10
         id: settingsPane
 
         Settings {
@@ -313,7 +316,7 @@ import Qt.labs.settings 1.0
                                     id: okHeartBeltNameButton
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText
+                                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
                                 }
                             }
 
@@ -1416,7 +1419,7 @@ import Qt.labs.settings 1.0
             }
             AccordionElement {
                 id: pelotonAccordion
-                title: qsTr("Peloton Options")
+                title: qsTr("Peloton Options") + "\uD83E\uDD47"
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -1450,7 +1453,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelPelotonPassword
-                            text: qsTr("Password:")
+                            text: qsTr("Password:") + ((rootItem.pelotonLogin===-1)?"":(rootItem.pelotonLogin===1?"\u2705":"\u274c"))
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -2442,7 +2445,30 @@ import Qt.labs.settings 1.0
             }
         }
     }
+    /*
+    footer:
+        ColumnLayout
+        {
+            anchors.top: settingsPane.bottom
+            id: footerSettings
+            width: parent.width
+            Button
+            {
+                text: "Load Settings"
+                id: loadsettings
+                anchors.left: parent.left
+                anchors.bottom: parent.bottom
+            }
+            Button
+            {
+                text: "Save Settings"
+                id: savesettings
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+            }
+        }
 
+}*/
 /*##^##
 Designer {
     D{i:0;formeditorZoom:0.6600000262260437}
