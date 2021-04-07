@@ -15,10 +15,12 @@ inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
+    t_timeout = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     //initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
+    connect(t_timeout, SIGNAL(timeout()), this, SLOT(connection_timeout()));
     refresh->start(200);
 }
 
@@ -46,6 +48,12 @@ inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
 
     loop.exec();
 }*/
+
+void inspirebike::connection_timeout()
+{
+    qDebug() << "connection timeout triggered!";
+    m_control->disconnectFromDevice();
+}
 
 void inspirebike::update()
 {
@@ -199,6 +207,8 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
     debug("Current Watt: " + QString::number(watts()));
+
+    t_timeout->start(3000);
 
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
