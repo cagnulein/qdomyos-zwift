@@ -275,6 +275,13 @@ int main(int argc, char *argv[])
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << "version " << app->applicationVersion();
+    foreach(QString s, settings.allKeys())
+    {
+        if(!s.contains("password"))
+        {
+            qDebug() << s << settings.value(s);
+        }
+    }
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
