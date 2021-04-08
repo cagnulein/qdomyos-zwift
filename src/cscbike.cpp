@@ -51,6 +51,34 @@ void cscbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info,
 
 void cscbike::update()
 {
+    QSettings settings;
+    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+
+#ifdef Q_OS_ANDROID
+    if(settings.value("ant_heart", false).toBool())
+    {
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+        debug("Current Heart: " + QString::number(Heart.value()));
+    }
+#endif
+    if(heartRateBeltName.startsWith("Disabled"))
+    {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    lockscreen h;
+    long appleWatchHeartRate = h.heartRate();
+    Heart = appleWatchHeartRate;
+    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+    }
+
+    int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
+    if (avgP < 50)
+        avgP = 50;
+    m_watt = avgP;
+    debug("Current Watt: " + QString::number(m_watt.value()));
+
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
         emit disconnected();
@@ -165,37 +193,11 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     oldLastCrankEventTime = LastCrankEventTime;
     oldCrankRevs = CrankRevs;
 
-    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-    debug("Current Distance: " + QString::number(Distance.value()));
+    //Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    //debug("Current Distance: " + QString::number(Distance.value()));
 
-    Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-    debug("Current Resistance: " + QString::number(Resistance.value()));
-
-#ifdef Q_OS_ANDROID
-    if(settings.value("ant_heart", false).toBool())
-    {
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-        debug("Current Heart: " + QString::number(Heart.value()));
-    }
-#endif
-
-    if(heartRateBeltName.startsWith("Disabled"))
-    {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    lockscreen h;
-    long appleWatchHeartRate = h.heartRate();
-    Heart = appleWatchHeartRate;
-    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
-    }
-
-    int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
-    if (avgP < 50)
-        avgP = 50;
-    m_watt = avgP;
-    debug("Current Watt: " + QString::number(m_watt.value()));
+    //Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+    //debug("Current Resistance: " + QString::number(Resistance.value()));
 
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     debug("Current KCal: " + QString::number(KCal.value()));
