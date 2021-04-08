@@ -137,20 +137,28 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     lastPacket = newValue;
 
     uint8_t index = 1;
-    if((((uint8_t)newValue.at(0)) & 0x01) == 0x01)
-        index = 7;
-
-    CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-    index += 2;
+    if(newValue.at(0) == 0x02)
+        CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+    else
+        CrankRevs = (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) | ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) | ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+    if(newValue.at(0) == 0x01)
+        index += 4;
+    else
+        index += 2;
     LastCrankEventTime = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
 
     int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
     if(deltaT < 0)
-        deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
+    {
+        if(newValue.at(0) == 0x01)
+            deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
+        else
+            deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
+    }
 
     if(CrankRevs != oldCrankRevs)
     {
-        Cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1.024 * 60;
+        Cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
         debug("Current Cadence: " + QString::number(Cadence.value()));
     }
 
