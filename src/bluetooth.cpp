@@ -144,6 +144,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
     bool snode_bike = settings.value("snode_bike", false).toBool();
     bool JLL_IC400_bike = settings.value("jll_IC400_bike", false).toBool();
+    bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
+    QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
 
     if(!heartRateBeltFound)
     {
@@ -194,6 +196,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                     if(!discoveryAgent->isActive())
                         emit searchingStop();
                 }
+            }
+            else if(csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter)
+            {
+                discoveryAgent->stop();
+                cscBike = new cscbike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(cscBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(cscBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                cscBike->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
             }
             else if(b.name().startsWith("Domyos-Bike") && !b.name().startsWith("DomyosBridge") && !domyosBike && filter)
             {
@@ -598,6 +613,11 @@ void bluetooth::restart()
         delete domyosElliptical;
         domyosElliptical = 0;
     }
+    if(cscBike)
+    {
+        delete cscBike;
+        cscBike = 0;
+    }
     if(toorx)
     {
         delete toorx;
@@ -687,6 +707,8 @@ bluetoothdevice* bluetooth::device()
         return fitshowTreadmill;
     else if(domyosElliptical)
         return domyosElliptical;
+    else if(cscBike)
+        return cscBike;
     else if(toorx)
         return toorx;
     else if(trxappgateusb)
