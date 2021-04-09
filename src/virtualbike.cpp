@@ -406,7 +406,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QSettings settings;
     bool force_resistance = settings.value("virtualbike_forceresistance", true).toBool();
     bool erg_mode = settings.value("zwift_erg", false).toBool();
-    double erg_filter = settings.value("zwift_erg_filter", 0.0).toDouble();
+    double erg_filter_upper = settings.value("zwift_erg_filter", 0.0).toDouble();
+    double erg_filter_lower = settings.value("zwift_erg_filter_down", 0.0).toDouble();
     qDebug() << "characteristicChanged " + QString::number(characteristic.uuid().toUInt16()) + " " + newValue.toHex(' ');
 
     switch(characteristic.uuid().toUInt16())
@@ -448,9 +449,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              uint16_t power = (((uint8_t)newValue.at(1)) + (newValue.at(2) << 8));
              qDebug() << "power erg  " + QString::number(power) + " " + erg_mode;
              Bike->changePower(power);
-             double delta = fabs(Bike->wattsMetric().value() - ((double)power));
-             qDebug() << "filter  " + QString::number(delta) + " " + QString::number(erg_filter);
-             if(force_resistance && erg_mode && delta > erg_filter)
+             double deltaDown = Bike->wattsMetric().value() - ((double)power);
+             double deltaUp = ((double)power) - Bike->wattsMetric().value();
+             qDebug() << "filter  " + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +QString::number(erg_filter_upper) + " " +QString::number(erg_filter_lower);
+             if(force_resistance && erg_mode && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
                  Bike->changeResistance((int8_t)Bike->resistanceFromPowerRequest(power)); // resistance start from 1
          }
          else if((char)newValue.at(0) == FTMS_START_RESUME)

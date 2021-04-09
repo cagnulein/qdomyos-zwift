@@ -22,6 +22,7 @@ import Qt.labs.settings 1.0
             property real bike_resistance_gain_f: 1.0
             property bool zwift_erg: false
             property real zwift_erg_filter: 0.0
+            property real zwift_erg_filter_down: 0.0
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -463,7 +464,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelZwiftErgFilter
-                            text: qsTr("Zwift ERG Watt Filter:")
+                            text: qsTr("Zwift ERG Watt Up Filter:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -480,6 +481,30 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_erg_filter = zwiftErgFilterTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgDownFilter
+                            text: qsTr("Zwift ERG Watt Down Filter:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgDownFilterTextField
+                            text: settings.zwift_erg_filter_down
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_filter_down = text
+                        }
+                        Button {
+                            id: okzwiftErgDownFilterButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text
                         }
                     }
 
