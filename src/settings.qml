@@ -1792,7 +1792,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.domyos_elliptical_speed_ratio = text
                     }
                     Button {
