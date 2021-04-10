@@ -35,8 +35,14 @@ private:
     QHash<QString, TemplateInfoSender *> templateInfoMap;
     TemplateInfoSender * newTemplate(const QString& id, const QString& tp, const QString& dataTempl);
     QHash<QString, QString> templateFilesList;
-    void onSetSettings(const QJsonObject& obj, TemplateInfoSender * tempSender);
-    void onGetSettings(const QJsonValue& obj, TemplateInfoSender * tempSender);
+    void onSetSettings(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onGetSettings(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSetResistance(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSetFanSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSetPower(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSetCadence(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSetSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSetDifficult(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
 private slots:
     void onUpdateTimeout();
     void onDataReceived(QByteArray data);

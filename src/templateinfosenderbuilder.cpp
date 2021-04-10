@@ -199,7 +199,7 @@ QStringList TemplateInfoSenderBuilder::templateIdList() const {
 
 void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInfoSender * tempSender) {
     QJsonObject outObj;
-    QStringList keys = settings.childKeys();
+    QStringList keys = settings.allKeys();
     QJsonValue keys_req;
     QJsonArray keys_arr;
     QVariantList keys_to_retrieve;
@@ -214,7 +214,7 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
         }
     }
     else {
-        for (auto& key: settings.childKeys()) {
+        for (auto& key: settings.allKeys()) {
             outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
         }
     }
@@ -225,8 +225,124 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetSettings(const QJsonObject& obj, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject obj, outObj;
+    QJsonValue resVal;
+    outObj["value"] = QJsonValue(QJsonValue::Null);
+    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble()) {
+        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
+        if (tp == bluetoothdevice::BIKE) {
+            int res;
+            if ((res = resVal.toInt()) >= 0 && res < 255) {
+                ((bike *)device)->changeResistance((uint8_t)res);
+                outObj["value"] = res;
+            }
+        }
+        else {
+            double resd;
+            ((treadmill *)device)->changeInclination(resd = resVal.toDouble());
+            outObj["value"] = resd;
+        }
+    }
+    QJsonObject main;
+    main["msg"] = "R_setresistance";
+    main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
 
+void TemplateInfoSenderBuilder::onSetFanSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject obj, outObj;
+    QJsonValue resVal;
+    int res;
+    outObj["value"] = QJsonValue(QJsonValue::Null);
+    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
+            (res = resVal.toInt()) >= 0 && res < 255) {
+        outObj["value"] = res;
+        ((bike *)device)->changeFanSpeed((uint8_t)res);
+    }
+    QJsonObject main;
+    main["msg"] = "R_setfanspeed";
+    main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSetPower(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject obj, outObj;
+    QJsonValue resVal;
+    outObj["value"] = QJsonValue(QJsonValue::Null);
+    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
+            device->deviceType() == bluetoothdevice::BIKE) {
+        int val;
+        if ((val = resVal.toInt()) > 0) {
+            ((bike *)device)->changePower((uint32_t)val);
+            outObj["value"] = val;
+        }
+    }
+    QJsonObject main;
+    main["msg"] = "R_setpower";
+    main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject obj, outObj;
+    QJsonValue resVal;
+    outObj["value"] = QJsonValue(QJsonValue::Null);
+    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
+            device->deviceType() == bluetoothdevice::BIKE) {
+        int val;
+        if ((val = resVal.toInt()) > 0) {
+            ((bike *)device)->changeCadence((uint16_t)val);
+            outObj["value"] = val;
+        }
+    }
+    QJsonObject main;
+    main["msg"] = "R_setcadence";
+    main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject obj, outObj;
+    QJsonValue resVal;
+    double vald;
+    outObj["value"] = QJsonValue(QJsonValue::Null);
+    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
+            device->deviceType() == bluetoothdevice::TREADMILL && (vald = resVal.toDouble()) >= 0) {
+        ((treadmill *)device)->changeSpeed(vald);
+        outObj["value"] = vald;
+    }
+    QJsonObject main;
+    main["msg"] = "R_setspeed";
+    main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSetDifficult(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject obj, outObj;
+    QJsonValue resVal;
+    outObj["value"] = QJsonValue(QJsonValue::Null);
+    double vald;
+    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
+            (vald = resVal.toDouble()) >= 0) {
+        device->setDifficult(vald);
+        outObj["value"] = vald;
+    }
+    QJsonObject main;
+    main["msg"] = "R_setdifficult";
+    main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    if (!msgContent.isObject()) return;
+    QJsonObject obj = msgContent.toObject();
     QStringList keys = obj.keys();
     QJsonValue val;
     QVariant valConv;
@@ -271,14 +387,33 @@ void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
                     onGetSettings(jsonObject["content"], sender);
                     return;
                 }
+                else if (msg == "setresistance") {
+                    onSetResistance(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "setpower") {
+                    onSetPower(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "setcadence") {
+                    onSetCadence(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "setdifficult") {
+                    onSetDifficult(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "setspeed") {
+                    onSetSpeed(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "setfanspeed") {
+                    onSetFanSpeed(jsonObject["content"], sender);
+                    return;
+                }
                 else if (msg == "setsettings") {
-                    if (jsonObject.contains("content")) {
-                        QJsonValue msgContent = jsonObject["content"];
-                        if (msgContent.isObject()) {
-                            onSetSettings(msgContent.toObject(), sender);
-                            return;
-                        }
-                    }
+                    onSetSettings(jsonObject["content"], sender);
+                    return;
                 }
             }
         }
@@ -302,7 +437,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
         QVariant::Type typesett;
         QVariant valsett;
         int i = 0;
-        for (auto& key: settings.childKeys()) {
+        for (auto& key: settings.allKeys()) {
             valsett = settings.value(key);
             typesett = valsett.type();
             if (typesett == QVariant::Int)
@@ -324,6 +459,11 @@ void TemplateInfoSenderBuilder::buildContext()  {
                 sett.setProperty(key, settLJ);
             }
         }
+        obj.setProperty("BIKE_TYPE", (int)bluetoothdevice::BIKE);
+        obj.setProperty("ELLIPTICAL_TYPE", (int)bluetoothdevice::ELLIPTICAL);
+        obj.setProperty("ROWING_TYPE", (int)bluetoothdevice::ROWING);
+        obj.setProperty("TREADMILL_TYPE", (int)bluetoothdevice::TREADMILL);
+        obj.setProperty("UNKNOWN_TYPE", (int)bluetoothdevice::UNKNOWN);
     }
     if (!device)
         obj.setProperty("deviceId", QJSValue());
@@ -342,11 +482,6 @@ void TemplateInfoSenderBuilder::buildContext()  {
         obj.setProperty("deviceRSSI", device->bluetoothDevice.rssi());
         obj.setProperty("deviceType", (int)device->deviceType());
         obj.setProperty("deviceConnected", (bool)device->connected());
-        obj.setProperty("BIKE_TYPE", (int)bluetoothdevice::BIKE);
-        obj.setProperty("ELLIPTICAL_TYPE", (int)bluetoothdevice::ELLIPTICAL);
-        obj.setProperty("ROWING_TYPE", (int)bluetoothdevice::ROWING);
-        obj.setProperty("TREADMILL_TYPE", (int)bluetoothdevice::TREADMILL);
-        obj.setProperty("UNKNOWN_TYPE", (int)bluetoothdevice::UNKNOWN);
         obj.setProperty("elapsed_s", el.second());
         obj.setProperty("elapsed_m", el.minute());
         obj.setProperty("elapsed_h", el.hour());
@@ -362,6 +497,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
         obj.setProperty("heart_avg", dep.average());
         obj.setProperty("jouls", device->jouls().value());
         obj.setProperty("elevation", device->elevationGain());
+        obj.setProperty("difficult", device->difficult());
         obj.setProperty("watts", (dep = device->wattsMetric()).value());
         obj.setProperty("watts_avg", dep.average());
         if (tp == bluetoothdevice::BIKE) {
