@@ -195,7 +195,10 @@ uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power)
     for(int i = 1; i<max_resistance-1; i++)
     {
         if(wattsFromResistance(i) <= power && wattsFromResistance(i+1) >= power)
+        {
+            qDebug() << "resistanceFromPowerRequest" << wattsFromResistance(i) << wattsFromResistance(i+1) << power;
             return i;
+        }
     }
     return Resistance.value();
 }
