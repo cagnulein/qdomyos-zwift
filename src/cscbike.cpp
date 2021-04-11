@@ -193,8 +193,11 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     oldLastCrankEventTime = LastCrankEventTime;
     oldCrankRevs = CrankRevs;
 
-    //Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-    //debug("Current Distance: " + QString::number(Distance.value()));
+    Speed = Cadence.value() * settings.value("cadence_sensor_speed_ratio", 0.33).toDouble();
+    debug("Current Speed: " + QString::number(Speed.value()));
+
+    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    debug("Current Distance: " + QString::number(Distance.value()));
 
     //Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
     //debug("Current Resistance: " + QString::number(Resistance.value()));

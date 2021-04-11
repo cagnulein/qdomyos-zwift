@@ -139,6 +139,7 @@ import Qt.labs.settings 1.0
 
             property string cadence_sensor_name: "Disabled"
             property bool cadence_sensor_as_bike: false
+            property real cadence_sensor_speed_ratio: 0.33
             property real power_hr_pwr1: 200
             property real power_hr_hr1: 150
             property real power_hr_pwr2: 230
@@ -2342,6 +2343,29 @@ import Qt.labs.settings 1.0
                         text: "Refresh Devices List"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCadenceSpeedRatio
+                            text: qsTr("Wheel Ratio:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceSpeedRatioTextField
+                            text: settings.cadence_sensor_speed_ratio
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.cadence_sensor_speed_ratio = text
+                        }
+                        Button {
+                            id: okCadenceSpeedRatio
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text
+                        }
                     }
                 }
             }
