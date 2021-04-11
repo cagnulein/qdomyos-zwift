@@ -23,6 +23,7 @@ SOURCES += \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+   cscbike.cpp \
 	 domyoselliptical.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
@@ -99,6 +100,7 @@ HEADERS += \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+   cscbike.h \
 	 domyoselliptical.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \

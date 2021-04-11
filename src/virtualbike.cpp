@@ -650,8 +650,8 @@ void virtualbike::bikeProvider()
                 value.append((char)Bike->currentResistance().value()); // resistance
                 value.append((char)(0)); // resistance
 
-                value.append((char)(Bike->watts() & 0xFF)); // watts
-                value.append((char)(Bike->watts() >> 8) & 0xFF); // watts
+                value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF)); // watts
+                value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF); // watts
 
                 value.append(char(Bike->currentHeart().value())); // Actual value.
                 value.append((char)0); // Bkool FTMS protocol HRM offset 1280 fix
@@ -675,8 +675,8 @@ void virtualbike::bikeProvider()
             else if(power)
             {
                 value.append((char)0x10); // crank data present
-                value.append((char)(((uint16_t)Bike->watts()) & 0xFF)); // watt
-                value.append((char)(((uint16_t)Bike->watts()) >> 8) & 0xFF); // watt
+                value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF)); // watt
+                value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF); // watt
                 value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF)); // revs count
                 value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
                 value.append((char)(Bike->lastCrankEventTime() & 0xff)); // eventtime

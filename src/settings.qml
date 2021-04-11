@@ -138,6 +138,14 @@ import Qt.labs.settings 1.0
             property string filter_device: "Disabled"
             property string strava_suffix: "#qdomyos-zwift"
 
+            property string cadence_sensor_name: "Disabled"
+            property bool cadence_sensor_as_bike: false
+            property real cadence_sensor_speed_ratio: 0.33
+            property real power_hr_pwr1: 200
+            property real power_hr_hr1: 150
+            property real power_hr_pwr2: 230
+            property real power_hr_hr2: 170
+
             property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
             property bool battery_service: false
@@ -151,7 +159,7 @@ import Qt.labs.settings 1.0
         }
 
         ColumnLayout {
-            id: column
+            id: column1
             spacing: 0
             anchors.fill: parent
 
@@ -2301,6 +2309,193 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.strava_suffix = stravaSuffixTextField.text
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: cadenceSensorOptionsAccordion
+                title: qsTr("Cadence Sensor Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 10
+                    SwitchDelegate {
+                        id: cadenceSensorAsBikeDelegate
+                        text: qsTr("Cadence Sensor as a Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.cadence_sensor_as_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.cadence_sensor_as_bike = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCadenceSensorName
+                            text: qsTr("Cadence Sensor:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: cadenceSensorNameTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.cadence_sensor_name
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + cadenceSensorNameTextField.currentIndex)
+                                displayText = cadenceSensorNameTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okCadenceSensorNameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_sensor_name = cadenceSensorNameTextField.displayText;
+                        }
+                    }
+
+                    Button {
+                        id: refreshCadenceSensorNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelCadenceSpeedRatio
+                            text: qsTr("Wheel Ratio:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceSpeedRatioTextField
+                            text: settings.cadence_sensor_speed_ratio
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.cadence_sensor_speed_ratio = text
+                        }
+                        Button {
+                            id: okCadenceSpeedRatio
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: powerFromHeartRateAccordion
+                title: qsTr("Power from Heart Rate Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerFromHeartPWR1
+                            text: qsTr("Session 1 Watt:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: powerFromHeartPWR1TextField
+                            text: settings.power_hr_pwr1
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.power_hr_pwr1 = text
+                        }
+                        Button {
+                            id: okPowerFromHeartPWR1
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.power_hr_pwr1 = powerFromHeartPWR1TextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerFromHeartHR1
+                            text: qsTr("Session 1 HR:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: powerFromHeartHR1TextField
+                            text: settings.power_hr_hr1
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.power_hr_hr1 = text
+                        }
+                        Button {
+                            id: okPowerFromHeartHR1
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.power_hr_hr1 = powerFromHeartHR1TextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerFromHeartPWR2
+                            text: qsTr("Session 2 Watt:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: powerFromHeartPWR2TextField
+                            text: settings.power_hr_pwr2
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.power_hr_pwr2 = text
+                        }
+                        Button {
+                            id: okPowerFromHeartPWR2
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.power_hr_pwr2 = powerFromHeartPWR2TextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerFromHeartHR2
+                            text: qsTr("Session 2 HR:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: powerFromHeartHR2TextField
+                            text: settings.power_hr_hr2
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.power_hr_hr2 = text
+                        }
+                        Button {
+                            id: okPowerFromHeartHR2
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.power_hr_hr2 = powerFromHeartHR2TextField.text
                         }
                     }
                 }
