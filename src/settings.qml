@@ -27,6 +27,7 @@ import Qt.labs.settings 1.0
             property int age: 35.0
             property real weight: 75.0
             property real ftp: 200.0
+            property string user_email: ""
             property bool miles_unit: false
             property bool pause_on_start: false
             property bool bike_cadence_sensor: false
@@ -277,6 +278,29 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.ftp = ftpTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelEmail
+                            text: qsTr("Email:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: emailTextField
+                            text: settings.user_email
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.user_email = text
+                        }
+                        Button {
+                            id: okEmailButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.user_email = emailTextField.text
                         }
                     }
 

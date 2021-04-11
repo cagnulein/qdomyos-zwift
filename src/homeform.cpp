@@ -18,6 +18,8 @@
 #include "gpx.h"
 #include "qfit.h"
 #include "material.h"
+#include "smtpclient/src/SmtpMime"
+
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -738,7 +740,7 @@ void homeform::Start()
             if(bluetoothManager->device())
                 bluetoothManager->device()->clearStats();
             Session.clear();
-            chartImages.clear();
+            chartImagesFilenames.clear();
 
             stravaPelotonActivityName = "";
             stravaPelotonInstructorName = "";
@@ -1222,6 +1224,8 @@ void homeform::fit_save_clicked()
             strava_upload_file(fitfile,filename);
             f.close();
         }
+
+        sendMail();
     }
 }
 
@@ -1658,4 +1662,99 @@ void homeform::setGeneralPopupVisible(bool value)
 {
     m_generalPopupVisible = value;
     generalPopupVisibleChanged(m_generalPopupVisible);
+}
+
+void homeform::sendMail()
+{
+    QSettings settings;
+
+    if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device())
+        return;
+
+    SmtpClient smtp("smtp.gmail.com", 465, SmtpClient::SslConnection);
+
+    // We need to set the username (your email address) and the password
+    // for smtp authentification.
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    smtp.setUser(STRINGIFY(SMTP_USERNAME));
+#else
+    #warning "smtp username is unset!"
+#endif
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+#else
+#warning "smtp password is unset!"
+#endif
+
+    // Now we create a MimeMessage object. This will be the email.
+
+    MimeMessage message;
+
+    message.setSender(new EmailAddress("no-reply@qzapp.it", "QZ"));
+    message.addRecipient(new EmailAddress(settings.value("user_email","").toString(), settings.value("user_email","").toString()));
+    if(Session.length())
+    {
+        QString title = Session.first().time.toString();
+        if(stravaPelotonActivityName.length())
+            title += " " + stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
+        message.setSubject(title);
+    }
+    else
+        message.setSubject("Test");
+
+    // Now add some text to the email.
+    // First we create a MimeText object.
+
+    MimeText text;
+
+    QString textMessage = "Great workout!\n";
+    textMessage += "Average Speed: " + QString::number(bluetoothManager->device()->currentSpeed().average()) + "\n";
+    textMessage += "Max Speed: " + QString::number(bluetoothManager->device()->currentSpeed().max()) + "\n";
+    textMessage += "Calories burned: " + QString::number(bluetoothManager->device()->calories()) + "\n";
+    textMessage += "Distance: " + QString::number(bluetoothManager->device()->odometer()) + "\n";
+    textMessage += "Average Watt: " + QString::number(bluetoothManager->device()->wattsMetric().average()) + "\n";
+    textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max()) + "\n";
+    textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average()) + "\n";
+    textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max()) + "\n";
+    textMessage += "Average Output: " + QString::number(bluetoothManager->device()->jouls().average()) + "\n";
+    textMessage += "Max Output: " + QString::number(bluetoothManager->device()->jouls().max()) + "\n";
+    textMessage += "Elapsed: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+    {
+        textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average()) + "\n";
+        textMessage += "Max Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max()) + "\n";
+        textMessage += "Average Resistane: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().average()) + "\n";
+        textMessage += "Max Resistance: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().max()) + "\n";
+        textMessage += "Average Peloton Resistane: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average()) + "\n";
+        textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max()) + "\n";
+    }
+    text.setText(textMessage);
+
+    foreach(QString f, chartImagesFilenames)
+    {
+        // Create a MimeInlineFile object for each image
+        MimeInlineFile* image = new MimeInlineFile((new QFile(f)));
+
+        // An unique content id must be setted
+        image->setContentId(f);
+        image->setContentType("image/jpg");
+        message.addPart(image);
+    }
+
+    // Now add it to the mail
+
+    message.addPart(&text);
+
+    // Now we can send the mail
+
+    smtp.connectToHost();
+    smtp.login();
+    smtp.sendMail(message);
+    smtp.quit();
+
+    // delete image variable TODO
 }

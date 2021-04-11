@@ -139,7 +139,8 @@ public:
 
         connect(grabResult.data(), &QQuickItemGrabResult::ready, [=]() {
             grabResult->saveToFile(filenameScreenshot);
-            chartImages.append(grabResult->image());
+            //chartImages.append(grabResult->image());
+            chartImagesFilenames.append(filenameScreenshot);
         });
     }
 
@@ -290,7 +291,7 @@ private:
     QString stravaPelotonActivityName = "";
     QString stravaPelotonInstructorName = "";
 
-    QList<QImage> chartImages;
+    QList<QString> chartImagesFilenames;
 
     bool m_autoresistance = true;
 
@@ -331,6 +332,7 @@ private:
     void backup();
     bool getDevice();
     bool getLap();
+    void sendMail();
 
 public slots:
     void aboutToQuit();

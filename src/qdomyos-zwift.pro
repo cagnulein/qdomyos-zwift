@@ -10,7 +10,7 @@ macx: CONFIG += static
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -74,6 +74,18 @@ SOURCES += \
 	sessionline.cpp \
 	signalhandler.cpp \
     skandikawiribike.cpp \
+    smtpclient/src/emailaddress.cpp \
+    smtpclient/src/mimeattachment.cpp \
+    smtpclient/src/mimecontentformatter.cpp \
+    smtpclient/src/mimefile.cpp \
+    smtpclient/src/mimehtml.cpp \
+    smtpclient/src/mimeinlinefile.cpp \
+    smtpclient/src/mimemessage.cpp \
+    smtpclient/src/mimemultipart.cpp \
+    smtpclient/src/mimepart.cpp \
+    smtpclient/src/mimetext.cpp \
+    smtpclient/src/quotedprintable.cpp \
+    smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
    sportstechbike.cpp \
 	     toorxtreadmill.cpp \
@@ -348,6 +360,20 @@ HEADERS += \
 	sessionline.h \
 	signalhandler.h \
     skandikawiribike.h \
+    smtpclient/src/SmtpMime \
+    smtpclient/src/emailaddress.h \
+    smtpclient/src/mimeattachment.h \
+    smtpclient/src/mimecontentformatter.h \
+    smtpclient/src/mimefile.h \
+    smtpclient/src/mimehtml.h \
+    smtpclient/src/mimeinlinefile.h \
+    smtpclient/src/mimemessage.h \
+    smtpclient/src/mimemultipart.h \
+    smtpclient/src/mimepart.h \
+    smtpclient/src/mimetext.h \
+    smtpclient/src/quotedprintable.h \
+    smtpclient/src/smtpclient.h \
+    smtpclient/src/smtpexports.h \
    snodebike.h \
    sportstechbike.h \
 	toorxtreadmill.h \
