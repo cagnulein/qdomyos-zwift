@@ -64,6 +64,7 @@ SOURCES += \
 	keepawakehelper.cpp \
 	     main.cpp \
 		metric.cpp \
+    npecablebike.cpp \
    peloton.cpp \
 	proformbike.cpp \
 	proformtreadmill.cpp \
@@ -337,6 +338,7 @@ HEADERS += \
         ios/M3iIOS-Interface.h \
 	material.h \
 	metric.h \
+    npecablebike.h \
    peloton.h \
 	proformbike.h \
 	proformtreadmill.h \
@@ -424,4 +426,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.5.22
+VERSION = 2.6.0

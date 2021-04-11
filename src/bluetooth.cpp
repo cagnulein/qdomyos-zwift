@@ -279,6 +279,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
+            else if(b.name().toUpper().startsWith(">CABLE") && !npeCableBike && filter)
+            {
+                discoveryAgent->stop();
+                npeCableBike = new npecablebike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(npeCableBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(npeCableBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                npeCableBike->deviceDiscovered(b);
+            }
             else if(b.name().startsWith("ECH") && !echelonConnectSport && filter)
             {
                 discoveryAgent->stop();
@@ -618,6 +631,11 @@ void bluetooth::restart()
         delete cscBike;
         cscBike = 0;
     }
+    if(npeCableBike)
+    {
+        delete npeCableBike;
+        npeCableBike = 0;
+    }
     if(toorx)
     {
         delete toorx;
@@ -709,6 +727,8 @@ bluetoothdevice* bluetooth::device()
         return domyosElliptical;
     else if(cscBike)
         return cscBike;
+    else if(npeCableBike)
+        return npeCableBike;
     else if(toorx)
         return toorx;
     else if(trxappgateusb)
