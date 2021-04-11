@@ -212,12 +212,12 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelWeight
-                            text: qsTr("Player Weight (kg):")
+                            text: qsTr("Player Weight") + "(" + (settings.miles_unit?"lbs":"kg") + ")"
                             Layout.fillWidth: true
                         }
                         TextField {
                             id: weightTextField
-                            text: settings.weight
+                            text: (settings.miles_unit?settings.weight * 2.20462:settings.weight)
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -228,7 +228,7 @@ import Qt.labs.settings 1.0
                             id: okWeightButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.weight = weightTextField.text
+                            onClicked: settings.weight = (settings.miles_unit?weightTextField.text / 2.20462:weightTextField.text)
                         }
                     }
 
