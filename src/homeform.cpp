@@ -738,6 +738,7 @@ void homeform::Start()
             if(bluetoothManager->device())
                 bluetoothManager->device()->clearStats();
             Session.clear();
+            chartImages.clear();
 
             stravaPelotonActivityName = "";
             stravaPelotonInstructorName = "";

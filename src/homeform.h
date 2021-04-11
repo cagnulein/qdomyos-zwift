@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include <QChart>
 #include <QColor>
+#include <QQuickItemGrabResult>
 #include "screencapture.h"
 #include "bluetooth.h"
 #include "sessionline.h"
@@ -122,6 +123,24 @@ public:
         QObject *stack = rootObject;
         screenCapture s((QQuickView*) stack);
         s.capture(filenameScreenshot);
+    }
+
+    Q_INVOKABLE void save_screenshot_chart(QQuickItem* item, QString filename)
+    {
+        QString path = "";
+    #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+    #elif defined(Q_OS_IOS)
+        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+    #endif
+
+        QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + "_" + filename.replace(":", "_") + ".jpg";
+        QSharedPointer<const QQuickItemGrabResult> grabResult = item->grabToImage();
+
+        connect(grabResult.data(), &QQuickItemGrabResult::ready, [=]() {
+            grabResult->saveToFile(filenameScreenshot);
+            chartImages.append(grabResult->image());
+        });
     }
 
     Q_INVOKABLE void update_chart_power(QQuickItem *item){
@@ -270,6 +289,8 @@ private:
     int m_pelotonLoginState = -1;
     QString stravaPelotonActivityName = "";
     QString stravaPelotonInstructorName = "";
+
+    QList<QImage> chartImages;
 
     bool m_autoresistance = true;
 

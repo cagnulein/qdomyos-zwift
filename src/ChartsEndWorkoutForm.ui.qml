@@ -132,6 +132,7 @@ Item {
 
             ChartView {
                 id: powerChart
+                objectName: "powerChart"
                 antialiasing: true
                 legend.visible: false
                 height: 400

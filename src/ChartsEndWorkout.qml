@@ -20,5 +20,9 @@ ChartsEndWorkoutForm {
         //rootItem.update_axes(valueAxisXHR, valueAxisYHR);
         //rootItem.update_chart(cadenceChart);
         //rootItem.update_axes(valueAxisXCadence, valueAxisYCadence);
+
+        rootItem.save_screenshot_chart(powerChart, "powerChart");
+        rootItem.save_screenshot_chart(heartChart, "heartChart");
+        rootItem.save_screenshot_chart(cadenceChart, "cadenceChart");
     }
 }
