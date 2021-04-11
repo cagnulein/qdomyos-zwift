@@ -757,7 +757,7 @@ void virtualbike::bikeProvider()
         value.append((uint8_t)(Bike->odometer() * 100));       // distance
         value.append((char)0x00);
         value.append(Bike->currentCadence().value());
-        value.append((char)0x00);
+        value.append((uint8_t)Bike->currentHeart().value());
 
         uint8_t sum = 0;
         for(uint8_t i=0; i<value.length(); i++)
