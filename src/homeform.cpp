@@ -1223,9 +1223,7 @@ void homeform::fit_save_clicked()
             QByteArray fitfile = f.readAll();
             strava_upload_file(fitfile,filename);
             f.close();
-        }
-
-        sendMail();
+        }        
     }
 }
 
@@ -1668,7 +1666,7 @@ void homeform::sendMail()
 {
     QSettings settings;
 
-    if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device())
+    if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device() || !stopped)
         return;
 
     SmtpClient smtp("smtp.gmail.com", 465, SmtpClient::SslConnection);

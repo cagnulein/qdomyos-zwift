@@ -127,6 +127,8 @@ public:
 
     Q_INVOKABLE void save_screenshot_chart(QQuickItem* item, QString filename)
     {
+        if(!stopped) return;
+
         QString path = "";
     #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
         path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
@@ -260,6 +262,8 @@ public:
 
     double wattMaxChart() {QSettings settings; if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->wattsMetric().max() > (settings.value("ftp", 200.0).toDouble() * 2)) return bluetoothManager->device()->wattsMetric().max(); else { return settings.value("ftp", 200.0).toDouble() * 2;} }
 
+    Q_INVOKABLE void sendMail();
+
     QList<double> workout_watt_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.watt);} return l; }
     QList<double> workout_heart_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.heart);} return l; }
     QList<double> workout_cadence_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.cadence);} return l; }
@@ -331,8 +335,7 @@ private:
     void update();
     void backup();
     bool getDevice();
-    bool getLap();
-    void sendMail();
+    bool getLap();    
 
 public slots:
     void aboutToQuit();

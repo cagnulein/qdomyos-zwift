@@ -1,6 +1,39 @@
 import QtQuick 2.4
 
 ChartsEndWorkoutForm {
+    Timer {
+        id: timer
+
+        // Start the timer and execute the provided callback on every X milliseconds
+        function startTimer(callback, milliseconds) {
+            timer.interval = milliseconds;
+            timer.repeat = false;
+            timer.triggered.connect(callback);
+            timer.start();
+        }
+
+        // Stop the timer and unregister the callback
+        function stopTimer(callback) {
+            timer.stop();
+            timer.triggered.disconnect(callback);
+        }
+    }
+
+    function saveScreenshot()
+    {
+        rootItem.save_screenshot_chart(powerChart, "powerChart");
+        rootItem.save_screenshot_chart(heartChart, "heartChart");
+        rootItem.save_screenshot_chart(cadenceChart, "cadenceChart");
+        timer.stopTimer(saveScreenshot)
+        timer.startTimer(sendMail, 100);
+    }
+
+    function sendMail()
+    {
+        rootItem.sendMail()
+        timer.stopTimer(sendMail)
+    }
+
     Component.onCompleted: {
         headerToolbar.visible = true;
 
@@ -21,8 +54,6 @@ ChartsEndWorkoutForm {
         //rootItem.update_chart(cadenceChart);
         //rootItem.update_axes(valueAxisXCadence, valueAxisYCadence);
 
-        rootItem.save_screenshot_chart(powerChart, "powerChart");
-        rootItem.save_screenshot_chart(heartChart, "heartChart");
-        rootItem.save_screenshot_chart(cadenceChart, "cadenceChart");
+        timer.startTimer(saveScreenshot, 100);
     }
 }
