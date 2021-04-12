@@ -78,12 +78,6 @@ void npecablebike::update()
         }
         lastTimeUpdate = current;
 
-        if(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()) > 2000)
-        {
-            Cadence = 0;
-            Speed = 0;
-        }
-
         // updating the treadmill console every second
         if(sec1Update++ == (500 / refresh->interval()))
         {
@@ -161,11 +155,17 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
         }
 
-        if(CrankRevs != oldCrankRevs)
+        if(CrankRevs != oldCrankRevs && deltaT)
         {
-            Cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-            debug("Current Cadence: " + QString::number(Cadence.value()));
+            Cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;            
+            lastGoodCadence = QDateTime::currentDateTime();
         }
+        else if(lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000)
+        {
+            Cadence = 0;
+        }
+
+        debug("Current Cadence: " + QString::number(Cadence.value()));
 
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
