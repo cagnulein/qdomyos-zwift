@@ -1669,7 +1669,14 @@ void homeform::sendMail()
     if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device() || !stopped)
         return;
 
-    SmtpClient smtp("smtp.gmail.com", 465, SmtpClient::SslConnection);
+#ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    SmtpClient smtp(STRINGIFY(SMTP_SERVER), 25, SmtpClient::TlsConnection);
+#else
+#warning "stmp server is unset!"
+    return;
+#endif
 
     // We need to set the username (your email address) and the password
     // for smtp authentification.
