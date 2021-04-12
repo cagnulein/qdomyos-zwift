@@ -261,7 +261,11 @@ double trxappgateusbbike::GetWattFromPacket(QByteArray packet)
 
 double trxappgateusbbike::GetCadenceFromPacket(QByteArray packet)
 {
-    uint16_t convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
+    uint16_t convertedData;
+    if(bike_type != JLL_IC400)
+        convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
+    else
+        convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
     double data = (convertedData);
     if (data < 0) return 0;
     return data;
