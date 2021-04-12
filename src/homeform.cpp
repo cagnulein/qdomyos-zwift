@@ -1675,6 +1675,7 @@ void homeform::sendMail()
     SmtpClient smtp(STRINGIFY(SMTP_SERVER), 25, SmtpClient::TlsConnection);
 #else
 #warning "stmp server is unset!"
+    SmtpClient smtp("",25, SmtpClient::TlsConnection);
     return;
 #endif
 

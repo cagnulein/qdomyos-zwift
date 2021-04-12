@@ -110,9 +110,11 @@ void trxappgateusbbike::update()
         else if(bike_type == TYPE::JLL_IC400)
         {
             static unsigned char pollCounter = 0x0b;
-            uint8_t noOpData[] = { 0xf0, 0xa2, 0x00, 0xc8, 0x59 };
+            static unsigned char crc = 0x59;
+            uint8_t noOpData[] = { 0xf0, 0xa2, 0x00, 0xc8, 0x00 };
             noOpData[2] = pollCounter;
-            noOpData[4] += 0x0c;
+            crc += 0x0c;
+            noOpData[4] = crc;
             pollCounter += 0x0c;
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
         }
