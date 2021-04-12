@@ -1720,8 +1720,7 @@ void homeform::sendMail()
     textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max()) + "\n";
     textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average()) + "\n";
     textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max()) + "\n";
-    textMessage += "Average Output: " + QString::number(bluetoothManager->device()->jouls().average()) + "\n";
-    textMessage += "Max Output: " + QString::number(bluetoothManager->device()->jouls().max()) + "\n";
+    textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max()) + "\n";
     textMessage += "Elapsed: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
@@ -1733,6 +1732,7 @@ void homeform::sendMail()
         textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max()) + "\n";
     }
     text.setText(textMessage);
+    message.addPart(&text);
 
     foreach(QString f, chartImagesFilenames)
     {
@@ -1743,13 +1743,7 @@ void homeform::sendMail()
         image->setContentId(f);
         image->setContentType("image/jpg");
         message.addPart(image);
-    }
-
-    // Now add it to the mail
-
-    message.addPart(&text);
-
-    // Now we can send the mail
+    }    
 
     smtp.connectToHost();
     smtp.login();

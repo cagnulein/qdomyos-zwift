@@ -112,7 +112,7 @@ void trxappgateusbbike::update()
             static unsigned char pollCounter = 0x0b;
             uint8_t noOpData[] = { 0xf0, 0xa2, 0x00, 0xc8, 0x59 };
             noOpData[2] = pollCounter;
-            noOpData[4] += pollCounter;
+            noOpData[4] += 0x0c;
             pollCounter += 0x0c;
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
         }
@@ -516,6 +516,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
         if(JLL_IC400_bike)
         {
+            refresh->start(500);
             bike_type = TYPE::JLL_IC400;
             qDebug() << "JLL_IC400 bike found";
         }
