@@ -104,6 +104,7 @@ This operation takes a moment to complete.
 
 `git clone https://github.com/cagnulein/qdomyos-zwift.git`  
 `cd qdomyos-zwift`  
+`git submodule update --init src/smtpclient/`
 `cd src`  
 `qmake`  
 `make`  
