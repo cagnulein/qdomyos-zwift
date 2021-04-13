@@ -238,14 +238,15 @@ void homeform::pelotonLoginState(bool ok)
 void homeform::pelotonWorkoutStarted(QString name, QString instructor)
 {
     QSettings settings;
-    if(!settings.value("top_bar_enabled", true).toBool()) return;
-    m_info = name;
-    emit infoChanged(m_info);
 
     stravaPelotonActivityName = name;
     stravaPelotonInstructorName = instructor;
     m_pelotonAskStart = true;
     emit(changePelotonAskStart(pelotonAskStart()));
+
+    if(!settings.value("top_bar_enabled", true).toBool()) return;
+    m_info = name;
+    emit infoChanged(m_info);
 }
 
 void homeform::backup()
