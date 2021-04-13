@@ -494,6 +494,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
+            else if(b.name().toUpper().startsWith("CHRONO ") && !chronoBike && filter)
+            {
+                discoveryAgent->stop();
+                chronoBike = new chronobike(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit(deviceConnected());
+                connect(chronoBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                connect(chronoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(chronoBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                connect(chronoBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                chronoBike->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), chronoBike, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
         }
     }
 }
@@ -714,6 +731,11 @@ void bluetooth::restart()
         delete inspireBike;
         inspireBike = 0;
     }
+    if(chronoBike)
+    {
+        delete chronoBike;
+        chronoBike = 0;
+    }
     if(snodeBike)
     {
         delete snodeBike;
@@ -775,6 +797,8 @@ bluetoothdevice* bluetooth::device()
         return sportsTechBike;
     else if(inspireBike)
         return inspireBike;
+    else if(chronoBike)
+        return chronoBike;
     else if(m3iBike)
         return m3iBike;
     else if(snodeBike)

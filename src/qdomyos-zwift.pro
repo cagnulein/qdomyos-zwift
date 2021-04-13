@@ -23,6 +23,7 @@ SOURCES += \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+   chronobike.cpp \
    cscbike.cpp \
 	 domyoselliptical.cpp \
 	     domyostreadmill.cpp \
@@ -114,6 +115,7 @@ HEADERS += \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+   chronobike.h \
    cscbike.h \
 	 domyoselliptical.h \
 	domyostreadmill.h \

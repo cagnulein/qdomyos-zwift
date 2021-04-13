@@ -39,6 +39,7 @@
 #include "heartratebelt.h"
 #include "cscbike.h"
 #include "npecablebike.h"
+#include "chronobike.h"
 #include "stagesbike.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -79,6 +80,7 @@ private:
     cscbike* cscBike = 0;
     npecablebike* npeCableBike = 0;
     stagesbike* stagesBike = 0;
+    chronobike* chronoBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;
