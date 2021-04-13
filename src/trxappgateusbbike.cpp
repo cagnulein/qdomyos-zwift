@@ -203,7 +203,12 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
     {
         if(heartRateBeltName.startsWith("Disabled"))
-            Heart = ((uint8_t)(newValue.at(15)) - 1);
+        {
+            if(bike_type != JLL_IC400)
+                Heart = ((uint8_t)(newValue.at(15)) - 1);
+            else
+                Heart = ((uint8_t)(newValue.at(18)));
+        }
     }
     FanSpeed = 0;
 
