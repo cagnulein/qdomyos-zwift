@@ -88,6 +88,7 @@ SOURCES += \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
    sportstechbike.cpp \
+   stagesbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
    trxappgateusbbike.cpp \
@@ -376,6 +377,7 @@ HEADERS += \
     smtpclient/src/smtpexports.h \
    snodebike.h \
    sportstechbike.h \
+   stagesbike.h \
 	toorxtreadmill.h \
 	gpx.h \
 	treadmill.h \

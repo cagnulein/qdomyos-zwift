@@ -292,6 +292,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
             }
+            else if(b.name().toUpper().startsWith("STAGES ") && !stagesBike && filter)
+            {
+                discoveryAgent->stop();
+                stagesBike = new stagesbike(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(stagesBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(stagesBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(stagesBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(stagesBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                stagesBike->deviceDiscovered(b);
+            }
             else if(b.name().startsWith("ECH") && !echelonConnectSport && filter)
             {
                 discoveryAgent->stop();
@@ -636,6 +649,11 @@ void bluetooth::restart()
         delete npeCableBike;
         npeCableBike = 0;
     }
+    if(stagesBike)
+    {
+        delete stagesBike;
+        stagesBike = 0;
+    }
     if(toorx)
     {
         delete toorx;
@@ -729,6 +747,8 @@ bluetoothdevice* bluetooth::device()
         return cscBike;
     else if(npeCableBike)
         return npeCableBike;
+    else if(stagesBike)
+        return stagesBike;
     else if(toorx)
         return toorx;
     else if(trxappgateusb)
