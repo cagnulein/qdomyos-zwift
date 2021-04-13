@@ -507,9 +507,9 @@ void domyosbike::btinit_changyow(bool startTape)
     writeCharacteristic(initDataStart8, sizeof(initDataStart8), "init", false, false);
     writeCharacteristic(initDataStart9, sizeof(initDataStart9), "init", false, true);
     writeCharacteristic(initDataStart10, sizeof(initDataStart10), "init", false, false);
+    writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init", false, true);
     if(startTape)
-    {
-        writeCharacteristic(initDataStart11, sizeof(initDataStart11), "init", false, true);
+    {        
         writeCharacteristic(initDataStart12, sizeof(initDataStart12), "init", false, false);
         writeCharacteristic(initDataStart13, sizeof(initDataStart13), "init", false, true);
     }
