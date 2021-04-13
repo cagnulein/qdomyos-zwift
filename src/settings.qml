@@ -101,6 +101,8 @@ import Qt.labs.settings 1.0
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
 
+            property real domyos_bike_cadence_filter: 0.0
+
             property real domyos_elliptical_speed_ratio: 1.0
 
             property real proform_wheel_ratio: 0.33
@@ -1827,6 +1829,36 @@ import Qt.labs.settings 1.0
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                    }
+                }
+            }
+            AccordionElement {
+                id: domyosBikeAccordion
+                title: qsTr("Domyos Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelDomyosBikeCadenceFilter
+                        text: qsTr("Cadence Filter:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: domyosBikeCadenceFilterTextField
+                        text: settings.domyos_bike_cadence_filter
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.domyos_bike_cadence_filter = text
+                    }
+                    Button {
+                        id: okDomyosBikeCadenceFilter
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text
                     }
                 }
             }
