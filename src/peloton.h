@@ -27,6 +27,7 @@ public:
 
 private:
     const int peloton_workout_second_resolution = 10;
+    bool peloton_credentials_wrong = false;
     QNetworkAccessManager * mgr = 0;
     QString user_id;
     QString current_workout_id = "";

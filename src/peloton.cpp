@@ -22,6 +22,8 @@ peloton::peloton(bluetooth* bl, QObject *parent) : QObject(parent)
 
 void peloton::startEngine()
 {
+    if(peloton_credentials_wrong) return;
+
     QSettings settings;
     timer->stop();
     connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
@@ -46,11 +48,20 @@ void peloton::login_onfinish(QNetworkReply* reply)
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+    QJsonObject json = document.object();
+    int status = json["status"].toInt();
 
     if(log_request)
         qDebug() << "login_onfinish" << document;
     else
         qDebug() << "login_onfinish";
+
+    if(status != 0)
+    {
+        peloton_credentials_wrong = true;
+        qDebug() << "invalid peloton credentials during login "  << status;
+        return;
+    }
 
     user_id = document["user_id"].toString();
     total_workout = document["user_data"]["total_workouts"].toInt();
