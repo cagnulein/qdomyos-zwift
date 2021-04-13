@@ -1086,8 +1086,14 @@ void homeform::update()
                 qDebug() << "trainprogram random seconds " + QString::number(seconds) + " last_change " + last_seconds + " period " + settings.value("trainprogram_period_seconds", 60).toUInt();
                 if(last_seconds == 0 || ((seconds - last_seconds) >= settings.value("trainprogram_period_seconds", 60).toUInt()))
                 {
-                    if(last_seconds == 0) r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
-                    last_seconds = seconds;
+                    if(last_seconds == 0)
+                    {
+                        r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
+                        last_seconds = 1; // in order to avoid to re-enter here again if the user doesn't ride
+                    }
+                    else
+                        last_seconds = seconds;
+
                     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
                     {
                         double speed = settings.value("trainprogram_speed_min", 8).toUInt();
