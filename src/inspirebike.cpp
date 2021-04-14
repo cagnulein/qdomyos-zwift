@@ -83,10 +83,10 @@ void inspirebike::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+        m_watt = (double)watts();
         if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
-           elapsed += deltaTime;
-           m_watt = (double)watts();
+           elapsed += deltaTime;           
            m_jouls += (m_watt.value() * deltaTime);
         }
         lastTimeUpdate = current;
