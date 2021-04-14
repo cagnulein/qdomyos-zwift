@@ -18,7 +18,6 @@
 #include "gpx.h"
 #include "qfit.h"
 #include "material.h"
-#include "smtpclient/src/SmtpMime"
 
 #ifndef IO_UNDER_QT
 #include "secret.h"
@@ -1669,17 +1668,24 @@ void homeform::setGeneralPopupVisible(bool value)
     generalPopupVisibleChanged(m_generalPopupVisible);
 }
 
+void homeform::smtpError(SmtpClient::SmtpError e)
+{
+    qDebug() << "SMTP ERROR" << e;
+}
+
 void homeform::sendMail()
 {
     QSettings settings;
 
-    if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device() || !stopped)
+    // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
+    if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device())
         return;
 
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x)  _STR(x)
     SmtpClient smtp(STRINGIFY(SMTP_SERVER), 25, SmtpClient::TlsConnection);
+    connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
 #else
 #warning "stmp server is unset!"
     SmtpClient smtp("",25, SmtpClient::TlsConnection);
