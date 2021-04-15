@@ -224,7 +224,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     debug("Current speed: " + QString::number(speed));
     debug("Current cadence: " + QString::number(cadence));
-    debug("Current resistance: " + QString::number(resistance));
     debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
     debug("Current watt: " + QString::number(watt));
@@ -236,11 +235,26 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
     Speed = speed;
-    Resistance = resistance;
     KCal = kcal;
     Distance = DistanceCalculated;
     Cadence = cadence;
     m_watt = watt;
+
+    double ac=0.01243107769;
+    double bc=1.145964912;
+    double cc=-23.50977444;
+
+    double ar=0.1469553975;
+    double br=-5.841344538;
+    double cr=97.62165482;
+
+    m_pelotonResistance = (((sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar)) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
+    if(bike_type == JLL_IC400)
+        resistance = m_pelotonResistance.value();
+
+    Resistance = resistance;
+
+    debug("Current resistance: " + QString::number(resistance));
 
     lastTimeCharChanged = QTime::currentTime();
     firstCharChanged = false;
