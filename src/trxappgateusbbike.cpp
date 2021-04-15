@@ -214,7 +214,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             if(bike_type != JLL_IC400)
                 Heart = ((uint8_t)(newValue.at(15)) - 1);
             else
-                Heart = ((uint8_t)(newValue.at(17)));
+                Heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
         }
     }
     FanSpeed = 0;
