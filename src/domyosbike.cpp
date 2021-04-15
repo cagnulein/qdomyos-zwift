@@ -368,12 +368,12 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
 
-    double cadence = ((uint8_t)value.at(9));
+    double ucadence = ((uint8_t)value.at(9));
     double cadenceFilter = settings.value("domyos_bike_cadence_filter", 0).toDouble();
-    if(cadenceFilter == 0 || cadenceFilter > cadence)
-        Cadence = cadence;
+    if(cadenceFilter == 0 || cadenceFilter > ucadence)
+        Cadence = ucadence;
     else
-        qDebug() << "cadence filter out " << cadence << cadenceFilter;
+        qDebug() << "cadence filter out " << ucadence << cadenceFilter;
 
     Resistance = value.at(14);
     if(Resistance.value() < 1)
