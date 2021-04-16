@@ -216,7 +216,7 @@ void domyosbike::update()
                 if(virtual_device_enabled)
                 {
                     qDebug() << "creating virtual bike interface...";
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                     //connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
                 }
         }
