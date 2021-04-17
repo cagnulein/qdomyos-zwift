@@ -1684,7 +1684,7 @@ void homeform::sendMail()
 #ifdef SMTP_SERVER
 #define _STR(x) #x
 #define STRINGIFY(x)  _STR(x)
-    SmtpClient smtp(STRINGIFY(SMTP_SERVER), 25, SmtpClient::TlsConnection);
+    SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
     connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
 #else
 #warning "stmp server is unset!"

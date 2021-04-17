@@ -129,6 +129,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
+    qDebug() << " << char " << characteristic.uuid();
     debug(" << " + newValue.toHex(' '));
 
     if(characteristic.uuid() == QBluetoothUuid((quint16)0x2A5B))
@@ -136,6 +137,18 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         lastPacket = newValue;
 
         uint8_t index = 1;
+
+        if(newValue.at(0) == 0x02 && newValue.length() < 4)
+        {
+            debug("Crank revolution data present with wrong bytes " + QString::number(newValue.length()));
+            return;
+        }
+        else if(newValue.length() < 6)
+        {
+            debug("Wheel revolution data present with wrong bytes " + QString::number(newValue.length()));
+            return;
+        }
+
         if(newValue.at(0) == 0x02)
             CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
         else
@@ -149,10 +162,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
         if(deltaT < 0)
         {
-            if(newValue.at(0) == 0x01)
-                deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
-            else
-                deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
+            deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
         }
 
         if(CrankRevs != oldCrankRevs && deltaT)
