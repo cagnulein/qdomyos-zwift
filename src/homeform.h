@@ -265,7 +265,9 @@ public:
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count();}
 
+#if defined(Q_OS_ANDROID)
     static QString getAndroidDataAppDir();
+#endif
 
     double wattMaxChart() {QSettings settings; if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->wattsMetric().max() > (settings.value("ftp", 200.0).toDouble() * 2)) return bluetoothManager->device()->wattsMetric().max(); else { return settings.value("ftp", 200.0).toDouble() * 2;} }
 

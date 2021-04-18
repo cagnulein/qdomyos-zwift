@@ -1790,6 +1790,7 @@ void homeform::sendMail()
     // delete image variable TODO
 }
 
+#if defined(Q_OS_ANDROID)
 QString homeform::getAndroidDataAppDir() {
     static QString path = "";
 
@@ -1818,3 +1819,4 @@ QString homeform::getAndroidDataAppDir() {
     path = out;
     return out;
 }
+#endif
