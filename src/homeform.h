@@ -113,11 +113,13 @@ public:
     Q_INVOKABLE void save_screenshot()
     {
         QString path = "";
-    #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+        path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
         path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-    #elif defined(Q_OS_IOS)
+#elif defined(Q_OS_IOS)
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-    #endif
+#endif
 
         QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".jpg";
         QObject *rootObject = engine->rootObjects().first();
@@ -131,11 +133,13 @@ public:
         if(!stopped) return;
 
         QString path = "";
-    #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+        path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
         path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-    #elif defined(Q_OS_IOS)
+#elif defined(Q_OS_IOS)
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-    #endif
+#endif
 
         QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + "_" + filename.replace(":", "_") + ".jpg";
         QSharedPointer<const QQuickItemGrabResult> grabResult = item->grabToImage();
@@ -260,6 +264,8 @@ public:
     void setAutoResistance(bool value) { m_autoresistance = value; emit autoResistanceChanged(value); if(bluetoothManager->device()) bluetoothManager->device()->setAutoResistance(value); }
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count();}
+
+    static QString getAndroidDataAppDir();
 
     double wattMaxChart() {QSettings settings; if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->wattsMetric().max() > (settings.value("ftp", 200.0).toDouble() * 2)) return bluetoothManager->device()->wattsMetric().max(); else { return settings.value("ftp", 200.0).toDouble() * 2;} }
 

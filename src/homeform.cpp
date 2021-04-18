@@ -19,6 +19,11 @@
 #include "qfit.h"
 #include "material.h"
 
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include <QAndroidJniEnvironment>
+#endif
+
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -254,7 +259,9 @@ void homeform::backup()
     qDebug() << "saving fit file backup...";
 
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -1197,7 +1204,9 @@ void homeform::trainprogram_open_clicked(QUrl fileName)
 void homeform::gpx_save_clicked()
 {
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -1210,7 +1219,9 @@ void homeform::gpx_save_clicked()
 void homeform::fit_save_clicked()
 {
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -1677,6 +1688,11 @@ void homeform::sendMail()
 {
     QSettings settings;
 
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+
     // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
     if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device())
         return;
@@ -1732,25 +1748,25 @@ void homeform::sendMail()
 
     MimeText text;
 
-    QString textMessage = "Great workout!\n";
-    textMessage += "Average Speed: " + QString::number(bluetoothManager->device()->currentSpeed().average()) + "\n";
-    textMessage += "Max Speed: " + QString::number(bluetoothManager->device()->currentSpeed().max()) + "\n";
-    textMessage += "Calories burned: " + QString::number(bluetoothManager->device()->calories()) + "\n";
-    textMessage += "Distance: " + QString::number(bluetoothManager->device()->odometer()) + "\n";
-    textMessage += "Average Watt: " + QString::number(bluetoothManager->device()->wattsMetric().average()) + "\n";
-    textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max()) + "\n";
-    textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average()) + "\n";
-    textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max()) + "\n";
-    textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max()) + "\n";
+    QString textMessage = "Great workout!\n\n";
+    textMessage += "Average Speed: " + QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1) + "\n";
+    textMessage += "Max Speed: " + QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1) + "\n";
+    textMessage += "Calories burned: " + QString::number(bluetoothManager->device()->calories(), 'f', 0) + "\n";
+    textMessage += "Distance: " + QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) + "\n";
+    textMessage += "Average Watt: " + QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + "\n";
+    textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0) + "\n";
+    textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + "\n";
+    textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + "\n";
+    textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max(), 'f', 0) + "\n";
     textMessage += "Elapsed: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
-        textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average()) + "\n";
-        textMessage += "Max Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max()) + "\n";
-        textMessage += "Average Resistane: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().average()) + "\n";
-        textMessage += "Max Resistance: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().max()) + "\n";
-        textMessage += "Average Peloton Resistane: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average()) + "\n";
-        textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max()) + "\n";
+        textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + "\n";
+        textMessage += "Max Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max(), 'f', 0) + "\n";
+        textMessage += "Average Resistance: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + "\n";
+        textMessage += "Max Resistance: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().max(), 'f', 0) + "\n";
+        textMessage += "Average Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + "\n";
+        textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
     }
     text.setText(textMessage);
     message.addPart(&text);
@@ -1772,4 +1788,33 @@ void homeform::sendMail()
     smtp.quit();
 
     // delete image variable TODO
+}
+
+QString homeform::getAndroidDataAppDir() {
+    static QString path = "";
+
+    if(path.length())
+        return path;
+
+    QAndroidJniObject filesArr = QtAndroid::androidActivity().callObjectMethod("getExternalFilesDirs", "(Ljava/lang/String;)[Ljava/io/File;", nullptr);
+    jobjectArray dataArray = filesArr.object<jobjectArray>();
+    QString out;
+    if (dataArray) {
+        QAndroidJniEnvironment env;
+        jsize dataSize = env->GetArrayLength(dataArray);
+        if (dataSize) {
+            QAndroidJniObject mediaPath;
+            QAndroidJniObject file;
+            for (int i = 0; i<dataSize; i++) {
+                file = env->GetObjectArrayElement(dataArray, i);
+                jboolean val = QAndroidJniObject::callStaticMethod<jboolean>("android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
+                mediaPath = file.callObjectMethod( "getAbsolutePath", "()Ljava/lang/String;" );
+                out = mediaPath.toString();
+                if (!val)
+                    break;
+            }
+        }
+    }
+    path = out;
+    return out;
 }

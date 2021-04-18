@@ -167,7 +167,9 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
         if(CrankRevs != oldCrankRevs && deltaT)
         {
-            Cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;            
+            double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
+            if(cadence >= 0)
+                Cadence = cadence;
             lastGoodCadence = QDateTime::currentDateTime();
         }
         else if(lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000)

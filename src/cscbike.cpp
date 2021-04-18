@@ -186,7 +186,9 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if(CrankRevs != oldCrankRevs && deltaT)
     {
-        Cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
+        double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
+        if(cadence >= 0)
+            Cadence = cadence;
         lastGoodCadence = QDateTime::currentDateTime();
     }
     else if(lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000)
@@ -212,8 +214,16 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     double br=-5.841344538;
     double cr=97.62165482;
 
-    m_pelotonResistance = (((sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar)) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
-    Resistance = m_pelotonResistance;
+    if(Cadence.value() > 0)
+    {
+        m_pelotonResistance = (((sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar)) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
+        Resistance = m_pelotonResistance;
+    }
+    else
+    {
+        m_pelotonResistance = 0;
+        Resistance = 0;
+    }
 
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     debug("Current KCal: " + QString::number(KCal.value()));
