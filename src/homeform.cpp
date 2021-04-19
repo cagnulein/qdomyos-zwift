@@ -800,11 +800,7 @@ void homeform::Stop()
     }
 
     if(trainProgram)
-    {
-        trainProgram->stop();
-        delete trainProgram;
-        trainProgram = 0;
-    }
+        trainProgram->rows.clear();
 }
 
 void homeform::Lap()

@@ -157,7 +157,7 @@ Item {
                     min: 0
                     max: rootItem.wattMaxChart
                     //tickCount: 60
-                    tickCount: 6
+                    tickCount: 8
                     labelFormat: "%.0f"
                     //labelsVisible: false
                     //gridVisible: false
@@ -202,7 +202,7 @@ Item {
                     id: valueAxisYHR
                     min: 60
                     max: 220
-                    tickCount: 5
+                    tickCount: 6
                     labelFormat: "%.0f"
                     //labelsVisible: false
                     //gridVisible: false
