@@ -226,6 +226,7 @@ void homeform::peloton_start_workout()
         {
             trainProgram->stop();
             delete trainProgram;
+            trainProgram = 0;
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
         trainProgramSignals();
@@ -796,6 +797,13 @@ void homeform::Stop()
         emit startIconChanged(startIcon());
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
+    }
+
+    if(trainProgram)
+    {
+        trainProgram->stop();
+        delete trainProgram;
+        trainProgram = 0;
     }
 }
 
