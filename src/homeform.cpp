@@ -1757,7 +1757,7 @@ void homeform::sendMail()
     textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0) + "\n";
     textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + "\n";
     textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + "\n";
-    textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max(), 'f', 0) + "\n";
+    textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + "\n";
     textMessage += "Elapsed: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
