@@ -531,8 +531,10 @@ void bluetooth::connectedAndDiscovered()
 
     if(heartRateBeltName.startsWith("Disabled"))
     {
-        settings.setValue("hrm_lastdevice_name", "");
-        settings.setValue("hrm_lastdevice_address", "");
+        if(settings.value("hrm_lastdevice_name", "").toString().length())
+            settings.setValue("hrm_lastdevice_name", "");
+        if(settings.value("hrm_lastdevice_address", "").toString().length())
+            settings.setValue("hrm_lastdevice_address", "");
     }
 
     if(this->device() != nullptr)
