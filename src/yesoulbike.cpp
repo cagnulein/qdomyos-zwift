@@ -116,6 +116,14 @@ void yesoulbike::update()
             requestStop = -1;
         }
     }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    // trying fixing #274
+    else if(bluetoothDevice.isValid() &&
+       m_control->state() == QLowEnergyController::DiscoveredState)
+    {
+        stateChanged(QLowEnergyService::ServiceDiscovered);
+    }
+#endif
 
     firstUpdate = false;
 }
