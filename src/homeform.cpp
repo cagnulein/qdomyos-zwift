@@ -3,6 +3,7 @@
 #include <QTime>
 #include <QSettings>
 #include <QQmlFile>
+#include <QApplication>
 #include <QStandardPaths>
 #include <QAbstractOAuth2>
 #include <QNetworkAccessManager>
@@ -1777,6 +1778,7 @@ void homeform::sendMail()
         textMessage += "Average Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + "\n";
         textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
     }
+    textMessage += "\n\nQZ version: " + QApplication::applicationVersion();
     text.setText(textMessage);
     message.addPart(&text);
 
