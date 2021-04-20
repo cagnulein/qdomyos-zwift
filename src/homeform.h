@@ -373,6 +373,7 @@ private slots:
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
     void pelotonWorkoutStarted(QString name, QString instructor);
+    void pelotonWorkoutChanged(QString name, QString instructor);
     void pelotonLoginState(bool ok);
     void peloton_start_workout();
     void smtpError(SmtpClient::SmtpError e);

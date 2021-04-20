@@ -141,6 +141,8 @@ void peloton::instructor_onfinish(QNetworkReply* reply)
     else
         qDebug() << "instructor_onfinish";
 
+    emit workoutChanged(current_workout_name, current_instructor_name);
+
     getPerformance(current_workout_id);
 }
 

@@ -159,6 +159,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 
     pelotonHandler = new peloton(bl);
     connect(pelotonHandler, SIGNAL(workoutStarted(QString, QString)), this, SLOT(pelotonWorkoutStarted(QString, QString)));
+    connect(pelotonHandler, SIGNAL(workoutChanged(QString, QString)), this, SLOT(pelotonWorkoutChanged(QString, QString)));
     connect(pelotonHandler, SIGNAL(loginState(bool)), this, SLOT(pelotonLoginState(bool)));
 
     //populate the UI
@@ -242,12 +243,16 @@ void homeform::pelotonLoginState(bool ok)
 
 void homeform::pelotonWorkoutStarted(QString name, QString instructor)
 {
+    m_pelotonAskStart = true;
+    emit(changePelotonAskStart(pelotonAskStart()));
+}
+
+void homeform::pelotonWorkoutChanged(QString name, QString instructor)
+{
     QSettings settings;
 
     stravaPelotonActivityName = name;
     stravaPelotonInstructorName = instructor;
-    m_pelotonAskStart = true;
-    emit(changePelotonAskStart(pelotonAskStart()));
 
     if(!settings.value("top_bar_enabled", true).toBool()) return;
     m_info = name;

@@ -66,6 +66,7 @@ private slots:
 signals:
     void loginState(bool ok);
     void workoutStarted(QString name, QString instructor);
+    void workoutChanged(QString name, QString instructor);
 };
 
 #endif // PELOTON_H
