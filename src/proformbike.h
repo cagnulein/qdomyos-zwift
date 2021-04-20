@@ -37,7 +37,7 @@ class proformbike : public bike
 {
     Q_OBJECT
 public:
-    proformbike(bool noWriteResistance, bool noHeartService);
+    proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
 
     void* VirtualBike();
@@ -56,6 +56,8 @@ private:
     QTimer* refresh;
     virtualbike* virtualBike = 0;
     uint8_t counterPoll = 0;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;

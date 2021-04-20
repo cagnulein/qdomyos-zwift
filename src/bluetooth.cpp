@@ -366,7 +366,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             else if(b.name().startsWith("I_EB") && !proformBike && filter)
             {
                 discoveryAgent->stop();
-                proformBike = new proformbike(noWriteResistance, noHeartService);
+                proformBike = new proformbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 //stateFileRead();
                 emit(deviceConnected());
                 connect(proformBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));

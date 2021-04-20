@@ -10,12 +10,14 @@
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 
-proformbike::proformbike(bool noWriteResistance, bool noHeartService)
+proformbike::proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -491,7 +493,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state)
                 if(virtual_device_enabled)
             {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 //connect(virtualBike,&virtualbike::debug ,this,&proformbike::debug);
             }
         }
