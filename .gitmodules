@@ -1,3 +1,6 @@
 [submodule "android_openssl"]
 	path = android_openssl
 	url = https://github.com/KDAB/android_openssl.git
+[submodule "src/smtpclient"]
+	path = src/smtpclient
+	url = https://github.com/bluetiger9/SmtpClient-for-Qt.git

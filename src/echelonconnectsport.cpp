@@ -125,10 +125,10 @@ void echelonconnectsport::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+        m_watt = (double)watts();
         if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
-           elapsed += deltaTime;
-           m_watt = (double)watts();
+           elapsed += deltaTime;           
            m_jouls += (m_watt.value() * deltaTime);
         }
         lastTimeUpdate = current;
@@ -195,7 +195,10 @@ uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power)
     for(int i = 1; i<max_resistance-1; i++)
     {
         if(wattsFromResistance(i) <= power && wattsFromResistance(i+1) >= power)
+        {
+            qDebug() << "resistanceFromPowerRequest" << wattsFromResistance(i) << wattsFromResistance(i+1) << power;
             return i;
+        }
     }
     return Resistance.value();
 }
@@ -224,7 +227,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if(newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2)
     {
         Resistance = newValue.at(3);
-        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());        
 
         qDebug() << "Current resistance: " + QString::number(Resistance.value());
         return;

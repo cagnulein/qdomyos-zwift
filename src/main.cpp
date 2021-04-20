@@ -11,6 +11,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QSettings>
+#include <QDir>
 #include <QOperatingSystemVersion>
 #include "virtualtreadmill.h"
 #include "domyostreadmill.h"
@@ -202,7 +203,9 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     if(logs == true || logdebug == true)
     {
         QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+        path = homeform::getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
         path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -275,6 +278,13 @@ int main(int argc, char *argv[])
 
     qInstallMessageHandler(myMessageOutput);
     qDebug() << "version " << app->applicationVersion();
+    foreach(QString s, settings.allKeys())
+    {
+        if(!s.contains("password"))
+        {
+            qDebug() << s << settings.value(s);
+        }
+    }
 
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
@@ -284,7 +294,9 @@ int main(int argc, char *argv[])
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = homeform::getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -338,13 +350,7 @@ int main(int argc, char *argv[])
         }, Qt::QueuedConnection);        
 
 #if defined(Q_OS_ANDROID)
-        auto  result = QtAndroid::checkPermission(QString("android.permission.WRITE_EXTERNAL_STORAGE"));
-        if(result == QtAndroid::PermissionResult::Denied){
-            QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.WRITE_EXTERNAL_STORAGE"}));
-            if(resultHash["android.permission.WRITE_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "WRITE_EXTERNAL_STORAGE denied!";
-        }
-        result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
+        auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
         if(result == QtAndroid::PermissionResult::Denied){
             QtAndroid::PermissionResultMap resultHash = QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
             if(resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)

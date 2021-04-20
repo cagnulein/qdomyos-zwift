@@ -27,15 +27,19 @@ public:
 
 private:
     const int peloton_workout_second_resolution = 10;
+    bool peloton_credentials_wrong = false;
     QNetworkAccessManager * mgr = 0;
     QString user_id;
     QString current_workout_id = "";
     QString current_workout_name = "";
     QString current_workout_status = "";
+    QString current_instructor_id = "";
+    QString current_instructor_name = "";
 
     QJsonDocument current_workout;
     QJsonDocument current_workout_summary;
     QJsonDocument workout;
+    QJsonDocument instructor;
     QJsonDocument performance;
 
     QTimer* timer;
@@ -46,6 +50,7 @@ private:
     void getWorkoutList(int num);
     void getSummary(QString workout);
     void getWorkout(QString workout);
+    void getInstructor(QString instructor_id);
     void getPerformance(QString workout);
 
 private slots:
@@ -54,11 +59,14 @@ private slots:
     void summary_onfinish(QNetworkReply* reply);
     void workout_onfinish(QNetworkReply* reply);
     void performance_onfinish(QNetworkReply* reply);
+    void instructor_onfinish(QNetworkReply* reply);
 
     void startEngine();
 
 signals:
-    void workoutStarted(QString name);
+    void loginState(bool ok);
+    void workoutStarted(QString name, QString instructor);
+    void workoutChanged(QString name, QString instructor);
 };
 
 #endif // PELOTON_H

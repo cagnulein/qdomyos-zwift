@@ -35,6 +35,11 @@ jobs:
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
 
       # Runs a set of commands using the runners shell
       - name: Install Qt Linux Desktop

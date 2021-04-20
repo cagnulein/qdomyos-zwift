@@ -19,6 +19,9 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     fit::Encode encode( fit::ProtocolVersion::V20 );
     if(!session.length()) return;
     std::fstream file;
+    double startingDistanceOffset = 0;
+    if(session.length())
+        startingDistanceOffset = session.first().distance;
 
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 
@@ -43,7 +46,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     sessionMesg.SetStartTime(session.at(0).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
     sessionMesg.SetTotalTimerTime(session.last().elapsedTime);
-    sessionMesg.SetTotalDistance(session.last().distance * 1000.0); //meters
+    sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); //meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
     sessionMesg.SetMinAltitude(0);
@@ -123,7 +126,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         //fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(session.at(i).heart);
         newRecord.SetCadence(session.at(i).cadence);
-        newRecord.SetDistance(session.at(i).distance * 1000.0); //meters
+        newRecord.SetDistance((session.at(i).distance - startingDistanceOffset) * 1000.0); //meters
         newRecord.SetSpeed(session.at(i).speed / 3.6); // meter per second
         newRecord.SetPower(session.at(i).watt);
         newRecord.SetResistance(session.at(i).resistance);

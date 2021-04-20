@@ -11,6 +11,7 @@ class bike:public bluetoothdevice
 public:
     bike();
     metric lastRequestedResistance();
+    metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
     virtual metric currentResistance();
@@ -29,9 +30,10 @@ public:
     void setPaused(bool p);
 
 public slots:
-    virtual void changeResistance(int8_t res);
+    virtual void changeResistance(int8_t res);    
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
+    virtual void changeRequestedPelotonResistance(int8_t resistance);
 
 signals:
     void bikeStarted();
@@ -40,6 +42,7 @@ protected:
     metric Cadence;
     metric Resistance;
     metric RequestedResistance;    
+    metric RequestedPelotonResistance;
     metric RequestedCadence;
     metric RequestedPower;
     uint16_t LastCrankEventTime = 0;

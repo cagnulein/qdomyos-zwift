@@ -44,6 +44,16 @@ Item {
             verticalAlignment: Text.AlignVCenter
             anchors.horizontalCenter: parent.horizontalCenter
         }
+        Text {
+            anchors.top: title.bottom
+            id: instructor
+            text: rootItem.instructorName
+            font.pixelSize: 18
+            color: "white"
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
 /*
         ChartView {
             id: caloriesChart
@@ -116,12 +126,13 @@ Item {
             ScrollBar.vertical.policy: ScrollBar.AlwaysOn
             anchors.left: parent.left
             anchors.right: parent.right
-            anchors.top: title.bottom
+            anchors.top: instructor.bottom
             anchors.bottom: parent.bottom
             contentHeight: powerChart.height+heartChart.height+cadenceChart.height
 
             ChartView {
                 id: powerChart
+                objectName: "powerChart"
                 antialiasing: true
                 legend.visible: false
                 height: 400
@@ -146,7 +157,7 @@ Item {
                     min: 0
                     max: rootItem.wattMaxChart
                     //tickCount: 60
-                    tickCount: 6
+                    tickCount: 8
                     labelFormat: "%.0f"
                     //labelsVisible: false
                     //gridVisible: false
@@ -161,7 +172,7 @@ Item {
                     axisX: valueAxisX
                     axisY: valueAxisY
                     color: "black"
-                    width: 3
+                    width: 1
                 }
             }
 
@@ -191,7 +202,7 @@ Item {
                     id: valueAxisYHR
                     min: 60
                     max: 220
-                    tickCount: 5
+                    tickCount: 6
                     labelFormat: "%.0f"
                     //labelsVisible: false
                     //gridVisible: false
@@ -206,7 +217,7 @@ Item {
                     axisX: valueAxisXHR
                     axisY: valueAxisYHR
                     color: "black"
-                    width: 3
+                    width: 1
                 }
             }
 
@@ -252,7 +263,7 @@ Item {
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
                     color: "black"
-                    width: 3
+                    width: 1
                 }
 
                 LineSeries {
@@ -262,7 +273,7 @@ Item {
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
                     color: "blue"
-                    width: 3
+                    width: 1
                 }
 
                 LineSeries {
@@ -272,7 +283,7 @@ Item {
                     axisX: valueAxisXCadence
                     axisY: valueAxisYCadence
                     color: "red"
-                    width: 3
+                    width: 1
                 }
             }
         }

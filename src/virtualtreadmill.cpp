@@ -308,6 +308,12 @@ void virtualtreadmill::treadmillProvider()
 
         value.append(treadMill->currentHeart().value()); // current heart rate
 
+        if(!service)
+        {
+            qDebug() << "service not available";
+            return;
+        }
+
         QLowEnergyCharacteristic characteristic
                 = service->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); //TreadmillDataCharacteristicUuid
         Q_ASSERT(characteristic.isValid());
@@ -324,6 +330,12 @@ void virtualtreadmill::treadmillProvider()
     }
     else
     {
+        if(!service)
+        {
+            qDebug() << "service not available";
+            return;
+        }
+
         value.append(0x02); // total distance
         uint16_t speed = treadMill->currentSpeed().value() / 3.6;
         uint32_t distance = treadMill->odometer() * 1000.0;
@@ -353,6 +365,12 @@ void virtualtreadmill::treadmillProvider()
 
     if(noHeartService == false)
     {
+        if(!serviceHR)
+        {
+            qDebug() << "serviceHR not available";
+            return;
+        }
+
         QByteArray valueHR;
         valueHR.append(char(0)); // Flags that specify the format of the value.
         valueHR.append(char(treadMill->currentHeart().value())); // Actual value.

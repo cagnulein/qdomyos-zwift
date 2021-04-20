@@ -49,6 +49,7 @@ private:
     uint16_t watts();
 
     QTimer* refresh;
+    QTimer* t_timeout;
     virtualbike* virtualBike = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
@@ -86,6 +87,7 @@ private slots:
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();
+    void connection_timeout();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };

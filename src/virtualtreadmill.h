@@ -32,9 +32,9 @@ public:
     bool connected();
 
 private:
-    QLowEnergyController* leController;
-    QLowEnergyService* service;
-    QLowEnergyService* serviceHR;
+    QLowEnergyController* leController = 0;
+    QLowEnergyService* service = 0;
+    QLowEnergyService* serviceHR = 0;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataHR;

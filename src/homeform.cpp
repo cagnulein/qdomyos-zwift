@@ -18,6 +18,12 @@
 #include "gpx.h"
 #include "qfit.h"
 #include "material.h"
+
+#ifdef Q_OS_ANDROID
+#include <QtAndroid>
+#include <QAndroidJniEnvironment>
+#endif
+
 #ifndef IO_UNDER_QT
 #include "secret.h"
 #endif
@@ -76,6 +82,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     resistance = new DataObject("Resistance (%)", "icons/icons/resistance.png", "0", true, "resistance", 48, labelFontSize);
     peloton_resistance = new DataObject("Peloton R(%)", "icons/icons/resistance.png", "0", false, "peloton_resistance", 48, labelFontSize);
     target_resistance = new DataObject("Target R(%)", "icons/icons/resistance.png", "0", true, "target_resistance", 48, labelFontSize);
+    target_peloton_resistance = new DataObject("T.Peloton R(%)", "icons/icons/resistance.png", "0", false, "target_peloton_resistance", 48, labelFontSize);
     target_cadence = new DataObject("T.Cadence(rpm)", "icons/icons/cadence.png", "0", false, "target_cadence", 48, labelFontSize);
     target_power = new DataObject("T.Power(W)", "icons/icons/watt.png", "0", false, "target_power", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
@@ -151,7 +158,9 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     emit tile_orderChanged(tile_order());
 
     pelotonHandler = new peloton(bl);
-    connect(pelotonHandler, SIGNAL(workoutStarted(QString)), this, SLOT(pelotonWorkoutStarted(QString)));
+    connect(pelotonHandler, SIGNAL(workoutStarted(QString, QString)), this, SLOT(pelotonWorkoutStarted(QString, QString)));
+    connect(pelotonHandler, SIGNAL(workoutChanged(QString, QString)), this, SLOT(pelotonWorkoutChanged(QString, QString)));
+    connect(pelotonHandler, SIGNAL(loginState(bool)), this, SLOT(pelotonLoginState(bool)));
 
     //populate the UI
 #if 0
@@ -218,6 +227,7 @@ void homeform::peloton_start_workout()
         {
             trainProgram->stop();
             delete trainProgram;
+            trainProgram = 0;
         }
         trainProgram = new trainprogram(pelotonHandler->trainrows, bluetoothManager);
         trainProgramSignals();
@@ -225,16 +235,28 @@ void homeform::peloton_start_workout()
     }
 }
 
-void homeform::pelotonWorkoutStarted(QString name)
+void homeform::pelotonLoginState(bool ok)
+{
+    m_pelotonLoginState = (ok?1:0);
+    emit pelotonLoginChanged(m_pelotonLoginState);
+}
+
+void homeform::pelotonWorkoutStarted(QString name, QString instructor)
+{
+    m_pelotonAskStart = true;
+    emit(changePelotonAskStart(pelotonAskStart()));
+}
+
+void homeform::pelotonWorkoutChanged(QString name, QString instructor)
 {
     QSettings settings;
+
+    stravaPelotonActivityName = name;
+    stravaPelotonInstructorName = instructor;
+
     if(!settings.value("top_bar_enabled", true).toBool()) return;
     m_info = name;
     emit infoChanged(m_info);
-
-    stravaPelotonActivityName = name;
-    m_pelotonAskStart = true;
-    emit(changePelotonAskStart(pelotonAskStart()));
 }
 
 void homeform::backup()
@@ -243,7 +265,9 @@ void homeform::backup()
     qDebug() << "saving fit file backup...";
 
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -315,6 +339,7 @@ void homeform::trainProgramSignals()
          disconnect(trainProgram, SIGNAL(changeFanSpeed(uint8_t)), ((treadmill*)bluetoothManager->device()), SLOT(changeFanSpeed(uint8_t)));
          disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          disconnect(trainProgram, SIGNAL(changeResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(int8_t)));
+         disconnect(trainProgram, SIGNAL(changeRequestedPelotonResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeRequestedPelotonResistance(int8_t)));
          disconnect(trainProgram, SIGNAL(changeCadence(int16_t)), ((bike*)bluetoothManager->device()), SLOT(changeCadence(int16_t)));
          disconnect(trainProgram, SIGNAL(changePower(int32_t)), ((bike*)bluetoothManager->device()), SLOT(changePower(int32_t)));
          disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
@@ -327,6 +352,7 @@ void homeform::trainProgramSignals()
          connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
          connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
          connect(trainProgram, SIGNAL(changeResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(int8_t)));
+         connect(trainProgram, SIGNAL(changeRequestedPelotonResistance(int8_t)), ((bike*)bluetoothManager->device()), SLOT(changeRequestedPelotonResistance(int8_t)));
          connect(trainProgram, SIGNAL(changeCadence(int16_t)), ((bike*)bluetoothManager->device()), SLOT(changeCadence(int16_t)));
          connect(trainProgram, SIGNAL(changePower(int32_t)), ((bike*)bluetoothManager->device()), SLOT(changePower(int32_t)));
          connect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
@@ -343,7 +369,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 21; i++)
+    for(int i = 0; i < 22; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -466,6 +492,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
                 dataList.append(target_resistance);
+
+            if(settings.value("tile_target_peloton_resistance_enabled", false).toBool() && settings.value("tile_target_peloton_resistance_order", 21).toInt() == i)
+                dataList.append(target_peloton_resistance);
 
             if(settings.value("tile_target_cadence_enabled", false).toBool() && settings.value("tile_target_cadence_order", 19).toInt() == i)
                 dataList.append(target_cadence);
@@ -724,6 +753,10 @@ void homeform::Start()
             if(bluetoothManager->device())
                 bluetoothManager->device()->clearStats();
             Session.clear();
+            chartImagesFilenames.clear();
+
+            stravaPelotonActivityName = "";
+            stravaPelotonInstructorName = "";
         }
 
         paused = false;
@@ -753,7 +786,7 @@ void homeform::Stop()
         bluetoothManager->device()->stop();
 
     paused = false;
-    stopped = true;
+    stopped = true;    
 
     fit_save_clicked();
 
@@ -770,6 +803,9 @@ void homeform::Stop()
         emit startTextChanged(startText());
         emit startColorChanged(startColor());
     }
+
+    if(trainProgram)
+        trainProgram->rows.clear();
 }
 
 void homeform::Lap()
@@ -916,6 +952,7 @@ void homeform::update()
             peloton_resistance = ((bike*)bluetoothManager->device())->pelotonResistance().value();
             this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
             this->target_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
+            this->target_peloton_resistance->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
             this->target_cadence->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
             this->target_power->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
@@ -1064,8 +1101,14 @@ void homeform::update()
                 qDebug() << "trainprogram random seconds " + QString::number(seconds) + " last_change " + last_seconds + " period " + settings.value("trainprogram_period_seconds", 60).toUInt();
                 if(last_seconds == 0 || ((seconds - last_seconds) >= settings.value("trainprogram_period_seconds", 60).toUInt()))
                 {
-                    if(last_seconds == 0) r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
-                    last_seconds = seconds;
+                    if(last_seconds == 0)
+                    {
+                        r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
+                        last_seconds = 1; // in order to avoid to re-enter here again if the user doesn't ride
+                    }
+                    else
+                        last_seconds = seconds;
+
                     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
                     {
                         double speed = settings.value("trainprogram_speed_min", 8).toUInt();
@@ -1075,7 +1118,7 @@ void homeform::update()
                         {
                             speed = (double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0;
                         }
-                        if(r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt()))
+                        if(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt())
                         {
                             incline = (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0;
                         }
@@ -1170,7 +1213,9 @@ void homeform::trainprogram_open_clicked(QUrl fileName)
 void homeform::gpx_save_clicked()
 {
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -1183,7 +1228,9 @@ void homeform::gpx_save_clicked()
 void homeform::fit_save_clicked()
 {
     QString path = "";
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+    path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
     path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
@@ -1202,7 +1249,7 @@ void homeform::fit_save_clicked()
             QByteArray fitfile = f.readAll();
             strava_upload_file(fitfile,filename);
             f.close();
-        }
+        }        
     }
 }
 
@@ -1395,7 +1442,7 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
     QString activityName = " " + settings.value("strava_suffix", "#qdomyos-zwift").toString() ;
     if(stravaPelotonActivityName.length())
     {
-        activityName = stravaPelotonActivityName + activityName;
+        activityName = stravaPelotonActivityName + " - " + stravaPelotonInstructorName + activityName;
     }
     else
     {
@@ -1640,3 +1687,145 @@ void homeform::setGeneralPopupVisible(bool value)
     m_generalPopupVisible = value;
     generalPopupVisibleChanged(m_generalPopupVisible);
 }
+
+void homeform::smtpError(SmtpClient::SmtpError e)
+{
+    qDebug() << "SMTP ERROR" << e;
+}
+
+void homeform::sendMail()
+{
+    QSettings settings;
+
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+
+    // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
+    if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device())
+        return;
+
+#ifdef SMTP_SERVER
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    SmtpClient smtp(STRINGIFY(SMTP_SERVER), 587, SmtpClient::TlsConnection);
+    connect(&smtp, SIGNAL(smtpError(SmtpClient::SmtpError)), this, SLOT(smtpError(SmtpClient::SmtpError)));
+#else
+#warning "stmp server is unset!"
+    SmtpClient smtp("",25, SmtpClient::TlsConnection);
+    return;
+#endif
+
+    // We need to set the username (your email address) and the password
+    // for smtp authentification.
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    smtp.setUser(STRINGIFY(SMTP_USERNAME));
+#else
+    #warning "smtp username is unset!"
+    return;
+#endif
+#ifdef SMTP_PASSWORD
+#define _STR(x) #x
+#define STRINGIFY(x)  _STR(x)
+    smtp.setPassword(STRINGIFY(SMTP_PASSWORD));
+#else
+#warning "smtp password is unset!"
+    return;
+#endif
+
+    // Now we create a MimeMessage object. This will be the email.
+
+    MimeMessage message;
+
+    message.setSender(new EmailAddress("no-reply@qzapp.it", "QZ"));
+    message.addRecipient(new EmailAddress(settings.value("user_email","").toString(), settings.value("user_email","").toString()));
+    if(Session.length())
+    {
+        QString title = Session.first().time.toString();
+        if(stravaPelotonActivityName.length())
+            title += " " + stravaPelotonActivityName + " - " + stravaPelotonInstructorName;
+        message.setSubject(title);
+    }
+    else
+        message.setSubject("Test");
+
+    // Now add some text to the email.
+    // First we create a MimeText object.
+
+    MimeText text;
+
+    QString textMessage = "Great workout!\n\n";
+    textMessage += "Average Speed: " + QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1) + "\n";
+    textMessage += "Max Speed: " + QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1) + "\n";
+    textMessage += "Calories burned: " + QString::number(bluetoothManager->device()->calories(), 'f', 0) + "\n";
+    textMessage += "Distance: " + QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) + "\n";
+    textMessage += "Average Watt: " + QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + "\n";
+    textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0) + "\n";
+    textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + "\n";
+    textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + "\n";
+    textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + "\n";
+    textMessage += "Elapsed: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
+    if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+    {
+        textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + "\n";
+        textMessage += "Max Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max(), 'f', 0) + "\n";
+        textMessage += "Average Resistance: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + "\n";
+        textMessage += "Max Resistance: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().max(), 'f', 0) + "\n";
+        textMessage += "Average Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + "\n";
+        textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
+    }
+    text.setText(textMessage);
+    message.addPart(&text);
+
+    foreach(QString f, chartImagesFilenames)
+    {
+        // Create a MimeInlineFile object for each image
+        MimeInlineFile* image = new MimeInlineFile((new QFile(f)));
+
+        // An unique content id must be setted
+        image->setContentId(f);
+        image->setContentType("image/jpg");
+        message.addPart(image);
+    }    
+
+    smtp.connectToHost();
+    smtp.login();
+    smtp.sendMail(message);
+    smtp.quit();
+
+    // delete image variable TODO
+}
+
+#if defined(Q_OS_ANDROID)
+QString homeform::getAndroidDataAppDir() {
+    static QString path = "";
+
+    if(path.length())
+        return path;
+
+    QAndroidJniObject filesArr = QtAndroid::androidActivity().callObjectMethod("getExternalFilesDirs", "(Ljava/lang/String;)[Ljava/io/File;", nullptr);
+    jobjectArray dataArray = filesArr.object<jobjectArray>();
+    QString out;
+    if (dataArray) {
+        QAndroidJniEnvironment env;
+        jsize dataSize = env->GetArrayLength(dataArray);
+        if (dataSize) {
+            QAndroidJniObject mediaPath;
+            QAndroidJniObject file;
+            for (int i = 0; i<dataSize; i++) {
+                file = env->GetObjectArrayElement(dataArray, i);
+                jboolean val = QAndroidJniObject::callStaticMethod<jboolean>("android/os/Environment", "isExternalStorageRemovable", "(Ljava/io/File;)Z", file.object());
+                mediaPath = file.callObjectMethod( "getAbsolutePath", "()Ljava/lang/String;" );
+                out = mediaPath.toString();
+                if (!val)
+                    break;
+            }
+        }
+    }
+    path = out;
+    return out;
+}
+#endif

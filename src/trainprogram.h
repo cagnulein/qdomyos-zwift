@@ -13,6 +13,7 @@ public:
     double fanspeed = -1;
     double inclination = -1;
     int8_t resistance = -1;
+    int8_t requested_peloton_resistance = -1;
     int16_t cadence = -1;
     bool forcespeed = false;
 };
@@ -49,6 +50,7 @@ signals:
     bool changeFanSpeed(uint8_t speed);
     void changeInclination(double inclination);
     void changeResistance(int8_t resistance);
+    void changeRequestedPelotonResistance(int8_t resistance);
     void changeCadence(int16_t cadence);
     void changeSpeedAndInclination(double speed, double inclination);
 

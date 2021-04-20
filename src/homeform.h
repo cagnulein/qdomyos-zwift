@@ -8,11 +8,13 @@
 #include <QGraphicsScene>
 #include <QChart>
 #include <QColor>
+#include <QQuickItemGrabResult>
 #include "screencapture.h"
 #include "bluetooth.h"
 #include "sessionline.h"
 #include "trainprogram.h"
 #include "peloton.h"
+#include "smtpclient/src/SmtpMime"
 
 class DataObject : public QObject
 {
@@ -94,8 +96,10 @@ class homeform: public QObject
     Q_PROPERTY(QStringList bluetoothDevices READ bluetoothDevices NOTIFY bluetoothDevicesChanged)
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
+    Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
     Q_PROPERTY(QString workoutName READ workoutName)
+    Q_PROPERTY(QString instructorName READ instructorName)
     Q_PROPERTY(int workout_sample_points READ workout_sample_points)
     Q_PROPERTY(QList<double> workout_watt_points READ workout_watt_points)
     Q_PROPERTY(QList<double> workout_heart_points READ workout_heart_points)
@@ -109,17 +113,42 @@ public:
     Q_INVOKABLE void save_screenshot()
     {
         QString path = "";
-    #if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+#if defined(Q_OS_ANDROID)
+        path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
         path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-    #elif defined(Q_OS_IOS)
+#elif defined(Q_OS_IOS)
         path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-    #endif
+#endif
 
         QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".jpg";
         QObject *rootObject = engine->rootObjects().first();
         QObject *stack = rootObject;
         screenCapture s((QQuickView*) stack);
         s.capture(filenameScreenshot);
+    }
+
+    Q_INVOKABLE void save_screenshot_chart(QQuickItem* item, QString filename)
+    {
+        if(!stopped) return;
+
+        QString path = "";
+#if defined(Q_OS_ANDROID)
+        path = getAndroidDataAppDir() + "/";
+#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
+        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
+#elif defined(Q_OS_IOS)
+        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
+#endif
+
+        QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + "_" + filename.replace(":", "_") + ".jpg";
+        QSharedPointer<const QQuickItemGrabResult> grabResult = item->grabToImage();
+
+        connect(grabResult.data(), &QQuickItemGrabResult::ready, [=]() {
+            grabResult->saveToFile(filenameScreenshot);
+            //chartImages.append(grabResult->image());
+            chartImagesFilenames.append(filenameScreenshot);
+        });
     }
 
     Q_INVOKABLE void update_chart_power(QQuickItem *item){
@@ -223,6 +252,8 @@ public:
     QString stopColor();
     QString workoutStartDate() {if(Session.length()) return Session.first().time.toString(); else return "";}
     QString workoutName() {if(stravaPelotonActivityName.length()) return stravaPelotonActivityName; else {if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) return "Ride"; else return "Run";}}
+    QString instructorName() {return stravaPelotonInstructorName;}
+    int pelotonLogin() {return m_pelotonLoginState;}
     bool pelotonAskStart() {return m_pelotonAskStart;}
     void setPelotonAskStart(bool value) {m_pelotonAskStart = value;}
     bool generalPopupVisible();
@@ -234,7 +265,13 @@ public:
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count();}
 
+#if defined(Q_OS_ANDROID)
+    static QString getAndroidDataAppDir();
+#endif
+
     double wattMaxChart() {QSettings settings; if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->wattsMetric().max() > (settings.value("ftp", 200.0).toDouble() * 2)) return bluetoothManager->device()->wattsMetric().max(); else { return settings.value("ftp", 200.0).toDouble() * 2;} }
+
+    Q_INVOKABLE void sendMail();
 
     QList<double> workout_watt_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.watt);} return l; }
     QList<double> workout_heart_points() { QList<double> l; foreach(SessionLine s, Session) {l.append(s.heart);} return l; }
@@ -263,7 +300,11 @@ private:
 
     peloton* pelotonHandler = 0;
     bool m_pelotonAskStart = false;
+    int m_pelotonLoginState = -1;
     QString stravaPelotonActivityName = "";
+    QString stravaPelotonInstructorName = "";
+
+    QList<QString> chartImagesFilenames;
 
     bool m_autoresistance = true;
 
@@ -284,6 +325,7 @@ private:
     DataObject* elapsed;
     DataObject* peloton_resistance;
     DataObject* target_resistance;
+    DataObject* target_peloton_resistance;
     DataObject* target_cadence;
     DataObject* target_power;
     DataObject* ftp;
@@ -302,7 +344,7 @@ private:
     void update();
     void backup();
     bool getDevice();
-    bool getLap();
+    bool getLap();    
 
 public slots:
     void aboutToQuit();
@@ -330,8 +372,11 @@ private slots:
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
-    void pelotonWorkoutStarted(QString name);
-    void peloton_start_workout();    
+    void pelotonWorkoutStarted(QString name, QString instructor);
+    void pelotonWorkoutChanged(QString name, QString instructor);
+    void pelotonLoginState(bool ok);
+    void peloton_start_workout();
+    void smtpError(SmtpClient::SmtpError e);
 
 signals:
 
@@ -352,6 +397,7 @@ signals:
  void changePelotonAskStart(bool value);
  void generalPopupVisibleChanged(bool value);
  void autoResistanceChanged(bool value);
+ void pelotonLoginChanged(int ok);
 };
 
 #endif // HOMEFORM_H

@@ -1,4 +1,4 @@
-#include "inspirebike.h"
+#include "chronobike.h"
 #include "virtualbike.h"
 #include <QFile>
 #include <QDateTime>
@@ -11,7 +11,7 @@
 //#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
 //#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 
-inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
+chronobike::chronobike(bool noWriteResistance, bool noHeartService)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
@@ -24,7 +24,7 @@ inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
     refresh->start(200);
 }
 
-/*void inspirebike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
+/*void chronobike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
     QTimer timeout;
@@ -49,13 +49,13 @@ inspirebike::inspirebike(bool noWriteResistance, bool noHeartService)
     loop.exec();
 }*/
 
-void inspirebike::connection_timeout()
+void chronobike::connection_timeout()
 {
     qDebug() << "connection timeout triggered!";
     m_control->disconnectFromDevice();
 }
 
-void inspirebike::update()
+void chronobike::update()
 {
     qDebug() << m_control->state() << bluetoothDevice.isValid() <<
                 gattCommunicationChannelService <<
@@ -83,10 +83,10 @@ void inspirebike::update()
     {
         QDateTime current = QDateTime::currentDateTime();
         double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        m_watt = (double)watts();
         if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
         {
-           elapsed += deltaTime;           
+           elapsed += deltaTime;
+           m_watt = (double)watts();
            m_jouls += (m_watt.value() * deltaTime);
         }
         lastTimeUpdate = current;
@@ -130,12 +130,12 @@ void inspirebike::update()
     firstUpdate = false;
 }
 
-void inspirebike::serviceDiscovered(const QBluetoothUuid &gatt)
+void chronobike::serviceDiscovered(const QBluetoothUuid &gatt)
 {
     debug("serviceDiscovered " + gatt.toString());
 }
 
-void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+void chronobike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     //qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
@@ -146,20 +146,25 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     lastPacket = newValue;
 
-    if (newValue.length() != 8)
+    if (newValue.length() != 19)
         return;
 
-    Resistance = newValue.at(6);
-    Cadence = ((uint8_t)newValue.at(3));
-    Speed = 0.37497622 * ((double)Cadence.value());
+    m_watt = (uint16_t)((uint8_t)newValue.at(17)) + ((uint16_t)((uint8_t)newValue.at(18)) << 8);
+    Cadence = ((uint8_t)newValue.at(8)) / 2;
+    Speed = ((double)((uint16_t)((uint8_t)newValue.at(6)) + ((uint16_t)((uint8_t)newValue.at(7)) << 8))) / 100.0;
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
-    //y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
-    if(settings.value("inspire_peloton_formula", false).toBool())
-        m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) + (2.575 * Resistance.value()) + 0.0444) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
-    else
-        m_pelotonResistance = Resistance.value() * 2.5;
+    double ac=0.01243107769;
+    double bc=1.145964912;
+    double cc=-23.50977444;
+
+    double ar=0.1469553975;
+    double br=-5.841344538;
+    double cr=97.62165482;
+
+    m_pelotonResistance = (((sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar)) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
+    Resistance = m_pelotonResistance;
 
     if(Cadence.value() > 0)
     {
@@ -214,9 +219,9 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
 
-void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
+void chronobike::stateChanged(QLowEnergyService::ServiceState state)
 {
-    QBluetoothUuid _gattNotify1CharacteristicId((QString)"7ee72ad1-6fd8-4cbd-b648-a2cdcfa4e7f4");
+    QBluetoothUuid _gattNotify1CharacteristicId((QString)"a026e01d-0a7d-4ab3-97fa-f1500f9feb8b");
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -225,7 +230,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
     {
         //qDebug() << gattCommunicationChannelService->characteristics();
 
-        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);        
+        gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
         //qDebug() << gattNotify1Characteristic.descriptors();
@@ -268,7 +273,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
             {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                //connect(virtualBike,&virtualbike::debug ,this,&inspirebike::debug);
+                //connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
             }
         }
         firstStateChanged = 1;
@@ -279,49 +284,44 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state)
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
 
-        // it doesn't work neither on android, always description write error
-        //QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
-        //m_control->d_ptr->writeDescriptor(qzService, 0x18, 0x1E, descriptor);
-
         emit connectedAndDiscovered();
     }
 }
 
-void inspirebike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
+void chronobike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
 {
     debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
 }
 
-void inspirebike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
+void chronobike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
 {
     Q_UNUSED(characteristic);
     debug("characteristicWritten " + newValue.toHex(' '));
 }
 
-void inspirebike::serviceScanDone(void)
+void chronobike::serviceScanDone(void)
 {
     debug("serviceScanDone");
-
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"7ee7e1fa-6fd8-4cbd-b648-a2cdcfa4e7f4");
+    QBluetoothUuid _gattCommunicationChannelServiceId((QString)"a026ee07-0a7d-4ab3-97fa-f1500f9feb8b");
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
 }
 
-void inspirebike::errorService(QLowEnergyService::ServiceError err)
+void chronobike::errorService(QLowEnergyService::ServiceError err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("inspirebike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    debug("chronobike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
-void inspirebike::error(QLowEnergyController::Error err)
+void chronobike::error(QLowEnergyController::Error err)
 {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("inspirebike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    debug("chronobike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
-void inspirebike::deviceDiscovered(const QBluetoothDeviceInfo &device)
+void chronobike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
     {
@@ -360,41 +360,32 @@ void inspirebike::deviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 }
 
-bool inspirebike::connected()
+bool chronobike::connected()
 {
     if(!m_control)
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void* inspirebike::VirtualBike()
+void* chronobike::VirtualBike()
 {
     return virtualBike;
 }
 
-void* inspirebike::VirtualDevice()
+void* chronobike::VirtualDevice()
 {
     return VirtualBike();
 }
 
-uint16_t inspirebike::watts()
+uint16_t chronobike::watts()
 {
     QSettings settings;
     if(currentCadence().value() == 0) return 0;
 
-    if(settings.value("inspire_peloton_formula", false).toBool())
-        return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) ) / 2.2);
-    else
-    {
-        // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
-        if(currentCadence().value() < 90)
-            return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.095 * (double)(currentResistance().value())) );
-        else
-            return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) * exp(0.088 * (double)(currentResistance().value())) );
-    }
+    return m_watt.value();
 }
 
-void inspirebike::controllerStateChanged(QLowEnergyController::ControllerState state)
+void chronobike::controllerStateChanged(QLowEnergyController::ControllerState state)
 {
     qDebug() << "controllerStateChanged" << state;
     if(state == QLowEnergyController::UnconnectedState && m_control)

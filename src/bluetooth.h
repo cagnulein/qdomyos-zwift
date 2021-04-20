@@ -37,6 +37,10 @@
 #include "sportstechbike.h"
 #include "skandikawiribike.h"
 #include "heartratebelt.h"
+#include "cscbike.h"
+#include "npecablebike.h"
+#include "chronobike.h"
+#include "stagesbike.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 #include "templateinfosenderbuilder.h"
@@ -75,6 +79,10 @@ private:
     eslinkertreadmill* eslinkerTreadmill = 0;
     m3ibike* m3iBike = 0;
     skandikawiribike* skandikaWiriBike = 0;
+    cscbike* cscBike = 0;
+    npecablebike* npeCableBike = 0;
+    stagesbike* stagesBike = 0;
+    chronobike* chronoBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;

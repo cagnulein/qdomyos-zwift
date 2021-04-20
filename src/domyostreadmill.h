@@ -28,6 +28,10 @@
 #include "virtualtreadmill.h"
 #include "treadmill.h"
 
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 class domyostreadmill : public treadmill
 {
     Q_OBJECT
@@ -79,6 +83,10 @@ private:
 
     bool initDone = false;
     bool initRequest = false;
+    
+#ifdef Q_OS_IOS
+    lockscreen* h = 0;
+#endif
 
 signals:
     void disconnected();

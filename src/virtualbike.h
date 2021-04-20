@@ -32,18 +32,19 @@ public:
     bool connected();
 
 private:
-    QLowEnergyController* leController;
-    QLowEnergyService* serviceHR;
-    QLowEnergyService* serviceBattery;
-    QLowEnergyService* serviceFIT;
-    QLowEnergyService* service;
-    QLowEnergyService* serviceChanged;
+    QLowEnergyController* leController = 0;
+    QLowEnergyService* serviceHR = 0;
+    QLowEnergyService* serviceBattery = 0;
+    QLowEnergyService* serviceFIT = 0;
+    QLowEnergyService* service = 0;
+    QLowEnergyService* serviceChanged = 0;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;
     QLowEnergyServiceData serviceDataFIT;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataChanged;
+    QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
     bike* Bike;
 

@@ -22,6 +22,8 @@ peloton::peloton(bluetooth* bl, QObject *parent) : QObject(parent)
 
 void peloton::startEngine()
 {
+    if(peloton_credentials_wrong) return;
+
     QSettings settings;
     timer->stop();
     connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
@@ -46,14 +48,25 @@ void peloton::login_onfinish(QNetworkReply* reply)
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+    QJsonObject json = document.object();
+    int status = json["status"].toInt();
 
     if(log_request)
         qDebug() << "login_onfinish" << document;
     else
         qDebug() << "login_onfinish";
 
+    if(status != 0)
+    {
+        peloton_credentials_wrong = true;
+        qDebug() << "invalid peloton credentials during login "  << status;
+        return;
+    }
+
     user_id = document["user_id"].toString();
     total_workout = document["user_data"]["total_workouts"].toInt();
+
+    emit loginState(user_id.length());
 
     getWorkoutList(1);
 }
@@ -80,18 +93,20 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
         {
             getSummary(id);
             timer->start(60000);  // timeout request
+            current_workout_status = status;
         }
         else
         {
             timer->start(10000);  // check for a status changed
+            // i don't need to set current_workout_status because, the bike was missing and than i didn't set the workout
         }
     }
     else
     {
         //getSummary(current_workout_id); // debug
         timer->start(10000);  // check for a status changed
-    }
-    current_workout_status = status;
+        current_workout_status = status;
+    }    
 
     if(log_request)
         qDebug() << "workoutlist_onfinish" << current_workout;
@@ -113,6 +128,24 @@ void peloton::summary_onfinish(QNetworkReply* reply)
     getWorkout(current_workout_id);
 }
 
+void peloton::instructor_onfinish(QNetworkReply* reply)
+{
+    disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(instructor_onfinish(QNetworkReply*)));
+    QByteArray payload = reply->readAll(); // JSON
+    QJsonParseError parseError;
+    instructor = QJsonDocument::fromJson(payload, &parseError);
+    current_instructor_name = instructor.object()["name"].toString();
+
+    if(log_request)
+        qDebug() << "instructor_onfinish" << instructor;
+    else
+        qDebug() << "instructor_onfinish";
+
+    emit workoutChanged(current_workout_name, current_instructor_name);
+
+    getPerformance(current_workout_id);
+}
+
 void peloton::workout_onfinish(QNetworkReply* reply)
 {
     disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(workout_onfinish(QNetworkReply*)));
@@ -121,17 +154,20 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject ride = workout.object()["ride"].toObject();
     current_workout_name = ride["title"].toString();
+    current_instructor_id = ride["instructor_id"].toString();
 
     if(log_request)
         qDebug() << "workout_onfinish" << workout;
     else
         qDebug() << "workout_onfinish";
 
-    getPerformance(current_workout_id);
+    getInstructor(current_instructor_id);
 }
 
 void peloton::performance_onfinish(QNetworkReply* reply)
 {
+    QSettings settings;
+    QString difficulty = settings.value("peloton_difficulty", "lower").toString();
     disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(performance_onfinish(QNetworkReply*)));
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -142,10 +178,10 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     QJsonArray target_graph_metrics = target_performance_metrics["target_graph_metrics"].toArray();
     QJsonObject resistances = target_graph_metrics[1].toObject();    
     QJsonObject graph_data_resistances = resistances["graph_data"].toObject();
-    QJsonArray lower_resistances = graph_data_resistances["lower"].toArray();
+    QJsonArray lower_resistances = graph_data_resistances[difficulty].toArray();
     QJsonObject cadences = target_graph_metrics[0].toObject();
     QJsonObject graph_data_cadences = cadences["graph_data"].toObject();
-    QJsonArray lower_cadences = graph_data_cadences["lower"].toArray();
+    QJsonArray lower_cadences = graph_data_cadences[difficulty].toArray();
 
     trainrows.clear();
     for(int i=0; i<lower_resistances.count(); i++)
@@ -153,23 +189,36 @@ void peloton::performance_onfinish(QNetworkReply* reply)
         trainrow r;
         r.duration = QTime(0,0,peloton_workout_second_resolution,0);
         r.resistance = ((bike*)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
+        r.requested_peloton_resistance = lower_resistances.at(i).toInt();
         r.cadence = lower_cadences.at(i).toInt();
         trainrows.append(r);
     }
 
     if(log_request)
-        qDebug() << "performance_onfinish" << workout;
+        qDebug() << "performance_onfinish" << performance;
     else
         qDebug() << "performance_onfinish" << trainrows.length();
 
     if(trainrows.length())
     {
-        emit workoutStarted(current_workout_name);
+        emit workoutStarted(current_workout_name, current_instructor_name);
     }
 
     timer->start(30000); // check for a status changed
 }
 
+void peloton::getInstructor(QString instructor_id)
+{
+    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(instructor_onfinish(QNetworkReply*)));
+
+    QUrl url("https://api.onepeloton.com/api/instructor/" + instructor_id);
+    QNetworkRequest request(url);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setHeader(QNetworkRequest::UserAgentHeader, "qdomyos-zwift");
+
+    mgr->get(request);
+}
 
 void peloton::getPerformance(QString workout)
 {
@@ -215,7 +264,7 @@ void peloton::getWorkoutList(int num)
     if(num == 0)
         num = this->total_workout;
 
-    int limit = 100;
+    int limit = 1; // for now we don't need more than 1 workout
     int pages = num / limit;
     int rem = num % limit;
 
