@@ -784,7 +784,7 @@ void virtualbike::bikeProvider()
         }
 
         QLowEnergyCharacteristic characteristic
-                        = service->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
+                        = service->characteristic(QBluetoothUuid((QString)"0bf669f4-45f2-11e7-9598-0800200c9a66"));
         Q_ASSERT(characteristic.isValid());
         if(leController->state() != QLowEnergyController::ConnectedState)
         {
