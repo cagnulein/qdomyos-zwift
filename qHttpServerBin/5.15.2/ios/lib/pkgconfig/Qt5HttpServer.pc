@@ -1,0 +1,14 @@
+prefix=/Users/matteo/Qt/5.15.2/ios
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 HttpServer
+Description: Qt HttpServer module
+Version: 5.12.0
+Libs: -L${libdir} -lQt5HttpServer 
+Libs.private: /Users/matteo/develop/build-qthttpserver-Qt_5_15_2_for_iOS-Release/lib/libQt5SslServer.a /Users/matteo/Qt/5.15.2/ios/lib/libQt5WebSockets.a /Users/matteo/Qt/5.15.2/ios/lib/libQt5Network.a -framework Security -framework SystemConfiguration -framework GSS /Users/matteo/Qt/5.15.2/ios/lib/libQt5Concurrent.a /Users/matteo/Qt/5.15.2/ios/lib/libQt5Core.a -framework MobileCoreServices -lm -framework UIKit -framework CoreFoundation -framework Foundation -lz /Users/matteo/Qt/5.15.2/ios/lib/libqtpcre2.a    
+Cflags: -DQT_HTTPSERVER_LIB -I${includedir}/QtHttpServer -I${includedir}
+Requires: Qt5Network Qt5Core Qt5WebSockets Qt5SslServer Qt5Concurrent
+

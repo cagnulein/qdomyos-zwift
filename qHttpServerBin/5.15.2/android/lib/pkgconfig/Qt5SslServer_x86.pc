@@ -1,0 +1,13 @@
+prefix=C:/Qt/5.15.2/android
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 SslServer
+Description: Qt SslServer module
+Version: 5.12.0
+Libs: -L${libdir} -lQt5SslServer_x86 
+Cflags: -DQT_SSLSERVER_LIB -I${includedir}/QtSslServer -I${includedir}
+Requires: Qt5Network_x86 Qt5Core_x86
+

@@ -1,24 +1,30 @@
 .normal {
   color: black;
   font-weight: normal;
-  font-family: Verdana; 
+  font-family: Verdana;
+  font-size: 40pt;
+}
+.normalavg {
+  color: black;
+  font-weight: normal;
+  font-family: Verdana;
   font-size: 30pt;
 }
 .ok {
   color: green;
   font-weight: normal;
-  font-family: Verdana; 
-  font-size: 30pt;
+  font-family: Verdana;
+  font-size: 40pt;
 }
 .min {
   color: #DF7401;
   font-weight: normal;
-  font-family: Verdana; 
-  font-size: 30pt;
+  font-family: Verdana;
+  font-size: 40pt;
 }
 .err {
   color: red;
   font-weight: bold;
-  font-family: Verdana; 
-  font-size: 30pt;
+  font-family: Verdana;
+  font-size: 40pt;
 }

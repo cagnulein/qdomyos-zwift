@@ -1,0 +1,13 @@
+prefix=C:/Qt/5.15.2/android
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 HttpServer
+Description: Qt HttpServer module
+Version: 5.12.0
+Libs: -L${libdir} -lQt5HttpServer_x86 
+Cflags: -DQT_HTTPSERVER_LIB -I${includedir}/QtHttpServer -I${includedir}
+Requires: Qt5Network_x86 Qt5Core_x86 Qt5WebSockets_x86 Qt5SslServer_x86 Qt5Concurrent_x86
+

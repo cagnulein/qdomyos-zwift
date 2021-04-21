@@ -1,0 +1,11 @@
+QT.httpserver_private.VERSION = 5.12.0
+QT.httpserver_private.name = QtHttpServer
+QT.httpserver_private.module =
+QT.httpserver_private.libs = $$QT_MODULE_LIB_BASE
+QT.httpserver_private.includes = $$QT_MODULE_INCLUDE_BASE/QtHttpServer/5.12.0 $$QT_MODULE_INCLUDE_BASE/QtHttpServer/5.12.0/QtHttpServer
+QT.httpserver_private.frameworks =
+QT.httpserver_private.depends = core_private websockets_private httpserver
+QT.httpserver_private.uses =
+QT.httpserver_private.module_config = v2 staticlib internal_module
+QT.httpserver_private.enabled_features =
+QT.httpserver_private.disabled_features =

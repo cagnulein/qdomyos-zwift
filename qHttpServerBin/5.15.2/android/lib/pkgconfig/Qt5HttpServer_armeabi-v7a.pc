@@ -1,0 +1,13 @@
+prefix=C:/Qt/5.15.2/android
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 HttpServer
+Description: Qt HttpServer module
+Version: 5.12.0
+Libs: -L${libdir} -lQt5HttpServer_armeabi-v7a 
+Cflags: -DQT_HTTPSERVER_LIB -I${includedir}/QtHttpServer -I${includedir}
+Requires: Qt5Network_armeabi-v7a Qt5Core_armeabi-v7a Qt5WebSockets_armeabi-v7a Qt5SslServer_armeabi-v7a Qt5Concurrent_armeabi-v7a
+
