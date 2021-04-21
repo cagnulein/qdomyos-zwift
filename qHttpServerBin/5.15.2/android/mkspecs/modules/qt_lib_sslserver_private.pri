@@ -1,0 +1,11 @@
+QT.sslserver_private.VERSION = 5.12.0
+QT.sslserver_private.name = QtSslServer
+QT.sslserver_private.module =
+QT.sslserver_private.libs = $$QT_MODULE_LIB_BASE
+QT.sslserver_private.includes = $$QT_MODULE_INCLUDE_BASE/QtSslServer/5.12.0 $$QT_MODULE_INCLUDE_BASE/QtSslServer/5.12.0/QtSslServer
+QT.sslserver_private.frameworks =
+QT.sslserver_private.depends = sslserver
+QT.sslserver_private.uses =
+QT.sslserver_private.module_config = v2 internal_module
+QT.sslserver_private.enabled_features =
+QT.sslserver_private.disabled_features =

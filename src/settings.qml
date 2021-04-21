@@ -23,6 +23,7 @@ import Qt.labs.settings 1.0
             property bool zwift_erg: false
             property real zwift_erg_filter: 0.0
             property real zwift_erg_filter_down: 0.0
+
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -358,8 +359,8 @@ import Qt.labs.settings 1.0
                             Label {
                                 id: appleWatchLabel
                                 text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
-                                font.bold: yes
-                                font.italic: yes
+                                font.bold: true
+                                font.italic: true
                                 font.pixelSize: 8
                                 textFormat: Text.PlainText
                                 wrapMode: Text.WordWrap
@@ -2239,6 +2240,50 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text
                         }
+                    }
+                }
+            }
+            AccordionElement {
+                id: templateSettingsAccordion
+                title: qsTr("Template Settings")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    id: templateSettingsContent
+                }
+                Component.onCompleted: function() {
+                    let template_ids = settings.value("template_ids", []);
+                    console.log("template_ids current val "+template_ids);
+                    if (template_ids) {
+                        let accordionCheckComponent = Qt.createComponent("AccordionCheckElement.qml");
+                        let componentMap = {};
+                        template_ids.forEach(function(template_id) {
+                            console.log("template_id current "+template_id);
+                            let template_type = settings.value("template_" + template_id + "_type", "");
+                            if (template_type) {
+                                console.log("template_type current "+template_type);
+                                if (!componentMap[template_type])
+                                    componentMap[template_type] = Qt.createComponent("Template" + template_type + ".qml");
+                                let component = componentMap[template_type];
+                                if (component) {
+                                    let key_enabled = "template_" + template_id + "_enabled";
+                                    console.log("Creating component object for id "+template_id);
+                                    let template_object = component.createObject(null,
+                                                                                 {
+                                                                                     settings: settings,
+                                                                                     templateId: template_id
+                                                                                 });
+                                    let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
+                                                                                              {
+                                                                                                  title: template_id +" (" + template_type +")",
+                                                                                                  settings: settings,
+                                                                                                  linkedBoolSetting: key_enabled,
+                                                                                                  accordionContent: template_object
+                                                                                              });
+                                }
+                            }
+                        });
                     }
                 }
             }

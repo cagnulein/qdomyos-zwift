@@ -2,6 +2,12 @@ QT += bluetooth widgets xml positioning quick networkauth
 
 QT+= charts
 unix:android: QT += androidextras gui-private
+qtHaveModule(httpserver) {
+    QT += httpserver
+    DEFINES += Q_HTTPSERVER
+    SOURCES += webserverinfosender.cpp
+    HEADERS += webserverinfosender.h
+}
 
 CONFIG += c++11 console debug app_bundle
 macx: CONFIG += static
@@ -90,6 +96,9 @@ SOURCES += \
    snodebike.cpp \
    soleelliptical.cpp \
    sportstechbike.cpp \
+    tcpclientinfosender.cpp \
+    templateinfosender.cpp \
+    templateinfosenderbuilder.cpp \
    stagesbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
@@ -381,6 +390,9 @@ HEADERS += \
    snodebike.h \
    soleelliptical.h \
    sportstechbike.h \
+    tcpclientinfosender.h \
+    templateinfosender.h \
+    templateinfosenderbuilder.h \
    stagesbike.h \
 	toorxtreadmill.h \
 	gpx.h \

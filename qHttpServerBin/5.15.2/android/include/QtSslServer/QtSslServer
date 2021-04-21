@@ -1,0 +1,7 @@
+#ifndef QT_QTSSLSERVER_MODULE_H
+#define QT_QTSSLSERVER_MODULE_H
+#include <QtSslServer/QtSslServerDepends>
+#include "qtsslserverglobal.h"
+#include "qsslserver.h"
+#include "qtsslserverversion.h"
+#endif

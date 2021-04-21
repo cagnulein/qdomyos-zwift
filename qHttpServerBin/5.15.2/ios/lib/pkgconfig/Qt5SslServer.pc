@@ -1,0 +1,14 @@
+prefix=/Users/matteo/Qt/5.15.2/ios
+exec_prefix=${prefix}
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+
+Name: Qt5 SslServer
+Description: Qt SslServer module
+Version: 5.12.0
+Libs: -L${libdir} -lQt5SslServer 
+Libs.private: /Users/matteo/Qt/5.15.2/ios/lib/libQt5Network.a -framework Security -framework SystemConfiguration -framework GSS /Users/matteo/Qt/5.15.2/ios/lib/libQt5Core.a -framework MobileCoreServices -lm -framework UIKit -framework CoreFoundation -framework Foundation -lz /Users/matteo/Qt/5.15.2/ios/lib/libqtpcre2.a    
+Cflags: -DQT_SSLSERVER_LIB -I${includedir}/QtSslServer -I${includedir}
+Requires: Qt5Network Qt5Core
+
