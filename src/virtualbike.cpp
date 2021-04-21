@@ -506,17 +506,17 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QByteArray reply;
         if(((uint8_t)newValue.at(1)) == 0xA1)
         {
-            // f0 a1 06 01 0a 00 32 04 03 db
+            // f0a106000700290104cc
             reply.append(0xf0);
             reply.append(0xa1);
             reply.append(0x06);
-            reply.append(0x01);
-            reply.append(0x0a);
             reply.append((char)0x00);
-            reply.append(0x32);
+            reply.append(0x07);
+            reply.append((char)0x00);
+            reply.append(0x29);
+            reply.append(0x01);
             reply.append(0x04);
-            reply.append(0x03);
-            reply.append(0xdb);
+            reply.append(0xcc);
         }
         else if(((uint8_t)newValue.at(1)) == 0xA3)
         {
@@ -796,6 +796,7 @@ void virtualbike::bikeProvider()
         // resistance change notification
         // f0 d2 01 0b ce
         QByteArray resistance;
+        static uint8_t oldresistance = 255;
         resistance.append(0xf0);
         resistance.append(0xd2);
         resistance.append(0x01);
@@ -807,7 +808,9 @@ void virtualbike::bikeProvider()
            sum += resistance[i]; // the last byte is a sort of a checksum
         }
         resistance.append(sum);
-        writeCharacteristic(service, characteristic, resistance);
+        if(oldresistance != ((uint8_t)Bike->currentResistance().value()))
+            writeCharacteristic(service, characteristic, resistance);
+        oldresistance = ((uint8_t)Bike->currentResistance().value());
 
     }
     //characteristic
