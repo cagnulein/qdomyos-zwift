@@ -236,6 +236,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 if(!discoveryAgent->isActive())
                     emit searchingStop();
             }
+            else if(b.name().toUpper().startsWith("E95S") && !soleElliptical && filter)
+            {
+                discoveryAgent->stop();
+                soleElliptical = new soleelliptical(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected());
+                connect(soleElliptical, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(soleElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(soleElliptical, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                soleElliptical->deviceDiscovered(b);
+                connect(this, SIGNAL(searchingStop()), soleElliptical, SLOT(searchingStop()));
+                if(!discoveryAgent->isActive())
+                    emit searchingStop();
+            }
             else if(b.name().startsWith("Domyos") && !b.name().startsWith("DomyosBr") && !domyos && !domyosElliptical && !domyosBike && filter)
             {
                 settings.setValue("bluetooth_lastdevice_name", b.name());
@@ -658,6 +671,11 @@ void bluetooth::restart()
         delete domyosElliptical;
         domyosElliptical = 0;
     }
+    if(soleElliptical)
+    {
+        delete soleElliptical;
+        soleElliptical = 0;
+    }
     if(cscBike)
     {
         delete cscBike;
@@ -767,6 +785,8 @@ bluetoothdevice* bluetooth::device()
         return fitshowTreadmill;
     else if(domyosElliptical)
         return domyosElliptical;
+    else if(soleElliptical)
+        return soleElliptical;
     else if(cscBike)
         return cscBike;
     else if(npeCableBike)

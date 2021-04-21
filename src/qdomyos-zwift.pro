@@ -88,6 +88,7 @@ SOURCES += \
     smtpclient/src/quotedprintable.cpp \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
+   soleelliptical.cpp \
    sportstechbike.cpp \
    stagesbike.cpp \
 	     toorxtreadmill.cpp \
@@ -378,6 +379,7 @@ HEADERS += \
     smtpclient/src/smtpclient.h \
     smtpclient/src/smtpexports.h \
    snodebike.h \
+   soleelliptical.h \
    sportstechbike.h \
    stagesbike.h \
 	toorxtreadmill.h \

@@ -41,6 +41,7 @@
 #include "npecablebike.h"
 #include "chronobike.h"
 #include "stagesbike.h"
+#include "soleelliptical.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 
@@ -80,6 +81,7 @@ private:
     cscbike* cscBike = 0;
     npecablebike* npeCableBike = 0;
     stagesbike* stagesBike = 0;
+    soleelliptical* soleElliptical = 0;
     chronobike* chronoBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
