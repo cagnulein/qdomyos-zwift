@@ -28,7 +28,12 @@ bool TemplateInfoSender::update(QJSEngine * eng) {
             return send(evalres);
         }
         else {
-            qDebug() << "Scripts contains an error:"<< jscript << " error: " << jsv.errorType();
+#if (QT_VERSION < QT_VERSION_CHECK(5, 12, 0))
+            int errorType = 255;
+#else
+            int errorType = jsv.errorType();
+#endif
+            qDebug() << "Scripts contains an error:"<< jscript << "error" << errorType;
             return false;
         }
     }
