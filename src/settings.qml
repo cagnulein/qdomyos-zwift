@@ -2244,51 +2244,6 @@ import Qt.labs.settings 1.0
                 }
             }
             AccordionElement {
-                id: templateSettingsAccordion
-                title: qsTr("Template Settings")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    id: templateSettingsContent
-                }
-                Component.onCompleted: function() {
-                    let template_ids = settings.value("template_ids", []);
-                    console.log("template_ids current val "+template_ids);
-                    if (template_ids) {
-                        let accordionCheckComponent = Qt.createComponent("AccordionCheckElement.qml");
-                        let componentMap = {};
-                        template_ids.forEach(function(template_id) {
-                            console.log("template_id current "+template_id);
-                            let template_type = settings.value("template_" + template_id + "_type", "");
-                            if (template_type) {
-                                console.log("template_type current "+template_type);
-                                if (!componentMap[template_type])
-                                    componentMap[template_type] = Qt.createComponent("Template" + template_type + ".qml");
-                                let component = componentMap[template_type];
-                                if (component) {
-                                    let key_enabled = "template_" + template_id + "_enabled";
-                                    console.log("Creating component object for id "+template_id);
-                                    let template_object = component.createObject(null,
-                                                                                 {
-                                                                                     settings: settings,
-                                                                                     templateId: template_id
-                                                                                 });
-                                    let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
-                                                                                              {
-                                                                                                  title: template_id +" (" + template_type +")",
-                                                                                                  settings: settings,
-                                                                                                  linkedBoolSetting: key_enabled,
-                                                                                                  accordionContent: template_object
-                                                                                              });
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-
-            AccordionElement {
                 id: advancedSettingsAccordion
                 title: qsTr("Advanced Settings")
                 indicatRectColor: Material.color(Material.Grey)
@@ -2731,6 +2686,51 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bike_power_sensor = checked
+                    }
+
+                    AccordionElement {
+                        id: templateSettingsAccordion
+                        title: qsTr("Template Settings")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Grey)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            id: templateSettingsContent
+                        }
+                        Component.onCompleted: function() {
+                            let template_ids = settings.value("template_ids", []);
+                            console.log("template_ids current val "+template_ids);
+                            if (template_ids) {
+                                let accordionCheckComponent = Qt.createComponent("AccordionCheckElement.qml");
+                                let componentMap = {};
+                                template_ids.forEach(function(template_id) {
+                                    console.log("template_id current "+template_id);
+                                    let template_type = settings.value("template_" + template_id + "_type", "");
+                                    if (template_type) {
+                                        console.log("template_type current "+template_type);
+                                        if (!componentMap[template_type])
+                                            componentMap[template_type] = Qt.createComponent("Template" + template_type + ".qml");
+                                        let component = componentMap[template_type];
+                                        if (component) {
+                                            let key_enabled = "template_" + template_id + "_enabled";
+                                            console.log("Creating component object for id "+template_id);
+                                            let template_object = component.createObject(null,
+                                                                                         {
+                                                                                             settings: settings,
+                                                                                             templateId: template_id
+                                                                                         });
+                                            let accordionCheck = accordionCheckComponent.createObject(templateSettingsContent,
+                                                                                                      {
+                                                                                                          title: template_id +" (" + template_type +")",
+                                                                                                          settings: settings,
+                                                                                                          linkedBoolSetting: key_enabled,
+                                                                                                          accordionContent: template_object
+                                                                                                      });
+                                        }
+                                    }
+                                });
+                            }
+                        }
                     }
 
                     SwitchDelegate {
