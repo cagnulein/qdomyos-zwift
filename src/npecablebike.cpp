@@ -143,7 +143,7 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
             debug("Crank revolution data present with wrong bytes " + QString::number(newValue.length()));
             return;
         }
-        else if(newValue.length() < 6)
+        else if(newValue.at(0) == 0x01 && newValue.length() < 6)
         {
             debug("Wheel revolution data present with wrong bytes " + QString::number(newValue.length()));
             return;
