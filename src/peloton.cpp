@@ -155,6 +155,7 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     QJsonObject ride = workout.object()["ride"].toObject();
     current_workout_name = ride["title"].toString();
     current_instructor_id = ride["instructor_id"].toString();
+    current_ride_id = ride["id"].toString();
 
     if(log_request)
         qDebug() << "workout_onfinish" << workout;

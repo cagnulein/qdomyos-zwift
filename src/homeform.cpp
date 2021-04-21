@@ -1759,6 +1759,15 @@ void homeform::sendMail()
     MimeText text;
 
     QString textMessage = "Great workout!\n\n";
+
+    if(pelotonHandler)
+    {
+        if(pelotonHandler->current_ride_id.length())
+        {
+            textMessage += stravaPelotonActivityName + " - " + stravaPelotonInstructorName + " https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=" + pelotonHandler->current_ride_id;
+        }
+    }
+
     textMessage += "Average Speed: " + QString::number(bluetoothManager->device()->currentSpeed().average() * unit_conversion, 'f', 1) + "\n";
     textMessage += "Max Speed: " + QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1) + "\n";
     textMessage += "Calories burned: " + QString::number(bluetoothManager->device()->calories(), 'f', 0) + "\n";

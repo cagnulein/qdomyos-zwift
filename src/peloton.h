@@ -25,16 +25,18 @@ public:
     explicit peloton(bluetooth* bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
 
-private:
-    const int peloton_workout_second_resolution = 10;
-    bool peloton_credentials_wrong = false;
-    QNetworkAccessManager * mgr = 0;
     QString user_id;
     QString current_workout_id = "";
     QString current_workout_name = "";
     QString current_workout_status = "";
     QString current_instructor_id = "";
     QString current_instructor_name = "";
+    QString current_ride_id = "";
+
+private:
+    const int peloton_workout_second_resolution = 10;
+    bool peloton_credentials_wrong = false;
+    QNetworkAccessManager * mgr = 0;
 
     QJsonDocument current_workout;
     QJsonDocument current_workout_summary;
