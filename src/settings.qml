@@ -99,6 +99,8 @@ import Qt.labs.settings 1.0
             property real peloton_gain: 1.0
             property real peloton_offset: 0
 
+            property string treadmill_pid_heart_zone: "Disabled"
+
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
 
@@ -1653,6 +1655,47 @@ import Qt.labs.settings 1.0
                     }
                 }
             }
+
+            AccordionElement {
+                id: treadmillOptionsAccordion
+                title: qsTr("Treadmill Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillPidHR
+                            text: qsTr("PID on Heart Zone:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: treadmillPidHRTextField
+                            model: [ "Disabled", "1", "2","3","4","5" ]
+                            displayText: settings.treadmill_pid_heart_zone
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + treadmillPidHRTextField.currentIndex)
+                                displayText = treadmillPidHRTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okTreadmillPidHR
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.treadmill_pid_heart_zone = treadmillPidHRTextField.displayText
+                        }
+                    }
+                }
+            }
+
             AccordionElement {
                 id: domyosTreadmillAccordion
                 title: qsTr("Domyos Treadmill Options")

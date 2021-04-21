@@ -887,6 +887,7 @@ QString homeform::signal()
 void homeform::update()
 {
     QSettings settings;
+    uint8_t currentHRZone = 1;
 
     if((paused || stopped) && settings.value("top_bar_enabled", true).toBool())
     {
@@ -1044,26 +1045,31 @@ void homeform::update()
         if(percHeartRate < settings.value("heart_rate_zone1", 70.0).toDouble())
         {
             Z = "Z1";
+            currentHRZone = 1;
             heart->setValueFontColor("lightsteelblue");
         }
         else if(percHeartRate < settings.value("heart_rate_zone2", 80.0).toDouble())
         {
             Z = "Z2";
+            currentHRZone = 2;
             heart->setValueFontColor("green");
         }
         else if(percHeartRate < settings.value("heart_rate_zone3", 90.0).toDouble())
         {
             Z = "Z3";
+            currentHRZone = 3;
             heart->setValueFontColor("yellow");
         }
         else if(percHeartRate < settings.value("heart_rate_zone4", 100.0).toDouble())
         {
             Z = "Z4";
+            currentHRZone = 4;
             heart->setValueFontColor("orange");
         }
         else
         {
             Z = "Z5";
+            currentHRZone = 5;
             heart->setValueFontColor("red");
         }
         heart->setSecondLine(Z + " AVG: " + QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) + " MAX: " + QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
@@ -1092,59 +1098,92 @@ void homeform::update()
         }
 #endif
 
-        if(settings.value("trainprogram_random", false).toBool() && !paused && !stopped)
+        if(settings.value("trainprogram_random", false).toBool())
         {
-            static QRandomGenerator r;
-            static uint32_t last_seconds = 0;
-            uint32_t seconds = bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600);
-            if((seconds / 60) < settings.value("trainprogram_total", 60).toUInt())
+            if(!paused && !stopped)
             {
-                qDebug() << "trainprogram random seconds " + QString::number(seconds) + " last_change " + last_seconds + " period " + settings.value("trainprogram_period_seconds", 60).toUInt();
-                if(last_seconds == 0 || ((seconds - last_seconds) >= settings.value("trainprogram_period_seconds", 60).toUInt()))
+                static QRandomGenerator r;
+                static uint32_t last_seconds = 0;
+                uint32_t seconds = bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600);
+                if((seconds / 60) < settings.value("trainprogram_total", 60).toUInt())
                 {
-                    if(last_seconds == 0)
+                    qDebug() << "trainprogram random seconds " + QString::number(seconds) + " last_change " + last_seconds + " period " + settings.value("trainprogram_period_seconds", 60).toUInt();
+                    if(last_seconds == 0 || ((seconds - last_seconds) >= settings.value("trainprogram_period_seconds", 60).toUInt()))
                     {
-                        r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
-                        last_seconds = 1; // in order to avoid to re-enter here again if the user doesn't ride
-                    }
-                    else
-                        last_seconds = seconds;
+                        bool done = false;
 
+                        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && ((treadmill*)bluetoothManager->device())->currentSpeed().value() > 0.0f)
+                        {
+                            double speed = settings.value("trainprogram_speed_min", 8).toUInt();
+                            double incline = settings.value("trainprogram_incline_min", 0).toUInt();
+                            if(!speed) speed = 1.0;
+                            if(settings.value("trainprogram_speed_min", 8).toUInt() != 0 && settings.value("trainprogram_speed_min", 8).toUInt() < settings.value("trainprogram_speed_max", 16).toUInt())
+                            {
+                                speed = (double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0;
+                            }
+                            if(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt())
+                            {
+                                incline = (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0;
+                            }
+                            ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(speed, incline);
+                            done = true;
+                        }
+                        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                        {
+                            double resistance = settings.value("trainprogram_resistance_min", 1).toUInt();
+                            if(settings.value("trainprogram_resistance_min", 1).toUInt() < settings.value("trainprogram_resistance_max", 32).toUInt())
+                            {
+                                resistance = (double)r.bounded(settings.value("trainprogram_resistance_min", 1).toUInt(), settings.value("trainprogram_resistance_max", 32).toUInt());
+                            }
+                            ((bike*)bluetoothManager->device())->changeResistance(resistance);
+
+                            done = true;
+                        }
+
+                        if(done)
+                        {
+                            if(last_seconds == 0)
+                            {
+                                r.seed(QDateTime::currentDateTime().currentMSecsSinceEpoch());
+                                last_seconds = 1; // in order to avoid to re-enter here again if the user doesn't ride
+                            }
+                            else
+                                last_seconds = seconds;
+                        }
+                    }
+                }
+                else if(bluetoothManager->device()->currentSpeed().value() > 0)
+                {
                     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
                     {
-                        double speed = settings.value("trainprogram_speed_min", 8).toUInt();
-                        double incline = settings.value("trainprogram_incline_min", 0).toUInt();
-                        if(!speed) speed = 1.0;
-                        if(settings.value("trainprogram_speed_min", 8).toUInt() != 0 && settings.value("trainprogram_speed_min", 8).toUInt() < settings.value("trainprogram_speed_max", 16).toUInt())
-                        {
-                            speed = (double)r.bounded(settings.value("trainprogram_speed_min", 8).toUInt() * 10, settings.value("trainprogram_speed_max", 16).toUInt() * 10) / 10.0;
-                        }
-                        if(settings.value("trainprogram_incline_min", 0).toUInt() < settings.value("trainprogram_incline_max", 15).toUInt())
-                        {
-                            incline = (double)r.bounded(settings.value("trainprogram_incline_min", 0).toUInt() * 10, settings.value("trainprogram_incline_max", 15).toUInt() * 10) / 10.0;
-                        }
-                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(speed, incline);
+                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(0,0);
                     }
                     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                     {
-                        double resistance = settings.value("trainprogram_resistance_min", 1).toUInt();
-                        if(settings.value("trainprogram_resistance_min", 1).toUInt() < settings.value("trainprogram_resistance_max", 32).toUInt())
-                        {
-                            resistance = (double)r.bounded(settings.value("trainprogram_resistance_min", 1).toUInt(), settings.value("trainprogram_resistance_max", 32).toUInt());
-                        }
-                        ((bike*)bluetoothManager->device())->changeResistance(resistance);
+                        ((bike*)bluetoothManager->device())->changeResistance(1);
                     }
                 }
             }
-            else if(bluetoothManager->device()->currentSpeed().value() > 0)
+        }
+        else if(!settings.value("treadmill_pid_heart_zone", "Disabled").toString().contains("Disabled") &&
+                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+            uint8_t zone = settings.value("treadmill_pid_heart_zone", "Disabled").toString().toUInt();
+            if(!stopped && !paused &&
+                    bluetoothManager->device()->currentHeart().value() &&
+                    ((treadmill*)bluetoothManager->device())->currentSpeed().value() > 0.0f)
             {
-                if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+                if(zone < currentHRZone)
                 {
-                    ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(0,0);
+                    ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(
+                                ((treadmill*)bluetoothManager->device())->currentSpeed().value() - 0.2,
+                                ((treadmill*)bluetoothManager->device())->currentInclination().value());
                 }
-                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+                else if(zone > currentHRZone)
                 {
-                    ((bike*)bluetoothManager->device())->changeResistance(1);
+                    ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(
+                                ((treadmill*)bluetoothManager->device())->currentSpeed().value() + 0.2,
+                                ((treadmill*)bluetoothManager->device())->currentInclination().value());
                 }
             }
         }
