@@ -249,31 +249,38 @@ int main(int argc, char *argv[])
     app->setApplicationName("qDomyos-Zwift");
 
     QSettings settings;
-#if defined(Q_OS_ANDROID) || defined(Q_OS_IOS)
-    bool defaultNoHeartService = !noHeartService;
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    if(forceQml)
+#endif
+    {
+        bool defaultNoHeartService = !noHeartService;
 
-    // Android 10 doesn't support multiple services for peripheral mode
-    if(QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10))
-        settings.setValue("bike_heartrate_service", true);
+        // Android 10 doesn't support multiple services for peripheral mode
+        if(QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10))
+            settings.setValue("bike_heartrate_service", true);
 
-    // some Android 6 doesn't support wake lock
-    if(QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) && !settings.value("android_wakelock").isValid())
-        settings.setValue("android_wakelock", false);
+        // some Android 6 doesn't support wake lock
+        if(QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) && !settings.value("android_wakelock").isValid())
+            settings.setValue("android_wakelock", false);
 
-    noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
-    bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
-    bikeResistanceGain = settings.value("bike_resistance_gain_f", bikeResistanceGain).toDouble();
-    deviceName = settings.value("filter_device", "Disabled").toString();
-#else
-    settings.setValue("miles_unit", miles);
-    settings.setValue("bluetooth_no_reconnection", bluetooth_no_reconnection);
-    settings.setValue("bluetooth_relaxed", bluetooth_relaxed);
-    settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
-    settings.setValue("bike_power_sensor", bike_power_sensor);
-    settings.setValue("battery_service", battery_service);
-    settings.setValue("service_changed", service_changed);
-    settings.setValue("bike_wheel_revs", bike_wheel_revs);
-    settings.setValue("run_cadence_sensor", run_cadence_sensor);
+        noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
+        bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
+        bikeResistanceGain = settings.value("bike_resistance_gain_f", bikeResistanceGain).toDouble();
+        deviceName = settings.value("filter_device", "Disabled").toString();
+    }
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    else
+    {
+        settings.setValue("miles_unit", miles);
+        settings.setValue("bluetooth_no_reconnection", bluetooth_no_reconnection);
+        settings.setValue("bluetooth_relaxed", bluetooth_relaxed);
+        settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
+        settings.setValue("bike_power_sensor", bike_power_sensor);
+        settings.setValue("battery_service", battery_service);
+        settings.setValue("service_changed", service_changed);
+        settings.setValue("bike_wheel_revs", bike_wheel_revs);
+        settings.setValue("run_cadence_sensor", run_cadence_sensor);
+    }
 #endif
 
     qInstallMessageHandler(myMessageOutput);
