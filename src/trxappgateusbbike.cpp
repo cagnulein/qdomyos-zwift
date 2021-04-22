@@ -194,13 +194,16 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     else
     {
         speed = cadence * 0.37407407407407407407407407407407;
-        int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
-        if(Speed.value() > 0)
-            watt = avgP;
-        else
-            watt = 0;
+        if(Heart.value() > 0)
+        {
+            int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
+            if(Speed.value() > 0)
+                watt = avgP;
+            else
+                watt = 0;
 
-        kcal = KCal.value() + ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
+            kcal = KCal.value() + ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
+        }
     }
 
 #ifdef Q_OS_ANDROID
