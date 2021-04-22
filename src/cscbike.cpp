@@ -73,11 +73,14 @@ void cscbike::update()
 #endif
     }
 
-    int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
-    if (avgP < 50)
-        avgP = 50;
-    m_watt = avgP;
-    debug("Current Watt: " + QString::number(m_watt.value()));
+    if(Heart.value() > 0)
+    {
+        int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
+        if (avgP < 50)
+            avgP = 50;
+        m_watt = avgP;
+        debug("Current Watt: " + QString::number(m_watt.value()));
+    }
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {

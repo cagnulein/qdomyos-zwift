@@ -86,6 +86,7 @@ private:
         SKANDIKAWIRY = 3,
         ICONSOLE = 4,
         JLL_IC400 = 5,
+        DKN_MOTION = 6,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

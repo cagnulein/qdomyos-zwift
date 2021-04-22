@@ -465,7 +465,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 trxappgateusb->deviceDiscovered(b);
                 templateManager->start(trxappgateusb);
             }
-            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+") || b.name().toUpper().startsWith("IBIKING+") || b.name().toUpper().startsWith("ICONSOLE+")) && (toorx_bike || JLL_IC400_bike))) && !trxappgateusb && !trxappgateusbBike && filter)
+            else if((((b.name().startsWith("TOORX") || b.name().toUpper().startsWith("I-CONSOLE+") || b.name().toUpper().startsWith("IBIKING+") || b.name().toUpper().startsWith("ICONSOLE+") || b.name().toUpper().startsWith("DKN MOTION")) && (toorx_bike || JLL_IC400_bike))) && !trxappgateusb && !trxappgateusbBike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);

@@ -102,6 +102,11 @@ void trxappgateusbbike::update()
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0x01, 0x94 };
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
         }
+        else if(bike_type == TYPE::DKN_MOTION)
+        {
+            const uint8_t noOpData[] = { 0xf0, 0xa2, 0x02, 0x01, 0x95 };
+            writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
+        }
         else if(bike_type == TYPE::CHANGYOW)
         {
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x23, 0x01, 0xb6 };
@@ -194,13 +199,16 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     else
     {
         speed = cadence * 0.37407407407407407407407407407407;
-        int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
-        if(Speed.value() > 0)
-            watt = avgP;
-        else
-            watt = 0;
+        if(Heart.value() > 0)
+        {
+            int avgP = ((settings.value("power_hr_pwr1", 200).toDouble() * settings.value("power_hr_hr2",170).toDouble()) - (settings.value("power_hr_pwr2",230).toDouble() * settings.value("power_hr_hr1",150).toDouble())) / (settings.value("power_hr_hr2",170).toDouble() - settings.value("power_hr_hr1",150).toDouble()) + (Heart.value() * ((settings.value("power_hr_pwr1",200).toDouble() - settings.value("power_hr_pwr2",230).toDouble()) / (settings.value("power_hr_hr1",150).toDouble() - settings.value("power_hr_hr2",170).toDouble())));
+            if(Speed.value() > 0)
+                watt = avgP;
+            else
+                watt = 0;
 
-        kcal = KCal.value() + ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
+            kcal = KCal.value() + ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
+        }
     }
 
 #ifdef Q_OS_ANDROID
@@ -331,6 +339,21 @@ void trxappgateusbbike::btinit(bool startTape)
         if(bike_type == TYPE::IRUNNING) QThread::msleep(400);
         writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
         if(bike_type == TYPE::IRUNNING) QThread::msleep(400);
+    }
+    else if(bike_type == TYPE::DKN_MOTION)
+    {
+        const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
+        const uint8_t initData2[] = { 0xf0, 0xa1, 0x01, 0x01, 0x93 };
+        const uint8_t initData3[] = { 0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97 };
+        const uint8_t initData4[] = { 0xf0, 0xa5, 0x02, 0x01, 0x02, 0x9a };
+        const uint8_t initData5[] = { 0x40, 0x00, 0x9a, 0x46, 0x20 };
+
+        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+        writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
     }
     else if(bike_type == TYPE::CHANGYOW)
     {
@@ -562,6 +585,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         {
             bike_type = TYPE::ICONSOLE;
             qDebug() << "ICONSOLE bike found";
+        }
+        else if(device.name().toUpper().startsWith("DKN MOTION"))
+        {
+            bike_type = TYPE::DKN_MOTION;
+            qDebug() << "DKN MOTION bike found";
         }
 
         bluetoothDevice = device;
