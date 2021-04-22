@@ -148,6 +148,11 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
             debug("Wheel revolution data present with wrong bytes " + QString::number(newValue.length()));
             return;
         }
+        else if(newValue.at(0) == 0x00)
+        {
+            debug("Cadence sensor notification without datas " + QString::number(newValue.length()));
+            return;
+        }
 
         if(newValue.at(0) == 0x02)
             CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
