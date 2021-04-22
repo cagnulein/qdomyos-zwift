@@ -211,7 +211,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     debug(" << " + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if (newValue.length() >= 20)
+    if (newValue.length() < 20)
         return;
 
     double speed = GetSpeedFromPacket(newValue) * settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
