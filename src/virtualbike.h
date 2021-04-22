@@ -21,7 +21,9 @@
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
 #include "bike.h"
 
 class virtualbike: public QObject
@@ -56,6 +58,13 @@ private:
     double bikeResistanceGain = 1.0;
 
     void writeCharacteristic(QLowEnergyService* service, QLowEnergyCharacteristic characteristic, QByteArray value);
+    
+    void slopeChanged(int16_t slope);
+    void powerChanged(uint16_t power);
+    
+#ifdef Q_OS_IOS
+    lockscreen* h = 0;
+#endif
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

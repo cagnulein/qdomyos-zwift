@@ -125,7 +125,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                        value: nil,
                                                        permissions: FitnessMachinestatusPermissions)
         
-        let TrainingStatusProperties: CBCharacteristicProperties = [.notify, .read]
+        let TrainingStatusProperties: CBCharacteristicProperties = [.read]
         let TrainingStatusPermissions: CBAttributePermissions = [.readable]
         self.TrainingStatusCharacteristic = CBMutableCharacteristic(type: TrainingStatusUuid,
                                                        properties: TrainingStatusProperties,
@@ -169,23 +169,28 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     
   }
   
+    func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
+            if(requests.first!.value?.first == 0x11)
+          {
+                var high : UInt16 = ((UInt16)(requests.first!.value![4])) << 8;
+                self.CurrentSlope = (Double)((UInt16)(requests.first!.value![3]) + high);
+          }
+            else if(requests.first!.value?.first == 0x05)
+          {
+                var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
+                self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
+          }
+          self.peripheralManager.respond(to: requests.first!, withResult: .success)
+          print("Responded successfully to a read request")
+      }
+    }
+    
   func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveRead request: CBATTRequest) {
     if request.characteristic == self.heartRateCharacteristic {
       request.value = self.calculateHeartRate()
       self.peripheralManager.respond(to: request, withResult: .success)
       print("Responded successfully to a read request")
-    }
-    else if request.characteristic == self.FitnessMachineControlPointCharacteristic {
-        if(request.value?.first == 0x11)
-        {
-            self.CurrentSlope = (Double)((request.value![3]) + (request.value![4] << 8));
-        }
-        else if(request.value?.first == 0x05)
-        {
-            self.PowerRequested = (Double)((request.value![1]) + (request.value![2] << 8));
-        }
-        self.peripheralManager.respond(to: request, withResult: .success)
-        print("Responded successfully to a read request")
     }
   }
   
@@ -225,7 +230,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
         var indoorBike: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)((self.CurrentCadence >> 8) & 0xFF), self.CurrentResistance, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF),
                                    self.heartRate, 0x00]
-      let indoorBikeData = Data(bytes: &indoorBike, count: MemoryLayout.size(ofValue: indoorBike))
+      let indoorBikeData = Data(bytes: &indoorBike, count: 12)
       return indoorBikeData
     }
   

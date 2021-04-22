@@ -48,7 +48,7 @@ void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigne
         [_virtualbike updateCadenceWithCrankRevolutions:crankRevolutions LastCrankEventTime:lastCrankEventTime];
 }
 
-void lockscreen::virtualbike_zwift()
+void lockscreen::virtualbike_zwift_ios()
 {
     _virtualbike_zwift = [[virtualbike_zwift alloc] init];
 }
@@ -69,5 +69,11 @@ double lockscreen::virtualbike_getPowerRequested()
         return [_virtualbike_zwift readPowerRequested];
     }
     return 0;
+}
+
+void lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt)
+{
+    if(_virtualbike_zwift != nil)
+        [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt];
 }
 #endif

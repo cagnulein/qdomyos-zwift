@@ -56,6 +56,7 @@
 		2B42755BF45173E11E2110CB /* FitFieldDefinition.mm in Compile Sources */ = {isa = PBXBuildFile; fileRef = F3B0A31277FCD46877B1C226 /* FitFieldDefinition.mm */; settings = {ATTRIBUTES = (); }; };
 		2B800DC34C91D8B080DEFBE8 /* fit_mesg_with_event_broadcaster.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 24568621B9F9DEB322DAA4C4 /* fit_mesg_with_event_broadcaster.cpp */; settings = {ATTRIBUTES = (); }; };
 		2D4684BE88B9B0456A50B3F0 /* qdomyoszwift_plugin_import.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8DD3B05BF7374DC62BC3BA4A /* qdomyoszwift_plugin_import.cpp */; settings = {ATTRIBUTES = (); }; };
+		2F0E70F826316F3600E11F3A /* virtualbike_zwift.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 2F0E70F726316F3600E11F3A /* virtualbike_zwift.swift */; };
 		3015F9B9FF4CA6D653D46CCA /* fit_developer_field_description.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = CA35DDC56ACD982A52226071 /* fit_developer_field_description.cpp */; settings = {ATTRIBUTES = (); }; };
 		333C629F93DB3941862924F7 /* fit_field_base.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = BDE58BCA9ABD5DF101B0E0FF /* fit_field_base.cpp */; settings = {ATTRIBUTES = (); }; };
 		3407CACF00E4A0046255A968 /* qtpcre2 in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 344F66310C19536DB4886D8F /* qtpcre2 */; };
@@ -413,6 +414,7 @@
 		2E6B7E1FF5E6A5461E7B7C44 /* fit_dive_summary_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_dive_summary_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_dive_summary_mesg.hpp"; sourceTree = "<absolute>"; };
 		2E99CE78422C13B5E8F1EB53 /* qfit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = qfit.h; path = "/Users/cagnulein/qdomyos-zwift/src/qfit.h"; sourceTree = "<absolute>"; };
 		2E9A703E620AD39818182E87 /* FitField.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FitField.h; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/FitField.h"; sourceTree = "<absolute>"; };
+		2F0E70F726316F3600E11F3A /* virtualbike_zwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualbike_zwift.swift; path = ../src/ios/virtualbike_zwift.swift; sourceTree = "<group>"; };
 		2F875FD21B3CE91076B48D2D /* domyostreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = domyostreadmill.h; path = "/Users/cagnulein/qdomyos-zwift/src/domyostreadmill.h"; sourceTree = "<absolute>"; };
 		302316BD81D103EDFB1BBFF4 /* fit_event_mesg.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_event_mesg.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_event_mesg.hpp"; sourceTree = "<absolute>"; };
 		306373050762B159D8FBFD7A /* fit_timestamp_correlation_mesg_listener.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fit_timestamp_correlation_mesg_listener.hpp; path = "/Users/cagnulein/qdomyos-zwift/src/fit-sdk/fit_timestamp_correlation_mesg_listener.hpp"; sourceTree = "<absolute>"; };
@@ -1022,6 +1024,7 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				2F0E70F726316F3600E11F3A /* virtualbike_zwift.swift */,
 				871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */,
 				876E4E4E259479EE00BD5714 /* APIFetcher.swift */,
 				876E4E52259479EE00BD5714 /* AppDelegate.swift */,
@@ -1879,6 +1882,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87C5F0BB26285E5F0067A1B5 /* mimetext.cpp in Compile Sources */,
+				2F0E70F826316F3600E11F3A /* virtualbike_zwift.swift in Compile Sources */,
 				8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */,
 				87062646259480B200D06586 /* ViewController.swift in Compile Sources */,
 				87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */,
