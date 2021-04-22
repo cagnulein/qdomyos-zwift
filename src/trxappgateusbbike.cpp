@@ -102,6 +102,11 @@ void trxappgateusbbike::update()
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0x01, 0x94 };
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
         }
+        else if(bike_type == TYPE::DKN_MOTION)
+        {
+            const uint8_t noOpData[] = { 0xf0, 0xa2, 0x02, 0x01, 0x95 };
+            writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
+        }
         else if(bike_type == TYPE::CHANGYOW)
         {
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x23, 0x01, 0xb6 };
@@ -335,6 +340,21 @@ void trxappgateusbbike::btinit(bool startTape)
         writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
         if(bike_type == TYPE::IRUNNING) QThread::msleep(400);
     }
+    else if(bike_type == TYPE::DKN_MOTION)
+    {
+        const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
+        const uint8_t initData2[] = { 0xf0, 0xa1, 0x01, 0x01, 0x93 };
+        const uint8_t initData3[] = { 0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97 };
+        const uint8_t initData4[] = { 0xf0, 0xa5, 0x02, 0x01, 0x02, 0x9a };
+        const uint8_t initData5[] = { 0x40, 0x00, 0x9a, 0x46, 0x20 };
+
+        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+        writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
+    }
     else if(bike_type == TYPE::CHANGYOW)
     {
         const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
@@ -565,6 +585,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
         {
             bike_type = TYPE::ICONSOLE;
             qDebug() << "ICONSOLE bike found";
+        }
+        else if(device.name().toUpper().startsWith("DKN MOTION"))
+        {
+            bike_type = TYPE::DKN_MOTION;
+            qDebug() << "DKN MOTION bike found";
         }
 
         bluetoothDevice = device;
