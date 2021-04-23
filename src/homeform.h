@@ -304,6 +304,8 @@ private:
     QString stravaPelotonActivityName = "";
     QString stravaPelotonInstructorName = "";
 
+    QString lastFitFileSaved = "";
+
     QList<QString> chartImagesFilenames;
 
     bool m_autoresistance = true;

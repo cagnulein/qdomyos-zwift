@@ -1280,6 +1280,7 @@ void homeform::fit_save_clicked()
     {
         QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
         qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+        lastFitFileSaved = filename;
 
         QSettings settings;
         if(settings.value("strava_accesstoken", "").toString().length())
@@ -1839,7 +1840,18 @@ void homeform::sendMail()
         image->setContentId(f);
         image->setContentType("image/jpg");
         message.addPart(image);
-    }    
+    }
+
+    if(lastFitFileSaved.length())
+    {
+        // Create a MimeInlineFile object for each image
+        MimeInlineFile* fit = new MimeInlineFile((new QFile(lastFitFileSaved)));
+
+        // An unique content id must be setted
+        fit->setContentId(lastFitFileSaved);
+        fit->setContentType("application/octet-stream");
+        message.addPart(fit);
+    }
 
     smtp.connectToHost();
     smtp.login();
