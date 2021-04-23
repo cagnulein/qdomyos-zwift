@@ -454,7 +454,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 toorx->deviceDiscovered(b);
                 templateManager->start(toorx);
             }
-            else if(((b.name().startsWith("TOORX")) || b.name().toUpper().startsWith("XT485") || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (device.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
+            else if(b.name().toUpper().startsWith("XT485") && !spiritTreadmill && filter)
+            {
+                discoveryAgent->stop();
+                spiritTreadmill = new spirittreadmill();
+                emit(deviceConnected());
+                connect(spiritTreadmill, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(spiritTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(spiritTreadmill, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                spiritTreadmill->deviceDiscovered(b);
+                templateManager->start(spiritTreadmill);
+            }
+            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (device.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
@@ -724,6 +735,11 @@ void bluetooth::restart()
         delete trxappgateusb;
         trxappgateusb = 0;
     }
+    if(spiritTreadmill)
+    {
+        delete spiritTreadmill;
+        spiritTreadmill = 0;
+    }
     if(trxappgateusbBike)
     {
         delete trxappgateusbBike;
@@ -818,6 +834,8 @@ bluetoothdevice* bluetooth::device()
         return stagesBike;
     else if(toorx)
         return toorx;
+    else if(spiritTreadmill)
+        return spiritTreadmill;
     else if(trxappgateusb)
         return trxappgateusb;
     else if(trxappgateusbBike)

@@ -42,6 +42,7 @@
 #include "chronobike.h"
 #include "stagesbike.h"
 #include "soleelliptical.h"
+#include "spirittreadmill.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 #include "templateinfosenderbuilder.h"
@@ -66,6 +67,7 @@ private:
     domyoselliptical* domyosElliptical = 0;
     toorxtreadmill* toorx = 0;
     trxappgateusbtreadmill* trxappgateusb = 0;
+    spirittreadmill* spiritTreadmill = 0;
     trxappgateusbbike* trxappgateusbBike = 0;
     echelonconnectsport* echelonConnectSport = 0;
     yesoulbike* yesoulBike = 0;

@@ -95,6 +95,7 @@ SOURCES += \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
    soleelliptical.cpp \
+   spirittreadmill.cpp \
    sportstechbike.cpp \
     tcpclientinfosender.cpp \
     templateinfosender.cpp \
@@ -389,6 +390,7 @@ HEADERS += \
     smtpclient/src/smtpexports.h \
    snodebike.h \
    soleelliptical.h \
+   spirittreadmill.h \
    sportstechbike.h \
     tcpclientinfosender.h \
     templateinfosender.h \
