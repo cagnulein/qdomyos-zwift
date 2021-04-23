@@ -530,6 +530,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     {
         QLowEnergyCharacteristic characteristic
                 = service->characteristic(QBluetoothUuid((QString)"0bf669f3-45f2-11e7-9598-0800200c9a66"));
+        QLowEnergyCharacteristic characteristic2
+                = service->characteristic(QBluetoothUuid((QString)"0bf669f4-45f2-11e7-9598-0800200c9a66"));
         Q_ASSERT(characteristic.isValid());
         if(leController->state() != QLowEnergyController::ConnectedState)
         {
@@ -551,6 +553,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append(0x04);
             reply.append(0xcc);
+            writeCharacteristic(service, characteristic, reply);
         }
         else if(((uint8_t)newValue.at(1)) == 0xA3)
         {
@@ -561,6 +564,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x20);
             reply.append(0x01);
             reply.append(0xb6);
+            writeCharacteristic(service, characteristic, reply);
         }
         // f0 b0 01 00 a1
         else if(((uint8_t)newValue.at(1)) == 0xB0 && ((uint8_t)newValue.at(3)) == 0x00)
@@ -571,23 +575,24 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append((char)0x00);
             reply.append(0xc1);
+            writeCharacteristic(service, characteristic, reply);
         }
         // f0 b0 01 01 a2
         else if(((uint8_t)newValue.at(1)) == 0xB0)
         {
-            // f0 d0 01 01 c2
+            // f0 d2 01 18 db
             reply.append(0xf0);
             reply.append(0xd0);
             reply.append(0x01);
-            reply.append(0x01);
-            reply.append(0xc2);
+            reply.append(0x18);
+            reply.append(0xdb);
+            writeCharacteristic(service, characteristic2, reply);
         }
         else if(((uint8_t)newValue.at(1)) == 0xA0)
         {
             reply = newValue;
-        }
-
-        writeCharacteristic(service, characteristic, reply);
+            writeCharacteristic(service, characteristic, reply);
+        }        
     }
 }
 
