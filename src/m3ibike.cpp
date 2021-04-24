@@ -220,6 +220,11 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t * f, qint64 now) {
     f->time = f->time_orig + this->time_o;
     f->calorie += this->calorie_o;
     f->distance += this->distance_o;
+    if (nowpause) {
+        f->speed = 0.0;
+        f->watt = 0;
+        f->rpm = 0;
+    }
     this->time_old = f->time;
     this->calorie_old = f->calorie;
     this->distance_old = f->distance;
@@ -253,12 +258,15 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
         elapsedTimer->stop();
         lastTimerRestart = -1;
         elapsed = lastTimerRestartOffset = k3.time;
+        moving = elapsed;
         restartScan();
     });
     connect(elapsedTimer, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
-        if (lastTimerRestart > 0)
+        if (lastTimerRestart > 0) {
             elapsed = lastTimerRestartOffset + (QDateTime::currentMSecsSinceEpoch() - lastTimerRestart) / 1000.0;
+            moving = elapsed;
+        }
     });
 }
 
@@ -647,9 +655,11 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             lastTimerRestart = -1;
             elapsedTimer->stop();
             elapsed = lastTimerRestartOffset = k3.time;
+            moving = elapsed;
         }
         else if (lastTimerRestart<0) {
             elapsed = lastTimerRestartOffset = k3.time;
+            moving = elapsed;
             lastTimerRestart = QDateTime::currentMSecsSinceEpoch();
             elapsedTimer->start(1000);
         }
