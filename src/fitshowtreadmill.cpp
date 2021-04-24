@@ -151,14 +151,7 @@ void fitshowtreadmill::update() {
 
         debug("fitshow Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-
-        if (currentSpeed().value() > 0.0 && !firstUpdate && !paused) {
-            m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
-            m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts(settings.value("weight", 75.0).toFloat()));
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
@@ -218,7 +211,6 @@ void fitshowtreadmill::update() {
             requestStop = -1;
         }
 
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
         if (retrySend >= 6) {//3 retries
             debug("WARNING: answer not received for command " + QString("%1 / %2 (%3)").arg(((uint8_t)bufferWrite.at(1)), 2, 16, QChar('0')).arg(((uint8_t)bufferWrite.at(2)), 2, 16, QChar('0')).arg(debugMsgs.at(0)));
             removeFromBuffer();
@@ -235,7 +227,6 @@ void fitshowtreadmill::update() {
             writePayload(&status, 1);
         }
 
-        firstUpdate = false;
     }
 }
 
@@ -418,7 +409,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 KCal = kcal;
-                elapsed = seconds_elapsed;
+                //elapsed = seconds_elapsed;
                 Distance = distance;
 #ifdef Q_OS_ANDROID
                 if (settings.value("ant_heart", false).toBool())
