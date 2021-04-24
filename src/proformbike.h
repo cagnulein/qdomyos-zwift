@@ -38,6 +38,7 @@ class proformbike : public bike
     Q_OBJECT
 public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    int pelotonToBikeResistance(int pelotonResistance);
     bool connected();
 
     void* VirtualBike();
