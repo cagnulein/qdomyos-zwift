@@ -29,6 +29,7 @@ bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIK
 
 void bike::clearStats()
 {
+    moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
     KCal.clear(true);
@@ -50,6 +51,7 @@ void bike::clearStats()
 void bike::setPaused(bool p)
 {
     paused = p;
+    moving.setPaused(p);
     elapsed.setPaused(p);
     Speed.setPaused(p);
     KCal.setPaused(p);
@@ -68,6 +70,7 @@ void bike::setPaused(bool p)
 
 void bike::setLap()
 {
+    moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
     KCal.setLap(true);

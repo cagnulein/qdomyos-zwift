@@ -55,8 +55,6 @@ private:
 
     QTimer* refresh;
     bool initDone = false;
-    QDateTime lastTimeUpdate;
-    bool firstUpdate = true;
 
     uint16_t GetElapsedTimeFromPacket(QByteArray packet);
     uint16_t GetDistanceFromPacket(QByteArray packet);

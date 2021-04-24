@@ -14,12 +14,13 @@ trainprogram::trainprogram(QList<trainrow> rows, bluetooth* b)
 
 void trainprogram::scheduler()
 {
+    QSettings settings;
     if(
             rows.count() == 0 ||
             started == false ||
             enabled == false ||
             bluetoothManager->device() == nullptr ||
-            bluetoothManager->device()->currentSpeed().value() <= 0 ||
+            (bluetoothManager->device()->currentSpeed().value() <= 0 && !settings.value("continuous_moving", false).toBool()) ||
             bluetoothManager->device()->isPaused()
             )
     {

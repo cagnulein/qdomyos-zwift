@@ -76,6 +76,7 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service)
 void toorxtreadmill::update()
 {
     static int8_t start_phase = -1;
+    QSettings settings;
 
     if(initDone)
     {
@@ -197,20 +198,7 @@ void toorxtreadmill::update()
             debug("write poll");
         }
 
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           QSettings settings;
-           elapsed += deltaTime;
-           m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
-
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
-
-        firstUpdate = false;
+        update_metrics(true, watts(settings.value("weight", 75.0).toFloat()));
     }
 }
 

@@ -67,8 +67,6 @@ private:
 
     bool initDone = false;
     bool initRequest = false;
-    QDateTime lastTimeUpdate;
-    bool firstUpdate = true;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     uint8_t sec1Update = 0;

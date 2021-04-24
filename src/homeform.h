@@ -325,6 +325,7 @@ private:
     DataObject* fan;
     DataObject* jouls;
     DataObject* elapsed;
+    DataObject* moving_time;
     DataObject* peloton_resistance;
     DataObject* target_resistance;
     DataObject* target_peloton_resistance;

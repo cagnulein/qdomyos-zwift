@@ -179,15 +179,7 @@ void domyosbike::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           elapsed += deltaTime;
-           m_watt = (double)watts();
-           m_jouls.setValue(m_jouls.value() + (m_watt.value() * deltaTime));
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
         if(!firstStateChanged && !virtualBike
@@ -281,8 +273,6 @@ void domyosbike::update()
             }
         }
     }
-
-    firstUpdate = false;
 }
 
 void domyosbike::serviceDiscovered(const QBluetoothUuid &gatt)

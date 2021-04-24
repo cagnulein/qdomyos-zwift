@@ -87,8 +87,7 @@ void sportstechbike::update()
        gattNotify1Characteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
-           elapsed += ((double)lastTimeUpdate.msecsTo(QTime::currentTime()) / 1000.0);
+        update_metrics(false, 0);
 
         // updating the bike console every second
         if(sec1update++ == (1000 / refresh->interval()))
@@ -105,9 +104,6 @@ void sportstechbike::update()
         noOpData[10] += requestResistance;
         writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
     }
-
-    lastTimeUpdate = QTime::currentTime();
-    firstUpdate = false;
 }
 
 void sportstechbike::serviceDiscovered(const QBluetoothUuid &gatt)

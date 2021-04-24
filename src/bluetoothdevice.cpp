@@ -12,6 +12,7 @@ void bluetoothdevice::start(){ requestStart = 1; }
 void bluetoothdevice::stop(){ requestStop = 1; }
 metric bluetoothdevice::currentHeart(){ return Heart; }
 metric bluetoothdevice::currentSpeed(){ return Speed; }
+QTime bluetoothdevice::movingTime() {int hours = (int)(moving.value()/3600.0); return QTime(hours, (int)(moving.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) moving.value()) % 60,0); }
 QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed.value()/3600.0); return QTime(hours, (int)(elapsed.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.value()) % 60,0); }
 QTime bluetoothdevice::lapElapsedTime() {int hours = (int)(elapsed.lapValue()/3600.0); return QTime(hours, (int)(elapsed.lapValue()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.lapValue()) % 60,0); }
 
@@ -47,9 +48,42 @@ metric bluetoothdevice::wattsMetric() {return m_watt;}
 void bluetoothdevice::setDifficult(double d) {m_difficult = d;}
 double bluetoothdevice::difficult() {return m_difficult;}
 
+void bluetoothdevice::update_metrics(const bool watt_calc, const double watts)
+{
+    QDateTime current = QDateTime::currentDateTime();
+    double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+    QSettings settings;
+    if(!_firstUpdate && !paused)
+    {
+       if(currentSpeed().value() > 0.0 || settings.value("continuous_moving", true).toBool())
+       {
+           elapsed += deltaTime;
+       }
+       if(currentSpeed().value() > 0.0)
+       {
+           moving += deltaTime;
+           m_jouls += (m_watt.value() * deltaTime);
+           if(watt_calc)
+               m_watt = watts;
+       }
+       else if(m_watt.value() > 0)
+       {
+           m_watt = 0;
+       }
+    }
+    else if(m_watt.value() > 0)
+    {
+        m_watt = 0;
+    }
+
+    _lastTimeUpdate = current;
+    _firstUpdate = false;
+}
+
 void bluetoothdevice::clearStats()
 {
     elapsed.clear(true);
+    moving.clear(true);
     Speed.clear(false);
     KCal.clear(true);
     Distance.clear(true);
@@ -62,6 +96,7 @@ void bluetoothdevice::clearStats()
 void bluetoothdevice::setPaused(bool p)
 {
     paused = p;
+    moving.setPaused(p);
     elapsed.setPaused(p);
     Speed.setPaused(p);
     KCal.setPaused(p);
@@ -73,6 +108,7 @@ void bluetoothdevice::setPaused(bool p)
 
 void bluetoothdevice::setLap()
 {
+    moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
     KCal.setLap(true);

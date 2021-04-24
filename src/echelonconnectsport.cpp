@@ -123,15 +123,7 @@ void echelonconnectsport::update()
        gattNotify2Characteristic.isValid() &&
        initDone)
     {
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        m_watt = (double)watts();
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           elapsed += deltaTime;           
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts());
 
         // sending poll every 2 seconds
         if(sec1Update++ >= (2000 / refresh->interval()))
@@ -169,8 +161,6 @@ void echelonconnectsport::update()
             requestStop = -1;
         }
     }
-
-    firstUpdate = false;
 }
 
 void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt)

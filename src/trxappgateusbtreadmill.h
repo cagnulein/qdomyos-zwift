@@ -57,11 +57,9 @@ private:
     virtualtreadmill* virtualTreadMill = 0;
 
     uint8_t firstVirtualTreadmill = 0;
-    bool firstUpdate = true;
     bool firstCharChanged = true;
     QTime lastTimeCharChanged;
     uint8_t sec1update = 0;
-    QTime lastTimeUpdate;
     QByteArray lastPacket;
 
     QLowEnergyService* gattCommunicationChannelService = 0;

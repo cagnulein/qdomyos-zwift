@@ -31,6 +31,7 @@ import Qt.labs.settings 1.0
             property string user_email: ""
             property bool miles_unit: false
             property bool pause_on_start: false
+            property bool continuous_moving: false
             property bool bike_cadence_sensor: false
             property bool run_cadence_sensor: false
             property bool bike_power_sensor: false
@@ -78,6 +79,8 @@ import Qt.labs.settings 1.0
             property int  tile_elapsed_order: 14
             property bool tile_lapelapsed_enabled: false
             property int  tile_lapelapsed_order: 17
+            property bool tile_moving_time_enabled: false
+            property int  tile_moving_time_order: 21
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
@@ -408,6 +411,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.pause_on_start = checked
+                    }
+
+                    SwitchDelegate {
+                        id: continuousMovingDelegate
+                        text: qsTr("Continuous Moving")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.continuous_moving
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.continuous_moving = checked
                     }
                 }
             }
@@ -1119,6 +1137,39 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
+
+                    AccordionCheckElement {
+                        id: movingTimeEnabledAccordion
+                        title: qsTr("Moving Time")
+                        linkedBoolSetting: "tile_moving_time_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelmovingTimeOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: movingTimeOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_moving_time_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = movingTimeOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okmovingTimeOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_moving_time_order = movingTimeOrderTextField.displayText
+                            }
+                        }
+                    }
+
 
                     AccordionCheckElement {
                         id: lapElapsedEnabledAccordion

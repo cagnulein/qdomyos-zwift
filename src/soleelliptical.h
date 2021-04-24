@@ -68,8 +68,6 @@ private:
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bool searchStopped = false;
-    QDateTime lastTimeUpdate;
-    bool firstUpdate = true;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

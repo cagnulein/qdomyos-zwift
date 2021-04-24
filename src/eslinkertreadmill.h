@@ -63,8 +63,6 @@ private:
     double lastSpeed = 0.0;
     double lastInclination = 0;
     uint8_t sec1Update = 0;
-    QDateTime lastTimeUpdate;
-    bool firstUpdate = true;
     uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;

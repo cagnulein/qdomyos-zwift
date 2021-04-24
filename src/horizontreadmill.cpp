@@ -69,16 +69,8 @@ void horizontreadmill::update()
        //gattNotify1Characteristic.isValid() &&
        /*initDone*/)
     {
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           QSettings settings;
-           elapsed += deltaTime;
-           m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        QSettings settings;
+        update_metrics(true, watts(settings.value("weight", 75.0).toFloat()));
 
         // updating the treadmill console every second
         if(sec1Update++ == (500 / refresh->interval()))
@@ -142,11 +134,7 @@ void horizontreadmill::update()
             //sendChangeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
-
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
     }
-
-    firstUpdate = false;
 }
 
 void horizontreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline)

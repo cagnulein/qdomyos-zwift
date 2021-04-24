@@ -139,15 +139,7 @@ void proformbike::update()
        gattNotify1Characteristic.isValid() &&
        initDone)
     {
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           elapsed += deltaTime;
-           m_watt = (double)watts();
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts());
 
         uint8_t noOpData1[] = { 0xfe, 0x02, 0x19, 0x03 };
         uint8_t noOpData2[] = { 0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00, 0x0f, 0xbc, 0x90, 0x70, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00 };
@@ -221,8 +213,6 @@ void proformbike::update()
             requestStop = -1;
         }
     }
-
-    firstUpdate = false;
 }
 
 void proformbike::serviceDiscovered(const QBluetoothUuid &gatt)

@@ -93,15 +93,7 @@ void soleelliptical::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           elapsed += deltaTime;
-           m_watt = (double)watts();
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
         if(!firstVirtual && searchStopped && !virtualTreadmill)
@@ -189,11 +181,7 @@ void soleelliptical::update()
             //writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
-
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
     }
-
-    firstUpdate = false;
 }
 
 void soleelliptical::serviceDiscovered(const QBluetoothUuid &gatt)

@@ -1,3 +1,4 @@
+#include <QSettings>
 #include "treadmill.h"
 
 treadmill::treadmill()
@@ -13,6 +14,40 @@ metric treadmill::currentInclination(){ return Inclination; }
 uint8_t treadmill::fanSpeed() { return FanSpeed; };
 bool treadmill::connected() { return false; }
 bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }
+
+void treadmill::update_metrics(const bool watt_calc, const double watts)
+{
+    QDateTime current = QDateTime::currentDateTime();
+    double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
+    QSettings settings;
+    if(!_firstUpdate && !paused)
+    {
+       if(currentSpeed().value() > 0.0 || settings.value("continuous_moving", true).toBool())
+       {
+           elapsed += deltaTime;
+       }
+       if(currentSpeed().value() > 0.0)
+       {
+           moving += deltaTime;
+           if(watt_calc)
+               m_watt = watts;
+           m_jouls += (m_watt.value() * deltaTime);
+       }
+       else if(m_watt.value() > 0)
+       {
+           m_watt = 0;
+       }
+    }
+    else if(m_watt.value() > 0)
+    {
+        m_watt = 0;
+    }
+
+    elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
+
+    _lastTimeUpdate = current;
+    _firstUpdate = false;
+}
 
 uint16_t treadmill::watts(double weight)
 {
@@ -34,6 +69,7 @@ uint16_t treadmill::watts(double weight)
 
 void treadmill::clearStats()
 {
+    moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
     KCal.clear(true);
@@ -49,6 +85,7 @@ void treadmill::clearStats()
 void treadmill::setPaused(bool p)
 {
     paused = p;
+    moving.setPaused(p);
     elapsed.setPaused(p);
     Speed.setPaused(p);
     KCal.setPaused(p);
@@ -61,6 +98,7 @@ void treadmill::setPaused(bool p)
 
 void treadmill::setLap()
 {
+    moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
     KCal.setLap(true);

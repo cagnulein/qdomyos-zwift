@@ -93,6 +93,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
     elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
+    moving_time = new DataObject("Moving T.", "icons/icons/clock.png", "0:00:00", false, "moving_time", valueElapsedFontSize, labelFontSize);
     datetime = new DataObject("Clock", "icons/icons/clock.png", QTime::currentTime().toString("hh:mm:ss"), false, "time", valueTimeFontSize, labelFontSize);
     lapElapsed = new DataObject("Lap Elapsed", "icons/icons/clock.png", "0:00:00", false, "lapElapsed", valueElapsedFontSize, labelFontSize);
 
@@ -178,6 +179,9 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
 
         if(settings.value("tile_elapsed_enabled", true).toBool())
             dataList.append(elapsed);
+
+        if(settings.value("tile_moving_time_enabled", true).toBool())
+            dataList.append(moving_time);
 
         if(settings.value("tile_calories_enabled", true).toBool())
             dataList.append(calories);
@@ -370,7 +374,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 22; i++)
+    for(int i = 0; i < 23; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -407,6 +411,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
                 dataList.append(elapsed);
+
+            if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
+                dataList.append(moving_time);
 
             if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
                 dataList.append(calories);
@@ -457,6 +464,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
                 dataList.append(elapsed);
+
+            if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
+                dataList.append(moving_time);
 
             if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
                 dataList.append(calories);
@@ -525,6 +535,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
                 dataList.append(elapsed);
+
+            if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
+                dataList.append(moving_time);
 
             if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
                 dataList.append(calories);
@@ -924,6 +937,7 @@ void homeform::update()
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
+        moving_time->setValue(bluetoothManager->device()->movingTime().toString("h:mm:ss"));
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString("h:mm:ss"));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));
@@ -1199,7 +1213,7 @@ void homeform::update()
                         peloton_resistance,
                         (uint8_t)bluetoothManager->device()->currentHeart().value(),
                         pace, cadence, bluetoothManager->device()->calories(),
-                        bluetoothManager->device()->elevationGain(),                        
+                        bluetoothManager->device()->elevationGain(),
                         bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600),
                         lapTrigger);
 
@@ -1817,7 +1831,8 @@ void homeform::sendMail()
     textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + "\n";
     textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + "\n";
     textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + "\n";
-    textMessage += "Elapsed: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
+    textMessage += "Elapsed Time: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
+    textMessage += "Moving Time: " + bluetoothManager->device()->movingTime().toString() + "\n";
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
         textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + "\n";

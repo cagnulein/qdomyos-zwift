@@ -70,15 +70,7 @@ void flywheelbike::update()
        gattNotify1Characteristic.isValid() &&
        initDone)
     {
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-           elapsed += deltaTime;
-           m_watt = (double)watts();
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts());
 
         // updating the treadmill console every second
         if(sec1Update++ == (500 / refresh->interval()))
@@ -115,8 +107,6 @@ void flywheelbike::update()
             requestStop = -1;
         }
     }
-
-    firstUpdate = false;
 }
 
 void flywheelbike::serviceDiscovered(const QBluetoothUuid &gatt)

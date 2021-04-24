@@ -94,8 +94,8 @@ void spirittreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
-        if(currentSpeed().value() > 0.0 && !firstUpdate)
-           elapsed += ((double)lastTimeUpdate.msecsTo(QTime::currentTime()) / 1000.0);
+        QSettings settings;
+        update_metrics(true, watts(settings.value("weight", 75.0).toFloat()));
 
         // updating the treadmill console every second
         if(sec1update++ == (1000 / refresh->interval()))
@@ -176,12 +176,7 @@ void spirittreadmill::update()
             changeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
-
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000 * (currentInclination().value() / 100) * (refresh->interval() / 1000);
     }
-
-    lastTimeUpdate = QTime::currentTime();
-    firstUpdate = false;
 }
 
 void spirittreadmill::serviceDiscovered(const QBluetoothUuid &gatt)

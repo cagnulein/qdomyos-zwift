@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <QDateTime>
 #include <QBluetoothDeviceInfo>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -25,7 +26,7 @@ class bluetoothdevice : public QObject
 {
     Q_OBJECT
 public:
-    bluetoothdevice();
+    bluetoothdevice();    
     virtual metric currentHeart();
     virtual metric currentSpeed();
     virtual QTime currentPace();
@@ -34,6 +35,7 @@ public:
     metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
+    virtual QTime movingTime();
     virtual QTime lapElapsedTime();
     virtual bool connected();
     virtual void* VirtualDevice();
@@ -74,6 +76,7 @@ protected:
     QLowEnergyController* m_control = 0;
 
     metric elapsed;
+    metric moving; // moving time
     metric Speed;
     metric KCal;
     metric Distance;
@@ -90,6 +93,10 @@ protected:
 
     bool paused = false;
     bool autoResistanceEnable = true;
+
+    QDateTime _lastTimeUpdate;
+    bool _firstUpdate = true;
+    void update_metrics(const bool watt_calc, const double watts);
 };
 
 #endif // BLUETOOTHDEVICE_H

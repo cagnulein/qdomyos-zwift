@@ -105,10 +105,10 @@ void eslinkertreadmill::update()
        gattNotifyCharacteristic.isValid() &&
        initDone)
     {
+        QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if(!firstInit && searchStopped && !virtualTreadMill)
-        {
-            QSettings settings;
+        {            
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             if(virtual_device_enabled)
             {
@@ -122,16 +122,7 @@ void eslinkertreadmill::update()
 
         debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
 
-        QDateTime current = QDateTime::currentDateTime();
-        double deltaTime = (((double)lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
-        if(currentSpeed().value() > 0.0 && !firstUpdate && !paused)
-        {
-            QSettings settings;
-           elapsed += deltaTime;
-           m_watt = (double)watts(settings.value("weight", 75.0).toFloat());
-           m_jouls += (m_watt.value() * deltaTime);
-        }
-        lastTimeUpdate = current;
+        update_metrics(true, watts(settings.value("weight", 75.0).toFloat()));
 
         // updating the treadmill console every second
         if(sec1Update++ >= (1000 / refresh->interval()))
@@ -189,11 +180,7 @@ void eslinkertreadmill::update()
                 requestStop = -1;
             }
         }
-
-        elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
     }
-
-    firstUpdate = false;
 }
 
 void eslinkertreadmill::serviceDiscovered(const QBluetoothUuid &gatt)
