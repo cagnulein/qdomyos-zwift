@@ -173,8 +173,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
             if(requests.first!.value?.first == 0x11)
           {
-                var high : UInt16 = ((UInt16)(requests.first!.value![4])) << 8;
-                self.CurrentSlope = (Double)((UInt16)(requests.first!.value![3]) + high);
+			       var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
+					 self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
           }
             else if(requests.first!.value?.first == 0x05)
           {
