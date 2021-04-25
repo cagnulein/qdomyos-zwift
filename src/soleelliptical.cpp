@@ -62,18 +62,17 @@ void soleelliptical::writeCharacteristic(uint8_t* data, uint8_t data_len, QStrin
 void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination)
 {
     // TODO do the level down command
-   uint8_t write[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
+   uint8_t write[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
+   uint8_t write1[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
 
-   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination);
+   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+   writeCharacteristic(write1, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
 }
 
 void soleelliptical::update()
 {
     uint8_t noOpData[] = { 0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d };
     uint8_t noOpData1[] = { 0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d };
-
-    // stop tape
-    uint8_t initDataF0C800B8[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
