@@ -1,12 +1,23 @@
 #include "webserverinfosender.h"
 #include <QWebSocket>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QNetworkReply>
 
 
 WebServerInfoSender::WebServerInfoSender(const QString& id, QObject * parent):TemplateInfoSender(id, parent) {
-
+    fetcher = new QNetworkAccessManager(this);
+    fetcher->setCookieJar(new QNoCookieJar());
+    connect(fetcher, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFetcherRequest(QNetworkReply*)));
+    connect(fetcher, SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)), this, SLOT(ignoreSSLErrors(QNetworkReply *, const QList<QSslError> &)));
 }
 WebServerInfoSender::~WebServerInfoSender() {
     innerStop();
+}
+
+void WebServerInfoSender::ignoreSSLErrors(QNetworkReply * repl, const QList<QSslError> &) {
+    repl->ignoreSslErrors();
 }
 
 bool WebServerInfoSender::listen() {
@@ -31,7 +42,7 @@ bool WebServerInfoSender::isRunning() const {
 bool WebServerInfoSender::send(const QString& data) {
     if (isRunning() && !data.isEmpty()) {
         bool rv = true, oldrv = false;
-        for (QWebSocket * client: clients) {
+        for (QWebSocket * client: sendToClients) {
             rv = client->sendTextMessage(data)  > 0;
             if (!oldrv)
                 oldrv = rv;
@@ -47,6 +58,9 @@ void WebServerInfoSender::innerStop() {
         if (isRunning())
             innerTcpServer->close();
         httpServer->deleteLater();
+        clients.clear();
+        sendToClients.clear();
+        reply2Req.clear();
         innerTcpServer = 0;
         httpServer = 0;
     }
@@ -100,6 +114,40 @@ bool WebServerInfoSender::init() {
 
 }
 
+void WebServerInfoSender::handleFetcherRequest(QNetworkReply* reply) {
+    QPair<QString, QWebSocket *> reqIdRequester = reply2Req.value(reply);
+    QString req = reqIdRequester.first;
+    QWebSocket * requester = reqIdRequester.second;
+    if (!req.isEmpty() && requester) {
+        QNetworkReply::NetworkError error = reply->error();
+        QString statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
+        int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        QByteArray body = reply->readAll();
+        QJsonObject out, init;
+        QList<QNetworkReply::RawHeaderPair> rHeaders = reply->rawHeaderPairs();
+        QJsonArray headers;
+        for (auto p: rHeaders) {
+            for (auto line: p.second.split('\n')) {
+                QJsonArray arrv;
+                arrv.append(p.first.constData());
+                arrv.append(line.constData());
+                headers.append(arrv);
+            }
+        }
+        init["headers"] = headers;
+        init["status"] = statusCode;
+        init["statusText"] = statusText;
+        out["body"] = QJsonValue(body.constData());
+        out["init"] = init;
+        out["req"] = req;
+        out["DBG"] = error;
+        QJsonDocument toSend(out);
+        requester->sendTextMessage(toSend.toJson());
+        reply2Req.remove(reply);
+    }
+    reply->deleteLater();
+}
+
 void WebServerInfoSender::processTextMessage(QString message)
 {
     /*QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
@@ -110,12 +158,65 @@ void WebServerInfoSender::processTextMessage(QString message)
     emit onDataReceived(message.toUtf8());
 }
 
+void WebServerInfoSender::processFetcherRequest(QString data) {
+    processFetcher(qobject_cast<QWebSocket *>(sender()), data.toUtf8());
+}
+
+void WebServerInfoSender::processFetcherRawRequest(QByteArray data) {
+    processFetcher(qobject_cast<QWebSocket *>(sender()), data);
+}
+
+void WebServerInfoSender::processFetcher(QWebSocket * sender, const QByteArray& data) {
+    qDebug() << "Fetch Request Received" << data;
+    QJsonDocument jsonResponse = QJsonDocument::fromJson(data);
+    if (jsonResponse.isObject()) {
+        QJsonObject jsonObject = jsonResponse.object();
+        if (jsonObject.contains("req") && jsonObject.contains("url")) {
+            QString req = jsonObject["req"].toString();
+            QString url = jsonObject["url"].toString();
+            QNetworkRequest request(url);
+            QString method = "GET";
+            QJsonValue tmpv;
+            request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+            if ((tmpv = jsonObject.value("method")).isString())
+                method = tmpv.toString();
+            if ((tmpv = jsonObject.value("headers")).isObject()) {
+                QVariantHash headers = tmpv.toObject().toVariantHash();
+                QVariantHash::const_iterator i = headers.constBegin();
+                while (i != headers.constEnd()) {
+                    request.setRawHeader(i.key().toUtf8(), i.value().toString().toUtf8());
+                    ++i;
+                }
+            }
+            QNetworkReply * repl;
+            if (method.toLower() == "post") {
+                QByteArray body;
+                if ((tmpv = jsonObject.value("body")).isString())
+                    body = tmpv.toString().toUtf8();
+                repl = fetcher->post(request, body);
+            }
+            else {
+                repl = fetcher->get(request);
+            }
+            reply2Req[repl] = QPair<QString, QWebSocket *>(req, sender);
+        }
+    }
+}
+
 void WebServerInfoSender::onNewConnection()
 {
     QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
-    qDebug() << "WebSocket connection"<<pSocket->requestUrl();
-    connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
-    connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
+    QUrl requestUrl = pSocket->requestUrl();
+    qDebug() << "WebSocket connection"<<requestUrl;
+    if (requestUrl.path() == "/fetcher") {
+        connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processFetcherRequest(QString)));
+        connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processFetcherRawRequest(QByteArray)));
+    }
+    else {
+        connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
+        connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
+        sendToClients << pSocket;
+    }
     connect(pSocket, SIGNAL(disconnected()), this, SLOT(socketDisconnected()));
 
     clients << pSocket;
@@ -127,6 +228,16 @@ void WebServerInfoSender::socketDisconnected()
     qDebug() << "socketDisconnected:" << pClient;
     if (pClient) {
         clients.removeAll(pClient);
+        if (!sendToClients.removeAll(pClient)) {
+            QMutableHashIterator<QNetworkReply *, QPair<QString, QWebSocket *>> i(reply2Req);
+            while (i.hasNext()) {
+                i.next();
+                if (i.value().second == pClient) {
+                    i.remove();
+                    break;
+                }
+            }
+        }
         pClient->deleteLater();
     }
 }

@@ -362,7 +362,9 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, Temp
             }
         }
         else {
-            outObj.insert(key, QJsonValue());
+            val = obj[key];
+            settings.setValue(key, val.toVariant());
+            outObj.insert(key, val);
         }
     }
     QJsonObject main;
@@ -489,6 +491,10 @@ void TemplateInfoSenderBuilder::buildContext()  {
         obj.setProperty("pace_s", el.second());
         obj.setProperty("pace_m", el.minute());
         obj.setProperty("pace_h", el.hour());
+        el = device->movingTime();
+        obj.setProperty("moving_s", el.second());
+        obj.setProperty("moving_m", el.minute());
+        obj.setProperty("moving_h", el.hour());
         obj.setProperty("speed", (dep = device->currentSpeed()).value());
         obj.setProperty("speed_avg", dep.average());
         obj.setProperty("calories", device->calories());
