@@ -274,6 +274,7 @@ double soleelliptical::GetDistanceFromPacket(QByteArray packet)
 
 void soleelliptical::btinit(bool startTape)
 {
+    QSettings settings;
     Q_UNUSED(startTape)
 
     // set speed and incline to 0
@@ -284,6 +285,9 @@ void soleelliptical::btinit(bool startTape)
     uint8_t initData5[] = { 0x5b, 0x05, 0x04, 0xFF, 0x00, 0x00, 0x00, 0x5d }; // 0xFF is the duration of the workout
     uint8_t initData6[] = { 0x5b, 0x02, 0x02, 0x02, 0x5d };
     uint8_t initData7[] = { 0x5b, 0x02, 0x03, 0x04, 0x5d };
+
+    initData3[4] = settings.value("age", 35).toUInt();
+    initData3[6] = settings.value("weight", 75.0).toFloat() * 2.20462;
 
     writeCharacteristic(initData1, sizeof(initData1), "init");
     writeCharacteristic(initData1, sizeof(initData1), "init");
