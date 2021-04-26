@@ -39,6 +39,7 @@ class domyosbike : public bike
 public:
     domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);    
     uint8_t resistanceFromPowerRequest(uint16_t power);
+    int pelotonToBikeResistance(int pelotonResistance);
     ~domyosbike();
     bool connected();
 

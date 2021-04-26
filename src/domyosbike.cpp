@@ -365,12 +365,13 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     else
         qDebug() << "cadence filter out " << ucadence << cadenceFilter;
 
-    Resistance = value.at(14);
+    Resistance = value.at(14);    
     if(Resistance.value() < 1)
     {
         qDebug() << "invalid resistance value " + QString::number(Resistance.value()) + " putting to default";
         Resistance = 1;
     }
+    m_pelotonResistance = (Resistance.value() * 100) / max_resistance;
 
 #ifdef Q_OS_ANDROID
     if(settings.value("ant_heart", false).toBool())
@@ -679,6 +680,11 @@ void* domyosbike::VirtualBike()
 void* domyosbike::VirtualDevice()
 {
     return VirtualBike();
+}
+
+int domyosbike::pelotonToBikeResistance(int pelotonResistance)
+{
+    return (pelotonResistance * max_resistance) / 100;
 }
 
 uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power)
