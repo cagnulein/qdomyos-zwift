@@ -63,10 +63,20 @@ void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uin
 {
     // TODO do the level down command
    uint8_t write[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
-   uint8_t write1[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
+   uint8_t writeUp[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
 
-   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
-   writeCharacteristic(write1, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+   uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
+
+   if(currentResistance() < requestResistance)
+   {
+       writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(writeUp, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+   }
+   else if(currentResistance() > requestResistance)
+   {
+       writeCharacteristic(writeDown, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+   }
 }
 
 void soleelliptical::update()
@@ -198,6 +208,14 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     debug(" << " + newValue.toHex(' '));
 
     lastPacket = newValue;
+
+    if(newValue.length() == 5 && newValue.at(1) == 0x02)
+    {
+        Resistance = newValue.at(3);
+        debug("Current resistance: " + QString::number(Resistance));
+        return;
+    }
+
     if (newValue.length() < 20)
         return;
 
@@ -209,7 +227,6 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     Cadence = ((uint8_t)newValue.at(10));
     m_watt = watt;
 
-    //Resistance = newValue.at(14);
     //Inclination = newValue.at(21);
     if(Resistance < 1)
     {
@@ -234,8 +251,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence));
-    debug("Current resistance: " + QString::number(Resistance));
+    debug("Current cadence: " + QString::number(Cadence));    
     debug("Current inclination: " + QString::number(Inclination.value()));
     debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
