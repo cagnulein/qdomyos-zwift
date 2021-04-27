@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+    <row duration="00:01:00" zonehr="1" fanspeed="0" maxspeed="2" looptimehr="1"/>
+    <row duration="00:01:00" zonehr="2" fanspeed="1" maxspeed="5" looptimehr="3"/>
+    <row duration="00:01:00" zonehr="3" fanspeed="2" maxspeed="7" looptimehr="5"/>
+</rows>

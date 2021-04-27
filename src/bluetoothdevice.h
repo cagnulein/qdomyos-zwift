@@ -37,6 +37,7 @@ public:
     metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
+    virtual void offsetElapsedTime(int offset);
     virtual QTime movingTime();
     virtual QTime lapElapsedTime();
     virtual bool connected();

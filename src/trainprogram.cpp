@@ -169,6 +169,9 @@ void trainprogram::save(QString filename)
         stream.writeAttribute("cadence", QString::number(row.cadence));
         stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
         stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
+        stream.writeAttribute("maxspeed", QString::number(row.maxSpeed));
+        stream.writeAttribute("zonehr", QString::number(row.zoneHR));
+        stream.writeAttribute("looptimehr", QString::number(row.loopTimeHR));
         stream.writeEndElement();
     }
     stream.writeEndElement();
@@ -198,6 +201,9 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
             row.resistance = atts.value("resistance").toInt();
             row.requested_peloton_resistance = atts.value("requested_peloton_resistance").toInt();
             row.cadence = atts.value("cadence").toInt();
+            row.maxSpeed = atts.value("maxspeed").toInt();
+            row.zoneHR = atts.value("zonehr").toInt();
+            row.loopTimeHR = atts.value("looptimehr").toInt();
             row.forcespeed = atts.value("forcespeed").toInt()?true:false ;
             list.append(row);
         }
@@ -209,6 +215,15 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
 QTime trainprogram::totalElapsedTime()
 {
     return QTime(0,0,elapsed);
+}
+
+trainrow trainprogram::currentRow()
+{
+    if(started)
+    {
+        return rows.at(currentStep);
+    }
+    return trainrow();
 }
 
 QTime trainprogram::currentRowElapsedTime()

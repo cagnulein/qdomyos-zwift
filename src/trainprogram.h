@@ -16,6 +16,9 @@ public:
     int8_t requested_peloton_resistance = -1;
     int16_t cadence = -1;
     bool forcespeed = false;
+    int8_t loopTimeHR = 10;
+    int8_t zoneHR = -1;
+    int8_t maxSpeed = -1;
 };
 
 class trainprogram: public QObject
@@ -30,6 +33,7 @@ public:
     QTime currentRowElapsedTime();
     QTime duration();
     double totalDistance();
+    trainrow currentRow();
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
