@@ -30,6 +30,8 @@ public:
     virtual metric currentHeart();
     virtual metric currentSpeed();
     virtual QTime currentPace();
+    virtual QTime averagePace();
+    virtual QTime maxPace();
     virtual double odometer();
     virtual double calories();
     metric jouls();

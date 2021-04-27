@@ -957,9 +957,46 @@ void homeform::update()
             }
             inclination = ((treadmill*)bluetoothManager->device())->currentInclination().value();
             this->pace->setValue(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
+            this->pace->setSecondLine("AVG: " + ((treadmill*)bluetoothManager->device())->averagePace().toString("m:ss") + " MAX: " + ((treadmill*)bluetoothManager->device())->maxPace().toString("m:ss"));
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine("AVG: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().average(), 'f', 1) + " MAX: " + QString::number(((treadmill*)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));            
+            elevation->setValue(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));
+
+            if(bluetoothManager->device()->currentSpeed().value() < 9)
+            {
+                speed->setValueFontColor("white");
+                this->pace->setValueFontColor("white");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 10)
+            {
+                speed->setValueFontColor("limegreen");
+                this->pace->setValueFontColor("limegreen");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 11)
+            {
+                speed->setValueFontColor("gold");
+                this->pace->setValueFontColor("gold");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 12)
+            {
+                speed->setValueFontColor("orange");
+                this->pace->setValueFontColor("orange");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 13)
+            {
+                speed->setValueFontColor("darkorange");
+                this->pace->setValueFontColor("darkorange");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 14)
+            {
+                speed->setValueFontColor("orangered");
+                this->pace->setValueFontColor("orangered");
+            }
+            else
+            {
+                speed->setValueFontColor("red");
+                this->pace->setValueFontColor("red");
+            }
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {

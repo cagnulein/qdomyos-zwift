@@ -34,6 +34,42 @@ QTime bluetoothdevice::currentPace()
     }
 }
 
+QTime bluetoothdevice::averagePace()
+{
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+    if(Speed.value() == 0)
+    {
+        return QTime(0,0,0,0);
+    }
+    else
+    {
+        double speed = Speed.average() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+    }
+}
+
+QTime bluetoothdevice::maxPace()
+{
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+    if(Speed.value() == 0)
+    {
+        return QTime(0,0,0,0);
+    }
+    else
+    {
+        double speed = Speed.max() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+    }
+}
+
 double bluetoothdevice::odometer(){ return Distance.value(); }
 double bluetoothdevice::calories(){ return KCal.value(); }
 metric bluetoothdevice::jouls() { return m_jouls; }
