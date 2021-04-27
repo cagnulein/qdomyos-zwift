@@ -1182,22 +1182,29 @@ void homeform::update()
         else if(!settings.value("treadmill_pid_heart_zone", "Disabled").toString().contains("Disabled") &&
                 bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
-            uint8_t zone = settings.value("treadmill_pid_heart_zone", "Disabled").toString().toUInt();
-            if(!stopped && !paused &&
-                    bluetoothManager->device()->currentHeart().value() &&
-                    ((treadmill*)bluetoothManager->device())->currentSpeed().value() > 0.0f)
+            static uint32_t last_seconds_pid_heart_zone = 0;
+            uint32_t seconds = bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600);
+
+            if(last_seconds_pid_heart_zone == 0 || ((seconds - last_seconds_pid_heart_zone) >= 10))
             {
-                if(zone < currentHRZone)
+                last_seconds_pid_heart_zone = seconds;
+                uint8_t zone = settings.value("treadmill_pid_heart_zone", "Disabled").toString().toUInt();
+                if(!stopped && !paused &&
+                        bluetoothManager->device()->currentHeart().value() &&
+                        ((treadmill*)bluetoothManager->device())->currentSpeed().value() > 0.0f)
                 {
-                    ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(
-                                ((treadmill*)bluetoothManager->device())->currentSpeed().value() - 0.2,
-                                ((treadmill*)bluetoothManager->device())->currentInclination().value());
-                }
-                else if(zone > currentHRZone)
-                {
-                    ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(
-                                ((treadmill*)bluetoothManager->device())->currentSpeed().value() + 0.2,
-                                ((treadmill*)bluetoothManager->device())->currentInclination().value());
+                    if(zone < currentHRZone)
+                    {
+                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(
+                                    ((treadmill*)bluetoothManager->device())->currentSpeed().value() - 0.2,
+                                    ((treadmill*)bluetoothManager->device())->currentInclination().value());
+                    }
+                    else if(zone > currentHRZone)
+                    {
+                        ((treadmill*)bluetoothManager->device())->changeSpeedAndInclination(
+                                    ((treadmill*)bluetoothManager->device())->currentSpeed().value() + 0.2,
+                                    ((treadmill*)bluetoothManager->device())->currentInclination().value());
+                    }
                 }
             }
         }
