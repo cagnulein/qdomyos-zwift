@@ -69,13 +69,13 @@ void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uin
 
    if(currentResistance() < requestResistance)
    {
-       writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
-       writeCharacteristic(writeUp, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(writeUp, sizeof(writeUp), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
    }
    else if(currentResistance() > requestResistance)
    {
-       writeCharacteristic(writeDown, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
-       writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(writeDown, sizeof(writeDown), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
    }
 }
 
