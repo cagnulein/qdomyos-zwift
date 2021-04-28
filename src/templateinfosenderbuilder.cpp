@@ -208,8 +208,20 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
         QString key;
         for (auto& kk: keys_to_retrieve) {
             key = kk.toString();
-            if (settings.contains(key)) {
+            if (key.startsWith("$")) {
+                outObj.insert(key, 1);
+                QRegExp regex(key.mid(1));
+                for (auto& keypresent: settings.allKeys()) {
+                    if (regex.indexIn(keypresent) >= 0) {
+                        outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
+                    }
+                }
+            }
+            else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            }
+            else {
+                outObj.insert(key, QJsonValue());
             }
         }
     }
