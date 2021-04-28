@@ -1932,6 +1932,20 @@ void homeform::sendMail()
         textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
     }
     textMessage += "\n\nQZ version: " + QApplication::applicationVersion();
+#ifdef Q_OS_ANDROID
+    textMessage += " - Android";
+#endif
+#ifdef Q_OS_IOS
+    textMessage += " - iOS";
+#endif
+    if(bluetoothManager)
+    {
+        textMessage += "\nDevice: " + bluetoothManager->device()->bluetoothDevice.name();
+        if(bluetoothManager->heartRateDevice())
+            textMessage += "\nHR Device: " + bluetoothManager->heartRateDevice()->bluetoothDevice.name();
+    }
+
+
     text.setText(textMessage);
     message.addPart(&text);
 
