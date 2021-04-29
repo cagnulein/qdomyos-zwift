@@ -1,0 +1,46 @@
+body{margin-top:20px;
+background:#eee;
+}
+
+.top-buffer { margin-top:20px; margin-bottom:20px; }
+.top-buffer-0 { margin-top:30px; margin-bottom:30px; }
+.even-larger-badge {
+    font-size: 1.1em;
+}
+.card-img-caption {
+  border-top-left-radius: calc(.25rem - 1px);
+  border-top-right-radius: calc(.25rem - 1px);
+}
+
+.card-img-caption .card-img-top {
+  z-index: 0;
+}
+
+.card-img-caption .card-text {
+  text-align: right;
+  font-weight: bold;
+  color: white;
+  width: 100%;
+  margin: 40% 0;
+  position: absolute;
+  z-index: 1;
+}
+
+.progress .jkoop-progress-bar-indeterminate.progress-bar-animated {
+  animation: indeterminate 1s linear infinite alternate, progress-bar-stripes 1s linear infinite;
+  width: 25% !important;
+}
+
+.progress .jkoop-progress-bar-indeterminate {
+  animation: indeterminate 1s linear infinite alternate;
+  width: 25% !important;
+}
+
+@keyframes indeterminate {
+  0% {
+    margin-left: 0;
+  }
+  100% {
+    margin-left: 75%;
+  }
+}

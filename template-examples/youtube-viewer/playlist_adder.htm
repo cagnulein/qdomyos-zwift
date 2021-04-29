@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Playlist Adder</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <script src="./debug.js"></script>
+    <script src="./formsave.js"></script>
+    <script src="./globals.js"></script>
+    <script src="./qtfetcher.js"></script>
+    <script src="./input-spinner.js"></script>
+    <script src="./input-spinner-custom-editors.js"></script>
+    <script src="./main_ws_manager.js"></script>
+    <script src="./playlist_adder.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+    <link rel="stylesheet" type="text/css" href="./playlist_adder.css">
+</head>
+
+<body>
+
+    <!-- Modal -->
+    <div id="modal-progress" class="modal fade" id="staticBackdrop" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel">Downloading</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Please wait while downloading playlist data</p>
+                    <div class="progress">
+                        <div class="jkoop-progress-bar-indeterminate progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div aria-live="polite" aria-atomic="true" style="position: relative; min-height: 40px;">
+        <!-- Position it -->
+        <div id="toast-container" style="position: absolute; top: 0; right: 0;">
+            <div id="main-toast" class="toast ml-auto" role="alert" data-autohide="false">
+                <div class="toast-header">
+                    <strong class="mr-auto text-primary">Playlists</strong>
+                    <small class="text-muted">Now</small>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    ${s2}
+                </div>
+            </div>
+            <div id="secondary-toast" class="toast ml-auto" role="alert" data-delay="6000" data-autohide="true">
+                <div class="toast-header">
+                    <strong class="mr-auto text-primary">${s1}</strong>
+                    <small class="text-muted">Now</small>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="toast-body">
+                    ${s2}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="main-container" class="container">
+        <div class="row">
+            <div class="input-group col-md-12">
+                <input id="video-input" type="text" placeholder="Video Link or ID" class="form-control" aria-label="video id">
+                <div class="input-group-append">
+                    <button type="button" data-grabber="youtube" class="btn btn-primary"><i class="fab fa-youtube"></i>&nbsp;&nbsp;Youtube</button>
+                    <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" data-grabber="youtube" href="#"><i class="fab fa-youtube"></i>&nbsp;&nbsp;Youtube</a>
+                        <a class="dropdown-item" data-grabber="personal" href="#"><i class="fa fa-border-none"></i>&nbsp;&nbsp;Personal</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer-0">
+            <div class="input-group col-md-12">
+                <input type="text" id="link-result" class="form-control" placeholder="Link result" aria-label="Link result" aria-describedby="basic-addon2" readonly="true">
+                <div class="input-group-append">
+                    <button class="btn btn-primary disabled" id="link-button" type="button" disabled="true">Save and GO</button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <form class="col-md-6" autocomplete="on">
+                <div class="form-group">
+                    <label for="input-playlist-name">Playlist Name</label>
+                    <input type="text" class="form-control" id="input-playlist-name" aria-describedby="input-playlist-name-help" placeholder="Enter playlist name" required>
+                    <small id="input-playlist-name-help" class="form-text text-muted">Enter Playlist friendly name.</small>
+                </div>
+                <div class="form-group">
+                    <label for="control-load-playlist">Load playlist</label>
+                    <select class="form-control" id="control-load-playlist">
+                        <option value="">None</option>
+                    </select>
+                </div>
+            </form>
+            <form class="col-md-6" autocomplete="on">
+                <div class="form-group">
+                    <label for="video-width">Video Width</label>
+                    <input type="number" placeholder="Video Width" id="video-width" value="900" min="100" max="4000" step="1" required/>
+                </div>
+                <div class="form-group">
+                    <label for="video-height">Video Height</label>
+                    <input type="number" placeholder="Video Height" id="video-height" value="660" min="100" max="4000" step="1" required/>
+                </div>
+            </form>
+            <form class="col-md-12" autocomplete="on">
+                <div class="form-group">
+                    <label for="control-video-id">Start playing from</label>
+                    <select class="form-control" id="control-video-id">
+                        <!--<option>1</option>!-->
+                    </select>
+                </div>
+            </form>
+        </div>
+        <div id="grabber-settings" class="row">
+        </div>
+        <div class="row top-buffer">
+        </div>
+    </div>
+</body>
