@@ -38,18 +38,18 @@ function format_duration(secs) {
 }
 
 function prepare_url() {
+    const params = new URLSearchParams();
+    for (let [key, value] of Object.entries(playlist_grabbers_obj)) {
+        value.form2params(params);
+    }
     if (!playlist_raw_list.length) {
         $('#link-result').val('');
         $('#link-button').attr('disabled', true);
     }
     else {
-        const params = new URLSearchParams();
         for (let p of playlist_raw_list) {
             params.append('grabber', p.grabber);
             params.append('par', p.par);
-        }
-        for (let [key, value] of Object.entries(playlist_grabbers_obj)) {
-            value.form2params(params);
         }
         let v = $('#control-video-id').val();
         if (v)

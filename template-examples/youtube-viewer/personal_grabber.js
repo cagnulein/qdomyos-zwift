@@ -2,6 +2,12 @@ class PersonalGrabber {
     constructor(urlParams) {
         this.configure(urlParams);
         this.on_grab = null;
+
+    }
+    configure(urlParams) {
+        this.url = urlParams.has('personal-url')?urlParams.get('personal-url'):(typeof(DEFAULT_PERSONAL_URL) != 'string'? '':DEFAULT_PERSONAL_URL);
+        this.user = urlParams.has('personal-username')?urlParams.get('personal-username'):(typeof(DEFAULT_PERSONAL_USER) != 'string'? '':DEFAULT_PERSONAL_USER);
+        this.conv = urlParams.has('personal-conv')?urlParams.get('personal-conv'):0;
         this.ajax_settings = {
             type        : 'GET',
             url         : this.url,
@@ -15,11 +21,6 @@ class PersonalGrabber {
             contentType : 'application/json',
             retries     : -1
         };
-    }
-    configure(urlParams) {
-        this.url = urlParams.has('personal-url')?urlParams.get('personal-url'):(typeof(DEFAULT_PERSONAL_URL) != 'string'? '':DEFAULT_PERSONAL_URL);
-        this.user = urlParams.has('personal-username')?urlParams.get('personal-username'):(typeof(DEFAULT_PERSONAL_USER) != 'string'? '':DEFAULT_PERSONAL_USER);
-        this.conv = urlParams.has('personal-conv')?urlParams.get('personal-conv'):0;
     }
     get_settings_form(call_on_change){
         let formel =  $(`
@@ -48,24 +49,19 @@ class PersonalGrabber {
     form2params(sp) {
         let v = $('#personal-conv').val();
         if (v)
-            this.conv = v;
+            sp.append('personal-conv', v);
         v = $('#personal-username').val();
         if (v)
-            this.user = v;
+            sp.append('personal-username', v);
         v = $('#personal-url').val();
         if (v)
-            this.url = v;
-        this.add_params(sp);
+            sp.append('personal-url', v);
+        this.configure(sp);
     }
     grab(pls_name) {
         this.ajax_settings.data.name = pls_name;
         console.log('notify_done is ' + this.notify_done);
         $.ajax(this.ajax_settings).fail(this.on_fail.bind(this)).done(this.notify_done.bind(this));
-    }
-    add_params(sp) {
-        sp.append('personal-username', this.user);
-        sp.append('personal-conv', this.conv);
-        sp.append('personal-url', this.url);
     }
     on_fail(e) {
         console.error('fail downloading / parsing ' + e);

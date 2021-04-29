@@ -15,13 +15,11 @@ class YoutubeGrabber {
         else
             return el;
     }
-    add_params(sp) {
-    }
     get_settings_form(){
         return null;
     }
-    form2params(main_id) {
-        
+    form2params(up) {
+        this.configure(up);        
     }
     grab(value) {
         value = this.extract_id(value);
