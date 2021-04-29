@@ -268,7 +268,7 @@ void domyosbike::update()
             if(requestStop != -1)
             {
                 qDebug() << "stopping...";
-                writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                //writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
                 requestStop = -1;
             }
         }
