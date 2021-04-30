@@ -74,8 +74,8 @@ function stack_toast(objadd) {
     let s1,s2;
     let update_main = true;
     if (typeof(objadd) == 'string') {
-        s1 = objadd;
-        s2 = 'Cannot add \'' + objadd + '\'. Please check search terms!';
+        s1 = 'Problem detected';
+        s2 = objadd;
         update_main = false;
     }
     else if (objadd) {
@@ -115,7 +115,7 @@ function hide_progress_modal() {
 function process_on_grab(listout, searchid, grabbername) {
     hide_progress_modal();
     if (!listout || !listout.length) {
-        stack_toast(searchid);
+        stack_toast('Cannot add \'' + searchid + '\'. Please check search terms!');
         return;
     }
     playlist_current_id ++;
@@ -205,7 +205,9 @@ function load_saved_playlist_item(idx) {
     else {
         let v;
         if ((v = loading_playlist.up.get('sta'))) {
-            $('#control-video-id').val(v);
+            let clp = $('#control-video-id');
+            clp.val(v);
+            clp.trigger('change');
         }
         loading_playlist = {};
     }
@@ -249,7 +251,7 @@ function playlist_adder_init() {
         if (form[0].checkValidity()) {
             let val = $('#link-result').val();
             if (val && val.length) {
-                window.location = val;
+                save_playlist_settings(urlParams);
             }
         }
         form.addClass('was-validated');
@@ -298,6 +300,29 @@ function playlist_adder_init() {
         prepare_url();
     });
     playlist_load_grabber_module(0);
+}
+
+function save_playlist_settings(urlParams) {
+    let settings_key_pre = get_template_name() + '_conf_';
+    let key = settings_key_pre + urlParams.get('name');
+    let content_obj = {};
+    content_obj[key] = urlParams.toString();
+    let el = new MainWSQueueElement({
+        msg: 'setsettings',
+        content: content_obj
+    }, function(msg) {
+        return msg.msg === 'R_setsettings' && msg.content[key] !== undefined? msg.content:null;
+    }, 3000, 3);
+    el.enqueue().then(function(settings) {
+        console.log('Settings saved ' + JSON.stringify(settings));
+        let params = new URLSearchParams();
+        params.append('name', urlParams.get('name'));
+        window.location = get_url_without_file() + workout_file + get_search_start_char() + params.toString();
+    })
+        .catch(function(err) {
+            stack_toast('Playlist NOT saved ' + err);
+            console.log('Settings NOT saved ' + err);
+        });
 }
 
 function get_startup_settings() {

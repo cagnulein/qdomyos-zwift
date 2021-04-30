@@ -83,7 +83,7 @@ function on_player_load(name, manager_obj) {
     video_manager_obj.on_play_finished = on_play_finished;
     let sta;
     let event = undefined;
-    if (urlParams.has('sta') && (sta = urlParams.get('sta')) && playlist_map[sta]) {
+    if (urlParams.has('sta') && (sta = urlParams.get('sta')) && playlist_map[sta] !== undefined) {
         event = {dir: sta};
     }
     on_play_finished(event);
@@ -163,9 +163,8 @@ function get_startup_settings() {
     let hasgrabber = orig_up.has('grabber');
     let keys_arr = [];
     let namekey = 'a', lastkey;
-    if (hasname && !hasgrabber) {
+    if (hasname)
         keys_arr.push(namekey = settings_key_pre + orig_up.get('name'));
-    }
     keys_arr.push(lastkey = settings_key_pre + lastconf_key);
     let onSettingsOK = function(settings) {
         let s = null;
@@ -194,9 +193,6 @@ function get_startup_settings() {
         else
             playlist_saves = [lastkey];
         urlParams = orig_up;
-        if (hasname && hasgrabber && (!settings[namekey] || settings[namekey].length == 0)) {
-            save_playlist_settings();
-        }
         init_video_manager();
     };
     let el = new MainWSQueueElement({

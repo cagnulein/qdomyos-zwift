@@ -1,8 +1,27 @@
 class PersonalGrabber {
     constructor(urlParams) {
-        this.configure(urlParams);
         this.on_grab = null;
-
+        this.form =  $(`
+            <form class="col-md-12" autocomplete="on">
+            <div class="form-group">
+                <label for="personal-url">URL</label>
+                <input type="url" class="form-control" id="personal-url" aria-describedby="personal-url-help" placeholder="Server URL" required>
+                <small id="input-playlist-name-help" class="form-text text-muted">Enter Server URL.</small>
+            </div>
+            <div class="form-group">
+                <label for="personal-username">Username</label>
+                <input type="text" class="form-control" id="personal-username" aria-describedby="personal-username-help" placeholder="Server Username" required>
+                <small id="input-playlist-name-help" class="form-text text-muted">Enter Server Username.</small>
+            </div>
+            <div class="form-group">
+                <label for="personal-conv">Conv</label>
+                <input type="number" placeholder="Conv" id="personal-conv" value="0" min="0" max="2" step="1" required/>
+            </div>
+            </form>
+        `);
+        if (this.form.find('#personal-conv').inputSpinner)
+            this.form.find('#personal-conv').inputSpinner();
+        this.configure(urlParams);
     }
     configure(urlParams) {
         this.url = urlParams.has('personal-url')?urlParams.get('personal-url'):(typeof(DEFAULT_PERSONAL_URL) != 'string'? '':DEFAULT_PERSONAL_URL);
@@ -21,42 +40,34 @@ class PersonalGrabber {
             contentType : 'application/json',
             retries     : -1
         };
+        this.set_form_values();
+    }
+
+    set_form_values() {
+        this.form.find('#personal-conv').val(this.conv);
+        this.form.find('#personal-username').val(this.user);
+        this.form.find('#personal-url').val(this.url);
     }
     get_settings_form(call_on_change){
-        let formel =  $(`
-            <form class="col-md-12" autocomplete="on">
-            <div class="form-group">
-                <label for="personal-url">URL</label>
-                <input type="url" class="form-control" id="personal-url" aria-describedby="personal-url-help" placeholder="Server URL" required>
-                <small id="input-playlist-name-help" class="form-text text-muted">Enter Server URL.</small>
-            </div>
-            <div class="form-group">
-                <label for="personal-username">Username</label>
-                <input type="text" class="form-control" id="personal-username" aria-describedby="personal-username-help" placeholder="Server Username" required>
-                <small id="input-playlist-name-help" class="form-text text-muted">Enter Server Username.</small>
-            </div>
-            <div class="form-group">
-                <label for="personal-conv">Conv</label>
-                <input type="number" placeholder="Conv" id="personal-conv" value="0" min="0" max="2" step="1" required/>
-            </div>
-            </form>
-        `);
-        formel.find('#personal-conv').inputSpinner().val(this.conv).change(call_on_change);
-        formel.find('#personal-username').val(this.user).change(call_on_change);
-        formel.find('#personal-url').val(this.url).change(call_on_change);
-        return formel;
+        this.form.find('#personal-conv').change(call_on_change);
+        this.form.find('#personal-username').change(call_on_change);
+        this.form.find('#personal-url').change(call_on_change);
+        this.set_form_values();
+        return this.form;
     }
     form2params(sp) {
-        let v = $('#personal-conv').val();
-        if (v)
-            sp.append('personal-conv', v);
-        v = $('#personal-username').val();
-        if (v)
-            sp.append('personal-username', v);
-        v = $('#personal-url').val();
-        if (v)
-            sp.append('personal-url', v);
-        this.configure(sp);
+        let conv, url, user;
+        if ((conv = $('#personal-conv')).length && (url = $('#personal-url')).length && (user = $('#personal-username')).length) {
+            sp.append('personal-conv', conv.val());
+            sp.append('personal-username', user.val());
+            sp.append('personal-url', url.val());
+            this.configure(sp);
+        }
+        else {
+            sp.append('personal-conv', this.conv);
+            sp.append('personal-username', this.user);
+            sp.append('personal-url', this.url);
+        }
     }
     grab(pls_name) {
         this.ajax_settings.data.name = pls_name;
