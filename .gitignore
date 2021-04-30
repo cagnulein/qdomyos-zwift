@@ -17,3 +17,9 @@ src/debug-*
 
 *.swo
 *.swp
+
+template-examples/youtube-viewer/node_modules/*
+template-examples/youtube-viewer/*.json
+template-examples/youtube-viewer/.eslintrc.js
+template-examples/youtube-viewer/.jshintrc
+template-examples/youtube-viewer/debug.js
