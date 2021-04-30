@@ -219,7 +219,7 @@ QTime trainprogram::totalElapsedTime()
 
 trainrow trainprogram::currentRow()
 {
-    if(started)
+    if(started && rows.length())
     {
         return rows.at(currentStep);
     }
