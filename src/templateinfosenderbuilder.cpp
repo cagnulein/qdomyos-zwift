@@ -423,7 +423,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgCont
     outObj["list"] = outArr;
     outObj["name"] = fileXml;
     main["content"] = outObj;
-    main["msg"] = "R_loadtrainigprograms";
+    main["msg"] = "R_loadtrainingprograms";
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -461,7 +461,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgConte
    else
         outObj["list"] = 0;
     main["content"] = outObj;
-    main["msg"] = "R_savetrainigprogram";
+    main["msg"] = "R_savetrainingprogram";
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -509,11 +509,11 @@ void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
                     onSetSettings(jsonObject["content"], sender);
                     return;
                 }
-                else if (msg == "loadtrainigprograms") {
+                else if (msg == "loadtrainingprograms") {
                     onLoadTrainingPrograms(jsonObject["content"], sender);
                     return;
                 }
-                else if (msg == "savetrainigprogram") {
+                else if (msg == "savetrainingprogram") {
                     onSaveTrainingProgram(jsonObject["content"], sender);
                     return;
                 }
