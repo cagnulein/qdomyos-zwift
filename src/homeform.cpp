@@ -29,6 +29,17 @@
 #include "secret.h"
 #endif
 
+#ifndef STRAVA_CLIENT_ID
+#define STRAVA_CLIENT_ID 00000
+#if defined (WIN32)
+#pragma message("DEFINE STRAVA_CLIENT_ID!!!")
+#else
+#warning "DEFINE STRAVA_CLIENT_ID!!!"
+#endif
+#endif
+#define _STR(x) #x
+#define STRAVA_CLIENT_ID_S _STR(STRAVA_CLIENT_ID)
+
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor, QString secondLine)
 {
     m_name = name;
@@ -264,11 +275,7 @@ void homeform::pelotonWorkoutChanged(QString name, QString instructor)
     emit infoChanged(m_info);
 }
 
-void homeform::backup()
-{
-    static uint8_t index = 0;
-    qDebug() << "saving fit file backup...";
-
+QString homeform::getWritableAppDir() {
     QString path = "";
 #if defined(Q_OS_ANDROID)
     path = getAndroidDataAppDir() + "/";
@@ -277,6 +284,15 @@ void homeform::backup()
 #elif defined(Q_OS_IOS)
     path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
 #endif
+    return path;
+}
+
+void homeform::backup()
+{
+    static uint8_t index = 0;
+    qDebug() << "saving fit file backup...";
+
+    QString path = getWritableAppDir();
 
     if(bluetoothManager->device())
     {
@@ -1266,14 +1282,7 @@ void homeform::trainprogram_open_clicked(QUrl fileName)
 
 void homeform::gpx_save_clicked()
 {
-    QString path = "";
-#if defined(Q_OS_ANDROID)
-    path = getAndroidDataAppDir() + "/";
-#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+    QString path = getWritableAppDir();
 
     if(bluetoothManager->device())
         gpx::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".gpx", Session,  bluetoothManager->device()->deviceType());
@@ -1281,14 +1290,7 @@ void homeform::gpx_save_clicked()
 
 void homeform::fit_save_clicked()
 {
-    QString path = "";
-#if defined(Q_OS_ANDROID)
-    path = getAndroidDataAppDir() + "/";
-#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+    QString path = getWritableAppDir();
 
     if(bluetoothManager->device())
     {
@@ -1383,8 +1385,6 @@ QAbstractOAuth::ModifyParametersFunction homeform::buildModifyParametersFunction
     };
 }
 
-#define STRAVA_CLIENT_ID "7976"
-
 void homeform::strava_refreshtoken()
 {
     QSettings settings;
@@ -1401,9 +1401,8 @@ void homeform::strava_refreshtoken()
 
     // set params
     QString data;
-    data += "client_id=" STRAVA_CLIENT_ID;
+    data += "client_id=" STRAVA_CLIENT_ID_S;
 #ifdef STRAVA_SECRET_KEY
-#define _STR(x) #x
 #define STRINGIFY(x)  _STR(x)
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
@@ -1608,7 +1607,7 @@ void homeform::replyDataReceived(QByteArray v)
 
     QString urlstr = QString("https://www.strava.com/oauth/token?");
     QUrlQuery params;
-    params.addQueryItem("client_id", STRAVA_CLIENT_ID);
+    params.addQueryItem("client_id", STRAVA_CLIENT_ID_S);
 #ifdef STRAVA_SECRET_KEY
 #define _STR(x) #x
 #define STRINGIFY(x)  _STR(x)
@@ -1697,7 +1696,7 @@ QOAuth2AuthorizationCodeFlow* homeform::strava_connect()
     OAuth2Parameter parameter;
     auto strava = new QOAuth2AuthorizationCodeFlow(manager, this);
     strava->setScope("activity:read_all,activity:write");
-    strava->setClientIdentifier(STRAVA_CLIENT_ID);
+    strava->setClientIdentifier(STRAVA_CLIENT_ID_S);
     strava->setAuthorizationUrl(QUrl("https://www.strava.com/oauth/authorize"));
     strava->setAccessTokenUrl(QUrl("https://www.strava.com/oauth/token"));
 #ifdef STRAVA_SECRET_KEY

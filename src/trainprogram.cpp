@@ -151,31 +151,44 @@ void trainprogram::restart()
     started = true;
 }
 
+bool trainprogram::saveXML(QString filename, const QList<trainrow>& rows) {
+    QFile output(filename);
+    if (rows.size() && output.open(QIODevice::WriteOnly)) {
+        QXmlStreamWriter stream(&output);
+        stream.setAutoFormatting(true);
+        stream.writeStartDocument();
+        stream.writeStartElement("rows");
+        foreach (trainrow row, rows) {
+            stream.writeStartElement("row");
+            stream.writeAttribute("duration", row.duration.toString());
+            stream.writeAttribute("speed", QString::number(row.speed));
+            stream.writeAttribute("inclination", QString::number(row.inclination));
+            stream.writeAttribute("resistance", QString::number(row.resistance));
+            stream.writeAttribute("requested_peloton_resistance", QString::number(row.requested_peloton_resistance));
+            stream.writeAttribute("cadence", QString::number(row.cadence));
+            stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
+            stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
+            stream.writeEndElement();
+        }
+        stream.writeEndElement();
+        stream.writeEndDocument();
+        return true;
+    }
+    else
+        return false;
+}
+
 void trainprogram::save(QString filename)
 {
-    QFile output(filename);
-    output.open(QIODevice::WriteOnly);
-    QXmlStreamWriter stream(&output);
-    stream.setAutoFormatting(true);
-    stream.writeStartDocument();
-    stream.writeStartElement("rows");
-    foreach (trainrow row, rows) {
-        stream.writeStartElement("row");
-        stream.writeAttribute("duration", row.duration.toString());
-        stream.writeAttribute("speed", QString::number(row.speed));
-        stream.writeAttribute("inclination", QString::number(row.inclination));
-        stream.writeAttribute("resistance", QString::number(row.resistance));
-        stream.writeAttribute("requested_peloton_resistance", QString::number(row.requested_peloton_resistance));
-        stream.writeAttribute("cadence", QString::number(row.cadence));
-        stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
-        stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
-        stream.writeEndElement();
-    }
-    stream.writeEndElement();
-    stream.writeEndDocument();
+    saveXML(filename, rows);
 }
 
 trainprogram* trainprogram::load(QString filename, bluetooth* b)
+{
+    return new trainprogram(loadXML(filename), b);
+}
+
+QList<trainrow> trainprogram::loadXML(QString filename)
 {
     QList<trainrow> list;
     QFile input(filename);
@@ -202,8 +215,7 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
             list.append(row);
         }
     }
-    trainprogram *tr = new trainprogram(list, b);
-    return tr;
+    return list;
 }
 
 QTime trainprogram::totalElapsedTime()

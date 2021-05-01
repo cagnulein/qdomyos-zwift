@@ -26,6 +26,8 @@ public:
     trainprogram(QList<trainrow>, bluetooth* b);
     void save(QString filename);
     static trainprogram* load(QString filename, bluetooth* b);
+    static QList<trainrow> loadXML(QString filename);
+    static bool saveXML(QString filename, const QList<trainrow>& rows);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime duration();

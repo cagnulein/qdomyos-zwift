@@ -112,14 +112,7 @@ class homeform: public QObject
 public:
     Q_INVOKABLE void save_screenshot()
     {
-        QString path = "";
-#if defined(Q_OS_ANDROID)
-        path = getAndroidDataAppDir() + "/";
-#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+        QString path = getWritableAppDir();
 
         QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".jpg";
         QObject *rootObject = engine->rootObjects().first();
@@ -132,14 +125,7 @@ public:
     {
         if(!stopped) return;
 
-        QString path = "";
-#if defined(Q_OS_ANDROID)
-        path = getAndroidDataAppDir() + "/";
-#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+        QString path = getWritableAppDir();
 
         QString filenameScreenshot = path + QDateTime::currentDateTime().toString().replace(":", "_") + "_" + filename.replace(":", "_") + ".jpg";
         QSharedPointer<const QQuickItemGrabResult> grabResult = item->grabToImage();
@@ -268,6 +254,7 @@ public:
 #if defined(Q_OS_ANDROID)
     static QString getAndroidDataAppDir();
 #endif
+    Q_INVOKABLE static QString getWritableAppDir();
 
     double wattMaxChart() {QSettings settings; if(bluetoothManager && bluetoothManager->device() && bluetoothManager->device()->wattsMetric().max() > (settings.value("ftp", 200.0).toDouble() * 2)) return bluetoothManager->device()->wattsMetric().max(); else { return settings.value("ftp", 200.0).toDouble() * 2;} }
 

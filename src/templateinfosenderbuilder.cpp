@@ -12,6 +12,8 @@
 #include "webserverinfosender.h"
 #endif
 #include "tcpclientinfosender.h"
+#include "trainprogram.h"
+#include "homeform.h"
 
 TemplateInfoSenderBuilder * TemplateInfoSenderBuilder::instance = 0;
 TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject * parent):QObject(parent)
@@ -386,6 +388,74 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, Temp
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject main;
+    QJsonArray outArr;
+    if (!msgContent.isString()) {
+        QDirIterator it(homeform::getWritableAppDir() + "/training");
+        QString fileName, filePath;
+        QFileInfo fileInfo;
+        while (it.hasNext()) {
+            filePath = it.next();
+            fileInfo = it.fileInfo();
+            if (fileInfo.isFile() && fileInfo.completeSuffix() == "xml" && (fileName = it.fileName()).length() > 4) {
+                outArr.append(fileName.mid(0, fileName.length()-4));
+            }
+        }
+    }
+    else {
+        QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + "/training/" + msgContent.toString() + ".xml");
+        for (auto& row: lst) {
+            QJsonObject item;
+            item["duration"] = row.duration.toString();
+            item["speed"] = row.speed;
+            item["fanspeed"] = row.fanspeed;
+            item["inclination"] = row.inclination;
+            item["resistance"] = row.resistance;
+            item["requested_peloton_resistance"] = row.requested_peloton_resistance;
+            item["cadence"] = row.cadence;
+            item["forcespeed"] = row.forcespeed;
+            outArr.append(item);
+        }
+    }
+    main["content"] = outArr;
+    main["msg"] = "R_loadtrainigprograms";
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QString fileName;
+    QJsonArray rows;
+    QJsonObject content;
+    if ((content = msgContent.toObject()).isEmpty() || (fileName = content.value("name").toString()).isEmpty() ||
+            (rows = content.value("rows").toArray()).isEmpty()) return;
+    QList<trainrow> trainRows;
+    for (auto r : rows) {
+        QJsonObject row = r.toObject();
+        trainrow tR;
+        if (row.contains("duration")) {
+           tR.duration = QTime::fromString(row["duration"].toString(), "hh:mm:ss");
+           if (row.contains("speed")) tR.speed = row["speed"].toDouble();
+           if (row.contains("fanspeed")) tR.fanspeed = row["fanspeed"].toInt();
+           if (row.contains("inclination")) tR.inclination = row["inclination"].toDouble();
+           if (row.contains("resistance")) tR.resistance = row["resistance"].toInt();
+           if (row.contains("requested_peloton_resistance")) tR.requested_peloton_resistance = row["requested_peloton_resistance"].toInt();
+           if (row.contains("cadence")) tR.cadence = row["cadence"].toInt();
+           if (row.contains("forcespeed")) tR.forcespeed = (bool)row["forcespeed"].toInt();
+           trainRows.append(tR);
+        }
+    }
+    QJsonObject main;
+    if (trainprogram::saveXML(homeform::getWritableAppDir() + "/training/" + fileName + ".xml", trainRows))
+        main["content"] = trainRows.size();
+   else
+        main["content"] = 0;
+    main["msg"] = "R_savetrainigprogram";
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
     TemplateInfoSender* sender = qobject_cast<TemplateInfoSender*>(this->sender());
     if (!sender)
@@ -427,6 +497,14 @@ void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
                 }
                 else if (msg == "setsettings") {
                     onSetSettings(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "loadtrainigprograms") {
+                    onLoadtTrainingPrograms(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "savetrainigprogram") {
+                    onSaveTrainingProgram(jsonObject["content"], sender);
                     return;
                 }
             }

@@ -43,6 +43,8 @@ private:
     void onSetCadence(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
     void onSetSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
     void onSetDifficult(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onSaveTrainingProgram(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
+    void onLoadTrainingPrograms(const QJsonValue& msgContent, TemplateInfoSender * tempSender);
 private slots:
     void onUpdateTimeout();
     void onDataReceived(QByteArray data);
