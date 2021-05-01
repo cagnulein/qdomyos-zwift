@@ -136,6 +136,21 @@ void trainprogram::scheduler()
     }
 }
 
+void trainprogram::increaseElapsedTime(uint32_t i)
+{
+    ticks += i;
+    ticksCurrentRow += i;
+}
+
+void trainprogram::decreaseElapsedTime(uint32_t i)
+{
+    if(ticks > i && ticksCurrentRow > i)
+    {
+        ticks -= i;
+        ticksCurrentRow -= i;
+    }
+}
+
 void trainprogram::onTapeStarted()
 {
     started = true;

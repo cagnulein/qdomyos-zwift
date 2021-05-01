@@ -673,8 +673,8 @@ void homeform::Plus(QString name)
     }
     else if(name.contains("elapsed"))
     {
-        if(bluetoothManager->device())
-             bluetoothManager->device()->offsetElapsedTime(1);
+        if(bluetoothManager->device() && trainProgram)
+             trainProgram->increaseElapsedTime(1);
     }
     else
     {
@@ -750,8 +750,8 @@ void homeform::Minus(QString name)
     }
     else if(name.contains("elapsed"))
     {
-        if(bluetoothManager->device())
-             bluetoothManager->device()->offsetElapsedTime(-1);
+        if(bluetoothManager->device() && trainProgram)
+             trainProgram->decreaseElapsedTime(1);
     }
     else
     {

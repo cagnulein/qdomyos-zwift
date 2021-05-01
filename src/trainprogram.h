@@ -34,6 +34,8 @@ public:
     QTime duration();
     double totalDistance();
     trainrow currentRow();
+    void increaseElapsedTime(uint32_t i);
+    void decreaseElapsedTime(uint32_t i);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
