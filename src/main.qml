@@ -217,8 +217,12 @@ ApplicationWindow {
                 text: qsTr("Open Train Program")
                 width: parent.width
                 onClicked: {
-                    stackView.push("TrainingProgamsList.qml")
+                    stackView.push("TrainingProgramsList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                        stackView.pop();
+                        popup.open();
+                     });
                     drawer.close()
                 }
             }

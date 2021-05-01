@@ -5,110 +5,110 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
 
-ScrollView {
-    Popup {
-        id: popup
-        parent: Overlay.overlay
-
-        x: Math.round((parent.width - width) / 2)
-        y: Math.round((parent.height - height) / 2)
-        width: 380
-        height: 60
-        modal: true
-        focus: true
-        palette.text: "white"
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        enter: Transition
-        {
-            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+ColumnLayout {
+    signal trainprogram_open_clicked(url name)
+    FileDialog {
+        id: fileDialogTrainProgram
+        title: "Please choose a file"
+        folder: shortcuts.home
+        onAccepted: {
+            console.log("You chose: " + fileDialogTrainProgram.fileUrl)
+            trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
+            fileDialogTrainProgram.close()
         }
-        exit: Transition
-        {
-            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-        }
-        Column {
-            anchors.horizontalCenter: parent.horizontalCenter
-            Label {
-                anchors.horizontalCenter: parent.horizontalCenter
-                text: qsTr("Program has been loaded correctly. Press start to begin!")
-            }
+        onRejected: {
+            console.log("Canceled")
+            fileDialogTrainProgram.close()
         }
     }
 
-    signal trainprogram_open_clicked(url name)
-    ColumnLayout {
-        ToolBar {
-            RowLayout {
+    AccordionElement {
+        title: qsTr("Application Training folder")
+        indicatRectColor: Material.color(Material.Grey)
+        textColor: Material.color(Material.Grey)
+        color: Material.backgroundColor
+        accordionContent: ColumnLayout {
+            ListView {
+                id: list
                 anchors.fill: parent
-                ToolButton {
-                    text: qsTr("‹")
-                    onClicked: stack.pop()
+                FolderListModel {
+                    id: folderModel
+                    nameFilters: ["*.xml"]
+                    folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                    showDotAndDotDot: false
+                    showDirs: true
                 }
-                ToolButton {
-                    text: qsTr("Search")
-                    onClicked: {
-                        fileDialogTrainProgram.visible = true
+                model: folderModel
+                delegate: Component {
+                    Rectangle {
+                        property alias textColor: fileTextBox.color
+                        width: parent.width
+                        height: 40
+                        color: Material.backgroundColor
+                        z: 1
+                        Text {
+                            id: fileTextBox
+                            color: Material.color(Material.Grey)
+                            font.pixelSize: Qt.application.font.pixelSize * 1.6
+                            text: fileName.substring(0, fileName.length-4)
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 100
+                            onClicked: {
+                                console.log('onclicked ' + index+ " count "+list.count);
+                                if (index == list.currentIndex) {
+                                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                                    if (fileUrl) {
+                                        trainprogram_open_clicked(fileUrl);
+                                        popup.open()
+                                    }
+                                }
+                                else {
+                                    if (list.currentItem)
+                                        list.currentItem.textColor = Material.color(Material.Grey)
+                                    list.currentIndex = index
+                                }
+                            }
+                        }
+                    }
+                }
+                highlight: Rectangle {
+                    color: Material.color(Material.Green)
+                    z:3
+                    radius: 5
+                    opacity: 0.4
+                    focus: true
+                    /*Text {
+                        anchors.centerIn: parent
+                        text: 'Selected ' + folderModel.get(list.currentIndex, "fileName")
+                        color: "white"
+                    }*/
+                }
+                focus: true
+                onCurrentItemChanged: {
+                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                    if (fileUrl) {
+                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        console.log(fileUrl + ' selected');
+                        //trainprogram_open_clicked(fileUrl);
+                        //popup.open()
                     }
                 }
             }
         }
-        FileDialog {
-            id: fileDialogTrainProgram
-            title: "Please choose a file"
-            folder: shortcuts.home
-            onAccepted: {
-                console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-                trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
-                fileDialogTrainProgram.close()
-                popup.open()
-            }
-            onRejected: {
-                console.log("Canceled")
-                fileDialogTrainProgram.close()
-            }
-        }
-        ListView {
-            FolderListModel {
-                id: folderModel
-                nameFilters: ["*.xml"]
-                rootFolder: rootItem.getWritableAppDir() + '/training'
-                showDotAndDotDot: false
-                showDirs: false
-                showOnlyReadable: true
-            }
-            id: list
-            anchors.fill: parent
-            model: forlderModel
-            delegate: Component {
-                Item {
-                    width: parent.width
-                    height: 40
-                    Column {
-                        Text { text: fileName.substring(0, fileName.length-4) }
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: list.currentIndex = index
-                    }
-                }
-            }
-            highlight: Rectangle {
-                color: 'grey'
-                Text {
-                    anchors.centerIn: parent
-                    text: 'Selected ' + model.get(list.currentIndex).fileName
-                    color: 'white'
-                }
-            }
-            focus: true
-            onCurrentItemChanged: {
-                let mi = model.get(list.currentIndex);
-                if (mi) {
-                    console.log(mi.fileName + ' selected');
-                    let url = mi.fileUrl || mi.fileURL;
-                    trainprogram_open_clicked(url);
-                }
-            }
+    }
+    spacing: 10
+
+    Button {
+        id: searchButton
+        height: 50
+        width: parent.width
+        text: "Other folders"
+        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        onClicked: {
+            console.log("folder is " + rootItem.getWritableAppDir() + 'training')
+            fileDialogTrainProgram.visible = true
         }
     }
 }

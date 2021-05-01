@@ -391,8 +391,10 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, Temp
 void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
     QJsonObject main;
     QJsonArray outArr;
-    if (!msgContent.isString()) {
-        QDirIterator it(homeform::getWritableAppDir() + "/training");
+    QJsonObject outObj;
+    QString fileXml;
+    if ((fileXml = msgContent.toString()).isEmpty()) {
+        QDirIterator it(homeform::getWritableAppDir() + "training");
         QString fileName, filePath;
         QFileInfo fileInfo;
         while (it.hasNext()) {
@@ -404,7 +406,7 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgCont
         }
     }
     else {
-        QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + "/training/" + msgContent.toString() + ".xml");
+        QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + "training/" + fileXml + ".xml");
         for (auto& row: lst) {
             QJsonObject item;
             item["duration"] = row.duration.toString();
@@ -418,7 +420,9 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgCont
             outArr.append(item);
         }
     }
-    main["content"] = outArr;
+    outObj["list"] = outArr;
+    outObj["name"] = fileXml;
+    main["content"] = outObj;
     main["msg"] = "R_loadtrainigprograms";
     QJsonDocument out(main);
     tempSender->send(out.toJson());
@@ -429,7 +433,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgConte
     QJsonArray rows;
     QJsonObject content;
     if ((content = msgContent.toObject()).isEmpty() || (fileName = content.value("name").toString()).isEmpty() ||
-            (rows = content.value("rows").toArray()).isEmpty()) return;
+            (rows = content.value("list").toArray()).isEmpty()) return;
     QList<trainrow> trainRows;
     for (auto r : rows) {
         QJsonObject row = r.toObject();
@@ -446,11 +450,17 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgConte
            trainRows.append(tR);
         }
     }
-    QJsonObject main;
-    if (trainprogram::saveXML(homeform::getWritableAppDir() + "/training/" + fileName + ".xml", trainRows))
-        main["content"] = trainRows.size();
+    QJsonObject main, outObj;
+    QString trainingDir(homeform::getWritableAppDir() + "training/");
+    QDir dir(trainingDir);
+    if (!dir.exists())
+        dir.mkpath(".");
+    outObj["name"] = fileName;
+    if (trainprogram::saveXML(trainingDir + fileName + ".xml", trainRows))
+        outObj["list"] = trainRows.size();
    else
-        main["content"] = 0;
+        outObj["list"] = 0;
+    main["content"] = outObj;
     main["msg"] = "R_savetrainigprogram";
     QJsonDocument out(main);
     tempSender->send(out.toJson());
@@ -500,7 +510,7 @@ void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
                     return;
                 }
                 else if (msg == "loadtrainigprograms") {
-                    onLoadtTrainingPrograms(jsonObject["content"], sender);
+                    onLoadTrainingPrograms(jsonObject["content"], sender);
                     return;
                 }
                 else if (msg == "savetrainigprogram") {
