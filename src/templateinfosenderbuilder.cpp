@@ -417,6 +417,9 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgCont
             item["requested_peloton_resistance"] = row.requested_peloton_resistance;
             item["cadence"] = row.cadence;
             item["forcespeed"] = row.forcespeed;
+            item["loopTimeHR"] = row.loopTimeHR;
+            item["zoneHR"] = row.zoneHR;
+            item["maxSpeed"] = row.maxSpeed;
             outArr.append(item);
         }
     }
@@ -447,6 +450,9 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgConte
            if (row.contains("requested_peloton_resistance")) tR.requested_peloton_resistance = row["requested_peloton_resistance"].toInt();
            if (row.contains("cadence")) tR.cadence = row["cadence"].toInt();
            if (row.contains("forcespeed")) tR.forcespeed = (bool)row["forcespeed"].toInt();
+           if (row.contains("loopTimeHR")) tR.loopTimeHR = row["loopTimeHR"].toInt();
+           if (row.contains("zoneHR")) tR.zoneHR = row["zoneHR"].toInt();
+           if (row.contains("maxSpeed")) tR.maxSpeed = row["maxSpeed"].toInt();
            trainRows.append(tR);
         }
     }

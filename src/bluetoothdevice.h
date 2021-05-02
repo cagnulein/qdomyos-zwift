@@ -30,11 +30,14 @@ public:
     virtual metric currentHeart();
     virtual metric currentSpeed();
     virtual QTime currentPace();
+    virtual QTime averagePace();
+    virtual QTime maxPace();
     virtual double odometer();
     virtual double calories();
     metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
+    virtual void offsetElapsedTime(int offset);
     virtual QTime movingTime();
     virtual QTime lapElapsedTime();
     virtual bool connected();

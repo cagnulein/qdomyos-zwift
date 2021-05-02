@@ -110,5 +110,8 @@ ColumnLayout {
             console.log("folder is " + rootItem.getWritableAppDir() + 'training')
             fileDialogTrainProgram.visible = true
         }
+        anchors {
+            bottom: parent.bottom
+        }
     }
 }

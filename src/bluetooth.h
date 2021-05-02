@@ -54,6 +54,7 @@ public:
     explicit bluetooth(bool logs, QString deviceName = "", bool noWriteResistance = false, bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~bluetooth();
     bluetoothdevice* device();
+    bluetoothdevice* heartRateDevice() {return heartRateBelt;}
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
 

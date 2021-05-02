@@ -16,6 +16,11 @@ QTime bluetoothdevice::movingTime() {int hours = (int)(moving.value()/3600.0); r
 QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed.value()/3600.0); return QTime(hours, (int)(elapsed.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.value()) % 60,0); }
 QTime bluetoothdevice::lapElapsedTime() {int hours = (int)(elapsed.lapValue()/3600.0); return QTime(hours, (int)(elapsed.lapValue()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.lapValue()) % 60,0); }
 
+void bluetoothdevice::offsetElapsedTime(int offset)
+{
+    elapsed += offset;
+}
+
 QTime bluetoothdevice::currentPace()
 {
     QSettings settings;
@@ -30,6 +35,42 @@ QTime bluetoothdevice::currentPace()
     else
     {
         double speed = Speed.value() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+    }
+}
+
+QTime bluetoothdevice::averagePace()
+{
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+    if(Speed.average() == 0)
+    {
+        return QTime(0,0,0,0);
+    }
+    else
+    {
+        double speed = Speed.average() * unit_conversion;
+        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+    }
+}
+
+QTime bluetoothdevice::maxPace()
+{
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+    if(Speed.max() == 0)
+    {
+        return QTime(0,0,0,0);
+    }
+    else
+    {
+        double speed = Speed.max() * unit_conversion;
         return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
     }
 }
