@@ -38,8 +38,6 @@ class fitplusbike : public bike
     Q_OBJECT
 public:
     fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
 
     void* VirtualBike();
@@ -47,10 +45,6 @@ public:
 
 private:
     const int max_resistance = 32;
-    double bikeResistanceToPeloton(double resistance);
-    double GetDistanceFromPacket(QByteArray packet);
-    uint16_t wattsFromResistance(double resistance);
-    QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
     void startDiscover();
