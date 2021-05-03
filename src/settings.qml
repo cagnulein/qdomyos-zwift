@@ -119,6 +119,8 @@ import Qt.labs.settings 1.0
 
             property bool inspire_peloton_formula: false
 
+            property bool yesoul_peloton_formula: false
+
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
@@ -1910,6 +1912,28 @@ import Qt.labs.settings 1.0
                     }
                 }
             }
+            AccordionElement {
+                id: yesoulBikeAccordion
+                title: qsTr("Yesoul Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: SwitchDelegate {
+                    id: yesoulBikeDelegate
+                    text: qsTr("Yesoul New Peloton Formula")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.yesoul_peloton_formula
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.yesoul_peloton_formula = checked
+                }
+            }
+
             AccordionElement {
                 id: snodeBikeAccordion
                 title: qsTr("Snode Bike Options")
