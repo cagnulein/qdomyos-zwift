@@ -130,6 +130,7 @@ import Qt.labs.settings 1.0
             property bool m3i_bike_kcal: true
 
             property bool snode_bike: false
+            property bool fitplus_bike: false
 
             property int flywheel_filter: 2
 
@@ -1928,6 +1929,27 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.snode_bike = checked
+                }
+            }
+            AccordionElement {
+                id: fitplusBikeAccordion
+                title: qsTr("Fitplus Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: SwitchDelegate {
+                    id: fitplusBikeDelegate
+                    text: qsTr("Fit Plus Bike")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.fitplus_bike
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.fitplus_bike = checked
                 }
             }
             AccordionElement {

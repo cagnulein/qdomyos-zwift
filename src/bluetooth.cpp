@@ -145,6 +145,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
     bool snode_bike = settings.value("snode_bike", false).toBool();
+    bool fitplus_bike = settings.value("fitplus_bike", false).toBool();
     bool JLL_IC400_bike = settings.value("jll_IC400_bike", false).toBool();
     bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
     QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
@@ -509,6 +510,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 snodeBike->deviceDiscovered(b);
                 templateManager->start(snodeBike);
             }
+            else if((b.name().startsWith("FS-") && fitplus_bike) && !fitPlusBike && filter)
+            {
+                discoveryAgent->stop();
+                fitPlusBike = new fitplusbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected());
+                connect(fitPlusBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(fitPlusBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(fitPlusBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                fitPlusBike->deviceDiscovered(b);
+                templateManager->start(fitPlusBike);
+            }
             else if(((b.name().startsWith("FS-") && !snode_bike) || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
             {
                 discoveryAgent->stop();
@@ -800,6 +812,11 @@ void bluetooth::restart()
         delete snodeBike;
         snodeBike = 0;
     }
+    if(fitPlusBike)
+    {
+        delete fitPlusBike;
+        fitPlusBike = 0;
+    }
     if(skandikaWiriBike)
     {
         delete skandikaWiriBike;
@@ -866,6 +883,8 @@ bluetoothdevice* bluetooth::device()
         return m3iBike;
     else if(snodeBike)
         return snodeBike;
+    else if(fitPlusBike)
+        return fitPlusBike;
     else if(skandikaWiriBike)
         return skandikaWiriBike;
     return nullptr;

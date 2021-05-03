@@ -36,6 +36,7 @@ SOURCES += \
 		echelonconnectsport.cpp \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
+   fitplusbike.cpp \
 	fitshowtreadmill.cpp \
 	fit-sdk/fit.cpp \
 	fit-sdk/fit_accumulated_field.cpp \
@@ -133,6 +134,7 @@ HEADERS += \
 	echelonconnectsport.h \
 	 elliptical.h \
    eslinkertreadmill.h \
+   fitplusbike.h \
    m3ibike.h \
         fitshowtreadmill.h \
 	fit-sdk/FitDecode.h \
@@ -472,4 +474,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.23
+VERSION = 2.6.24

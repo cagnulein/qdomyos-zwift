@@ -42,6 +42,7 @@
 #include "chronobike.h"
 #include "stagesbike.h"
 #include "soleelliptical.h"
+#include "fitplusbike.h"
 #include "spirittreadmill.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
@@ -88,6 +89,7 @@ private:
     stagesbike* stagesBike = 0;
     soleelliptical* soleElliptical = 0;
     chronobike* chronoBike = 0;
+    fitplusbike* fitPlusBike = 0;
     heartratebelt* heartRateBelt = 0;
     QString filterDevice = "";
     bool testResistance = false;
