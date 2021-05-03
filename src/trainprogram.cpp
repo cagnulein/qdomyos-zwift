@@ -140,15 +140,19 @@ void trainprogram::increaseElapsedTime(uint32_t i)
 {
     ticks += i;
     ticksCurrentRow += i;
+    offset += i;
 }
 
-void trainprogram::decreaseElapsedTime(uint32_t i)
+bool trainprogram::decreaseElapsedTime(uint32_t i)
 {
     if(ticks > i && ticksCurrentRow > i)
     {
         ticks -= i;
         ticksCurrentRow -= i;
+        offset -= i;
+        return true;
     }
+    return false;
 }
 
 void trainprogram::onTapeStarted()
@@ -162,6 +166,7 @@ void trainprogram::restart()
     ticksCurrentRow = 0;
     elapsed = 0;
     elapsedCurrentRow = 0;
+    offset = 0;
     currentStep = 0;
     started = true;
 }

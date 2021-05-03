@@ -37,7 +37,8 @@ public:
     double totalDistance();
     trainrow currentRow();
     void increaseElapsedTime(uint32_t i);
-    void decreaseElapsedTime(uint32_t i);
+    bool decreaseElapsedTime(uint32_t i);
+    int32_t offsetElapsedTime() {return offset;}
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -69,6 +70,7 @@ private:
     uint16_t currentStep = 0;
     uint32_t ticksCurrentRow = 0;
     uint32_t elapsedCurrentRow = 0;
+    int32_t offset = 0;
     QTimer timer;
 };
 
