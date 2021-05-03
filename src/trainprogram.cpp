@@ -166,34 +166,56 @@ void trainprogram::restart()
     started = true;
 }
 
+bool trainprogram::saveXML(QString filename, const QList<trainrow>& rows) {
+    QFile output(filename);
+    if (rows.size() && output.open(QIODevice::WriteOnly)) {
+        QXmlStreamWriter stream(&output);
+        stream.setAutoFormatting(true);
+        stream.writeStartDocument();
+        stream.writeStartElement("rows");
+        foreach (trainrow row, rows) {
+            stream.writeStartElement("row");
+            stream.writeAttribute("duration", row.duration.toString());
+            if (row.speed>=0)
+                stream.writeAttribute("speed", QString::number(row.speed));
+            if (row.inclination>=-50)
+                stream.writeAttribute("inclination", QString::number(row.inclination));
+            if (row.resistance>=0)
+                stream.writeAttribute("resistance", QString::number(row.resistance));
+            if (row.requested_peloton_resistance>=0)
+                stream.writeAttribute("requested_peloton_resistance", QString::number(row.requested_peloton_resistance));
+            if (row.cadence>=0)
+                stream.writeAttribute("cadence", QString::number(row.cadence));
+            stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
+            if (row.fanspeed>=0)
+                stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
+            if (row.maxSpeed>=0)
+                stream.writeAttribute("maxspeed", QString::number(row.maxSpeed));
+            if (row.zoneHR>=0)
+                stream.writeAttribute("zonehr", QString::number(row.zoneHR));
+            if (row.loopTimeHR>=0)
+                stream.writeAttribute("looptimehr", QString::number(row.loopTimeHR));
+            stream.writeEndElement();
+        }
+        stream.writeEndElement();
+        stream.writeEndDocument();
+        return true;
+    }
+    else
+        return false;
+}
+
 void trainprogram::save(QString filename)
 {
-    QFile output(filename);
-    output.open(QIODevice::WriteOnly);
-    QXmlStreamWriter stream(&output);
-    stream.setAutoFormatting(true);
-    stream.writeStartDocument();
-    stream.writeStartElement("rows");
-    foreach (trainrow row, rows) {
-        stream.writeStartElement("row");
-        stream.writeAttribute("duration", row.duration.toString());
-        stream.writeAttribute("speed", QString::number(row.speed));
-        stream.writeAttribute("inclination", QString::number(row.inclination));
-        stream.writeAttribute("resistance", QString::number(row.resistance));
-        stream.writeAttribute("requested_peloton_resistance", QString::number(row.requested_peloton_resistance));
-        stream.writeAttribute("cadence", QString::number(row.cadence));
-        stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
-        stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
-        stream.writeAttribute("maxspeed", QString::number(row.maxSpeed));
-        stream.writeAttribute("zonehr", QString::number(row.zoneHR));
-        stream.writeAttribute("looptimehr", QString::number(row.loopTimeHR));
-        stream.writeEndElement();
-    }
-    stream.writeEndElement();
-    stream.writeEndDocument();
+    saveXML(filename, rows);
 }
 
 trainprogram* trainprogram::load(QString filename, bluetooth* b)
+{
+    return new trainprogram(loadXML(filename), b);
+}
+
+QList<trainrow> trainprogram::loadXML(QString filename)
 {
     QList<trainrow> list;
     QFile input(filename);
@@ -207,24 +229,30 @@ trainprogram* trainprogram::load(QString filename, bluetooth* b)
         if(atts.length())
         {
             row.duration = QTime::fromString(atts.value("duration").toString(), "hh:mm:ss");
-            row.speed = atts.value("speed").toDouble();
+            if(atts.hasAttribute("speed"))
+                row.speed = atts.value("speed").toDouble();
             if(atts.hasAttribute("fanspeed"))
                 row.fanspeed = atts.value("fanspeed").toDouble();
-            else
-                row.fanspeed = -1;
-            row.inclination = atts.value("inclination").toDouble();
-            row.resistance = atts.value("resistance").toInt();
-            row.requested_peloton_resistance = atts.value("requested_peloton_resistance").toInt();
-            row.cadence = atts.value("cadence").toInt();
-            row.maxSpeed = atts.value("maxspeed").toInt();
-            row.zoneHR = atts.value("zonehr").toInt();
-            row.loopTimeHR = atts.value("looptimehr").toInt();
-            row.forcespeed = atts.value("forcespeed").toInt()?true:false ;
+            if(atts.hasAttribute("inclination"))
+                row.inclination = atts.value("inclination").toDouble();
+            if(atts.hasAttribute("resistance"))
+                row.resistance = atts.value("resistance").toInt();
+            if(atts.hasAttribute("requested_peloton_resistance"))
+                row.requested_peloton_resistance = atts.value("requested_peloton_resistance").toInt();
+            if(atts.hasAttribute("cadence"))
+                row.cadence = atts.value("cadence").toInt();
+            if(atts.hasAttribute("maxspeed"))
+                row.maxSpeed = atts.value("maxspeed").toInt();
+            if(atts.hasAttribute("zonehr"))
+                row.zoneHR = atts.value("zonehr").toInt();
+            if(atts.hasAttribute("looptimehr"))
+                row.loopTimeHR = atts.value("looptimehr").toInt();
+            if(atts.hasAttribute("forcespeed"))
+                row.forcespeed = atts.value("forcespeed").toInt()?true:false ;
             list.append(row);
         }
     }
-    trainprogram *tr = new trainprogram(list, b);
-    return tr;
+    return list;
 }
 
 QTime trainprogram::totalElapsedTime()

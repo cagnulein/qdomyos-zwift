@@ -11,7 +11,7 @@ public:
     QTime duration = QTime(0,0,0,0);
     double speed = -1;
     double fanspeed = -1;
-    double inclination = -1;
+    double inclination = -200;
     int8_t resistance = -1;
     int8_t requested_peloton_resistance = -1;
     int16_t cadence = -1;
@@ -29,6 +29,8 @@ public:
     trainprogram(QList<trainrow>, bluetooth* b);
     void save(QString filename);
     static trainprogram* load(QString filename, bluetooth* b);
+    static QList<trainrow> loadXML(QString filename);
+    static bool saveXML(QString filename, const QList<trainrow>& rows);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime duration();
