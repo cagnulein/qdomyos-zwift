@@ -380,7 +380,6 @@ void fitplusbike::error(QLowEnergyController::Error err)
 void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     qDebug() << "Found new device: " + device.name() + " (" + device.address().toString() + ')';
-    if(device.name().startsWith("ECH"))
     {
         bluetoothDevice = device;
 
