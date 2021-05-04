@@ -346,12 +346,12 @@ void trxappgateusbbike::btinit(bool startTape)
         const uint8_t noOpData[] = { 0xf0, 0xa2, 0x02, 0x01, 0x95 };
         const uint8_t initData7[] = { 0xf0, 0xa6, 0x02, 0x01, 0x03, 0x9c };
 
-        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
+        writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, false);
         writeCharacteristic((uint8_t*)initData1, sizeof(initData1), "init", false, true);
         writeCharacteristic((uint8_t*)initData2, sizeof(initData2), "init", false, true);
-        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, true);
-        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
-        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, true);
+        writeCharacteristic((uint8_t*)initData3, sizeof(initData3), "init", false, false);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, false);
+        writeCharacteristic((uint8_t*)initData4, sizeof(initData4), "init", false, false);
         writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
         writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "init", false, true);
         writeCharacteristic((uint8_t*)initData6, sizeof(initData6), "init", false, true);
