@@ -12,6 +12,15 @@ trainprogram::trainprogram(QList<trainrow> rows, bluetooth* b)
     timer.start();
 }
 
+uint32_t trainprogram::calculateTimeForRow(int32_t row)
+{
+    if(row >= rows.length()) return 0;
+
+    return (rows[row].duration.second() +
+            (rows[row].duration.minute() * 60) +
+            (rows[row].duration.hour() * 3600));
+}
+
 void trainprogram::scheduler()
 {
     QSettings settings;
@@ -28,9 +37,6 @@ void trainprogram::scheduler()
     }
 
     ticks++;
-    elapsed = ticks;
-    ticksCurrentRow++;
-    elapsedCurrentRow =  ticksCurrentRow;
 
     // entry point
     if(ticks == 1 && currentStep == 0)
@@ -73,26 +79,25 @@ void trainprogram::scheduler()
         }
     }
 
-    uint32_t currentRowLen = rows[currentStep].duration.second() +
-            (rows[currentStep].duration.minute() * 60) +
-            (rows[currentStep].duration.hour() * 3600);
+    uint32_t currentRowLen = calculateTimeForRow(currentStep);
 
-    uint32_t nextRowLen = 0;
+    qDebug() << "trainprogram elapsed " + QString::number(ticks) + "current row len" + QString::number(currentRowLen);
 
-    if(rows.count() > currentStep + 1)
-        nextRowLen = rows[currentStep + 1].duration.second() +
-            (rows[currentStep + 1].duration.minute() * 60) +
-            (rows[currentStep + 1].duration.hour() * 3600);
-
-    qDebug() << "trainprogram elapsed current row" + QString::number(elapsedCurrentRow) + "current row len" + QString::number(currentRowLen);
-
-    if(elapsedCurrentRow >= currentRowLen && currentRowLen)
+    uint32_t calculatedLine;
+    uint32_t calculatedElapsedTime = 0;
+    for(calculatedLine = 0; calculatedLine < rows.length(); calculatedLine++)
     {
-        if(nextRowLen)
+        calculatedElapsedTime += calculateTimeForRow(calculatedLine);
+
+        if(calculatedElapsedTime > ticks)
+            break;
+    }
+
+    if(calculatedLine != currentStep)
+    {
+        if(calculateTimeForRow(calculatedLine))
         {
-            currentStep++;
-            ticksCurrentRow = 0;
-            elapsedCurrentRow = 0;
+            currentStep = calculatedLine;
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
             {
                 if(rows[currentStep].forcespeed && rows[currentStep].speed)
@@ -138,21 +143,14 @@ void trainprogram::scheduler()
 
 void trainprogram::increaseElapsedTime(uint32_t i)
 {
-    ticks += i;
-    ticksCurrentRow += i;
     offset += i;
+    ticks += i;
 }
 
-bool trainprogram::decreaseElapsedTime(uint32_t i)
+void trainprogram::decreaseElapsedTime(uint32_t i)
 {
-    if(ticks > i && ticksCurrentRow > i)
-    {
-        ticks -= i;
-        ticksCurrentRow -= i;
-        offset -= i;
-        return true;
-    }
-    return false;
+    offset -= i;
+    ticks -= i;
 }
 
 void trainprogram::onTapeStarted()
@@ -163,9 +161,6 @@ void trainprogram::onTapeStarted()
 void trainprogram::restart()
 {
     ticks = 0;
-    ticksCurrentRow = 0;
-    elapsed = 0;
-    elapsedCurrentRow = 0;
     offset = 0;
     currentStep = 0;
     started = true;
@@ -262,7 +257,7 @@ QList<trainrow> trainprogram::loadXML(QString filename)
 
 QTime trainprogram::totalElapsedTime()
 {
-    return QTime(0,0,elapsed);
+    return QTime(0,0,ticks);
 }
 
 trainrow trainprogram::currentRow()
@@ -276,7 +271,20 @@ trainrow trainprogram::currentRow()
 
 QTime trainprogram::currentRowElapsedTime()
 {
-    return QTime(0,0,elapsedCurrentRow);
+    uint32_t calculatedLine;
+    uint32_t calculatedElapsedTime = 0;
+
+    if(rows.length() == 0) return QTime(0,0,0);
+
+    for(calculatedLine = 0; calculatedLine < rows.length(); calculatedLine++)
+    {
+        uint32_t currentLine = calculateTimeForRow(calculatedLine);
+        calculatedElapsedTime += currentLine;
+
+        if(calculatedElapsedTime > ticks)
+            return QTime(0,0,calculatedElapsedTime - currentLine + ticks);
+    }
+    return QTime(0,0,0);
 }
 
 QTime trainprogram::duration()

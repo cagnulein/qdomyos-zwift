@@ -37,12 +37,11 @@ public:
     double totalDistance();
     trainrow currentRow();
     void increaseElapsedTime(uint32_t i);
-    bool decreaseElapsedTime(uint32_t i);
+    void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() {return offset;}
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
-    uint32_t elapsed = 0;
     bool enabled = true;
 
     void restart();
@@ -64,12 +63,11 @@ signals:
     void changeSpeedAndInclination(double speed, double inclination);
 
 private:
+    uint32_t calculateTimeForRow(int32_t row);
     bluetooth* bluetoothManager;
     bool started = false;
-    uint32_t ticks = 0;
+    int32_t ticks = 0;
     uint16_t currentStep = 0;
-    uint32_t ticksCurrentRow = 0;
-    uint32_t elapsedCurrentRow = 0;
     int32_t offset = 0;
     QTimer timer;
 };
