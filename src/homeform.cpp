@@ -38,7 +38,8 @@
 #endif
 #endif
 #define _STR(x) #x
-#define STRAVA_CLIENT_ID_S _STR(STRAVA_CLIENT_ID)
+#define STRINGIFY(x)  _STR(x)
+#define STRAVA_CLIENT_ID_S STRINGIFY(STRAVA_CLIENT_ID)
 
 DataObject::DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize, int labelFontSize, QString valueFontColor, QString secondLine)
 {
@@ -1491,7 +1492,6 @@ void homeform::strava_refreshtoken()
     QString data;
     data += "client_id=" STRAVA_CLIENT_ID_S;
 #ifdef STRAVA_SECRET_KEY
-#define STRINGIFY(x)  _STR(x)
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
 #endif

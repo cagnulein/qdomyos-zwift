@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>Train Program Saver</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/x-editable@1.5.1/dist/bootstrap3-editable/css/bootstrap-editable.css">
+    <link rel="stylesheet" href="./assets/styles/bootstrap-editable-v4.css">
+    <script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/x-editable@1.5.1/dist/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.3/extensions/editable/bootstrap-table-editable.min.js" integrity="sha512-lC/MsRxNXUDpJMcfCt1/Q+BqWyO7eL56T6QIxmzwe/ALbmsl3GQFleCUc8asR9Aj9Ik9xPPO3RwaXitf7VFeMw==" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
+    <script src="./src/globals.js"></script>
+    <script src="./src/main_ws_manager.js"></script>
+    <script src="./src/input-spinner.js"></script>
+    <script src="./src/input-spinner-custom-editors.js"></script>
+    <script src="./src/duration-helper.js"></script>
+    <link rel="stylesheet" href="./assets/styles/x-editable-bootstrap-input-spinner.css">
+    <script src="./src/x-editable-bootstrap-input-spinner.js"></script>
+    <script src="./src/x-editable-bootstrap-input-spinner-duration.js"></script>
+    <script src="./training.js"></script>
+
+</head>
+
+<body>
+    <div class="modal fade" id="unsaved-modal" tabindex="-1" role="dialog" aria-labelledby="unsaved-modal-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="unsaved-modal-label">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Unsaved changes will be overwritten. Are you sure?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Abort</button>
+                    <button type="button" class="btn btn-primary">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p style="text-align:center;" class="h2">Train Program Saver</p>
+
+    <div id="main-container" class="container">
+        <div class="row">
+            <form class="col-md-12" autocomplete="on">
+                <div class="form-group">
+                    <label for="training-name">Training program Name</label>
+                    <input type="text" class="form-control" id="training-name" aria-describedby="training-name-help" placeholder="Enter training program name" required pattern="[a-zA-Z0-9_@\\.\\-]+">
+                    <small id="training-name-help" class="form-text text-muted">Enter Training program name.</small>
+                    <div class="invalid-feedback">
+                        Name cannot be empty and can contain only numbers, letters, ., -, _ and @.
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="control-load-training">Load training</label>
+                    <select class="form-control" id="control-load-training">
+                        <option value="">None</option>
+                    </select>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="type-radio" id="treadmill-radio" value="treadmill" checked>
+                    <label class="form-check-label" for="treadmill-radio">
+                        Treadmill
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="type-radio" id="bike-radio" value="bike">
+                    <label class="form-check-label" for="bike-radio">
+                        Bike
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="type-radio" id="hrzones-radio" value="hrzones">
+                    <label class="form-check-label" for="hrzones-radio">
+                        HR Zone
+                    </label>
+                </div>
+                <a id="upload-button" class="btn btn-primary btn-lg col-12 btn-block disabled" href="#" role="button"><i class="fas fa-download"></i>&nbsp;&nbsp;Download</a>
+            </form>
+        </div>
+        <div id="form-container" class="row">
+        </div>
+        <div class="row">
+            <div class="col-4"><a id="add-button" class="btn btn-success btn-lg col-12 btn-block" href="#" role="button"><i class="fas fa-plus"></i>&nbsp;&nbsp;Add</a></div>
+            <div class="col-4"><a id="remove-button" class="btn btn-danger btn-lg col-12 btn-block disabled" href="#" role="button"><i class="fas fa-minus"></i>&nbsp;&nbsp;Remove</a></div>
+            <div class="col-4"><a id="edit-button" class="btn btn-warning btn-lg col-12 btn-block disabled" href="#" role="button"><i class="fas fa-edit"></i>&nbsp;&nbsp;Edit</a></div>
+        </div>
+        <div class="row">
+            <div id='training-info' class="col-md-12 alert alert-info" role="alert">
+                Training program not available.
+            </div>
+        </div>
+        <div id="alert-row" class="row">
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <table id="output-table" data-page-size="20" data-pagination="true" data-show-export="true" data-single-select="true" data-ajax="bootstrap_table_get_data_ws">
+                    <thead>
+                        <tr>
+                            <th data-field="state" data-checkbox="true" data-align="center" data-valign="middle"></th>
+                            <th data-field="duration" data-visible="false" data-editable="x_editable_configure_duration">Duration</th>
+                            <th data-field="speed" data-visible="false" data-editable="x_editable_configure_speed">Speed</th>
+                            <th data-field="forcespeed" data-visible="false" data-editable="x_editable_configure_forcespeed">Force Speed</th>
+                            <th data-field="inclination" data-visible="false" data-editable="x_editable_configure_inclination">Incline</th>
+                            <th data-field="cadence" data-visible="false" data-editable="x_editable_configure_cadence">Cadence</th>
+                            <th data-field="resistance" data-visible="false" data-editable="x_editable_configure_resistance">Resistance</th>
+                            <th data-field="requested_peloton_resistance" data-visible="false" data-editable="x_editable_configure_requested_peloton_resistance">Peloton Resistance</th>
+                            <th data-field="fanspeed" data-visible="false" data-editable="x_editable_configure_fanspeed">Fan Speed</th>
+                            <th data-field="zoneHR" data-visible="false" data-editable="x_editable_configure_zoneHR">HR Zone</th>
+                            <th data-field="maxSpeed" data-visible="false" data-editable="x_editable_configure_maxSpeed">Max Speed</th>
+                            <th data-field="loopTimeHR" data-visible="false" data-editable="x_editable_configure_loopTimeHR">Loop Time</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,85 @@
+.form-group label {
+    font-size: 0.875rem;
+    line-height: 1.4rem;
+    vertical-align: top;
+    margin-bottom: .5rem
+}
+
+.editable-form .editable {
+    color: #000;
+    font-size: .8125rem
+}
+
+.editable-form .editable-click {
+    border-color: #000
+}
+
+.editable-container.editable-inline {
+    max-width: 100%
+}
+
+.editable-container.editable-inline .editableform {
+    max-width: 100%
+}
+
+.editable-container.editable-inline .editableform .control-group {
+    max-width: 100%;
+    white-space: initial
+}
+
+.editable-container.editable-inline .editableform .control-group>div {
+    max-width: 100%
+}
+
+.editable-container.editable-inline .editableform .control-group .editable-input input,
+.editable-container.editable-inline .editableform .control-group .editable-input textarea {
+    max-width: 100%;
+    width: 100%
+}
+
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .form-control,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .asColorPicker-input,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .dataTables_wrapper select,
+.dataTables_wrapper .editable-container.editable-inline .editableform .control-group .editable-input .combodate select,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .jsgrid .jsgrid-table .jsgrid-filter-row input[type=text],
+.jsgrid .jsgrid-table .jsgrid-filter-row .editable-container.editable-inline .editableform .control-group .editable-input .combodate input[type=text],
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .jsgrid .jsgrid-table .jsgrid-filter-row select,
+.jsgrid .jsgrid-table .jsgrid-filter-row .editable-container.editable-inline .editableform .control-group .editable-input .combodate select,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .jsgrid .jsgrid-table .jsgrid-filter-row input[type=number],
+.jsgrid .jsgrid-table .jsgrid-filter-row .editable-container.editable-inline .editableform .control-group .editable-input .combodate input[type=number],
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .select2-container--default .select2-selection--single,
+.select2-container--default .editable-container.editable-inline .editableform .control-group .editable-input .combodate .select2-selection--single,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .select2-container--default .select2-selection--single .select2-search__field,
+.select2-container--default .select2-selection--single .editable-container.editable-inline .editableform .control-group .editable-input .combodate .select2-search__field,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .typeahead,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .tt-query,
+.editable-container.editable-inline .editableform .control-group .editable-input .combodate .tt-hint {
+    padding-left: 0;
+    padding-right: 0
+}
+
+@media (max-width: 991px) {
+    .editable-container.editable-inline .editableform .control-group .editable-buttons {
+        display: block;
+        margin-top: 10px
+    }
+}
+
+.btn-group-sm>.btn,
+.btn-sm {
+    padding: 0.49rem .5rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    border-radius: .2rem
+}
+
+.btn-warning {
+    color: #fff
+}
+
+.help-block {
+    width: 100%;
+    margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
+}
