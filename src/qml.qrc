@@ -22,6 +22,7 @@
         <file>templates/debug/sethtml.js</file>
         <file>templates/debug/style.css</file>
         <file>templates/debug/workout.htm</file>
+        <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
     </qresource>
 </RCC>

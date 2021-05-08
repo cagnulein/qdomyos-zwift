@@ -104,13 +104,11 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
     jouls = new DataObject("KJouls", "icons/icons/joul.png", "0", false, "joul", 48, labelFontSize);
-
-    // elapsed with minus and plus in order to sync the peloton workout
-    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", true, "elapsed", valueElapsedFontSize, labelFontSize);
-
+    elapsed = new DataObject("Elapsed", "icons/icons/clock.png", "0:00:00", false, "elapsed", valueElapsedFontSize, labelFontSize);
     moving_time = new DataObject("Moving T.", "icons/icons/clock.png", "0:00:00", false, "moving_time", valueElapsedFontSize, labelFontSize);
     datetime = new DataObject("Clock", "icons/icons/clock.png", QTime::currentTime().toString("hh:mm:ss"), false, "time", valueTimeFontSize, labelFontSize);
     lapElapsed = new DataObject("Lap Elapsed", "icons/icons/clock.png", "0:00:00", false, "lapElapsed", valueElapsedFontSize, labelFontSize);
+    peloton_offset = new DataObject("Peloton Offset", "icons/icons/clock.png", "0", true, "peloton_offset", valueElapsedFontSize, labelFontSize);
 
     if(!settings.value("top_bar_enabled", true).toBool())
     {
@@ -394,7 +392,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 23; i++)
+    for(int i = 0; i < 24; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -434,6 +432,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
                 dataList.append(moving_time);
+
+            if(settings.value("tile_peloton_offset_enabled", false).toBool() && settings.value("tile_peloton_offset_order", 20).toInt() == i)
+                dataList.append(peloton_offset);
 
             if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
                 dataList.append(calories);
@@ -487,6 +488,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
                 dataList.append(moving_time);
+
+            if(settings.value("tile_peloton_offset_enabled", false).toBool() && settings.value("tile_peloton_offset_order", 20).toInt() == i)
+                dataList.append(peloton_offset);
 
             if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
                 dataList.append(calories);
@@ -558,6 +562,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
                 dataList.append(moving_time);
+
+            if(settings.value("tile_peloton_offset_enabled", false).toBool() && settings.value("tile_peloton_offset_order", 20).toInt() == i)
+                dataList.append(peloton_offset);
 
             if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
                 dataList.append(calories);
@@ -688,7 +695,7 @@ void homeform::Plus(QString name)
         if(bluetoothManager->device())
              bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
     }
-    else if(name.contains("elapsed"))
+    else if(name.contains("peloton_offset"))
     {
         if(bluetoothManager->device() && trainProgram)
              trainProgram->increaseElapsedTime(1);
@@ -765,7 +772,7 @@ void homeform::Minus(QString name)
         if(bluetoothManager->device())
              bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
     }
-    else if(name.contains("elapsed"))
+    else if(name.contains("peloton_offset"))
     {
         if(bluetoothManager->device() && trainProgram)
              trainProgram->decreaseElapsedTime(1);
@@ -968,6 +975,8 @@ void homeform::update()
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString("h:mm:ss"));
         moving_time->setValue(bluetoothManager->device()->movingTime().toString("h:mm:ss"));
+        if(trainProgram)
+            peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + " sec.");
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString("h:mm:ss"));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));

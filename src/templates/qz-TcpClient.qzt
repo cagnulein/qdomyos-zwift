@@ -1,0 +1,9 @@
+let pad = function(num, size) {
+    num = num.toString();
+	 while (num.length < size) num = "0" + num;
+	 return num;
+};
+let getstring = function(workout) {
+    return "{\"measurement\": \"workout_measurement_live\",\"tags\": {\"device\": \"" + workout.deviceId + "\", \"deviceName\": \"" + workout.deviceName + "\" ,\"deviceType\": \"" + workout.deviceType + "\"}, \"fields\": " + JSON.stringify(workout) + "}";
+};
+getstring(this.workout)
