@@ -13,7 +13,7 @@ qfit::qfit(QObject *parent) : QObject(parent)
 
 }
 
-void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type)
+void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type, uint32_t processFlag)
 {
     std::list<fit::RecordMesg> records;
     fit::Encode encode( fit::ProtocolVersion::V20 );
@@ -120,18 +120,38 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     encode.Write(activityMesg);
 
     fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
+    SessionLine sl;
+    if (processFlag & QFIT_PROCESS_DISTANCENOISE) {
+        double distanceOld = -1.0;
+        int startIdx = -1;
+        for (int i = 0; i < session.length(); i++)
+        {
+            sl = session.at(i);
+            if (sl.distance != distanceOld || i==session.length() - 1) {
+                if (i==session.length() - 1 && sl.distance == distanceOld)
+                    i++;
+                if (startIdx >=0) {
+                    for (int j = startIdx; j<i; j++)
+                        session[j].distance += 0.1*(j-startIdx)/(i - startIdx);
+                }
+                distanceOld = sl.distance;
+                startIdx = i;
+            }
+        }
+    }
     for (int i = 0; i < session.length(); i++)
     {
         fit::RecordMesg newRecord;
+        sl = session.at(i);
         //fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
-        newRecord.SetHeartRate(session.at(i).heart);
-        newRecord.SetCadence(session.at(i).cadence);
-        newRecord.SetDistance((session.at(i).distance - startingDistanceOffset) * 1000.0); //meters
-        newRecord.SetSpeed(session.at(i).speed / 3.6); // meter per second
-        newRecord.SetPower(session.at(i).watt);
-        newRecord.SetResistance(session.at(i).resistance);
-        newRecord.SetCalories(session.at(i).calories);
-        newRecord.SetAltitude(session.at(i).elevationGain);
+        newRecord.SetHeartRate(sl.heart);
+        newRecord.SetCadence(sl.cadence);
+        newRecord.SetDistance((sl.distance - startingDistanceOffset) * 1000.0); //meters
+        newRecord.SetSpeed(sl.speed / 3.6); // meter per second
+        newRecord.SetPower(sl.watt);
+        newRecord.SetResistance(sl.resistance);
+        newRecord.SetCalories(sl.calories);
+        newRecord.SetAltitude(sl.elevationGain);
 
         // using just the start point as reference in order to avoid pause time
         // strava ignore the elapsed field
@@ -139,15 +159,15 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         newRecord.SetTimestamp(date.GetTimeStamp() + i);
         encode.Write(newRecord);
 
-        if(session.at(i).lapTrigger)
+        if(sl.lapTrigger)
         {
-            lapMesg.SetTotalElapsedTime(session.at(i).elapsedTime - lapMesg.GetTotalElapsedTime());
-            lapMesg.SetTotalTimerTime(session.at(i).elapsedTime - lapMesg.GetTotalTimerTime());
+            lapMesg.SetTotalElapsedTime(sl.elapsedTime - lapMesg.GetTotalElapsedTime());
+            lapMesg.SetTotalTimerTime(sl.elapsedTime - lapMesg.GetTotalTimerTime());
 
             encode.Write(lapMesg);
 
-            lapMesg.SetStartTime(session.at(i).time.toSecsSinceEpoch() - 631065600L);
-            lapMesg.SetTimestamp(session.at(i).time.toSecsSinceEpoch() - 631065600L);
+            lapMesg.SetStartTime(sl.time.toSecsSinceEpoch() - 631065600L);
+            lapMesg.SetTimestamp(sl.time.toSecsSinceEpoch() - 631065600L);
             lapMesg.SetEvent(FIT_EVENT_WORKOUT);
             lapMesg.SetEventType(FIT_EVENT_LAP);
         }

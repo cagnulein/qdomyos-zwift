@@ -300,7 +300,8 @@ void homeform::backup()
     {
         QString filename = path + QString::number(index) + backupFitFileName;
         QFile::remove(filename);
-        qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+        bluetoothdevice * dev = bluetoothManager->device();
+        qfit::save(filename, Session, dev->deviceType(), qobject_cast<m3ibike*>(dev)?QFIT_PROCESS_DISTANCENOISE:QFIT_PROCESS_NONE);
 
         index++;
         if(index > 1)
@@ -1393,7 +1394,8 @@ void homeform::fit_save_clicked()
     if(bluetoothManager->device())
     {
         QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
-        qfit::save(filename, Session, bluetoothManager->device()->deviceType());
+        bluetoothdevice * dev = bluetoothManager->device();
+        qfit::save(filename, Session, dev->deviceType(), qobject_cast<m3ibike*>(dev)?QFIT_PROCESS_DISTANCENOISE:QFIT_PROCESS_NONE);
         lastFitFileSaved = filename;
 
         QSettings settings;
