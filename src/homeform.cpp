@@ -295,12 +295,11 @@ void homeform::backup()
     qDebug() << "saving fit file backup...";
 
     QString path = getWritableAppDir();
-
-    if(bluetoothManager->device())
+    bluetoothdevice * dev = bluetoothManager->device();
+    if(dev)
     {
         QString filename = path + QString::number(index) + backupFitFileName;
         QFile::remove(filename);
-        bluetoothdevice * dev = bluetoothManager->device();
         qfit::save(filename, Session, dev->deviceType(), qobject_cast<m3ibike*>(dev)?QFIT_PROCESS_DISTANCENOISE:QFIT_PROCESS_NONE);
 
         index++;
@@ -1390,11 +1389,10 @@ void homeform::gpx_save_clicked()
 void homeform::fit_save_clicked()
 {
     QString path = getWritableAppDir();
-
-    if(bluetoothManager->device())
+    bluetoothdevice * dev = bluetoothManager->device();
+    if(dev)
     {
         QString filename = path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit";
-        bluetoothdevice * dev = bluetoothManager->device();
         qfit::save(filename, Session, dev->deviceType(), qobject_cast<m3ibike*>(dev)?QFIT_PROCESS_DISTANCENOISE:QFIT_PROCESS_NONE);
         lastFitFileSaved = filename;
 
