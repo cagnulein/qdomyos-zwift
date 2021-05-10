@@ -35,16 +35,27 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(QString gpx)
 
     const uint8_t secondsInclination = 60;
     QList<gpx_altitude_point_for_treadmill> inclinationList;
-    for(int32_t i=secondsInclination; i<this->points.count(); i+=secondsInclination)
+
+    if(!this->points.count()) return inclinationList;
+
+    gpx_point pP = this->points.first();
+
+    for(int32_t i=1; i<this->points.count(); i++)
     {
-        double distance = this->points[i].p.distanceTo(this->points[i-secondsInclination].p);
-        double elevation = this->points[i].p.altitude() - this->points[i-secondsInclination].p.altitude();
+        qint64 dT = qAbs(pP.time.secsTo(this->points[i].time));
+        if(dT < secondsInclination)
+            continue;
+
+        double distance = this->points[i].p.distanceTo(pP.p);
+        double elevation = this->points[i].p.altitude() - pP.p.altitude();
+
+        pP = this->points[i];
 
         gpx_altitude_point_for_treadmill g;
-        g.seconds = secondsInclination;
-        g.speed = (distance / 1000.0) * (3600 / secondsInclination);
+        g.seconds = dT;
+        g.speed = (distance / 1000.0) * (3600 / dT);
         g.inclination = (elevation / distance) * 100;
-        inclinationList.append(g);
+        inclinationList.append(g);        
     }
     return inclinationList;
 }
