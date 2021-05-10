@@ -1,0 +1,13 @@
+.editable-spinner {
+    display: block;
+    margin-bottom: 5px;  
+}
+
+.editable-spinner span {
+    width: 70px;  
+    display: inline-block;
+}
+
+.editable-spinner-input {
+    padding-bottom: 15px;
+}

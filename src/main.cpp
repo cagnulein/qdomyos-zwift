@@ -202,14 +202,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
     if(logs == true || logdebug == true)
     {
-        QString path = "";
-#if defined(Q_OS_ANDROID)
-        path = homeform::getAndroidDataAppDir() + "/";
-#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-        path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-        path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+        QString path = homeform::getWritableAppDir();
 
         // Linux log files are generated on binary location
 
@@ -300,14 +293,7 @@ int main(int argc, char *argv[])
         QDateTime d = QDateTime::currentDateTime();
         l.append(SessionLine(i%20,i%10,i,i%300,i%10,i%180,i%6,i%120,i,i, d));
     }
-    QString path = "";
-#if defined(Q_OS_ANDROID)
-    path = homeform::getAndroidDataAppDir() + "/";
-#elif defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+    QString path = homeform::getWritableAppDir();
     qfit::save(path + QDateTime::currentDateTime().toString().replace(":", "_") + ".fit", l, bluetoothdevice::BIKE);
     return 0;
 #endif

@@ -17,3 +17,16 @@ src/debug-*
 
 *.swo
 *.swp
+
+template-examples/youtube-viewer/node_modules/*
+template-examples/youtube-viewer/*.json
+template-examples/youtube-viewer/.eslintrc.js
+template-examples/youtube-viewer/.jshintrc
+template-examples/youtube-viewer/debug.js
+
+
+template-examples/train-program-saver/node_modules/*
+template-examples/train-program-saver/*.json
+template-examples/train-program-saver/.eslintrc.js
+template-examples/train-program-saver/.jshintrc
+template-examples/train-program-saver/debug.js

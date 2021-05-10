@@ -13,8 +13,8 @@ ApplicationWindow {
 	 objectName: "stack"
     title: qsTr("Stack")
 
+    signal gpx_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
-	 signal gpx_open_clicked(url name)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
@@ -217,7 +217,12 @@ ApplicationWindow {
                 text: qsTr("Open Train Program")
                 width: parent.width
                 onClicked: {
-					     fileDialogTrainProgram.visible = true
+                    stackView.push("TrainingProgramsList.qml")
+                    stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                        stackView.pop();
+                        popup.open();
+                     });
                     drawer.close()
                 }
             }
@@ -275,21 +280,6 @@ ApplicationWindow {
             ItemDelegate {
                 text: "version " + Qt.application.version
                 width: parent.width
-            }
-            FileDialog {
-				    id: fileDialogTrainProgram
-                title: "Please choose a file"
-                folder: shortcuts.home
-                onAccepted: {
-					     console.log("You chose: " + fileDialogTrainProgram.fileUrl)
-						  trainprogram_open_clicked(fileDialogTrainProgram.fileUrl)
-						  fileDialogTrainProgram.close()
-						  popup.open()
-                }
-                onRejected: {
-                    console.log("Canceled")
-						  fileDialogTrainProgram.close()
-                }
             }
 				FileDialog {
 				    id: fileDialogGPX

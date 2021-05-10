@@ -12,6 +12,8 @@
 #include "webserverinfosender.h"
 #endif
 #include "tcpclientinfosender.h"
+#include "trainprogram.h"
+#include "homeform.h"
 
 TemplateInfoSenderBuilder * TemplateInfoSenderBuilder::instance = 0;
 TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject * parent):QObject(parent)
@@ -208,8 +210,20 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
         QString key;
         for (auto& kk: keys_to_retrieve) {
             key = kk.toString();
-            if (settings.contains(key)) {
+            if (key.startsWith("$")) {
+                outObj.insert(key, 1);
+                QRegExp regex(key.mid(1));
+                for (auto& keypresent: settings.allKeys()) {
+                    if (regex.indexIn(keypresent) >= 0) {
+                        outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
+                    }
+                }
+            }
+            else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
+            }
+            else {
+                outObj.insert(key, QJsonValue());
             }
         }
     }
@@ -362,12 +376,98 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, Temp
             }
         }
         else {
-            outObj.insert(key, QJsonValue());
+            val = obj[key];
+            settings.setValue(key, val.toVariant());
+            outObj.insert(key, val);
         }
     }
     QJsonObject main;
     main["msg"] = "R_setsettings";
     main["content"] = outObj;
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QJsonObject main;
+    QJsonArray outArr;
+    QJsonObject outObj;
+    QString fileXml;
+    if ((fileXml = msgContent.toString()).isEmpty()) {
+        QDirIterator it(homeform::getWritableAppDir() + "training");
+        QString fileName, filePath;
+        QFileInfo fileInfo;
+        while (it.hasNext()) {
+            filePath = it.next();
+            fileInfo = it.fileInfo();
+            if (fileInfo.isFile() && fileInfo.completeSuffix() == "xml" && (fileName = it.fileName()).length() > 4) {
+                outArr.append(fileName.mid(0, fileName.length()-4));
+            }
+        }
+    }
+    else {
+        QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + "training/" + fileXml + ".xml");
+        for (auto& row: lst) {
+            QJsonObject item;
+            item["duration"] = row.duration.toString();
+            item["speed"] = row.speed;
+            item["fanspeed"] = row.fanspeed;
+            item["inclination"] = row.inclination;
+            item["resistance"] = row.resistance;
+            item["requested_peloton_resistance"] = row.requested_peloton_resistance;
+            item["cadence"] = row.cadence;
+            item["forcespeed"] = row.forcespeed;
+            item["loopTimeHR"] = row.loopTimeHR;
+            item["zoneHR"] = row.zoneHR;
+            item["maxSpeed"] = row.maxSpeed;
+            outArr.append(item);
+        }
+    }
+    outObj["list"] = outArr;
+    outObj["name"] = fileXml;
+    main["content"] = outObj;
+    main["msg"] = "R_loadtrainingprograms";
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+    QString fileName;
+    QJsonArray rows;
+    QJsonObject content;
+    if ((content = msgContent.toObject()).isEmpty() || (fileName = content.value("name").toString()).isEmpty() ||
+            (rows = content.value("list").toArray()).isEmpty()) return;
+    QList<trainrow> trainRows;
+    for (auto r : rows) {
+        QJsonObject row = r.toObject();
+        trainrow tR;
+        if (row.contains("duration")) {
+           tR.duration = QTime::fromString(row["duration"].toString(), "hh:mm:ss");
+           if (row.contains("speed")) tR.speed = row["speed"].toDouble();
+           if (row.contains("fanspeed")) tR.fanspeed = row["fanspeed"].toInt();
+           if (row.contains("inclination")) tR.inclination = row["inclination"].toDouble();
+           if (row.contains("resistance")) tR.resistance = row["resistance"].toInt();
+           if (row.contains("requested_peloton_resistance")) tR.requested_peloton_resistance = row["requested_peloton_resistance"].toInt();
+           if (row.contains("cadence")) tR.cadence = row["cadence"].toInt();
+           if (row.contains("forcespeed")) tR.forcespeed = (bool)row["forcespeed"].toInt();
+           if (row.contains("loopTimeHR")) tR.loopTimeHR = row["loopTimeHR"].toInt();
+           if (row.contains("zoneHR")) tR.zoneHR = row["zoneHR"].toInt();
+           if (row.contains("maxSpeed")) tR.maxSpeed = row["maxSpeed"].toInt();
+           trainRows.append(tR);
+        }
+    }
+    QJsonObject main, outObj;
+    QString trainingDir(homeform::getWritableAppDir() + "training/");
+    QDir dir(trainingDir);
+    if (!dir.exists())
+        dir.mkpath(".");
+    outObj["name"] = fileName;
+    if (trainprogram::saveXML(trainingDir + fileName + ".xml", trainRows))
+        outObj["list"] = trainRows.size();
+   else
+        outObj["list"] = 0;
+    main["content"] = outObj;
+    main["msg"] = "R_savetrainingprogram";
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -413,6 +513,14 @@ void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
                 }
                 else if (msg == "setsettings") {
                     onSetSettings(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "loadtrainingprograms") {
+                    onLoadTrainingPrograms(jsonObject["content"], sender);
+                    return;
+                }
+                else if (msg == "savetrainingprogram") {
+                    onSaveTrainingProgram(jsonObject["content"], sender);
                     return;
                 }
             }
@@ -489,6 +597,10 @@ void TemplateInfoSenderBuilder::buildContext()  {
         obj.setProperty("pace_s", el.second());
         obj.setProperty("pace_m", el.minute());
         obj.setProperty("pace_h", el.hour());
+        el = device->movingTime();
+        obj.setProperty("moving_s", el.second());
+        obj.setProperty("moving_m", el.minute());
+        obj.setProperty("moving_h", el.hour());
         obj.setProperty("speed", (dep = device->currentSpeed()).value());
         obj.setProperty("speed_avg", dep.average());
         obj.setProperty("calories", device->calories());
