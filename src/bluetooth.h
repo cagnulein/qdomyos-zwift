@@ -44,6 +44,7 @@
 #include "soleelliptical.h"
 #include "fitplusbike.h"
 #include "spirittreadmill.h"
+#include "ftmsbike.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 #include "templateinfosenderbuilder.h"
@@ -91,6 +92,7 @@ private:
     chronobike* chronoBike = 0;
     fitplusbike* fitPlusBike = 0;
     heartratebelt* heartRateBelt = 0;
+    ftmsbike* ftmsAccessory = 0;
     QString filterDevice = "";
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -106,6 +108,7 @@ private:
     void stateFileUpdate();
     void stateFileRead();
     bool heartRateBeltAvaiable();
+    bool ftmsAccessoryAvaiable();
 
 signals:
     void deviceConnected();

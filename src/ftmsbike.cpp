@@ -13,41 +13,52 @@
 #endif
 #include "keepawakehelper.h"
 
-ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService)
+ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, bool noVirtualInterface)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->noVirtualInterface = noVirtualInterface;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
 }
-/*
+
 void ftmsbike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
 {
     QEventLoop loop;
     QTimer timeout;
     if(wait_for_response)
     {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+        connect(gattFTMSService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
     else
     {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
+        connect(gattFTMSService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
                 &loop, SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
+    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char*)data, data_len));
 
     if(!disable_log)
         debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
-}*/
+}
+
+void ftmsbike::forceResistance(int8_t requestResistance)
+{
+   uint8_t write[] = { FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+   write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
+   write[4] = ((uint16_t)requestResistance * 100) >> 8;
+
+   writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance));
+}
 
 void ftmsbike::update()
 {
@@ -85,7 +96,7 @@ void ftmsbike::update()
            if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
-              //forceResistance(requestResistance);
+              forceResistance(requestResistance);
            }
            requestResistance = -1;
         }
@@ -377,12 +388,20 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
                     //s->readCharacteristic(c);
                     //qDebug() << s->serviceUuid() << c.uuid() << "reading!";
                 }
+
+                QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+                if(c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId)
+                {
+                    qDebug() << "FTMS service and Control Point found";
+                    gattWriteCharControlPointId = c;
+                    gattFTMSService = s;
+                }
             }
         }
     }
 
     // ******************************************* virtual bike init *************************************
-    if(!firstStateChanged && !virtualBike
+    if(!firstStateChanged && !virtualBike && !this->noVirtualInterface
         #ifdef Q_OS_IOS
         #ifndef IO_UNDER_QT
             && !h

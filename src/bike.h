@@ -37,6 +37,7 @@ public slots:
 
 signals:
     void bikeStarted();
+    void resistanceChanged(int8_t resistance);
 
 protected:
     metric Cadence;

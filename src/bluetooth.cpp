@@ -96,10 +96,12 @@ void bluetooth::finished()
     debug("BTLE scanning finished");
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString ftmsAccessoryName = settings.value("ftms_accessory_name", "Disabled").toString();
     bool trx_route_key = settings.value("trx_route_key", false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+    bool ftmsAccessoryFound = ftmsAccessoryName.startsWith("Disabled");
 
-    if(!heartRateBeltFound && !heartRateBeltAvaiable())
+    if(!heartRateBeltFound && !heartRateBeltAvaiable() && !ftmsAccessoryFound && !ftmsAccessoryAvaiable())
     {
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -121,6 +123,21 @@ void bluetooth::debug(QString text)
 {
     if(logs)
         qDebug() << text;
+}
+
+bool bluetooth::ftmsAccessoryAvaiable()
+{
+    QSettings settings;
+    QString ftmsAccessoryName = settings.value("ftms_accessory_name", "Disabled").toString();
+
+    foreach(QBluetoothDeviceInfo b, devices)
+    {
+        if(!ftmsAccessoryName.compare(b.name()))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool bluetooth::heartRateBeltAvaiable()
@@ -578,6 +595,7 @@ void bluetooth::connectedAndDiscovered()
     static bool firstConnected = true;
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString ftmsAccessoryName = settings.value("ftms_accessory_name", "Disabled").toString();
 
     // only at the first very connection, setting the user default resistance
     if(device() && firstConnected &&
@@ -631,6 +649,26 @@ void bluetooth::connectedAndDiscovered()
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 heartRateBelt->deviceDiscovered(b);
 
+                break;
+            }
+        }
+
+        foreach(QBluetoothDeviceInfo b, devices)
+        {
+            if(((b.name().startsWith(ftmsAccessoryName))) && !ftmsAccessory && !ftmsAccessoryName.startsWith("Disabled"))
+            {
+                settings.setValue("ftms_accessory_lastdevice_name", b.name());
+#ifndef Q_OS_IOS
+                settings.setValue("ftms_accessory_address", b.address().toString());
+#else
+                settings.setValue("ftms_accessory_address", b.deviceUuid().toString());
+#endif
+                ftmsAccessory = new ftmsbike(false, false, true);
+                //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                connect(ftmsAccessory, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory, SLOT(changeResistance((int8_t))));
+                ftmsAccessory->deviceDiscovered(b);
                 break;
             }
         }
@@ -827,6 +865,12 @@ void bluetooth::restart()
         //heartRateBelt->disconnectBluetooth(); // to test
         delete heartRateBelt;
         heartRateBelt = 0;
+    }
+    if(ftmsAccessory)
+    {
+        //heartRateBelt->disconnectBluetooth(); // to test
+        delete ftmsAccessory;
+        ftmsAccessory = 0;
     }
     discoveryAgent->start();
 }

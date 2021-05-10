@@ -161,6 +161,8 @@ import Qt.labs.settings 1.0
             property real power_hr_pwr2: 230
             property real power_hr_hr2: 170
 
+            property string ftms_accessory_name: "Disabled"
+
             property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
             property bool battery_service: false
@@ -2635,6 +2637,50 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.cadence_sensor_speed_ratio = cadenceSpeedRatioTextField.text
                         }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: ftmsAccessoryOptionsAccordion
+                title: qsTr("FTMS Accessory Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 10
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFTMSAccessoryName
+                            text: qsTr("FTMS Accessory name:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: ftmsAccessoryNameTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.ftms_accessory_name
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + ftmsAccessoryNameTextField.currentIndex)
+                                displayText = ftmsAccessoryNameTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okFTMSAccessoryNameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.ftms_accessory_name = ftmsAccessoryNameTextField.displayText;
+                        }
+                    }
+
+                    Button {
+                        id: refreshFTMSAccessoryNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
                     }
                 }
             }
