@@ -30,7 +30,7 @@
 #endif
 
 #ifndef STRAVA_CLIENT_ID
-#define STRAVA_CLIENT_ID 00000
+#define STRAVA_CLIENT_ID 7976
 #if defined (WIN32)
 #pragma message("DEFINE STRAVA_CLIENT_ID!!!")
 #else
