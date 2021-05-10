@@ -1,5 +1,5 @@
-#ifndef DOMYOSBIKE_H
-#define DOMYOSBIKE_H
+#ifndef FITPLUSBIKE_H
+#define FITPLUSBIKE_H
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -33,73 +33,56 @@
 #include "ios/lockscreen.h"
 #endif
 
-class domyosbike : public bike
+class fitplusbike : public bike
 {
     Q_OBJECT
 public:
-    domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);    
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    int pelotonToBikeResistance(int pelotonResistance);
-    ~domyosbike();
+    fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
 
     void* VirtualBike();
     void* VirtualDevice();
 
 private:
-    double GetSpeedFromPacket(QByteArray packet);
-    double GetInclinationFromPacket(QByteArray packet);
-    double GetKcalFromPacket(QByteArray packet);
-    double GetDistanceFromPacket(QByteArray packet);    
-    uint16_t wattsFromResistance(double resistance);
-    void forceResistance(int8_t requestResistance);
-    void updateDisplay(uint16_t elapsed);
-    void btinit_changyow(bool startTape);
-    void btinit_telink(bool startTape);
+    const int max_resistance = 32;
+    void btinit();
     void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
     void startDiscover();
+    void forceResistance(int8_t requestResistance);
+    void sendPoll();
     uint16_t watts();
 
-    const int max_resistance = 15;
     QTimer* refresh;
     virtualbike* virtualBike = 0;
-    uint8_t firstVirtual = 0;
-    uint8_t firstStateChanged = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    volatile bool incompletePackets = false;
-    bool initDone = false;
-    bool initRequest = false;
-    bool noWriteResistance = false;
-    bool noHeartService = false;
-    bool testResistance = false;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
-    bool searchStopped = false;
+    uint8_t counterPoll = 1;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
+    int8_t lastResistanceBeforeDisconnection = -1;
 
-    enum _BIKE_TYPE {
-        CHANG_YOW,
-        TELINK,
-    };
-    _BIKE_TYPE bike_type = CHANG_YOW;
-    
+    bool initDone = false;
+    bool initRequest = false;
+
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+
 #ifdef Q_OS_IOS
     lockscreen* h = 0;
 #endif
 
 signals:
     void disconnected();
-    void packetReceived();
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
 private slots:
 
@@ -110,10 +93,10 @@ private slots:
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
-    void serviceScanDone(void);    
+    void serviceScanDone(void);
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // DOMYOSBIKE_H
+#endif // FITPLUSBIKE_H

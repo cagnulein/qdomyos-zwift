@@ -36,6 +36,7 @@ import Qt.labs.settings 1.0
             property bool run_cadence_sensor: false
             property bool bike_power_sensor: false
             property string heart_rate_belt_name: "Disabled"
+            property bool heart_ignore_builtin: false
 
             property bool ant_cadence: false
             property bool ant_heart: false
@@ -81,6 +82,8 @@ import Qt.labs.settings 1.0
             property int  tile_lapelapsed_order: 17
             property bool tile_moving_time_enabled: false
             property int  tile_moving_time_order: 21
+            property bool tile_peloton_offset_enabled: false
+            property int  tile_peloton_offset_order: 22
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
@@ -117,6 +120,8 @@ import Qt.labs.settings 1.0
 
             property bool inspire_peloton_formula: false
 
+            property bool yesoul_peloton_formula: false
+
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
@@ -128,6 +133,7 @@ import Qt.labs.settings 1.0
             property bool m3i_bike_kcal: true
 
             property bool snode_bike: false
+            property bool fitplus_bike: false
 
             property int flywheel_filter: 2
 
@@ -333,6 +339,20 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.bike_heartrate_service = checked
+                            }
+                            SwitchDelegate {
+                                id: switchBultinDelegate
+                                text: qsTr("Disable HRM from Machinery")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.heart_ignore_builtin
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.heart_ignore_builtin = checked
                             }
                             RowLayout {
                                 spacing: 10
@@ -1170,6 +1190,37 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    AccordionCheckElement {
+                        id: pelotonOffsetEnabledAccordion
+                        title: qsTr("Peloton Offset")
+                        linkedBoolSetting: "tile_peloton_offset_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelpelotonOffsetOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pelotonOffsetOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_peloton_offset_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pelotonOffsetOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpelotonOffsetOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText
+                            }
+                        }
+                    }
 
                     AccordionCheckElement {
                         id: lapElapsedEnabledAccordion
@@ -1877,6 +1928,28 @@ import Qt.labs.settings 1.0
                 }
             }
             AccordionElement {
+                id: yesoulBikeAccordion
+                title: qsTr("Yesoul Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: SwitchDelegate {
+                    id: yesoulBikeDelegate
+                    text: qsTr("Yesoul New Peloton Formula")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.yesoul_peloton_formula
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.yesoul_peloton_formula = checked
+                }
+            }
+
+            AccordionElement {
                 id: snodeBikeAccordion
                 title: qsTr("Snode Bike Options")
                 indicatRectColor: Material.color(Material.Grey)
@@ -1895,6 +1968,27 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.snode_bike = checked
+                }
+            }
+            AccordionElement {
+                id: fitplusBikeAccordion
+                title: qsTr("Fitplus Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: SwitchDelegate {
+                    id: fitplusBikeDelegate
+                    text: qsTr("Fit Plus Bike")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.fitplus_bike
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.fitplus_bike = checked
                 }
             }
             AccordionElement {

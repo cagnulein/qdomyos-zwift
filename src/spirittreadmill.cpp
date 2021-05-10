@@ -199,6 +199,7 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         return;
 
     double speed = GetSpeedFromPacket(newValue);
+    Inclination = GetInclinationFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     //double distance = GetDistanceFromPacket(newValue) * settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
 
@@ -232,29 +233,25 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 uint16_t spirittreadmill::GetElapsedFromPacket(QByteArray packet)
 {
-    // TO VERIFY
     uint16_t convertedData = (packet.at(3) << 8) | packet.at(4);
     return convertedData;
 }
 
 double spirittreadmill::GetSpeedFromPacket(QByteArray packet)
 {
-    // TO VERIFY
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
-    double data = (double)convertedData / 100.0f;
+    uint16_t convertedData = packet.at(10);
+    double data = (double)convertedData / 10.0f;
     return data;
 }
 
 double spirittreadmill::GetKcalFromPacket(QByteArray packet)
 {
-    // TO VERIFY
     uint16_t convertedData = (packet.at(7) << 8) | ((uint8_t)packet.at(8));
     return (double)convertedData / 10.0;
 }
 
 double spirittreadmill::GetDistanceFromPacket(QByteArray packet)
 {
-    // TO VERIFY
     uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = ((double)convertedData) / 10.0f;
     return data;
@@ -262,7 +259,9 @@ double spirittreadmill::GetDistanceFromPacket(QByteArray packet)
 
 double spirittreadmill::GetInclinationFromPacket(QByteArray packet)
 {
-    return 0;
+    uint16_t convertedData = packet.at(11);
+    double data = (double)convertedData / 10.0f;
+    return data;
 }
 
 void spirittreadmill::btinit(bool startTape)

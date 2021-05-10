@@ -301,7 +301,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if(heartRateBeltName.startsWith("Disabled"))
     {
-        if(heart == 0)
+        if(heart == 0 || settings.value("heart_ignore_builtin", false).toBool())
         {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

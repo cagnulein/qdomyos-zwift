@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.6.26" android:versionCode="133" android:installLocation="auto">
-    <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
-	      Remove the comment if you do not require these default permissions. -->
-			<!-- %%INSERT_PERMISSIONS -->
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.6.18" android:versionCode="128" android:installLocation="auto">
+         <uses-feature android:name="android.hardware.bluetooth" android:required="true" />
+			<uses-feature android:name="android.hardware.location" android:required="false" />
+			<uses-feature android:name="android.hardware.location.gps" android:required="false" />
+			<uses-feature android:name="android.hardware.location" android:required="false" />
+			<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
-    <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
-	      Remove the comment if you do not require these default features. -->
-			<!-- %%INSERT_FEATURES -->
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
 	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon">
@@ -68,6 +67,7 @@
 					 -->
 					<meta-data android:name="android.app.extract_android_style" android:value="default"/>
 				<!-- extract android style -->
+				<meta-data android:name="com.amazon.input.cursor" android:value="pointer"/>
 				</activity>
 				<service android:name=".ChannelService"></service>
 				<activity android:name="org.cagnulen.qdomyoszwift.MyActivity" />

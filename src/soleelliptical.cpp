@@ -62,18 +62,27 @@ void soleelliptical::writeCharacteristic(uint8_t* data, uint8_t data_len, QStrin
 void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination)
 {
     // TODO do the level down command
-   uint8_t write[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
+   uint8_t write[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
+   uint8_t writeUp[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
 
-   writeCharacteristic(write, 20, "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination);
+   uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
+
+   if(currentResistance() < requestResistance)
+   {
+       writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(writeUp, sizeof(writeUp), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+   }
+   else if(currentResistance() > requestResistance)
+   {
+       writeCharacteristic(writeDown, sizeof(writeDown), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+       writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
+   }
 }
 
 void soleelliptical::update()
 {
     uint8_t noOpData[] = { 0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d };
     uint8_t noOpData1[] = { 0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d };
-
-    // stop tape
-    uint8_t initDataF0C800B8[] = { 0xf0, 0xc8, 0x00, 0xb8 };
 
     if(m_control->state() == QLowEnergyController::UnconnectedState)
     {
@@ -199,6 +208,14 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     debug(" << " + newValue.toHex(' '));
 
     lastPacket = newValue;
+
+    if(newValue.length() == 5 && newValue.at(1) == 0x02)
+    {
+        Resistance = newValue.at(3) + 1;
+        debug("Current resistance: " + QString::number(Resistance));
+        return;
+    }
+
     if (newValue.length() < 20)
         return;
 
@@ -210,7 +227,6 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     Cadence = ((uint8_t)newValue.at(10));
     m_watt = watt;
 
-    //Resistance = newValue.at(14);
     //Inclination = newValue.at(21);
     if(Resistance < 1)
     {
@@ -235,8 +251,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence));
-    debug("Current resistance: " + QString::number(Resistance));
+    debug("Current cadence: " + QString::number(Cadence));    
     debug("Current inclination: " + QString::number(Inclination.value()));
     debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
@@ -274,6 +289,7 @@ double soleelliptical::GetDistanceFromPacket(QByteArray packet)
 
 void soleelliptical::btinit(bool startTape)
 {
+    QSettings settings;
     Q_UNUSED(startTape)
 
     // set speed and incline to 0
@@ -281,9 +297,12 @@ void soleelliptical::btinit(bool startTape)
     uint8_t initData2[] = { 0x5b, 0x02, 0x03, 0x01, 0x5d };
     uint8_t initData3[] = { 0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d };
     uint8_t initData4[] = { 0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d };
-    uint8_t initData5[] = { 0x5b, 0x05, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x5d };
+    uint8_t initData5[] = { 0x5b, 0x05, 0x04, 0xFF, 0x00, 0x00, 0x00, 0x5d }; // 0xFF is the duration of the workout
     uint8_t initData6[] = { 0x5b, 0x02, 0x02, 0x02, 0x5d };
     uint8_t initData7[] = { 0x5b, 0x02, 0x03, 0x04, 0x5d };
+
+    initData3[4] = settings.value("age", 35).toUInt();
+    initData3[6] = settings.value("weight", 75.0).toFloat() * 2.20462;
 
     writeCharacteristic(initData1, sizeof(initData1), "init");
     writeCharacteristic(initData1, sizeof(initData1), "init");
