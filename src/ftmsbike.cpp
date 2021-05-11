@@ -90,7 +90,7 @@ void ftmsbike::update()
 
         if(requestResistance != -1)
         {
-           if(requestResistance > 15) requestResistance = 15;
+            if(requestResistance > 100) requestResistance = 100; // TODO, use the bluetooth value
            else if(requestResistance == 0) requestResistance = 1;
 
            if(requestResistance != currentResistance().value())
