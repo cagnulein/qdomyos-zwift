@@ -673,7 +673,7 @@ void bluetooth::connectedAndDiscovered()
                 //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(ftmsAccessory, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory, SLOT(changeResistance((int8_t))));
+                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory, SLOT(changeResistance(int8_t)));
                 ftmsAccessory->deviceDiscovered(b);
                 break;
             }
