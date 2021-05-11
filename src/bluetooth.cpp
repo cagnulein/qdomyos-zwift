@@ -101,7 +101,7 @@ void bluetooth::finished()
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith("Disabled");
 
-    if(!heartRateBeltFound && !heartRateBeltAvaiable() && !ftmsAccessoryFound && !ftmsAccessoryAvaiable())
+    if((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()))
     {
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
