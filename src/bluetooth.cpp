@@ -159,7 +159,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 {
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString ftmsAccessoryName = settings.value("ftms_accessory_name", "Disabled").toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
+    bool ftmsAccessoryFound = ftmsAccessoryName.startsWith("Disabled");
     bool toorx_bike = settings.value("toorx_bike", false).toBool();
     bool snode_bike = settings.value("snode_bike", false).toBool();
     bool fitplus_bike = settings.value("fitplus_bike", false).toBool();
@@ -170,6 +172,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(!heartRateBeltFound)
     {
         heartRateBeltFound = heartRateBeltAvaiable();
+    }
+    if(!ftmsAccessoryFound)
+    {
+        ftmsAccessoryFound = ftmsAccessoryAvaiable();
     }
 
     bool found = false;
@@ -193,7 +199,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
     if(onlyDiscover) return;
 
-    if(heartRateBeltFound || forceHeartBeltOffForTimeout)
+    if((heartRateBeltFound && ftmsAccessoryFound) || forceHeartBeltOffForTimeout)
     {
         foreach(QBluetoothDeviceInfo b, devices)
         {
