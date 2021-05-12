@@ -7,6 +7,8 @@ public:
     void setTimerDisabled();
     void request();
     long heartRate();
+    void setKcal(double kcal);
+    void setDistance(double distance);
     void virtualbike_ios();
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);

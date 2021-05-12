@@ -29,6 +29,16 @@ long lockscreen::heartRate()
     return [h heartRate];
 }
 
+void lockscreen::setKcal(double kcal)
+{
+    return [h setKcalWithKcal:kcal];
+}
+
+void lockscreen::setDistance(double distance)
+{
+    return [h setDistanceWithDistance:distance];
+}
+
 void lockscreen::virtualbike_ios()
 {
     _virtualbike = [[virtualbike_ios_swift alloc] init];

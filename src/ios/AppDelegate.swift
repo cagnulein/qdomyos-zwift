@@ -27,6 +27,16 @@ import UIKit
     {
         return WatchKitConnection.currentHeartRate;
     }
+    
+    @objc public func setDistance(distance: Double) -> Void
+    {
+        WatchKitConnection.distance = distance;
+    }
+    
+    @objc public func setKcal(kcal: Double) -> Void
+    {
+        WatchKitConnection.kcal = kcal;
+    }
 }
 /*
 @UIApplicationMain

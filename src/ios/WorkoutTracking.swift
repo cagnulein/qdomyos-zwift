@@ -28,12 +28,16 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
             let infoToRead = Set([
                 HKSampleType.quantityType(forIdentifier: .stepCount)!,
                 HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                /*HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,*/
                 HKSampleType.workoutType()
                 ])
             
             let infoToShare = Set([
                 HKSampleType.quantityType(forIdentifier: .stepCount)!,
                 HKSampleType.quantityType(forIdentifier: .heartRate)!,
+                HKSampleType.quantityType(forIdentifier: .distanceCycling)!,
+                HKSampleType.quantityType(forIdentifier: .activeEnergyBurned)!,
                 HKSampleType.workoutType()
                 ])
             
