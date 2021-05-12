@@ -31,12 +31,12 @@ long lockscreen::heartRate()
 
 void lockscreen::setKcal(double kcal)
 {
-    return [h setKcalWithKcal:kcal];
+    [h setKcalWithKcal:kcal];
 }
 
 void lockscreen::setDistance(double distance)
 {
-    return [h setDistanceWithDistance:distance];
+    [h setDistanceWithDistance:distance];
 }
 
 void lockscreen::virtualbike_ios()
