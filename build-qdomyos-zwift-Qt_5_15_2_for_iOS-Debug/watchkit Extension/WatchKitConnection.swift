@@ -21,6 +21,8 @@ protocol WatchKitConnectionProtocol {
 
 class WatchKitConnection: NSObject {
     static let shared = WatchKitConnection()
+    public static var distance = 0.0
+    public static var kcal = 0.0
     weak var delegate: WatchKitConnectionDelegate?
     
     private override init() {
@@ -59,6 +61,10 @@ extension WatchKitConnection: WatchKitConnectionProtocol {
     {
         validReachableSession?.sendMessage(message, replyHandler: { (result) in
             print(result)
+            let dDistance = Double(result["distance"] as! Double)
+            WatchKitConnection.distance = dDistance
+            let dKcal = Double(result["kcal"] as! Double)
+            WatchKitConnection.kcal = dKcal
         }, errorHandler: { (error) in
             print(error)
         })

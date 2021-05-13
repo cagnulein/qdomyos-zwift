@@ -383,6 +383,8 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #ifndef IO_UNDER_QT
                 lockscreen h;
                 long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
                 Heart = appleWatchHeartRate;
                 debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif

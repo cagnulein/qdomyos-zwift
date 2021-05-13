@@ -59,10 +59,19 @@ extension MainController {
 }
 
 extension MainController: WorkoutTrackingDelegate {
+    func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double) {
+        
+    }
+    func didReceiveHealthKitActiveEnergyBurned(_ activeEnergyBurned: Double) {
+        
+    }
+    
     func didReceiveHealthKitHeartRate(_ heartRate: Double) {
         heartRateLabel.setText("\(heartRate) BPM")
         WatchKitConnection.shared.sendMessage(message: ["heartRate":
             "\(heartRate)" as AnyObject])
+        WorkoutTracking.distance = WatchKitConnection.distance
+        WorkoutTracking.kcal = WatchKitConnection.kcal
     }
     
     func didReceiveHealthKitStepCounts(_ stepCounts: Double) {
