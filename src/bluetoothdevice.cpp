@@ -88,6 +88,7 @@ void bluetoothdevice::disconnectBluetooth() {if(m_control) m_control->disconnect
 metric bluetoothdevice::wattsMetric() {return m_watt;}
 void bluetoothdevice::setDifficult(double d) {m_difficult = d;}
 double bluetoothdevice::difficult() {return m_difficult;}
+void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 
 void bluetoothdevice::update_metrics(const bool watt_calc, const double watts)
 {
