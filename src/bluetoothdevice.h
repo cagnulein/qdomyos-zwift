@@ -71,9 +71,11 @@ public slots:
     virtual void start();
     virtual void stop();
     virtual void heartRate(uint8_t heart);
+    virtual void cadenceSensor(uint8_t cadence);
 
 signals:
     void connectedAndDiscovered();
+    void cadenceChanged(uint8_t cadence);
 
 protected:
     QLowEnergyController* m_control = 0;

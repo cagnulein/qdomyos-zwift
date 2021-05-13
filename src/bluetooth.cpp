@@ -97,11 +97,16 @@ void bluetooth::finished()
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     QString ftmsAccessoryName = settings.value("ftms_accessory_name", "Disabled").toString();
+    bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
+    QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
+    bool cscFound = cscName.startsWith("Disabled") && !csc_as_bike;
     bool trx_route_key = settings.value("trx_route_key", false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith("Disabled");
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith("Disabled");
 
-    if((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()))
+    if((!heartRateBeltFound && !heartRateBeltAvaiable()) ||
+       (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
+       (!cscFound && !cscSensorAvaiable()))
     {
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -123,6 +128,24 @@ void bluetooth::debug(QString text)
 {
     if(logs)
         qDebug() << text;
+}
+
+bool bluetooth::cscSensorAvaiable()
+{
+    QSettings settings;
+    bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
+    QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
+
+    if(csc_as_bike) return false;
+
+    foreach(QBluetoothDeviceInfo b, devices)
+    {
+        if(!cscName.compare(b.name()))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool bluetooth::ftmsAccessoryAvaiable()
@@ -168,6 +191,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     bool JLL_IC400_bike = settings.value("jll_IC400_bike", false).toBool();
     bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
     QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
+    bool cscFound = cscName.startsWith("Disabled") || csc_as_bike;
 
     if(!heartRateBeltFound)
     {
@@ -176,6 +200,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     if(!ftmsAccessoryFound)
     {
         ftmsAccessoryFound = ftmsAccessoryAvaiable();
+    }
+    if(!cscFound)
+    {
+        cscFound = cscSensorAvaiable();
     }
 
     bool found = false;
@@ -199,7 +227,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
 
     if(onlyDiscover) return;
 
-    if((heartRateBeltFound && ftmsAccessoryFound) || forceHeartBeltOffForTimeout)
+    if((heartRateBeltFound && ftmsAccessoryFound && cscFound) || forceHeartBeltOffForTimeout)
     {
         foreach(QBluetoothDeviceInfo b, devices)
         {
@@ -602,6 +630,8 @@ void bluetooth::connectedAndDiscovered()
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
     QString ftmsAccessoryName = settings.value("ftms_accessory_name", "Disabled").toString();
+    bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
+    QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
 
     // only at the first very connection, setting the user default resistance
     if(device() && firstConnected &&
@@ -676,6 +706,29 @@ void bluetooth::connectedAndDiscovered()
                 connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory, SLOT(changeResistance(int8_t)));
                 ftmsAccessory->deviceDiscovered(b);
                 break;
+            }
+        }
+
+        if(!csc_as_bike)
+        {
+            foreach(QBluetoothDeviceInfo b, devices)
+            {
+                if(((b.name().startsWith(cscName))) && !cadenceSensor && !cscName.startsWith("Disabled"))
+                {
+                    settings.setValue("csc_sensor_lastdevice_name", b.name());
+    #ifndef Q_OS_IOS
+                    settings.setValue("csc_sensor_address", b.address().toString());
+    #else
+                    settings.setValue("csc_sensor_address", b.deviceUuid().toString());
+    #endif
+                    cadenceSensor = new cscbike(false, false);
+                    //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+                    connect(cadenceSensor, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                    connect(cadenceSensor, SIGNAL(cadenceChanged(uint8_t)), this->device(), SLOT(cadenceSensor(uint8_t)));
+                    cadenceSensor->deviceDiscovered(b);
+                    break;
+                }
             }
         }
     }
@@ -877,6 +930,12 @@ void bluetooth::restart()
         //heartRateBelt->disconnectBluetooth(); // to test
         delete ftmsAccessory;
         ftmsAccessory = 0;
+    }
+    if(cadenceSensor)
+    {
+        //heartRateBelt->disconnectBluetooth(); // to test
+        delete cadenceSensor;
+        cadenceSensor = 0;
     }
     discoveryAgent->start();
 }

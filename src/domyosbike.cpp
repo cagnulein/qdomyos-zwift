@@ -360,10 +360,13 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     double ucadence = ((uint8_t)value.at(9));
     double cadenceFilter = settings.value("domyos_bike_cadence_filter", 0).toDouble();
-    if(cadenceFilter == 0 || cadenceFilter > ucadence)
-        Cadence = ucadence;
-    else
-        qDebug() << "cadence filter out " << ucadence << cadenceFilter;
+    if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+    {
+        if(cadenceFilter == 0 || cadenceFilter > ucadence)
+            Cadence = ucadence;
+        else
+            qDebug() << "cadence filter out " << ucadence << cadenceFilter;
+    }
 
     Resistance = value.at(14);    
     if(Resistance.value() < 1)

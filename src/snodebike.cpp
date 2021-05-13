@@ -177,7 +177,8 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if(Flags.instantCadence)
     {
-        Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 2.0;
+        if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+            Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 2.0;
         index += 2;
         debug("Current Cadence: " + QString::number(Cadence.value()));
     }

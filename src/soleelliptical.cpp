@@ -224,7 +224,8 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     //double distance = GetDistanceFromPacket(newValue) * settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
     uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
 
-    Cadence = ((uint8_t)newValue.at(10));
+    if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        Cadence = ((uint8_t)newValue.at(10));
     m_watt = watt;
 
     //Inclination = newValue.at(21);

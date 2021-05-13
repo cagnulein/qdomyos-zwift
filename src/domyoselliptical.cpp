@@ -277,7 +277,8 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue) * settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
 
-    Cadence = ((uint8_t)newValue.at(9));
+    if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        Cadence = ((uint8_t)newValue.at(9));
     Resistance = newValue.at(14);
     Inclination = newValue.at(21);
     if(Resistance < 1)

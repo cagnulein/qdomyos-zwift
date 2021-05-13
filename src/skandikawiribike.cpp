@@ -223,7 +223,8 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     else if(newValue.at(1) == 0x10)
     {
-        Cadence = GetCadenceFromPacket(newValue);
+        if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+            Cadence = GetCadenceFromPacket(newValue);
     }
 
     double kcal = GetKcalFromPacket(newValue);

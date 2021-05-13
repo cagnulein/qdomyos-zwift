@@ -93,6 +93,7 @@ private:
     fitplusbike* fitPlusBike = 0;
     heartratebelt* heartRateBelt = 0;
     ftmsbike* ftmsAccessory = 0;
+    cscbike* cadenceSensor = 0;
     QString filterDevice = "";
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -109,6 +110,7 @@ private:
     void stateFileRead();
     bool heartRateBeltAvaiable();
     bool ftmsAccessoryAvaiable();
+    bool cscSensorAvaiable();
 
 signals:
     void deviceConnected();

@@ -240,7 +240,8 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     Speed = speed;
     KCal = kcal;
     Distance = DistanceCalculated;
-    Cadence = cadence;
+    if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        Cadence = cadence;
     m_watt = watt;
 
     double ac=0.01243107769;

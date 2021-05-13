@@ -188,6 +188,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     {
         Cadence = 0;
     }
+    emit cadenceChanged(Cadence.value());
     debug("Current Cadence: " + QString::number(Cadence.value()));
 
     oldLastCrankEventTime = LastCrankEventTime;

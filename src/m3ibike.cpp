@@ -642,7 +642,8 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             m_pelotonResistance = m_pelotonResistance.value();
         }
 
-        Cadence = k3.rpm;
+        if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+            Cadence = k3.rpm;
         m_watt = k3.watt;
         watts(); // to update avg and max
         Speed = k3.speed;        

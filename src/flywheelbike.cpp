@@ -231,7 +231,8 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 zero_fix_filter = 0;
 
                 Resistance = parsedData->brake_level;
-                Cadence = parsedData->cadence;
+                if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+                    Cadence = parsedData->cadence;
                 m_watts = power;
                 Speed = ((double)speed) / 10.0;
 

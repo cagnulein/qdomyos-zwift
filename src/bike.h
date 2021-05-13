@@ -30,10 +30,11 @@ public:
     void setPaused(bool p);
 
 public slots:
-    virtual void changeResistance(int8_t res);    
+    virtual void changeResistance(int8_t res);
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
+    virtual void cadenceSensor(uint8_t cadence);
 
 signals:
     void bikeStarted();

@@ -140,7 +140,8 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
         return;
 
     Resistance = newValue.at(6);
-    Cadence = ((uint8_t)newValue.at(3));
+    if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        Cadence = ((uint8_t)newValue.at(3));
     Speed = 0.37497622 * ((double)Cadence.value());
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
