@@ -283,6 +283,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     m_pelotonResistance = (((sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar)) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
     Resistance = m_pelotonResistance;
+    emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 

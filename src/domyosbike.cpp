@@ -374,6 +374,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
         qDebug() << "invalid resistance value " + QString::number(Resistance.value()) + " putting to default";
         Resistance = 1;
     }
+    emit resistanceRead(Resistance.value());
     m_pelotonResistance = (Resistance.value() * 100) / max_resistance;
 
 #ifdef Q_OS_ANDROID

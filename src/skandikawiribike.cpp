@@ -235,6 +235,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
         Resistance = 1;
     }
+    emit resistanceRead(Resistance.value());
 
 #ifdef Q_OS_ANDROID
     if(settings.value("ant_heart", false).toBool())

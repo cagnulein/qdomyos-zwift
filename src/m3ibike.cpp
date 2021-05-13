@@ -641,6 +641,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             Resistance = Resistance.value();
             m_pelotonResistance = m_pelotonResistance.value();
         }
+        emit resistanceRead(Resistance.value());
 
         if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
             Cadence = k3.rpm;

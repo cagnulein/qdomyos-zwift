@@ -212,6 +212,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
             //Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
             //debug("Current Resistance: " + QString::number(Resistance.value()));
+            emit resistanceRead(Resistance.value());
 
             KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
             debug("Current KCal: " + QString::number(KCal.value()));

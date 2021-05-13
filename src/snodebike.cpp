@@ -289,6 +289,7 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     m_pelotonResistance = (sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar);
     Resistance = m_pelotonResistance;
+    emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 

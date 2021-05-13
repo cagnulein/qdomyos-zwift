@@ -1,5 +1,5 @@
-#ifndef FTMSBIKE_H
-#define FTMSBIKE_H
+#ifndef SMARTSPIN2K_H
+#define SMARTSPIN2K_H
 
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
@@ -28,49 +28,17 @@
 
 #include "virtualbike.h"
 #include "bike.h"
+#include "ftmsbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-enum FtmsControlPointCommand {
-    FTMS_REQUEST_CONTROL = 0x00,
-    FTMS_RESET,
-    FTMS_SET_TARGET_SPEED,
-    FTMS_SET_TARGET_INCLINATION,
-    FTMS_SET_TARGET_RESISTANCE_LEVEL,
-    FTMS_SET_TARGET_POWER,
-    FTMS_SET_TARGET_HEARTRATE,
-    FTMS_START_RESUME,
-    FTMS_STOP_PAUSE,
-    FTMS_SET_TARGETED_EXP_ENERGY,
-    FTMS_SET_TARGETED_STEPS,
-    FTMS_SET_TARGETED_STRIDES,
-    FTMS_SET_TARGETED_DISTANCE,
-    FTMS_SET_TARGETED_TIME,
-    FTMS_SET_TARGETED_TIME_TWO_HR_ZONES,
-    FTMS_SET_TARGETED_TIME_THREE_HR_ZONES,
-    FTMS_SET_TARGETED_TIME_FIVE_HR_ZONES,
-    FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS,
-    FTMS_SET_WHEEL_CIRCUMFERENCE,
-    FTMS_SPIN_DOWN_CONTROL,
-    FTMS_SET_TARGETED_CADENCE,
-    FTMS_RESPONSE_CODE = 0x80
-};
-
-enum FtmsResultCode {
-    FTMS_SUCCESS = 0x01,
-    FTMS_NOT_SUPPORTED,
-    FTMS_INVALID_PARAMETER,
-    FTMS_OPERATION_FAILED,
-    FTMS_CONTROL_NOT_PERMITTED
-};
-
-class ftmsbike : public bike
+class smartspin2k : public bike
 {
     Q_OBJECT
 public:
-    ftmsbike(bool noWriteResistance, bool noHeartService);
+    smartspin2k(bool noWriteResistance, bool noHeartService);
     bool connected();
 
     void* VirtualBike();
@@ -100,6 +68,8 @@ private:
     bool noWriteResistance = false;
     bool noHeartService = false;
 
+    int8_t startupResistance = -1;
+
 #ifdef Q_OS_IOS
     lockscreen* h = 0;
 #endif
@@ -110,6 +80,7 @@ signals:
 
 public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void resistanceReadFromTheBike(int8_t resistance);
 
 private slots:
 
@@ -128,4 +99,4 @@ private slots:
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // FTMSBIKE_H
+#endif // SMARTSPIN2K_H

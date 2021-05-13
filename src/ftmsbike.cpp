@@ -13,13 +13,12 @@
 #endif
 #include "keepawakehelper.h"
 
-ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, bool noVirtualInterface)
+ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
-    this->noVirtualInterface = noVirtualInterface;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -211,6 +210,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     if(Flags.resistanceLvl)
     {
         Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        emit resistanceRead(Resistance.value());
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
     }
@@ -404,7 +404,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state)
     }
 
     // ******************************************* virtual bike init *************************************
-    if(!firstStateChanged && !virtualBike && !this->noVirtualInterface
+    if(!firstStateChanged && !virtualBike
         #ifdef Q_OS_IOS
         #ifndef IO_UNDER_QT
             && !h

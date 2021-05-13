@@ -140,6 +140,7 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
         return;
 
     Resistance = newValue.at(6);
+    emit resistanceRead(Resistance.value());
     if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
         Cadence = ((uint8_t)newValue.at(3));
     Speed = 0.37497622 * ((double)Cadence.value());

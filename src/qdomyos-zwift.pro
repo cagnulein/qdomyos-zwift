@@ -82,6 +82,7 @@ SOURCES += \
 	sessionline.cpp \
 	signalhandler.cpp \
     skandikawiribike.cpp \
+   smartspin2k.cpp \
     smtpclient/src/emailaddress.cpp \
     smtpclient/src/mimeattachment.cpp \
     smtpclient/src/mimecontentformatter.cpp \
@@ -376,6 +377,7 @@ HEADERS += \
 	sessionline.h \
 	signalhandler.h \
     skandikawiribike.h \
+   smartspin2k.h \
     smtpclient/src/SmtpMime \
     smtpclient/src/emailaddress.h \
     smtpclient/src/mimeattachment.h \

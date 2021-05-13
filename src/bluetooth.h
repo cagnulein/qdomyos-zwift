@@ -45,6 +45,7 @@
 #include "fitplusbike.h"
 #include "spirittreadmill.h"
 #include "ftmsbike.h"
+#include "smartspin2k.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 #include "templateinfosenderbuilder.h"
@@ -92,7 +93,7 @@ private:
     chronobike* chronoBike = 0;
     fitplusbike* fitPlusBike = 0;
     heartratebelt* heartRateBelt = 0;
-    ftmsbike* ftmsAccessory = 0;
+    smartspin2k* ftmsAccessory = 0;
     cscbike* cadenceSensor = 0;
     QString filterDevice = "";
     bool testResistance = false;

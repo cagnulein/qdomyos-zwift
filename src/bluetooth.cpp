@@ -699,11 +699,12 @@ void bluetooth::connectedAndDiscovered()
 #else
                 settings.setValue("ftms_accessory_address", b.deviceUuid().toString());
 #endif
-                ftmsAccessory = new ftmsbike(false, false, true);
+                ftmsAccessory = new smartspin2k(false, false);
                 //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(ftmsAccessory, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory, SLOT(changeResistance(int8_t)));
+                connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory, SLOT(resistanceReadFromTheBike(int8_t)));
                 ftmsAccessory->deviceDiscovered(b);
                 break;
             }

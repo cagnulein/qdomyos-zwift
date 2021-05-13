@@ -217,6 +217,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if(newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2)
     {
         Resistance = newValue.at(3);
+        emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());        
 
         qDebug() << "Current resistance: " + QString::number(Resistance.value());

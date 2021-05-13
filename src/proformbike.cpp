@@ -354,6 +354,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
          m_pelotonResistance = 0;
          break;
         }
+        emit resistanceRead(Resistance.value());
 
         if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
             Cadence = ((uint8_t)newValue.at(18));

@@ -257,6 +257,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         resistance = m_pelotonResistance.value();
 
     Resistance = resistance;
+    emit resistanceRead(Resistance.value());
 
     debug("Current resistance: " + QString::number(resistance));
 

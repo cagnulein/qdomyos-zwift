@@ -193,6 +193,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     Resistance = 1;
     m_pelotonResistance = 1;
+    emit resistanceRead(Resistance.value());
     if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
         Cadence = ((uint8_t)newValue.at(8));
     Speed = (double)((((uint8_t)newValue.at(7)) << 8) | ((uint8_t)newValue.at(6))) / 10.0;

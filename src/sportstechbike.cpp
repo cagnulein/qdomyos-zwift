@@ -159,6 +159,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     Speed = speed;
     Resistance = requestResistance;
+    emit resistanceRead(Resistance.value());
     KCal = kcal;
     Distance = DistanceCalculated;
     if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))

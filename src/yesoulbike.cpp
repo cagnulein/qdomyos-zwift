@@ -132,6 +132,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double distance = GetDistanceFromPacket(newValue);
 
     Resistance = newValue.at(4);
+    emit resistanceRead(Resistance.value());
     if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
         Cadence = ((uint8_t)newValue.at(6));
     m_watts = (((uint16_t)((uint8_t)newValue.at(7)) << 8) + (uint16_t)((uint8_t) newValue.at(8)));
