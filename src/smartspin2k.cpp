@@ -28,6 +28,7 @@ void smartspin2k::resistanceReadFromTheBike(int8_t resistance)
 {
     if(startupResistance == -1)
         startupResistance = resistance;
+    Resistance = resistance;
 }
 
 void smartspin2k::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
@@ -57,12 +58,14 @@ void smartspin2k::writeCharacteristic(uint8_t* data, uint8_t data_len, QString i
 
 void smartspin2k::forceResistance(int8_t requestResistance)
 {
-   uint8_t write[] = { FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    //uint8_t write[] = { FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    //write[3] = ((uint16_t)(requestResistance - startupResistance) * 100) & 0xFF;
+    //write[4] = ((uint16_t)(requestResistance - startupResistance) * 100) >> 8;
 
-   write[3] = ((uint16_t)(requestResistance - startupResistance) * 100) & 0xFF;
-   write[4] = ((uint16_t)(requestResistance - startupResistance) * 100) >> 8;
+    uint8_t write[] = { FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00 };
+    write[1] = (uint8_t)(requestResistance - startupResistance - Resistance.value());
 
-   writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance));
+    writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance));
 }
 
 void smartspin2k::update()
