@@ -69,7 +69,7 @@ void schwinnic4bike::update()
        //gattNotify1Characteristic.isValid() &&
        /*initDone*/)
     {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         // updating the treadmill console every second
         if(sec1Update++ == (500 / refresh->interval()))
