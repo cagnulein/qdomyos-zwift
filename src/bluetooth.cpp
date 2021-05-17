@@ -377,6 +377,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 stagesBike->deviceDiscovered(b);
             }
+            else if(b.name().startsWith("ECH-ROW") && !echelonRower && filter)
+            {
+                discoveryAgent->stop();
+                echelonRower = new echelonrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(echelonRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(echelonRower, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(echelonRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonRower, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                echelonRower->deviceDiscovered(b);
+                templateManager->start(echelonRower);
+            }
             else if(b.name().startsWith("ECH") && !echelonConnectSport && filter)
             {
                 discoveryAgent->stop();
@@ -860,6 +874,11 @@ void bluetooth::restart()
         delete echelonConnectSport;
         echelonConnectSport = 0;
     }
+    if(echelonRower)
+    {
+        delete echelonRower;
+        echelonRower = 0;
+    }
     if(yesoulBike)
     {
         delete yesoulBike;
@@ -971,6 +990,8 @@ bluetoothdevice* bluetooth::device()
         return horizonTreadmill;
     else if(echelonConnectSport)
         return echelonConnectSport;
+    else if(echelonRower)
+        return echelonRower;
     else if(yesoulBike)
         return yesoulBike;
     else if(proformBike)
