@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rows>
+    <row duration="00:10:00" zonehr="2" fanspeed="1" maxspeed="10" looptimehr="10"/>
+    <row duration="00:05:00" zonehr="3" fanspeed="2" maxspeed="12" looptimehr="10"/>
+    <row duration="00:02:00" zonehr="4" fanspeed="3" maxspeed="15" looptimehr="10"/>
+    <row duration="00:05:00" zonehr="3" fanspeed="2" maxspeed="12" looptimehr="10"/>
+    <row duration="00:02:00" zonehr="4" fanspeed="3" maxspeed="15" looptimehr="10"/>
+    <row duration="00:05:00" zonehr="3" fanspeed="2" maxspeed="12" looptimehr="10"/>
+    <row duration="00:02:00" zonehr="4" fanspeed="3" maxspeed="15" looptimehr="10"/>
+    <row duration="00:05:00" zonehr="3" fanspeed="2" maxspeed="12" looptimehr="10"/>
+    <row duration="00:02:00" zonehr="4" fanspeed="3" maxspeed="15" looptimehr="10"/>
+    <row duration="00:05:00" zonehr="3" fanspeed="2" maxspeed="12" looptimehr="10"/>
+    <row duration="00:02:00" zonehr="4" fanspeed="3" maxspeed="15" looptimehr="10"/>
+    <row duration="00:05:00" zonehr="3" fanspeed="2" maxspeed="12" looptimehr="10"/>
+    <row duration="00:02:00" zonehr="4" fanspeed="3" maxspeed="15" looptimehr="10"/>	
+	<row duration="00:08:00" zonehr="2" fanspeed="2" maxspeed="12" looptimehr="10"/>
+	<row duration="00:20:00" zonehr="1" fanspeed="2" maxspeed="12" looptimehr="10"/>
+</rows>

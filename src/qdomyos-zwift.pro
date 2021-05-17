@@ -34,6 +34,7 @@ SOURCES += \
 	 domyoselliptical.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
+   echelonrower.cpp \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
    fitplusbike.cpp \
@@ -133,6 +134,7 @@ HEADERS += \
 	 domyoselliptical.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \
+   echelonrower.h \
 	 elliptical.h \
    eslinkertreadmill.h \
    fitplusbike.h \
@@ -476,4 +478,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.30
+VERSION = 2.6.31
