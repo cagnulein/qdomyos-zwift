@@ -157,6 +157,14 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     debug(" << " + newValue.toHex(' '));
 
+    if(characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 20 &&
+            newValue.at(0) == 0x00 && ((uint8_t)newValue.at(1)) == 0xF4)
+    {
+        Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
+        debug("Current Inclination: " + QString::number(Inclination.value()));
+        return;
+    }
+
     if(characteristic.uuid() != QBluetoothUuid((quint16)0x2ACD))
         return;
 
@@ -326,6 +334,31 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 }
 
+void horizontreadmill::stateChanged2(QLowEnergyService::ServiceState state)
+{
+    if(state != QLowEnergyService::ServiceDiscovered) return;
+
+    QBluetoothUuid _gattNotify2CharacteristicId((quint16)0xFFF4);
+    gattNotify2Characteristic = gattCommunication2ChannelService->characteristic(_gattNotify2CharacteristicId);
+
+    if(!gattNotify2Characteristic.isValid())
+    {
+        qDebug() << "invalid characteristic";
+        return;
+    }
+
+    qDebug() << state;
+
+    QByteArray descriptor;
+    descriptor.append((char)0x01);
+    descriptor.append((char)0x00);
+
+    gattCommunication2ChannelService->writeDescriptor(gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+    connect(gattCommunication2ChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
+            this, SLOT(characteristicChanged(QLowEnergyCharacteristic,QByteArray)));
+}
+
 void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state)
 {
     if(state != QLowEnergyService::ServiceDiscovered) return;
@@ -407,6 +440,10 @@ void horizontreadmill::serviceScanDone(void)
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
+
+    gattCommunication2ChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0xfff0));
+    connect(gattCommunication2ChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged2(QLowEnergyService::ServiceState)));
+    gattCommunication2ChannelService->discoverDetails();
 }
 
 void horizontreadmill::errorService(QLowEnergyService::ServiceError err)
