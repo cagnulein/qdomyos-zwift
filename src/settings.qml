@@ -151,7 +151,7 @@ import Qt.labs.settings 1.0
             property real watt_gain: 1
 
             property string filter_device: "Disabled"
-            property string strava_suffix: "#qdomyos-zwift"
+            property string strava_suffix: "#QZ"
 
             property string cadence_sensor_name: "Disabled"
             property bool cadence_sensor_as_bike: false
