@@ -3000,30 +3000,6 @@ import Qt.labs.settings 1.0
             }
         }
     }
-    /*
-    footer:
-        ColumnLayout
-        {
-            anchors.top: settingsPane.bottom
-            id: footerSettings
-            width: parent.width
-            Button
-            {
-                text: "Load Settings"
-                id: loadsettings
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-            }
-            Button
-            {
-                text: "Save Settings"
-                id: savesettings
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-            }
-        }
-
-}*/
 /*##^##
 Designer {
     D{i:0;formeditorZoom:0.6600000262260437}

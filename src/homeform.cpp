@@ -145,7 +145,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)),
         this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)),
-        this, SLOT(gpx_open_clicked(QUrl)));    
+        this, SLOT(gpx_open_clicked(QUrl)));        
     QObject::connect(stack, SIGNAL(gpx_save_clicked()),
         this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()),
@@ -158,6 +158,10 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(Lap()));
     QObject::connect(home, SIGNAL(peloton_start_workout()),
         this, SLOT(peloton_start_workout()));
+    QObject::connect(stack, SIGNAL(loadSettings(QUrl)),
+        this, SLOT(loadSettings(QUrl)));
+    QObject::connect(stack, SIGNAL(saveSettings(QUrl)),
+        this, SLOT(saveSettings(QUrl)));
 
 
     if(settings.value("top_bar_enabled", true).toBool())
@@ -2017,3 +2021,31 @@ QString homeform::getAndroidDataAppDir() {
     return out;
 }
 #endif
+
+void homeform::saveSettings(QUrl filename)
+{
+    QString path = getWritableAppDir();
+
+    QSettings settings;
+    QSettings settings2Save(path + "settings_" + QDateTime::currentDateTime().toString().replace(":", "_") + ".qzs", QSettings::IniFormat);
+    foreach(QString s, settings.allKeys())
+    {
+        //if(!s.contains("password"))
+        {
+            settings2Save.setValue(s, settings.value(s));
+        }
+    }
+}
+
+void homeform::loadSettings(QUrl filename)
+{
+    QSettings settings;
+    QSettings settings2Load(filename.fileName(), QSettings::IniFormat);
+    foreach(QString s, settings2Load.allKeys())
+    {
+        //if(!s.contains("password"))
+        {
+            settings.setValue(s, settings2Load.value(s));
+        }
+    }
+}

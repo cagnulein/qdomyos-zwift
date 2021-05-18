@@ -339,6 +339,8 @@ private:
 
 public slots:
     void aboutToQuit();
+    void saveSettings(QUrl filename);
+    void loadSettings(QUrl filename);
 
 private slots:    
     void Start();
