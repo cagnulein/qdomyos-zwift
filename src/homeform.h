@@ -237,7 +237,7 @@ public:
     QString stopIcon();
     QString stopColor();
     QString workoutStartDate() {if(Session.length()) return Session.first().time.toString(); else return "";}
-    QString workoutName() {if(stravaPelotonActivityName.length()) return stravaPelotonActivityName; else {if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) return "Ride"; else return "Run";}}
+    QString workoutName() {if(stravaPelotonActivityName.length()) return stravaPelotonActivityName; else {if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) return "Ride"; else if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) return "Row"; else return "Run";}}
     QString instructorName() {return stravaPelotonInstructorName;}
     int pelotonLogin() {return m_pelotonLoginState;}
     bool pelotonAskStart() {return m_pelotonAskStart;}

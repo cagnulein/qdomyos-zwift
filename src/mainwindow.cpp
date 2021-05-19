@@ -92,6 +92,15 @@ void MainWindow::update()
             ui->resistance->setText(QString::number(resistance));
             ui->cadence->setText(QString::number(cadence));
         }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+        {
+            cadence = ((rower*)bluetoothManager->device())->currentCadence().value();
+            resistance = ((rower*)bluetoothManager->device())->currentResistance().value();
+            watts = ((rower*)bluetoothManager->device())->watts();
+            ui->watt->setText(QString::number(watts));
+            ui->resistance->setText(QString::number(resistance));
+            ui->cadence->setText(QString::number(cadence));
+        }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
             cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
@@ -129,6 +138,11 @@ void MainWindow::update()
                 }
                 else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
                         ((virtualbike*)((bike*)bluetoothManager->device())->VirtualDevice())->connected())
+                {
+                    ui->connectionToZwift->setEnabled(true);
+                }
+                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING &&
+                        ((virtualbike*)((rower*)bluetoothManager->device())->VirtualDevice())->connected())
                 {
                     ui->connectionToZwift->setEnabled(true);
                 }
@@ -550,6 +564,10 @@ void MainWindow::on_resistanceMinus_clicked()
         {
             ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value() - 1);
         }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+        {
+            ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value() - 1);
+        }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
             ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() - 1);
@@ -564,6 +582,10 @@ void MainWindow::on_resistancePlus_clicked()
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
             ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value() + 1);
+        }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+        {
+            ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value() + 1);
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {

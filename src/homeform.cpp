@@ -474,7 +474,7 @@ void homeform::deviceConnected()
                 dataList.append(lapElapsed);
         }
     }
-    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
     {
         for(int i=0; i<100; i++)
         {
@@ -663,7 +663,9 @@ void homeform::Plus(QString name)
     {
         if(bluetoothManager->device())
         {
-            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE ||
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL ||
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
             {
                 bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() + 0.03);
                 if(bluetoothManager->device()->difficult() == 0)
@@ -672,6 +674,10 @@ void homeform::Plus(QString name)
                 if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                 {
                     ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value());
+                }
+                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                {
+                    ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value());
                 }
                 else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
                 {
@@ -687,6 +693,10 @@ void homeform::Plus(QString name)
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
             {
                 ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value() + 1);
+            }
+            else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+            {
+                ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value() + 1);
             }
             else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
             {
@@ -740,7 +750,9 @@ void homeform::Minus(QString name)
     {
         if(bluetoothManager->device())
         {
-            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE ||
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL ||
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
             {
                 bluetoothManager->device()->setDifficult(bluetoothManager->device()->difficult() - 0.03);
                 if(bluetoothManager->device()->difficult() == 0)
@@ -749,6 +761,10 @@ void homeform::Minus(QString name)
                 if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                 {
                     ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value());
+                }
+                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                {
+                    ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value());
                 }
                 else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
                 {
@@ -764,6 +780,10 @@ void homeform::Minus(QString name)
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
             {
                 ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value() - 1);
+            }
+            else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+            {
+                ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value() - 1);
             }
             else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
             {
@@ -1059,6 +1079,24 @@ void homeform::update()
             this->peloton_resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0,'f', 0) + "% @0%=" + QString::number((bluetoothManager->device()->difficult() * settings.value("bike_resistance_gain_f", 1.0).toDouble()) + settings.value("bike_resistance_offset", 4.0).toDouble(),'f', 0));
         }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+        {
+            cadence = ((rower*)bluetoothManager->device())->currentCadence().value();
+            resistance = ((rower*)bluetoothManager->device())->currentResistance().value();
+            peloton_resistance = ((rower*)bluetoothManager->device())->pelotonResistance().value();
+            this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
+            this->target_resistance->setValue(QString::number(((rower*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
+            this->target_peloton_resistance->setValue(QString::number(((rower*)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
+            this->target_cadence->setValue(QString::number(((rower*)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
+            this->target_power->setValue(QString::number(((rower*)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
+            this->resistance->setValue(QString::number(resistance, 'f', 0));
+            this->cadence->setValue(QString::number(cadence));
+
+            this->cadence->setSecondLine("AVG: " + QString::number(((rower*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + " MAX: " + QString::number(((rower*)bluetoothManager->device())->currentCadence().max(), 'f', 0));
+            this->resistance->setSecondLine("AVG: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + " MAX: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().max(), 'f', 0));
+            this->peloton_resistance->setSecondLine("AVG: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + " MAX: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
+            this->target_resistance->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0,'f', 0) + "% @0%=" + QString::number((bluetoothManager->device()->difficult() * settings.value("bike_resistance_gain_f", 1.0).toDouble()) + settings.value("bike_resistance_offset", 4.0).toDouble(),'f', 0));
+        }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
             cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
@@ -1233,6 +1271,17 @@ void homeform::update()
 
                             done = true;
                         }
+                        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                        {
+                            double resistance = settings.value("trainprogram_resistance_min", 1).toUInt();
+                            if(settings.value("trainprogram_resistance_min", 1).toUInt() < settings.value("trainprogram_resistance_max", 32).toUInt())
+                            {
+                                resistance = (double)r.bounded(settings.value("trainprogram_resistance_min", 1).toUInt(), settings.value("trainprogram_resistance_max", 32).toUInt());
+                            }
+                            ((rower*)bluetoothManager->device())->changeResistance(resistance);
+
+                            done = true;
+                        }
 
                         if(done)
                         {
@@ -1255,6 +1304,10 @@ void homeform::update()
                     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                     {
                         ((bike*)bluetoothManager->device())->changeResistance(1);
+                    }
+                    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                    {
+                        ((rower*)bluetoothManager->device())->changeResistance(1);
                     }
                 }
             }
@@ -1314,6 +1367,19 @@ void homeform::update()
                         else if(zone > currentHRZone)
                         {
                             ((bike*)bluetoothManager->device())->changeResistance(currentResistance + step);
+                        }
+                    }
+                    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+                    {
+                        const int step = 1;
+                        int8_t currentResistance = ((rower*)bluetoothManager->device())->currentResistance().value();
+                        if(zone < currentHRZone)
+                        {
+                            ((rower*)bluetoothManager->device())->changeResistance(currentResistance - step);
+                        }
+                        else if(zone > currentHRZone)
+                        {
+                            ((rower*)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
                     }
                 }
@@ -1586,6 +1652,8 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
     // Map some known sports and default to ride for anything else
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
       activityTypePart.setBody("run");
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+      activityTypePart.setBody("rowing");
     else
       activityTypePart.setBody("ride");
     multiPart->append(activityTypePart);
@@ -1604,6 +1672,10 @@ bool homeform::strava_upload_file(QByteArray &data, QString remotename)
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
             activityName = "Run" + activityName;
+        }
+        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+        {
+            activityName = "Row" + activityName;
         }
         else
         {
@@ -1943,6 +2015,15 @@ void homeform::sendMail()
         textMessage += "Average Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + "\n";
         textMessage += "Max Peloton Resistance: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
     }
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+    {
+        textMessage += "Average Cadence: " + QString::number(((rower*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + "\n";
+        textMessage += "Max Cadence: " + QString::number(((rower*)bluetoothManager->device())->currentCadence().max(), 'f', 0) + "\n";
+        textMessage += "Average Resistance: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + "\n";
+        textMessage += "Max Resistance: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().max(), 'f', 0) + "\n";
+        textMessage += "Average Peloton Resistance: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + "\n";
+        textMessage += "Max Peloton Resistance: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
+    }
     textMessage += "\n\nQZ version: " + QApplication::applicationVersion();
 #ifdef Q_OS_ANDROID
     textMessage += " - Android";
@@ -2030,7 +2111,7 @@ void homeform::saveSettings(QUrl filename)
     QSettings settings2Save(path + "settings_" + QDateTime::currentDateTime().toString().replace(":", "_") + ".qzs", QSettings::IniFormat);
     foreach(QString s, settings.allKeys())
     {
-        //if(!s.contains("password"))
+        if(!s.contains("password") && !s.contains("token"))
         {
             settings2Save.setValue(s, settings.value(s));
         }
@@ -2043,7 +2124,7 @@ void homeform::loadSettings(QUrl filename)
     QSettings settings2Load(filename.fileName(), QSettings::IniFormat);
     foreach(QString s, settings2Load.allKeys())
     {
-        //if(!s.contains("password"))
+        if(!s.contains("password") && !s.contains("token"))
         {
             settings.setValue(s, settings2Load.value(s));
         }
