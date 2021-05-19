@@ -28,13 +28,13 @@
 #include <QDateTime>
 
 #include "virtualbike.h"
-#include "bike.h"
+#include "rower.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class echelonrower : public bike
+class echelonrower : public rower
 {
     Q_OBJECT
 public:

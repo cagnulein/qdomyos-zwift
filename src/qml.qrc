@@ -24,5 +24,6 @@
         <file>templates/debug/workout.htm</file>
         <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
+        <file>SettingsList.qml</file>
     </qresource>
 </RCC>

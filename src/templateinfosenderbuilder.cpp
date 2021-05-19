@@ -245,7 +245,7 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue& msgContent, Te
     outObj["value"] = QJsonValue(QJsonValue::Null);
     if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble()) {
         bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
-        if (tp == bluetoothdevice::BIKE) {
+        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
             int res;
             if ((res = resVal.toInt()) >= 0 && res < 255) {
                 ((bike *)device)->changeResistance((uint8_t)res);
@@ -287,7 +287,7 @@ void TemplateInfoSenderBuilder::onSetPower(const QJsonValue& msgContent, Templat
     QJsonValue resVal;
     outObj["value"] = QJsonValue(QJsonValue::Null);
     if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            device->deviceType() == bluetoothdevice::BIKE) {
+            (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changePower((uint32_t)val);
@@ -306,7 +306,7 @@ void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue& msgContent, Templ
     QJsonValue resVal;
     outObj["value"] = QJsonValue(QJsonValue::Null);
     if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            device->deviceType() == bluetoothdevice::BIKE) {
+            (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changeCadence((uint16_t)val);
@@ -612,7 +612,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
         obj.setProperty("difficult", device->difficult());
         obj.setProperty("watts", (dep = device->wattsMetric()).value());
         obj.setProperty("watts_avg", dep.average());
-        if (tp == bluetoothdevice::BIKE) {
+        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
             obj.setProperty("peloton_resistance", (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty("peloton_resistance_avg", dep.average());
             obj.setProperty("cadence", (dep = ((bike *)device)->currentCadence()).value());

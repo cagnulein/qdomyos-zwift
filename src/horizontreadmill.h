@@ -55,6 +55,8 @@ private:
 
     QLowEnergyService* gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyService* gattCommunication2ChannelService;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -88,6 +90,7 @@ private slots:
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
+    void stateChanged2(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);

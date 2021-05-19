@@ -151,7 +151,7 @@ import Qt.labs.settings 1.0
             property real watt_gain: 1
 
             property string filter_device: "Disabled"
-            property string strava_suffix: "#qdomyos-zwift"
+            property string strava_suffix: "#QZ"
 
             property string cadence_sensor_name: "Disabled"
             property bool cadence_sensor_as_bike: false
@@ -3000,30 +3000,6 @@ import Qt.labs.settings 1.0
             }
         }
     }
-    /*
-    footer:
-        ColumnLayout
-        {
-            anchors.top: settingsPane.bottom
-            id: footerSettings
-            width: parent.width
-            Button
-            {
-                text: "Load Settings"
-                id: loadsettings
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-            }
-            Button
-            {
-                text: "Save Settings"
-                id: savesettings
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-            }
-        }
-
-}*/
 /*##^##
 Designer {
     D{i:0;formeditorZoom:0.6600000262260437}

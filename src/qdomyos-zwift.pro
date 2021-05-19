@@ -78,6 +78,7 @@ SOURCES += \
 	proformbike.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
+   rower.cpp \
 	schwinnic4bike.cpp \
    screencapture.cpp \
 	sessionline.cpp \
@@ -374,6 +375,7 @@ HEADERS += \
 	proformbike.h \
 	proformtreadmill.h \
 	qfit.h \
+   rower.h \
 	schwinnic4bike.h \
    screencapture.h \
 	sessionline.h \
@@ -478,4 +480,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.31
+VERSION = 2.6.32

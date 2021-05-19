@@ -19,6 +19,8 @@ ApplicationWindow {
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
+    signal loadSettings(url name)
+    signal saveSettings(url name)
 
     Popup {
 	    id: popup
@@ -48,6 +50,35 @@ ApplicationWindow {
 			}
 		 }
 	}
+
+    Popup {
+        id: popupLoadSettings
+         parent: Overlay.overlay
+
+       x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 60
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             text: qsTr("Settings has been loaded correctly. Restart the app!")
+            }
+         }
+    }
 
     Popup {
         id: popupSaveFile
@@ -125,6 +156,8 @@ ApplicationWindow {
             onClicked: {
                 if (stackView.depth > 1) {
                     stackView.pop()
+                    toolButtonLoadSettings.visible = false;
+                    toolButtonSaveSettings.visible = false;
                 } else {
                     drawer.open()
                 }
@@ -167,6 +200,32 @@ ApplicationWindow {
         }
 
         ToolButton {
+            id: toolButtonLoadSettings
+            icon.source: "icons/icons/tray-arrow-up.png"
+            onClicked: {
+                stackView.push("SettingsList.qml")
+                stackView.currentItem.loadSettings.connect(loadSettings)
+                stackView.currentItem.loadSettings.connect(function(url) {
+                    stackView.pop();
+                    popupLoadSettings.open();
+                 });
+                drawer.close()
+            }
+            anchors.right: toolButtonSaveSettings.left
+            visible: false
+        }
+
+        ToolButton {
+            id: toolButtonSaveSettings
+            icon.source: "icons/icons/tray-arrow-down.png"
+            onClicked: {
+                saveSettings("settings")
+            }
+            anchors.right: toolButtonAutoResistance.left
+            visible: false
+        }
+
+        ToolButton {
             id: toolButtonAutoResistance
             icon.source: ( rootItem.autoResistance ? "icons/icons/resistance.png" : "icons/icons/pause.png")
             onClicked: { rootItem.autoResistance = !rootItem.autoResistance; console.log("auto resistance toggled " + rootItem.autoResistance); popupAutoResistance.open(); popupAutoResistanceAutoClose.running = true; }
@@ -191,6 +250,8 @@ ApplicationWindow {
                 text: qsTr("Settings")
                 width: parent.width
                 onClicked: {
+                    toolButtonLoadSettings.visible = true;
+                    toolButtonSaveSettings.visible = true;
                     stackView.push("settings.qml")
                     drawer.close()
                 }
@@ -297,7 +358,7 @@ ApplicationWindow {
 						}
 					}
         }
-    }
+    }    
 
     StackView {
         id: stackView

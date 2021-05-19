@@ -25,5 +25,7 @@
         <file>icons/clock.png</file>
         <file>icons/pause.png</file>
         <file>icons/lap.png</file>
+        <file>icons/tray-arrow-down.png</file>
+        <file>icons/tray-arrow-up.png</file>
     </qresource>
 </RCC>
