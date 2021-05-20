@@ -67,6 +67,8 @@ import Qt.labs.settings 1.0
             property int  tile_resistance_order: 7
             property bool tile_watt_enabled: true
             property int  tile_watt_order: 8
+            property bool tile_weight_loss_enabled: false
+            property int  tile_weight_loss_order: 24
             property bool tile_avgwatt_enabled: true
             property int  tile_avgwatt_order: 9
             property bool tile_ftp_enabled: true
@@ -979,6 +981,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_watt_order = wattOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: weightLossEnabledAccordion
+                        title: qsTr("Weight loss")
+                        linkedBoolSetting: "tile_weight_loss_enabled"
+                        settings: settings
+                        accordionContent:  RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelweightLossOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: weightLossOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_weight_loss_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = weightLossOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okweightLossOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_weight_loss_order = weightLossOrderTextField.displayText
                             }
                         }
                     }

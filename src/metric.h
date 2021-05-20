@@ -31,6 +31,7 @@ public:
     void setLap(bool accumulator);
 
     static double calculateSpeedFromPower(double power);
+    static double calculateWeightLoss(double kcal);
 
 private:
     double m_value = 0;

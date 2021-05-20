@@ -321,6 +321,7 @@ private:
     DataObject* target_power;
     DataObject* ftp;
     DataObject* lapElapsed;
+    DataObject* weightLoss;
 
     QTimer* timer;
     QTimer* backupTimer;

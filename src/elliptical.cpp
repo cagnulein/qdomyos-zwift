@@ -24,6 +24,7 @@ void elliptical::update_metrics(const bool watt_calc, const double watts)
            if(watt_calc)
                m_watt = watts;
            m_jouls += (m_watt.value() * deltaTime);
+           WeightLoss = metric::calculateWeightLoss(KCal.value());
        }
        else if(m_watt.value() > 0)
        {
@@ -65,6 +66,7 @@ void elliptical::clearStats()
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    WeightLoss.clear(false);
 
     Inclination.clear(false);
 }
@@ -81,6 +83,7 @@ void elliptical::setPaused(bool p)
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
     Inclination.setPaused(p);
+    WeightLoss.setPaused(p);
 }
 
 void elliptical::setLap()
@@ -93,6 +96,7 @@ void elliptical::setLap()
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    WeightLoss.setLap(false);
 
     Inclination.setLap(false);
 }

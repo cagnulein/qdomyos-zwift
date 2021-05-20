@@ -174,3 +174,8 @@ double metric::calculateSpeedFromPower(double power)
     }
     return 0.0;  // failed to converge
 }
+
+double metric::calculateWeightLoss(double kcal)
+{
+    return kcal / 7716.1854; // comes from 1 lbs = 3500 kcal. Converted to kg
+}
