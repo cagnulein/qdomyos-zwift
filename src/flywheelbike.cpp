@@ -235,7 +235,10 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
                 if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
                     Cadence = parsedData->cadence;
                 m_watts = power;
-                Speed = ((double)speed) / 10.0;
+                if(!settings.value("speed_power_based", false).toBool())
+                    Speed = ((double)speed) / 10.0;
+                else
+                    Speed = metric::calculateSpeedFromPower(m_watt.value());
 
                 // https://www.facebook.com/groups/149984563348738/permalink/174268944253633/?comment_id=174366620910532&reply_comment_id=174666314213896
                 m_pelotonResistance = (Resistance.value() * 0.8173) + 9.2712;

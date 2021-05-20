@@ -24,6 +24,7 @@ import Qt.labs.settings 1.0
             property real zwift_erg_filter: 0.0
             property real zwift_erg_filter_down: 0.0
 
+            property bool speed_power_based: false
             property int bike_resistance_start: 1
             property int age: 35.0
             property real weight: 75.0
@@ -465,8 +466,8 @@ import Qt.labs.settings 1.0
             }*/
 
             AccordionElement {
-                id: bikeResistanceOptionsAccordion
-                title: qsTr("Bike resistance Options")
+                id: bikeOptionsAccordion
+                title: qsTr("Bike Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -475,6 +476,20 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    SwitchDelegate {
+                        id: speedPowerBasedDelegate
+                        text: qsTr("Speed calculates on Power")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.speed_power_based
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.speed_power_based = checked
+                    }
                     SwitchDelegate {
                         id: zwiftErgDelegate
                         text: qsTr("Zwift Workout/Erg Mode")

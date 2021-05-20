@@ -142,7 +142,10 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
     m_watt = (uint16_t)((uint8_t)newValue.at(17)) + ((uint16_t)((uint8_t)newValue.at(18)) << 8);
     if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
         Cadence = ((uint8_t)newValue.at(8)) / 2;
-    Speed = ((double)((uint16_t)((uint8_t)newValue.at(6)) + ((uint16_t)((uint8_t)newValue.at(7)) << 8))) / 100.0;
+    if(!settings.value("speed_power_based", false).toBool())
+        Speed = ((double)((uint16_t)((uint8_t)newValue.at(6)) + ((uint16_t)((uint8_t)newValue.at(7)) << 8))) / 100.0;
+    else
+        Speed = metric::calculateSpeedFromPower(m_watt.value());
     KCal += ((( (0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 

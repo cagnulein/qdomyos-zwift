@@ -157,7 +157,10 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     if(m_control->error() != QLowEnergyController::NoError)
         qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
 
-    Speed = speed;
+    if(!settings.value("speed_power_based", false).toBool())
+        Speed = speed;
+    else
+        Speed = metric::calculateSpeedFromPower(m_watt.value());
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());
     KCal = kcal;
