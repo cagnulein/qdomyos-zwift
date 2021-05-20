@@ -351,7 +351,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                     emit searchingStop();
                 templateManager->start(horizonTreadmill);
             }
-            else if(b.name().toUpper().startsWith(">CABLE") && !npeCableBike && filter)
+            else if((b.name().toUpper().startsWith(">CABLE") || b.name().toUpper().startsWith("BIKE 1")) && !npeCableBike && filter)
             {
                 discoveryAgent->stop();
                 npeCableBike = new npecablebike(noWriteResistance, noHeartService);
@@ -363,6 +363,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(echelonConnectSport, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(echelonConnectSport, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
+                templateManager->start(npeCableBike);
             }
             else if(b.name().toUpper().startsWith("STAGES ") && !stagesBike && filter)
             {
@@ -376,6 +377,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 //connect(stagesBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 //connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 stagesBike->deviceDiscovered(b);
+                templateManager->start(stagesBike);
             }
             else if(b.name().startsWith("ECH-ROW") && !echelonRower && filter)
             {
