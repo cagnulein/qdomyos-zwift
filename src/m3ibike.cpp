@@ -647,7 +647,10 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             Cadence = k3.rpm;
         m_watt = k3.watt;
         watts(); // to update avg and max
-        Speed = k3.speed;        
+        if(!settings.value("speed_power_based", false).toBool())
+            Speed = k3.speed;
+        else
+            Speed = metric::calculateSpeedFromPower(m_watt.value());
         if(settings.value("m3i_bike_kcal", true).toBool())
             KCal = k3.calorie;
         else

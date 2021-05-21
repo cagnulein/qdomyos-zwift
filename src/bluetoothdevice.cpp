@@ -105,6 +105,7 @@ void bluetoothdevice::update_metrics(const bool watt_calc, const double watts)
        {
            moving += deltaTime;
            m_jouls += (m_watt.value() * deltaTime);
+           WeightLoss = metric::calculateWeightLoss(KCal.value());
            if(watt_calc)
                m_watt = watts;
        }
@@ -133,6 +134,7 @@ void bluetoothdevice::clearStats()
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    WeightLoss.clear(false);
 }
 
 void bluetoothdevice::setPaused(bool p)
@@ -146,6 +148,7 @@ void bluetoothdevice::setPaused(bool p)
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    WeightLoss.setPaused(p);
 }
 
 void bluetoothdevice::setLap()
@@ -158,4 +161,5 @@ void bluetoothdevice::setLap()
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    WeightLoss.setLap(false);
 }

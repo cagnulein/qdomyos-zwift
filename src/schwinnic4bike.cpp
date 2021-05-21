@@ -158,7 +158,10 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if(!Flags.moreData)
     {
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 100.0;
+        if(!settings.value("speed_power_based", false).toBool())
+            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) / 100.0;
+        else
+            Speed = metric::calculateSpeedFromPower(m_watt.value());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }

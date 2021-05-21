@@ -151,3 +151,31 @@ void metric::setLap(bool accumulator)
 {
     clearLap(accumulator);
 }
+
+double metric::calculateSpeedFromPower(double power)
+{
+    double aero = 0.22691607640851885;
+    double hw = 0; // wind speed
+    double tr = 3.8710000000000004;
+    double tran = 0.95;
+    double p = power;
+    double  vel = 20;       // Initial guess
+    const uint8_t  MAX = 10;       // maximum iterations
+    double  TOL = 0.05;     // tolerance
+    for (int i=1; i < MAX; i++) {
+        double  tv = vel + hw;
+        double  aeroEff = (tv > 0.0) ? aero : -aero; // wind in face, must reverse effect
+        double  f = vel * (aeroEff * tv * tv + tr) - tran * p; // the function
+        double  fp = aeroEff * (3.0 * vel + hw) * tv + tr;     // the derivative
+        double  vNew = vel - f / fp;
+        if (qAbs(vNew - vel) < TOL)
+            return vNew * 3.6;  // success
+        vel = vNew;
+    }
+    return 0.0;  // failed to converge
+}
+
+double metric::calculateWeightLoss(double kcal)
+{
+    return kcal / 7716.1854; // comes from 1 lbs = 3500 kcal. Converted to kg
+}

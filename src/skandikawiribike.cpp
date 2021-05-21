@@ -219,7 +219,10 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         double speed = GetSpeedFromPacket(newValue);
         debug("Current speed: " + QString::number(speed));
-        Speed = speed;
+        if(!settings.value("speed_power_based", false).toBool())
+            Speed = speed;
+        else
+            Speed = metric::calculateSpeedFromPower(m_watt.value());
     }
     else if(newValue.at(1) == 0x10)
     {

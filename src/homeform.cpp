@@ -69,8 +69,12 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QSettings settings;
     bool miles = settings.value("miles_unit", false).toBool();
     QString unit = "km";
+    QString weightLossUnit = "Kg";
     if(miles)
+    {
         unit = "mi";
+        weightLossUnit = "Oz";
+    }
 
 #ifdef Q_OS_IOS
     const int labelFontSize = 14;
@@ -99,6 +103,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     target_cadence = new DataObject("T.Cadence(rpm)", "icons/icons/cadence.png", "0", false, "target_cadence", 48, labelFontSize);
     target_power = new DataObject("T.Power(W)", "icons/icons/watt.png", "0", false, "target_power", 48, labelFontSize);
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
+    weightLoss = new DataObject("Weight Loss(" + weightLossUnit +")", "icons/icons/kcal.png", "0", false, "weight_loss", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
     ftp = new DataObject("FTP Zone", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
@@ -396,7 +401,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 24; i++)
+    for(int i = 0; i < 25; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -451,6 +456,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
                 dataList.append(watt);
+
+            if(settings.value("tile_weight_loss_enabled", false).toBool() && settings.value("tile_weight_loss_order", 24).toInt() == i)
+                dataList.append(weightLoss);
 
             if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
                 dataList.append(avgWatt);
@@ -510,6 +518,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
                 dataList.append(watt);
+
+            if(settings.value("tile_weight_loss_enabled", false).toBool() && settings.value("tile_weight_loss_order", 24).toInt() == i)
+                dataList.append(weightLoss);
 
             if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
                 dataList.append(avgWatt);
@@ -584,6 +595,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
                 dataList.append(watt);
+
+            if(settings.value("tile_weight_loss_enabled", false).toBool() && settings.value("tile_weight_loss_order", 24).toInt() == i)
+                dataList.append(weightLoss);
 
             if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
                 dataList.append(avgWatt);
@@ -1006,6 +1020,7 @@ void homeform::update()
         datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));
         watts = bluetoothManager->device()->wattsMetric().value();
         watt->setValue(QString::number(watts));
+        weightLoss->setValue(QString::number(miles?bluetoothManager->device()->weightLoss() * 35.274:bluetoothManager->device()->weightLoss(), 'f', 2));
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
@@ -1926,12 +1941,19 @@ void homeform::sendMail()
 
     bool miles = settings.value("miles_unit", false).toBool();
     double unit_conversion = 1.0;
-    if(miles)
-        unit_conversion = 0.621371;
+    QString weightLossUnit = "Kg";
+    double WeightLoss = 0;
 
     // TODO: add a condition to avoid sending mail when the user look at the chart while is riding
     if(settings.value("user_email","").toString().length() == 0 || !bluetoothManager->device())
         return;
+
+    if(miles)
+    {
+        unit_conversion = 0.621371;
+        weightLossUnit = "Oz";
+        WeightLoss = (miles?bluetoothManager->device()->weightLoss()*35.274:bluetoothManager->device()->weightLoss());
+    }
 
 #ifdef SMTP_SERVER
 #define _STR(x) #x
@@ -2006,6 +2028,7 @@ void homeform::sendMail()
     textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + "\n";
     textMessage += "Elapsed Time: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
     textMessage += "Moving Time: " + bluetoothManager->device()->movingTime().toString() + "\n";
+    textMessage += "Weight Loss ("+ weightLossUnit +"): " + WeightLoss + "\n";
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
         textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + "\n";

@@ -255,7 +255,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             else if(csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter)
             {
                 discoveryAgent->stop();
-                cscBike = new cscbike(noWriteResistance, noHeartService);
+                cscBike = new cscbike(noWriteResistance, noHeartService, false);
                 emit(deviceConnected());
                 connect(cscBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
                 //connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -738,7 +738,7 @@ void bluetooth::connectedAndDiscovered()
     #else
                     settings.setValue("csc_sensor_address", b.deviceUuid().toString());
     #endif
-                    cadenceSensor = new cscbike(false, false);
+                    cadenceSensor = new cscbike(false, false, true);
                     //connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                     connect(cadenceSensor, SIGNAL(debug(QString)), this, SLOT(debug(QString)));

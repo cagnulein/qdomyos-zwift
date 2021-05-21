@@ -56,6 +56,7 @@ public:
     bool autoResistance() {return autoResistanceEnable;}
     void setDifficult(double d);
     double difficult();
+    double weightLoss() {return WeightLoss.value();}
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -95,6 +96,7 @@ protected:
     metric m_jouls;
     double elevationAcc = 0;
     metric m_watt;
+    metric WeightLoss;
 
     bool paused = false;
     bool autoResistanceEnable = true;

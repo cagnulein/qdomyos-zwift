@@ -39,6 +39,7 @@ void bike::clearStats()
     m_jouls.clear(true);
     elevationAcc = 0;
     m_watt.clear(false);
+    WeightLoss.clear(false);
 
     RequestedPelotonResistance.clear(false);
     RequestedResistance.clear(false);
@@ -60,6 +61,7 @@ void bike::setPaused(bool p)
     Heart.setPaused(p);
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
+    WeightLoss.setPaused(p);
     m_pelotonResistance.setPaused(p);
     Cadence.setPaused(p);
     Resistance.setPaused(p);
@@ -79,6 +81,7 @@ void bike::setLap()
     Heart.setLap(false);
     m_jouls.setLap(true);
     m_watt.setLap(false);
+    WeightLoss.setLap(false);
 
     RequestedPelotonResistance.setLap(false);
     RequestedResistance.setLap(false);

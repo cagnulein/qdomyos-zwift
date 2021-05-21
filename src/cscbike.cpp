@@ -13,12 +13,13 @@
 #endif
 #include "keepawakehelper.h"
 
-cscbike::cscbike(bool noWriteResistance, bool noHeartService)
+cscbike::cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice)
 {
     m_watt.setType(metric::METRIC_WATT);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->noVirtualDevice = noVirtualDevice;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
     refresh->start(200);
@@ -54,25 +55,28 @@ void cscbike::update()
     QSettings settings;
     QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
 
-#ifdef Q_OS_ANDROID
-    if(settings.value("ant_heart", false).toBool())
+    if(!noVirtualDevice)
     {
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-        debug("Current Heart: " + QString::number(Heart.value()));
-    }
-#endif
-    if(heartRateBeltName.startsWith("Disabled"))
-    {
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    lockscreen h;
-    long appleWatchHeartRate = h.heartRate();
-    h.setKcal(KCal.value());
-    h.setDistance(Distance.value());
-    Heart = appleWatchHeartRate;
-    debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-#endif
-#endif
+    #ifdef Q_OS_ANDROID
+        if(settings.value("ant_heart", false).toBool())
+        {
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+            debug("Current Heart: " + QString::number(Heart.value()));
+        }
+    #endif
+        if(heartRateBeltName.startsWith("Disabled"))
+        {
+    #ifdef Q_OS_IOS
+    #ifndef IO_UNDER_QT
+        lockscreen h;
+        long appleWatchHeartRate = h.heartRate();
+        h.setKcal(KCal.value());
+        h.setDistance(Distance.value());
+        Heart = appleWatchHeartRate;
+        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+    #endif
+    #endif
+        }
     }
 
     if(Heart.value() > 0)
@@ -196,7 +200,10 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     oldLastCrankEventTime = LastCrankEventTime;
     oldCrankRevs = CrankRevs;
 
-    Speed = Cadence.value() * settings.value("cadence_sensor_speed_ratio", 0.33).toDouble();
+    if(!settings.value("speed_power_based", false).toBool())
+        Speed = Cadence.value() * settings.value("cadence_sensor_speed_ratio", 0.33).toDouble();
+    else
+        Speed = metric::calculateSpeedFromPower(m_watt.value());
     debug("Current Speed: " + QString::number(Speed.value()));
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
@@ -234,18 +241,20 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    if(!noVirtualDevice)
+    {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-    if(ios_peloton_workaround && cadence && h && firstStateChanged)
-    {
-        h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        if(ios_peloton_workaround && cadence && h && firstStateChanged)
+        {
+            h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
+            h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+        }
+#endif
+#endif
     }
-#endif
-#endif
-
 
     debug("Current CrankRevs: " + QString::number(CrankRevs));
     debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
@@ -331,7 +340,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state)
     }
 
     // ******************************************* virtual bike init *************************************
-    if(!firstStateChanged && !virtualBike
+    if(!firstStateChanged && !virtualBike && !noVirtualDevice
         #ifdef Q_OS_IOS
         #ifndef IO_UNDER_QT
             && !h

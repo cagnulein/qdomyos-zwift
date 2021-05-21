@@ -180,7 +180,10 @@ void npecablebike::characteristicChanged(const QLowEnergyCharacteristic &charact
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
 
-        Speed = Cadence.value() * settings.value("cadence_sensor_speed_ratio", 0.33).toDouble();
+        if(!settings.value("speed_power_based", false).toBool())
+            Speed = Cadence.value() * settings.value("cadence_sensor_speed_ratio", 0.33).toDouble();
+        else
+            Speed = metric::calculateSpeedFromPower(m_watt.value());
         debug("Current Speed: " + QString::number(Speed.value()));
 
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
