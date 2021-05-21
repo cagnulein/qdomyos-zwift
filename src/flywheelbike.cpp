@@ -73,11 +73,11 @@ void flywheelbike::update()
         update_metrics(true, watts());
 
         // updating the treadmill console every second
-        if(sec1Update++ == (500 / refresh->interval()))
+        /*if(sec1Update++ == (500 / refresh->interval()))
         {
             sec1Update = 0;
             //updateDisplay(elapsed);
-        }
+        }*/
 
         if(requestResistance != -1)
         {
