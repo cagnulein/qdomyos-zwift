@@ -37,7 +37,7 @@ class cscbike : public bike
 {
     Q_OBJECT
 public:
-    cscbike(bool noWriteResistance, bool noHeartService);
+    cscbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected();
 
     void* VirtualBike();
@@ -65,6 +65,7 @@ private:
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool noVirtualDevice = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
