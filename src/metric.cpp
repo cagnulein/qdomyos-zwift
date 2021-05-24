@@ -154,9 +154,11 @@ void metric::setLap(bool accumulator)
 
 double metric::calculateSpeedFromPower(double power)
 {
+    QSettings settings;
+    double twt = 9.8 * (settings.value("weight", 75.0).toFloat() + 0.0); // bike weight is null
     double aero = 0.22691607640851885;
     double hw = 0; // wind speed
-    double tr = 3.8710000000000004;
+    double tr = twt * 0.005;
     double tran = 0.95;
     double p = power;
     double  vel = 20;       // Initial guess

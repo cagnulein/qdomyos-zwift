@@ -148,6 +148,7 @@ private:
     void startDiscover();
     void sendPoll();
     uint16_t watts();
+    void updateStats();
 
     QTimer* refresh;
     virtualbike* virtualBike = 0;
