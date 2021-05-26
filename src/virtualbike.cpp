@@ -397,19 +397,7 @@ void virtualbike::slopeChanged(int16_t iresistance)
 
 void virtualbike::powerChanged(uint16_t power)
 {
-    QSettings settings;
-    bool force_resistance = settings.value("virtualbike_forceresistance", true).toBool();
-    bool erg_mode = settings.value("zwift_erg", false).toBool();
-    double erg_filter_upper = settings.value("zwift_erg_filter", 0.0).toDouble();
-    double erg_filter_lower = settings.value("zwift_erg_filter_down", 0.0).toDouble();
-    
-    qDebug() << "power erg  " + QString::number(power) + " " + erg_mode;
     Bike->changePower(power);
-    double deltaDown = Bike->wattsMetric().value() - ((double)power);
-    double deltaUp = ((double)power) - Bike->wattsMetric().value();
-    qDebug() << "filter  " + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +QString::number(erg_filter_upper) + " " +QString::number(erg_filter_lower);
-    if(force_resistance && erg_mode && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
-        Bike->changeResistance((int8_t)Bike->resistanceFromPowerRequest(power)); // resistance start from 1
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)

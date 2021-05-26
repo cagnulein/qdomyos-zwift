@@ -56,14 +56,24 @@ void trainprogram::scheduler()
         }
         else
         {
-            qDebug() << "trainprogram change resistance" + QString::number(rows[0].resistance);
-            emit changeResistance(rows[0].resistance);
+            if(rows[0].resistance != -1)
+            {
+                qDebug() << "trainprogram change resistance" + QString::number(rows[0].resistance);
+                emit changeResistance(rows[0].resistance);
+            }
 
             if(rows[0].cadence != -1)
             {
                 qDebug() << "trainprogram change cadence" + QString::number(rows[0].cadence);
                 emit changeCadence(rows[0].cadence);
             }
+
+            if(rows[0].power != -1)
+            {
+                qDebug() << "trainprogram change power" + QString::number(rows[0].power);
+                emit changePower(rows[0].power);
+            }
+
 
             if(rows[0].requested_peloton_resistance != -1)
             {
@@ -110,13 +120,22 @@ void trainprogram::scheduler()
             }
             else
             {
-                qDebug() << "trainprogram change resistance" + QString::number(rows[currentStep].resistance);
-                emit changeResistance(rows[currentStep].resistance);
+                if(rows[currentStep].resistance != -1)
+                {
+                    qDebug() << "trainprogram change resistance" + QString::number(rows[currentStep].resistance);
+                    emit changeResistance(rows[currentStep].resistance);
+                }
 
                 if(rows[currentStep].cadence != -1)
                 {
                     qDebug() << "trainprogram change cadence" + QString::number(rows[currentStep].cadence);
                     emit changeCadence(rows[currentStep].cadence);
+                }
+
+                if(rows[currentStep].power != -1)
+                {
+                    qDebug() << "trainprogram change power" + QString::number(rows[currentStep].power);
+                    emit changePower(rows[currentStep].power);
                 }
 
                 if(rows[currentStep].requested_peloton_resistance != -1)
@@ -186,6 +205,8 @@ bool trainprogram::saveXML(QString filename, const QList<trainrow>& rows) {
                 stream.writeAttribute("requested_peloton_resistance", QString::number(row.requested_peloton_resistance));
             if (row.cadence>=0)
                 stream.writeAttribute("cadence", QString::number(row.cadence));
+            if (row.power>=0)
+                stream.writeAttribute("power", QString::number(row.power));
             stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
             if (row.fanspeed>=0)
                 stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
@@ -241,6 +262,8 @@ QList<trainrow> trainprogram::loadXML(QString filename)
                 row.requested_peloton_resistance = atts.value("requested_peloton_resistance").toInt();
             if(atts.hasAttribute("cadence"))
                 row.cadence = atts.value("cadence").toInt();
+            if(atts.hasAttribute("power"))
+                row.power = atts.value("power").toInt();
             if(atts.hasAttribute("maxspeed"))
                 row.maxSpeed = atts.value("maxspeed").toInt();
             if(atts.hasAttribute("zonehr"))

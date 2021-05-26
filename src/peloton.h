@@ -17,6 +17,7 @@
 #include <QTimer>
 #include "trainprogram.h"
 #include "bluetooth.h"
+#include "powerzonepack.h"
 
 class peloton : public QObject
 {
@@ -47,6 +48,7 @@ private:
     QTimer* timer;
 
     bluetooth* bluetoothManager = 0;
+    powerzonepack* PZP = 0;
 
     int total_workout;
     void getWorkoutList(int num);
@@ -62,11 +64,14 @@ private slots:
     void workout_onfinish(QNetworkReply* reply);
     void performance_onfinish(QNetworkReply* reply);
     void instructor_onfinish(QNetworkReply* reply);
+    void pzp_trainrows(QList<trainrow>* list);
+    void pzp_loginState(bool ok);
 
     void startEngine();
 
 signals:
     void loginState(bool ok);
+    void pzpLoginState(bool ok);
     void workoutStarted(QString name, QString instructor);
     void workoutChanged(QString name, QString instructor);
 };

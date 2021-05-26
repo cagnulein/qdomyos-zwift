@@ -17,7 +17,29 @@ peloton::peloton(bluetooth* bl, QObject *parent) : QObject(parent)
 
     connect(timer,SIGNAL(timeout()), this, SLOT(startEngine()));
 
+    PZP = new powerzonepack(bl, this);
+    connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);
+    connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
+
     startEngine();
+}
+
+void peloton::pzp_loginState(bool ok)
+{
+    emit pzpLoginState(ok);
+}
+
+void peloton::pzp_trainrows(QList<trainrow>* list)
+{
+    trainrows.clear();
+    foreach(trainrow r, *list)
+    {
+        trainrows.append(r);
+    }
+    if(trainrows.length())
+    {
+        emit workoutStarted(current_workout_name, current_instructor_name);
+    }
 }
 
 void peloton::startEngine()
@@ -203,6 +225,10 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     if(trainrows.length())
     {
         emit workoutStarted(current_workout_name, current_instructor_name);
+    }
+    else
+    {
+        PZP->searchWorkout(current_ride_id);
     }
 
     timer->start(30000); // check for a status changed

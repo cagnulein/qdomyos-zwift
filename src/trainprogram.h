@@ -19,6 +19,7 @@ public:
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;
     int8_t maxSpeed = -1;
+    int32_t power = -1;
 };
 
 class trainprogram: public QObject
@@ -60,6 +61,7 @@ signals:
     void changeResistance(int8_t resistance);
     void changeRequestedPelotonResistance(int8_t resistance);
     void changeCadence(int16_t cadence);
+    void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
 
 private:

@@ -49,6 +49,9 @@ import Qt.labs.settings 1.0
             property string peloton_password: "password"
             property string peloton_difficulty: "lower"
 
+            property string pzp_username: "username"
+            property string pzp_password: "username"
+
             property bool tile_speed_enabled: true
             property int  tile_speed_order: 0
             property bool tile_inclination_enabled: true
@@ -1713,6 +1716,54 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_difficulty = pelotonDifficultyTextField.displayText
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPZPUsername
+                            text: qsTr("PZP Username:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pzpUsernameTextField
+                            text: settings.pzp_username
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.pzp_username = text
+                        }
+                        Button {
+                            id: okPZPUsernameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.pzp_username = pzpUsernameTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPZPPassword
+                            text: qsTr("PZP Password:") + ((rootItem.pzpLogin===-1)?"":(rootItem.pzpLogin===1?"\u2705":"\u274c"))
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: pzpPasswordTextField
+                            text: settings.pzp_password
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhHiddenText
+                            echoMode: TextInput.PasswordEchoOnEdit
+                            onAccepted: settings.pzp_password = text
+                        }
+                        Button {
+                            id: okPZPPasswordButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.pzp_password = pzpPasswordTextField.text
                         }
                     }
 

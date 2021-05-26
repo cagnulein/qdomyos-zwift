@@ -97,6 +97,7 @@ class homeform: public QObject
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE setGeneralPopupVisible)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
+    Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
     Q_PROPERTY(QString workoutName READ workoutName)
     Q_PROPERTY(QString instructorName READ instructorName)
@@ -240,6 +241,7 @@ public:
     QString workoutName() {if(stravaPelotonActivityName.length()) return stravaPelotonActivityName; else {if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) return "Ride"; else if(bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) return "Row"; else return "Run";}}
     QString instructorName() {return stravaPelotonInstructorName;}
     int pelotonLogin() {return m_pelotonLoginState;}
+    int pzpLogin() {return m_pzpLoginState;}
     bool pelotonAskStart() {return m_pelotonAskStart;}
     void setPelotonAskStart(bool value) {m_pelotonAskStart = value;}
     bool generalPopupVisible();
@@ -288,6 +290,7 @@ private:
     peloton* pelotonHandler = 0;
     bool m_pelotonAskStart = false;
     int m_pelotonLoginState = -1;
+    int m_pzpLoginState = -1;
     QString stravaPelotonActivityName = "";
     QString stravaPelotonInstructorName = "";
 
@@ -369,6 +372,7 @@ private slots:
     void pelotonWorkoutStarted(QString name, QString instructor);
     void pelotonWorkoutChanged(QString name, QString instructor);
     void pelotonLoginState(bool ok);
+    void pzpLoginState(bool ok);
     void peloton_start_workout();
     void smtpError(SmtpClient::SmtpError e);
 
@@ -392,6 +396,7 @@ signals:
  void generalPopupVisibleChanged(bool value);
  void autoResistanceChanged(bool value);
  void pelotonLoginChanged(int ok);
+ void pzpLoginChanged(int ok);
 };
 
 #endif // HOMEFORM_H

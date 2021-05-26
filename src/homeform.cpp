@@ -185,6 +185,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     connect(pelotonHandler, SIGNAL(workoutStarted(QString, QString)), this, SLOT(pelotonWorkoutStarted(QString, QString)));
     connect(pelotonHandler, SIGNAL(workoutChanged(QString, QString)), this, SLOT(pelotonWorkoutChanged(QString, QString)));
     connect(pelotonHandler, SIGNAL(loginState(bool)), this, SLOT(pelotonLoginState(bool)));
+    connect(pelotonHandler, SIGNAL(pzpLoginState(bool)), this, SLOT(pzpLoginState(bool)));
 
     //populate the UI
 #if 0
@@ -260,6 +261,12 @@ void homeform::peloton_start_workout()
         trainProgramSignals();
         trainProgram->restart();
     }
+}
+
+void homeform::pzpLoginState(bool ok)
+{
+    m_pzpLoginState = (ok?1:0);
+    emit pzpLoginChanged(m_pzpLoginState);
 }
 
 void homeform::pelotonLoginState(bool ok)
