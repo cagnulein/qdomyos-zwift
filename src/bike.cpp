@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QSettings>
 #include "bike.h"
 
 bike::bike()
@@ -9,7 +10,21 @@ bike::bike()
 void bike::changeResistance(int8_t resistance) { if(autoResistanceEnable) {requestResistance = resistance * m_difficult; emit resistanceChanged(requestResistance);} RequestedResistance = resistance * m_difficult; }
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
-void bike::changePower(int32_t power) { RequestedPower = power; }
+void bike::changePower(int32_t power)
+{
+    RequestedPower = power;
+    QSettings settings;
+    bool force_resistance = settings.value("virtualbike_forceresistance", true).toBool();
+    bool erg_mode = settings.value("zwift_erg", false).toBool();
+    double erg_filter_upper = settings.value("zwift_erg_filter", 0.0).toDouble();
+    double erg_filter_lower = settings.value("zwift_erg_filter_down", 0.0).toDouble();
+
+    double deltaDown = wattsMetric().value() - ((double)power);
+    double deltaUp = ((double)power) - wattsMetric().value();
+    qDebug() << "filter  " + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +QString::number(erg_filter_upper) + " " +QString::number(erg_filter_lower);
+    if(force_resistance && erg_mode && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
+        changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
+}
 double bike::currentCrankRevolutions() { return CrankRevs;}
 uint16_t bike::lastCrankEventTime() { return LastCrankEventTime;}
 metric bike::lastRequestedResistance() { return RequestedResistance; }
