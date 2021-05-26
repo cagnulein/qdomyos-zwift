@@ -128,6 +128,8 @@
 		8718CBAC263063CE004BF4EE /* moc_tcpclientinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8718CBA8263063CD004BF4EE /* moc_tcpclientinfosender.cpp */; };
 		8718CBAD263063CE004BF4EE /* moc_templateinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8718CBA9263063CE004BF4EE /* moc_templateinfosender.cpp */; };
 		8718CBAE263063CE004BF4EE /* moc_soleelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8718CBAA263063CE004BF4EE /* moc_soleelliptical.cpp */; };
+		871B9FD2265E6A8800DB41F4 /* powerzonepack.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */; };
+		871B9FD4265E6A9A00DB41F4 /* moc_powerzonepack.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */; };
 		871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */; };
 		872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4D261750EE006A59AB /* libQt5Charts.a */; };
 		872BAB50261751FB006A59AB /* libqtchartsqml2.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4F261751FB006A59AB /* libqtchartsqml2.a */; };
@@ -574,6 +576,9 @@
 		8718CBA8263063CD004BF4EE /* moc_tcpclientinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_tcpclientinfosender.cpp; sourceTree = "<group>"; };
 		8718CBA9263063CE004BF4EE /* moc_templateinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_templateinfosender.cpp; sourceTree = "<group>"; };
 		8718CBAA263063CE004BF4EE /* moc_soleelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_soleelliptical.cpp; sourceTree = "<group>"; };
+		871B9FD0265E6A8800DB41F4 /* powerzonepack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = powerzonepack.h; path = ../src/powerzonepack.h; sourceTree = "<group>"; };
+		871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = powerzonepack.cpp; path = ../src/powerzonepack.cpp; sourceTree = "<group>"; };
+		871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_powerzonepack.cpp; sourceTree = "<group>"; };
 		871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BLEPeripheralManager.swift; path = ../src/ios/BLEPeripheralManager.swift; sourceTree = "<group>"; };
 		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = ../../Qt/5.15.2/ios/lib/libQt5Charts.a; sourceTree = "<group>"; };
 		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = ../../Qt/5.15.2/ios/qml/QtCharts/libqtchartsqml2.a; sourceTree = "<group>"; };
@@ -1069,6 +1074,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */,
 				87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */,
 				87A3BC24265642A200D302E3 /* moc_rower.cpp */,
 				8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */,
@@ -1139,6 +1145,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */,
+				871B9FD0265E6A8800DB41F4 /* powerzonepack.h */,
 				87A3BC202656429400D302E3 /* echelonrower.cpp */,
 				87A3BC1E2656429300D302E3 /* echelonrower.h */,
 				87A3BC1F2656429400D302E3 /* rower.cpp */,
@@ -1969,6 +1977,7 @@
 				878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */,
 				952DBD14DF6369E885020EF4 /* fit_developer_field.cpp in Compile Sources */,
 				8718CBA2263063BD004BF4EE /* soleelliptical.cpp in Compile Sources */,
+				871B9FD2265E6A8800DB41F4 /* powerzonepack.cpp in Compile Sources */,
 				876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */,
 				87C5F0C326285E5F0067A1B5 /* mimeinlinefile.cpp in Compile Sources */,
 				87C5F0D226285E7E0067A1B5 /* moc_mimemultipart.cpp in Compile Sources */,
@@ -2090,6 +2099,7 @@
 				74C43649C9C4E2E5F9378019 /* moc_domyosbike.cpp in Compile Sources */,
 				87C5F0B826285E5F0067A1B5 /* stagesbike.cpp in Compile Sources */,
 				87C5F0D526285E7E0067A1B5 /* moc_mimehtml.cpp in Compile Sources */,
+				871B9FD4265E6A9A00DB41F4 /* moc_powerzonepack.cpp in Compile Sources */,
 				87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */,
 				8783153B25E8D81E0007817C /* moc_sportstechbike.cpp in Compile Sources */,
 				875F69BB26342E9A0009FD78 /* moc_spirittreadmill.cpp in Compile Sources */,
@@ -2438,7 +2448,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.6.32;
+				CURRENT_PROJECT_VERSION = 2.6.36;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2523,7 +2533,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.6.32;
+				CURRENT_PROJECT_VERSION = 2.6.36;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2644,7 +2654,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.32;
+				CURRENT_PROJECT_VERSION = 2.6.36;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2734,7 +2744,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.32;
+				CURRENT_PROJECT_VERSION = 2.6.36;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2818,7 +2828,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.32;
+				CURRENT_PROJECT_VERSION = 2.6.36;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2905,7 +2915,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.32;
+				CURRENT_PROJECT_VERSION = 2.6.36;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;
