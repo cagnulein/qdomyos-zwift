@@ -65,6 +65,8 @@ void powerzonepack::login_onfinish(QNetworkReply* reply)
     QJsonObject json = document.object();
     token = json["Right"].toString();
 
+    if(token.length()) emit loginState(true);
+
     // REMOVE IT
     //searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
 }
