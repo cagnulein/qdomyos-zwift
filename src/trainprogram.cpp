@@ -158,6 +158,21 @@ void trainprogram::scheduler()
             emit stop();
         }
     }
+    else
+    {
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
+        {
+
+        }
+        else
+        {
+            if(rows.length() > currentStep && rows[currentStep].power != -1)
+            {
+                qDebug() << "trainprogram change power" + QString::number(rows[currentStep].power);
+                emit changePower(rows[currentStep].power);
+            }
+        }
+    }
 }
 
 void trainprogram::increaseElapsedTime(uint32_t i)

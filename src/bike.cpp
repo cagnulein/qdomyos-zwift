@@ -22,7 +22,7 @@ void bike::changePower(int32_t power)
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << "filter  " + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +QString::number(erg_filter_upper) + " " +QString::number(erg_filter_lower);
-    if(force_resistance && erg_mode && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
+    if(force_resistance /*&& erg_mode*/ && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
         changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
 }
 double bike::currentCrankRevolutions() { return CrankRevs;}

@@ -32,15 +32,14 @@ private:
 
     QNetworkAccessManager * mgr = 0;
     bluetooth* bluetoothManager = 0;
-    QString x_xsrf_token;
+    QString token;
+    QString lastWorkoutID = "";
 
     void startEngine();
 
 private slots:
     void login_onfinish(QNetworkReply* reply);
-    void login_credentials_onfinish(QNetworkReply* reply);
     void search_workout_onfinish(QNetworkReply* reply);
-    void workout_onfinish(QNetworkReply* reply);
     void error(QNetworkReply::NetworkError code);
 
 signals:
