@@ -45,6 +45,7 @@
 #include "fitplusbike.h"
 #include "spirittreadmill.h"
 #include "ftmsbike.h"
+#include "ftmsrower.h"
 #include "smartspin2k.h"
 #include "echelonrower.h"
 #include "bluetoothdevice.h"
@@ -94,6 +95,7 @@ private:
     chronobike* chronoBike = 0;
     fitplusbike* fitPlusBike = 0;
     echelonrower* echelonRower = 0;
+    ftmsrower* ftmsRower = 0;
     heartratebelt* heartRateBelt = 0;
     smartspin2k* ftmsAccessory = 0;
     cscbike* cadenceSensor = 0;

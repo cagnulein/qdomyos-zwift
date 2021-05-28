@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Copyright 2017 Bluetooth SIG, Inc. All rights reserved.-->
+<Characteristic xsi:noNamespaceSchemaLocation="http://schemas.bluetooth.org/Documents/characteristic.xsd"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+name="Rower Data" type="org.bluetooth.characteristic.rower_data"
+uuid="2AD1" last-modified="2017-02-14" approved="No">
+  <InformativeText>
+    <Summary>The Rower Data characteristic is used to send
+    training-related data to the Client from a rower
+    (Server).</Summary>
+  </InformativeText>
+  <Value>
+    <Field name="Flags">
+      <Requirement>Mandatory</Requirement>
+      <Format>16bit</Format>
+      <BitField>
+        <Bit index="0" size="1" name="More Data">
+          <Enumerations>
+            <Enumeration key="0" value="False" requires="C1" />
+            <Enumeration key="1" value="True" />
+          </Enumerations>
+        </Bit>
+        <Bit index="1" size="1" name="Average Stroke present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C2" />
+          </Enumerations>
+        </Bit>
+        <Bit index="2" size="1" name="Total Distance Present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C3" />
+          </Enumerations>
+        </Bit>
+        <Bit index="3" size="1" name="Instantaneous Pace present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C4" />
+          </Enumerations>
+        </Bit>
+        <Bit index="4" size="1" name="Average Pace Present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C5" />
+          </Enumerations>
+        </Bit>
+        <Bit index="5" size="1" name="Instantaneous Power present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C6" />
+          </Enumerations>
+        </Bit>
+        <Bit index="6" size="1" name="Average Power present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C7" />
+          </Enumerations>
+        </Bit>
+        <Bit index="7" size="1" name="Resistance Level present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C8" />
+          </Enumerations>
+        </Bit>
+        <Bit index="8" size="1" name="Expended Energy present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C9" />
+          </Enumerations>
+        </Bit>
+        <Bit index="9" size="1" name="Heart Rate present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C10" />
+          </Enumerations>
+        </Bit>
+        <Bit index="10" size="1"
+        name="Metabolic Equivalent present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C11" />
+          </Enumerations>
+        </Bit>
+        <Bit index="11" size="1" name="Elapsed Time present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C12" />
+          </Enumerations>
+        </Bit>
+        <Bit index="12" size="1" name="Remaining Time present">
+          <Enumerations>
+            <Enumeration key="0" value="False" />
+            <Enumeration key="1" value="True" requires="C13" />
+          </Enumerations>
+        </Bit>
+        <ReservedForFutureUse index="13" size="3" />
+      </BitField>
+    </Field>
+    <Field name="Stroke Rate">
+      <InformativeText>stroke/minute with a resolution of
+      0.5</InformativeText>
+      <Requirement>C1</Requirement>
+      <Format>uint8</Format>
+      <BinaryExponent>-1</BinaryExponent>
+      <Unit>org.bluetooth.unit.stroke_per_minute</Unit>
+    </Field>
+    <Field name="Stroke Count">
+      <InformativeText>Unitless with a resolution of
+      1</InformativeText>
+      <Requirement>C1</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.unitless</Unit>
+    </Field>
+    <Field name="Average Stroke Rate">
+      <InformativeText>1/minute with a resolution of
+      0.5</InformativeText>
+      <Requirement>C2</Requirement>
+      <Format>uint8</Format>
+      <BinaryExponent>-1</BinaryExponent>
+      <Unit>org.bluetooth.unit.stroke_per_minute</Unit>
+    </Field>
+    <Field name="Total Distance">
+      <InformativeText>Meters with a resolution of
+      1</InformativeText>
+      <Requirement>C3</Requirement>
+      <Format>uint24</Format>
+      <Unit>org.bluetooth.unit.length.metre</Unit>
+    </Field>
+    <Field name="Instantaneous Pace">
+      <InformativeText>Second with a resolution of
+      1</InformativeText>
+      <Requirement>C4</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.time.second</Unit>
+    </Field>
+    <Field name="Average Pace">
+      <InformativeText>Second with a resolution of
+      1</InformativeText>
+      <Requirement>C5</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.time.second</Unit>
+    </Field>
+    <Field name="Instantaneous Power">
+      <InformativeText>Watts with a resolution of
+      1</InformativeText>
+      <Requirement>C6</Requirement>
+      <Format>sint16</Format>
+      <Unit>org.bluetooth.unit.power.watt</Unit>
+    </Field>
+    <Field name="Average Power">
+      <InformativeText>Watts with a resolution of
+      1</InformativeText>
+      <Requirement>C7</Requirement>
+      <Format>sint16</Format>
+      <Unit>org.bluetooth.unit.power.watt</Unit>
+    </Field>
+    <Field name="Resistance Level">
+      <InformativeText>Unitless with a resolution of
+      1</InformativeText>
+      <Requirement>C8</Requirement>
+      <Format>sint16</Format>
+      <Unit>org.bluetooth.unit.unitless</Unit>
+    </Field>
+    <Field name="Total Energy">
+      <InformativeText>Kilo Calorie with a resolution of
+      1</InformativeText>
+      <Requirement>C9</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.energy.kilogram_calorie</Unit>
+    </Field>
+    <Field name="Energy Per Hour">
+      <InformativeText>Kilo Calorie with a resolution of
+      1</InformativeText>
+      <Requirement>C9</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.energy.kilogram_calorie</Unit>
+    </Field>
+    <Field name="Energy Per Minute">
+      <InformativeText>Kilo Calorie with a resolution of
+      1</InformativeText>
+      <Requirement>C9</Requirement>
+      <Format>uint8</Format>
+      <Unit>org.bluetooth.unit.energy.kilogram_calorie</Unit>
+    </Field>
+    <Field name="Heart Rate">
+      <InformativeText>Beats per minute with a resolution of
+      1</InformativeText>
+      <Requirement>C10</Requirement>
+      <Format>uint8</Format>
+      <Unit>org.bluetooth.unit.period.beats_per_minute</Unit>
+    </Field>
+    <Field name="Metabolic Equivalent">
+      <InformativeText>Metabolic Equivalent with a resolution of
+      0.1</InformativeText>
+      <Requirement>C11</Requirement>
+      <Format>uint8</Format>
+      <DecimalExponent>-1</DecimalExponent>
+      <Unit>org.bluetooth.unit.metabolic_equivalent</Unit>
+    </Field>
+    <Field name="Elapsed Time">
+      <InformativeText>Second with a resolution of
+      1</InformativeText>
+      <Requirement>C12</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.time.second</Unit>
+    </Field>
+    <Field name="Remaining Time">
+      <InformativeText>Second with a resolution of
+      1</InformativeText>
+      <Requirement>C13</Requirement>
+      <Format>uint16</Format>
+      <Unit>org.bluetooth.unit.time.second</Unit>
+    </Field>
+  </Value>
+  <Note>The fields in the above table, reading from top to bottom,
+  are shown in the order of LSO to MSO, where LSO = Least
+  Significant Octet and MSO = Most Significant Octet. The Least
+  Significant Octet represents the eight bits numbered 0 to
+  7.</Note>
+</Characteristic>

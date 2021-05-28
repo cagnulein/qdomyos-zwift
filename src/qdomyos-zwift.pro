@@ -65,6 +65,7 @@ SOURCES += \
 	fit-sdk/fit_unicode.cpp \
 	flywheelbike.cpp \
 	ftmsbike.cpp \
+    ftmsrower.cpp \
 	     gpx.cpp \
 		heartratebelt.cpp \
 	homeform.cpp \
@@ -140,6 +141,7 @@ HEADERS += \
 	 elliptical.h \
    eslinkertreadmill.h \
    fitplusbike.h \
+    ftmsrower.h \
    m3ibike.h \
         fitshowtreadmill.h \
 	fit-sdk/FitDecode.h \
@@ -482,4 +484,4 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.37
+VERSION = 2.6.38
