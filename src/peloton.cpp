@@ -104,9 +104,12 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
     qDebug() << "data" << data;
     QString id = data.at(0)["id"].toString();
     QString status = data.at(0)["status"].toString();    
-    current_workout_id = id;
-    if(status.toUpper().contains("IN_PROGRESS") && !current_workout_status.contains("IN_PROGRESS"))
+
+    if((status.toUpper().contains("IN_PROGRESS") && !current_workout_status.contains("IN_PROGRESS")) ||
+       (status.toUpper().contains("IN_PROGRESS") && id != current_workout_id))
     {
+        current_workout_id = id;
+
         // starting a workout
         qDebug() << "workoutlist_onfinish IN PROGRESS!";
 
@@ -128,6 +131,7 @@ void peloton::workoutlist_onfinish(QNetworkReply* reply)
         //getSummary(current_workout_id); // debug
         timer->start(10000);  // check for a status changed
         current_workout_status = status;
+        current_workout_id = id;
     }    
 
     if(log_request)
