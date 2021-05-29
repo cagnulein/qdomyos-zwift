@@ -181,6 +181,8 @@
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
 		87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BE262329B500121A76 /* moc_npecablebike.cpp */; };
+		87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F052660D5C0002D7C96 /* ftmsrower.cpp */; };
+		87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */; };
 		87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC1F2656429400D302E3 /* rower.cpp */; };
 		87A3BC232656429600D302E3 /* echelonrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC202656429400D302E3 /* echelonrower.cpp */; };
 		87A3BC26265642A300D302E3 /* moc_rower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A3BC24265642A200D302E3 /* moc_rower.cpp */; };
@@ -661,6 +663,9 @@
 		87A0C4BA262329A600121A76 /* npecablebike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = npecablebike.h; path = ../src/npecablebike.h; sourceTree = "<group>"; };
 		87A0C4BD262329B500121A76 /* moc_cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_cscbike.cpp; sourceTree = "<group>"; };
 		87A0C4BE262329B500121A76 /* moc_npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_npecablebike.cpp; sourceTree = "<group>"; };
+		87A18F052660D5C0002D7C96 /* ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ftmsrower.cpp; path = ../src/ftmsrower.cpp; sourceTree = "<group>"; };
+		87A18F062660D5C1002D7C96 /* ftmsrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ftmsrower.h; path = ../src/ftmsrower.h; sourceTree = "<group>"; };
+		87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ftmsrower.cpp; sourceTree = "<group>"; };
 		87A3BC1E2656429300D302E3 /* echelonrower.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = echelonrower.h; path = ../src/echelonrower.h; sourceTree = "<group>"; };
 		87A3BC1F2656429400D302E3 /* rower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rower.cpp; path = ../src/rower.cpp; sourceTree = "<group>"; };
 		87A3BC202656429400D302E3 /* echelonrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = echelonrower.cpp; path = ../src/echelonrower.cpp; sourceTree = "<group>"; };
@@ -1074,6 +1079,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A18F082660D5D9002D7C96 /* moc_ftmsrower.cpp */,
 				871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */,
 				87A3BC25265642A200D302E3 /* moc_echelonrower.cpp */,
 				87A3BC24265642A200D302E3 /* moc_rower.cpp */,
@@ -1145,6 +1151,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87A18F052660D5C0002D7C96 /* ftmsrower.cpp */,
+				87A18F062660D5C1002D7C96 /* ftmsrower.h */,
 				871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */,
 				871B9FD0265E6A8800DB41F4 /* powerzonepack.h */,
 				87A3BC202656429400D302E3 /* echelonrower.cpp */,
@@ -1970,6 +1978,7 @@
 				87C5F0BD26285E5F0067A1B5 /* chronobike.cpp in Compile Sources */,
 				87CC3B9E25A08812001EC5A8 /* moc_elliptical.cpp in Compile Sources */,
 				E7F190E59DC975BA4CA65F0C /* fit_crc.cpp in Compile Sources */,
+				87A18F092660D5D9002D7C96 /* moc_ftmsrower.cpp in Compile Sources */,
 				DA1DC0B761BD7A3004BCF43D /* fit_date_time.cpp in Compile Sources */,
 				87A3BC232656429600D302E3 /* echelonrower.cpp in Compile Sources */,
 				87CC3B9D25A08812001EC5A8 /* moc_domyoselliptical.cpp in Compile Sources */,
@@ -2015,6 +2024,7 @@
 				275D55B5D956B2E5F1B7E46E /* fit_unicode.cpp in Compile Sources */,
 				ACB47DC464A2BC9D39C544AD /* gpx.cpp in Compile Sources */,
 				6361329E515248BB41640C07 /* homeform.cpp in Compile Sources */,
+				87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */,
 				87C5F0D026285E7E0067A1B5 /* moc_smtpclient.cpp in Compile Sources */,
 				7CF08714869DA569C2EA551C /* keepawakehelper.cpp in Compile Sources */,
 				87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */,
@@ -2448,7 +2458,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.6.36;
+				CURRENT_PROJECT_VERSION = 2.6.39;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2533,7 +2543,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.6.36;
+				CURRENT_PROJECT_VERSION = 2.6.39;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2654,7 +2664,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.36;
+				CURRENT_PROJECT_VERSION = 2.6.39;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2744,7 +2754,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.36;
+				CURRENT_PROJECT_VERSION = 2.6.39;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2828,7 +2838,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.36;
+				CURRENT_PROJECT_VERSION = 2.6.39;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2915,7 +2925,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.36;
+				CURRENT_PROJECT_VERSION = 2.6.39;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;

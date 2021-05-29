@@ -167,7 +167,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     if(!Flags.moreData)
     {
-        Cadence = ((uint8_t)newValue.at(index)) * 2;
+        Cadence = ((uint8_t)newValue.at(index)) / 2;
         uint16_t stroke_count = (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
         index += 3;
 
@@ -179,7 +179,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if(Flags.avgStroke)
     {
         double avgStroke;
-        avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) * 2.0;
+        avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) / 2.0;
         index += 1;
         debug("Current Average Stroke: " + QString::number(avgStroke));
     }
