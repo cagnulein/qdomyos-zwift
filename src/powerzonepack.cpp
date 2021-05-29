@@ -122,8 +122,8 @@ void powerzonepack::search_workout_onfinish(QNetworkReply* reply)
     for(int i=1; i<power_graph.count(); i++)
     {
         trainrow r;
-        QTime seconds;
-        seconds = QTime(0,0,power_graph.at(i).toObject()["seconds"].toInt(),0);
+        int sec = power_graph.at(i).toObject()["seconds"].toInt();
+        QTime seconds = QTime(sec / 3600, sec / 60, sec % 60, 0);
         r.duration = QTime(0,0,lastSeconds.msecsTo(seconds) / 1000,0);
         r.power = power_graph.at(i - 1).toObject()["power_ratio"].toDouble() * settings.value("ftp", 200.0).toDouble();
         lastSeconds = seconds;
