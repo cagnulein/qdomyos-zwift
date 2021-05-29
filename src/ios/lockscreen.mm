@@ -36,7 +36,7 @@ void lockscreen::setKcal(double kcal)
 
 void lockscreen::setDistance(double distance)
 {
-    [h setDistanceWithDistance:distance];
+    [h setDistanceWithDistance:distance * 0.621371];
 }
 
 void lockscreen::virtualbike_ios()
