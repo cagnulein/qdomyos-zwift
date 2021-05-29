@@ -1958,9 +1958,9 @@ void homeform::sendMail()
     if(miles)
     {
         unit_conversion = 0.621371;
-        weightLossUnit = "Oz";
-        WeightLoss = (miles?bluetoothManager->device()->weightLoss()*35.274:bluetoothManager->device()->weightLoss());
+        weightLossUnit = "Oz";        
     }
+    WeightLoss = (miles?bluetoothManager->device()->weightLoss()*35.274:bluetoothManager->device()->weightLoss());
 
 #ifdef SMTP_SERVER
 #define _STR(x) #x
@@ -2035,7 +2035,7 @@ void homeform::sendMail()
     textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + "\n";
     textMessage += "Elapsed Time: " + bluetoothManager->device()->elapsedTime().toString() + "\n";
     textMessage += "Moving Time: " + bluetoothManager->device()->movingTime().toString() + "\n";
-    textMessage += "Weight Loss ("+ weightLossUnit +"): " + WeightLoss + "\n";
+    textMessage += "Weight Loss ("+ weightLossUnit +"): " + QString::number(WeightLoss, 'f', 2) + "\n";
     if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
         textMessage += "Average Cadence: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + "\n";
