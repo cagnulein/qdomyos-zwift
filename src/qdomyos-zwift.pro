@@ -117,7 +117,8 @@ SOURCES += \
 	     virtualtreadmill.cpp \
              m3ibike.cpp \
                 domyosbike.cpp \
-               scanrecordresult.cpp
+               scanrecordresult.cpp \
+   zwiftworkout.cpp
 macx: SOURCES += macos/lockscreen.mm
 !ios: SOURCES += mainwindow.cpp charts.cpp
 
@@ -419,7 +420,8 @@ HEADERS += \
 	virtualtreadmill.h \
 	 domyosbike.h \
         yesoulbike.h \
-        scanrecordresult.h
+        scanrecordresult.h \
+   zwiftworkout.h
 
 !ios: HEADERS += charts.h
 

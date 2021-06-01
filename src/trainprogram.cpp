@@ -1,6 +1,7 @@
 #include "trainprogram.h"
 #include <QFile>
 #include <QtXml/QtXml>
+#include "zwiftworkout.h"
 
 trainprogram::trainprogram(QList<trainrow> rows, bluetooth* b)
 {
@@ -248,7 +249,14 @@ void trainprogram::save(QString filename)
 
 trainprogram* trainprogram::load(QString filename, bluetooth* b)
 {
-    return new trainprogram(loadXML(filename), b);
+    if(!filename.right(3).toUpper().compare("ZWO"))
+    {
+        return new trainprogram(zwiftworkout::load(filename), b);
+    }
+    else
+    {
+        return new trainprogram(loadXML(filename), b);
+    }
 }
 
 QList<trainrow> trainprogram::loadXML(QString filename)

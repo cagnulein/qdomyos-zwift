@@ -33,7 +33,7 @@ ColumnLayout {
                 anchors.fill: parent
                 FolderListModel {
                     id: folderModel
-                    nameFilters: ["*.xml"]
+                    nameFilters: ["*.xml", "*.zwo"]
                     folder: "file://" + rootItem.getWritableAppDir() + 'training'
                     showDotAndDotDot: false
                     showDirs: true
