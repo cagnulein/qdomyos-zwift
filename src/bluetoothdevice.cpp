@@ -163,3 +163,137 @@ void bluetoothdevice::setLap()
     m_watt.setLap(false);
     WeightLoss.setLap(false);
 }
+
+QStringList bluetoothdevice::metrics()
+{
+    QStringList r;
+    r.append("Speed");
+    r.append("Inclination");
+    r.append("Cadence");
+    r.append("Elevation");
+    r.append("Calories");
+    r.append("Odometer");
+    r.append("Pace");
+    r.append("Resistance");
+    r.append("Watt");
+    r.append("Weight Loss");
+    r.append("AVG Watt");
+    r.append("FTP");
+    r.append("Heart Rate");
+    r.append("Fan");
+    r.append("Jouls");
+    r.append("Lap Elapsed");
+    r.append("Elapsed");
+    r.append("Moving Time");
+    r.append("Peloton Offset");
+    r.append("Peloton Resistance");
+    r.append("Date Time");
+    r.append("Target Resistance");
+    r.append("Target Peloton Resistance");
+    r.append("Target Cadence");
+    r.append("Target Power");
+    return r;
+}
+
+uint8_t bluetoothdevice::metrics_override_heartrate()
+{
+    QSettings settings;
+    QString setting = settings.value("peloton_heartrate_metric", "Heart Rate").toString();
+    if(!setting.compare("Heart Rate"))
+    {
+        return currentHeart().value();
+    }
+    else if(!setting.compare("Speed"))
+    {
+        return currentSpeed().value();
+    }
+    else if(!setting.compare("Inclination"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Cadence"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Elevation"))
+    {
+        return elevationGain();
+    }
+    else if(!setting.compare("Calories"))
+    {
+        return calories();
+    }
+    else if(!setting.compare("Odometer"))
+    {
+        return odometer();
+    }
+    else if(!setting.compare("Pace"))
+    {
+        return currentPace().second();
+    }
+    else if(!setting.compare("Resistance"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Watt"))
+    {
+        return wattsMetric().value();
+    }
+    else if(!setting.compare("Weight Loss"))
+    {
+        return weightLoss();
+    }
+    else if(!setting.compare("AVG Watt"))
+    {
+        return wattsMetric().average();
+    }
+    else if(!setting.compare("FTP"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Fan"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Jouls"))
+    {
+        return jouls().value();
+    }
+    else if(!setting.compare("Lap Elapsed"))
+    {
+        return lapElapsedTime().second();
+    }
+    else if(!setting.compare("Elapsed"))
+    {
+        return elapsed.value();
+    }
+    else if(!setting.compare("Moving Time"))
+    {
+        return movingTime().second();
+    }
+    else if(!setting.compare("Peloton Offset"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Peloton Resistance"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Date Time"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Target Resistance"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Target Peloton Resistance"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Target Power"))
+    {
+        return 0;
+    }
+    return currentHeart().value();
+}

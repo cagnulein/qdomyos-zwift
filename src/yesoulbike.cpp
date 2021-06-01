@@ -184,7 +184,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if(ios_peloton_workaround && cadence && h && firstStateChanged)
     {
         h->virtualbike_setCadence(currentCrankRevolutions(),lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
 #endif
 #endif

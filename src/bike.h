@@ -28,6 +28,7 @@ public:
     void clearStats();
     void setLap();
     void setPaused(bool p);
+    uint8_t metrics_override_heartrate();
 
 public slots:
     virtual void changeResistance(int8_t res);

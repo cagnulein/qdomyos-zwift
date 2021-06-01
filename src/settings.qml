@@ -48,6 +48,8 @@ import Qt.labs.settings 1.0
             property string peloton_username: "username"
             property string peloton_password: "password"
             property string peloton_difficulty: "lower"
+            property string peloton_cadence_metric: "Cadence"
+            property string peloton_heartrate_metric: "Heart Rate"
 
             property string pzp_username: "username"
             property string pzp_password: "username"
@@ -1856,6 +1858,60 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ios_peloton_workaround = checked
+                    }
+                    /*
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPelotonCadenceMetric
+                            text: qsTr("Override Cadence Metric:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonCadenceMetricTextField
+                            model: rootItem.metrics
+                            displayText: settings.peloton_cadence_metric
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonCadenceMetricTextField.currentIndex)
+                                displayText = pelotonCadenceMetricTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okPelotonCadenceMetric
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_cadence_metric = pelotonCadenceMetricTextField.displayText;
+                        }
+                    }*/
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPelotonHeartRateMetric
+                            text: qsTr("Override HR Metric:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonHeartRateMetricTextField
+                            model: rootItem.metrics
+                            displayText: settings.peloton_heartrate_metric
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonHeartRateMetricTextField.currentIndex)
+                                displayText = pelotonHeartRateMetricTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okPelotonHeartRateMetric
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText;
+                        }
                     }
                 }
             }

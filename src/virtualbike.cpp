@@ -861,7 +861,7 @@ void virtualbike::bikeProvider()
 
         QByteArray valueHR;
         valueHR.append(char(0)); // Flags that specify the format of the value.
-        valueHR.append(char(Bike->currentHeart().value())); // Actual value.
+        valueHR.append(char(Bike->metrics_override_heartrate())); // Actual value.
         QLowEnergyCharacteristic characteristicHR
                 = serviceHR->characteristic(QBluetoothUuid::HeartRateMeasurement);
         Q_ASSERT(characteristicHR.isValid());

@@ -1541,6 +1541,11 @@ QStringList homeform::bluetoothDevices()
     return r;
 }
 
+QStringList homeform::metrics()
+{
+    return bluetoothdevice::metrics();
+}
+
 struct OAuth2Parameter
 {
     QString responseType = "code";

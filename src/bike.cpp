@@ -106,3 +106,106 @@ void bike::setLap()
     Cadence.setLap(false);
     Resistance.setLap(false);
 }
+
+uint8_t bike::metrics_override_heartrate()
+{
+    QSettings settings;
+    QString setting = settings.value("peloton_heartrate_metric", "Heart Rate").toString();
+    if(!setting.compare("Heart Rate"))
+    {
+        return currentHeart().value();
+    }
+    else if(!setting.compare("Speed"))
+    {
+        return currentSpeed().value();
+    }
+    else if(!setting.compare("Inclination"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Cadence"))
+    {
+        return Cadence.value();
+    }
+    else if(!setting.compare("Elevation"))
+    {
+        return elevationGain();
+    }
+    else if(!setting.compare("Calories"))
+    {
+        return calories();
+    }
+    else if(!setting.compare("Odometer"))
+    {
+        return odometer();
+    }
+    else if(!setting.compare("Pace"))
+    {
+        return currentPace().second();
+    }
+    else if(!setting.compare("Resistance"))
+    {
+        return Resistance.value();
+    }
+    else if(!setting.compare("Watt"))
+    {
+        return wattsMetric().value();
+    }
+    else if(!setting.compare("Weight Loss"))
+    {
+        return weightLoss();
+    }
+    else if(!setting.compare("AVG Watt"))
+    {
+        return wattsMetric().average();
+    }
+    else if(!setting.compare("FTP"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Fan"))
+    {
+        return FanSpeed;
+    }
+    else if(!setting.compare("Jouls"))
+    {
+        return jouls().value();
+    }
+    else if(!setting.compare("Lap Elapsed"))
+    {
+        return lapElapsedTime().second();
+    }
+    else if(!setting.compare("Elapsed"))
+    {
+        return elapsed.value();
+    }
+    else if(!setting.compare("Moving Time"))
+    {
+        return movingTime().second();
+    }
+    else if(!setting.compare("Peloton Offset"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Peloton Resistance"))
+    {
+        return pelotonResistance().value();
+    }
+    else if(!setting.compare("Date Time"))
+    {
+        return 0;
+    }
+    else if(!setting.compare("Target Resistance"))
+    {
+        return RequestedResistance.value();
+    }
+    else if(!setting.compare("Target Peloton Resistance"))
+    {
+        return RequestedPelotonResistance.value();
+    }
+    else if(!setting.compare("Target Power"))
+    {
+        return RequestedPower.value();
+    }
+    return currentHeart().value();
+}

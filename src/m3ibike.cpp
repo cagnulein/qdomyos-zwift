@@ -704,7 +704,7 @@ void m3ibike::processAdvertising(const QByteArray& data) {
         bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
         if (ios_peloton_workaround && cadence && h) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-            h->virtualbike_setHeartRate((uint8_t)currentHeart().value());
+            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
         }
 #endif
 

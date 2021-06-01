@@ -67,6 +67,8 @@ public:
     };
 
     virtual BLUETOOTH_TYPE deviceType();
+    static QStringList metrics();
+    virtual uint8_t metrics_override_heartrate();
 
 public slots:
     virtual void start();
