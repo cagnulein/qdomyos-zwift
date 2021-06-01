@@ -44,8 +44,6 @@ void powerzonepack::startEngine()
     QByteArray data = doc.toJson();
 
     QNetworkReply* reply = mgr->post(request, data);
-    connect(reply, &QNetworkReply::errorOccurred,
-            this, &powerzonepack::error);
 }
 
 void powerzonepack::error(QNetworkReply::NetworkError code)
@@ -97,9 +95,6 @@ void powerzonepack::searchWorkout(QString classid)
     QByteArray data = doc.toJson();
 
     QNetworkReply* reply = mgr->post(request, data);
-    connect(reply, &QNetworkReply::errorOccurred,
-            this, &powerzonepack::error);
-
 }
 
 void powerzonepack::search_workout_onfinish(QNetworkReply* reply)
