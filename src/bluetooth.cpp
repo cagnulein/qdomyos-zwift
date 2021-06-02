@@ -379,7 +379,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 stagesBike->deviceDiscovered(b);
                 templateManager->start(stagesBike);
             }
-            else if(b.name().toUpper().startsWith("CR 00") && !ftmsRower && filter)
+            else if((b.name().toUpper().startsWith("CR 00") || (b.name().toUpper().startsWith("PM5") && b.name().toUpper().contains("ROW"))) && !ftmsRower && filter)
             {
                 discoveryAgent->stop();
                 ftmsRower = new ftmsrower(noWriteResistance, noHeartService);
