@@ -96,6 +96,7 @@ private:
     fitplusbike* fitPlusBike = 0;
     echelonrower* echelonRower = 0;
     ftmsrower* ftmsRower = 0;
+    ftmsbike* ftmsBike = 0;
     heartratebelt* heartRateBelt = 0;
     smartspin2k* ftmsAccessory = 0;
     cscbike* cadenceSensor = 0;
