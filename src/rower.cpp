@@ -1,35 +1,37 @@
-#include <QDebug>
 #include "rower.h"
+#include <QDebug>
 
-rower::rower()
-{
+rower::rower() {}
 
+void rower::changeResistance(int8_t resistance) {
+    if (autoResistanceEnable) {
+        requestResistance = resistance * m_difficult;
+        emit resistanceChanged(requestResistance);
+    }
+    RequestedResistance = resistance * m_difficult;
 }
-
-void rower::changeResistance(int8_t resistance) { if(autoResistanceEnable) {requestResistance = resistance * m_difficult; emit resistanceChanged(requestResistance);} RequestedResistance = resistance * m_difficult; }
 void rower::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void rower::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void rower::changePower(int32_t power) { RequestedPower = power; }
-double rower::currentCrankRevolutions() { return CrankRevs;}
-uint16_t rower::lastCrankEventTime() { return LastCrankEventTime;}
+double rower::currentCrankRevolutions() { return CrankRevs; }
+uint16_t rower::lastCrankEventTime() { return LastCrankEventTime; }
 metric rower::lastRequestedResistance() { return RequestedResistance; }
 metric rower::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }
 metric rower::lastRequestedCadence() { return RequestedCadence; }
 metric rower::lastRequestedPower() { return RequestedPower; }
-metric rower::currentResistance() { return Resistance;}
-metric rower::currentCadence() { return Cadence;}
+metric rower::currentResistance() { return Resistance; }
+metric rower::currentCadence() { return Cadence; }
 uint8_t rower::fanSpeed() { return FanSpeed; }
 bool rower::connected() { return false; }
 uint16_t rower::watts() { return 0; }
 metric rower::pelotonResistance() { return m_pelotonResistance; }
-int rower::pelotonToBikeResistance(int pelotonResistance) {return pelotonResistance;}
-uint8_t rower::resistanceFromPowerRequest(uint16_t power) {return power / 10;} // in order to have something
+int rower::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
+uint8_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
 
-void rower::clearStats()
-{
+void rower::clearStats() {
     moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
@@ -50,8 +52,7 @@ void rower::clearStats()
     Resistance.clear(false);
 }
 
-void rower::setPaused(bool p)
-{
+void rower::setPaused(bool p) {
     paused = p;
     moving.setPaused(p);
     elapsed.setPaused(p);
@@ -71,8 +72,7 @@ void rower::setPaused(bool p)
     RequestedPower.setPaused(p);
 }
 
-void rower::setLap()
-{
+void rower::setLap() {
     moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);

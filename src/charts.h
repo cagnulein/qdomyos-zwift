@@ -1,24 +1,23 @@
 #ifndef CHARTS_H
 #define CHARTS_H
 
+#include "mainwindow.h"
 #include <QDialog>
 #include <QtCharts>
-#include "mainwindow.h"
 
 namespace Ui {
 class charts;
 }
 
-class charts : public QDialog
-{
+class charts : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit charts(MainWindow *parent = nullptr);
     void update();
     ~charts();
 
-private slots:
+  private slots:
     void on_valueOnChart_stateChanged(int arg1);
 
     void on_speed_clicked();
@@ -31,18 +30,18 @@ private slots:
 
     void on_heart_clicked();
 
-private:
+  private:
     Ui::charts *ui;
-    MainWindow* parent = 0;
+    MainWindow *parent = nullptr;
 
-    QtCharts::QChart* chart = 0;
-    QtCharts::QChartView* chart_view = 0;
-    QtCharts::QLineSeries* chart_series_speed = 0;
-    QtCharts::QLineSeries* chart_series_inclination = 0;
-    QtCharts::QLineSeries* chart_series_heart = 0;
-    QtCharts::QLineSeries* chart_series_watt = 0;
-    QtCharts::QLineSeries* chart_series_resistance = 0;
-    QtCharts::QLineSeries* chart_series_pace = 0;
+    QtCharts::QChart *chart = nullptr;
+    QtCharts::QChartView *chart_view = nullptr;
+    QtCharts::QLineSeries *chart_series_speed = nullptr;
+    QtCharts::QLineSeries *chart_series_inclination = nullptr;
+    QtCharts::QLineSeries *chart_series_heart = nullptr;
+    QtCharts::QLineSeries *chart_series_watt = nullptr;
+    QtCharts::QLineSeries *chart_series_resistance = nullptr;
+    QtCharts::QLineSeries *chart_series_pace = nullptr;
 };
 
 #endif // CHARTS_H

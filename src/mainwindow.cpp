@@ -1,13 +1,12 @@
 #include "mainwindow.h"
+#include "charts.h"
+#include "gpx.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
-#include "gpx.h"
-#include "charts.h"
 
-charts* Charts = 0;
+charts *Charts = 0;
 
-void MainWindow::load(bluetooth* b)
-{
+void MainWindow::load(bluetooth *b) {
     ui->setupUi(this);
 
     this->bluetoothManager = b;
@@ -32,26 +31,18 @@ void MainWindow::load(bluetooth* b)
     update();
 }
 
-MainWindow::MainWindow(bluetooth* b) :
-    QDialog(nullptr),
-    ui(new Ui::MainWindow)
-{    
-     load(b);
-     this->trainProgram = new trainprogram(QList<trainrow>(), b);
+MainWindow::MainWindow(bluetooth *b) : QDialog(nullptr), ui(new Ui::MainWindow) {
+    load(b);
+    this->trainProgram = new trainprogram(QList<trainrow>(), b);
 }
 
-MainWindow::MainWindow(bluetooth* b, QString trainProgram) :
-    QDialog(nullptr),
-    ui(new Ui::MainWindow)
-{
-     load(b);
+MainWindow::MainWindow(bluetooth *b, QString trainProgram) : QDialog(nullptr), ui(new Ui::MainWindow) {
+    load(b);
     loadTrainProgram(trainProgram);
 }
 
-void MainWindow::update()
-{
-    if(bluetoothManager->device())
-    {
+void MainWindow::update() {
+    if (bluetoothManager->device()) {
         uint8_t cadence = 0;
         double inclination = 0;
         double resistance = 0;
@@ -65,129 +56,100 @@ void MainWindow::update()
         ui->calories->setText(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
 
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
-        {
-            if(bluetoothManager->device()->currentSpeed().value())
-            {
-                pace = 10000 / (((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60));
-                if(pace < 0) pace = 0;
-            }
-            else
-            {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            if (bluetoothManager->device()->currentSpeed().value()) {
+                pace = 10000 / (((treadmill *)bluetoothManager->device())->currentPace().second() +
+                                (((treadmill *)bluetoothManager->device())->currentPace().minute() * 60));
+                if (pace < 0)
+                    pace = 0;
+            } else {
                 pace = 0;
             }
-            watts = ((treadmill*)bluetoothManager->device())->watts(ui->weight->text().toFloat());
-            inclination = ((treadmill*)bluetoothManager->device())->currentInclination().value();
-            ui->pace->setText(((treadmill*)bluetoothManager->device())->currentPace().toString("m:ss"));
+            watts = ((treadmill *)bluetoothManager->device())->watts(ui->weight->text().toFloat());
+            inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
+            ui->pace->setText(((treadmill *)bluetoothManager->device())->currentPace().toString("m:ss"));
             ui->watt->setText(QString::number(watts, 'f', 0));
             ui->inclination->setText(QString::number(inclination, 'f', 1));
-            ui->elevationGain->setText(QString::number(((treadmill*)bluetoothManager->device())->elevationGain(), 'f', 1));
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
-        {
-            cadence = ((bike*)bluetoothManager->device())->currentCadence().value();
-            resistance = ((bike*)bluetoothManager->device())->currentResistance().value();
-            watts = ((bike*)bluetoothManager->device())->watts();
+            ui->elevationGain->setText(
+                QString::number(((treadmill *)bluetoothManager->device())->elevationGain(), 'f', 1));
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            cadence = ((bike *)bluetoothManager->device())->currentCadence().value();
+            resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
+            watts = ((bike *)bluetoothManager->device())->watts();
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
             ui->cadence->setText(QString::number(cadence));
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
-        {
-            cadence = ((rower*)bluetoothManager->device())->currentCadence().value();
-            resistance = ((rower*)bluetoothManager->device())->currentResistance().value();
-            watts = ((rower*)bluetoothManager->device())->watts();
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            cadence = ((rower *)bluetoothManager->device())->currentCadence().value();
+            resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
+            watts = ((rower *)bluetoothManager->device())->watts();
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
             ui->cadence->setText(QString::number(cadence));
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
-        {
-            cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
-            resistance = ((elliptical*)bluetoothManager->device())->currentResistance();
-            watts = ((elliptical*)bluetoothManager->device())->watts();
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            cadence = ((elliptical *)bluetoothManager->device())->currentCadence();
+            resistance = ((elliptical *)bluetoothManager->device())->currentResistance();
+            watts = ((elliptical *)bluetoothManager->device())->watts();
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
             ui->cadence->setText(QString::number(cadence));
         }
 
-        if(trainProgram)
-        {
+        if (trainProgram) {
             ui->trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
             ui->trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
             ui->trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
 
             double distance = trainProgram->totalDistance();
-            if(distance > 0)
-            {
+            if (distance > 0) {
                 ui->trainProgramTotalDistance->setText(QString::number(distance));
-            }
-            else
+            } else
                 ui->trainProgramTotalDistance->setText("N/A");
         }
 
-        if(bluetoothManager->device()->connected())
-        {
+        if (bluetoothManager->device()->connected()) {
             ui->connectionToTreadmill->setEnabled(true);
-            if(bluetoothManager->device()->VirtualDevice())
-            {
-                if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
-                        ((virtualtreadmill*)((treadmill*)bluetoothManager->device())->VirtualDevice())->connected())
-                {
+            if (bluetoothManager->device()->VirtualDevice()) {
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL &&
+                    ((virtualtreadmill *)((treadmill *)bluetoothManager->device())->VirtualDevice())->connected()) {
                     ui->connectionToZwift->setEnabled(true);
-                }
-                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
-                        ((virtualbike*)((bike*)bluetoothManager->device())->VirtualDevice())->connected())
-                {
+                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE &&
+                           ((virtualbike *)((bike *)bluetoothManager->device())->VirtualDevice())->connected()) {
                     ui->connectionToZwift->setEnabled(true);
-                }
-                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING &&
-                        ((virtualbike*)((rower*)bluetoothManager->device())->VirtualDevice())->connected())
-                {
+                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING &&
+                           ((virtualbike *)((rower *)bluetoothManager->device())->VirtualDevice())->connected()) {
                     ui->connectionToZwift->setEnabled(true);
-                }
-                else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
-                        ((virtualtreadmill*)((elliptical*)bluetoothManager->device())->VirtualDevice())->connected())
-                {
+                } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+                           ((virtualtreadmill *)((elliptical *)bluetoothManager->device())->VirtualDevice())
+                               ->connected()) {
                     ui->connectionToZwift->setEnabled(true);
-                }
-                else
+                } else
                     ui->connectionToZwift->setEnabled(false);
-            }
-            else
+            } else
                 ui->connectionToZwift->setEnabled(false);
-        }
-        else
+        } else
             ui->connectionToTreadmill->setEnabled(false);
 
-        SessionLine s(
-                      bluetoothManager->device()->currentSpeed().value(),
-                      inclination,
-                      bluetoothManager->device()->odometer(),
-                      watts,
-                      resistance,
-                      peloton_resistance,
-                      (uint8_t)bluetoothManager->device()->currentHeart().value(),
-                      pace, cadence, bluetoothManager->device()->calories(),
-                      bluetoothManager->device()->elevationGain(),                      
-                      bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600),
+        SessionLine s(bluetoothManager->device()->currentSpeed().value(), inclination,
+                      bluetoothManager->device()->odometer(), watts, resistance, peloton_resistance,
+                      (uint8_t)bluetoothManager->device()->currentHeart().value(), pace, cadence,
+                      bluetoothManager->device()->calories(), bluetoothManager->device()->elevationGain(),
+                      bluetoothManager->device()->elapsedTime().second() +
+                          (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                          (bluetoothManager->device()->elapsedTime().hour() * 3600),
                       false // TODO add lap
-                    );
+        );
 
         Session.append(s);
 
-        if(ui->chart->isChecked())
-        {
-            if(!Charts)
-            {
+        if (ui->chart->isChecked()) {
+            if (!Charts) {
                 Charts = new charts(this);
                 Charts->show();
             }
             Charts->update();
         }
-    }
-    else
-    {
+    } else {
         ui->connectionToTreadmill->setEnabled(false);
         ui->connectionToZwift->setEnabled(false);
 
@@ -214,13 +176,9 @@ void MainWindow::update()
     }
 }
 
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
+MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::addEmptyRow()
-{
+void MainWindow::addEmptyRow() {
     int row = ui->tableWidget->rowCount();
     editing = true;
     ui->tableWidget->insertRow(row);
@@ -235,13 +193,11 @@ void MainWindow::addEmptyRow()
     editing = false;
 }
 
-void MainWindow::on_tableWidget_cellChanged(int row, int column)
-{    
-    if(editing) return;
-    if(column == 0)
-    {
-        switch(ui->tableWidget->currentItem()->text().length())
-        {
+void MainWindow::on_tableWidget_cellChanged(int row, int column) {
+    if (editing)
+        return;
+    if (column == 0) {
+        switch (ui->tableWidget->currentItem()->text().length()) {
         case 4:
             ui->tableWidget->currentItem()->setText("00:0" + ui->tableWidget->currentItem()->text());
             break;
@@ -258,127 +214,115 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column)
         ui->tableWidget->currentItem()->setText(timeStr);
     }
 
-    if(row + 1 == ui->tableWidget->rowCount() && ui->tableWidget->currentItem()->text().length() )
+    if (row + 1 == ui->tableWidget->rowCount() && ui->tableWidget->currentItem()->text().length())
         addEmptyRow();
 
     QList<trainrow> rows;
-    for(int i = 0; i < ui->tableWidget->rowCount(); i++)
-    {
-        if(!ui->tableWidget->item(i, 0)->text().contains("00:00:00"))
-        {
+    for (int i = 0; i < ui->tableWidget->rowCount(); i++) {
+        if (!ui->tableWidget->item(i, 0)->text().contains("00:00:00")) {
             trainrow t;
             t.duration = QTime::fromString(ui->tableWidget->item(i, 0)->text(), "hh:mm:ss");
             t.speed = ui->tableWidget->item(i, 1)->text().toFloat();
             t.inclination = ui->tableWidget->item(i, 2)->text().toFloat();
             t.forcespeed = ui->tableWidget->item(i, 3)->checkState() == Qt::CheckState::Checked;
             rows.append(t);
-        }
-        else
-        {
+        } else {
             break;
         }
         createTrainProgram(rows);
     }
 }
 
-void MainWindow::trainProgramSignals()
-{
-     if(bluetoothManager->device())
-     {
-         disconnect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
-         disconnect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
-         disconnect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
-         disconnect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
-         disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
-         disconnect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
-         disconnect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
-         disconnect(((bike*)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
+void MainWindow::trainProgramSignals() {
+    if (bluetoothManager->device()) {
+        disconnect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
+        disconnect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
+        disconnect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill *)bluetoothManager->device()),
+                   SLOT(changeSpeed(double)));
+        disconnect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill *)bluetoothManager->device()),
+                   SLOT(changeInclination(double)));
+        disconnect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)),
+                   ((treadmill *)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
+        disconnect(trainProgram, SIGNAL(changeResistance(double)), ((bike *)bluetoothManager->device()),
+                   SLOT(changeResistance(double)));
+        disconnect(((treadmill *)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram,
+                   SLOT(onTapeStarted()));
+        disconnect(((bike *)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
 
-         connect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
-         connect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
-         connect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeed(double)));
-         connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill*)bluetoothManager->device()), SLOT(changeInclination(double)));
-         connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)), ((treadmill*)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
-         connect(trainProgram, SIGNAL(changeResistance(double)), ((bike*)bluetoothManager->device()), SLOT(changeResistance(double)));
-         connect(((treadmill*)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
-         connect(((bike*)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
+        connect(trainProgram, SIGNAL(start()), bluetoothManager->device(), SLOT(start()));
+        connect(trainProgram, SIGNAL(stop()), bluetoothManager->device(), SLOT(stop()));
+        connect(trainProgram, SIGNAL(changeSpeed(double)), ((treadmill *)bluetoothManager->device()),
+                SLOT(changeSpeed(double)));
+        connect(trainProgram, SIGNAL(changeInclination(double)), ((treadmill *)bluetoothManager->device()),
+                SLOT(changeInclination(double)));
+        connect(trainProgram, SIGNAL(changeSpeedAndInclination(double, double)),
+                ((treadmill *)bluetoothManager->device()), SLOT(changeSpeedAndInclination(double, double)));
+        connect(trainProgram, SIGNAL(changeResistance(double)), ((bike *)bluetoothManager->device()),
+                SLOT(changeResistance(double)));
+        connect(((treadmill *)bluetoothManager->device()), SIGNAL(tapeStarted()), trainProgram, SLOT(onTapeStarted()));
+        connect(((bike *)bluetoothManager->device()), SIGNAL(bikeStarted()), trainProgram, SLOT(onTapeStarted()));
 
-         qDebug() << "trainProgram associated to a device";
-     }
-     else
-     {
-         qDebug() << "trainProgram NOT associated to a device";
-     }
+        qDebug() << "trainProgram associated to a device";
+    } else {
+        qDebug() << "trainProgram NOT associated to a device";
+    }
 }
 
-void MainWindow::createTrainProgram(QList<trainrow> rows)
-{
-     if(trainProgram) delete trainProgram;
-     trainProgram = new trainprogram(rows, bluetoothManager);
-    if(rows.length() == 0)
+void MainWindow::createTrainProgram(QList<trainrow> rows) {
+    if (trainProgram)
+        delete trainProgram;
+    trainProgram = new trainprogram(rows, bluetoothManager);
+    if (rows.length() == 0)
         addEmptyRow();
-    trainProgramSignals();    
+    trainProgramSignals();
 }
 
-void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous)
-{
+void MainWindow::on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous) {
     Q_UNUSED(current);
     Q_UNUSED(previous);
 }
 
-void MainWindow::on_save_clicked()
-{
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
-                               "train.xml",
-                               tr("Train Program (*.xml)"));
-     if(!fileName.isEmpty() && trainProgram)
-          trainProgram->save(fileName);
+void MainWindow::on_save_clicked() {
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), "train.xml", tr("Train Program (*.xml)"));
+    if (!fileName.isEmpty() && trainProgram)
+        trainProgram->save(fileName);
 }
 
-void MainWindow::loadTrainProgram(QString fileName)
-{       
-    if(!fileName.isEmpty())
-    {
+void MainWindow::loadTrainProgram(QString fileName) {
+    if (!fileName.isEmpty()) {
         ui->difficulty->setValue(50);
         int rows = ui->tableWidget->rowCount();
-        for(int i = 0; i<rows; i++)
+        for (int i = 0; i < rows; i++)
             ui->tableWidget->removeRow(ui->tableWidget->rowCount() - 1);
 
-        if(fileName.endsWith("xml"))
-        {
-               if(trainProgram)
-                     delete trainProgram;
-                trainProgram = trainprogram::load(fileName, bluetoothManager);
-        }
-        else if(fileName.endsWith("gpx"))
-        {
-               if(trainProgram)
-                     delete trainProgram;
+        if (fileName.endsWith("xml")) {
+            if (trainProgram)
+                delete trainProgram;
+            trainProgram = trainprogram::load(fileName, bluetoothManager);
+        } else if (fileName.endsWith("gpx")) {
+            if (trainProgram)
+                delete trainProgram;
             gpx g;
             QList<trainrow> list;
-            foreach(gpx_altitude_point_for_treadmill p, g.open(fileName))
-            {
+            foreach (gpx_altitude_point_for_treadmill p, g.open(fileName)) {
                 trainrow r;
                 r.speed = p.speed;
-                r.duration = QTime(0,0,0,0);
+                r.duration = QTime(0, 0, 0, 0);
                 r.duration = r.duration.addSecs(p.seconds);
                 r.inclination = p.inclination;
                 r.forcespeed = true;
                 list.append(r);
             }
-                trainProgram = new trainprogram(list, bluetoothManager);
-        }
-        else
-        {
+            trainProgram = new trainprogram(list, bluetoothManager);
+        } else {
             return;
         }
         int countRow = 0;
-          foreach(trainrow row, trainProgram->rows)
-        {
-            if(ui->tableWidget->rowCount() <= countRow)
+        foreach (trainrow row, trainProgram->rows) {
+            if (ui->tableWidget->rowCount() <= countRow)
                 addEmptyRow();
 
-            QTableWidgetItem* i;
+            QTableWidgetItem *i;
             editing = true;
             i = ui->tableWidget->takeItem(countRow, 0);
             i->setText(row.duration.toString("hh:mm:ss"));
@@ -393,7 +337,7 @@ void MainWindow::loadTrainProgram(QString fileName)
             ui->tableWidget->setItem(countRow, 2, i);
 
             i = ui->tableWidget->takeItem(countRow, 3);
-            i->setCheckState(row.forcespeed?Qt::CheckState::Checked:Qt::CheckState::Unchecked);
+            i->setCheckState(row.forcespeed ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
             ui->tableWidget->setItem(countRow, 3, i);
 
             editing = false;
@@ -406,22 +350,19 @@ void MainWindow::loadTrainProgram(QString fileName)
     }
 }
 
-void MainWindow::on_load_clicked()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
-                               "train.xml",
-                               tr("Train Program (*.xml *.gpx)"));
+void MainWindow::on_load_clicked() {
+    QString fileName =
+        QFileDialog::getOpenFileName(this, tr("Open File"), "train.xml", tr("Train Program (*.xml *.gpx)"));
     loadTrainProgram(fileName);
 }
 
-void MainWindow::on_reset_clicked()
-{
-     if(bluetoothManager->device() && bluetoothManager->device()->currentSpeed().value() > 0) return;
+void MainWindow::on_reset_clicked() {
+    if (bluetoothManager->device() && bluetoothManager->device()->currentSpeed().value() > 0)
+        return;
 
     int countRow = 0;
-     foreach(trainrow row, trainProgram->rows)
-    {
-        QTableWidgetItem* i;
+    foreach (trainrow row, trainProgram->rows) {
+        QTableWidgetItem *i;
         editing = true;
         i = ui->tableWidget->takeItem(countRow, 0);
         i->setText("00:00:00");
@@ -436,7 +377,7 @@ void MainWindow::on_reset_clicked()
         ui->tableWidget->setItem(countRow, 2, i);
 
         i = ui->tableWidget->takeItem(countRow, 3);
-        i->setCheckState(row.forcespeed?Qt::CheckState::Checked:Qt::CheckState::Unchecked);
+        i->setCheckState(row.forcespeed ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
         ui->tableWidget->setItem(countRow, 3, i);
 
         editing = false;
@@ -447,54 +388,47 @@ void MainWindow::on_reset_clicked()
     createTrainProgram(QList<trainrow>());
 }
 
-void MainWindow::on_stop_clicked()
-{
-    if(bluetoothManager->device())
+void MainWindow::on_stop_clicked() {
+    if (bluetoothManager->device())
         bluetoothManager->device()->stop();
 }
 
-void MainWindow::on_start_clicked()
-{
-     trainProgram->restart();
-     if(bluetoothManager->device())
-         bluetoothManager->device()->start();
+void MainWindow::on_start_clicked() {
+    trainProgram->restart();
+    if (bluetoothManager->device())
+        bluetoothManager->device()->start();
 }
 
-void MainWindow::on_groupTrain_clicked()
-{
-     if(!trainProgram)
+void MainWindow::on_groupTrain_clicked() {
+    if (!trainProgram)
         createTrainProgram(QList<trainrow>());
-     trainProgram->enabled = ui->groupTrain->isChecked();
+    trainProgram->enabled = ui->groupTrain->isChecked();
 }
 
-void MainWindow::on_fanSpeedMinus_clicked()
-{
-     if(bluetoothManager->device())
-          bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
+void MainWindow::on_fanSpeedMinus_clicked() {
+    if (bluetoothManager->device())
+        bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
 }
 
-void MainWindow::on_fanSpeedPlus_clicked()
-{
-     if(bluetoothManager->device())
-          bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
+void MainWindow::on_fanSpeedPlus_clicked() {
+    if (bluetoothManager->device())
+        bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
 }
 
-void MainWindow::on_difficulty_valueChanged(int value)
-{
-    if(editing) return;
+void MainWindow::on_difficulty_valueChanged(int value) {
+    if (editing)
+        return;
 
-     for(int i=0;i<trainProgram->rows.count(); i++)
-    {
-          trainProgram->rows[i].speed = trainProgram->loadedRows[i].speed +
-                  (trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
-          trainProgram->rows[i].inclination = trainProgram->loadedRows[i].inclination +
-                  (trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
+    for (int i = 0; i < trainProgram->rows.count(); i++) {
+        trainProgram->rows[i].speed =
+            trainProgram->loadedRows[i].speed + (trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
+        trainProgram->rows[i].inclination =
+            trainProgram->loadedRows[i].inclination + (trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
     }
 
     int countRow = 0;
-     foreach(trainrow row, trainProgram->rows)
-    {
-        QTableWidgetItem* i;
+    foreach (trainrow row, trainProgram->rows) {
+        QTableWidgetItem *i;
         editing = true;
 
         i = ui->tableWidget->takeItem(countRow, 1);
@@ -512,89 +446,70 @@ void MainWindow::on_difficulty_valueChanged(int value)
     ui->difficulty->setToolTip(QString::number(value) + "%");
 }
 
-void MainWindow::on_speedMinus_clicked()
-{
-    if(bluetoothManager->device())
-    {
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
-        {
-            ((treadmill*)bluetoothManager->device())->changeSpeed(((treadmill*)bluetoothManager->device())->currentSpeed().value() - 0.5);
+void MainWindow::on_speedMinus_clicked() {
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() - 0.5);
         }
     }
 }
 
-void MainWindow::on_speedPlus_clicked()
-{
-    if(bluetoothManager->device())
-    {
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
-        {
-            ((treadmill*)bluetoothManager->device())->changeSpeed(((treadmill*)bluetoothManager->device())->currentSpeed().value() + 0.5);
+void MainWindow::on_speedPlus_clicked() {
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() + 0.5);
         }
     }
 }
 
-void MainWindow::on_inclinationMinus_clicked()
-{
-    if(bluetoothManager->device())
-    {
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
-        {
-            ((treadmill*)bluetoothManager->device())->changeInclination(((treadmill*)bluetoothManager->device())->currentInclination().value() - 0.5);
+void MainWindow::on_inclinationMinus_clicked() {
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() - 0.5);
         }
     }
 }
 
-void MainWindow::on_inclinationPlus_clicked()
-{
-    if(bluetoothManager->device())
-    {
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
-        {
-            ((treadmill*)bluetoothManager->device())->changeInclination(((treadmill*)bluetoothManager->device())->currentInclination().value() + 0.5);
+void MainWindow::on_inclinationPlus_clicked() {
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            ((treadmill *)bluetoothManager->device())
+                ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() + 0.5);
         }
     }
 }
 
-void MainWindow::on_resistanceMinus_clicked()
-{
-    if(bluetoothManager->device())
-    {
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
-        {
-            ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value() - 1);
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
-        {
-            ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value() - 1);
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
-        {
-            ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() - 1);
+void MainWindow::on_resistanceMinus_clicked() {
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            ((bike *)bluetoothManager->device())
+                ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() - 1);
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            ((rower *)bluetoothManager->device())
+                ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() - 1);
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            ((elliptical *)bluetoothManager->device())
+                ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance() - 1);
         }
     }
 }
 
-void MainWindow::on_resistancePlus_clicked()
-{
-    if(bluetoothManager->device())
-    {
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
-        {
-            ((bike*)bluetoothManager->device())->changeResistance(((bike*)bluetoothManager->device())->currentResistance().value() + 1);
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
-        {
-            ((rower*)bluetoothManager->device())->changeResistance(((rower*)bluetoothManager->device())->currentResistance().value() + 1);
-        }
-        else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
-        {
-            ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() + 1);
+void MainWindow::on_resistancePlus_clicked() {
+    if (bluetoothManager->device()) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+            ((bike *)bluetoothManager->device())
+                ->changeResistance(((bike *)bluetoothManager->device())->currentResistance().value() + 1);
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            ((rower *)bluetoothManager->device())
+                ->changeResistance(((rower *)bluetoothManager->device())->currentResistance().value() + 1);
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+            ((elliptical *)bluetoothManager->device())
+                ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance() + 1);
         }
     }
 }
 
-void MainWindow::on_chart_clicked()
-{
-
-}
+void MainWindow::on_chart_clicked() {}

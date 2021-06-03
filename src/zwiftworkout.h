@@ -2,9 +2,8 @@
 #define ZWIFTWORKOUT_H
 #include "trainprogram.h"
 
-class zwiftworkout
-{
-public:
+class zwiftworkout {
+  public:
     static QList<trainrow> load(QString filename);
 };
 

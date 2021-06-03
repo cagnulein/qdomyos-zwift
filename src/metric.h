@@ -3,14 +3,12 @@
 
 #include <math.h>
 
-class metric
-{
-public:
-    typedef enum _metric_type
-    {
+class metric {
+  public:
+    typedef enum _metric_type {
         METRIC_OTHER = 0,
         METRIC_WATT = 1,
-    }_metric_type;
+    } _metric_type;
 
     metric();
     void setType(_metric_type t);
@@ -25,15 +23,15 @@ public:
     double lapMax();
     void clearLap(bool accumulator);
     void clear(bool accumulator);
-    void operator = (double);
-    void operator += (double);
+    void operator=(double);
+    void operator+=(double);
     void setPaused(bool p);
     void setLap(bool accumulator);
 
     static double calculateSpeedFromPower(double power);
     static double calculateWeightLoss(double kcal);
 
-private:
+  private:
     double m_value = 0;
     double m_totValue = 0;
     double m_countValue = 0;

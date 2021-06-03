@@ -13,7 +13,7 @@
 #endif //!__MINGW32_MAJOR_VERSION
 
 // There can be only ONE SignalHandler per process
-SignalHandler* g_handler(NULL);
+SignalHandler *g_handler(NULL);
 
 #if 0
 
@@ -30,8 +30,7 @@ int POSIX_logicalToPhysical(int);
 
 #endif //__MINGW32_MAJOR_VERSION
 
-SignalHandler::SignalHandler(int mask) : _mask(mask)
-{
+SignalHandler::SignalHandler(int mask) : _mask(mask) {
     assert(g_handler == NULL);
     g_handler = this;
 
@@ -39,11 +38,9 @@ SignalHandler::SignalHandler(int mask) : _mask(mask)
     SetConsoleCtrlHandler(WIN32_handleFunc, TRUE);
 #endif //__MINGW32_MAJOR_VERSION
 
-    for (int i=0;i<numSignals;i++)
-    {
+    for (int i = 0; i < numSignals; i++) {
         int logical = 0x1 << i;
-        if (_mask & logical)
-        {
+        if (_mask & logical) {
 #if 0
             g_registry.insert(logical);
 #else
@@ -55,25 +52,20 @@ SignalHandler::SignalHandler(int mask) : _mask(mask)
 #endif //__MINGW32_MAJOR_VERSION
         }
     }
-
 }
 
-SignalHandler::~SignalHandler()
-{
+SignalHandler::~SignalHandler() {
 #if 0
     SetConsoleCtrlHandler(WIN32_handleFunc, FALSE);
 #else
-    for (int i=0;i<numSignals;i++)
-    {
+    for (int i = 0; i < numSignals; i++) {
         int logical = 0x1 << i;
-        if (_mask & logical)
-        {
+        if (_mask & logical) {
             signal(POSIX_logicalToPhysical(logical), SIG_DFL);
         }
     }
 #endif //__MINGW32_MAJOR_VERSION
 }
-
 
 #if 0
 DWORD WIN32_logicalToPhysical(int signal)
@@ -88,22 +80,22 @@ DWORD WIN32_logicalToPhysical(int signal)
     }
 }
 #else
-int POSIX_logicalToPhysical(int signal)
-{
-    switch (signal)
-    {
-    case SignalHandler::SIG_INT: return SIGINT;
-    case SignalHandler::SIG_TERM: return SIGTERM;
+int POSIX_logicalToPhysical(int signal) {
+    switch (signal) {
+    case SignalHandler::SIG_INT:
+        return SIGINT;
+    case SignalHandler::SIG_TERM:
+        return SIGTERM;
     // In case the client asks for a SIG_CLOSE handler, accept and
     // bind it to a SIGTERM. Anyway the signal will never be raised
-    case SignalHandler::SIG_CLOSE: return SIGTERM;
-    //case SignalHandler::SIG_RELOAD: return SIGHUP;
+    case SignalHandler::SIG_CLOSE:
+        return SIGTERM;
+    // case SignalHandler::SIG_RELOAD: return SIGHUP;
     default:
         return -1; // SIG_ERR = -1
     }
 }
 #endif //__MINGW32_MAJOR_VERSION
-
 
 #if 0
 int WIN32_physicalToLogical(DWORD signal)
@@ -118,20 +110,18 @@ int WIN32_physicalToLogical(DWORD signal)
     }
 }
 #else
-int POSIX_physicalToLogical(int signal)
-{
-    switch (signal)
-    {
-    case SIGINT: return SignalHandler::SIG_INT;
-    case SIGTERM: return SignalHandler::SIG_TERM;
-    //case SIGHUP: return SignalHandler::SIG_RELOAD;
+int POSIX_physicalToLogical(int signal) {
+    switch (signal) {
+    case SIGINT:
+        return SignalHandler::SIG_INT;
+    case SIGTERM:
+        return SignalHandler::SIG_TERM;
+    // case SIGHUP: return SignalHandler::SIG_RELOAD;
     default:
         return SignalHandler::SIG_UNHANDLED;
     }
 }
 #endif //__MINGW32_MAJOR_VERSION
-
-
 
 #if 0
 BOOL WINAPI WIN32_handleFunc(DWORD signal)
@@ -158,10 +148,8 @@ BOOL WINAPI WIN32_handleFunc(DWORD signal)
     }
 }
 #else
-void POSIX_handleFunc(int signal)
-{
-    if (g_handler)
-    {
+void POSIX_handleFunc(int signal) {
+    if (g_handler) {
         int signo = POSIX_physicalToLogical(signal);
         g_handler->handleSignal(signo);
     }

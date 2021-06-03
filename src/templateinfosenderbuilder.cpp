@@ -1,38 +1,35 @@
 #include "templateinfosenderbuilder.h"
-#include "treadmill.h"
 #include "bike.h"
-#include <QStandardPaths>
+#include "treadmill.h"
 #include <QDirIterator>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
-#include <QTime>
 #include <QNetworkInterface>
+#include <QStandardPaths>
+#include <QTime>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
 #endif
+#include "homeform.h"
 #include "tcpclientinfosender.h"
 #include "trainprogram.h"
-#include "homeform.h"
 
-TemplateInfoSenderBuilder * TemplateInfoSenderBuilder::instance = 0;
-TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject * parent):QObject(parent)
-{
+TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::instance = 0;
+TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject *parent) : QObject(parent) {
     engine = new QJSEngine(this);
     engine->installExtensions(QJSEngine::AllExtensions);
     connect(&updateTimer, SIGNAL(timeout()), this, SLOT(onUpdateTimeout()));
     updateTimer.setSingleShot(false);
 }
 
-TemplateInfoSenderBuilder::~TemplateInfoSenderBuilder() {
-    stop();
-}
+TemplateInfoSenderBuilder::~TemplateInfoSenderBuilder() { stop(); }
 
 void TemplateInfoSenderBuilder::onUpdateTimeout() {
     buildContext();
-    QHash<QString,TemplateInfoSender *>::Iterator it;
+    QHash<QString, TemplateInfoSender *>::Iterator it;
     bool rv;
-    for(it = templateInfoMap.begin(); it != templateInfoMap.end(); it++) {
+    for (it = templateInfoMap.begin(); it != templateInfoMap.end(); it++) {
         rv = it.value()->update(engine);
         if (!rv)
             qDebug() << "Error updating" << it.key() << "template";
@@ -41,13 +38,13 @@ void TemplateInfoSenderBuilder::onUpdateTimeout() {
 
 void TemplateInfoSenderBuilder::stop() {
     updateTimer.stop();
-    QHash<QString,TemplateInfoSender *>::Iterator it;
-    for(it = templateInfoMap.begin(); it != templateInfoMap.end(); it++) {
+    QHash<QString, TemplateInfoSender *>::Iterator it;
+    for (it = templateInfoMap.begin(); it != templateInfoMap.end(); it++) {
         it.value()->stop();
     }
 }
 
-TemplateInfoSenderBuilder * TemplateInfoSenderBuilder::getInstance(QObject * parent) {
+TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::getInstance(QObject *parent) {
     if (instance)
         return instance;
     else {
@@ -57,11 +54,9 @@ TemplateInfoSenderBuilder * TemplateInfoSenderBuilder::getInstance(QObject * par
     }
 }
 
-bool TemplateInfoSenderBuilder::validFileTemplateType(const QString& tp) const {
-    return tp == TEMPLATE_TYPE_TCPCLIENT;
-}
+bool TemplateInfoSenderBuilder::validFileTemplateType(const QString &tp) const { return tp == TEMPLATE_TYPE_TCPCLIENT; }
 
-void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString& folder, QStringList& dirTemplates) {
+void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates) {
     QDirIterator it(folder);
     QString content, templateId;
     QString tempType;
@@ -71,36 +66,34 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString& folder,
         filePath = it.next();
         fileInfo = it.fileInfo();
         if (fileInfo.isFile() && fileInfo.completeSuffix() == "qzt" && (fileName = it.fileName()).length() > 4) {
-            qDebug() << "Template File Found"<<filePath;
+            qDebug() << "Template File Found" << filePath;
             QFile f(filePath);
-            if (!f.open(QFile::ReadOnly | QFile::Text)) continue;
+            if (!f.open(QFile::ReadOnly | QFile::Text))
+                continue;
             QTextStream in(&f);
             if (f.size() && !(content = in.readAll()).isEmpty()) {
-                templateId = fileName.left(fileName.length()-4);
+                templateId = fileName.left(fileName.length() - 4);
                 int idx = templateId.lastIndexOf("-");
                 if (idx > 0) {
                     QString tempType = templateId.mid(idx + 1);
                     templateId = templateId.mid(0, idx);
-                    qDebug() << "Template type"<<tempType<<" id"<<templateId;
+                    qDebug() << "Template type" << tempType << " id" << templateId;
                     templateFilesList.insert(templateId, filePath);
                     QString savedType = settings.value("template_" + templateId + "_type", QString()).toString();
                     if (savedType != tempType && validFileTemplateType(tempType)) {
                         settings.setValue("template_" + templateId + "_enabled", false);
                         settings.setValue("template_" + templateId + "_type", tempType);
-                    }
-                    else if (settings.value("template_" + templateId + "_enabled", false).toBool()) {
+                    } else if (settings.value("template_" + templateId + "_enabled", false).toBool()) {
                         newTemplate(templateId, tempType, content);
-                    }
-                    else
-                        qDebug() << "Template"<<templateId<<" is disabled: not created";
+                    } else
+                        qDebug() << "Template" << templateId << " is disabled: not created";
                 }
             }
-        }
-        else if (fileInfo.isDir()) {
+        } else if (fileInfo.isDir()) {
             int idx = filePath.lastIndexOf('/');
-            QString pathEl = idx<0?filePath:filePath.mid(idx + 1);
-            if (pathEl!="." && pathEl!="..") {
-                qDebug() << "Template Dir Found"<<filePath;
+            QString pathEl = idx < 0 ? filePath : filePath.mid(idx + 1);
+            if (pathEl != "." && pathEl != "..") {
+                qDebug() << "Template Dir Found" << filePath;
                 dirTemplates += pathEl;
             }
         }
@@ -120,9 +113,9 @@ void TemplateInfoSenderBuilder::load() {
     templateFilesList.clear();
     qDebug() << "Load start from qrc";
     createTemplatesFromFolder(":/templates", dirTemplatesQrc);
-    qDebug() << "Load start from local"<<path+"QZTemplates";
+    qDebug() << "Load start from local" << path + "QZTemplates";
     createTemplatesFromFolder(path + "QZTemplates", dirTemplatesLocal);
-    for (auto& tdir: dirTemplatesLocal) {
+    for (auto &tdir : dirTemplatesLocal) {
         if (dirTemplatesQrc.contains(tdir))
             dirTemplatesQrc.removeAll(tdir);
     }
@@ -130,18 +123,18 @@ void TemplateInfoSenderBuilder::load() {
     while (it.hasNext()) {
         it.setValue(path + "QZTemplates/" + it.next());
     }
-    for (auto& fld: dirTemplatesQrc) {
+    for (auto &fld : dirTemplatesQrc) {
         dirTemplatesLocal.append(":/templates/" + fld);
     }
     if (!dirTemplatesLocal.isEmpty()) {
         QStringList addressList;
-        qDebug()<< "Folder List"<<dirTemplatesLocal;
+        qDebug() << "Folder List" << dirTemplatesLocal;
         const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
-        for (auto &address: QNetworkInterface::allAddresses()) {
+        for (auto &address : QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
-                 addressList += address.toString();
+                addressList += address.toString();
         }
-        qDebug() << "addressList "<<addressList;
+        qDebug() << "addressList " << addressList;
         settings.setValue("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_ips", addressList);
         templateFilesList.insert(TEMPLATE_PRIVATE_WEBSERVER_ID, TEMPLATE_TYPE_WEBSERVER);
         QString temptype = settings.value("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_type", QString()).toString();
@@ -150,34 +143,33 @@ void TemplateInfoSenderBuilder::load() {
         if (temptype != TEMPLATE_TYPE_WEBSERVER) {
             settings.setValue("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_type", QString(TEMPLATE_TYPE_WEBSERVER));
             settings.setValue("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled", false);
-        }
-        else if (settings.value("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled", false).toBool()) {
-            newTemplate(TEMPLATE_PRIVATE_WEBSERVER_ID, TEMPLATE_TYPE_WEBSERVER, "JSON.stringify({msg: \"workout\", content: this.workout})");
-        }
-        else
-            qDebug() << "Template"<<TEMPLATE_PRIVATE_WEBSERVER_ID<<" is disabled: not created";
+        } else if (settings.value("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled", false).toBool()) {
+            newTemplate(TEMPLATE_PRIVATE_WEBSERVER_ID, TEMPLATE_TYPE_WEBSERVER,
+                        "JSON.stringify({msg: \"workout\", content: this.workout})");
+        } else
+            qDebug() << "Template" << TEMPLATE_PRIVATE_WEBSERVER_ID << " is disabled: not created";
     }
-    qDebug()<< "Setting template_ids"<<templateFilesList.keys();
+    qDebug() << "Setting template_ids" << templateFilesList.keys();
     settings.setValue("template_ids", QStringList(templateFilesList.keys()));
 }
 
-TemplateInfoSender * TemplateInfoSenderBuilder::newTemplate(const QString& id, const QString& tp, const QString& dataTempl) {
-    TemplateInfoSender * tempInfo = 0;
+TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, const QString &tp,
+                                                           const QString &dataTempl) {
+    TemplateInfoSender *tempInfo = 0;
 #ifdef Q_HTTPSERVER
     if (tp == TEMPLATE_TYPE_WEBSERVER) {
         tempInfo = new WebServerInfoSender(id, this);
-    }
-    else
+    } else
 #endif
-    if (tp == TEMPLATE_TYPE_TCPCLIENT) {
+        if (tp == TEMPLATE_TYPE_TCPCLIENT) {
         tempInfo = new TcpClientInfoSender(id, this);
     }
     if (tempInfo) {
-        TemplateInfoSender * old;
+        TemplateInfoSender *old;
         if ((old = templateInfoMap.value(id, 0))) {
             delete old;
         }
-        qDebug() << "Template Registered"<<id <<" type"<<tp<<" Template"<<dataTempl;
+        qDebug() << "Template Registered" << id << " type" << tp << " Template" << dataTempl;
         templateInfoMap.insert(id, tempInfo);
         tempInfo->init(dataTempl);
         connect(tempInfo, SIGNAL(onDataReceived(QByteArray)), this, SLOT(onDataReceived(QByteArray)));
@@ -185,21 +177,17 @@ TemplateInfoSender * TemplateInfoSenderBuilder::newTemplate(const QString& id, c
     return tempInfo;
 }
 
-void TemplateInfoSenderBuilder::reinit() {
-    load();
-}
+void TemplateInfoSenderBuilder::reinit() { load(); }
 
-void TemplateInfoSenderBuilder::start(bluetoothdevice * dev) {
+void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = dev;
 
     updateTimer.start(1000);
 }
 
-QStringList TemplateInfoSenderBuilder::templateIdList() const {
-    return templateFilesList.keys();
-}
+QStringList TemplateInfoSenderBuilder::templateIdList() const { return templateFilesList.keys(); }
 
-void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue &val, TemplateInfoSender *tempSender) {
     QJsonObject outObj;
     QStringList keys = settings.allKeys();
     QJsonValue keys_req;
@@ -208,27 +196,24 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
     if (val.isObject() && (keys_req = val.toObject()["keys"]).isArray() && (keys_arr = keys_req.toArray()).size()) {
         keys_to_retrieve = keys_arr.toVariantList();
         QString key;
-        for (auto& kk: keys_to_retrieve) {
+        for (auto &kk : keys_to_retrieve) {
             key = kk.toString();
             if (key.startsWith("$")) {
                 outObj.insert(key, 1);
                 QRegExp regex(key.mid(1));
-                for (auto& keypresent: settings.allKeys()) {
+                for (auto &keypresent : settings.allKeys()) {
                     if (regex.indexIn(keypresent) >= 0) {
                         outObj.insert(keypresent, QJsonValue::fromVariant(settings.value(keypresent)));
                     }
                 }
-            }
-            else if (settings.contains(key)) {
+            } else if (settings.contains(key)) {
                 outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
-            }
-            else {
+            } else {
                 outObj.insert(key, QJsonValue());
             }
         }
-    }
-    else {
-        for (auto& key: settings.allKeys()) {
+    } else {
+        for (auto &key : settings.allKeys()) {
             outObj.insert(key, QJsonValue::fromVariant(settings.value(key)));
         }
     }
@@ -239,11 +224,12 @@ void TemplateInfoSenderBuilder::onGetSettings(const QJsonValue& val, TemplateInf
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject obj, outObj;
     QJsonValue resVal;
     outObj["value"] = QJsonValue(QJsonValue::Null);
-    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble()) {
+    if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains("value") &&
+        (resVal = msgContent["value"]).isDouble()) {
         bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
         if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
             int res;
@@ -251,8 +237,7 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue& msgContent, Te
                 ((bike *)device)->changeResistance((uint8_t)res);
                 outObj["value"] = res;
             }
-        }
-        else {
+        } else {
             double resd;
             ((treadmill *)device)->changeInclination(resd = resVal.toDouble());
             outObj["value"] = resd;
@@ -265,13 +250,13 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue& msgContent, Te
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetFanSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetFanSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject obj, outObj;
     QJsonValue resVal;
     int res;
     outObj["value"] = QJsonValue(QJsonValue::Null);
-    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            (res = resVal.toInt()) >= 0 && res < 255) {
+    if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains("value") &&
+        (resVal = msgContent["value"]).isDouble() && (res = resVal.toInt()) >= 0 && res < 255) {
         outObj["value"] = res;
         ((bike *)device)->changeFanSpeed((uint8_t)res);
     }
@@ -282,12 +267,13 @@ void TemplateInfoSenderBuilder::onSetFanSpeed(const QJsonValue& msgContent, Temp
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetPower(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetPower(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject obj, outObj;
     QJsonValue resVal;
     outObj["value"] = QJsonValue(QJsonValue::Null);
-    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+    if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains("value") &&
+        (resVal = msgContent["value"]).isDouble() &&
+        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changePower((uint32_t)val);
@@ -301,12 +287,13 @@ void TemplateInfoSenderBuilder::onSetPower(const QJsonValue& msgContent, Templat
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject obj, outObj;
     QJsonValue resVal;
     outObj["value"] = QJsonValue(QJsonValue::Null);
-    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
+    if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains("value") &&
+        (resVal = msgContent["value"]).isDouble() &&
+        (device->deviceType() == bluetoothdevice::BIKE || device->deviceType() == bluetoothdevice::ROWING)) {
         int val;
         if ((val = resVal.toInt()) > 0) {
             ((bike *)device)->changeCadence((uint16_t)val);
@@ -320,13 +307,14 @@ void TemplateInfoSenderBuilder::onSetCadence(const QJsonValue& msgContent, Templ
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject obj, outObj;
     QJsonValue resVal;
     double vald;
     outObj["value"] = QJsonValue(QJsonValue::Null);
-    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            device->deviceType() == bluetoothdevice::TREADMILL && (vald = resVal.toDouble()) >= 0) {
+    if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains("value") &&
+        (resVal = msgContent["value"]).isDouble() && device->deviceType() == bluetoothdevice::TREADMILL &&
+        (vald = resVal.toDouble()) >= 0) {
         ((treadmill *)device)->changeSpeed(vald);
         outObj["value"] = vald;
     }
@@ -337,13 +325,13 @@ void TemplateInfoSenderBuilder::onSetSpeed(const QJsonValue& msgContent, Templat
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetDifficult(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject obj, outObj;
     QJsonValue resVal;
     outObj["value"] = QJsonValue(QJsonValue::Null);
     double vald;
-    if (device  && msgContent.isObject()  && (obj = msgContent.toObject()).contains("value")  && (resVal = msgContent["value"]).isDouble() &&
-            (vald = resVal.toDouble()) >= 0) {
+    if (device && msgContent.isObject() && (obj = msgContent.toObject()).contains("value") &&
+        (resVal = msgContent["value"]).isDouble() && (vald = resVal.toDouble()) >= 0) {
         device->setDifficult(vald);
         outObj["value"] = vald;
     }
@@ -354,15 +342,16 @@ void TemplateInfoSenderBuilder::onSetDifficult(const QJsonValue& msgContent, Tem
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
-    if (!msgContent.isObject()) return;
+void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    if (!msgContent.isObject())
+        return;
     QJsonObject obj = msgContent.toObject();
     QStringList keys = obj.keys();
     QJsonValue val;
     QVariant valConv;
     QVariant settingVal;
     QJsonObject outObj;
-    for (auto& key: keys) {
+    for (auto &key : keys) {
         if (settings.contains(key)) {
             val = obj[key];
             valConv = val.toVariant();
@@ -370,12 +359,10 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, Temp
             if (valConv.type() == settingVal.type()) {
                 settings.setValue(key, valConv);
                 outObj.insert(key, val);
-            }
-            else {
+            } else {
                 outObj.insert(key, QJsonValue::fromVariant(settingVal));
             }
-        }
-        else {
+        } else {
             val = obj[key];
             settings.setValue(key, val.toVariant());
             outObj.insert(key, val);
@@ -388,7 +375,7 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue& msgContent, Temp
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QJsonObject main;
     QJsonArray outArr;
     QJsonObject outObj;
@@ -401,13 +388,12 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgCont
             filePath = it.next();
             fileInfo = it.fileInfo();
             if (fileInfo.isFile() && fileInfo.completeSuffix() == "xml" && (fileName = it.fileName()).length() > 4) {
-                outArr.append(fileName.mid(0, fileName.length()-4));
+                outArr.append(fileName.mid(0, fileName.length() - 4));
             }
         }
-    }
-    else {
+    } else {
         QList<trainrow> lst = trainprogram::loadXML(homeform::getWritableAppDir() + "training/" + fileXml + ".xml");
-        for (auto& row: lst) {
+        for (auto &row : lst) {
             QJsonObject item;
             item["duration"] = row.duration.toString();
             item["speed"] = row.speed;
@@ -431,29 +417,40 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue& msgCont
     tempSender->send(out.toJson());
 }
 
-void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgContent, TemplateInfoSender * tempSender) {
+void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString fileName;
     QJsonArray rows;
     QJsonObject content;
     if ((content = msgContent.toObject()).isEmpty() || (fileName = content.value("name").toString()).isEmpty() ||
-            (rows = content.value("list").toArray()).isEmpty()) return;
+        (rows = content.value("list").toArray()).isEmpty())
+        return;
     QList<trainrow> trainRows;
     for (auto r : rows) {
         QJsonObject row = r.toObject();
         trainrow tR;
         if (row.contains("duration")) {
-           tR.duration = QTime::fromString(row["duration"].toString(), "hh:mm:ss");
-           if (row.contains("speed")) tR.speed = row["speed"].toDouble();
-           if (row.contains("fanspeed")) tR.fanspeed = row["fanspeed"].toInt();
-           if (row.contains("inclination")) tR.inclination = row["inclination"].toDouble();
-           if (row.contains("resistance")) tR.resistance = row["resistance"].toInt();
-           if (row.contains("requested_peloton_resistance")) tR.requested_peloton_resistance = row["requested_peloton_resistance"].toInt();
-           if (row.contains("cadence")) tR.cadence = row["cadence"].toInt();
-           if (row.contains("forcespeed")) tR.forcespeed = (bool)row["forcespeed"].toInt();
-           if (row.contains("loopTimeHR")) tR.loopTimeHR = row["loopTimeHR"].toInt();
-           if (row.contains("zoneHR")) tR.zoneHR = row["zoneHR"].toInt();
-           if (row.contains("maxSpeed")) tR.maxSpeed = row["maxSpeed"].toInt();
-           trainRows.append(tR);
+            tR.duration = QTime::fromString(row["duration"].toString(), "hh:mm:ss");
+            if (row.contains("speed"))
+                tR.speed = row["speed"].toDouble();
+            if (row.contains("fanspeed"))
+                tR.fanspeed = row["fanspeed"].toInt();
+            if (row.contains("inclination"))
+                tR.inclination = row["inclination"].toDouble();
+            if (row.contains("resistance"))
+                tR.resistance = row["resistance"].toInt();
+            if (row.contains("requested_peloton_resistance"))
+                tR.requested_peloton_resistance = row["requested_peloton_resistance"].toInt();
+            if (row.contains("cadence"))
+                tR.cadence = row["cadence"].toInt();
+            if (row.contains("forcespeed"))
+                tR.forcespeed = (bool)row["forcespeed"].toInt();
+            if (row.contains("loopTimeHR"))
+                tR.loopTimeHR = row["loopTimeHR"].toInt();
+            if (row.contains("zoneHR"))
+                tR.zoneHR = row["zoneHR"].toInt();
+            if (row.contains("maxSpeed"))
+                tR.maxSpeed = row["maxSpeed"].toInt();
+            trainRows.append(tR);
         }
     }
     QJsonObject main, outObj;
@@ -464,7 +461,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgConte
     outObj["name"] = fileName;
     if (trainprogram::saveXML(trainingDir + fileName + ".xml", trainRows))
         outObj["list"] = trainRows.size();
-   else
+    else
         outObj["list"] = 0;
     main["content"] = outObj;
     main["msg"] = "R_savetrainingprogram";
@@ -473,7 +470,7 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue& msgConte
 }
 
 void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
-    TemplateInfoSender* sender = qobject_cast<TemplateInfoSender*>(this->sender());
+    TemplateInfoSender *sender = qobject_cast<TemplateInfoSender *>(this->sender());
     if (!sender)
         return;
     QJsonDocument jsonResponse = QJsonDocument::fromJson(data);
@@ -486,57 +483,47 @@ void TemplateInfoSenderBuilder::onDataReceived(QByteArray data) {
                 if (msg == "getsettings") {
                     onGetSettings(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setresistance") {
+                } else if (msg == "setresistance") {
                     onSetResistance(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setpower") {
+                } else if (msg == "setpower") {
                     onSetPower(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setcadence") {
+                } else if (msg == "setcadence") {
                     onSetCadence(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setdifficult") {
+                } else if (msg == "setdifficult") {
                     onSetDifficult(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setspeed") {
+                } else if (msg == "setspeed") {
                     onSetSpeed(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setfanspeed") {
+                } else if (msg == "setfanspeed") {
                     onSetFanSpeed(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "setsettings") {
+                } else if (msg == "setsettings") {
                     onSetSettings(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "loadtrainingprograms") {
+                } else if (msg == "loadtrainingprograms") {
                     onLoadTrainingPrograms(jsonObject["content"], sender);
                     return;
-                }
-                else if (msg == "savetrainingprogram") {
+                } else if (msg == "savetrainingprogram") {
                     onSaveTrainingProgram(jsonObject["content"], sender);
                     return;
                 }
             }
         }
     }
-    qDebug() << "Unrecognized message" <<data;
+    qDebug() << "Unrecognized message" << data;
 }
 
-void TemplateInfoSenderBuilder::buildContext()  {
+void TemplateInfoSenderBuilder::buildContext() {
     QJSValue glob = engine->globalObject();
     QJSValue obj;
     if (!glob.hasOwnProperty("workout")) {
         obj = engine->newObject();
         glob.setProperty("workout", obj);
-    }
-    else
+    } else
         obj = glob.property("workout");
 
     if (!glob.hasOwnProperty("settings")) {
@@ -545,7 +532,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
         QVariant::Type typesett;
         QVariant valsett;
         int i = 0;
-        for (auto& key: settings.allKeys()) {
+        for (auto &key : settings.allKeys()) {
             valsett = settings.value(key);
             typesett = valsett.type();
             if (typesett == QVariant::Int)
@@ -562,7 +549,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
                 QStringList settL = valsett.toStringList();
                 QJSValue settLJ = engine->newArray(settL.size());
                 i = 0;
-                for (auto& settLK: settL)
+                for (auto &settLK : settL)
                     settLJ.setProperty(i++, settLK);
                 sett.setProperty(key, settLJ);
             }
@@ -586,7 +573,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
 #else
         obj.setProperty("deviceId", device->bluetoothDevice.address().toString());
 #endif
-        obj.setProperty("deviceName", (name = device->bluetoothDevice.name()).isEmpty()?QString("N/A"):name);
+        obj.setProperty("deviceName", (name = device->bluetoothDevice.name()).isEmpty() ? QString("N/A") : name);
         obj.setProperty("deviceRSSI", device->bluetoothDevice.rssi());
         obj.setProperty("deviceType", (int)device->deviceType());
         obj.setProperty("deviceConnected", (bool)device->connected());
@@ -621,8 +608,7 @@ void TemplateInfoSenderBuilder::buildContext()  {
             obj.setProperty("resistance_avg", dep.average());
             obj.setProperty("cranks", ((bike *)device)->currentCrankRevolutions());
             obj.setProperty("cranktime", ((bike *)device)->lastCrankEventTime());
-        }
-        else {
+        } else {
             obj.setProperty("resistance", (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty("resistance_avg", dep.average());
         }

@@ -1,49 +1,48 @@
 #ifndef POWERZONEPACK_H
 #define POWERZONEPACK_H
 
-#include <QObject>
+#include "bluetooth.h"
+#include "trainprogram.h"
 #include <QAbstractOAuth2>
+#include <QDesktopServices>
+#include <QHttpMultiPart>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
-#include <QDesktopServices>
-#include <QJsonDocument>
-#include <QUrlQuery>
-#include <QHttpMultiPart>
+#include <QObject>
 #include <QSettings>
-#include <QNetworkReply>
-#include <QJsonObject>
-#include <QJsonArray>
 #include <QTimer>
-#include "trainprogram.h"
-#include "bluetooth.h"
+#include <QUrlQuery>
 
-class powerzonepack : public QObject
-{
+class powerzonepack : public QObject {
     Q_OBJECT
-public:
-    powerzonepack(bluetooth* bl, QObject *parent);
+  public:
+    powerzonepack(bluetooth *bl, QObject *parent);
     void searchWorkout(QString classid);
     QList<trainrow> trainrows;
 
-private:
+  private:
     const int peloton_workout_second_resolution = 10;
     bool pzp_credentials_wrong = false;
 
-    QNetworkAccessManager * mgr = 0;
-    bluetooth* bluetoothManager = 0;
+    QNetworkAccessManager *mgr = 0;
+    bluetooth *bluetoothManager = 0;
     QString token;
     QString lastWorkoutID = "";
 
     void startEngine();
 
-private slots:
-    void login_onfinish(QNetworkReply* reply);
-    void search_workout_onfinish(QNetworkReply* reply);
+  private slots:
+    void login_onfinish(QNetworkReply *reply);
+    void search_workout_onfinish(QNetworkReply *reply);
     void error(QNetworkReply::NetworkError code);
 
-signals:
-    void workoutStarted(QList<trainrow>* list);
+  signals:
+    void workoutStarted(QList<trainrow> *list);
     void loginState(bool ok);
 };
 

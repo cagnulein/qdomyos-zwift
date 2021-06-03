@@ -7,8 +7,8 @@
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
@@ -24,29 +24,28 @@
 
 #include "treadmill.h"
 
-class virtualtreadmill: public QObject
-{
+class virtualtreadmill : public QObject {
     Q_OBJECT
-public:
-    virtualtreadmill(bluetoothdevice* t, bool noHeartService);
+  public:
+    virtualtreadmill(bluetoothdevice *t, bool noHeartService);
     bool connected();
 
-private:
-    QLowEnergyController* leController = 0;
-    QLowEnergyService* service = 0;
-    QLowEnergyService* serviceHR = 0;
+  private:
+    QLowEnergyController *leController = 0;
+    QLowEnergyService *service = 0;
+    QLowEnergyService *serviceHR = 0;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataHR;
-    QTimer treadmillTimer;    
-    bluetoothdevice* treadMill;
+    QTimer treadmillTimer;
+    bluetoothdevice *treadMill;
 
     bool noHeartService = false;
 
-signals:
+  signals:
     void debug(QString string);
 
-private slots:
+  private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void treadmillProvider();
     void reconnect();

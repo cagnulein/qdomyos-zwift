@@ -9,7 +9,11 @@ qtHaveModule(httpserver) {
     HEADERS += webserverinfosender.h
 }
 
-CONFIG += c++11 console debug app_bundle
+CONFIG += c++17 console app_bundle optimize_full ltcg
+unix:android: {
+    QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
+    QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
+}
 macx: CONFIG += static
 
 # The following define makes your compiler emit warnings if you use
@@ -434,6 +438,7 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    .clang-format \
    android/AndroidManifest.xml \
 	android/build.gradle \
 	android/gradle/wrapper/gradle-wrapper.jar \

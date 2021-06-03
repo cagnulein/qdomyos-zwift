@@ -1,0 +1,7 @@
+---
+Language: Cpp
+BasedOnStyle:  LLVM
+AccessModifierOffset: -2
+IndentWidth: 4
+ColumnLimit: 120
+MaxEmptyLinesToKeep: 1

@@ -1,13 +1,12 @@
 #ifndef TREADMILL_H
 #define TREADMILL_H
-#include <QObject>
 #include "bluetoothdevice.h"
+#include <QObject>
 
-class treadmill:public bluetoothdevice
-{
+class treadmill : public bluetoothdevice {
     Q_OBJECT
 
-public:
+  public:
     treadmill();
     void update_metrics(const bool watt_calc, const double watts);
     virtual metric currentInclination();
@@ -19,16 +18,16 @@ public:
     void setLap();
     void setPaused(bool p);
 
-public slots:
+  public slots:
     virtual bool changeFanSpeed(uint8_t speed);
     virtual void changeSpeed(double speed);
     virtual void changeInclination(double inclination);
     virtual void changeSpeedAndInclination(double speed, double inclination);
 
-signals:
+  signals:
     void tapeStarted();
 
-protected:    
+  protected:
     metric Inclination;
     double requestSpeed = -1;
     double requestInclination = -1;

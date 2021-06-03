@@ -1,20 +1,18 @@
+#include "powerzonepack.h"
+#include <QNetworkCookie>
+#include <QNetworkCookieJar>
 #include <QSettings>
 #include <QtXml>
-#include <QNetworkCookieJar>
-#include <QNetworkCookie>
-#include "powerzonepack.h"
 
-powerzonepack::powerzonepack(bluetooth* bl, QObject *parent) : QObject(parent)
-{
+powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
 
     QSettings settings;
     bluetoothManager = bl;
     mgr = new QNetworkAccessManager(this);
-    QNetworkCookieJar* cookieJar = new QNetworkCookieJar();
+    QNetworkCookieJar *cookieJar = new QNetworkCookieJar();
     mgr->setCookieJar(cookieJar);
 
-    if(!settings.value("pzp_username", "username").toString().compare("username"))
-    {
+    if (!settings.value("pzp_username", "username").toString().compare("username")) {
         qDebug() << "invalid peloton credentials";
         return;
     }
@@ -22,12 +20,12 @@ powerzonepack::powerzonepack(bluetooth* bl, QObject *parent) : QObject(parent)
     startEngine();
 }
 
-void powerzonepack::startEngine()
-{
-    if(pzp_credentials_wrong) return;
+void powerzonepack::startEngine() {
+    if (pzp_credentials_wrong)
+        return;
 
     QSettings settings;
-    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
+    connect(mgr, SIGNAL(finished(QNetworkReply *)), this, SLOT(login_onfinish(QNetworkReply *)));
     QUrl url("https://pzpack.com/api");
     QNetworkRequest request(url);
 
@@ -43,17 +41,13 @@ void powerzonepack::startEngine()
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
 
-    QNetworkReply* reply = mgr->post(request, data);
+    QNetworkReply *reply = mgr->post(request, data);
 }
 
-void powerzonepack::error(QNetworkReply::NetworkError code)
-{
-    qDebug() << "powerzonepack ERROR" << code;
-}
+void powerzonepack::error(QNetworkReply::NetworkError code) { qDebug() << "powerzonepack ERROR" << code; }
 
-void powerzonepack::login_onfinish(QNetworkReply* reply)
-{
-    disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
+void powerzonepack::login_onfinish(QNetworkReply *reply) {
+    disconnect(mgr, SIGNAL(finished(QNetworkReply *)), this, SLOT(login_onfinish(QNetworkReply *)));
     QByteArray payload = reply->readAll(); // JSON
 
     qDebug() << "login_onfinish" << payload;
@@ -63,19 +57,20 @@ void powerzonepack::login_onfinish(QNetworkReply* reply)
     QJsonObject json = document.object();
     token = json["Right"].toString();
 
-    if(token.length()) emit loginState(true);
+    if (token.length())
+        emit loginState(true);
 
     // REMOVE IT
-    //searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
+    // searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
 }
 
-void powerzonepack::searchWorkout(QString classid)
-{
-    if(pzp_credentials_wrong) return;
+void powerzonepack::searchWorkout(QString classid) {
+    if (pzp_credentials_wrong)
+        return;
 
     lastWorkoutID = classid;
 
-    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(search_workout_onfinish(QNetworkReply*)));
+    connect(mgr, SIGNAL(finished(QNetworkReply *)), this, SLOT(search_workout_onfinish(QNetworkReply *)));
     QUrl url("https://pzpack.com/api");
     QNetworkRequest request(url);
 
@@ -94,12 +89,11 @@ void powerzonepack::searchWorkout(QString classid)
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
 
-    QNetworkReply* reply = mgr->post(request, data);
+    QNetworkReply *reply = mgr->post(request, data);
 }
 
-void powerzonepack::search_workout_onfinish(QNetworkReply* reply)
-{
-    disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(search_workout_onfinish(QNetworkReply*)));
+void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
+    disconnect(mgr, SIGNAL(finished(QNetworkReply *)), this, SLOT(search_workout_onfinish(QNetworkReply *)));
     QByteArray payload = reply->readAll(); // JSON
 
     qDebug() << "search_workout_onfinish" << payload;
@@ -113,21 +107,18 @@ void powerzonepack::search_workout_onfinish(QNetworkReply* reply)
     QJsonArray power_graph = json["_class_power_graph"].toArray();
 
     trainrows.clear();
-    QTime lastSeconds(0,0,0,0);
-    for(int i=1; i<power_graph.count(); i++)
-    {
+    QTime lastSeconds(0, 0, 0, 0);
+    for (int i = 1; i < power_graph.count(); i++) {
         trainrow r;
         int sec = power_graph.at(i).toObject()["seconds"].toInt();
         QTime seconds = QTime(sec / 3600, sec / 60, sec % 60, 0);
-        r.duration = QTime(0,0,lastSeconds.msecsTo(seconds) / 1000,0);
+        r.duration = QTime(0, 0, lastSeconds.msecsTo(seconds) / 1000, 0);
         r.power = power_graph.at(i - 1).toObject()["power_ratio"].toDouble() * settings.value("ftp", 200.0).toDouble();
         lastSeconds = seconds;
         trainrows.append(r);
     }
 
-    if(trainrows.length())
-    {
+    if (trainrows.length()) {
         emit workoutStarted(&trainrows);
     }
-
 }

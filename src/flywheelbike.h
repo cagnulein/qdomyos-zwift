@@ -1,15 +1,15 @@
 #ifndef FLYWHEEL_H
 #define FLYWHEEL_H
 
+#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -18,41 +18,32 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
+#include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-#include <QtCore/qmutex.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QString>
-#include <QDateTime>
 
-#include "virtualbike.h"
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class flywheelbike : public bike
-{
+class flywheelbike : public bike {
     Q_OBJECT
-public:
+  public:
     flywheelbike(bool noWriteResistance, bool noHeartService);
     bool connected();
 
-    void* VirtualBike();
-    void* VirtualDevice();
+    void *VirtualBike();
+    void *VirtualDevice();
 
-private:
-
-    typedef enum DecoderRXState {
-        WFSYNC_1 = 0,
-        WFLENGTH,
-        WFID,
-        DATA,
-        CHECKSUM,
-        EOF_1
-    } DecoderRXState;
+  private:
+    typedef enum DecoderRXState { WFSYNC_1 = 0, WFLENGTH, WFID, DATA, CHECKSUM, EOF_1 } DecoderRXState;
 
     typedef enum DecoderErrorState {
         MSG_NO_ERROR = 0,
@@ -75,18 +66,18 @@ private:
     typedef struct ICGLiveStreamData {
         uint16_t power;
         uint16_t ftp_percent;
-        uint8_t  training_zone;
-        uint8_t  heart_rate;
-        uint8_t	 heart_rate_percent_of_max;
-        uint8_t  power_to_heart_rate_ratio;
-        uint8_t  power_to_weight_ratio;
-        uint8_t  cadence;
+        uint8_t training_zone;
+        uint8_t heart_rate;
+        uint8_t heart_rate_percent_of_max;
+        uint8_t power_to_heart_rate_ratio;
+        uint8_t power_to_weight_ratio;
+        uint8_t cadence;
         uint16_t speed;
-        uint8_t  brake_level;
-        uint8_t  current_lap;
+        uint8_t brake_level;
+        uint8_t current_lap;
         uint32_t current_lap_time;
         uint16_t current_lap_distance;
-        uint8_t  total_laps;
+        uint8_t total_laps;
         uint32_t workout_time;
         uint16_t distance;
         uint16_t calories;
@@ -144,20 +135,21 @@ private:
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
     uint16_t watts();
     void updateStats();
 
-    QTimer* refresh;
-    virtualbike* virtualBike = 0;
+    QTimer *refresh;
+    virtualbike *virtualBike = 0;
 
-    QLowEnergyService* gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    //uint8_t sec1Update = 0;
+    // uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
@@ -170,17 +162,17 @@ private:
     bool noHeartService = false;
 
 #ifdef Q_OS_IOS
-    lockscreen* h = 0;
+    lockscreen *h = 0;
 #endif
 
-signals:
+  Q_SIGNALS:
     void disconnected();
     void debug(QString string);
 
-public slots:
+  public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
-private slots:
+  private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
@@ -194,6 +186,5 @@ private slots:
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
-
 
 #endif // FLYWHEEL_H
