@@ -1,8 +1,13 @@
 #ifndef KEEPAWAKEHELPER_H
 #define KEEPAWAKEHELPER_H
+
+#include <QtCore>
+
 #ifdef Q_OS_ANDROID
 
-#include <QAndroidJniObject>
+#include <QSettings>
+#include <QtAndroidExtras>
+#include <QApplication>
 
 static QAndroidJniObject activity;
 static QAndroidJniObject* ant;
@@ -14,6 +19,7 @@ public:
     virtual ~KeepAwakeHelper();    
     static QAndroidJniObject* antObject(bool forceCreate);
     static int heart();
+    void keepScreenOn(bool on);
 
 private:
     QAndroidJniObject m_wakeLock;
