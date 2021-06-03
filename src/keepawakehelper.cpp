@@ -1,11 +1,7 @@
 #include <QDebug>
 #ifdef Q_OS_ANDROID
-#include <QSettings>
-#include <QAndroidJniObject>
-#include <QtAndroidExtras/QtAndroid>
-#include <QApplication>
 #include "keepawakehelper.h"
-#include "jni.h"
+
 
 KeepAwakeHelper::KeepAwakeHelper()
 {
@@ -45,8 +41,34 @@ KeepAwakeHelper::KeepAwakeHelper()
         assert( false );
     }
 
+    keepScreenOn(true);
+
     /*antObject(true);
     KeepAwakeHelper::antObject(true)->callMethod<void>("antStart","(Landroid/app/Activity;)V", activity.object<jobject>());*/
+}
+
+void KeepAwakeHelper::keepScreenOn(bool on) {
+    QtAndroid::runOnAndroidThread([on] {
+        QAndroidJniObject activity = QtAndroid::androidActivity();
+        if (activity.isValid()) {
+            QAndroidJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+
+            if (window.isValid()) {
+                const int FLAG_KEEP_SCREEN_ON = 128;
+                if (on) {
+                    window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+                    qDebug() << "Activated : Keep screen ON";
+                } else {
+                    window.callMethod<void>("clearFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+                    qDebug() << "Deactivated : Keep screen ON";
+                }
+            }
+        }
+        QAndroidJniEnvironment env;
+        if (env->ExceptionCheck()) {
+            env->ExceptionClear();
+        }
+    });
 }
 
 int KeepAwakeHelper::heart(){
@@ -72,6 +94,8 @@ KeepAwakeHelper::~KeepAwakeHelper()
             KeepAwakeHelper::antObject(false)->callMethod<void>("doUnbindChannelService", "()V");
 
         qDebug() << "Unlocked device, can now go to standby";
+
+        keepScreenOn(false);
     }
 }
 

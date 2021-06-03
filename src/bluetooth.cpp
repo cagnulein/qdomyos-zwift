@@ -192,6 +192,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
     bool csc_as_bike = settings.value("cadence_sensor_as_bike", false).toBool();
     QString cscName = settings.value("cadence_sensor_name", "Disabled").toString();
     bool cscFound = cscName.startsWith("Disabled") || csc_as_bike;
+    bool hammerRacerS = settings.value("hammer_racer_s", false).toBool();
 
     if(!heartRateBeltFound)
     {
@@ -580,7 +581,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 skandikaWiriBike->deviceDiscovered(b);
                 templateManager->start(skandikaWiriBike);
             }
-            else if((b.name().startsWith("FS-") && snode_bike) && !snodeBike && filter)
+            else if((b.name().startsWith("FS-") && hammerRacerS) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
+            {
+                discoveryAgent->stop();
+                ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(ftmsBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(ftmsBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                ftmsBike->deviceDiscovered(b);
+                templateManager->start(ftmsBike);
+            }
+            else if((b.name().startsWith("FS-") && snode_bike) && !snodeBike && !ftmsBike && !fitPlusBike && filter)
             {
                 discoveryAgent->stop();
                 snodeBike = new snodebike(noWriteResistance, noHeartService);
@@ -591,7 +603,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 snodeBike->deviceDiscovered(b);
                 templateManager->start(snodeBike);
             }
-            else if((b.name().startsWith("FS-") && fitplus_bike) && !fitPlusBike && filter)
+            else if((b.name().startsWith("FS-") && fitplus_bike) && !fitPlusBike && !ftmsBike && !snodeBike && filter)
             {
                 discoveryAgent->stop();
                 fitPlusBike = new fitplusbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -950,6 +962,11 @@ void bluetooth::restart()
         delete snodeBike;
         snodeBike = 0;
     }
+    if(ftmsBike)
+    {
+        delete ftmsBike;
+        ftmsBike = 0;
+    }
     if(fitPlusBike)
     {
         delete fitPlusBike;
@@ -1037,6 +1054,8 @@ bluetoothdevice* bluetooth::device()
         return m3iBike;
     else if(snodeBike)
         return snodeBike;
+    else if(ftmsBike)
+        return ftmsBike;
     else if(fitPlusBike)
         return fitPlusBike;
     else if(skandikaWiriBike)

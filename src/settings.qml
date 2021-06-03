@@ -128,6 +128,8 @@ import Qt.labs.settings 1.0
 
             property bool inspire_peloton_formula: false
 
+            property bool hammer_racer_s: false
+
             property bool yesoul_peloton_formula: false
 
             property bool toorx_3_0: false
@@ -2217,6 +2219,29 @@ import Qt.labs.settings 1.0
                     onClicked: settings.inspire_peloton_formula = checked
                 }
             }
+
+            AccordionElement {
+                id: hammerBikeAccordion
+                title: qsTr("Hammer Racer Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: SwitchDelegate {
+                    id: hammerBikeDelegate
+                    text: qsTr("Enable support")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.hammer_racer_s
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.hammer_racer_s = checked
+                }
+            }
+
             AccordionElement {
                 id: toorxTreadmillAccordion
                 title: qsTr("Toorx/iConsole Options")
