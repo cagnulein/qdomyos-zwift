@@ -271,7 +271,12 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                    QStringLiteral(" putting to default"));
         Resistance = 1;
     }
-
+    if (Inclination < 0 || Inclination > 15) {
+        emit debug(QStringLiteral("invalid inclination value ") + QString::number(Inclination) +
+                   QStringLiteral(" putting to default"));
+        Inclination = 0;
+    }
+  
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
