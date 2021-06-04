@@ -614,7 +614,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 fitPlusBike->deviceDiscovered(b);
                 templateManager->start(fitPlusBike);
             }
-            else if(((b.name().startsWith("FS-") && !snode_bike && !fitplus_bike) || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
+            else if(((b.name().startsWith("FS-") && !snode_bike && !fitplus_bike && !ftmsBike) || (b.name().startsWith("SW") && b.name().length() == 14)) && !fitshowTreadmill && filter)
             {
                 discoveryAgent->stop();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
