@@ -45,7 +45,7 @@ class fitplusbike : public bike {
   private:
     const int max_resistance = 32;
     void btinit();
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     void forceResistance(int8_t requestResistance);

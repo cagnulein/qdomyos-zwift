@@ -49,14 +49,14 @@ class domyostreadmill : public treadmill {
 
   private:
     bool sendChangeFanSpeed(uint8_t speed);
-    double GetSpeedFromPacket(QByteArray packet);
-    double GetInclinationFromPacket(QByteArray packet);
-    double GetKcalFromPacket(QByteArray packet);
+    double GetSpeedFromPacket(const QByteArray &packet);
+    double GetInclinationFromPacket(const QByteArray &packet);
+    double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     double DistanceCalculated = 0;

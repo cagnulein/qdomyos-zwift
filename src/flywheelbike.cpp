@@ -7,7 +7,10 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <chrono>
 #include <math.h>
+
+using namespace std::chrono_literals;
 
 flywheelbike::flywheelbike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
@@ -15,29 +18,29 @@ flywheelbike::flywheelbike(bool noWriteResistance, bool noHeartService) {
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    connect(refresh, &QTimer::timeout, this, &flywheelbike::update);
+    refresh->start(200ms);
 }
 
-void flywheelbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+void flywheelbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                        bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
                                                          QByteArray((const char *)data, data_len));
 
-    if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 }
@@ -66,19 +69,20 @@ void flywheelbike::update() {
         }*/
 
         if (requestResistance != -1) {
-            if (requestResistance > 15)
+            if (requestResistance > 15) {
                 requestResistance = 15;
-            else if (requestResistance == 0)
+            } else if (requestResistance == 0) {
                 requestResistance = 1;
+            }
 
             if (requestResistance != currentResistance().value()) {
-                debug("writing resistance " + QString::number(requestResistance));
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // forceResistance(requestResistance);
             }
             requestResistance = -1;
         }
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
 
             // btinit();
 
@@ -86,14 +90,16 @@ void flywheelbike::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
 }
 
-void flywheelbike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void flywheelbike::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 void flywheelbike::flushDataframe(BikeDataframe *dataFrame) {
     memset(dataFrame->buffer, 0, 256);
@@ -107,7 +113,7 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
     for (int i = 0; i < buffer.length(); ++i) {
         int8_t b = buffer[i];
 
-        qDebug() << "rxState" << rxState << b;
+        qDebug() << QStringLiteral("rxState") << rxState << b;
         switch (rxState) {
         case WFSYNC_1:
             if (b == -1) {
@@ -169,10 +175,12 @@ void flywheelbike::decodeReceivedData(QByteArray buffer) {
 
 void flywheelbike::updateStats() {
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
     // calculate the acculamator every time on the current data, in order to avoid holes in peloton or strava
-    KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
+    KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
@@ -186,7 +194,7 @@ void flywheelbike::updateStats() {
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    if (heartRateBeltName.startsWith("Disabled")) {
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
@@ -210,17 +218,18 @@ void flywheelbike::updateStats() {
 #endif
 #endif
 
-    debug("Current Resistance: " + QString::number(Resistance.value()));
-    debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance.value()));
-    debug("Current Cadence: " + QString::number(Cadence.value()));
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+    emit debug("Current Cadence: " + QString::number(Cadence.value()));
     // debug("Current Distance: " + QString::number(distance));
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-    debug("Current Watt: " + QString::number(watts()));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-    if (m_control->error() != QLowEnergyController::NoError)
-        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+    }
 }
 
 void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -228,21 +237,22 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
     decodeReceivedData(newValue);
 
-    qDebug() << "errorState" << errorState;
+    qDebug() << QStringLiteral("errorState") << errorState;
 
     if (errorState == MSG_COMPLETE) {
         ICGLiveStreamData *parsedData = (ICGLiveStreamData *)bikeData.buffer;
 
         if (bikeData.message_id == SEND_ICG_LIVE_STREAM_DATA) {
-            double distance = GetDistanceFromPacket(newValue);
+            // double distance = GetDistanceFromPacket(newValue); //Note: clang-analyzer-deadcode.DeadStores
 
 #ifdef Q_OS_ANDROID
             if (settings.value("ant_heart", false).toBool())
@@ -254,22 +264,26 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             uint16_t speed = ((parsedData->speed >> 8) & 0xFF);
             speed += ((parsedData->speed & 0xFF) << 8);
 
-            if (zero_fix_filter < settings.value("flywheel_filter", 2).toUInt() &&
+            if (zero_fix_filter < settings.value(QStringLiteral("flywheel_filter"), 2).toUInt() &&
                 (parsedData->cadence == 0 || speed == 0 || power == 0)) {
-                qDebug() << "filtering crappy values";
+                qDebug() << QStringLiteral("filtering crappy values");
                 zero_fix_filter++;
             } else {
                 zero_fix_filter = 0;
 
                 Resistance = parsedData->brake_level;
                 emit resistanceRead(Resistance.value());
-                if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+                if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                        .toString()
+                        .startsWith(QStringLiteral("Disabled"))) {
                     Cadence = parsedData->cadence;
+                }
                 m_watts = power;
-                if (!settings.value("speed_power_based", false).toBool())
+                if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
                     Speed = ((double)speed) / 10.0;
-                else
+                } else {
                     Speed = metric::calculateSpeedFromPower(m_watt.value());
+                }
 
                 // https://www.facebook.com/groups/149984563348738/permalink/174268944253633/?comment_id=174366620910532&reply_comment_id=174666314213896
                 m_pelotonResistance = (Resistance.value() * 0.8173) + 9.2712;
@@ -296,7 +310,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     updateStats();
 }
 
-double flywheelbike::GetDistanceFromPacket(QByteArray packet) {
+double flywheelbike::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(2) << 8) | packet.at(3);
     double data = ((double)convertedData) / 100.0f;
     return data;
@@ -305,15 +319,15 @@ double flywheelbike::GetDistanceFromPacket(QByteArray packet) {
 void flywheelbike::btinit() {
     uint8_t initData1[] = {0xf5, 0x20, 0x20, 0x40, 0xf6};
 
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     initDone = true;
 }
 
 void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "6E400003-B5A3-F393-E0A9-E50E24DCCA9E");
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
@@ -322,16 +336,14 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &flywheelbike::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &flywheelbike::characteristicWritten);
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                 SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &flywheelbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
         if (!firstStateChanged && !virtualBike
@@ -342,7 +354,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
@@ -355,7 +367,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
+                emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&flywheelbike::debug);
             }
@@ -372,7 +384,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void flywheelbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -380,59 +392,59 @@ void flywheelbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, con
 
 void flywheelbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void flywheelbike::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("6E400001-B5A3-F393-E0A9-E50E24DCCA9E"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &flywheelbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void flywheelbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("flywheelbike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("flywheelbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void flywheelbike::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("flywheelbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("flywheelbike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void flywheelbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if (device.name().startsWith("Flywheel")) {
+    emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
+               device.address().toString() + ')');
+    if (device.name().startsWith(QStringLiteral("Flywheel"))) {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &flywheelbike::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &flywheelbike::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &flywheelbike::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -443,8 +455,9 @@ void flywheelbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool flywheelbike::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -453,16 +466,17 @@ void *flywheelbike::VirtualBike() { return virtualBike; }
 void *flywheelbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t flywheelbike::watts() {
-    if (currentCadence().value() == 0)
+    if (currentCadence().value() == 0) {
         return 0;
+    }
 
     return m_watts;
 }
 
 void flywheelbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
     }

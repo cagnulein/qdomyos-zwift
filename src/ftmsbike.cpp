@@ -12,6 +12,9 @@
 #include <QLowEnergyConnectionParameters>
 #endif
 #include "keepawakehelper.h"
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
@@ -19,28 +22,28 @@ ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService) {
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
+    refresh->start(200ms);
 }
 
-void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                    bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattFTMSService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
-                SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattFTMSService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
-                SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
 
-    if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 }
@@ -51,7 +54,7 @@ void ftmsbike::forceResistance(int8_t requestResistance) {
     write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
     write[4] = ((uint16_t)requestResistance * 100) >> 8;
 
-    writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
 void ftmsbike::update() {
@@ -62,10 +65,11 @@ void ftmsbike::update() {
 
     if (initRequest) {
         initRequest = false;
-    } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState //&&
-               // gattCommunicationChannelService &&
-               // gattWriteCharacteristic.isValid() &&
-               // gattNotify1Characteristic.isValid() &&
+    } else if (bluetoothDevice.isValid() &&
+               m_control->state() == QLowEnergyController::DiscoveredState //&&
+                                                                           // gattCommunicationChannelService &&
+                                                                           // gattWriteCharacteristic.isValid() &&
+                                                                           // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
         update_metrics(true, watts());
 
@@ -76,19 +80,21 @@ void ftmsbike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 100)
-                requestResistance = 100; // TODO, use the bluetooth value
-            else if (requestResistance == 0)
+            if (requestResistance > 100) {
+                requestResistance = 100;
+            } // TODO, use the bluetooth value
+            else if (requestResistance == 0) {
                 requestResistance = 1;
+            }
 
             if (requestResistance != currentResistance().value()) {
-                debug("writing resistance " + QString::number(requestResistance));
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
         }
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
 
             // btinit();
 
@@ -96,25 +102,29 @@ void ftmsbike::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
 }
 
-void ftmsbike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void ftmsbike::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
-    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2))
+    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
         return;
+    }
 
     lastPacket = newValue;
 
@@ -145,14 +155,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     index += 2;
 
     if (!Flags.moreData) {
-        if (!settings.value("speed_power_based", false).toBool())
+        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
-        else
+        } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value());
+        }
         index += 2;
-        debug("Current Speed: " + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
     if (Flags.avgSpeed) {
@@ -161,16 +172,19 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
             100.0;
         index += 2;
-        debug("Current Average Speed: " + QString::number(avgSpeed));
+        emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
     }
 
     if (Flags.instantCadence) {
-        if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
             Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)newValue.at(index)))) /
                       2.0;
+        }
         index += 2;
-        debug("Current Cadence: " + QString::number(Cadence.value()));
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
     }
 
     if (Flags.avgCadence) {
@@ -179,7 +193,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
             2.0;
         index += 2;
-        debug("Current Average Cadence: " + QString::number(avgCadence));
+        emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
     }
 
     if (Flags.totDistance) {
@@ -193,21 +207,21 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
     }
 
-    debug("Current Distance: " + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
     if (Flags.resistanceLvl) {
         Resistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         emit resistanceRead(Resistance.value());
         index += 2;
-        debug("Current Resistance: " + QString::number(Resistance.value()));
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
     if (Flags.instantPower) {
         m_watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        debug("Current Watt: " + QString::number(m_watt.value()));
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
     }
 
     if (Flags.avgPower) {
@@ -215,7 +229,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         avgPower =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        debug("Current Average Watt: " + QString::number(avgPower));
+        emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
     }
 
     if (Flags.expEnergy) {
@@ -228,13 +242,15 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // energy per minute
         index += 1;
     } else {
-        KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  //kg * 3.5) / 200 ) / 60
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
     }
 
-    debug("Current KCal: " + QString::number(KCal.value()));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -244,8 +260,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     {
         if (Flags.heartRate) {
             Heart = ((double)((newValue.at(index))));
-            index += 1;
-            debug("Current Heart: " + QString::number(Heart.value()));
+            // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         }
     }
 
@@ -268,7 +284,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    if (heartRateBeltName.startsWith("Disabled")) {
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
@@ -292,77 +308,76 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 #endif
 #endif
 
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
 
-    if (m_control->error() != QLowEnergyController::NoError)
-        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+    }
 }
 
 void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
-    foreach (QLowEnergyService *s, gattCommunicationChannelService) {
-        qDebug() << "stateChanged" << s->serviceUuid() << s->state();
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
-            qDebug() << "not all services discovered";
+            qDebug() << QStringLiteral("not all services discovered");
             return;
         }
     }
 
-    qDebug() << "all services discovered!";
+    qDebug() << QStringLiteral("all services discovered!");
 
-    foreach (QLowEnergyService *s, gattCommunicationChannelService) {
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
-            connect(s, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
-                    SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-            connect(s, SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                    SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
-            connect(s, SIGNAL(characteristicRead(const QLowEnergyCharacteristic, const QByteArray)), this,
-                    SLOT(characteristicRead(const QLowEnergyCharacteristic, const QByteArray)));
+            connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsbike::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsbike::characteristicWritten);
+            connect(s, &QLowEnergyService::characteristicRead, this, &ftmsbike::characteristicRead);
             connect(s, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                     SLOT(errorService(QLowEnergyService::ServiceError)));
-            connect(s, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                    SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
-            connect(s, SIGNAL(descriptorRead(const QLowEnergyDescriptor, const QByteArray)), this,
-                    SLOT(descriptorRead(const QLowEnergyDescriptor, const QByteArray)));
+            connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsbike::descriptorWritten);
+            connect(s, &QLowEnergyService::descriptorRead, this, &ftmsbike::descriptorRead);
 
-            qDebug() << s->serviceUuid() << "connected!";
+            qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            foreach (QLowEnergyCharacteristic c, s->characteristics()) {
-                qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
-                foreach (QLowEnergyDescriptor d, c.descriptors())
-                    qDebug() << "descriptor uuid" << d.uuid() << "handle" << d.handle();
+            for (const QLowEnergyCharacteristic &c : s->characteristics()) {
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                for (const QLowEnergyDescriptor &d : c.descriptors()) {
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    else
-                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid()
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << " is not valid";
+                                 << QStringLiteral(" is not valid");
+                    }
 
-                    qDebug() << s->serviceUuid() << c.uuid() << "notification subscribed!";
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
                            QLowEnergyCharacteristic::Indicate) {
                     QByteArray descriptor;
                     descriptor.append((char)0x02);
                     descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid())
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    else
-                        qDebug() << "ClientCharacteristicConfiguration" << c.uuid()
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << " is not valid";
+                                 << QStringLiteral(" is not valid");
+                    }
 
-                    qDebug() << s->serviceUuid() << c.uuid() << "indication subscribed!";
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
                 } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
                     // s->readCharacteristic(c);
                     // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
@@ -370,7 +385,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
-                    qDebug() << "FTMS service and Control Point found";
+                    qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
                 }
@@ -387,7 +402,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value("bike_cadence_sensor", false).toBool();
@@ -400,7 +415,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
             if (virtual_device_enabled) {
-            debug("creating virtual bike interface...");
+            emit debug(QStringLiteral("creating virtual bike interface..."));
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
         }
@@ -410,27 +425,27 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
 void ftmsbike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    qDebug() << "descriptorRead " << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
+    qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
 
 void ftmsbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void ftmsbike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    qDebug() << "characteristicRead " << characteristic.uuid() << newValue.toHex(' ');
+    qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
 void ftmsbike::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
 #ifdef Q_OS_ANDROID
     QLowEnergyConnectionParameters c;
@@ -440,53 +455,54 @@ void ftmsbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
-    foreach (QBluetoothUuid s, m_control->services()) {
+    for (const QBluetoothUuid &s : m_control->services()) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.last(), SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-                SLOT(stateChanged(QLowEnergyService::ServiceState)));
+        connect(gattCommunicationChannelService.last(), &QLowEnergyService::stateChanged, this,
+                &ftmsbike::stateChanged);
         gattCommunicationChannelService.last()->discoverDetails();
     }
 }
 
 void ftmsbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("ftmsbike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("ftmsbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void ftmsbike::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("ftmsbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("ftmsbike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
+               device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &ftmsbike::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &ftmsbike::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -497,8 +513,9 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool ftmsbike::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -507,16 +524,17 @@ void *ftmsbike::VirtualBike() { return virtualBike; }
 void *ftmsbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t ftmsbike::watts() {
-    if (currentCadence().value() == 0)
+    if (currentCadence().value() == 0) {
         return 0;
+    }
 
     return m_watt.value();
 }
 
 void ftmsbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
     }

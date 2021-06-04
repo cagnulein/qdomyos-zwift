@@ -259,7 +259,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     double distance = GetDistanceFromPacket(newValue) *
                       settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), "Disabled")
+    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(9));
@@ -276,7 +276,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
                    QStringLiteral(" putting to default"));
         Inclination.setValue(0);
     }
-  
+
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();

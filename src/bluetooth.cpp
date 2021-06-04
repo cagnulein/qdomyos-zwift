@@ -104,11 +104,12 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
-    if (!trx_route_key)
+    if (!trx_route_key) {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    else
+    } else {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                               QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    }
 }
 
 void bluetooth::canceled() {
@@ -117,8 +118,9 @@ void bluetooth::canceled() {
 }
 
 void bluetooth::debug(const QString &text) {
-    if (logs)
+    if (logs) {
         qDebug() << text;
+    }
 }
 
 bool bluetooth::cscSensorAvaiable() {
@@ -126,10 +128,11 @@ bool bluetooth::cscSensorAvaiable() {
     bool csc_as_bike = settings.value(QStringLiteral("cadence_sensor_as_bike"), false).toBool();
     QString cscName = settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled")).toString();
 
-    if (csc_as_bike)
+    if (csc_as_bike) {
         return false;
+    }
 
-    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+    for (const QBluetoothDeviceInfo &b : devices) {
         if (!cscName.compare(b.name())) {
             return true;
         }
@@ -199,12 +202,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             break;
         }
     }
-    if (!found)
+    if (!found) {
         devices.append(device);
+    }
 
     emit deviceFound(device.name());
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')' + " " +
-          device.majorDeviceClass() + ":" + device.minorDeviceClass());
+    debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") + device.address().toString() +
+          ')' + " " + device.majorDeviceClass() + QStringLiteral(":") + device.minorDeviceClass());
 #if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
     qDebug() << device.deviceUuid();
 #endif
@@ -804,8 +808,9 @@ void bluetooth::restart() {
         return;
     }
 
-    if (settings.value(QStringLiteral("bluetooth_no_reconnection"), false).toBool())
-        exit(0);
+    if (settings.value(QStringLiteral("bluetooth_no_reconnection"), false).toBool()) {
+        exit(EXIT_SUCCESS);
+    }
 
     devices.clear();
     templateManager->stop();

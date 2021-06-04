@@ -9,7 +9,7 @@ qtHaveModule(httpserver) {
     HEADERS += webserverinfosender.h
 }
 
-CONFIG += c++17 console app_bundle optimize_full ltcg
+CONFIG += c++17 console debug app_bundle optimize_full ltcg
 unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3

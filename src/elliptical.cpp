@@ -8,7 +8,7 @@ void elliptical::update_metrics(const bool watt_calc, const double watts) {
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value("continuous_moving", true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
             elapsed += deltaTime;
         }
         if (currentSpeed().value() > 0.0) {
