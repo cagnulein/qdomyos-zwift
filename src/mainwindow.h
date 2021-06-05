@@ -2,9 +2,9 @@
 #define MAINWINDOW_H
 
 #include "domyostreadmill.h"
+#include "qdebugfixup.h"
 #include "sessionline.h"
 #include "trainprogram.h"
-#include <QDebug>
 #include <QDialog>
 #include <QTableWidgetItem>
 #include <QTime>

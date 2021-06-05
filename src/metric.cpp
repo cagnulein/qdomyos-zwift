@@ -1,5 +1,5 @@
 #include "metric.h"
-#include <QDebug>
+#include "qdebugfixup.h"
 #include <QSettings>
 
 metric::metric() {}

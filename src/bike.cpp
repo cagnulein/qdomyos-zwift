@@ -1,5 +1,5 @@
 #include "bike.h"
-#include <QDebug>
+#include "qdebugfixup.h"
 #include <QSettings>
 
 bike::bike() {}

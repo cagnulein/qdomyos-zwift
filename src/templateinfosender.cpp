@@ -1,5 +1,5 @@
 #include "templateinfosender.h"
-#include <QDebug>
+#include "qdebugfixup.h"
 
 TemplateInfoSender::TemplateInfoSender(const QString &id, QObject *parent) : QObject(parent), templateId(id) {
     connect(&retryTimer, &QTimer::timeout, this, [this]() {

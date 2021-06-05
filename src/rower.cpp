@@ -1,5 +1,5 @@
 #include "rower.h"
-#include <QDebug>
+#include "qdebugfixup.h"
 
 rower::rower() {}
 

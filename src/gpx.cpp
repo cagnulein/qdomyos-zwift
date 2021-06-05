@@ -1,6 +1,6 @@
 #include "gpx.h"
 #include "math.h"
-#include <QDebug>
+#include "qdebugfixup.h"
 #include <QDomDocument>
 #include <QXmlStreamWriter>
 

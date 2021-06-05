@@ -9,7 +9,7 @@ qtHaveModule(httpserver) {
     HEADERS += webserverinfosender.h
 }
 
-CONFIG += c++17 console debug app_bundle optimize_full ltcg
+CONFIG += c++17 console app_bundle optimize_full ltcg
 unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
@@ -383,6 +383,7 @@ HEADERS += \
    powerzonepack.h \
 	proformbike.h \
 	proformtreadmill.h \
+    qdebugfixup.h \
 	qfit.h \
    rower.h \
 	schwinnic4bike.h \
@@ -462,6 +463,7 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
+#ANDROID_ABIS = arm64-v8a
 
 ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)

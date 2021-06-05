@@ -8,7 +8,10 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <chrono>
 #include <math.h>
+
+using namespace std::chrono_literals;
 
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
@@ -16,29 +19,29 @@ proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService) 
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    connect(refresh, &QTimer::timeout, this, &proformtreadmill::update);
+    refresh->start(200ms);
 }
 
-void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
                                                          QByteArray((const char *)data, data_len));
 
-    if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 }
@@ -71,31 +74,32 @@ void proformtreadmill::update() {
 
         switch (counterPoll) {
         case 0:
-            writeCharacteristic(noOpData1, sizeof(noOpData1), "noOp");
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             break;
         case 1:
-            writeCharacteristic(noOpData2, sizeof(noOpData2), "noOp");
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
             break;
         case 2:
-            writeCharacteristic(noOpData3, sizeof(noOpData3), "noOp");
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
-            writeCharacteristic(noOpData4, sizeof(noOpData4), "noOp");
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
         case 4:
-            writeCharacteristic(noOpData5, sizeof(noOpData5), "noOp");
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
         case 5:
-            writeCharacteristic(noOpData6, sizeof(noOpData6), "noOp");
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
             break;
         case 6:
-            writeCharacteristic(noOpData7, sizeof(noOpData7), "noOp");
+            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
             break;
         }
 
         counterPoll++;
-        if (counterPoll > 6)
+        if (counterPoll > 6) {
             counterPoll = 0;
+        }
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -106,7 +110,7 @@ void proformtreadmill::update() {
         if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
-                debug("writing incline " + QString::number(requestInclination));
+                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 double speed = currentSpeed().value();
                 if (requestSpeed != -1) {
                     speed = requestSpeed;
@@ -164,7 +168,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  //kg * 3.5) / 200 ) / 60
+                                                                  // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));

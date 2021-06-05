@@ -1,6 +1,7 @@
 #ifndef METRIC_H
 #define METRIC_H
 
+#include "qdebugfixup.h"
 #include <math.h>
 
 class metric {
