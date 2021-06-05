@@ -1,15 +1,18 @@
 #include "tcpclientinfosender.h"
 
 TcpClientInfoSender::TcpClientInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {}
-TcpClientInfoSender::~TcpClientInfoSender() { innerStop(); }
+TcpClientInfoSender::~TcpClientInfoSender() {
+    innerStop(); // NOTE: clang-analyzer-optin-cplusplus-virtualcall
+}
 
 bool TcpClientInfoSender::isRunning() const { return tcpSocket && tcpSocket->state() == QTcpSocket::ConnectedState; }
 
 bool TcpClientInfoSender::send(const QString &data) {
-    if (isRunning())
+    if (isRunning()) {
         return tcpSocket->write(data.toLatin1()) > 0;
-    else if (tcpSocket)
-        qDebug() << "TcpSocket state is " << tcpSocket->state();
+    } else if (tcpSocket) {
+        qDebug() << QStringLiteral("TcpSocket state is ") << tcpSocket->state();
+    }
     return false;
 }
 
@@ -32,25 +35,28 @@ void TcpClientInfoSender::innerStop() {
 
 void TcpClientInfoSender::readyRead() {
     QByteArray read = tcpSocket->readAll();
-    qDebug() << "Measage received" << read;
+    qDebug() << QStringLiteral("Measage received") << read;
     emit onDataReceived(read);
 }
 
 bool TcpClientInfoSender::init() {
     bool ok;
-    ip = settings.value("template_" + templateId + "_ip", "127.0.0.1").toString();
-    port = settings.value("template_" + templateId + "_port", "4321").toInt(&ok);
-    if (!ok)
+    ip = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_ip"), QStringLiteral("127.0.0.1"))
+             .toString();
+    port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), QStringLiteral("4321"))
+               .toInt(&ok);
+    if (!ok) {
         port = 4321;
-    if (ip.isEmpty())
-        ip = "127.0.0.1";
+    }
+    if (ip.isEmpty()) {
+        ip = QStringLiteral("127.0.0.1");
+    }
     tcpSocket = new QTcpSocket(this);
-    connect(tcpSocket, SIGNAL(connected()), this, SLOT(debugConnected()));
+    connect(tcpSocket, &QAbstractSocket::connected, this, &TcpClientInfoSender::debugConnected);
     connect(tcpSocket, SIGNAL(connectionClosed()), this, SLOT(reinit()));
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    connect(tcpSocket, &QIODevice::readyRead, this, &TcpClientInfoSender::readyRead);
     connect(tcpSocket, SIGNAL(error(int)), this, SLOT(socketError(int)));
-    connect(tcpSocket, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this,
-            SLOT(stateChanged(QAbstractSocket::SocketState)));
+    connect(tcpSocket, &QAbstractSocket::stateChanged, this, &TcpClientInfoSender::stateChanged);
     tcpSocket->connectToHost(ip, (uint16_t)port);
     return true;
 }
@@ -58,12 +64,13 @@ bool TcpClientInfoSender::init() {
 void TcpClientInfoSender::debugConnected() { qDebug() << "Connected" << tcpSocket->state(); }
 
 void TcpClientInfoSender::socketError(int err) {
-    qDebug() << "SocketError" << err;
+    qDebug() << QStringLiteral("SocketError") << err;
     reinit();
 }
 
 void TcpClientInfoSender::stateChanged(QAbstractSocket::SocketState socketState) {
-    qDebug() << "Socket State Changed to" << socketState;
-    if (socketState == QAbstractSocket::SocketState::UnconnectedState)
+    qDebug() << QStringLiteral("Socket State Changed to") << socketState;
+    if (socketState == QAbstractSocket::SocketState::UnconnectedState) {
         reinit();
+    }
 }

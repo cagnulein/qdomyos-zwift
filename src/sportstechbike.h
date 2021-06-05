@@ -39,19 +39,20 @@ class sportstechbike : public bike {
     void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(QByteArray packet);
-    double GetResistanceFromPacket(QByteArray packet);
-    double GetKcalFromPacket(QByteArray packet);
+    double GetSpeedFromPacket(const QByteArray &packet);
+    double GetResistanceFromPacket(const QByteArray &packet);
+    double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
-    uint16_t GetElapsedFromPacket(QByteArray packet);
+    uint16_t GetElapsedFromPacket(const QByteArray &packet);
     void forceResistance(int8_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                             bool wait_for_response);
     void startDiscover();
     uint16_t watts();
-    double GetWattFromPacket(QByteArray packet);
-    double GetCadenceFromPacket(QByteArray packet);
+    double GetWattFromPacket(const QByteArray &packet);
+    double GetCadenceFromPacket(const QByteArray &packet);
     double DistanceCalculated = 0;
 
     QTimer *refresh;

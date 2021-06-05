@@ -55,12 +55,12 @@ class toorxtreadmill : public treadmill {
     QTimer *refresh;
     bool initDone = false;
 
-    uint16_t GetElapsedTimeFromPacket(QByteArray packet);
-    uint16_t GetDistanceFromPacket(QByteArray packet);
-    uint16_t GetCaloriesFromPacket(QByteArray packet);
-    double GetSpeedFromPacket(QByteArray packet);
-    uint8_t GetInclinationFromPacket(QByteArray packet);
-    uint8_t GetHeartRateFromPacket(QByteArray packet);
+    uint16_t GetElapsedTimeFromPacket(const QByteArray &packet);
+    uint16_t GetDistanceFromPacket(const QByteArray &packet);
+    uint16_t GetCaloriesFromPacket(const QByteArray &packet);
+    double GetSpeedFromPacket(const QByteArray &packet);
+    uint8_t GetInclinationFromPacket(const QByteArray &packet);
+    uint8_t GetHeartRateFromPacket(const QByteArray &packet);
 
   signals:
     void disconnected();

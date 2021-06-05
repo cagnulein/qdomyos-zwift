@@ -4,7 +4,7 @@
 
 class zwiftworkout {
   public:
-    static QList<trainrow> load(QString filename);
+    static QList<trainrow> load(const QString &filename);
 };
 
 #endif // ZWIFTWORKOUT_H

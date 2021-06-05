@@ -25,11 +25,11 @@ class trainprogram : public QObject {
     Q_OBJECT
 
   public:
-    trainprogram(QList<trainrow>, bluetooth *b);
-    void save(QString filename);
-    static trainprogram *load(QString filename, bluetooth *b);
-    static QList<trainrow> loadXML(QString filename);
-    static bool saveXML(QString filename, const QList<trainrow> &rows);
+    trainprogram(const QList<trainrow>&, bluetooth *b);
+    void save(const QString &filename);
+    static trainprogram *load(const QString &filename, bluetooth *b);
+    static QList<trainrow> loadXML(const QString &filename);
+    static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime duration();

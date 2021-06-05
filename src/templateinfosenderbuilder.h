@@ -47,7 +47,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
   private slots:
     void onUpdateTimeout();
-    void onDataReceived(QByteArray data);
+    void onDataReceived(const QByteArray &data);
 };
 
 #endif // TEMPLATEINFOSENDERBUILDER_H

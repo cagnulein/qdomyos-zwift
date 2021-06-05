@@ -6,6 +6,9 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 soleelliptical::soleelliptical(bool noWriteResistance, bool noHeartService, bool testResistance,
                                uint8_t bikeResistanceOffset, double bikeResistanceGain) {
@@ -19,41 +22,43 @@ soleelliptical::soleelliptical(bool noWriteResistance, bool noHeartService, bool
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(300);
+    connect(refresh, &QTimer::timeout, this, &soleelliptical::update);
+    refresh->start(300ms);
 }
 
 soleelliptical::~soleelliptical() {
-    qDebug() << "~soleelliptical()" << virtualTreadmill;
-    if (virtualTreadmill)
+    qDebug() << QStringLiteral("~soleelliptical()") << virtualTreadmill;
+    if (virtualTreadmill) {
         delete virtualTreadmill;
+    }
 }
 
-void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                          bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
                                                          QByteArray((const char *)data, data_len));
 
-    if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 
-    if (timeout.isActive() == false)
-        debug(" exit for timeout");
+    if (timeout.isActive() == false) {
+        emit debug(QStringLiteral(" exit for timeout"));
+    }
 }
 
 void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination) {
@@ -65,17 +70,21 @@ void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uin
 
     if (currentResistance() < requestResistance) {
         writeCharacteristic(write, sizeof(write),
-                            "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination,
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance) +
+                                QStringLiteral(" Inclination ") + inclination,
                             false, true);
         writeCharacteristic(writeUp, sizeof(writeUp),
-                            "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination,
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance) +
+                                QStringLiteral(" Inclination ") + inclination,
                             false, true);
     } else if (currentResistance() > requestResistance) {
         writeCharacteristic(writeDown, sizeof(writeDown),
-                            "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination,
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance) +
+                                QStringLiteral(" Inclination ") + inclination,
                             false, true);
         writeCharacteristic(write, sizeof(write),
-                            "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination,
+                            QStringLiteral("forceResistance ") + QString::number(requestResistance) +
+                                QStringLiteral(" Inclination ") + inclination,
                             false, true);
     }
 }
@@ -100,9 +109,9 @@ void soleelliptical::update() {
         // ******************************************* virtual bike init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
-                debug("creating virtual treadmill interface...");
+                emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &soleelliptical::debug);
                 firstVirtual = 1;
@@ -116,51 +125,55 @@ void soleelliptical::update() {
         } else {
             switch (counterPoll) {
             case 0:
-                writeCharacteristic(noOpData, sizeof(noOpData), "noOp", false, true);
+                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
                 break;
             case 1:
-                writeCharacteristic(noOpData, sizeof(noOpData1), "noOp", false, true);
+                writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
                 break;
             }
             counterPoll++;
-            if (counterPoll > 1)
+            if (counterPoll > 1) {
                 counterPoll = 0;
+            }
         }
 
         if (testResistance) {
             if ((((int)elapsed.value()) % 5) == 0) {
                 uint8_t new_res = currentResistance() + 1;
-                if (new_res > 15)
+                if (new_res > 15) {
                     new_res = 1;
+                }
                 forceResistanceAndInclination(new_res, currentInclination().value());
             }
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 20)
+            if (requestResistance > 20) {
                 requestResistance = 20;
-            else if (requestResistance == 0)
+            } else if (requestResistance == 0) {
                 requestResistance = 1;
+            }
 
             if (requestResistance != currentResistance()) {
-                debug("writing resistance " + QString::number(requestResistance));
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 forceResistanceAndInclination(requestResistance, currentInclination().value());
             }
             requestResistance = -1;
         } else if (requestInclination != -1) {
-            if (requestInclination > 15)
+            if (requestInclination > 15) {
                 requestInclination = 15;
-            else if (requestInclination == 0)
+            } else if (requestInclination == 0) {
                 requestInclination = 1;
+            }
 
             if (requestInclination != currentInclination().value()) {
-                debug("writing inclination " + QString::number(requestInclination));
+                emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
                 forceResistanceAndInclination(currentResistance(), requestInclination);
             }
             requestInclination = -1;
         }
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
 
             btinit(true);
 
@@ -168,47 +181,56 @@ void soleelliptical::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
 }
 
-void soleelliptical::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void soleelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
     if (newValue.length() == 5 && newValue.at(1) == 0x02) {
         Resistance = newValue.at(3) + 1;
-        debug("Current resistance: " + QString::number(Resistance));
+        emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance));
         return;
     }
 
-    if (newValue.length() < 20)
+    if (newValue.length() < 20) {
         return;
+    }
 
-    double speed = GetSpeedFromPacket(newValue) * settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
+    double speed =
+        GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
     uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
 
-    if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
+    }
     m_watt = watt;
 
     // Inclination = newValue.at(21);
     if (Resistance < 1) {
-        debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
+        emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance) +
+                   QStringLiteral(" putting to default"));
         Resistance = 1;
     }
 
@@ -218,8 +240,9 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     else
 #endif
     {
-        if (heartRateBeltName.startsWith("Disabled"))
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             Heart = ((uint8_t)newValue.at(18));
+        }
     }
 
     Distance += ((Speed.value() / 3600000.0) *
@@ -229,35 +252,36 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence));
-    debug("Current inclination: " + QString::number(Inclination.value()));
-    debug("Current heart: " + QString::number(Heart.value()));
-    debug("Current KCal: " + QString::number(kcal));
-    debug("Current Distance: " + QString::number(Distance.value()));
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-    debug("Current Watt: " + QString::number(watts()));
+    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+    emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence));
+    emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
+    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-    if (m_control->error() != QLowEnergyController::NoError)
-        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+    }
 
     Speed = speed;
     KCal = kcal;
 }
 
-double soleelliptical::GetSpeedFromPacket(QByteArray packet) {
+double soleelliptical::GetSpeedFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
     double data = (double)convertedData / 100.0f;
     return data;
 }
 
-double soleelliptical::GetKcalFromPacket(QByteArray packet) {
+double soleelliptical::GetKcalFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(7) << 8) | ((uint8_t)packet.at(8));
     return (double)convertedData / 10.0;
 }
 
-double soleelliptical::GetDistanceFromPacket(QByteArray packet) {
+double soleelliptical::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = ((double)convertedData) / 10.0f;
     return data;
@@ -276,29 +300,29 @@ void soleelliptical::btinit(bool startTape) {
     uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
-    initData3[4] = settings.value("age", 35).toUInt();
-    initData3[6] = settings.value("weight", 75.0).toFloat() * 2.20462;
+    initData3[4] = settings.value(QStringLiteral("age"), 35).toUInt();
+    initData3[6] = settings.value(QStringLiteral("weight"), 75.0).toFloat() * 2.20462;
 
-    writeCharacteristic(initData1, sizeof(initData1), "init");
-    writeCharacteristic(initData1, sizeof(initData1), "init");
-    writeCharacteristic(initData1, sizeof(initData1), "init");
-    writeCharacteristic(initData2, sizeof(initData2), "init");
-    writeCharacteristic(initData2, sizeof(initData2), "init");
-    writeCharacteristic(initData3, sizeof(initData3), "init");
-    writeCharacteristic(initData4, sizeof(initData4), "init");
-    writeCharacteristic(initData5, sizeof(initData5), "init");
-    writeCharacteristic(initData6, sizeof(initData6), "init");
-    writeCharacteristic(initData7, sizeof(initData7), "init");
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"));
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"));
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"));
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"));
+    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"));
+    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"));
 
     initDone = true;
 }
 
 void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId((QString) "49535343-8841-43f4-a8d4-ecbe34729bb3");
-    QBluetoothUuid _gattNotifyCharacteristicId((QString) "49535343-1e4d-4bd9-ba61-23c647249616");
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
+    QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
@@ -309,16 +333,14 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &soleelliptical::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &soleelliptical::characteristicWritten);
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                 SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &soleelliptical::descriptorWritten);
 
         QByteArray descriptor;
         descriptor.append((char)0x01);
@@ -331,7 +353,7 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 void soleelliptical::searchingStop() { searchStopped = true; }
 
 void soleelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -339,60 +361,59 @@ void soleelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, c
 
 void soleelliptical::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void soleelliptical::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "49535343-fe7d-4ae5-8fa9-9fafd205e455");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &soleelliptical::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void soleelliptical::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("soleelliptical::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("soleelliptical::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void soleelliptical::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("soleelliptical::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("soleelliptical::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &soleelliptical::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &soleelliptical::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &soleelliptical::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     searchStopped = false;
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             searchStopped = false;
             emit disconnected();
         });
@@ -404,8 +425,9 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool soleelliptical::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -416,9 +438,9 @@ void *soleelliptical::VirtualDevice() { return VirtualTreadmill(); }
 uint16_t soleelliptical::watts() { return m_watt.value(); }
 
 void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
     }

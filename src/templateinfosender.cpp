@@ -1,5 +1,8 @@
 #include "templateinfosender.h"
 #include "qdebugfixup.h"
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 TemplateInfoSender::TemplateInfoSender(const QString &id, QObject *parent) : QObject(parent), templateId(id) {
     connect(&retryTimer, &QTimer::timeout, this, [this]() {
@@ -22,7 +25,7 @@ bool TemplateInfoSender::update(QJSEngine *eng) {
         QJSValue jsv = eng->evaluate(jscript);
         if (!jsv.isError()) {
             QString evalres = jsv.toString();
-            qDebug() << "eval res " << evalres;
+            qDebug() << QStringLiteral("eval res ") << evalres;
             return send(evalres);
         } else {
 #if (QT_VERSION < QT_VERSION_CHECK(5, 12, 0))
@@ -30,11 +33,12 @@ bool TemplateInfoSender::update(QJSEngine *eng) {
 #else
             int errorType = jsv.errorType();
 #endif
-            qDebug() << "Scripts contains an error:" << jscript << "error" << errorType;
+            qDebug() << QStringLiteral("Scripts contains an error:") << jscript << QStringLiteral("error") << errorType;
             return false;
         }
-    } else
+    } else {
         return false;
+    }
 }
 
 QString TemplateInfoSender::js() const { return jscript; }
@@ -50,5 +54,5 @@ void TemplateInfoSender::innerStop() {}
 
 void TemplateInfoSender::reinit() {
     stop();
-    retryTimer.start(5000);
+    retryTimer.start(5s);
 }

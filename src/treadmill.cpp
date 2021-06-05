@@ -23,13 +23,14 @@ void treadmill::update_metrics(const bool watt_calc, const double watts) {
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value("continuous_moving", true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
             elapsed += deltaTime;
         }
         if (currentSpeed().value() > 0.0) {
             moving += deltaTime;
-            if (watt_calc)
+            if (watt_calc) {
                 m_watt = watts;
+            }
             m_jouls += (m_watt.value() * deltaTime);
             WeightLoss = metric::calculateWeightLoss(KCal.value());
         } else if (m_watt.value() > 0) {

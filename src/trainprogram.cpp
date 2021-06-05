@@ -2,13 +2,16 @@
 #include "zwiftworkout.h"
 #include <QFile>
 #include <QtXml/QtXml>
+#include <chrono>
 
-trainprogram::trainprogram(QList<trainrow> rows, bluetooth *b) {
+using namespace std::chrono_literals;
+
+trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b) {
     this->bluetoothManager = b;
     this->rows = rows;
     this->loadedRows = rows;
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
-    timer.setInterval(1000);
+    timer.setInterval(1s);
     timer.start();
 }
 
@@ -16,14 +19,15 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
 
-    return (rows[row].duration.second() + (rows[row].duration.minute() * 60) + (rows[row].duration.hour() * 3600));
+    return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
+            (rows.at(row).duration.hour() * 3600));
 }
 
 void trainprogram::scheduler() {
     QSettings settings;
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
-         !settings.value("continuous_moving", false).toBool()) ||
+         !settings.value(QStringLiteral("continuous_moving"), false).toBool()) ||
         bluetoothManager->device()->isPaused()) {
         return;
     }
@@ -33,94 +37,102 @@ void trainprogram::scheduler() {
     // entry point
     if (ticks == 1 && currentStep == 0) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-            if (rows[0].forcespeed && rows[0].speed) {
-                qDebug() << "trainprogram change speed" + QString::number(rows[0].speed);
-                emit changeSpeedAndInclination(rows[0].speed, rows[0].inclination);
+            if (rows.at(0).forcespeed && rows.at(0).speed) {
+                qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
+                emit changeSpeedAndInclination(rows.at(0).speed, rows.at(0).inclination);
             } else {
-                qDebug() << "trainprogram change inclination" + QString::number(rows[0].inclination);
-                emit changeInclination(rows[0].inclination);
+                qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(rows.at(0).inclination);
+                emit changeInclination(rows.at(0).inclination);
             }
         } else {
-            if (rows[0].resistance != -1) {
-                qDebug() << "trainprogram change resistance" + QString::number(rows[0].resistance);
-                emit changeResistance(rows[0].resistance);
+            if (rows.at(0).resistance != -1) {
+                qDebug() << QStringLiteral("trainprogram change resistance") + QString::number(rows.at(0).resistance);
+                emit changeResistance(rows.at(0).resistance);
             }
 
-            if (rows[0].cadence != -1) {
-                qDebug() << "trainprogram change cadence" + QString::number(rows[0].cadence);
-                emit changeCadence(rows[0].cadence);
+            if (rows.at(0).cadence != -1) {
+                qDebug() << QStringLiteral("trainprogram change cadence") + QString::number(rows.at(0).cadence);
+                emit changeCadence(rows.at(0).cadence);
             }
 
-            if (rows[0].power != -1) {
-                qDebug() << "trainprogram change power" + QString::number(rows[0].power);
-                emit changePower(rows[0].power);
+            if (rows.at(0).power != -1) {
+                qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(0).power);
+                emit changePower(rows.at(0).power);
             }
 
-            if (rows[0].requested_peloton_resistance != -1) {
-                qDebug() << "trainprogram change requested peloton resistance" +
-                                QString::number(rows[0].requested_peloton_resistance);
-                emit changeRequestedPelotonResistance(rows[0].requested_peloton_resistance);
+            if (rows.at(0).requested_peloton_resistance != -1) {
+                qDebug() << QStringLiteral("trainprogram change requested peloton resistance") +
+                                QString::number(rows.at(0).requested_peloton_resistance);
+                emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
         }
 
-        if (rows[0].fanspeed != -1) {
-            qDebug() << "trainprogram change fanspeed" + QString::number(rows[0].fanspeed);
-            emit changeFanSpeed(rows[0].fanspeed);
+        if (rows.at(0).fanspeed != -1) {
+            qDebug() << QStringLiteral("trainprogram change fanspeed") + QString::number(rows.at(0).fanspeed);
+            emit changeFanSpeed(rows.at(0).fanspeed);
         }
     }
 
     uint32_t currentRowLen = calculateTimeForRow(currentStep);
 
-    qDebug() << "trainprogram elapsed " + QString::number(ticks) + "current row len" + QString::number(currentRowLen);
+    qDebug() << QStringLiteral("trainprogram elapsed ") + QString::number(ticks) + QStringLiteral("current row len") +
+                    QString::number(currentRowLen);
 
     uint32_t calculatedLine;
     uint32_t calculatedElapsedTime = 0;
-    for (calculatedLine = 0; calculatedLine < rows.length(); calculatedLine++) {
+    for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
 
-        if (calculatedElapsedTime > ticks)
+        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
             break;
+        }
     }
 
     if (calculatedLine != currentStep) {
         if (calculateTimeForRow(calculatedLine)) {
             currentStep = calculatedLine;
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                if (rows[currentStep].forcespeed && rows[currentStep].speed) {
-                    qDebug() << "trainprogram change speed" + QString::number(rows[currentStep].speed);
-                    emit changeSpeedAndInclination(rows[currentStep].speed, rows[currentStep].inclination);
+                if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
+                    qDebug() << QStringLiteral("trainprogram change speed") +
+                                    QString::number(rows.at(currentStep).speed);
+                    emit changeSpeedAndInclination(rows.at(currentStep).speed, rows.at(currentStep).inclination);
                 }
-                qDebug() << "trainprogram change inclination" + QString::number(rows[currentStep].inclination);
-                emit changeInclination(rows[currentStep].inclination);
+                qDebug() << QStringLiteral("trainprogram change inclination") +
+                                QString::number(rows.at(currentStep).inclination);
+                emit changeInclination(rows.at(currentStep).inclination);
             } else {
-                if (rows[currentStep].resistance != -1) {
-                    qDebug() << "trainprogram change resistance" + QString::number(rows[currentStep].resistance);
-                    emit changeResistance(rows[currentStep].resistance);
+                if (rows.at(currentStep).resistance != -1) {
+                    qDebug() << QStringLiteral("trainprogram change resistance") +
+                                    QString::number(rows.at(currentStep).resistance);
+                    emit changeResistance(rows.at(currentStep).resistance);
                 }
 
-                if (rows[currentStep].cadence != -1) {
-                    qDebug() << "trainprogram change cadence" + QString::number(rows[currentStep].cadence);
-                    emit changeCadence(rows[currentStep].cadence);
+                if (rows.at(currentStep).cadence != -1) {
+                    qDebug() << QStringLiteral("trainprogram change cadence") +
+                                    QString::number(rows.at(currentStep).cadence);
+                    emit changeCadence(rows.at(currentStep).cadence);
                 }
 
-                if (rows[currentStep].power != -1) {
-                    qDebug() << "trainprogram change power" + QString::number(rows[currentStep].power);
-                    emit changePower(rows[currentStep].power);
+                if (rows.at(currentStep).power != -1) {
+                    qDebug() << QStringLiteral("trainprogram change power") +
+                                    QString::number(rows.at(currentStep).power);
+                    emit changePower(rows.at(currentStep).power);
                 }
 
-                if (rows[currentStep].requested_peloton_resistance != -1) {
-                    qDebug() << "trainprogram change requested peloton resistance" +
-                                    QString::number(rows[currentStep].requested_peloton_resistance);
-                    emit changeRequestedPelotonResistance(rows[currentStep].requested_peloton_resistance);
+                if (rows.at(currentStep).requested_peloton_resistance != -1) {
+                    qDebug() << QStringLiteral("trainprogram change requested peloton resistance") +
+                                    QString::number(rows.at(currentStep).requested_peloton_resistance);
+                    emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
                 }
             }
 
-            if (rows[currentStep].fanspeed != -1) {
-                qDebug() << "trainprogram change fanspeed" + QString::number(rows[currentStep].fanspeed);
-                emit changeFanSpeed(rows[currentStep].fanspeed);
+            if (rows.at(currentStep).fanspeed != -1) {
+                qDebug() << QStringLiteral("trainprogram change fanspeed") +
+                                QString::number(rows.at(currentStep).fanspeed);
+                emit changeFanSpeed(rows.at(currentStep).fanspeed);
             }
         } else {
-            qDebug() << "trainprogram ends!";
+            qDebug() << QStringLiteral("trainprogram ends!");
             started = false;
             emit stop();
         }
@@ -128,9 +140,9 @@ void trainprogram::scheduler() {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
         } else {
-            if (rows.length() > currentStep && rows[currentStep].power != -1) {
-                qDebug() << "trainprogram change power" + QString::number(rows[currentStep].power);
-                emit changePower(rows[currentStep].power);
+            if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
+                qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(currentStep).power);
+                emit changePower(rows.at(currentStep).power);
             }
         }
     }
@@ -155,38 +167,49 @@ void trainprogram::restart() {
     started = true;
 }
 
-bool trainprogram::saveXML(QString filename, const QList<trainrow> &rows) {
+bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows) {
     QFile output(filename);
-    if (rows.size() && output.open(QIODevice::WriteOnly)) {
+    if (!rows.isEmpty() && output.open(QIODevice::WriteOnly)) {
         QXmlStreamWriter stream(&output);
         stream.setAutoFormatting(true);
         stream.writeStartDocument();
-        stream.writeStartElement("rows");
-        foreach (trainrow row, rows) {
-            stream.writeStartElement("row");
-            stream.writeAttribute("duration", row.duration.toString());
-            if (row.speed >= 0)
-                stream.writeAttribute("speed", QString::number(row.speed));
-            if (row.inclination >= -50)
-                stream.writeAttribute("inclination", QString::number(row.inclination));
-            if (row.resistance >= 0)
-                stream.writeAttribute("resistance", QString::number(row.resistance));
-            if (row.requested_peloton_resistance >= 0)
-                stream.writeAttribute("requested_peloton_resistance",
+        stream.writeStartElement(QStringLiteral("rows"));
+        for (const trainrow &row : qAsConst(rows)) {
+            stream.writeStartElement(QStringLiteral("row"));
+            stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
+            if (row.speed >= 0) {
+                stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));
+            }
+            if (row.inclination >= -50) {
+                stream.writeAttribute(QStringLiteral("inclination"), QString::number(row.inclination));
+            }
+            if (row.resistance >= 0) {
+                stream.writeAttribute(QStringLiteral("resistance"), QString::number(row.resistance));
+            }
+            if (row.requested_peloton_resistance >= 0) {
+                stream.writeAttribute(QStringLiteral("requested_peloton_resistance"),
                                       QString::number(row.requested_peloton_resistance));
-            if (row.cadence >= 0)
-                stream.writeAttribute("cadence", QString::number(row.cadence));
-            if (row.power >= 0)
-                stream.writeAttribute("power", QString::number(row.power));
-            stream.writeAttribute("forcespeed", row.forcespeed ? "1" : "0");
-            if (row.fanspeed >= 0)
-                stream.writeAttribute("fanspeed", QString::number(row.fanspeed));
-            if (row.maxSpeed >= 0)
-                stream.writeAttribute("maxspeed", QString::number(row.maxSpeed));
-            if (row.zoneHR >= 0)
-                stream.writeAttribute("zonehr", QString::number(row.zoneHR));
-            if (row.loopTimeHR >= 0)
-                stream.writeAttribute("looptimehr", QString::number(row.loopTimeHR));
+            }
+            if (row.cadence >= 0) {
+                stream.writeAttribute(QStringLiteral("cadence"), QString::number(row.cadence));
+            }
+            if (row.power >= 0) {
+                stream.writeAttribute(QStringLiteral("power"), QString::number(row.power));
+            }
+            stream.writeAttribute(QStringLiteral("forcespeed"),
+                                  row.forcespeed ? QStringLiteral("1") : QStringLiteral("0"));
+            if (row.fanspeed >= 0) {
+                stream.writeAttribute(QStringLiteral("fanspeed"), QString::number(row.fanspeed));
+            }
+            if (row.maxSpeed >= 0) {
+                stream.writeAttribute(QStringLiteral("maxspeed"), QString::number(row.maxSpeed));
+            }
+            if (row.zoneHR >= 0) {
+                stream.writeAttribute(QStringLiteral("zonehr"), QString::number(row.zoneHR));
+            }
+            if (row.loopTimeHR >= 0) {
+                stream.writeAttribute(QStringLiteral("looptimehr"), QString::number(row.loopTimeHR));
+            }
             stream.writeEndElement();
         }
         stream.writeEndElement();
@@ -196,17 +219,17 @@ bool trainprogram::saveXML(QString filename, const QList<trainrow> &rows) {
         return false;
 }
 
-void trainprogram::save(QString filename) { saveXML(filename, rows); }
+void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
-trainprogram *trainprogram::load(QString filename, bluetooth *b) {
-    if (!filename.right(3).toUpper().compare("ZWO")) {
+trainprogram *trainprogram::load(const QString &filename, bluetooth *b) {
+    if (!filename.right(3).toUpper().compare(QStringLiteral("ZWO"))) {
         return new trainprogram(zwiftworkout::load(filename), b);
     } else {
         return new trainprogram(loadXML(filename), b);
     }
 }
 
-QList<trainrow> trainprogram::loadXML(QString filename) {
+QList<trainrow> trainprogram::loadXML(const QString &filename) {
     QList<trainrow> list;
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
@@ -215,30 +238,42 @@ QList<trainrow> trainprogram::loadXML(QString filename) {
         stream.readNext();
         trainrow row;
         QXmlStreamAttributes atts = stream.attributes();
-        if (atts.length()) {
-            row.duration = QTime::fromString(atts.value("duration").toString(), "hh:mm:ss");
-            if (atts.hasAttribute("speed"))
-                row.speed = atts.value("speed").toDouble();
-            if (atts.hasAttribute("fanspeed"))
-                row.fanspeed = atts.value("fanspeed").toDouble();
-            if (atts.hasAttribute("inclination"))
-                row.inclination = atts.value("inclination").toDouble();
-            if (atts.hasAttribute("resistance"))
-                row.resistance = atts.value("resistance").toInt();
-            if (atts.hasAttribute("requested_peloton_resistance"))
-                row.requested_peloton_resistance = atts.value("requested_peloton_resistance").toInt();
-            if (atts.hasAttribute("cadence"))
-                row.cadence = atts.value("cadence").toInt();
-            if (atts.hasAttribute("power"))
-                row.power = atts.value("power").toInt();
-            if (atts.hasAttribute("maxspeed"))
-                row.maxSpeed = atts.value("maxspeed").toInt();
-            if (atts.hasAttribute("zonehr"))
-                row.zoneHR = atts.value("zonehr").toInt();
-            if (atts.hasAttribute("looptimehr"))
-                row.loopTimeHR = atts.value("looptimehr").toInt();
-            if (atts.hasAttribute("forcespeed"))
-                row.forcespeed = atts.value("forcespeed").toInt() ? true : false;
+        if (!atts.isEmpty()) {
+            row.duration =
+                QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            if (atts.hasAttribute(QStringLiteral("speed"))) {
+                row.speed = atts.value(QStringLiteral("speed")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("fanspeed"))) {
+                row.fanspeed = atts.value(QStringLiteral("fanspeed")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("inclination"))) {
+                row.inclination = atts.value(QStringLiteral("inclination")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("resistance"))) {
+                row.resistance = atts.value(QStringLiteral("resistance")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("requested_peloton_resistance"))) {
+                row.requested_peloton_resistance = atts.value(QStringLiteral("requested_peloton_resistance")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("cadence"))) {
+                row.cadence = atts.value(QStringLiteral("cadence")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("power"))) {
+                row.power = atts.value(QStringLiteral("power")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("maxspeed"))) {
+                row.maxSpeed = atts.value(QStringLiteral("maxspeed")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("zonehr"))) {
+                row.zoneHR = atts.value(QStringLiteral("zonehr")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("looptimehr"))) {
+                row.loopTimeHR = atts.value(QStringLiteral("looptimehr")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("forcespeed"))) {
+                row.forcespeed = atts.value(QStringLiteral("forcespeed")).toInt() ? true : false;
+            }
             list.append(row);
         }
     }
@@ -248,7 +283,7 @@ QList<trainrow> trainprogram::loadXML(QString filename) {
 QTime trainprogram::totalElapsedTime() { return QTime(0, 0, ticks); }
 
 trainrow trainprogram::currentRow() {
-    if (started && rows.length()) {
+    if (started && !rows.isEmpty()) {
         return rows.at(currentStep);
     }
     return trainrow();
@@ -261,19 +296,20 @@ QTime trainprogram::currentRowElapsedTime() {
     if (rows.length() == 0)
         return QTime(0, 0, 0);
 
-    for (calculatedLine = 0; calculatedLine < rows.length(); calculatedLine++) {
+    for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
         uint32_t currentLine = calculateTimeForRow(calculatedLine);
         calculatedElapsedTime += currentLine;
 
-        if (calculatedElapsedTime > ticks)
+        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
             return QTime(0, 0, calculatedElapsedTime - currentLine + ticks);
+        }
     }
     return QTime(0, 0, 0);
 }
 
 QTime trainprogram::duration() {
     QTime total(0, 0, 0, 0);
-    foreach (trainrow row, rows) {
+    for (const trainrow &row : qAsConst(rows)) {
         total = total.addSecs((row.duration.hour() * 3600) + (row.duration.minute() * 60) + row.duration.second());
     }
     return total;
@@ -281,7 +317,7 @@ QTime trainprogram::duration() {
 
 double trainprogram::totalDistance() {
     double distance = 0;
-    foreach (trainrow row, rows) {
+    for (const trainrow &row : qAsConst(rows)) {
         if (row.duration.hour() || row.duration.minute() || row.duration.second()) {
             if (!row.forcespeed) {
                 return -1;

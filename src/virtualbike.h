@@ -57,7 +57,8 @@ class virtualbike : public QObject {
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
-    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, QByteArray value);
+    void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
+                             const QByteArray &value);
 
     void slopeChanged(int16_t slope);
     void powerChanged(uint16_t power);
