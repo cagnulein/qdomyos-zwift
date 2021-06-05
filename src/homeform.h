@@ -32,12 +32,13 @@ class DataObject : public QObject {
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
 
   public:
-    DataObject(QString name, QString icon, QString value, bool writable, QString id, int valueFontSize,
-               int labelFontSize, QString valueFontColor = "white", QString secondLine = "");
-    void setValue(QString value);
-    void setSecondLine(QString value);
+    DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
+               int valueFontSize, int labelFontSize, const QString &valueFontColor = "white",
+               const QString &secondLine = "");
+    void setValue(const QString &value);
+    void setSecondLine(const QString &value);
     void setValueFontSize(int value);
-    void setValueFontColor(QString value);
+    void setValueFontColor(const QString &value);
     void setLabelFontSize(int value);
     void setVisible(bool visible);
     QString name() { return m_name; }
@@ -397,9 +398,9 @@ class homeform : public QObject {
     QOAuth2AuthorizationCodeFlow *strava_connect();
     void strava_refreshtoken();
     QNetworkReply *replyStrava;
-    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(QUrl clientIdentifier,
-                                                                           QUrl clientIdentifierSharedKey);
-    bool strava_upload_file(QByteArray &data, QString remotename);
+    QAbstractOAuth::ModifyParametersFunction buildModifyParametersFunction(const QUrl &clientIdentifier,
+                                                                           const QUrl &clientIdentifierSharedKey);
+    bool strava_upload_file(const QByteArray &data, const QString &remotename);
 
     void update();
     void backup();
@@ -408,19 +409,19 @@ class homeform : public QObject {
 
   public slots:
     void aboutToQuit();
-    void saveSettings(QUrl filename);
-    void loadSettings(QUrl filename);
+    void saveSettings(const QUrl &filename);
+    void loadSettings(const QUrl &filename);
 
   private slots:
     void Start();
     void Stop();
     void Lap();
-    void Minus(QString);
-    void Plus(QString);
-    void deviceFound(QString name);
+    void Minus(const QString &);
+    void Plus(const QString &);
+    void deviceFound(const QString &name);
     void deviceConnected();
-    void trainprogram_open_clicked(QUrl fileName);
-    void gpx_open_clicked(QUrl fileName);
+    void trainprogram_open_clicked(const QUrl &fileName);
+    void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
     void fit_save_clicked();
     void strava_connect_clicked();
@@ -428,14 +429,14 @@ class homeform : public QObject {
     void refresh_bluetooth_devices_clicked();
     void onStravaGranted();
     void onStravaAuthorizeWithBrowser(const QUrl &url);
-    void replyDataReceived(QByteArray v);
+    void replyDataReceived(const QByteArray &v);
     void onSslErrors(QNetworkReply *reply, const QList<QSslError> &error);
     void networkRequestFinished(QNetworkReply *reply);
     void callbackReceived(const QVariantMap &values);
     void writeFileCompleted();
     void errorOccurredUploadStrava(QNetworkReply::NetworkError code);
-    void pelotonWorkoutStarted(QString name, QString instructor);
-    void pelotonWorkoutChanged(QString name, QString instructor);
+    void pelotonWorkoutStarted(const QString &name, const QString &instructor);
+    void pelotonWorkoutChanged(const QString &name, const QString &instructor);
     void pelotonLoginState(bool ok);
     void pzpLoginState(bool ok);
     void peloton_start_workout();
