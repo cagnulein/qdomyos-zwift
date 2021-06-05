@@ -15,7 +15,7 @@ class qfit : public QObject {
     Q_OBJECT
   public:
     explicit qfit(QObject *parent = nullptr);
-    static void save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
+    static void save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
                      uint32_t processFlag = QFIT_PROCESS_NONE);
 
   signals:

@@ -2,7 +2,7 @@
 
 SessionLine::SessionLine(double speed, int8_t inclination, double distance, uint16_t watt, int8_t resistance,
                          int8_t peloton_resistance, uint8_t heart, double pace, uint8_t cadence, double calories,
-                         double elevationGain, uint32_t elapsed, bool lap, QDateTime time) {
+                         double elevationGain, uint32_t elapsed, bool lap, const QDateTime &time) {
     this->speed = speed;
     this->inclination = inclination;
     this->distance = distance;

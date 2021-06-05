@@ -49,7 +49,9 @@ ScanRecordResult::ScanRecordResult(const ScanRecordResult &srr) {
 }
 
 QString ScanRecordResult::toString() const {
-    return isValid() ? name + " (" + address + ")[" + QString::number(rssi) + "] " + data.toHex(' ') : "N/A";
+    return isValid() ? name + QStringLiteral(" (") + address + QStringLiteral(")[") + QString::number(rssi) +
+                           QStringLiteral("] ") + data.toHex(' ')
+                     : QStringLiteral("N/A");
 }
 
 int ScanRecordResult::getRssi() const { return rssi; }

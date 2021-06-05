@@ -45,16 +45,16 @@ class skandikawiribike : public bike {
     void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(QByteArray packet);
+    double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
-    double GetKcalFromPacket(QByteArray packet);
+    double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
-    double GetWattFromPacket(QByteArray packet);
-    double GetCadenceFromPacket(QByteArray packet);
+    double GetWattFromPacket(const QByteArray &packet);
+    double GetCadenceFromPacket(const QByteArray &packet);
     char *itoa(int num, char *buffer, int base);
     uint8_t convertHexToDec(uint8_t a);
     void btinit();
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();

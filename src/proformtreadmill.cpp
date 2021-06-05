@@ -111,17 +111,17 @@ void proformtreadmill::update() {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                double speed = currentSpeed().value();
-                if (requestSpeed != -1) {
-                    speed = requestSpeed;
-                    requestSpeed = -1;
-                }
+                //                double speed = currentSpeed().value(); //NOTE: clang-analyzer-deadcode.DeadStores
+                //                if (requestSpeed != -1) {
+                //                    speed = requestSpeed;
+                //                    requestSpeed = -1;
+                //                }
                 // forceSpeedOrIncline(speed, requestInclination);
             }
             requestInclination = -1;
         }
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
 
             // btinit();
 
@@ -129,23 +129,26 @@ void proformtreadmill::update() {
             emit tapeStarted();
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
 }
 
-void proformtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void proformtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
@@ -154,8 +157,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
-         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF))
+         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
         return;
+    }
 
     // filter some strange values from proform
     m_watts = (((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
@@ -165,10 +169,12 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     } else {
         Inclination = (((uint8_t)newValue.at(11)) / 2);
         Speed = ((uint8_t)newValue.at(18));
-        KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -181,7 +187,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         else
 #endif
         {
-            if (heartRateBeltName.startsWith("Disabled")) {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                 lockscreen h;
@@ -195,14 +201,15 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
         }
 
-        debug("Current Inclination: " + QString::number(Inclination.value()));
-        debug("Current Speed: " + QString::number(Speed.value()));
-        debug("Current Calculate Distance: " + QString::number(Distance.value()));
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
-        debug("Current Watt: " + QString::number(watts()));
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-        if (m_control->error() != QLowEnergyController::NoError)
-            qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+        if (m_control->error() != QLowEnergyController::NoError) {
+            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        }
     }
 }
 
@@ -229,48 +236,48 @@ void proformtreadmill::btinit() {
     uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData2, sizeof(initData2), "init", false, false);
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData3, sizeof(initData3), "init", false, false);
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData4, sizeof(initData4), "init", false, false);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData5, sizeof(initData5), "init", false, false);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData6, sizeof(initData6), "init", false, false);
+    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData5, sizeof(initData5), "init", false, false);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData7, sizeof(initData7), "init", false, false);
+    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData8, sizeof(initData8), "init", false, false);
+    writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData9, sizeof(initData9), "init", false, false);
+    writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData10, sizeof(initData10), "init", false, false);
+    writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData11, sizeof(initData11), "init", false, false);
+    writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData12, sizeof(initData12), "init", false, false);
+    writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
     QThread::msleep(400);
 
     initDone = true;
 }
 
 void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId((QString) "00001534-1412-efde-1523-785feabcd123");
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "00001535-1412-efde-1523-785feabcd123");
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("00001534-1412-efde-1523-785feabcd123"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("00001535-1412-efde-1523-785feabcd123"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
@@ -281,16 +288,14 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &proformtreadmill::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &proformtreadmill::characteristicWritten);
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                 SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &proformtreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
         if (!firstStateChanged && !virtualTreadmill
@@ -301,9 +306,9 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
-                debug("creating virtual treadmill interface...");
+                emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformtreadmill::debug);
             }
@@ -320,7 +325,7 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void proformtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -329,60 +334,58 @@ void proformtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
 void proformtreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void proformtreadmill::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "00001533-1412-efde-1523-785feabcd123");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("00001533-1412-efde-1523-785feabcd123"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &proformtreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void proformtreadmill::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("proformtreadmill::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-          m_control->errorString());
+    emit debug(QStringLiteral("proformtreadmill::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void proformtreadmill::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("proformtreadmill::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("proformtreadmill::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void proformtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if (device.name().startsWith("I_TL")) {
+    emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
+    if (device.name().startsWith(QStringLiteral("I_TL"))) {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &proformtreadmill::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &proformtreadmill::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &proformtreadmill::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -393,8 +396,9 @@ void proformtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool proformtreadmill::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -403,16 +407,17 @@ void *proformtreadmill::VirtualTreadmill() { return virtualTreadmill; }
 void *proformtreadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t proformtreadmill::watts() {
-    if (currentSpeed().value() == 0)
+    if (currentSpeed().value() == 0) {
         return 0;
+    }
 
     return m_watts;
 }
 
 void proformtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
     }

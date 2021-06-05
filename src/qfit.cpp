@@ -9,16 +9,18 @@
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
-void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
+void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
                 uint32_t processFlag) {
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
-    if (!session.length())
+    if (session.isEmpty()) {
         return;
+    }
     std::fstream file;
-    double startingDistanceOffset = 0;
-    if (session.length())
+    double startingDistanceOffset = 0.0;
+    if (!session.isEmpty()) {
         startingDistanceOffset = session.first().distance;
+    }
 
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 
@@ -113,11 +115,13 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
         for (int i = 0; i < session.length(); i++) {
             sl = session.at(i);
             if (sl.distance != distanceOld || i == session.length() - 1) {
-                if (i == session.length() - 1 && sl.distance == distanceOld)
+                if (i == session.length() - 1 && sl.distance == distanceOld) {
                     i++;
+                }
                 if (startIdx >= 0) {
-                    for (int j = startIdx; j < i; j++)
+                    for (int j = startIdx; j < i; j++) {
                         session[j].distance += 0.1 * (j - startIdx) / (i - startIdx);
+                    }
                 }
                 distanceOld = sl.distance;
                 startIdx = i;

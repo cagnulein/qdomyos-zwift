@@ -89,7 +89,7 @@ class snodebike : public bike {
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
-    void serviceScanDone(void);
+    void serviceScanDone();
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);

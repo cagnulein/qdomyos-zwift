@@ -6,7 +6,10 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <chrono>
 #include <math.h>
+
+using namespace std::chrono_literals;
 
 skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                    double bikeResistanceGain) {
@@ -19,41 +22,43 @@ skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, 
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(300);
+    connect(refresh, &QTimer::timeout, this, &skandikawiribike::update);
+    refresh->start(300ms);
 }
 
 skandikawiribike::~skandikawiribike() {
-    qDebug() << "~skandikawiribike()" << virtualBike;
-    if (virtualBike)
+    qDebug() << QStringLiteral("~skandikawiribike()") << virtualBike;
+    if (virtualBike) {
         delete virtualBike;
+    }
 }
 
-void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
                                                          QByteArray((const char *)data, data_len));
 
-    if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 
-    if (timeout.isActive() == false)
-        debug(" exit for timeout");
+    if (timeout.isActive() == false) {
+        emit debug(QStringLiteral(" exit for timeout"));
+    }
 }
 
 /*
@@ -92,33 +97,36 @@ void skandikawiribike::update() {
                 noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
             }
 
-            writeCharacteristic(noOpData, sizeof(noOpData), "noOp", true, true);
+            writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 32)
+            if (requestResistance > 32) {
                 requestResistance = 32;
-            else if (requestResistance < 1)
+            } else if (requestResistance < 1) {
                 requestResistance = 1;
+            }
 
             if (requestResistance != currentResistance().value()) {
-                debug("writing resistance " + QString::number(requestResistance));
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // forceResistance(requestResistance);
             }
             requestResistance = -1;
         }
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
             requestStart = -1;
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             requestStop = -1;
         }
     }
 }
 
-void skandikawiribike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void skandikawiribike::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 uint8_t skandikawiribike::convertHexToDec(uint8_t a) {
     char buffer[33];
@@ -145,9 +153,10 @@ char *skandikawiribike::itoa(int num, char *buffer, int base) {
             curr++;
             // Make it positive and finally add the minus sign
             num *= -1;
-        } else
+        } else {
             // Unsupported base. Return NULL
-            return NULL;
+            return nullptr;
+        }
     }
 
     num_digits += (int)floor(log(num) / log(base)) + 1;
@@ -176,37 +185,44 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
     if (newValue.length() == 5) {
         if (newValue.at(2) < 33) {
             Resistance = newValue.at(2);
-            debug("Current resistance: " + QString::number(Resistance.value()));
+            emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
         }
         return;
-    } else if (newValue.length() != 12)
+    } else if (newValue.length() != 12) {
         return;
+    }
 
     if (newValue.at(1) == 0x00) {
         double speed = GetSpeedFromPacket(newValue);
-        debug("Current speed: " + QString::number(speed));
-        if (!settings.value("speed_power_based", false).toBool())
+        emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = speed;
-        else
+        } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value());
+        }
     } else if (newValue.at(1) == 0x10) {
-        if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
             Cadence = GetCadenceFromPacket(newValue);
+        }
     }
 
     double kcal = GetKcalFromPacket(newValue);
 
     m_watts = GetWattFromPacket(newValue);
     if (Resistance.value() < 1) {
-        debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
+        emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
+                   QStringLiteral(" putting to default"));
         Resistance = 1;
     }
     emit resistanceRead(Resistance.value());
@@ -217,8 +233,9 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     else
 #endif
     {
-        if (heartRateBeltName.startsWith("Disabled"))
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             Heart = 0;
+        }
     }
 
     if (Cadence.value() > 0) {
@@ -227,40 +244,41 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    debug("Current cadence: " + QString::number(Cadence.value()));
-    debug("Current heart: " + QString::number(Heart.value()));
-    debug("Current KCal: " + QString::number(kcal));
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-    debug("Current Watt: " + QString::number(watts()));
+    emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-    if (m_control->error() != QLowEnergyController::NoError)
-        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+    }
 
     KCal = kcal;
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 }
 
-double skandikawiribike::GetSpeedFromPacket(QByteArray packet) {
+double skandikawiribike::GetSpeedFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (convertHexToDec(packet.at(2)) * 100) + convertHexToDec(packet.at(3));
     double data = (double)convertedData / 10.0;
     return data;
 }
 
-double skandikawiribike::GetWattFromPacket(QByteArray packet) {
+double skandikawiribike::GetWattFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (convertHexToDec(packet.at(9)) * 100) + convertHexToDec(packet.at(10));
     double data = (double)convertedData;
     return data;
 }
 
-double skandikawiribike::GetCadenceFromPacket(QByteArray packet) {
+double skandikawiribike::GetCadenceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (convertHexToDec(packet.at(2)) * 100) + convertHexToDec(packet.at(3));
     double data = (double)convertedData;
     return data;
 }
 
-double skandikawiribike::GetKcalFromPacket(QByteArray packet) {
+double skandikawiribike::GetKcalFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (convertHexToDec(packet.at(6)) * 100) + convertHexToDec(packet.at(7));
     return (double)convertedData;
 }
@@ -270,7 +288,7 @@ void skandikawiribike::btinit() {
 
     // in the snoof log it repeats this frame 4 times, i will have to analyze the response to understand if 4 times are
     // enough
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     initDone = true;
 }
@@ -280,7 +298,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattNotifyCharacteristicId((quint16)0xfff1);
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
@@ -291,16 +309,14 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &skandikawiribike::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &skandikawiribike::characteristicWritten);
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                 SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &skandikawiribike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
         if (!firstStateChanged && !virtualBike
@@ -311,7 +327,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
@@ -324,7 +340,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
+                emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&skandikawiribike::debug);
@@ -342,7 +358,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void skandikawiribike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -351,60 +367,58 @@ void skandikawiribike::descriptorWritten(const QLowEnergyDescriptor &descriptor,
 void skandikawiribike::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
                                              const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void skandikawiribike::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &skandikawiribike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void skandikawiribike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("skandikawiribike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-          m_control->errorString());
+    emit debug(QStringLiteral("skandikawiribike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void skandikawiribike::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("skandikawiribike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("skandikawiribike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &skandikawiribike::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &skandikawiribike::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &skandikawiribike::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -415,8 +429,9 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool skandikawiribike::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -426,21 +441,22 @@ void *skandikawiribike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t skandikawiribike::watts() {
     QSettings settings;
-    double v = 0;
+    // double v = 0; // NOTE: unused variable v
     // const uint8_t max_resistance = 15;
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    if (currentSpeed().value() <= 0)
+    if (currentSpeed().value() <= 0) {
         return 0;
+    }
 
     return m_watts;
 }
 
 void skandikawiribike::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
     }
