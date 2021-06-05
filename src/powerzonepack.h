@@ -22,7 +22,7 @@ class powerzonepack : public QObject {
     Q_OBJECT
   public:
     powerzonepack(bluetooth *bl, QObject *parent);
-    void searchWorkout(QString classid);
+    void searchWorkout(const QString &classid);
     QList<trainrow> trainrows;
 
   private:

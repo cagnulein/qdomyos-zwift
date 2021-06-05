@@ -7,7 +7,10 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <chrono>
 #include <math.h>
+
+using namespace std::chrono_literals;
 //#include <QtBluetooth/private/qlowenergycontrollerbase_p.h>
 //#include <QtBluetooth/private/qlowenergyserviceprivate_p.h>
 
@@ -18,9 +21,9 @@ inspirebike::inspirebike(bool noWriteResistance, bool noHeartService) {
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     // initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    connect(t_timeout, SIGNAL(timeout()), this, SLOT(connection_timeout()));
-    refresh->start(200);
+    connect(refresh, &QTimer::timeout, this, &inspirebike::update);
+    connect(t_timeout, &QTimer::timeout, this, &inspirebike::connection_timeout);
+    refresh->start(200ms);
 }
 
 /*void inspirebike::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool
@@ -51,7 +54,7 @@ data_len));
 }*/
 
 void inspirebike::connection_timeout() {
-    qDebug() << "connection timeout triggered!";
+    qDebug() << QStringLiteral("connection timeout triggered!");
     m_control->disconnectFromDevice();
 }
 
@@ -88,19 +91,20 @@ void inspirebike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15)
+            if (requestResistance > 15) {
                 requestResistance = 15;
-            else if (requestResistance == 0)
+            } else if (requestResistance == 0) {
                 requestResistance = 1;
+            }
 
             if (requestResistance != currentResistance().value()) {
-                debug("writing resistance " + QString::number(requestResistance));
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // forceResistance(requestResistance);
             }
             requestResistance = -1;
         }
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
 
             // btinit();
 
@@ -108,37 +112,46 @@ void inspirebike::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
 }
 
-void inspirebike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void inspirebike::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() != 8)
+    if (newValue.length() != 8) {
         return;
+    }
 
     Resistance = newValue.at(6);
     emit resistanceRead(Resistance.value());
-    if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(3));
-    if (!settings.value("speed_power_based", false).toBool())
+    }
+    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
-    else
+    } else {
         Speed = metric::calculateSpeedFromPower(m_watt.value());
-    KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
+    }
+    KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
@@ -146,13 +159,14 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     // y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
-    if (settings.value("inspire_peloton_formula", false).toBool())
+    if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
         m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) +
                                 (2.575 * Resistance.value()) + 0.0444) *
-                               settings.value("peloton_gain", 1.0).toDouble()) +
-                              settings.value("peloton_offset", 0.0).toDouble();
-    else
+                               settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+                              settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+    } else {
         m_pelotonResistance = Resistance.value() * 2.5;
+    }
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -167,7 +181,7 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     else
 #endif
     {
-        if (heartRateBeltName.startsWith("Disabled")) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             lockscreen h;
@@ -192,25 +206,26 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
 #endif
 
-    debug("Current Resistance: " + QString::number(Resistance.value()));
-    debug("Current Speed: " + QString::number(Speed.value()));
-    debug("Current Calculate Distance: " + QString::number(Distance.value()));
-    debug("Current Cadence: " + QString::number(Cadence.value()));
-    debug("Current CrankRevs: " + QString::number(CrankRevs));
-    debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-    debug("Current Watt: " + QString::number(watts()));
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-    t_timeout->start(3000);
+    t_timeout->start(3s);
 
-    if (m_control->error() != QLowEnergyController::NoError)
-        qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+    }
 }
 
 void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "7ee72ad1-6fd8-4cbd-b648-a2cdcfa4e7f4");
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("7ee72ad1-6fd8-4cbd-b648-a2cdcfa4e7f4"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
@@ -221,16 +236,14 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
         // qDebug() << gattNotify1Characteristic.descriptors();
 
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &inspirebike::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &inspirebike::characteristicWritten);
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                 SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &inspirebike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
         if (!firstStateChanged && !virtualBike
@@ -241,7 +254,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
@@ -254,7 +267,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
+                emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&inspirebike::debug);
             }
@@ -277,64 +290,64 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void inspirebike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 }
 
 void inspirebike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void inspirebike::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "7ee7e1fa-6fd8-4cbd-b648-a2cdcfa4e7f4");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("7ee7e1fa-6fd8-4cbd-b648-a2cdcfa4e7f4"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &inspirebike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void inspirebike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("inspirebike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("inspirebike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void inspirebike::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("inspirebike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("inspirebike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void inspirebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+    emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
+               device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &inspirebike::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &inspirebike::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &inspirebike::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -345,8 +358,9 @@ void inspirebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool inspirebike::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -356,28 +370,30 @@ void *inspirebike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t inspirebike::watts() {
     QSettings settings;
-    if (currentCadence().value() == 0)
+    if (currentCadence().value() == 0) {
         return 0;
+    }
 
-    if (settings.value("inspire_peloton_formula", false).toBool())
+    if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
         return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) *
                            exp(0.088 * (double)(currentResistance().value()))) /
                           2.2);
-    else {
+    } else {
         // https://github.com/cagnulein/qdomyos-zwift/issues/62#issuecomment-736913564
-        if (currentCadence().value() < 90)
+        if (currentCadence().value() < 90) {
             return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) *
                               exp(0.095 * (double)(currentResistance().value())));
-        else
+        } else {
             return (uint16_t)((3.59 * exp(0.0217 * (double)(currentCadence().value()))) *
                               exp(0.088 * (double)(currentResistance().value())));
+        }
     }
 }
 
 void inspirebike::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         // initDone = false;
         m_control->connectToDevice();
     }

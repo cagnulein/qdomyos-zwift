@@ -51,12 +51,17 @@ bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 QString trainProgram;
-QString deviceName = "";
+QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
 uint8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
-static QString logfilename =
-    "debug-" + QDateTime::currentDateTime().toString().replace(":", "_").replace(" ", "_").replace(".", "_") + ".log";
+static QString logfilename = "debug-" +
+                             QDateTime::currentDateTime()
+                                 .toString()
+                                 .replace(QStringLiteral(":"), QStringLiteral("_"))
+                                 .replace(QStringLiteral(" "), QStringLiteral("_"))
+                                 .replace(QStringLiteral("."), QStringLiteral("_")) +
+                             QStringLiteral(".log");
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
@@ -119,14 +124,14 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         }
     }
 
-    if (nogui)
+    if (nogui) {
         return new QCoreApplication(argc, argv);
-    else if (forceQml)
+    } else if (forceQml) {
         return new QApplication(argc, argv);
-    else {
+    } else {
         QApplication *a = new QApplication(argc, argv);
 
-        a->setStyle(QStyleFactory::create("Fusion"));
+        a->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
 
         /*QFont defaultFont = QApplication::font();
         defaultFont.setPointSize(defaultFont.pointSize()+2);
@@ -163,7 +168,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
     QSettings settings;
-    static bool logdebug = settings.value("log_debug", false).toBool();
+    static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if (logs == false)
 #else
@@ -171,26 +176,26 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 #endif
         return;
 
-    QByteArray localMsg = msg.toLocal8Bit();
+    // QByteArray localMsg = msg.toLocal8Bit(); // NOTE: clazy-unused-non-trivial-variable
     const char *file = context.file ? context.file : "";
     const char *function = context.function ? context.function : "";
-    QString txt =
-        QDateTime::currentDateTime().toString() + " " + QString::number(QDateTime::currentMSecsSinceEpoch()) + " ";
+    QString txt = QDateTime::currentDateTime().toString() + QStringLiteral(" ") +
+                  QString::number(QDateTime::currentMSecsSinceEpoch()) + QStringLiteral(" ");
     switch (type) {
     case QtInfoMsg:
-        txt += QString("Info: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QStringLiteral("Info: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
         break;
     case QtDebugMsg:
-        txt += QString("Debug: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QStringLiteral("Debug: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
         break;
     case QtWarningMsg:
-        txt += QString("Warning: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QStringLiteral("Warning: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
         break;
     case QtCriticalMsg:
-        txt += QString("Critical: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QStringLiteral("Critical: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
         break;
     case QtFatalMsg:
-        txt += QString("Fatal: %1 %2 %3\n").arg(file).arg(function).arg(msg);
+        txt += QStringLiteral("Fatal: %1 %2 %3\n").arg(file, function, msg); // NOTE: clazy-qstring-arg
         abort();
     }
 
@@ -228,9 +233,9 @@ int main(int argc, char *argv[]) {
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
 
-    app->setOrganizationName("Roberto Viola");
-    app->setOrganizationDomain("robertoviola.cloud");
-    app->setApplicationName("qDomyos-Zwift");
+    app->setOrganizationName(QStringLiteral("Roberto Viola"));
+    app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
+    app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
 
     QSettings settings;
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -240,37 +245,39 @@ int main(int argc, char *argv[]) {
         bool defaultNoHeartService = !noHeartService;
 
         // Android 10 doesn't support multiple services for peripheral mode
-        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10))
-            settings.setValue("bike_heartrate_service", true);
+        if (QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Android, 10)) {
+            settings.setValue(QStringLiteral("bike_heartrate_service"), true);
+        }
 
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
-            !settings.value("android_wakelock").isValid())
-            settings.setValue("android_wakelock", false);
+            !settings.value(QStringLiteral("android_wakelock")).isValid()) {
+            settings.setValue(QStringLiteral("android_wakelock"), false);
+        }
 
-        noHeartService = settings.value("bike_heartrate_service", defaultNoHeartService).toBool();
-        bikeResistanceOffset = settings.value("bike_resistance_offset", bikeResistanceOffset).toInt();
-        bikeResistanceGain = settings.value("bike_resistance_gain_f", bikeResistanceGain).toDouble();
-        deviceName = settings.value("filter_device", "Disabled").toString();
+        noHeartService = settings.value(QStringLiteral("bike_heartrate_service"), defaultNoHeartService).toBool();
+        bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), bikeResistanceOffset).toInt();
+        bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), bikeResistanceGain).toDouble();
+        deviceName = settings.value(QStringLiteral("filter_device"), QStringLiteral("Disabled")).toString();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
-        settings.setValue("miles_unit", miles);
-        settings.setValue("bluetooth_no_reconnection", bluetooth_no_reconnection);
-        settings.setValue("bluetooth_relaxed", bluetooth_relaxed);
-        settings.setValue("bike_cadence_sensor", bike_cadence_sensor);
-        settings.setValue("bike_power_sensor", bike_power_sensor);
-        settings.setValue("battery_service", battery_service);
-        settings.setValue("service_changed", service_changed);
-        settings.setValue("bike_wheel_revs", bike_wheel_revs);
-        settings.setValue("run_cadence_sensor", run_cadence_sensor);
+        settings.setValue(QStringLiteral("miles_unit"), miles);
+        settings.setValue(QStringLiteral("bluetooth_no_reconnection"), bluetooth_no_reconnection);
+        settings.setValue(QStringLiteral("bluetooth_relaxed"), bluetooth_relaxed);
+        settings.setValue(QStringLiteral("bike_cadence_sensor"), bike_cadence_sensor);
+        settings.setValue(QStringLiteral("bike_power_sensor"), bike_power_sensor);
+        settings.setValue(QStringLiteral("battery_service"), battery_service);
+        settings.setValue(QStringLiteral("service_changed"), service_changed);
+        settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
+        settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
     }
 #endif
 
     qInstallMessageHandler(myMessageOutput);
-    qDebug() << "version " << app->applicationVersion();
+    qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
-        if (!s.contains("password")) {
+        if (!s.contains(QStringLiteral("password"))) {
             qDebug() << s << settings.value(s);
         }
     }
@@ -290,11 +297,14 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (!forceQml) {
         if (onlyVirtualBike) {
-            virtualbike *V = new virtualbike(new bike(), noWriteResistance, noHeartService);
+            virtualbike *V =
+                new virtualbike(new bike(), noWriteResistance,
+                                noHeartService); // FIXME: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
             Q_UNUSED(V)
             return app->exec();
         } else if (onlyVirtualTreadmill) {
-            virtualtreadmill *V = new virtualtreadmill(new treadmill(), noHeartService);
+            virtualtreadmill *V = new virtualtreadmill(
+                new treadmill(), noHeartService); // FIXME: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
             Q_UNUSED(V)
             return app->exec();
         }
@@ -306,8 +316,9 @@ int main(int argc, char *argv[]) {
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
     Q_UNUSED(V)
     return app->exec();*/
-    bluetooth *bl = new bluetooth(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole,
-                                  testResistance, bikeResistanceOffset, bikeResistanceGain);
+    bluetooth *bl = new bluetooth(
+        logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
+        bikeResistanceOffset, bikeResistanceGain); // FIXME: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -365,8 +376,8 @@ int main(int argc, char *argv[]) {
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, bl);
-        QObject::connect(qobject_cast<QCoreApplication *>(app.data()), &QCoreApplication::aboutToQuit, h,
-                         &homeform::aboutToQuit);
+        QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
+                         &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast
 
         {
 #ifdef Q_OS_ANDROID

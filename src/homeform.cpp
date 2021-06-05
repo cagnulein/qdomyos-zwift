@@ -2240,8 +2240,9 @@ void homeform::sendMail() {
 QString homeform::getAndroidDataAppDir() {
     static QString path = "";
 
-    if (path.length())
+    if (path.length()) {
         return path;
+    }
 
     QAndroidJniObject filesArr = QtAndroid::androidActivity().callObjectMethod(
         "getExternalFilesDirs", "(Ljava/lang/String;)[Ljava/io/File;", nullptr);

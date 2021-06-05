@@ -51,10 +51,10 @@ class peloton : public QObject {
 
     int total_workout;
     void getWorkoutList(int num);
-    void getSummary(QString workout);
-    void getWorkout(QString workout);
-    void getInstructor(QString instructor_id);
-    void getPerformance(QString workout);
+    void getSummary(const QString &workout);
+    void getWorkout(const QString &workout);
+    void getInstructor(const QString &instructor_id);
+    void getPerformance(const QString &workout);
 
   private slots:
     void login_onfinish(QNetworkReply *reply);

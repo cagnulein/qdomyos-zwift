@@ -10,26 +10,29 @@ void metric::setValue(double v) {
     QSettings settings;
     if (m_type == METRIC_WATT) {
         if (v > 0) {
-            if (settings.value("watt_gain", 1.0).toDouble() <= 1.25) {
-                if (settings.value("watt_gain", 1.0).toDouble() != 1.0) {
-                    qDebug() << "watt value was " << v << "but it will be transformed to"
-                             << v * settings.value("watt_gain", 1.0).toDouble();
+            if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() <= 1.25) {
+                if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() != 1.0) {
+                    qDebug() << QStringLiteral("watt value was ") << v
+                             << QStringLiteral("but it will be transformed to")
+                             << v * settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
                 }
-                v *= settings.value("watt_gain", 1.0).toDouble();
+                v *= settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
             }
-            if (settings.value("watt_offset", 0.0).toDouble() < 0) {
-                if (settings.value("watt_offset", 0.0).toDouble() != 0.0) {
-                    qDebug() << "watt value was " << v << "but it will be transformed to"
-                             << v + settings.value("watt_offset", 0.0).toDouble();
+            if (settings.value(QStringLiteral("watt_offset"), 0.0).toDouble() < 0) {
+                if (settings.value(QStringLiteral("watt_offset"), 0.0).toDouble() != 0.0) {
+                    qDebug() << QStringLiteral("watt value was ") << v
+                             << QStringLiteral("but it will be transformed to")
+                             << v + settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
                 }
-                v += settings.value("watt_offset", 0.0).toDouble();
+                v += settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
             }
         }
     }
     m_value = v;
 
-    if (paused)
+    if (paused) {
         return;
+    }
 
     if (value() != 0) {
         m_countValue++;
@@ -37,18 +40,22 @@ void metric::setValue(double v) {
         m_totValue += value();
         m_lapTotValue += value();
 
-        if (value() < m_min)
+        if (value() < m_min) {
             m_min = value();
+        }
 
-        if (value() < m_lapMin)
+        if (value() < m_lapMin) {
             m_lapMin = value();
+        }
     }
 
-    if (value() > m_max)
+    if (value() > m_max) {
         m_max = value();
+    }
 
-    if (value() > m_lapMax)
+    if (value() > m_lapMax) {
         m_lapMax = value();
+    }
 }
 
 void metric::clear(bool accumulator) {
@@ -70,17 +77,19 @@ double metric::value() {
 double metric::lapValue() { return m_value - m_lapOffset; }
 
 double metric::average() {
-    if (m_countValue == 0)
+    if (m_countValue == 0) {
         return 0;
-    else
+    } else {
         return (m_totValue / m_countValue);
+    }
 }
 
 double metric::lapAverage() {
-    if (m_lapCountValue == 0)
+    if (m_lapCountValue == 0) {
         return 0;
-    else
+    } else {
         return (m_lapTotValue / m_lapCountValue);
+    }
 }
 
 void metric::operator=(double v) { setValue(v); }
@@ -111,7 +120,7 @@ void metric::setLap(bool accumulator) { clearLap(accumulator); }
 
 double metric::calculateSpeedFromPower(double power) {
     QSettings settings;
-    double twt = 9.8 * (settings.value("weight", 75.0).toFloat() + 0.0); // bike weight is null
+    double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() + 0.0); // bike weight is null
     double aero = 0.22691607640851885;
     double hw = 0; // wind speed
     double tr = twt * 0.005;

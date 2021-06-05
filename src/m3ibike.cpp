@@ -7,7 +7,10 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+#include <chrono>
 #include <math.h>
+
+using namespace std::chrono_literals;
 #if defined(Q_OS_ANDROID)
 #include "scanrecordresult.h"
 #include <QAndroidJniEnvironment>
@@ -35,10 +38,12 @@ static m3ibike *m_instance = 0;
     }
 
 KeiserM3iDeviceSimulator::~KeiserM3iDeviceSimulator() {
-    if (dist_buff)
+    if (dist_buff) {
         delete[] dist_buff;
-    if (dist_buff_time)
+    }
+    if (dist_buff_time) {
         delete[] dist_buff_time;
+    }
 }
 KeiserM3iDeviceSimulator::KeiserM3iDeviceSimulator() {}
 
@@ -102,7 +107,7 @@ double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t *f, bool pause) {
     if (this->old_dist < 0) {
         this->old_dist = realdist;
         this->old_timeRms = realtime;
-        qDebug() << "Init: old_dist = " << realdist << " old_time = " << realtime;
+        qDebug() << QStringLiteral("Init: old_dist = ") << realdist << QStringLiteral(" old_time = ") << realtime;
         f->speed = 0.0;
         this->lastUpdatePostedTime = f->timeRAbsms;
     } else {
@@ -112,14 +117,16 @@ double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t *f, bool pause) {
             double rem = 0.0;
             int rem_time = 0;
             if (this->dist_buff_size == this->buffSize) {
-                if (this->dist_buff_idx == this->buffSize)
+                if (this->dist_buff_idx == this->buffSize) {
                     this->dist_buff_idx = 0;
+                }
                 rem = this->dist_buff[this->dist_buff_idx];
                 this->dist_acc -= rem;
                 rem_time = this->dist_buff_time[this->dist_buff_idx];
                 this->timeRms_acc -= rem_time;
-            } else
+            } else {
                 this->dist_buff_size += 1;
+            }
             this->dist_buff_time[this->dist_buff_idx] = acc_time;
             this->dist_buff[this->dist_buff_idx] = acc;
             this->dist_buff_idx += 1;
@@ -129,19 +136,24 @@ double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t *f, bool pause) {
 
             this->old_dist = realdist;
             this->old_timeRms = realtime;
-            qDebug() << "D = (" << realdist << "," << acc << "->" << rem << "," << this->dist_acc << ") T = ("
-                     << realtime << "," << acc_time << "->" << rem_time << "," << this->timeRms_acc << ") => ";
+            qDebug() << QStringLiteral("D = (") << realdist << QStringLiteral(",") << acc << QStringLiteral("->") << rem
+                     << QStringLiteral(",") << this->dist_acc << QStringLiteral(") T = (") << realtime
+                     << QStringLiteral(",") << acc_time << QStringLiteral("->") << rem_time << QStringLiteral(",")
+                     << this->timeRms_acc << QStringLiteral(") => ");
         } else {
-            if (f->timeRAbsms - this->lastUpdatePostedTime >= 1000)
+            if (f->timeRAbsms - this->lastUpdatePostedTime >= 1000) {
                 this->lastUpdatePostedTime = f->timeRAbsms;
-            qDebug() << "P D = (" << realdist << ",- -> -," << this->dist_acc << ") T = (" << realtime << ",- -> -,"
-                     << this->timeRms_acc << ") => ";
+            }
+            qDebug() << QStringLiteral("P D = (") << realdist << QStringLiteral(",- -> -,") << this->dist_acc
+                     << QStringLiteral(") T = (") << realtime << QStringLiteral(",- -> -,") << this->timeRms_acc
+                     << QStringLiteral(") => ");
         }
 
-        if (this->timeRms_acc == 0)
+        if (this->timeRms_acc == 0) {
             f->speed = 0;
-        else
+        } else {
             f->speed = this->dist_acc / (this->timeRms_acc / 3600.00);
+        }
         qDebug() << f->speed;
     }
     return f->speed;
@@ -154,10 +166,11 @@ bool KeiserM3iDeviceSimulator::inPause(qint64 ud) const {
 void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t *f, qint64 ud) {
     if (f->time_orig == this->old_time_orig) {
         this->equalTimeDistance += ud;
-        if (this->equalTimeDistance >= equalTimeDistanceThreshold)
+        if (this->equalTimeDistance >= equalTimeDistanceThreshold) {
             this->equalTime = M3I_EQUAL_TIME_THRESHOLD;
-        else if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD)
+        } else if (this->equalTime < M3I_EQUAL_TIME_THRESHOLD) {
             this->equalTime += 1;
+        }
     } else {
         this->equalTime = 0;
         this->equalTimeDistance = 0;
@@ -168,7 +181,8 @@ void KeiserM3iDeviceSimulator::detectPause(const keiser_m3i_out_t *f, qint64 ud)
 bool KeiserM3iDeviceSimulator::inner_step(keiser_m3i_out_t *f) {
     qint64 nowms = QDateTime::currentMSecsSinceEpoch();
     if (this->old_time_orig > f->time_orig) {
-        qDebug() << "Setting offsets Km3i because " << this->old_time_orig << " > " << f->time_orig;
+        qDebug() << QStringLiteral("Setting offsets Km3i because ") << this->old_time_orig << QStringLiteral(" > ")
+                 << f->time_orig;
         this->_set_offsets();
     }
     f->pulseMn = 0.0;
@@ -180,7 +194,7 @@ bool KeiserM3iDeviceSimulator::inner_step(keiser_m3i_out_t *f) {
     f->pulseMn /= 10.0;
     f->rpm /= 10;
     f->rpmMn /= 10.0;
-    qDebug() << "Returning " << out;
+    qDebug() << QStringLiteral("Returning ") << out;
     return out;
 }
 
@@ -188,8 +202,9 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t *f, qint64 now) {
     qint64 updateDiff = now - lastUpdateTime;
     this->detectPause(f, updateDiff);
     bool nowpause = this->inPause(updateDiff);
-    qDebug() << "ET=" << this->equalTime << "ETD=" << this->equalTimeDistance << " UD=" << updateDiff
-             << " OP=" << oldPause << " NP=" << nowpause;
+    qDebug() << QStringLiteral("ET=") << this->equalTime << QStringLiteral("ETD=") << this->equalTimeDistance
+             << QStringLiteral(" UD=") << updateDiff << QStringLiteral(" OP=") << oldPause << QStringLiteral(" NP=")
+             << nowpause;
     if (!this->oldPause && !nowpause) {
         this->sumTime += updateDiff;
         this->fillTimeRFields(f, now);
@@ -205,16 +220,18 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t *f, qint64 now) {
         this->fillTimeRFields(f, now);
         this->calcSpeed(f, true);
     }
-    if (this->nPulses > 0)
+    if (this->nPulses > 0) {
         f->pulseMn = this->sumPulse / this->nPulses;
+    }
     if (this->nActiveUpdates > 0) {
         f->rpmMn = this->sumRpm / this->nActiveUpdates;
         f->wattMn = this->sumWatt / this->nActiveUpdates;
         f->speedMn = this->sumSpeed / this->nActiveUpdates;
-        if (this->sumTime <= 0)
+        if (this->sumTime <= 0) {
             f->distanceR = 0.0;
-        else
+        } else {
             f->distanceR = f->speedMn * (this->sumTime / 3600000.0);
+        }
     }
     f->time = f->time_orig + this->time_o;
     f->calorie += this->calorie_o;
@@ -234,12 +251,14 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t *f, qint64 now) {
 
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
-    antHeart = settings.value("ant_heart", false).toBool();
+    antHeart = settings.value(QStringLiteral("ant_heart"), false).toBool();
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     qt_search =
         (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value("m3i_bike_qt_search", false).toBool();
 #endif
-    heartRateBeltDisabled = settings.value("heart_rate_belt_name", "Disabled").toString().startsWith("Disabled");
+    heartRateBeltDisabled = settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled"))
+                                .toString()
+                                .startsWith(QStringLiteral("Disabled"));
     m_watt.setType(metric::METRIC_WATT);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -252,7 +271,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     connect(detectDisc, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
         emit disconnected();
-        debug("M3i detected disconnection");
+        emit debug(QStringLiteral("M3i detected disconnection"));
         initDone = false;
         detectDisc->stop();
         elapsedTimer->stop();
@@ -279,8 +298,9 @@ m3ibike::~m3ibike() {
         elapsedTimer->stop();
         delete elapsedTimer;
     }
-    if (virtualBike)
+    if (virtualBike) {
         delete virtualBike;
+    }
     m_instance = 0;
     disconnecting = true;
 #if defined(Q_OS_ANDROID)
@@ -290,8 +310,10 @@ m3ibike::~m3ibike() {
 #endif
     if (discoveryAgent) {
         if (discoveryAgent->isActive()) {
-            QObject::disconnect(discoveryAgent, SIGNAL(canceled()), this, SLOT(discoveryFinishedPriv()));
-            QObject::disconnect(discoveryAgent, SIGNAL(finished()), this, SLOT(discoveryFinishedPriv()));
+            QObject::disconnect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this,
+                                &m3ibike::discoveryFinishedPriv);
+            QObject::disconnect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this,
+                                &m3ibike::discoveryFinishedPriv);
             discoveryAgent->stop();
         }
         delete discoveryAgent;
@@ -309,10 +331,12 @@ m3ibike::~m3ibike() {
 }
 
 void m3ibike::disconnectBluetooth() {
-    if (detectDisc)
+    if (detectDisc) {
         detectDisc->stop();
-    if (elapsedTimer)
+    }
+    if (elapsedTimer) {
         elapsedTimer->stop();
+    }
     disconnecting = true;
     lastTimerRestart = -1;
 #if defined(Q_OS_IOS)
@@ -328,7 +352,7 @@ void m3ibike::disconnectBluetooth() {
         discoveryAgent->stop();
     }
     emit disconnected();
-    debug("M3i detected disconnection");
+    emit debug(QStringLiteral("M3i detected disconnection"));
     initDone = false;
 }
 
@@ -385,10 +409,11 @@ void m3ibike::restartScan() {
     } else
 #endif
     {
-        if (discoveryAgent->isActive())
+        if (discoveryAgent->isActive()) {
             discoveryAgent->stop();
-        else
+        } else {
             discoveryFinishedPriv();
+        }
     }
 }
 void m3ibike::initScan() {
@@ -474,13 +499,12 @@ void m3ibike::initScan() {
         if (!discoveryAgent) {
             discoveryAgent = new QBluetoothDeviceDiscoveryAgent(this);
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-            connect(discoveryAgent, SIGNAL(deviceDiscovered(QBluetoothDeviceInfo)), this,
-                    SLOT(deviceDiscoveredPriv(QBluetoothDeviceInfo)));
-            connect(discoveryAgent, SIGNAL(deviceUpdated(const QBluetoothDeviceInfo &, QBluetoothDeviceInfo::Fields)),
-                    this, SLOT(deviceUpdatedPriv(const QBluetoothDeviceInfo &, QBluetoothDeviceInfo::Fields)));
+            connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceDiscovered, this,
+                    &m3ibike::deviceDiscoveredPriv);
+            connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::deviceUpdated, this, &m3ibike::deviceUpdatedPriv);
 #endif
-            connect(discoveryAgent, SIGNAL(canceled()), this, SLOT(discoveryFinishedPriv()));
-            connect(discoveryAgent, SIGNAL(finished()), this, SLOT(discoveryFinishedPriv()));
+            connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &m3ibike::discoveryFinishedPriv);
+            connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &m3ibike::discoveryFinishedPriv);
 
             // Start a discovery
             discoveryAgent->setLowEnergyDiscoveryTimeout(600000);
@@ -490,12 +514,12 @@ void m3ibike::initScan() {
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
 void m3ibike::deviceUpdatedPriv(const QBluetoothDeviceInfo &device, QBluetoothDeviceInfo::Fields updateFields) {
-    debug("deviceUpdated " + device.name() + " " + updateFields);
+    emit debug(QStringLiteral("deviceUpdated ") + device.name() + " " + updateFields);
 }
 
 void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo &device) {
     if (SAME_BLUETOOTH_DEVICE(device, bluetoothDevice)) {
-        debug("NEW ADV " + bluetoothDevice.name());
+        emit debug(QStringLiteral("NEW ADV ") + bluetoothDevice.name());
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
@@ -508,8 +532,9 @@ void m3ibike::deviceDiscoveredPriv(const QBluetoothDeviceInfo &device) {
 #endif
 
 void m3ibike::discoveryFinishedPriv() {
-    if (!disconnecting && discoveryAgent)
+    if (!disconnecting && discoveryAgent) {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    }
 }
 
 void m3ibike::searchingStop() { restartScan(); }
@@ -519,11 +544,13 @@ bool m3ibike::valid_id(int id) { return id >= 0 && id <= 255; }
 bool m3ibike::parse_data(const QByteArray &data, keiser_m3i_out_t *k3) {
     const uint8_t *arr = (const uint8_t *)data.constData();
     int len = data.size();
-    if (len < 4 || len > 19)
+    if (len < 4 || len > 19) {
         return false;
+    }
     int index = 0;
-    if (arr[index] == 2 && arr[index + 1] == 1)
+    if (arr[index] == 2 && arr[index + 1] == 1) {
         index += 2;
+    }
     uint8_t mayor = arr[index];
     index += 1;
     uint8_t minor = arr[index];
@@ -542,25 +569,27 @@ bool m3ibike::parse_data(const QByteArray &data, keiser_m3i_out_t *k3) {
         k3->time_orig = arr[index + 10] * 60;
         k3->time_orig += arr[index + 11];
         uint16_t dist = arr[index + 12] | arr[index + 13] << 8;
-        if (dist & 32768)
+        if (dist & 32768) {
             k3->distance = (dist & 0x7FFF) / 10.0;
-        else
+        } else {
             k3->distance = dist / 10.0 * 1.60934;
-        if (minor >= 0x21 && len > (index + 14))
+        }
+        if (minor >= 0x21 && len > (index + 14)) {
             k3->incline = arr[index + 14];
-        else
+        } else {
             k3->incline = 0;
+        }
         return true;
     } else
         return false;
 }
 
 bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
-    if (device.name().startsWith("M3")) {
+    if (device.name().startsWith(QStringLiteral("M3"))) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
         QSettings settings;
         keiser_m3i_out_t k3;
-        int id = settings.value("m3i_bike_id", 256).toInt();
+        int id = settings.value(QStringLiteral("m3i_bike_id"), 256).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
@@ -577,9 +606,10 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
 }
 
 void m3ibike::processAdvertising(const QByteArray &data) {
-    if (disconnecting)
+    if (disconnecting) {
         return;
-    debug(" << " + data.toHex(' '));
+    }
+    emit debug(QStringLiteral(" << ") + data.toHex(' '));
     if (parse_data(data, &k3)) {
         QSettings settings;
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
@@ -590,7 +620,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 && !h
 #endif
             ) {
-                bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+                bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
                 bool cadence = settings.value("bike_cadence_sensor", false).toBool();
@@ -601,11 +631,11 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 } else
 #endif
                     if (virtual_device_enabled) {
-                    debug("creating virtual bike interface...");
+                    emit debug(QStringLiteral("creating virtual bike interface..."));
                     virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                 }
-                int buffSize = settings.value("m3i_bike_speed_buffsize", 90).toInt();
+                int buffSize = settings.value(QStringLiteral("m3i_bike_speed_buffsize"), 90).toInt();
                 k3s.inner_reset(buffSize,
 #if defined(Q_OS_ANDROID)
                                 qt_search ? 2500 : 5000
@@ -617,7 +647,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
             }
             emit connectedAndDiscovered();
             emit bikeStarted();
-            debug("M3i (re)connected");
+            emit debug(QStringLiteral("M3i (re)connected"));
         }
         int oldtime = k3.time;
         bool not_in_pause = k3s.inner_step(&k3);
@@ -634,19 +664,26 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
         emit resistanceRead(Resistance.value());
 
-        if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
             Cadence = k3.rpm;
+        }
         m_watt = k3.watt;
         watts(); // to update avg and max
-        if (!settings.value("speed_power_based", false).toBool())
+        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = k3.speed;
-        else
+        } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value());
-        if (settings.value("m3i_bike_kcal", true).toBool())
+        }
+        if (settings.value(QStringLiteral("m3i_bike_kcal"), true).toBool()) {
             KCal = k3.calorie;
-        else
-            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
+        } else {
+            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+                       3.5) /
+                      200.0) /
                      (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        }
         Distance = k3.distance;
         if (!not_in_pause || k3.time_orig <= 10) {
             lastTimerRestart = -1;
@@ -657,7 +694,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
             elapsed = lastTimerRestartOffset = k3.time;
             moving = elapsed;
             lastTimerRestart = QDateTime::currentMSecsSinceEpoch();
-            elapsedTimer->start(1000);
+            elapsedTimer->start(1s);
         }
         m_jouls += (m_watt.value() * (k3.time - oldtime));
 
@@ -699,16 +736,16 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
 #endif
 
-        debug("Current Elapsed: " + QString::number(elapsed.value()));
-        debug("Current Resistance: " + QString::number(Resistance.value()));
-        debug("Current Speed: " + QString::number(Speed.value()));
-        debug("Current Calculate Distance: " + QString::number(k3.distanceR));
-        debug("Current Cadence: " + QString::number(Cadence.value()));
-        debug("Current Distance: " + QString::number(Distance.value()));
-        debug("Current CrankRevs: " + QString::number(CrankRevs));
-        debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-        debug("Current Watt: " + QString::number(watts()));
-        debug("Current Heart: " + QString::number(Heart.value()));
+        emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(k3.distanceR));
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+        emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+        emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
 }
 
@@ -725,8 +762,9 @@ void *m3ibike::VirtualBike() { return virtualBike; }
 void *m3ibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t m3ibike::watts() {
-    if (currentCadence().value() == 0)
+    if (currentCadence().value() == 0) {
         return 0;
+    }
 
     return m_watt.value();
 }

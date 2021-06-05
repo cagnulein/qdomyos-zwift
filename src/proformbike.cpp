@@ -8,7 +8,10 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <QThread>
+#include <chrono>
 #include <math.h>
+
+using namespace std::chrono_literals;
 
 proformbike::proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                          double bikeResistanceGain) {
@@ -19,29 +22,29 @@ proformbike::proformbike(bool noWriteResistance, bool noHeartService, uint8_t bi
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    connect(refresh, &QTimer::timeout, this, &proformbike::update);
+    refresh->start(200ms);
 }
 
-void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                       bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)),
-                &loop, SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
                                                          QByteArray((const char *)data, data_len));
 
-    if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 }
@@ -82,52 +85,52 @@ void proformbike::forceResistance(int8_t requestResistance) {
 
     switch (requestResistance) {
     case 1:
-        writeCharacteristic((uint8_t *)res1, sizeof(res1), "resistance1", false, true);
+        writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
         break;
     case 2:
-        writeCharacteristic((uint8_t *)res2, sizeof(res2), "resistance2", false, true);
+        writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
         break;
     case 3:
-        writeCharacteristic((uint8_t *)res3, sizeof(res3), "resistance3", false, true);
+        writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
         break;
     case 4:
-        writeCharacteristic((uint8_t *)res4, sizeof(res4), "resistance4", false, true);
+        writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
         break;
     case 5:
-        writeCharacteristic((uint8_t *)res5, sizeof(res5), "resistance5", false, true);
+        writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
         break;
     case 6:
-        writeCharacteristic((uint8_t *)res6, sizeof(res6), "resistance6", false, true);
+        writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
         break;
     case 7:
-        writeCharacteristic((uint8_t *)res7, sizeof(res7), "resistance7", false, true);
+        writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
         break;
     case 8:
-        writeCharacteristic((uint8_t *)res8, sizeof(res8), "resistance8", false, true);
+        writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
         break;
     case 9:
-        writeCharacteristic((uint8_t *)res9, sizeof(res9), "resistance9", false, true);
+        writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
         break;
     case 10:
-        writeCharacteristic((uint8_t *)res10, sizeof(res10), "resistance10", false, true);
+        writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
         break;
     case 11:
-        writeCharacteristic((uint8_t *)res11, sizeof(res11), "resistance11", false, true);
+        writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
         break;
     case 12:
-        writeCharacteristic((uint8_t *)res12, sizeof(res12), "resistance12", false, true);
+        writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
         break;
     case 13:
-        writeCharacteristic((uint8_t *)res13, sizeof(res13), "resistance13", false, true);
+        writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
         break;
     case 14:
-        writeCharacteristic((uint8_t *)res14, sizeof(res14), "resistance14", false, true);
+        writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
         break;
     case 15:
-        writeCharacteristic((uint8_t *)res15, sizeof(res15), "resistance15", false, true);
+        writeCharacteristic((uint8_t *)res15, sizeof(res15), QStringLiteral("resistance15"), false, true);
         break;
     case 16:
-        writeCharacteristic((uint8_t *)res16, sizeof(res16), "resistance16", false, true);
+        writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
         break;
     }
 }
@@ -160,33 +163,34 @@ void proformbike::update() {
 
         switch (counterPoll) {
         case 0:
-            writeCharacteristic(noOpData1, sizeof(noOpData1), "noOp");
+            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             break;
         case 1:
-            writeCharacteristic(noOpData2, sizeof(noOpData2), "noOp");
+            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
             break;
         case 2:
-            writeCharacteristic(noOpData3, sizeof(noOpData3), "noOp");
+            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
-            writeCharacteristic(noOpData4, sizeof(noOpData4), "noOp");
+            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
         case 4:
-            writeCharacteristic(noOpData5, sizeof(noOpData5), "noOp");
+            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
         case 5:
-            writeCharacteristic(noOpData6, sizeof(noOpData6), "noOp");
+            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
             break;
         case 6:
-            writeCharacteristic(noOpData7, sizeof(noOpData7), "noOp");
+            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
             if (requestResistance != -1) {
-                if (requestResistance > 16)
+                if (requestResistance > 16) {
                     requestResistance = 16;
-                else if (requestResistance == 0)
+                } else if (requestResistance == 0) {
                     requestResistance = 1;
+                }
 
                 if (requestResistance != currentResistance().value()) {
-                    debug("writing resistance " + QString::number(requestResistance));
+                    emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                     forceResistance(requestResistance);
                 }
                 requestResistance = -1;
@@ -195,8 +199,9 @@ void proformbike::update() {
         }
 
         counterPoll++;
-        if (counterPoll > 6)
+        if (counterPoll > 6) {
             counterPoll = 0;
+        }
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -205,7 +210,7 @@ void proformbike::update() {
         }
 
         if (requestStart != -1) {
-            debug("starting...");
+            emit debug(QStringLiteral("starting..."));
 
             // btinit();
 
@@ -213,7 +218,7 @@ void proformbike::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
-            debug("stopping...");
+            emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
@@ -221,50 +226,69 @@ void proformbike::update() {
 }
 
 int proformbike::pelotonToBikeResistance(int pelotonResistance) {
-    if (pelotonResistance <= 10)
+    if (pelotonResistance <= 10) {
         return 1;
-    if (pelotonResistance <= 20)
+    }
+    if (pelotonResistance <= 20) {
         return 2;
-    if (pelotonResistance <= 25)
+    }
+    if (pelotonResistance <= 25) {
         return 3;
-    if (pelotonResistance <= 30)
+    }
+    if (pelotonResistance <= 30) {
         return 4;
-    if (pelotonResistance <= 35)
+    }
+    if (pelotonResistance <= 35) {
         return 5;
-    if (pelotonResistance <= 40)
+    }
+    if (pelotonResistance <= 40) {
         return 6;
-    if (pelotonResistance <= 45)
+    }
+    if (pelotonResistance <= 45) {
         return 7;
-    if (pelotonResistance <= 50)
+    }
+    if (pelotonResistance <= 50) {
         return 8;
-    if (pelotonResistance <= 55)
+    }
+    if (pelotonResistance <= 55) {
         return 9;
-    if (pelotonResistance <= 60)
+    }
+    if (pelotonResistance <= 60) {
         return 10;
-    if (pelotonResistance <= 65)
+    }
+    if (pelotonResistance <= 65) {
         return 11;
-    if (pelotonResistance <= 70)
+    }
+    if (pelotonResistance <= 70) {
         return 12;
-    if (pelotonResistance <= 75)
+    }
+    if (pelotonResistance <= 75) {
         return 13;
-    if (pelotonResistance <= 80)
+    }
+    if (pelotonResistance <= 80) {
         return 14;
-    if (pelotonResistance <= 85)
+    }
+    if (pelotonResistance <= 85) {
         return 15;
-    if (pelotonResistance <= 100)
+    }
+    if (pelotonResistance <= 100) {
         return 16;
+    }
     return Resistance.value();
 }
 
-void proformbike::serviceDiscovered(const QBluetoothUuid &gatt) { debug("serviceDiscovered " + gatt.toString()); }
+void proformbike::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
 
 void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    debug(" << " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
@@ -273,8 +297,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
          ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
          ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
-         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF))
+         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
         return;
+    }
 
     m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
 
@@ -354,17 +379,24 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
         emit resistanceRead(Resistance.value());
 
-        if (settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
+        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
             Cadence = ((uint8_t)newValue.at(18));
+        }
 
-        if (!settings.value("speed_power_based", false).toBool())
-            Speed = (settings.value("proform_wheel_ratio", 0.33).toDouble()) * ((double)Cadence.value());
-        else
+        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            Speed =
+                (settings.value(QStringLiteral("proform_wheel_ratio"), 0.33).toDouble()) * ((double)Cadence.value());
+        } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value());
-        KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  //kg * 3.5) / 200 ) / 60
+        }
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -382,7 +414,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         else
 #endif
         {
-            if (heartRateBeltName.startsWith("Disabled")) {
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
                 lockscreen h;
@@ -407,17 +439,18 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 #endif
 #endif
 
-        debug("Current Resistance: " + QString::number(Resistance.value()));
-        debug("Current Speed: " + QString::number(Speed.value()));
-        debug("Current Calculate Distance: " + QString::number(Distance.value()));
-        debug("Current Cadence: " + QString::number(Cadence.value()));
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         // debug("Current Distance: " + QString::number(distance));
-        debug("Current CrankRevs: " + QString::number(CrankRevs));
-        debug("Last CrankEventTime: " + QString::number(LastCrankEventTime));
-        debug("Current Watt: " + QString::number(watts()));
+        emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+        emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-        if (m_control->error() != QLowEnergyController::NoError)
-            qDebug() << "QLowEnergyController ERROR!!" << m_control->errorString();
+        if (m_control->error() != QLowEnergyController::NoError) {
+            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        }
     }
 }
 
@@ -444,48 +477,48 @@ void proformbike::btinit() {
     uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData2, sizeof(initData2), "init", false, false);
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData3, sizeof(initData3), "init", false, false);
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData4, sizeof(initData4), "init", false, false);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData5, sizeof(initData5), "init", false, false);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData6, sizeof(initData6), "init", false, false);
+    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData5, sizeof(initData5), "init", false, false);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData7, sizeof(initData7), "init", false, false);
+    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), "init", false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData8, sizeof(initData8), "init", false, false);
+    writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData9, sizeof(initData9), "init", false, false);
+    writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData10, sizeof(initData10), "init", false, false);
+    writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData11, sizeof(initData11), "init", false, false);
+    writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData12, sizeof(initData12), "init", false, false);
+    writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
     QThread::msleep(400);
 
     initDone = true;
 }
 
 void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId((QString) "00001534-1412-efde-1523-785feabcd123");
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "00001535-1412-efde-1523-785feabcd123");
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("00001534-1412-efde-1523-785feabcd123"));
+    QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("00001535-1412-efde-1523-785feabcd123"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    debug("BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
         // qDebug() << gattCommunicationChannelService->characteristics();
@@ -496,16 +529,14 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
         // establish hook into notifications
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
-                this, SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
-                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
+                &proformbike::characteristicChanged);
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
+                &proformbike::characteristicWritten);
         connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
                 SLOT(errorService(QLowEnergyService::ServiceError)));
-        connect(gattCommunicationChannelService,
-                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
-                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
+        connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
+                &proformbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
         if (!firstStateChanged && !virtualBike
@@ -516,7 +547,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
@@ -529,7 +560,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
+                emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&proformbike::debug);
@@ -547,7 +578,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void proformbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -555,59 +586,58 @@ void proformbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, cons
 
 void proformbike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void proformbike::serviceScanDone(void) {
-    debug("serviceScanDone");
+    emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "00001533-1412-efde-1523-785feabcd123");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("00001533-1412-efde-1523-785feabcd123"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &proformbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
 void proformbike::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("proformbike::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("proformbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void proformbike::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("proformbike::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("proformbike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
 void proformbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
-    if (device.name().startsWith("I_EB")) {
+    emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
+    if (device.name().startsWith(QStringLiteral("I_EB"))) {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)), this,
-                SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()), this, SLOT(serviceScanDone()));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &proformbike::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &proformbike::serviceScanDone);
         connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this,
-                SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::stateChanged, this, &proformbike::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -618,8 +648,9 @@ void proformbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool proformbike::connected() {
-    if (!m_control)
+    if (!m_control) {
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
@@ -628,16 +659,17 @@ void *proformbike::VirtualBike() { return virtualBike; }
 void *proformbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformbike::watts() {
-    if (currentCadence().value() == 0)
+    if (currentCadence().value() == 0) {
         return 0;
+    }
 
     return m_watts;
 }
 
 void proformbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
-    qDebug() << "controllerStateChanged" << state;
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
-        qDebug() << "trying to connect back again...";
+        qDebug() << QStringLiteral("trying to connect back again...");
         initDone = false;
         m_control->connectToDevice();
     }

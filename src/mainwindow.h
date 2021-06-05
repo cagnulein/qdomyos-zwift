@@ -20,14 +20,14 @@ class MainWindow : public QDialog {
   public:
     QList<SessionLine> Session;
     explicit MainWindow(bluetooth *t);
-    explicit MainWindow(bluetooth *t, QString trainProgram);
+    explicit MainWindow(bluetooth *t, const QString &trainProgram);
     ~MainWindow();
 
   private:
     void addEmptyRow();
     void load(bluetooth *device);
-    void loadTrainProgram(QString fileName);
-    void createTrainProgram(QList<trainrow> rows);
+    void loadTrainProgram(const QString &fileName);
+    void createTrainProgram(const QList<trainrow> &rows);
     bool editing = false;
     trainprogram *trainProgram = 0;
 

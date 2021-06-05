@@ -135,7 +135,7 @@ class KeiserM3iDeviceSimulator {
     void detectPause(const keiser_m3i_out_t *f, qint64 ud);
 };
 
-#define M3i_DISCONNECT_THRESHOLD 5000
+#define M3i_DISCONNECT_THRESHOLD 5s
 class m3ibike : public bike {
     Q_OBJECT
   public:
