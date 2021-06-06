@@ -300,8 +300,9 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &fitplusbike::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &fitplusbike::characteristicWritten);
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &fitplusbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &fitplusbike::descriptorWritten);
 
@@ -386,7 +387,9 @@ void fitplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitplusbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &fitplusbike::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &fitplusbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &fitplusbike::controllerStateChanged);
 
         connect(m_control,

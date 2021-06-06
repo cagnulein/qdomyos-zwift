@@ -313,8 +313,9 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
                 &skandikawiribike::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &skandikawiribike::characteristicWritten);
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &skandikawiribike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &skandikawiribike::descriptorWritten);
 
@@ -400,7 +401,9 @@ void skandikawiribike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &skandikawiribike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &skandikawiribike::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &skandikawiribike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &skandikawiribike::controllerStateChanged);
 
         connect(m_control,

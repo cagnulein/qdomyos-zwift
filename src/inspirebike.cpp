@@ -240,8 +240,9 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
                 &inspirebike::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &inspirebike::characteristicWritten);
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &inspirebike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &inspirebike::descriptorWritten);
 
@@ -329,7 +330,9 @@ void inspirebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &inspirebike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &inspirebike::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &inspirebike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &inspirebike::controllerStateChanged);
 
         connect(m_control,

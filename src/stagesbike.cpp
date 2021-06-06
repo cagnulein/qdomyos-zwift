@@ -287,8 +287,9 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicChanged, this, &stagesbike::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &stagesbike::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &stagesbike::characteristicRead);
-            connect(s, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                    SLOT(errorService(QLowEnergyService::ServiceError)));
+            connect(
+                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &stagesbike::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &stagesbike::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &stagesbike::descriptorRead);
 
@@ -431,7 +432,9 @@ void stagesbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &stagesbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &stagesbike::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &stagesbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &stagesbike::controllerStateChanged);
 
         connect(m_control,

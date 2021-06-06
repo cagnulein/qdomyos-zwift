@@ -337,8 +337,9 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
                 &soleelliptical::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &soleelliptical::characteristicWritten);
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &soleelliptical::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &soleelliptical::descriptorWritten);
 
@@ -394,7 +395,9 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &soleelliptical::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &soleelliptical::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &soleelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &soleelliptical::controllerStateChanged);
 
         connect(m_control,

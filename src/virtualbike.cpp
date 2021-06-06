@@ -371,8 +371,10 @@ virtualbike::virtualbike(bike *t, bool noWriteResistance, bool noHeartService, u
     bikeTimer.start(1s);
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
-    QObject::connect(leController, SIGNAL(error(QLowEnergyController::Error)), this,
-                     SLOT(error(QLowEnergyController::Error)));
+    QObject::connect(
+        leController,
+        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+        &virtualbike::error);
 }
 
 void virtualbike::slopeChanged(int16_t iresistance) {

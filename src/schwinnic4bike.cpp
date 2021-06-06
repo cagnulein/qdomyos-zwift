@@ -438,7 +438,9 @@ void schwinnic4bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &schwinnic4bike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &schwinnic4bike::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &schwinnic4bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &schwinnic4bike::controllerStateChanged);
 
         connect(m_control,

@@ -343,8 +343,9 @@ void smartspin2k::stateChanged(QLowEnergyService::ServiceState state) {
             connect(s, &QLowEnergyService::characteristicChanged, this, &smartspin2k::characteristicChanged);
             connect(s, &QLowEnergyService::characteristicWritten, this, &smartspin2k::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &smartspin2k::characteristicRead);
-            connect(s, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                    SLOT(errorService(QLowEnergyService::ServiceError)));
+            connect(
+                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &smartspin2k::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &smartspin2k::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &smartspin2k::descriptorRead);
 
@@ -498,7 +499,9 @@ void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &smartspin2k::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &smartspin2k::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &smartspin2k::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &smartspin2k::controllerStateChanged);
 
         connect(m_control,

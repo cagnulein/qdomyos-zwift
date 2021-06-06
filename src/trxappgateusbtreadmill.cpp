@@ -364,8 +364,9 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 &trxappgateusbtreadmill::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &trxappgateusbtreadmill::characteristicWritten);
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &trxappgateusbtreadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &trxappgateusbtreadmill::descriptorWritten);
 
@@ -455,7 +456,9 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &trxappgateusbtreadmill::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &trxappgateusbtreadmill::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &trxappgateusbtreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &trxappgateusbtreadmill::controllerStateChanged);
 
         connect(m_control,

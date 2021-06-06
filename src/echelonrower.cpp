@@ -344,8 +344,9 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonrower::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
                 &echelonrower::characteristicWritten);
-        connect(gattCommunicationChannelService, SIGNAL(error(QLowEnergyService::ServiceError)), this,
-                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelService,
+                static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &echelonrower::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &echelonrower::descriptorWritten);
 
@@ -431,7 +432,9 @@ void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)), this, SLOT(error(QLowEnergyController::Error)));
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &echelonrower::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
 
         connect(m_control,
