@@ -10,6 +10,7 @@ qtHaveModule(httpserver) {
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
+QMAKE_LFLAGS_RELEASE += -s
 unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
