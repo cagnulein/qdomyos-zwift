@@ -2,7 +2,7 @@
 
 TcpClientInfoSender::TcpClientInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {}
 TcpClientInfoSender::~TcpClientInfoSender() {
-    innerStop(); // NOTE: clang-analyzer-optin-cplusplus-virtualcall
+    TcpClientInfoSender::innerStop(); // NOTE: clang-analyzer-optin-cplusplus-virtualcall
 }
 
 bool TcpClientInfoSender::isRunning() const { return tcpSocket && tcpSocket->state() == QTcpSocket::ConnectedState; }
@@ -18,7 +18,7 @@ bool TcpClientInfoSender::send(const QString &data) {
 
 void TcpClientInfoSender::innerStop() {
     if (tcpSocket) {
-        if (isRunning()) {
+        if (TcpClientInfoSender::isRunning()) {
             tcpSocket->close();
             disconnect(tcpSocket, SIGNAL(connectionClosed()));
             disconnect(tcpSocket, SIGNAL(readyRead()));

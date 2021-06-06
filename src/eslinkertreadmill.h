@@ -69,9 +69,9 @@ class eslinkertreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = 0;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 

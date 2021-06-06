@@ -74,7 +74,7 @@ class bluetoothdevice : public QObject {
     void cadenceChanged(uint8_t cadence);
 
   protected:
-    QLowEnergyController *m_control = 0;
+    QLowEnergyController *m_control = nullptr;
 
     metric elapsed;
     metric moving; // moving time

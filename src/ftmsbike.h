@@ -83,7 +83,7 @@ class ftmsbike : public bike {
     void forceResistance(int8_t requestResistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;

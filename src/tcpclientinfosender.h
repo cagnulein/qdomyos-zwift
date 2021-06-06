@@ -7,13 +7,13 @@
 class TcpClientInfoSender : public TemplateInfoSender {
     Q_OBJECT
   public:
-    TcpClientInfoSender(const QString &id, QObject *parent = 0);
+    TcpClientInfoSender(const QString &id, QObject *parent = nullptr);
     virtual ~TcpClientInfoSender();
     virtual bool isRunning() const;
     virtual bool send(const QString &data);
 
   protected:
-    QTcpSocket *tcpSocket = 0;
+    QTcpSocket *tcpSocket = nullptr;
     QString ip;
     int port;
     virtual bool init();

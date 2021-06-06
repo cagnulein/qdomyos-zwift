@@ -132,7 +132,7 @@ bool bluetooth::cscSensorAvaiable() {
         return false;
     }
 
-    for (const QBluetoothDeviceInfo &b : devices) {
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
         if (!cscName.compare(b.name())) {
             return true;
         }

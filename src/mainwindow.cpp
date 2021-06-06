@@ -218,13 +218,13 @@ void MainWindow::on_tableWidget_cellChanged(int row, int column) {
             ui->tableWidget->currentItem()->setText(QStringLiteral("0") + ui->tableWidget->currentItem()->text());
             break;
         }
-        QString fmt = QStringLiteral("hh:mm:ss");
+        // QString fmt = QStringLiteral("hh:mm:ss");//NOTE: clazy-unused-non-trivial-variable
         QTime dt = QTime::fromString(ui->tableWidget->currentItem()->text());
         QString timeStr = dt.toString(QStringLiteral("hh:mm:ss"));
         ui->tableWidget->currentItem()->setText(timeStr);
     }
 
-    if (row + 1 == ui->tableWidget->rowCount() && ui->tableWidget->currentItem()->text().length()) {
+    if (row + 1 == ui->tableWidget->rowCount() && !ui->tableWidget->currentItem()->text().isEmpty()) {
         addEmptyRow();
     }
 
@@ -451,9 +451,9 @@ void MainWindow::on_difficulty_valueChanged(int value) {
 
     for (int i = 0; i < trainProgram->rows.count(); i++) {
         trainProgram->rows[i].speed =
-            trainProgram->loadedRows[i].speed + (trainProgram->loadedRows[i].speed * (0.02 * (value - 50)));
-        trainProgram->rows[i].inclination =
-            trainProgram->loadedRows[i].inclination + (trainProgram->loadedRows[i].inclination * (0.02 * (value - 50)));
+            trainProgram->loadedRows.at(i).speed + (trainProgram->loadedRows.at(i).speed * (0.02 * (value - 50)));
+        trainProgram->rows[i].inclination = trainProgram->loadedRows.at(i).inclination +
+                                            (trainProgram->loadedRows.at(i).inclination * (0.02 * (value - 50)));
     }
 
     int countRow = 0;

@@ -35,7 +35,7 @@ class heartratebelt : public treadmill {
     bool connected();
 
   private:
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
   signals:

@@ -8,7 +8,7 @@
 class TemplateInfoSender : public QObject {
     Q_OBJECT
   public:
-    TemplateInfoSender(const QString &id, QObject *parent = 0);
+    TemplateInfoSender(const QString &id, QObject *parent = nullptr);
     virtual ~TemplateInfoSender();
     virtual bool isRunning() const = 0;
     virtual bool send(const QString &data) = 0;

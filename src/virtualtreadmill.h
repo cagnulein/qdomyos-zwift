@@ -31,9 +31,9 @@ class virtualtreadmill : public QObject {
     bool connected();
 
   private:
-    QLowEnergyController *leController = 0;
-    QLowEnergyService *service = 0;
-    QLowEnergyService *serviceHR = 0;
+    QLowEnergyController *leController = nullptr;
+    QLowEnergyService *service = nullptr;
+    QLowEnergyService *serviceHR = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceData;
     QLowEnergyServiceData serviceDataHR;

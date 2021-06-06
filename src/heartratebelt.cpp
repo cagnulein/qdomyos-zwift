@@ -43,7 +43,8 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
-        for (const QLowEnergyCharacteristic &c : gattCommunicationChannelService->characteristics()) {
+        auto characteristics_list = gattCommunicationChannelService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             emit debug(QStringLiteral("characteristic ") + c.uuid().toString());
         }
 
@@ -81,7 +82,8 @@ void heartratebelt::characteristicWritten(const QLowEnergyCharacteristic &charac
 void heartratebelt::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    for (const QBluetoothUuid &s : m_control->services()) {
+    auto services_list = m_control->services();
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
         qDebug() << QStringLiteral("heartRateBelt services ") << s.toString();
         if (s == QBluetoothUuid::HeartRate) {
             QBluetoothUuid _gattCommunicationChannelServiceId(QBluetoothUuid::HeartRate);

@@ -54,7 +54,7 @@ class trxappgateusbtreadmill : public treadmill {
     double DistanceCalculated = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = 0;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
@@ -62,7 +62,7 @@ class trxappgateusbtreadmill : public treadmill {
     uint8_t sec1update = 0;
     QByteArray lastPacket;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 

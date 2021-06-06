@@ -13,7 +13,7 @@
 class TemplateInfoSenderBuilder : public QObject {
     Q_OBJECT
   public:
-    static TemplateInfoSenderBuilder *getInstance(QObject *parent = 0);
+    static TemplateInfoSenderBuilder *getInstance(QObject *parent = nullptr);
     void reinit();
     void start(bluetoothdevice *device);
     void stop();
@@ -24,10 +24,10 @@ class TemplateInfoSenderBuilder : public QObject {
     bool validFileTemplateType(const QString &tp) const;
     void buildContext();
     void createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates);
-    bluetoothdevice *device = 0;
+    bluetoothdevice *device = nullptr;
     QTimer updateTimer;
     QHash<QString, QVariant> context;
-    QJSEngine *engine = 0;
+    QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
     void load();
     static TemplateInfoSenderBuilder *instance;

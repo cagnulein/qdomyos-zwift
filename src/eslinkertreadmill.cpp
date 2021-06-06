@@ -126,11 +126,9 @@ void eslinkertreadmill::update() {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                    double inc =
-                        Inclination
-                            .value(); // NOTE: Somethig is not right with this code the static analyser is complaining
+                    // double inc = Inclination.value(); // NOTE: clang-analyzer-deadcode.DeadStores
                     if (requestInclination != -1) {
-                        inc = requestInclination;
+                        //                        inc = requestInclination;
                         requestInclination = -1;
                     }
                     // forceSpeedOrIncline(requestSpeed, inc);
@@ -141,11 +139,9 @@ void eslinkertreadmill::update() {
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                    double speed =
-                        currentSpeed()
-                            .value(); // NOTE: Somethig is not right with this code the static analyser is complaining
+                    // double speed = currentSpeed().value(); // NOTE: clang-analyzer-deadcode.DeadStores
                     if (requestSpeed != -1) {
-                        speed = requestSpeed;
+                        // speed = requestSpeed;
                         requestSpeed = -1;
                     }
                     // forceSpeedOrIncline(speed, requestInclination);
@@ -352,8 +348,7 @@ void eslinkertreadmill::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId((quint16)0xfff0);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
-            SLOT(stateChanged(QLowEnergyService::ServiceState)));
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &eslinkertreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 

@@ -237,8 +237,8 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    //    QString heartRateBeltName = settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled"))
+    //                                    .toString(); // NOTE: clazy-unused-non-trivial-variable
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 

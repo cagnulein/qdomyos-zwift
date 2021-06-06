@@ -348,17 +348,17 @@ void sportstechbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this, [this](QLowEnergyController::Error error) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
-                    emit debug("Cannot connect to remote device.");
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            emit debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            emit debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 

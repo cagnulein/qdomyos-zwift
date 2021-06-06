@@ -52,7 +52,7 @@ class domyostreadmill : public treadmill {
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(QByteArray packet);
+    double GetDistanceFromPacket(const QByteArray &packet);
     void forceSpeedOrIncline(double requestSpeed, double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
@@ -74,9 +74,9 @@ class domyostreadmill : public treadmill {
     bool firstCharacteristicChanged = true;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = 0;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 

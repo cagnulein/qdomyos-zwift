@@ -29,7 +29,7 @@ class MainWindow : public QDialog {
     void loadTrainProgram(const QString &fileName);
     void createTrainProgram(const QList<trainrow> &rows);
     bool editing = false;
-    trainprogram *trainProgram = 0;
+    trainprogram *trainProgram = nullptr;
 
     Ui::MainWindow *ui;
     QTimer *timer;

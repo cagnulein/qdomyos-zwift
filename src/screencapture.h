@@ -9,7 +9,7 @@ class QQuickView;
 class screenCapture : public QObject {
     Q_OBJECT
   public:
-    explicit screenCapture(QQuickView *parent = 0);
+    explicit screenCapture(QQuickView *parent = nullptr);
 
   public slots:
     void capture(QString const &path) const;

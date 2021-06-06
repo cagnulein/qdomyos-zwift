@@ -35,16 +35,16 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
         return inclinationList;
     }
 
-    gpx_point pP = this->points.first();
+    gpx_point pP = this->points.constFirst();
 
     for (int32_t i = 1; i < this->points.count(); i++) {
-        qint64 dT = qAbs(pP.time.secsTo(this->points[i].time));
+        qint64 dT = qAbs(pP.time.secsTo(this->points.at(i).time));
         if (dT < secondsInclination) {
             continue;
         }
 
-        double distance = this->points[i].p.distanceTo(pP.p);
-        double elevation = this->points[i].p.altitude() - pP.p.altitude();
+        double distance = this->points.at(i).p.distanceTo(pP.p);
+        double elevation = this->points.at(i).p.altitude() - pP.p.altitude();
 
         pP = this->points[i];
 
@@ -99,13 +99,14 @@ void gpx::save(const QString &filename, QList<SessionLine> session, bluetoothdev
     stream.writeStartElement(QStringLiteral("trk"));
     stream.writeTextElement(QStringLiteral("name"), session.at(0).time.toString(QStringLiteral("yyyy-MM-dd HH:mm:ss")));
 
-    if (type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL)
+    if (type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL) {
         stream.writeTextElement(QStringLiteral("type"), QStringLiteral("0"));
-    else
+    } else {
         stream.writeTextElement(QStringLiteral("type"), QStringLiteral("53"));
+    }
 
     stream.writeStartElement(QStringLiteral("trkseg"));
-    foreach (SessionLine s, session) {
+    for (const SessionLine &s : qAsConst(session)) {
         if (s.speed > 0) {
             stream.writeStartElement(QStringLiteral("trkpt"));
             stream.writeAttribute(QStringLiteral("lat"), QStringLiteral("0"));

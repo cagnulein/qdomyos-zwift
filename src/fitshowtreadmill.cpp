@@ -594,10 +594,12 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
         uint32_t id32;
-        for (const QLowEnergyCharacteristic &c : gattCommunicationChannelService->characteristics()) {
+        auto characteristics_list = gattCommunicationChannelService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             qDebug() << QStringLiteral("c -> ") << c.uuid();
             id32 = c.uuid().toUInt32();
-            for (const QLowEnergyDescriptor &d : c.descriptors()) {
+            auto descriptors_list = c.descriptors();
+            for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                 qDebug() << QStringLiteral("d -> ") << d.uuid();
             }
             if (id32 == 0xffe1 || id32 == 0xfff2) {

@@ -297,14 +297,13 @@ int main(int argc, char *argv[]) {
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (!forceQml) {
         if (onlyVirtualBike) {
-            virtualbike *V =
-                new virtualbike(new bike(), noWriteResistance,
-                                noHeartService); // FIXME: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+            virtualbike V(new bike(), noWriteResistance,
+                          noHeartService); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
             Q_UNUSED(V)
             return app->exec();
         } else if (onlyVirtualTreadmill) {
-            virtualtreadmill *V = new virtualtreadmill(
-                new treadmill(), noHeartService); // FIXME: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+            virtualtreadmill V(new treadmill(),
+                               noHeartService); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
             Q_UNUSED(V)
             return app->exec();
         }
@@ -316,9 +315,9 @@ int main(int argc, char *argv[]) {
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
     Q_UNUSED(V)
     return app->exec();*/
-    bluetooth *bl = new bluetooth(
-        logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
-        bikeResistanceOffset, bikeResistanceGain); // FIXME: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+    bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
+                 bikeResistanceOffset,
+                 bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -375,7 +374,7 @@ int main(int argc, char *argv[]) {
         }
 #endif
         engine.load(url);
-        homeform *h = new homeform(&engine, bl);
+        homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,
                          &homeform::aboutToQuit); // NOTE: clazy-unneeded-cast
 
@@ -403,10 +402,11 @@ int main(int argc, char *argv[]) {
     if (qobject_cast<QApplication *>(app.data())) {
         // start GUI version...
         MainWindow *W = 0;
-        if (trainProgram.isEmpty())
-            W = new MainWindow(bl);
-        else
-            W = new MainWindow(bl, trainProgram);
+        if (trainProgram.isEmpty()) {
+            W = new MainWindow(&bl);
+        } else {
+            W = new MainWindow(&bl, trainProgram);
+        }
         W->show();
     } else {
         // start non-GUI version...

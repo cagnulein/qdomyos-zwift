@@ -143,9 +143,9 @@ class flywheelbike : public bike {
     void updateStats();
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 

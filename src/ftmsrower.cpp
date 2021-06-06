@@ -336,9 +336,11 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-            for (const QLowEnergyCharacteristic &c : s->characteristics()) {
+            auto characteristics_list = s->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 qDebug() << "char uuid" << c.uuid() << QStringLiteral("handle") << c.handle();
-                for (const QLowEnergyDescriptor &d : c.descriptors()) {
+                auto descriptors_list = c.descriptors();
+                for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
@@ -448,11 +450,12 @@ void ftmsrower::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
-    for (const QBluetoothUuid &s : m_control->services()) {
+    auto services_list = m_control->services();
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.last(), &QLowEnergyService::stateChanged, this,
+        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &ftmsrower::stateChanged);
-        gattCommunicationChannelService.last()->discoverDetails();
+        gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 

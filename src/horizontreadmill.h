@@ -51,7 +51,7 @@ class horizontreadmill : public treadmill {
     void startDiscover();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = 0;
+    virtualtreadmill *virtualTreadmill = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;

@@ -56,7 +56,7 @@ class sportstechbike : public bike {
     double DistanceCalculated = 0;
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -67,7 +67,7 @@ class sportstechbike : public bike {
     uint8_t sec1update = 0;
     QByteArray lastPacket;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 

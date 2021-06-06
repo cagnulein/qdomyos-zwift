@@ -50,7 +50,7 @@ class toorxtreadmill : public treadmill {
     QBluetoothServiceInfo serialPortService;
     QBluetoothSocket *socket = nullptr;
 
-    virtualtreadmill *virtualTreadMill = 0;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
     QTimer *refresh;
     bool initDone = false;

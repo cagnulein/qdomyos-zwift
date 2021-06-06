@@ -397,9 +397,9 @@ void npecablebike::serviceScanDone(void) {
 
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
-        connect(gattCommunicationChannelService.last(), &QLowEnergyService::stateChanged, this,
+        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &npecablebike::stateChanged);
-        gattCommunicationChannelService.last()->discoverDetails();
+        gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 

@@ -391,7 +391,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 }
 
 void trxappgateusbtreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();

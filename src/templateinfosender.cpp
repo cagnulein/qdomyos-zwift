@@ -47,7 +47,7 @@ QString TemplateInfoSender::getId() const { return templateId; }
 
 void TemplateInfoSender::stop() {
     retryTimer.stop();
-    innerStop();
+    TemplateInfoSender::innerStop();
 }
 
 void TemplateInfoSender::innerStop() {}

@@ -113,8 +113,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                            QStringLiteral("speed"), 48, labelFontSize);
     inclination = new DataObject(QStringLiteral("Inclination (%)"), QStringLiteral("icons/icons/inclination.png"),
                                  QStringLiteral("0.0"), true, QStringLiteral("inclination"), 48, labelFontSize);
-    cadence = new DataObject("Cadence (rpm)", "icons/icons/cadence.png", "0", false, QStringLiteral("cadence"), 48,
-                             labelFontSize);
+    cadence = new DataObject(QStringLiteral("Cadence (rpm)"), QStringLiteral("icons/icons/cadence.png"),
+                             QStringLiteral("0"), false, QStringLiteral("cadence"), 48, labelFontSize);
     elevation = new DataObject(QStringLiteral("Elev. Gain (m)"), QStringLiteral("icons/icons/elevationgain.png"),
                                QStringLiteral("0"), false, QStringLiteral("elevation"), 48, labelFontSize);
     calories = new DataObject(QStringLiteral("Calories (KCal)"), QStringLiteral("icons/icons/kcal.png"),
@@ -194,7 +194,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(backupTimer, &QTimer::timeout, this, &homeform::backup);
     backupTimer->start(1min);
 
-    QObject *rootObject = engine->rootObjects().first();
+    QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
     QObject *stack = rootObject;
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
@@ -791,7 +791,7 @@ void homeform::deviceConnected() {
 
     engine->rootContext()->setContextProperty(QStringLiteral("appModel"), QVariant::fromValue(dataList));
 
-    QObject *rootObject = engine->rootObjects().first();
+    QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
     QObject::connect(home, SIGNAL(plus_clicked(QString)), this, SLOT(Plus(QString)));
     QObject::connect(home, SIGNAL(minus_clicked(QString)), this, SLOT(Minus(QString)));
@@ -2098,7 +2098,7 @@ void homeform::sendMail() {
     message.addRecipient(new EmailAddress(settings.value(QStringLiteral("user_email"), QLatin1String("")).toString(),
                                           settings.value(QStringLiteral("user_email"), QLatin1String("")).toString()));
     if (!Session.isEmpty()) {
-        QString title = Session.first().time.toString();
+        QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
             title +=
                 QStringLiteral(" ") + stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;

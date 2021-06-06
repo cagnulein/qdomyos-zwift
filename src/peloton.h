@@ -26,17 +26,17 @@ class peloton : public QObject {
     QList<trainrow> trainrows;
 
     QString user_id;
-    QString current_workout_id = "";
-    QString current_workout_name = "";
-    QString current_workout_status = "";
-    QString current_instructor_id = "";
-    QString current_instructor_name = "";
-    QString current_ride_id = "";
+    QString current_workout_id = QLatin1String("");
+    QString current_workout_name = QLatin1String("");
+    QString current_workout_status = QLatin1String("");
+    QString current_instructor_id = QLatin1String("");
+    QString current_instructor_name = QLatin1String("");
+    QString current_ride_id = QLatin1String("");
 
   private:
     const int peloton_workout_second_resolution = 10;
     bool peloton_credentials_wrong = false;
-    QNetworkAccessManager *mgr = 0;
+    QNetworkAccessManager *mgr = nullptr;
 
     QJsonDocument current_workout;
     QJsonDocument current_workout_summary;
@@ -46,8 +46,8 @@ class peloton : public QObject {
 
     QTimer *timer;
 
-    bluetooth *bluetoothManager = 0;
-    powerzonepack *PZP = 0;
+    bluetooth *bluetoothManager = nullptr;
+    powerzonepack *PZP = nullptr;
 
     int total_workout;
     void getWorkoutList(int num);

@@ -54,7 +54,7 @@ class spirittreadmill : public treadmill {
     double DistanceCalculated = 0;
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = 0;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
     uint8_t firstVirtualTreadmill = 0;
     bool firstCharChanged = true;
@@ -63,7 +63,7 @@ class spirittreadmill : public treadmill {
     QByteArray lastPacket;
     uint8_t counterPoll = 0;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 

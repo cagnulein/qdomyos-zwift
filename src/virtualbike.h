@@ -34,12 +34,12 @@ class virtualbike : public QObject {
     bool connected();
 
   private:
-    QLowEnergyController *leController = 0;
-    QLowEnergyService *serviceHR = 0;
-    QLowEnergyService *serviceBattery = 0;
-    QLowEnergyService *serviceFIT = 0;
-    QLowEnergyService *service = 0;
-    QLowEnergyService *serviceChanged = 0;
+    QLowEnergyController *leController = nullptr;
+    QLowEnergyService *serviceHR = nullptr;
+    QLowEnergyService *serviceBattery = nullptr;
+    QLowEnergyService *serviceFIT = nullptr;
+    QLowEnergyService *service = nullptr;
+    QLowEnergyService *serviceChanged = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;

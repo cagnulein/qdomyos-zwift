@@ -51,7 +51,7 @@ class snodebike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;

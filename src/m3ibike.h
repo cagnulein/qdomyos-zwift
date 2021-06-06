@@ -164,14 +164,14 @@ class m3ibike : public bike {
     Q_INVOKABLE void processAdvertising(const QByteArray &data);
     Q_INVOKABLE void restartScan();
     uint16_t watts();
-    QTimer *detectDisc = 0, *elapsedTimer = 0;
+    QTimer *detectDisc = nullptr, *elapsedTimer = nullptr;
     KeiserM3iDeviceSimulator k3s;
     keiser_m3i_out_t k3;
     qint64 lastTimerRestart = -1;
     int lastTimerRestartOffset = 0;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
     bool firstUpdate = true;
 
@@ -190,7 +190,7 @@ class m3ibike : public bike {
     static void newAndroidScanResult(JNIEnv *env, jobject /*thiz*/, jobject record);
     static void newAndroidScanError(JNIEnv *, jobject /*thiz*/, jint code);
 #endif
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent = 0;
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
 #ifdef Q_OS_IOS
     M3iIOS *m3iIOS = 0;
     lockscreen *h = 0;

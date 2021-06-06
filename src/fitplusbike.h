@@ -53,9 +53,9 @@ class fitplusbike : public bike {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 

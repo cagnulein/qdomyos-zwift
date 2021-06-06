@@ -53,10 +53,10 @@ class proformtreadmill : public treadmill {
     uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = 0;
+    virtualtreadmill *virtualTreadmill = nullptr;
     uint8_t counterPoll = 0;
 
-    QLowEnergyService *gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 

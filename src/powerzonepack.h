@@ -29,10 +29,10 @@ class powerzonepack : public QObject {
     const int peloton_workout_second_resolution = 10;
     bool pzp_credentials_wrong = false;
 
-    QNetworkAccessManager *mgr = 0;
-    bluetooth *bluetoothManager = 0;
+    QNetworkAccessManager *mgr = nullptr;
+    bluetooth *bluetoothManager = nullptr;
     QString token;
-    QString lastWorkoutID = "";
+    QString lastWorkoutID = QLatin1String("");
 
     void startEngine();
 

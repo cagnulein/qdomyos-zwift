@@ -517,7 +517,7 @@ double domyostreadmill::GetKcalFromPacket(const QByteArray &packet) {
     return (double)convertedData;
 }
 
-double domyostreadmill::GetDistanceFromPacket(QByteArray packet) {
+double domyostreadmill::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = ((double)convertedData) / 10.0f;
     return data;

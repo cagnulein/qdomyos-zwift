@@ -522,7 +522,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
             if (msgType.isString()) {
                 QString msg = msgType.toString();
                 if (msg == QStringLiteral("getsettings")) {
-                    onGetSettings(jsonObject["content"], sender);
+                    onGetSettings(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("setresistance")) {
                     onSetResistance(jsonObject[QStringLiteral("content")], sender);
