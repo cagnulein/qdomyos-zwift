@@ -383,7 +383,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
             else if((b.name().toUpper().startsWith("SMARTROW")) && !smartrowRower && filter)
             {
                 discoveryAgent->stop();
-                smartrowRower = new ftmsrower(noWriteResistance, noHeartService);
+                smartrowRower = new smartrowrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 //stateFileRead();
                 emit(deviceConnected());
                 connect(smartrowRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
