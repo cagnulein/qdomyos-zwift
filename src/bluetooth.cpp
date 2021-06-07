@@ -380,6 +380,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 stagesBike->deviceDiscovered(b);
                 templateManager->start(stagesBike);
             }
+            else if((b.name().toUpper().startsWith("SMARTROW")) && !smartrowRower && filter)
+            {
+                discoveryAgent->stop();
+                smartrowRower = new ftmsrower(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(smartrowRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(smartrowRower, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(smartrowRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(smartrowRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                smartrowRower->deviceDiscovered(b);
+                templateManager->start(smartrowRower);
+            }
             else if((b.name().toUpper().startsWith("CR 00") || (b.name().toUpper().startsWith("PM5") && b.name().toUpper().contains("ROW"))) && !ftmsRower && filter)
             {
                 discoveryAgent->stop();
@@ -912,6 +926,11 @@ void bluetooth::restart()
         delete ftmsRower;
         ftmsRower = 0;
     }
+    if(smartrowRower)
+    {
+        delete smartrowRower;
+        smartrowRower = 0;
+    }
     if(yesoulBike)
     {
         delete yesoulBike;
@@ -1032,6 +1051,8 @@ bluetoothdevice* bluetooth::device()
         return echelonRower;
     else if(ftmsRower)
         return ftmsRower;
+    else if(smartrowRower)
+        return smartrowRower;
     else if(yesoulBike)
         return yesoulBike;
     else if(proformBike)
