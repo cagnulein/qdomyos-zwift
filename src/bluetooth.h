@@ -69,7 +69,6 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *templateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
-
     fitshowtreadmill *fitshowTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
