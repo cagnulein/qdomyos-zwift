@@ -98,7 +98,7 @@ class bluetooth : public QObject, public SignalHandler {
     fitplusbike *fitPlusBike = nullptr;
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
-    smartrowrower *smartrowRower = 0;
+    smartrowrower *smartrowRower = nullptr;
     ftmsbike *ftmsBike = nullptr;
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;

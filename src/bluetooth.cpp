@@ -372,14 +372,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 templateManager->start(stagesBike);
             } else if (b.name().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
                 discoveryAgent->stop();
-                smartrowRower = new smartrowrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                //stateFileRead();
-                emit(deviceConnected());
-                connect(smartrowRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
-                //connect(smartrowRower, SIGNAL(disconnected()), this, SLOT(restart()));
-                //connect(smartrowRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
-                //connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                //connect(smartrowRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                smartrowRower =
+                    new smartrowrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected();
+                connect(smartrowRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(smartrowRower, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(smartrowRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(smartrowRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 smartrowRower->deviceDiscovered(b);
                 templateManager->start(smartrowRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
@@ -905,9 +907,9 @@ void bluetooth::restart() {
         delete ftmsRower;
         ftmsRower = nullptr;
     }
-    if(smartrowRower) {
+    if (smartrowRower) {
         delete smartrowRower;
-        smartrowRower = 0;
+        smartrowRower = nullptr;
     }
     if (yesoulBike) {
         delete yesoulBike;
@@ -980,68 +982,69 @@ void bluetooth::restart() {
 }
 
 bluetoothdevice *bluetooth::device() {
-    if (domyos)
+    if (domyos) {
         return domyos;
-    else if (domyosBike)
+    } else if (domyosBike) {
         return domyosBike;
-    else if (fitshowTreadmill)
+    } else if (fitshowTreadmill) {
         return fitshowTreadmill;
-    else if (domyosElliptical)
+    } else if (domyosElliptical) {
         return domyosElliptical;
-    else if (soleElliptical)
+    } else if (soleElliptical) {
         return soleElliptical;
-    else if (cscBike)
+    } else if (cscBike) {
         return cscBike;
-    else if (npeCableBike)
+    } else if (npeCableBike) {
         return npeCableBike;
-    else if (stagesBike)
+    } else if (stagesBike) {
         return stagesBike;
-    else if (toorx)
+    } else if (toorx) {
         return toorx;
-    else if (spiritTreadmill)
+    } else if (spiritTreadmill) {
         return spiritTreadmill;
-    else if (trxappgateusb)
+    } else if (trxappgateusb) {
         return trxappgateusb;
-    else if (trxappgateusbBike)
+    } else if (trxappgateusbBike) {
         return trxappgateusbBike;
-    else if (horizonTreadmill)
+    } else if (horizonTreadmill) {
         return horizonTreadmill;
-    else if (echelonConnectSport)
+    } else if (echelonConnectSport) {
         return echelonConnectSport;
-    else if (echelonRower)
+    } else if (echelonRower) {
         return echelonRower;
-    else if (ftmsRower)
+    } else if (ftmsRower) {
         return ftmsRower;
-    else if(smartrowRower)
+    } else if (smartrowRower) {
         return smartrowRower;
-    else if(yesoulBike)
+    } else if (yesoulBike) {
         return yesoulBike;
-    else if (proformBike)
+    } else if (proformBike) {
         return proformBike;
-    else if (proformTreadmill)
+    } else if (proformTreadmill) {
         return proformTreadmill;
-    else if (eslinkerTreadmill)
+    } else if (eslinkerTreadmill) {
         return eslinkerTreadmill;
-    else if (flywheelBike)
+    } else if (flywheelBike) {
         return flywheelBike;
-    else if (schwinnIC4Bike)
+    } else if (schwinnIC4Bike) {
         return schwinnIC4Bike;
-    else if (sportsTechBike)
+    } else if (sportsTechBike) {
         return sportsTechBike;
-    else if (inspireBike)
+    } else if (inspireBike) {
         return inspireBike;
-    else if (chronoBike)
+    } else if (chronoBike) {
         return chronoBike;
-    else if (m3iBike)
+    } else if (m3iBike) {
         return m3iBike;
-    else if (snodeBike)
+    } else if (snodeBike) {
         return snodeBike;
-    else if (ftmsBike)
+    } else if (ftmsBike) {
         return ftmsBike;
-    else if (fitPlusBike)
+    } else if (fitPlusBike) {
         return fitPlusBike;
-    else if (skandikaWiriBike)
+    } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+    }
     return nullptr;
 }
 
