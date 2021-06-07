@@ -370,6 +370,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(stagesBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 stagesBike->deviceDiscovered(b);
                 templateManager->start(stagesBike);
+            } else if (b.name().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
+                discoveryAgent->stop();
+                smartrowRower = new ftmsrower(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(smartrowRower, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(smartrowRower, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(smartrowRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(smartrowRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                smartrowRower->deviceDiscovered(b);
+                templateManager->start(smartrowRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
                          b.name().toUpper().contains(QStringLiteral("ROW")))) &&
@@ -893,6 +905,10 @@ void bluetooth::restart() {
         delete ftmsRower;
         ftmsRower = nullptr;
     }
+    if(smartrowRower) {
+        delete smartrowRower;
+        smartrowRower = 0;
+    }
     if (yesoulBike) {
         delete yesoulBike;
         yesoulBike = nullptr;
@@ -996,7 +1012,9 @@ bluetoothdevice *bluetooth::device() {
         return echelonRower;
     else if (ftmsRower)
         return ftmsRower;
-    else if (yesoulBike)
+    else if(smartrowRower)
+        return smartrowRower;
+    else if(yesoulBike)
         return yesoulBike;
     else if (proformBike)
         return proformBike;

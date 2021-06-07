@@ -39,6 +39,7 @@
 #include "schwinnic4bike.h"
 #include "signalhandler.h"
 #include "skandikawiribike.h"
+#include "smartrowrower.h"
 #include "smartspin2k.h"
 #include "snodebike.h"
 #include "soleelliptical.h"
@@ -68,6 +69,7 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *templateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+
     fitshowtreadmill *fitshowTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
@@ -97,11 +99,13 @@ class bluetooth : public QObject, public SignalHandler {
     fitplusbike *fitPlusBike = nullptr;
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
+    smartrowrower *smartrowRower = 0;
     ftmsbike *ftmsBike = nullptr;
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
     QString filterDevice = QLatin1String("");
+
     bool testResistance = false;
     bool noWriteResistance = false;
     bool noHeartService = false;

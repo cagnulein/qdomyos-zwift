@@ -93,6 +93,7 @@ SOURCES += \
 	sessionline.cpp \
 	signalhandler.cpp \
     skandikawiribike.cpp \
+   smartrowrower.cpp \
    smartspin2k.cpp \
     smtpclient/src/emailaddress.cpp \
     smtpclient/src/mimeattachment.cpp \
@@ -394,6 +395,7 @@ HEADERS += \
 	sessionline.h \
 	signalhandler.h \
     skandikawiribike.h \
+   smartrowrower.h \
    smartspin2k.h \
     smtpclient/src/SmtpMime \
     smtpclient/src/emailaddress.h \
@@ -496,4 +498,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.44
+VERSION = 2.6.45
+
