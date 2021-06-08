@@ -212,7 +212,8 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         localTime = QTime(atoi(newValue.mid(6, 2)), atoi(newValue.mid(8, 2)), atoi(newValue.mid(10, 2)));
         break;
     case 'b':
-        // work per stroke[6:11] / 10, stroke length [11:14]
+        // work per stroke[6:11] / 10, stroke length [11:13]
+        StrokesLength = atoi(newValue.mid(11, 3));
         break;
     case 'c':
         // actual power
@@ -225,6 +226,7 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
         if(settings.value("cadence_sensor_name", "Disabled").toString().startsWith("Disabled"))
             Cadence = atoi(newValue.mid(6, 3)) / 10.0;
         // strokes count [9:11]
+        StrokesCount = atoi(newValue.mid(9, 4));
         break;
     case 'e':
         // actual split time

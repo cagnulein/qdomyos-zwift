@@ -114,6 +114,8 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     datetime = new DataObject("Clock", "icons/icons/clock.png", QTime::currentTime().toString("hh:mm:ss"), false, "time", valueTimeFontSize, labelFontSize);
     lapElapsed = new DataObject("Lap Elapsed", "icons/icons/clock.png", "0:00:00", false, "lapElapsed", valueElapsedFontSize, labelFontSize);
     peloton_offset = new DataObject("Peloton Offset", "icons/icons/clock.png", "0", true, "peloton_offset", valueElapsedFontSize, labelFontSize);
+    strokesCount = new DataObject("Strokes Count", "icons/icons/cadence.png", "0", false, "strokes_count", 48, labelFontSize);
+    strokesLength = new DataObject("Strokes Length", "icons/icons/cadence.png", "0", false, "strokes_length", 48, labelFontSize);
 
     if(!settings.value("top_bar_enabled", true).toBool())
     {
@@ -408,7 +410,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 25; i++)
+    for(int i = 0; i < 27; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -489,7 +491,7 @@ void homeform::deviceConnected()
                 dataList.append(lapElapsed);
         }
     }
-    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE || bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
     {
         for(int i=0; i<100; i++)
         {
@@ -561,6 +563,89 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
                 dataList.append(lapElapsed);
+        }
+    }
+    else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+    {
+        for(int i=0; i<100; i++)
+        {
+            if(settings.value("tile_speed_enabled", true).toBool() && settings.value("tile_speed_order", 0).toInt() == i)
+                dataList.append(speed);
+
+            if(settings.value("tile_cadence_enabled", true).toBool() && settings.value("tile_cadence_order", 0).toInt() == i)
+                dataList.append(cadence);
+
+            if(settings.value("tile_elevation_enabled", true).toBool() && settings.value("tile_elevation_order", 0).toInt() == i)
+                dataList.append(elevation);
+
+            if(settings.value("tile_elapsed_enabled", true).toBool() && settings.value("tile_elapsed_order", 0).toInt() == i)
+                dataList.append(elapsed);
+
+            if(settings.value("tile_moving_time_enabled", false).toBool() && settings.value("tile_moving_time_order", 19).toInt() == i)
+                dataList.append(moving_time);
+
+            if(settings.value("tile_peloton_offset_enabled", false).toBool() && settings.value("tile_peloton_offset_order", 20).toInt() == i)
+                dataList.append(peloton_offset);
+
+            if(settings.value("tile_calories_enabled", true).toBool() && settings.value("tile_calories_order", 0).toInt() == i)
+                dataList.append(calories);
+
+            if(settings.value("tile_odometer_enabled", true).toBool() && settings.value("tile_odometer_order", 0).toInt() == i)
+                dataList.append(odometer);
+
+            if(settings.value("tile_resistance_enabled", true).toBool() && settings.value("tile_resistance_order", 0).toInt() == i)
+                dataList.append(resistance);
+
+            if(settings.value("tile_peloton_resistance_enabled", true).toBool() && settings.value("tile_peloton_resistance_order", 0).toInt() == i)
+                dataList.append(peloton_resistance);
+
+            if(settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+                dataList.append(watt);
+
+            if(settings.value("tile_weight_loss_enabled", false).toBool() && settings.value("tile_weight_loss_order", 24).toInt() == i)
+                dataList.append(weightLoss);
+
+            if(settings.value("tile_avgwatt_enabled", true).toBool() && settings.value("tile_avgwatt_order", 0).toInt() == i)
+                dataList.append(avgWatt);
+
+            if(settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+                dataList.append(ftp);
+
+            if(settings.value("tile_jouls_enabled", true).toBool() && settings.value("tile_jouls_order", 0).toInt() == i)
+                dataList.append(jouls);
+
+            if(settings.value("tile_heart_enabled", true).toBool() && settings.value("tile_heart_order", 0).toInt() == i)
+                dataList.append(heart);
+
+            if(settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+                dataList.append(fan);
+
+            if(settings.value("tile_datetime_enabled", true).toBool() && settings.value("tile_datetime_order", 0).toInt() == i)
+                dataList.append(datetime);
+
+            if(settings.value("tile_target_resistance_enabled", true).toBool() && settings.value("tile_target_resistance_order", 0).toInt() == i)
+                dataList.append(target_resistance);
+
+            if(settings.value("tile_target_peloton_resistance_enabled", false).toBool() && settings.value("tile_target_peloton_resistance_order", 21).toInt() == i)
+                dataList.append(target_peloton_resistance);
+
+            if(settings.value("tile_target_cadence_enabled", false).toBool() && settings.value("tile_target_cadence_order", 19).toInt() == i)
+                dataList.append(target_cadence);
+
+            if(settings.value("tile_target_power_enabled", false).toBool() && settings.value("tile_target_power_order", 20).toInt() == i)
+                dataList.append(target_power);
+
+            if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
+                dataList.append(lapElapsed);
+
+            if(settings.value("tile_strokes_length_enabled", false).toBool() && settings.value("tile_strokes_length_order", 21).toInt() == i)
+                dataList.append(strokesLength);
+
+            if(settings.value("tile_strokes_count_enabled", false).toBool() && settings.value("tile_strokes_count_order", 22).toInt() == i)
+                dataList.append(strokesCount);
+
+            if(settings.value("tile_pace_enabled", true).toBool() && settings.value("tile_pace_order", 0).toInt() == i)
+                dataList.append(pace);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
@@ -1106,6 +1191,9 @@ void homeform::update()
             cadence = ((rower*)bluetoothManager->device())->currentCadence().value();
             resistance = ((rower*)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((rower*)bluetoothManager->device())->pelotonResistance().value();
+            this->strokesCount->setValue(QString::number(((rower*)bluetoothManager->device())->currentStrokesCount().value(), 'f', 0));
+            this->strokesLength->setValue(QString::number(((rower*)bluetoothManager->device())->currentStrokesLength().value(), 'f', 1));
+
             this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
             this->target_resistance->setValue(QString::number(((rower*)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
             this->target_peloton_resistance->setValue(QString::number(((rower*)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
@@ -1118,6 +1206,55 @@ void homeform::update()
             this->resistance->setSecondLine("AVG: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + " MAX: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().max(), 'f', 0));
             this->peloton_resistance->setSecondLine("AVG: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + " MAX: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0,'f', 0) + "% @0%=" + QString::number(bluetoothManager->device()->difficult() * settings.value("bike_resistance_gain_f", 1.0).toDouble() * settings.value("bike_resistance_offset", 4.0).toDouble(),'f', 0));
+            this->strokesLength->setSecondLine("AVG: " + QString::number(((rower*)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + " MAX: " + QString::number(((rower*)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
+
+            if(bluetoothManager->device()->currentSpeed().value())
+            {
+                pace = 10000 / (((rower*)bluetoothManager->device())->currentPace().second() + (((rower*)bluetoothManager->device())->currentPace().minute() * 60));
+                if(pace < 0) pace = 0;
+            }
+            else
+            {
+                pace = 0;
+            }
+            this->pace->setValue(((rower*)bluetoothManager->device())->currentPace().toString("m:ss"));
+            this->pace->setSecondLine("AVG: " + ((rower*)bluetoothManager->device())->averagePace().toString("m:ss") + " MAX: " + ((rower*)bluetoothManager->device())->maxPace().toString("m:ss"));
+
+            if(bluetoothManager->device()->currentSpeed().value() < 4)
+            {
+                speed->setValueFontColor("white");
+                this->pace->setValueFontColor("white");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 5)
+            {
+                speed->setValueFontColor("limegreen");
+                this->pace->setValueFontColor("limegreen");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 5.5)
+            {
+                speed->setValueFontColor("gold");
+                this->pace->setValueFontColor("gold");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 6)
+            {
+                speed->setValueFontColor("orange");
+                this->pace->setValueFontColor("orange");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 6.5)
+            {
+                speed->setValueFontColor("darkorange");
+                this->pace->setValueFontColor("darkorange");
+            }
+            else if(bluetoothManager->device()->currentSpeed().value() < 7)
+            {
+                speed->setValueFontColor("orangered");
+                this->pace->setValueFontColor("orangered");
+            }
+            else
+            {
+                speed->setValueFontColor("red");
+                this->pace->setValueFontColor("red");
+            }
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
@@ -2058,6 +2195,7 @@ void homeform::sendMail()
         textMessage += "Max Resistance: " + QString::number(((rower*)bluetoothManager->device())->currentResistance().max(), 'f', 0) + "\n";
         textMessage += "Average Peloton Resistance: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + "\n";
         textMessage += "Max Peloton Resistance: " + QString::number(((rower*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0) + "\n";
+        textMessage += "Average Strokes Length: " + QString::number(((rower*)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + "\n";
     }
     textMessage += "\n\nQZ version: " + QApplication::applicationVersion();
 #ifdef Q_OS_ANDROID

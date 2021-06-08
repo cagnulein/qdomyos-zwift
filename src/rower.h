@@ -17,6 +17,9 @@ public:
     metric lastRequestedPower();
     virtual metric currentResistance();
     virtual metric currentCadence();
+    virtual metric currentStrokesCount();
+    virtual metric currentStrokesLength();
+    virtual QTime currentPace();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
@@ -49,6 +52,8 @@ protected:
     metric RequestedPelotonResistance;
     metric RequestedCadence;
     metric RequestedPower;
+    metric StrokesLength;
+    metric StrokesCount;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
     double CrankRevs = 0;
