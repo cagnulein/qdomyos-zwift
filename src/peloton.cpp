@@ -199,7 +199,10 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     current_workout_name = ride["title"].toString();
     current_instructor_id = ride["instructor_id"].toString();
     current_ride_id = ride["id"].toString();
-    current_original_air_time = QDateTime::fromTime_t(ride["original_air_time"].toInt());
+    qint64 time = ride["original_air_time"].toInt();
+    qDebug() << "original_air_time" << time;
+
+    current_original_air_time = QDateTime::fromSecsSinceEpoch(time);
 
     if(log_request)
         qDebug() << "workout_onfinish" << workout;
