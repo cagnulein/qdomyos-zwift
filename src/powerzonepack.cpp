@@ -69,9 +69,9 @@ void powerzonepack::login_onfinish(QNetworkReply* reply)
     //searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
 }
 
-void powerzonepack::searchWorkout(QString classid)
+bool powerzonepack::searchWorkout(QString classid)
 {
-    if(pzp_credentials_wrong) return;
+    if(pzp_credentials_wrong) return false;
 
     lastWorkoutID = classid;
 
@@ -95,6 +95,8 @@ void powerzonepack::searchWorkout(QString classid)
     QByteArray data = doc.toJson();
 
     QNetworkReply* reply = mgr->post(request, data);
+
+    return true;
 }
 
 void powerzonepack::search_workout_onfinish(QNetworkReply* reply)

@@ -6,6 +6,7 @@ class zwiftworkout
 {
 public:
     static QList<trainrow> load(QString filename);
+    static QList<trainrow> load(QByteArray input);
 };
 
 #endif // ZWIFTWORKOUT_H

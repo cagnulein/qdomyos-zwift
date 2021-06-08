@@ -68,6 +68,7 @@ SOURCES += \
     ftmsrower.cpp \
 	     gpx.cpp \
 		heartratebelt.cpp \
+   homefitnessbuddy.cpp \
 	homeform.cpp \
    horizontreadmill.cpp \
 	inspirebike.cpp \
@@ -144,6 +145,7 @@ HEADERS += \
    eslinkertreadmill.h \
    fitplusbike.h \
     ftmsrower.h \
+   homefitnessbuddy.h \
    m3ibike.h \
         fitshowtreadmill.h \
 	fit-sdk/FitDecode.h \

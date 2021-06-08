@@ -18,6 +18,7 @@
 #include "trainprogram.h"
 #include "bluetooth.h"
 #include "powerzonepack.h"
+#include "homefitnessbuddy.h"
 
 class peloton : public QObject
 {
@@ -33,6 +34,7 @@ public:
     QString current_instructor_id = "";
     QString current_instructor_name = "";
     QString current_ride_id = "";
+    QDateTime current_original_air_time;
 
 private:
     const int peloton_workout_second_resolution = 10;
@@ -49,6 +51,7 @@ private:
 
     bluetooth* bluetoothManager = 0;
     powerzonepack* PZP = 0;
+    homefitnessbuddy* HFB = nullptr;
 
     int total_workout;
     void getWorkoutList(int num);
@@ -65,6 +68,7 @@ private slots:
     void performance_onfinish(QNetworkReply* reply);
     void instructor_onfinish(QNetworkReply* reply);
     void pzp_trainrows(QList<trainrow>* list);
+    void hfb_trainrows(QList<trainrow>* list);
     void pzp_loginState(bool ok);
 
     void startEngine();
