@@ -15,11 +15,16 @@
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
 #include <QObject>
+
 #include <QSettings>
+
 #include <QTimer>
 #include <QUrlQuery>
 
+#include "homefitnessbuddy.h"
+
 class peloton : public QObject {
+
     Q_OBJECT
   public:
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
@@ -32,6 +37,7 @@ class peloton : public QObject {
     QString current_instructor_id = QLatin1String("");
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");
+    QDateTime current_original_air_time;
 
   private:
     const int peloton_workout_second_resolution = 10;
@@ -48,6 +54,7 @@ class peloton : public QObject {
 
     bluetooth *bluetoothManager = nullptr;
     powerzonepack *PZP = nullptr;
+    homefitnessbuddy* HFB = nullptr;
 
     int total_workout;
     void getWorkoutList(int num);
@@ -64,6 +71,7 @@ class peloton : public QObject {
     void performance_onfinish(QNetworkReply *reply);
     void instructor_onfinish(QNetworkReply *reply);
     void pzp_trainrows(QList<trainrow> *list);
+    void hfb_trainrows(QList<trainrow>* list);
     void pzp_loginState(bool ok);
 
     void startEngine();

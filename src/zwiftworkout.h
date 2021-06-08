@@ -3,8 +3,10 @@
 #include "trainprogram.h"
 
 class zwiftworkout {
+
   public:
     static QList<trainrow> load(const QString &filename);
+    static QList<trainrow> load(const QByteArray &input);
 };
 
 #endif // ZWIFTWORKOUT_H

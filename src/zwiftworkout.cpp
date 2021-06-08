@@ -6,11 +6,17 @@ QList<trainrow> zwiftworkout::load(const QString &filename) {
     QList<trainrow> list;
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
-    QXmlStreamReader stream(&input);
+    return load(input.readAll());
+}
+
+QList<trainrow> zwiftworkout::load(const QByteArray &input) {
+    QSettings settings;
+    QList<trainrow> list;
+    QXmlStreamReader stream(input);
     while (!stream.atEnd()) {
         stream.readNext();
         QXmlStreamAttributes atts = stream.attributes();
-        if (!atts.isEmpty()) {
+        if (atts.length()) {
             if (stream.name().contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
@@ -44,19 +50,19 @@ QList<trainrow> zwiftworkout::load(const QString &filename) {
                 }
             } else if (stream.name().contains(QStringLiteral("FreeRide"))) {
                 uint32_t Duration = 1;
-                // double FlatRoad = 1;
+                double FlatRoad = 1;
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
-                //                if (atts.hasAttribute(QStringLiteral("FlatRoad"))) {
-                //                    // FlatRoad = atts.value(QStringLiteral("FlatRoad")).toDouble(); //NOTE:
-                //                    // clang-analyzer-deadcode.DeadStores
-                //                }
+                if (atts.hasAttribute(QStringLiteral("FlatRoad"))) {
+                    FlatRoad = atts.value(QStringLiteral("FlatRoad")).toDouble();
+                }
 
                 trainrow row;
                 row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
                 list.append(row);
-            } else if (stream.name().contains(QStringLiteral("Ramp"))) {
+            } else if (stream.name().contains(QStringLiteral("Ramp")) ||
+                       stream.name().contains(QStringLiteral("Cooldown"))) {
                 uint32_t Duration = 1;
                 double PowerLow = 1;
                 double PowerHigh = 1;
@@ -73,13 +79,12 @@ QList<trainrow> zwiftworkout::load(const QString &filename) {
                 for (uint32_t i = 0; i < Duration; i++) {
                     trainrow row;
                     row.duration = QTime(0, 0, 1, 0);
-                    if (PowerHigh > PowerLow) {
+                    if (PowerHigh > PowerLow)
                         row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
                                     settings.value(QStringLiteral("ftp"), 200.0).toDouble();
-                    } else {
+                    else
                         row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
                                     settings.value(QStringLiteral("ftp"), 200.0).toDouble();
-                    }
                     list.append(row);
                 }
             } else if (stream.name().contains(QStringLiteral("SteadyState"))) {

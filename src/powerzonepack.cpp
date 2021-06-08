@@ -54,6 +54,7 @@ void powerzonepack::error(QNetworkReply::NetworkError code) {
 
 void powerzonepack::login_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &powerzonepack::login_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
 
     qDebug() << QStringLiteral("login_onfinish") << payload;
@@ -71,9 +72,9 @@ void powerzonepack::login_onfinish(QNetworkReply *reply) {
     // searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
 }
 
-void powerzonepack::searchWorkout(const QString &classid) {
+bool powerzonepack::searchWorkout(const QString &classid) {
     if (pzp_credentials_wrong) {
-        return;
+        return false;
     }
 
     lastWorkoutID = classid;
@@ -99,10 +100,12 @@ void powerzonepack::searchWorkout(const QString &classid) {
 
     // QNetworkReply *reply = //NOTE: clang-analyzer-deadcode.DeadStores
     mgr->post(request, data); // NOTE: clang-analyzer-deadcode.DeadStores
+    return true;
 }
 
 void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &powerzonepack::search_workout_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
 
     qDebug() << QStringLiteral("search_workout_onfinish") << payload;
@@ -119,9 +122,10 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
     trainrows.clear();
     QTime lastSeconds(0, 0, 0, 0);
     for (int i = 1; i < power_graph.count(); i++) {
+
         trainrow r;
         int sec = power_graph.at(i).toObject()[QStringLiteral("seconds")].toInt();
-        QTime seconds(0,0,0,0);
+        QTime seconds(0, 0, 0, 0);
         seconds = seconds.addSecs(sec);
         r.duration = QTime(0, 0, lastSeconds.msecsTo(seconds) / 1000, 0);
         r.power = power_graph.at(i - 1).toObject()[QStringLiteral("power_ratio")].toDouble() *
@@ -131,6 +135,7 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
     }
 
     if (!trainrows.isEmpty()) {
+
         emit workoutStarted(&trainrows);
     }
 }

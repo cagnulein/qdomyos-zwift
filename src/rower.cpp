@@ -1,7 +1,10 @@
+
+#include <QSettings>
 #include "rower.h"
 #include "qdebugfixup.h"
 
 rower::rower() {}
+
 
 void rower::changeResistance(int8_t resistance) {
     if (autoResistanceEnable) {
@@ -10,6 +13,7 @@ void rower::changeResistance(int8_t resistance) {
     }
     RequestedResistance = resistance * m_difficult;
 }
+
 void rower::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void rower::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void rower::changePower(int32_t power) { RequestedPower = power; }
@@ -21,6 +25,8 @@ metric rower::lastRequestedCadence() { return RequestedCadence; }
 metric rower::lastRequestedPower() { return RequestedPower; }
 metric rower::currentResistance() { return Resistance; }
 metric rower::currentCadence() { return Cadence; }
+metric rower::currentStrokesCount() {return StrokesCount; }
+metric rower::currentStrokesLength() {return StrokesLength; }
 uint8_t rower::fanSpeed() { return FanSpeed; }
 bool rower::connected() { return false; }
 uint16_t rower::watts() { return 0; }
@@ -32,6 +38,7 @@ void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
 
 void rower::clearStats() {
+
     moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
@@ -42,6 +49,8 @@ void rower::clearStats() {
     elevationAcc = 0;
     m_watt.clear(false);
     WeightLoss.clear(false);
+    StrokesCount.clear(false);
+    StrokesLength.clear(false);
 
     RequestedPelotonResistance.clear(false);
     RequestedResistance.clear(false);
@@ -53,6 +62,7 @@ void rower::clearStats() {
 }
 
 void rower::setPaused(bool p) {
+
     paused = p;
     moving.setPaused(p);
     elapsed.setPaused(p);
@@ -70,9 +80,12 @@ void rower::setPaused(bool p) {
     RequestedResistance.setPaused(p);
     RequestedCadence.setPaused(p);
     RequestedPower.setPaused(p);
+    StrokesCount.setPaused(p);
+    StrokesLength.setPaused(p);
 }
 
 void rower::setLap() {
+
     moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
@@ -82,6 +95,8 @@ void rower::setLap() {
     m_jouls.setLap(true);
     m_watt.setLap(false);
     WeightLoss.setLap(false);
+    StrokesCount.setLap(false);
+    StrokesLength.setLap(false);
 
     RequestedPelotonResistance.setLap(false);
     RequestedResistance.setLap(false);
@@ -90,4 +105,23 @@ void rower::setLap() {
     m_pelotonResistance.setLap(false);
     Cadence.setLap(false);
     Resistance.setLap(false);
+}
+
+// min/500m
+QTime rower::currentPace()
+{
+    QSettings settings;
+    bool miles = settings.value("miles_unit", false).toBool();
+    double unit_conversion = 1.0;
+    if(miles)
+        unit_conversion = 0.621371;
+    if(Speed.value() == 0)
+    {
+        return QTime(0,0,0,0);
+    }
+    else
+    {
+        double speed = Speed.value() * unit_conversion * 2.0;
+        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+    }
 }

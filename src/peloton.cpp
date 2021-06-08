@@ -6,6 +6,7 @@ using namespace std::chrono_literals;
 const bool log_request = true;
 
 peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
+
     QSettings settings;
     bluetoothManager = bl;
     mgr = new QNetworkAccessManager(this);
@@ -21,20 +22,39 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     connect(timer, &QTimer::timeout, this, &peloton::startEngine);
 
     PZP = new powerzonepack(bl, this);
-    connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);
+    HFB = new homefitnessbuddy(bl, this);
+
+    connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);    
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
+    connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
 
     startEngine();
 }
 
 void peloton::pzp_loginState(bool ok) { emit pzpLoginState(ok); }
 
+void peloton::hfb_trainrows(QList<trainrow>* list)
+{
+    trainrows.clear();
+    foreach(trainrow r, *list) {
+        trainrows.append(r);
+    }
+    if(trainrows.length()) {
+        emit workoutStarted(current_workout_name, current_instructor_name);
+    }
+}
+
+
+
 void peloton::pzp_trainrows(QList<trainrow> *list) {
+
     trainrows.clear();
     for (const trainrow &r : qAsConst(*list)) {
+
         trainrows.append(r);
     }
     if (!trainrows.isEmpty()) {
+
         emit workoutStarted(current_workout_name, current_instructor_name);
     }
 }
@@ -66,6 +86,7 @@ void peloton::startEngine() {
 
 void peloton::login_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::login_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
@@ -79,6 +100,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
     }
 
     if (status != 0) {
+
         peloton_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials during login ") << status;
         return;
@@ -94,6 +116,7 @@ void peloton::login_onfinish(QNetworkReply *reply) {
 
 void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::workoutlist_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     current_workout = QJsonDocument::fromJson(payload, &parseError);
@@ -125,6 +148,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
             // workout
         }
     } else {
+
         // getSummary(current_workout_id); // debug
         timer->start(10s); // check for a status changed
         current_workout_status = status;
@@ -139,6 +163,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
 
 void peloton::summary_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     current_workout_summary = QJsonDocument::fromJson(payload, &parseError);
@@ -154,6 +179,7 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
 
 void peloton::instructor_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     instructor = QJsonDocument::fromJson(payload, &parseError);
@@ -172,6 +198,7 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
 
 void peloton::workout_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
+
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     workout = QJsonDocument::fromJson(payload, &parseError);
@@ -179,6 +206,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_workout_name = ride[QStringLiteral("title")].toString();
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
     current_ride_id = ride[QStringLiteral("id")].toString();
+    current_original_air_time = QDateTime::fromTime_t(ride["original_air_time"].toInt());
 
     if (log_request) {
         qDebug() << QStringLiteral("workout_onfinish") << workout;
@@ -190,6 +218,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
 }
 
 void peloton::performance_onfinish(QNetworkReply *reply) {
+
     QSettings settings;
     QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
@@ -225,9 +254,13 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     }
 
     if (!trainrows.isEmpty()) {
+
         emit workoutStarted(current_workout_name, current_instructor_name);
     } else {
-        PZP->searchWorkout(current_ride_id);
+
+        if(!PZP->searchWorkout(current_ride_id)) {
+            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name);
+        }
     }
 
     timer->start(30s); // check for a status changed
@@ -235,6 +268,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
 void peloton::getInstructor(const QString &instructor_id) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
+
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/instructor/") + instructor_id);
     QNetworkRequest request(url);
@@ -247,6 +281,7 @@ void peloton::getInstructor(const QString &instructor_id) {
 
 void peloton::getPerformance(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
+
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout +
              QStringLiteral("/performance_graph?every_n=") + QString::number(peloton_workout_second_resolution));
@@ -261,6 +296,7 @@ void peloton::getPerformance(const QString &workout) {
 void peloton::getWorkout(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
+
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout);
     QNetworkRequest request(url);
 
@@ -272,6 +308,7 @@ void peloton::getWorkout(const QString &workout) {
 
 void peloton::getSummary(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
+
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout + QStringLiteral("/summary"));
     QNetworkRequest request(url);

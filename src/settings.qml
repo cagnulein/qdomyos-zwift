@@ -104,6 +104,10 @@ import Qt.labs.settings 1.0
             property int  tile_target_cadence_order: 19
             property bool tile_target_power_enabled: false
             property int  tile_target_power_order: 20
+            property bool tile_strokes_count_enabled: false
+            property int  tile_strokes_count_order: 22
+            property bool tile_strokes_length_enabled: false
+            property int  tile_strokes_length_order: 23
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -1500,6 +1504,68 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_datetime_order = datetimeOrderTextField.displayText
+                            }
+                        }
+                    }
+                    AccordionCheckElement {
+                        id: targetStrokesCountAccordion
+                        title: qsTr("Strokes Count")
+                        linkedBoolSetting: "tile_strokes_count_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelstrokes_countOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: strokes_countOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_strokes_count_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = strokes_countOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okstrokes_countOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_strokes_count_order = strokes_countOrderTextField.displayText
+                            }
+                        }
+                    }
+                    AccordionCheckElement {
+                        id: targetStrokesLengthAccordion
+                        title: qsTr("Strokes Length")
+                        linkedBoolSetting: "tile_strokes_length_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelstrokes_lengthOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: strokes_lengthOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_strokes_length_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = strokes_lengthOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okstrokes_lengthOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_strokes_length_order = strokes_lengthOrderTextField.displayText
                             }
                         }
                     }

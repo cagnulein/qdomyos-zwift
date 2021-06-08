@@ -1,7 +1,9 @@
 #ifndef HOMEFORM_H
 #define HOMEFORM_H
 
+
 #include "bluetooth.h"
+
 #include "peloton.h"
 #include "screencapture.h"
 #include "sessionline.h"
@@ -17,6 +19,7 @@
 #include <QQuickItemGrabResult>
 
 class DataObject : public QObject {
+
     Q_OBJECT
 
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
@@ -79,6 +82,7 @@ class DataObject : public QObject {
 };
 
 class homeform : public QObject {
+
     Q_OBJECT
     Q_PROPERTY(bool labelHelp READ labelHelp NOTIFY changeLabelHelp)
     Q_PROPERTY(bool device READ getDevice NOTIFY changeOfdevice)
@@ -114,6 +118,7 @@ class homeform : public QObject {
 
   public:
     Q_INVOKABLE void save_screenshot() {
+
         QString path = getWritableAppDir();
 
         QString filenameScreenshot =
@@ -428,6 +433,8 @@ class homeform : public QObject {
     DataObject *ftp;
     DataObject *lapElapsed;
     DataObject *weightLoss;
+    DataObject* strokesLength;
+    DataObject* strokesCount;
 
     QTimer *timer;
     QTimer *backupTimer;

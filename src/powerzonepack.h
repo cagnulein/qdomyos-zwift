@@ -14,15 +14,19 @@
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QOAuthHttpServerReplyHandler>
 #include <QObject>
+
 #include <QSettings>
+
 #include <QTimer>
 #include <QUrlQuery>
 
+
 class powerzonepack : public QObject {
+
     Q_OBJECT
   public:
     powerzonepack(bluetooth *bl, QObject *parent);
-    void searchWorkout(const QString &classid);
+    bool searchWorkout(const QString &classid);
     QList<trainrow> trainrows;
 
   private:
