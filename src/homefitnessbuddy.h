@@ -1,5 +1,5 @@
-#ifndef POWERZONEPACK_H
-#define POWERZONEPACK_H
+#ifndef HOMEFITNESSBUDDY_H
+#define HOMEFITNESSBUDDY_H
 
 #include <QObject>
 #include <QAbstractOAuth2>
@@ -18,24 +18,24 @@
 #include "trainprogram.h"
 #include "bluetooth.h"
 
-class powerzonepack : public QObject
+class homefitnessbuddy : public QObject
 {
     Q_OBJECT
+
 public:
-    powerzonepack(bluetooth* bl, QObject *parent);
-    bool searchWorkout(QString classid);
+    homefitnessbuddy(bluetooth* bl, QObject *parent);
+    void searchWorkout(QDate date, QString coach);
     QList<trainrow> trainrows;
 
 private:
     const int peloton_workout_second_resolution = 10;
-    bool pzp_credentials_wrong = false;
 
     QNetworkAccessManager * mgr = 0;
     bluetooth* bluetoothManager = 0;
-    QString token;
-    QString lastWorkoutID = "";
 
     void startEngine();
+
+    QJsonArray lessons;
 
 private slots:
     void login_onfinish(QNetworkReply* reply);
@@ -44,7 +44,7 @@ private slots:
 
 signals:
     void workoutStarted(QList<trainrow>* list);
-    void loginState(bool ok);
+    //void loginState(bool ok);
 };
 
-#endif // POWERZONEPACK_H
+#endif // HOMEFITNESSBUDDY_H

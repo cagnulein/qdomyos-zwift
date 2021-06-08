@@ -48,6 +48,7 @@
 #include "ftmsrower.h"
 #include "smartspin2k.h"
 #include "echelonrower.h"
+#include "smartrowrower.h"
 #include "bluetoothdevice.h"
 #include "signalhandler.h"
 #include "templateinfosenderbuilder.h"
@@ -96,6 +97,7 @@ private:
     fitplusbike* fitPlusBike = 0;
     echelonrower* echelonRower = 0;
     ftmsrower* ftmsRower = 0;
+    smartrowrower* smartrowRower = 0;
     ftmsbike* ftmsBike = 0;
     heartratebelt* heartRateBelt = 0;
     smartspin2k* ftmsAccessory = 0;

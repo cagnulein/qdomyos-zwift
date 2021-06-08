@@ -18,10 +18,27 @@ peloton::peloton(bluetooth* bl, QObject *parent) : QObject(parent)
     connect(timer,SIGNAL(timeout()), this, SLOT(startEngine()));
 
     PZP = new powerzonepack(bl, this);
-    connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);
+    HFB = new homefitnessbuddy(bl, this);
+
+    connect(PZP, &powerzonepack::workoutStarted, this, &peloton::pzp_trainrows);    
     connect(PZP, &powerzonepack::loginState, this, &peloton::pzp_loginState);
+    connect(HFB, &homefitnessbuddy::workoutStarted, this, &peloton::hfb_trainrows);
 
     startEngine();
+}
+
+// same of pzp_trainrows, but better to keep different, in order to give more readability to the code
+void peloton::hfb_trainrows(QList<trainrow>* list)
+{
+    trainrows.clear();
+    foreach(trainrow r, *list)
+    {
+        trainrows.append(r);
+    }
+    if(trainrows.length())
+    {
+        emit workoutStarted(current_workout_name, current_instructor_name);
+    }
 }
 
 void peloton::pzp_loginState(bool ok)
@@ -182,6 +199,10 @@ void peloton::workout_onfinish(QNetworkReply* reply)
     current_workout_name = ride["title"].toString();
     current_instructor_id = ride["instructor_id"].toString();
     current_ride_id = ride["id"].toString();
+    qint64 time = ride["original_air_time"].toInt();
+    qDebug() << "original_air_time" << time;
+
+    current_original_air_time = QDateTime::fromSecsSinceEpoch(time);
 
     if(log_request)
         qDebug() << "workout_onfinish" << workout;
@@ -232,7 +253,9 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     }
     else
     {
-        PZP->searchWorkout(current_ride_id);
+        if(!PZP->searchWorkout(current_ride_id)) {
+            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name);
+        }
     }
 
     timer->start(30000); // check for a status changed

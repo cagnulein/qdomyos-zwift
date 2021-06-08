@@ -7,7 +7,14 @@ QList<trainrow> zwiftworkout::load(QString filename)
     QList<trainrow> list;
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
-    QXmlStreamReader stream(&input);
+    return load(input.readAll());
+}
+
+QList<trainrow> zwiftworkout::load(QByteArray input)
+{
+    QSettings settings;
+    QList<trainrow> list;
+    QXmlStreamReader stream(input);
     while(!stream.atEnd())
     {
         stream.readNext();
@@ -70,7 +77,7 @@ QList<trainrow> zwiftworkout::load(QString filename)
                 row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
                 list.append(row);
             }
-            else if(stream.name().contains("Ramp"))
+            else if(stream.name().contains("Ramp") || stream.name().contains("Cooldown"))
             {
                 uint32_t Duration = 1;
                 double PowerLow = 1;

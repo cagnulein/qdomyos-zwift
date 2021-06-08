@@ -327,6 +327,8 @@ private:
     DataObject* ftp;
     DataObject* lapElapsed;
     DataObject* weightLoss;
+    DataObject* strokesLength;
+    DataObject* strokesCount;
 
     QTimer* timer;
     QTimer* backupTimer;

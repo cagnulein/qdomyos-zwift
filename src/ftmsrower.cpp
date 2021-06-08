@@ -168,12 +168,13 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if(!Flags.moreData)
     {
         Cadence = ((uint8_t)newValue.at(index)) / 2;
-        uint16_t stroke_count = (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
+        StrokesCount = (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
         index += 3;
 
         // eredited by echelon rower, probably we need to change this
         Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
         debug("Current Speed: " + QString::number(Speed.value()));
+        debug("Strokes Count: " + QString::number(StrokesCount.value()));
     }
 
     if(Flags.avgStroke)
