@@ -289,8 +289,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));    
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence));
@@ -310,6 +309,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     Speed = speed;
     KCal = kcal;
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 }
 
 double domyoselliptical::GetSpeedFromPacket(const QByteArray &packet) {
