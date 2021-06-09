@@ -309,7 +309,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     Speed = speed;
     KCal = kcal;
-    Distance = distance;
+    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 }
 
 double domyoselliptical::GetSpeedFromPacket(const QByteArray &packet) {
