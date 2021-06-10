@@ -377,8 +377,8 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
     for (auto &key : keys) {
         if (settings.contains(key)) {
             val = obj[key];
-            valConv = val.toVariant();
-            settingVal = settings.value(key);
+            valConv.setValue(val);
+            settingVal.setValue(settings.value(key));
             if (valConv.type() == settingVal.type()) {
                 settings.setValue(key, valConv);
                 outObj.insert(key, val);
@@ -575,7 +575,7 @@ void TemplateInfoSenderBuilder::buildContext() {
         int i = 0;
         auto allKeys_list = settings.allKeys();
         for (const auto &key : allKeys_list) {
-            valsett = settings.value(key);
+            valsett.setValue(settings.value(key));
             typesett = valsett.type();
             if (typesett == QVariant::Int) {
                 sett.setProperty(key, valsett.toInt());

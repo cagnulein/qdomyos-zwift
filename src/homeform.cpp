@@ -173,17 +173,17 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
-    strokesCount =
-        new DataObject("Strokes Count", "icons/icons/cadence.png", "0", false, "strokes_count", 48, labelFontSize);
-    strokesLength =
-        new DataObject("Strokes Length", "icons/icons/cadence.png", "0", false, "strokes_length", 48, labelFontSize);
+    strokesCount = new DataObject(QStringLiteral("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
+                                  QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
+    strokesLength = new DataObject(QStringLiteral("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
+                                   QStringLiteral("0"), false, QStringLiteral("strokes_length"), 48, labelFontSize);
 
     if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
 
         m_topBarHeight = 0;
-        emit topBarHeightChanged(m_topBarHeight);
+        emit topBarHeightChanged(m_topBarHeight); // NOTE: clazy-incorrecrt-emit
         m_info = QLatin1String("");
-        emit infoChanged(m_info);
+        emit infoChanged(m_info); // NOTE: clazy-incorrecrt-emit
     }
 
     this->bluetoothManager = bl;
@@ -222,15 +222,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     if (settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
 
-        emit stopIconChanged(stopIcon());
-        emit stopTextChanged(stopText());
-        emit startIconChanged(startIcon());
-        emit startTextChanged(startText());
-        emit startColorChanged(startColor());
-        emit stopColorChanged(stopColor());
+        emit stopIconChanged(stopIcon());     // NOTE: clazy-incorrecrt-emit
+        emit stopTextChanged(stopText());     // NOTE: clazy-incorrecrt-emit
+        emit startIconChanged(startIcon());   // NOTE: clazy-incorrecrt-emit
+        emit startTextChanged(startText());   // NOTE: clazy-incorrecrt-emit
+        emit startColorChanged(startColor()); // NOTE: clazy-incorrecrt-emit
+        emit stopColorChanged(stopColor());   // NOTE: clazy-incorrecrt-emit
     }
 
-    emit tile_orderChanged(tile_order());
+    emit tile_orderChanged(tile_order()); // NOTE: clazy-incorrecrt-emit
 
     pelotonHandler = new peloton(bl);
     connect(pelotonHandler, &peloton::workoutStarted, this, &homeform::pelotonWorkoutStarted);
@@ -588,99 +588,125 @@ void homeform::deviceConnected() {
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         for (int i = 0; i < 100; i++) {
-            if (settings.value("tile_speed_enabled", true).toBool() &&
-                settings.value("tile_speed_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
                 dataList.append(speed);
+            }
 
-            if (settings.value("tile_cadence_enabled", true).toBool() &&
-                settings.value("tile_cadence_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
                 dataList.append(cadence);
+            }
 
-            if (settings.value("tile_elevation_enabled", true).toBool() &&
-                settings.value("tile_elevation_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
                 dataList.append(elevation);
+            }
 
-            if (settings.value("tile_elapsed_enabled", true).toBool() &&
-                settings.value("tile_elapsed_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
                 dataList.append(elapsed);
+            }
 
-            if (settings.value("tile_moving_time_enabled", false).toBool() &&
-                settings.value("tile_moving_time_order", 19).toInt() == i)
+            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
                 dataList.append(moving_time);
+            }
 
-            if (settings.value("tile_peloton_offset_enabled", false).toBool() &&
-                settings.value("tile_peloton_offset_order", 20).toInt() == i)
+            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
                 dataList.append(peloton_offset);
+            }
 
-            if (settings.value("tile_calories_enabled", true).toBool() &&
-                settings.value("tile_calories_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
                 dataList.append(calories);
+            }
 
-            if (settings.value("tile_odometer_enabled", true).toBool() &&
-                settings.value("tile_odometer_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
                 dataList.append(odometer);
+            }
 
-            if (settings.value("tile_resistance_enabled", true).toBool() &&
-                settings.value("tile_resistance_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
                 dataList.append(resistance);
+            }
 
-            if (settings.value("tile_peloton_resistance_enabled", true).toBool() &&
-                settings.value("tile_peloton_resistance_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
                 dataList.append(peloton_resistance);
+            }
 
-            if (settings.value("tile_watt_enabled", true).toBool() && settings.value("tile_watt_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
                 dataList.append(watt);
+            }
 
-            if (settings.value("tile_weight_loss_enabled", false).toBool() &&
-                settings.value("tile_weight_loss_order", 24).toInt() == i)
+            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
                 dataList.append(weightLoss);
+            }
 
-            if (settings.value("tile_avgwatt_enabled", true).toBool() &&
-                settings.value("tile_avgwatt_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
                 dataList.append(avgWatt);
+            }
 
-            if (settings.value("tile_ftp_enabled", true).toBool() && settings.value("tile_ftp_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
                 dataList.append(ftp);
+            }
 
-            if (settings.value("tile_jouls_enabled", true).toBool() &&
-                settings.value("tile_jouls_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
                 dataList.append(jouls);
+            }
 
-            if (settings.value("tile_heart_enabled", true).toBool() &&
-                settings.value("tile_heart_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
                 dataList.append(heart);
+            }
 
-            if (settings.value("tile_fan_enabled", true).toBool() && settings.value("tile_fan_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
                 dataList.append(fan);
+            }
 
-            if (settings.value("tile_datetime_enabled", true).toBool() &&
-                settings.value("tile_datetime_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
                 dataList.append(datetime);
+            }
 
-            if (settings.value("tile_target_resistance_enabled", true).toBool() &&
-                settings.value("tile_target_resistance_order", 0).toInt() == i)
+            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
                 dataList.append(target_resistance);
+            }
 
-            if (settings.value("tile_target_peloton_resistance_enabled", false).toBool() &&
-                settings.value("tile_target_peloton_resistance_order", 21).toInt() == i)
+            if (settings.value(QStringLiteral("tile_target_peloton_resistance_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_peloton_resistance_order"), 21).toInt() == i) {
                 dataList.append(target_peloton_resistance);
+            }
 
-            if (settings.value("tile_target_cadence_enabled", false).toBool() &&
-                settings.value("tile_target_cadence_order", 19).toInt() == i)
+            if (settings.value(QStringLiteral("tile_target_cadence_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_cadence_order"), 19).toInt() == i) {
                 dataList.append(target_cadence);
+            }
 
-            if (settings.value("tile_target_power_enabled", false).toBool() &&
-                settings.value("tile_target_power_order", 20).toInt() == i)
+            if (settings.value(QStringLiteral("tile_target_power_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_power_order"), 20).toInt() == i) {
                 dataList.append(target_power);
+            }
 
-            if (settings.value("tile_lapelapsed_enabled", false).toBool() &&
-                settings.value("tile_lapelapsed_order", 18).toInt() == i)
+            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
                 dataList.append(lapElapsed);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
         for (int i = 0; i < 100; i++) {
-            if (settings.value("tile_speed_enabled", true).toBool() &&
-                settings.value("tile_speed_order", 0).toInt() == i) {
+            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
                 dataList.append(speed);
             }
 
@@ -793,16 +819,16 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
                 dataList.append(lapElapsed);
 
-                if (settings.value("tile_strokes_length_enabled", false).toBool() &&
-                    settings.value("tile_strokes_length_order", 21).toInt() == i)
+                if (settings.value(QStringLiteral("tile_strokes_length_enabled"), false).toBool() &&
+                    settings.value(QStringLiteral("tile_strokes_length_order"), 21).toInt() == i)
                     dataList.append(strokesLength);
 
-                if (settings.value("tile_strokes_count_enabled", false).toBool() &&
-                    settings.value("tile_strokes_count_order", 22).toInt() == i)
+                if (settings.value(QStringLiteral("tile_strokes_count_enabled"), false).toBool() &&
+                    settings.value(QStringLiteral("tile_strokes_count_order"), 22).toInt() == i)
                     dataList.append(strokesCount);
 
-                if (settings.value("tile_pace_enabled", true).toBool() &&
-                    settings.value("tile_pace_order", 0).toInt() == i)
+                if (settings.value(QStringLiteral("tile_pace_enabled"), true).toBool() &&
+                    settings.value(QStringLiteral("tile_pace_order"), 0).toInt() == i)
                     dataList.append(pace);
             }
         }
@@ -1416,26 +1442,26 @@ void homeform::update() {
                 QStringLiteral(" MAX: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().max(), 'f', 1));
             if (bluetoothManager->device()->currentSpeed().value() < 4) {
-                speed->setValueFontColor("white");
-                this->pace->setValueFontColor("white");
+                speed->setValueFontColor(QStringLiteral("white"));
+                this->pace->setValueFontColor(QStringLiteral("white"));
             } else if (bluetoothManager->device()->currentSpeed().value() < 5) {
-                speed->setValueFontColor("limegreen");
-                this->pace->setValueFontColor("limegreen");
+                speed->setValueFontColor(QStringLiteral("limegreen"));
+                this->pace->setValueFontColor(QStringLiteral("limegreen"));
             } else if (bluetoothManager->device()->currentSpeed().value() < 5.5) {
-                speed->setValueFontColor("gold");
-                this->pace->setValueFontColor("gold");
+                speed->setValueFontColor(QStringLiteral("gold"));
+                this->pace->setValueFontColor(QStringLiteral("gold"));
             } else if (bluetoothManager->device()->currentSpeed().value() < 6) {
-                speed->setValueFontColor("orange");
-                this->pace->setValueFontColor("orange");
+                speed->setValueFontColor(QStringLiteral("orange"));
+                this->pace->setValueFontColor(QStringLiteral("orange"));
             } else if (bluetoothManager->device()->currentSpeed().value() < 6.5) {
-                speed->setValueFontColor("darkorange");
-                this->pace->setValueFontColor("darkorange");
+                speed->setValueFontColor(QStringLiteral("darkorange"));
+                this->pace->setValueFontColor(QStringLiteral("darkorange"));
             } else if (bluetoothManager->device()->currentSpeed().value() < 7) {
-                speed->setValueFontColor("orangered");
-                this->pace->setValueFontColor("orangered");
+                speed->setValueFontColor(QStringLiteral("orangered"));
+                this->pace->setValueFontColor(QStringLiteral("orangered"));
             } else {
-                speed->setValueFontColor("red");
-                this->pace->setValueFontColor("red");
+                speed->setValueFontColor(QStringLiteral("red"));
+                this->pace->setValueFontColor(QStringLiteral("red"));
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
             cadence = ((elliptical *)bluetoothManager->device())->currentCadence();
@@ -1912,6 +1938,8 @@ homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
+            // NOTE: Maybe this could be a better alternative
+            // parameters->find(QStringLiteral("code"))->setValue(QUrl::fromPercentEncoding(code));
             (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code);
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
@@ -1927,7 +1955,6 @@ void homeform::strava_refreshtoken() {
     // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
 
     if (settings.value(QStringLiteral("strava_refreshtoken")).toString().isEmpty()) {
-
         strava_connect();
         return;
     }
@@ -1949,7 +1976,7 @@ void homeform::strava_refreshtoken() {
     if (manager) {
 
         delete manager;
-        manager = 0;
+        manager = nullptr;
     }
     manager = new QNetworkAccessManager(this);
     QNetworkReply *reply = manager->post(request, data.toLatin1());

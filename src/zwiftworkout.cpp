@@ -3,7 +3,7 @@
 
 QList<trainrow> zwiftworkout::load(const QString &filename) {
     QSettings settings;
-    QList<trainrow> list;
+    // QList<trainrow> list; //NOTE: clazy-unuzed-non-trivial-variable
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
     return load(input.readAll());
@@ -16,7 +16,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
     while (!stream.atEnd()) {
         stream.readNext();
         QXmlStreamAttributes atts = stream.attributes();
-        if (atts.length()) {
+        if (!atts.isEmpty()) {
             if (stream.name().contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
@@ -55,6 +55,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                     Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
                 if (atts.hasAttribute(QStringLiteral("FlatRoad"))) {
+                    // NOTE: Value stored to FlatRoad is never read clang-analyzer-deadcode.DeadStores
                     FlatRoad = atts.value(QStringLiteral("FlatRoad")).toDouble();
                 }
 

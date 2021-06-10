@@ -245,7 +245,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(cscBike, &cscbike::debug, this, &bluetooth::debug);
                 cscBike->deviceDiscovered(b);
-                connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop()));
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
@@ -257,7 +257,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 emit deviceConnected();
                 connect(domyosBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 // connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // connect(domyosBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));//NOTE: Commented due to #358
                 domyosBike->deviceDiscovered(b);
                 connect(this, &bluetooth::searchingStop, domyosBike, &domyosbike::searchingStop);
                 if (!discoveryAgent->isActive()) {
@@ -334,10 +334,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 // connect(horizonTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(horizonTreadmill, &horizontreadmill::debug, this, &bluetooth::debug);
-                connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
                 horizonTreadmill->deviceDiscovered(b);
-                connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
@@ -623,7 +627,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(fitPlusBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(fitPlusBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(fitPlusBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // NOTE: Commented due to #358
+                // connect(fitPlusBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 fitPlusBike->deviceDiscovered(b);
                 templateManager->start(fitPlusBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike) ||
@@ -651,10 +656,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(inspireBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 connect(inspireBike, &inspirebike::debug, this, &bluetooth::debug);
-                connect(inspireBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                connect(inspireBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(inspireBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(inspireBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 inspireBike->deviceDiscovered(b);
-                connect(this, SIGNAL(searchingStop()), inspireBike, SLOT(searchingStop()));
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), inspireBike, SLOT(searchingStop()));
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
@@ -668,10 +676,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 emit deviceConnected();
                 connect(chronoBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 connect(chronoBike, &chronobike::debug, this, &bluetooth::debug);
-                connect(chronoBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                connect(chronoBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(chronoBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(chronoBike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 chronoBike->deviceDiscovered(b);
-                connect(this, SIGNAL(searchingStop()), chronoBike, SLOT(searchingStop()));
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), chronoBike, SLOT(searchingStop()));
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
@@ -756,10 +767,12 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(ftmsAccessory, &smartspin2k::debug, this, &bluetooth::debug);
-                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory,
-                        SLOT(changeResistance(int8_t)));
-                connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory,
-                        SLOT(resistanceReadFromTheBike(int8_t)));
+                // NOTE: Commented due to #358
+                //                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory,
+                //                        SLOT(changeResistance(int8_t)));
+                // NOTE: Commented due to #358
+                //                connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory,
+                //                        SLOT(resistanceReadFromTheBike(int8_t)));
                 ftmsAccessory->deviceDiscovered(b);
                 break;
             }

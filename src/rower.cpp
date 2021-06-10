@@ -1,10 +1,9 @@
 
-#include <QSettings>
 #include "rower.h"
 #include "qdebugfixup.h"
+#include <QSettings>
 
 rower::rower() {}
-
 
 void rower::changeResistance(int8_t resistance) {
     if (autoResistanceEnable) {
@@ -25,8 +24,8 @@ metric rower::lastRequestedCadence() { return RequestedCadence; }
 metric rower::lastRequestedPower() { return RequestedPower; }
 metric rower::currentResistance() { return Resistance; }
 metric rower::currentCadence() { return Cadence; }
-metric rower::currentStrokesCount() {return StrokesCount; }
-metric rower::currentStrokesLength() {return StrokesLength; }
+metric rower::currentStrokesCount() { return StrokesCount; }
+metric rower::currentStrokesLength() { return StrokesLength; }
 uint8_t rower::fanSpeed() { return FanSpeed; }
 bool rower::connected() { return false; }
 uint16_t rower::watts() { return 0; }
@@ -108,20 +107,17 @@ void rower::setLap() {
 }
 
 // min/500m
-QTime rower::currentPace()
-{
+QTime rower::currentPace() {
     QSettings settings;
-    bool miles = settings.value("miles_unit", false).toBool();
+    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
     double unit_conversion = 1.0;
-    if(miles)
+    if (miles)
         unit_conversion = 0.621371;
-    if(Speed.value() == 0)
-    {
-        return QTime(0,0,0,0);
-    }
-    else
-    {
+    if (Speed.value() == 0) {
+        return QTime(0, 0, 0, 0);
+    } else {
         double speed = Speed.value() * unit_conversion * 2.0;
-        return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
+        return QTime(0, (int)(1.0 / (speed / 60.0)),
+                     (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
 }
