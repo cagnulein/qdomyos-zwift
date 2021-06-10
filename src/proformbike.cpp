@@ -372,10 +372,12 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             Resistance = 16;
             m_pelotonResistance = 100;
             break;
+        /* when the proform bike is changing the resistance, it sends some strange values, so i'm keeping the last good one
         default:
             Resistance = 0;
             m_pelotonResistance = 0;
             break;
+        */
         }
         emit resistanceRead(Resistance.value());
 

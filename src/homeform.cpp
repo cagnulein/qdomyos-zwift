@@ -1468,45 +1468,52 @@ void homeform::update() {
             ftpMinW = QString::number(0, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
             ftpZone = 1;
+            ftpZone += (ftpPerc / 55);
             ftp->setValueFontColor(QStringLiteral("white"));
         } else if (ftpPerc < 76) {
 
             ftpMinW = QString::number(ftpSetting * 0.55, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
             ftpZone = 2;
+            ftpZone += ((ftpPerc - 55) / 21);
             ftp->setValueFontColor(QStringLiteral("limegreen"));
         } else if (ftpPerc < 91) {
 
             ftpMinW = QString::number(ftpSetting * 0.76, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
             ftpZone = 3;
+            ftpZone += ((ftpPerc - 76) / 15);
             ftp->setValueFontColor(QStringLiteral("gold"));
         } else if (ftpPerc < 106) {
 
             ftpMinW = QString::number(ftpSetting * 0.91, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
             ftpZone = 4;
+            ftpZone += ((ftpPerc - 91) / 15);
             ftp->setValueFontColor(QStringLiteral("orange"));
         } else if (ftpPerc < 121) {
 
             ftpMinW = QString::number(ftpSetting * 1.06, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
             ftpZone = 5;
+            ftpZone += ((ftpPerc - 106) / 15);
             ftp->setValueFontColor(QStringLiteral("darkorange"));
         } else if (ftpPerc < 151) {
 
             ftpMinW = QString::number(ftpSetting * 1.21, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
             ftpZone = 6;
+            ftpZone += ((ftpPerc - 121) / 30);
             ftp->setValueFontColor(QStringLiteral("orangered"));
         } else {
 
             ftpMinW = QString::number(ftpSetting * 1.51, 'f', 0);
             ftpMaxW = QStringLiteral("∞");
             ftpZone = 7;
+            ftpZone += ((ftpPerc - 151) / 30);
             ftp->setValueFontColor(QStringLiteral("red"));
         }
-        ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 0));
+        ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
