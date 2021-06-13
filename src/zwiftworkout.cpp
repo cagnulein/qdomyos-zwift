@@ -50,13 +50,13 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                 }
             } else if (stream.name().contains(QStringLiteral("FreeRide"))) {
                 uint32_t Duration = 1;
-                double FlatRoad = 1;
+                // double FlatRoad = 1;
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
                 if (atts.hasAttribute(QStringLiteral("FlatRoad"))) {
                     // NOTE: Value stored to FlatRoad is never read clang-analyzer-deadcode.DeadStores
-                    FlatRoad = atts.value(QStringLiteral("FlatRoad")).toDouble();
+                    // FlatRoad = atts.value(QStringLiteral("FlatRoad")).toDouble();
                 }
 
                 trainrow row;

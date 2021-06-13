@@ -1,9 +1,11 @@
 #include "qfit.h"
+
 #include <cstdlib>
 #include <fstream>
 
 #include "fit_date_time.hpp"
 #include "fit_encode.hpp"
+
 #include "fit_file_id_mesg.hpp"
 #include "fit_mesg_broadcaster.hpp"
 
@@ -25,6 +27,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
 
     if (!file.is_open()) {
+
         printf("Error opening file ExampleActivity.fit\n");
         return;
     }
@@ -56,11 +59,16 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
     if (type == bluetoothdevice::TREADMILL) {
+
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
+
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+    } else if (type == bluetoothdevice::ROWING) {
+        sessionMesg.SetSport(FIT_SPORT_ROWING);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_ROWING);
     } else {
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_CYCLING);
@@ -68,6 +76,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::DeveloperDataIdMesg devIdMesg;
     for (FIT_UINT8 i = 0; i < 16; i++) {
+
         devIdMesg.SetApplicationId(i, i);
     }
     devIdMesg.SetDeveloperDataIndex(0);
@@ -94,10 +103,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetTotalElapsedTime(0);
     lapMesg.SetTotalTimerTime(0);
     if (type == bluetoothdevice::TREADMILL) {
+
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
+
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else {
+
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
 
@@ -113,6 +125,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         double distanceOld = -1.0;
         int startIdx = -1;
         for (int i = 0; i < session.length(); i++) {
+
             sl = session.at(i);
             if (sl.distance != distanceOld || i == session.length() - 1) {
                 if (i == session.length() - 1 && sl.distance == distanceOld) {
@@ -129,6 +142,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
     }
     for (int i = 0; i < session.length(); i++) {
+
         fit::RecordMesg newRecord;
         sl = session.at(i);
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
@@ -148,6 +162,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         encode.Write(newRecord);
 
         if (sl.lapTrigger) {
+
             lapMesg.SetTotalElapsedTime(sl.elapsedTime - lapMesg.GetTotalElapsedTime());
             lapMesg.SetTotalTimerTime(sl.elapsedTime - lapMesg.GetTotalTimerTime());
 
@@ -167,6 +182,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(lapMesg);
 
     if (!encode.Close()) {
+
         printf("Error closing encode.\n");
         return;
     }

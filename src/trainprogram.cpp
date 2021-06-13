@@ -24,11 +24,13 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
 }
 
 void trainprogram::scheduler() {
+
     QSettings settings;
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QStringLiteral("continuous_moving"), false).toBool()) ||
         bluetoothManager->device()->isPaused()) {
+
         return;
     }
 
@@ -81,6 +83,7 @@ void trainprogram::scheduler() {
     uint32_t calculatedLine;
     uint32_t calculatedElapsedTime = 0;
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
+
         calculatedElapsedTime += calculateTimeForRow(calculatedLine);
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
@@ -90,6 +93,7 @@ void trainprogram::scheduler() {
 
     if (calculatedLine != currentStep) {
         if (calculateTimeForRow(calculatedLine)) {
+
             currentStep = calculatedLine;
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
@@ -133,6 +137,7 @@ void trainprogram::scheduler() {
             }
         } else {
             qDebug() << QStringLiteral("trainprogram ends!");
+
             started = false;
             emit stop();
         }
@@ -149,11 +154,13 @@ void trainprogram::scheduler() {
 }
 
 void trainprogram::increaseElapsedTime(uint32_t i) {
+
     offset += i;
     ticks += i;
 }
 
 void trainprogram::decreaseElapsedTime(uint32_t i) {
+
     offset -= i;
     ticks -= i;
 }
@@ -161,6 +168,7 @@ void trainprogram::decreaseElapsedTime(uint32_t i) {
 void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
+
     ticks = 0;
     offset = 0;
     currentStep = 0;
@@ -186,12 +194,32 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.resistance >= 0) {
                 stream.writeAttribute(QStringLiteral("resistance"), QString::number(row.resistance));
             }
+            if (row.lower_resistance >= 0) {
+                stream.writeAttribute(QStringLiteral("lower_resistance"), QString::number(row.lower_resistance));
+            }
+            if (row.upper_resistance >= 0) {
+                stream.writeAttribute(QStringLiteral("upper_resistance"), QString::number(row.upper_resistance));
+            }
             if (row.requested_peloton_resistance >= 0) {
                 stream.writeAttribute(QStringLiteral("requested_peloton_resistance"),
                                       QString::number(row.requested_peloton_resistance));
             }
+            if (row.lower_requested_peloton_resistance >= 0) {
+                stream.writeAttribute(QStringLiteral("lower_requested_peloton_resistance"),
+                                      QString::number(row.lower_requested_peloton_resistance));
+            }
+            if (row.upper_requested_peloton_resistance >= 0) {
+                stream.writeAttribute(QStringLiteral("upper_requested_peloton_resistance"),
+                                      QString::number(row.upper_requested_peloton_resistance));
+            }
             if (row.cadence >= 0) {
                 stream.writeAttribute(QStringLiteral("cadence"), QString::number(row.cadence));
+            }
+            if (row.lower_cadence >= 0) {
+                stream.writeAttribute(QStringLiteral("lower_cadence"), QString::number(row.lower_cadence));
+            }
+            if (row.upper_cadence >= 0) {
+                stream.writeAttribute(QStringLiteral("upper_cadence"), QString::number(row.upper_cadence));
             }
             if (row.power >= 0) {
                 stream.writeAttribute(QStringLiteral("power"), QString::number(row.power));
@@ -216,6 +244,7 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
         stream.writeEndDocument();
         return true;
     } else
+
         return false;
 }
 
@@ -223,18 +252,22 @@ void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b) {
     if (!filename.right(3).toUpper().compare(QStringLiteral("ZWO"))) {
+
         return new trainprogram(zwiftworkout::load(filename), b);
     } else {
+
         return new trainprogram(loadXML(filename), b);
     }
 }
 
 QList<trainrow> trainprogram::loadXML(const QString &filename) {
+
     QList<trainrow> list;
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
     QXmlStreamReader stream(&input);
     while (!stream.atEnd()) {
+
         stream.readNext();
         trainrow row;
         QXmlStreamAttributes atts = stream.attributes();
@@ -253,11 +286,31 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("resistance"))) {
                 row.resistance = atts.value(QStringLiteral("resistance")).toInt();
             }
+            if (atts.hasAttribute(QStringLiteral("lower_resistance"))) {
+                row.lower_resistance = atts.value(QStringLiteral("lower_resistance")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("upper_resistance"))) {
+                row.upper_resistance = atts.value(QStringLiteral("upper_resistance")).toInt();
+            }
             if (atts.hasAttribute(QStringLiteral("requested_peloton_resistance"))) {
                 row.requested_peloton_resistance = atts.value(QStringLiteral("requested_peloton_resistance")).toInt();
             }
+            if (atts.hasAttribute(QStringLiteral("lower_requested_peloton_resistance"))) {
+                row.lower_requested_peloton_resistance =
+                    atts.value(QStringLiteral("lower_requested_peloton_resistance")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("upper_requested_peloton_resistance"))) {
+                row.upper_requested_peloton_resistance =
+                    atts.value(QStringLiteral("upper_requested_peloton_resistance")).toInt();
+            }
             if (atts.hasAttribute(QStringLiteral("cadence"))) {
                 row.cadence = atts.value(QStringLiteral("cadence")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("lower_cadence"))) {
+                row.lower_cadence = atts.value(QStringLiteral("lower_cadence")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("upper_cadence"))) {
+                row.upper_cadence = atts.value(QStringLiteral("upper_cadence")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("power"))) {
                 row.power = atts.value(QStringLiteral("power")).toInt();
@@ -274,6 +327,7 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("forcespeed"))) {
                 row.forcespeed = atts.value(QStringLiteral("forcespeed")).toInt() ? true : false;
             }
+
             list.append(row);
         }
     }
@@ -284,12 +338,14 @@ QTime trainprogram::totalElapsedTime() { return QTime(0, 0, ticks); }
 
 trainrow trainprogram::currentRow() {
     if (started && !rows.isEmpty()) {
+
         return rows.at(currentStep);
     }
     return trainrow();
 }
 
 QTime trainprogram::currentRowElapsedTime() {
+
     uint32_t calculatedLine;
     uint32_t calculatedElapsedTime = 0;
 
@@ -297,6 +353,7 @@ QTime trainprogram::currentRowElapsedTime() {
         return QTime(0, 0, 0);
 
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
+
         uint32_t currentLine = calculateTimeForRow(calculatedLine);
         calculatedElapsedTime += currentLine;
 
@@ -308,6 +365,7 @@ QTime trainprogram::currentRowElapsedTime() {
 }
 
 QTime trainprogram::duration() {
+
     QTime total(0, 0, 0, 0);
     for (const trainrow &row : qAsConst(rows)) {
         total = total.addSecs((row.duration.hour() * 3600) + (row.duration.minute() * 60) + row.duration.second());
@@ -316,10 +374,12 @@ QTime trainprogram::duration() {
 }
 
 double trainprogram::totalDistance() {
+
     double distance = 0;
     for (const trainrow &row : qAsConst(rows)) {
         if (row.duration.hour() || row.duration.minute() || row.duration.second()) {
             if (!row.forcespeed) {
+
                 return -1;
             }
             distance += ((row.duration.hour() * 3600) + (row.duration.minute() * 60) + row.duration.second()) *

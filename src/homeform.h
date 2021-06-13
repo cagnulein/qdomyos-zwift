@@ -2,7 +2,9 @@
 #define HOMEFORM_H
 
 
+
 #include "bluetooth.h"
+
 
 #include "peloton.h"
 #include "screencapture.h"
@@ -19,6 +21,7 @@
 #include <QQuickItemGrabResult>
 
 class DataObject : public QObject {
+
 
     Q_OBJECT
 
@@ -430,6 +433,7 @@ class homeform : public QObject {
     DataObject *target_peloton_resistance;
     DataObject *target_cadence;
     DataObject *target_power;
+    DataObject* target_zone;
     DataObject *ftp;
     DataObject *lapElapsed;
     DataObject *weightLoss;

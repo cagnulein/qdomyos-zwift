@@ -36,6 +36,7 @@ void peloton::pzp_loginState(bool ok) { emit pzpLoginState(ok); }
 void peloton::hfb_trainrows(QList<trainrow> *list) {
     trainrows.clear();
     for (const trainrow r : qAsConst(*list)) {
+
         trainrows.append(r);
     }
     if (!trainrows.isEmpty()) {
@@ -232,19 +233,31 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QJsonArray target_graph_metrics = target_performance_metrics[QStringLiteral("target_graph_metrics")].toArray();
     QJsonObject resistances = target_graph_metrics[1].toObject();
     QJsonObject graph_data_resistances = resistances[QStringLiteral("graph_data")].toObject();
-    QJsonArray lower_resistances = graph_data_resistances[difficulty].toArray();
+    QJsonArray current_resistances = graph_data_resistances[difficulty].toArray();
+    QJsonArray lower_resistances = graph_data_resistances[QStringLiteral("lower")].toArray();
+    QJsonArray upper_resistances = graph_data_resistances[QStringLiteral("upper")].toArray();
     QJsonObject cadences = target_graph_metrics[0].toObject();
     QJsonObject graph_data_cadences = cadences[QStringLiteral("graph_data")].toObject();
-    QJsonArray lower_cadences = graph_data_cadences[difficulty].toArray();
+    QJsonArray current_cadences = graph_data_cadences[difficulty].toArray();
+    QJsonArray lower_cadences = graph_data_cadences[QStringLiteral("lower")].toArray();
+    QJsonArray upper_cadences = graph_data_cadences[QStringLiteral("upper")].toArray();
 
     trainrows.clear();
-    trainrows.reserve(lower_resistances.count() + 1);
-    for (int i = 0; i < lower_resistances.count(); i++) {
+    trainrows.reserve(current_resistances.count() + 1);
+    for (int i = 0; i < current_resistances.count(); i++) {
         trainrow r;
         r.duration = QTime(0, 0, peloton_workout_second_resolution, 0);
-        r.resistance = ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
-        r.requested_peloton_resistance = lower_resistances.at(i).toInt();
-        r.cadence = lower_cadences.at(i).toInt();
+        r.resistance = ((bike *)bluetoothManager->device())->pelotonToBikeResistance(current_resistances.at(i).toInt());
+        r.lower_resistance =
+            ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
+        r.upper_resistance =
+            ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
+        r.requested_peloton_resistance = current_resistances.at(i).toInt();
+        r.lower_requested_peloton_resistance = lower_resistances.at(i).toInt();
+        r.upper_requested_peloton_resistance = upper_resistances.at(i).toInt();
+        r.cadence = current_cadences.at(i).toInt();
+        r.lower_cadence = lower_cadences.at(i).toInt();
+        r.upper_cadence = upper_cadences.at(i).toInt();
         trainrows.append(r);
     }
 
