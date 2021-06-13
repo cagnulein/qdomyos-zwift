@@ -308,7 +308,7 @@ void smartrowrower::characteristicChanged(const QLowEnergyCharacteristic &charac
 double smartrowrower::GetDistanceFromPacket(QByteArray packet)
 {
     uint32_t convertedData = atoi(packet.mid(1, 5));
-    double data = ((double)convertedData);
+    double data = ((double)convertedData) / 1000.0;
     return data;
 }
 
