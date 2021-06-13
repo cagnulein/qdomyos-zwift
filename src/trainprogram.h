@@ -13,8 +13,14 @@ public:
     double fanspeed = -1;
     double inclination = -200;
     int8_t resistance = -1;
+    int8_t lower_resistance = -1;
+    int8_t upper_resistance = -1;
     int8_t requested_peloton_resistance = -1;
+    int8_t lower_requested_peloton_resistance = -1;
+    int8_t upper_requested_peloton_resistance = -1;
     int16_t cadence = -1;
+    int16_t lower_cadence = -1;
+    int16_t upper_cadence = -1;
     bool forcespeed = false;
     int8_t loopTimeHR = 10;
     int8_t zoneHR = -1;

@@ -104,6 +104,8 @@ import Qt.labs.settings 1.0
             property int  tile_target_cadence_order: 19
             property bool tile_target_power_enabled: false
             property int  tile_target_power_order: 20
+            property bool tile_target_zone_enabled: false
+            property int  tile_target_zone_order: 24
             property bool tile_strokes_count_enabled: false
             property int  tile_strokes_count_order: 22
             property bool tile_strokes_length_enabled: false
@@ -1474,7 +1476,37 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
-
+                    AccordionCheckElement {
+                        id: targetZoneEnabledAccordion
+                        title: qsTr("Target Power Zone")
+                        linkedBoolSetting: "tile_target_zone_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_zoneOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_zoneOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_zone_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_zoneOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_zoneOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_zone_order = target_zoneOrderTextField.displayText
+                            }
+                        }
+                    }
 
                     AccordionCheckElement {
                         id: datetimeEnabledAccordion

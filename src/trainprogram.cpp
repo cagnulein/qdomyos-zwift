@@ -217,10 +217,22 @@ bool trainprogram::saveXML(QString filename, const QList<trainrow>& rows) {
                 stream.writeAttribute("inclination", QString::number(row.inclination));
             if (row.resistance>=0)
                 stream.writeAttribute("resistance", QString::number(row.resistance));
+            if (row.lower_resistance>=0)
+                stream.writeAttribute("lower_resistance", QString::number(row.lower_resistance));
+            if (row.upper_resistance>=0)
+                stream.writeAttribute("upper_resistance", QString::number(row.upper_resistance));
             if (row.requested_peloton_resistance>=0)
                 stream.writeAttribute("requested_peloton_resistance", QString::number(row.requested_peloton_resistance));
+            if (row.lower_requested_peloton_resistance>=0)
+                stream.writeAttribute("lower_requested_peloton_resistance", QString::number(row.lower_requested_peloton_resistance));
+            if (row.upper_requested_peloton_resistance>=0)
+                stream.writeAttribute("upper_requested_peloton_resistance", QString::number(row.upper_requested_peloton_resistance));
             if (row.cadence>=0)
                 stream.writeAttribute("cadence", QString::number(row.cadence));
+            if (row.lower_cadence>=0)
+                stream.writeAttribute("lower_cadence", QString::number(row.lower_cadence));
+            if (row.upper_cadence>=0)
+                stream.writeAttribute("upper_cadence", QString::number(row.upper_cadence));
             if (row.power>=0)
                 stream.writeAttribute("power", QString::number(row.power));
             stream.writeAttribute("forcespeed", row.forcespeed?"1":"0");
@@ -281,10 +293,22 @@ QList<trainrow> trainprogram::loadXML(QString filename)
                 row.inclination = atts.value("inclination").toDouble();
             if(atts.hasAttribute("resistance"))
                 row.resistance = atts.value("resistance").toInt();
+            if(atts.hasAttribute("lower_resistance"))
+                row.lower_resistance = atts.value("lower_resistance").toInt();
+            if(atts.hasAttribute("upper_resistance"))
+                row.upper_resistance = atts.value("upper_resistance").toInt();
             if(atts.hasAttribute("requested_peloton_resistance"))
                 row.requested_peloton_resistance = atts.value("requested_peloton_resistance").toInt();
+            if(atts.hasAttribute("lower_requested_peloton_resistance"))
+                row.lower_requested_peloton_resistance = atts.value("lower_requested_peloton_resistance").toInt();
+            if(atts.hasAttribute("upper_requested_peloton_resistance"))
+                row.upper_requested_peloton_resistance = atts.value("upper_requested_peloton_resistance").toInt();
             if(atts.hasAttribute("cadence"))
                 row.cadence = atts.value("cadence").toInt();
+            if(atts.hasAttribute("lower_cadence"))
+                row.lower_cadence = atts.value("lower_cadence").toInt();
+            if(atts.hasAttribute("upper_cadence"))
+                row.upper_cadence = atts.value("upper_cadence").toInt();
             if(atts.hasAttribute("power"))
                 row.power = atts.value("power").toInt();
             if(atts.hasAttribute("maxspeed"))

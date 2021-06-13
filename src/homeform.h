@@ -324,6 +324,7 @@ private:
     DataObject* target_peloton_resistance;
     DataObject* target_cadence;
     DataObject* target_power;
+    DataObject* target_zone;
     DataObject* ftp;
     DataObject* lapElapsed;
     DataObject* weightLoss;
