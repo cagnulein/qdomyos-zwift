@@ -63,6 +63,7 @@ void bike::clearStats()
     m_pelotonResistance.clear(false);
     Cadence.clear(false);
     Resistance.clear(false);
+    WattKg.clear(false);
 }
 
 void bike::setPaused(bool p)
@@ -84,6 +85,7 @@ void bike::setPaused(bool p)
     RequestedResistance.setPaused(p);
     RequestedCadence.setPaused(p);
     RequestedPower.setPaused(p);
+    WattKg.setPaused(p);
 }
 
 void bike::setLap()
@@ -97,6 +99,7 @@ void bike::setLap()
     m_jouls.setLap(true);
     m_watt.setLap(false);
     WeightLoss.setLap(false);
+    WattKg.setLap(false);
 
     RequestedPelotonResistance.setLap(false);
     RequestedResistance.setLap(false);
@@ -206,6 +209,10 @@ uint8_t bike::metrics_override_heartrate()
     else if(!setting.compare("Target Power"))
     {
         return RequestedPower.value();
+    }
+    else if(!setting.compare("Watt/Kg"))
+    {
+        return wattKg().value();
     }
     return currentHeart().value();
 }

@@ -33,15 +33,18 @@ void treadmill::update_metrics(const bool watt_calc, const double watts)
                m_watt = watts;
            m_jouls += (m_watt.value() * deltaTime);
            WeightLoss = metric::calculateWeightLoss(KCal.value());
+           WattKg = m_watt.value() / settings.value("weight", 75.0).toFloat();
        }
        else if(m_watt.value() > 0)
        {
            m_watt = 0;
+           WattKg = 0;
        }
     }
     else if(m_watt.value() > 0)
     {
         m_watt = 0;
+        WattKg = 0;
     }
 
     elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
@@ -80,6 +83,7 @@ void treadmill::clearStats()
     elevationAcc = 0;
     m_watt.clear(false);
     WeightLoss.clear(false);
+    WattKg.clear(false);
 
     Inclination.clear(false);
 }
@@ -97,6 +101,7 @@ void treadmill::setPaused(bool p)
     m_watt.setPaused(p);
     Inclination.setPaused(p);
     WeightLoss.setPaused(p);
+    WattKg.setPaused(p);
 }
 
 void treadmill::setLap()
@@ -110,6 +115,7 @@ void treadmill::setLap()
     m_jouls.setLap(true);
     m_watt.setLap(false);
     WeightLoss.setLap(false);
+    WattKg.setLap(false);
 
     Inclination.setLap(false);
 }

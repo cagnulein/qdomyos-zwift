@@ -108,15 +108,18 @@ void bluetoothdevice::update_metrics(const bool watt_calc, const double watts)
            WeightLoss = metric::calculateWeightLoss(KCal.value());
            if(watt_calc)
                m_watt = watts;
+           WattKg = m_watt.value() / settings.value("weight", 75.0).toFloat();
        }
        else if(m_watt.value() > 0)
        {
            m_watt = 0;
+           WattKg = 0;
        }
     }
     else if(m_watt.value() > 0)
     {
         m_watt = 0;
+        WattKg = 0;
     }
 
     _lastTimeUpdate = current;
@@ -135,6 +138,7 @@ void bluetoothdevice::clearStats()
     elevationAcc = 0;
     m_watt.clear(false);
     WeightLoss.clear(false);
+    WattKg.clear(false);
 }
 
 void bluetoothdevice::setPaused(bool p)
@@ -149,6 +153,7 @@ void bluetoothdevice::setPaused(bool p)
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
     WeightLoss.setPaused(p);
+    WattKg.setPaused(p);
 }
 
 void bluetoothdevice::setLap()
@@ -162,6 +167,7 @@ void bluetoothdevice::setLap()
     m_jouls.setLap(true);
     m_watt.setLap(false);
     WeightLoss.setLap(false);
+    WattKg.setLap(false);
 }
 
 QStringList bluetoothdevice::metrics()
@@ -192,6 +198,7 @@ QStringList bluetoothdevice::metrics()
     r.append("Target Peloton Resistance");
     r.append("Target Cadence");
     r.append("Target Power");
+    r.append("Watt/Kg");
     return r;
 }
 
@@ -242,6 +249,10 @@ uint8_t bluetoothdevice::metrics_override_heartrate()
     else if(!setting.compare("Weight Loss"))
     {
         return weightLoss();
+    }
+    else if(!setting.compare("Watt/Kg"))
+    {
+        return wattKg().value();
     }
     else if(!setting.compare("AVG Watt"))
     {

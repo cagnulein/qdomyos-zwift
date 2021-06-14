@@ -57,6 +57,7 @@ public:
     void setDifficult(double d);
     double difficult();
     double weightLoss() {return WeightLoss.value();}
+    metric wattKg() { return WattKg; }
 
     enum BLUETOOTH_TYPE {
         UNKNOWN = 0,
@@ -98,6 +99,7 @@ protected:
     metric m_jouls;
     double elevationAcc = 0;
     metric m_watt;
+    metric WattKg;
     metric WeightLoss;
 
     bool paused = false;

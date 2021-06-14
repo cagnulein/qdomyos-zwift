@@ -106,6 +106,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     watt = new DataObject("Watt", "icons/icons/watt.png", "0", false, "watt", 48, labelFontSize);
     weightLoss = new DataObject("Weight Loss(" + weightLossUnit +")", "icons/icons/kcal.png", "0", false, "weight_loss", 48, labelFontSize);
     avgWatt = new DataObject("AVG Watt", "icons/icons/watt.png", "0", false, "avgWatt", 48, labelFontSize);
+    wattKg = new DataObject("Watt/Kg", "icons/icons/watt.png", "0", false, "watt_kg", 48, labelFontSize);
     ftp = new DataObject("FTP Zone", "icons/icons/watt.png", "0", false, "ftp", 48, labelFontSize);
     heart = new DataObject("Heart (bpm)", "icons/icons/heart_red.png", "0", false, "heart", 48, labelFontSize);
     fan = new DataObject("Fan Speed", "icons/icons/fan.png", "0", true, "fan", 48, labelFontSize);
@@ -411,7 +412,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 28; i++)
+    for(int i = 0; i < 29; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -490,6 +491,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
                 dataList.append(lapElapsed);
+
+            if(settings.value("tile_watt_kg_enabled", false).toBool() && settings.value("tile_watt_kg_order", 24).toInt() == i)
+                dataList.append(wattKg);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
@@ -567,6 +571,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
                 dataList.append(lapElapsed);
+
+            if(settings.value("tile_watt_kg_enabled", false).toBool() && settings.value("tile_watt_kg_order", 24).toInt() == i)
+                dataList.append(wattKg);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
@@ -650,6 +657,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_pace_enabled", true).toBool() && settings.value("tile_pace_order", 0).toInt() == i)
                 dataList.append(pace);
+
+            if(settings.value("tile_watt_kg_enabled", false).toBool() && settings.value("tile_watt_kg_order", 24).toInt() == i)
+                dataList.append(wattKg);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
@@ -718,6 +728,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_lapelapsed_enabled", false).toBool() && settings.value("tile_lapelapsed_order", 18).toInt() == i)
                 dataList.append(lapElapsed);
+
+            if(settings.value("tile_watt_kg_enabled", false).toBool() && settings.value("tile_watt_kg_order", 24).toInt() == i)
+                dataList.append(wattKg);
         }
     }
 
@@ -1113,6 +1126,8 @@ void homeform::update()
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + " sec.");
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString("h:mm:ss"));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
+        wattKg->setValue(QString::number(bluetoothManager->device()->wattKg().value(), 'f', 1));
+        wattKg->setSecondLine("AVG: " + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) + "MAX: " + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
         datetime->setValue(QTime::currentTime().toString("hh:mm:ss"));
         watts = bluetoothManager->device()->wattsMetric().value();
         watt->setValue(QString::number(watts));
@@ -2262,6 +2277,8 @@ void homeform::sendMail()
     textMessage += "Distance: " + QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) + "\n";
     textMessage += "Average Watt: " + QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + "\n";
     textMessage += "Max Watt: " + QString::number(bluetoothManager->device()->wattsMetric().max(), 'f', 0) + "\n";
+    textMessage += "Average Watt/Kg: " + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) + "\n";
+    textMessage += "Max Watt/Kg: " + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1) + "\n";
     textMessage += "Average Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().average(), 'f', 0) + "\n";
     textMessage += "Max Heart Rate: " + QString::number(bluetoothManager->device()->currentHeart().max(), 'f', 0) + "\n";
     textMessage += "Total Output: " + QString::number(bluetoothManager->device()->jouls().max() / 1000.0, 'f', 0) + "\n";

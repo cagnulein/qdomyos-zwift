@@ -330,6 +330,7 @@ private:
     DataObject* weightLoss;
     DataObject* strokesLength;
     DataObject* strokesCount;
+    DataObject* wattKg;
 
     QTimer* timer;
     QTimer* backupTimer;
