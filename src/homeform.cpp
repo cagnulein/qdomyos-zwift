@@ -1190,8 +1190,14 @@ void homeform::update()
             this->peloton_resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
             this->target_resistance->setSecondLine(QString::number(bluetoothManager->device()->difficult() * 100.0,'f', 0) + "% @0%=" + QString::number(bluetoothManager->device()->difficult() * settings.value("bike_resistance_gain_f", 1.0).toDouble() * settings.value("bike_resistance_offset", 4.0).toDouble(),'f', 0));
             if(trainProgram) {
-                this->target_peloton_resistance->setSecondLine("MIN: " + QString::number(trainProgram->currentRow().lower_requested_peloton_resistance, 'f', 0) + " MAX: " + QString::number(trainProgram->currentRow().upper_requested_peloton_resistance, 'f', 0));
-                this->target_cadence->setSecondLine("MIN: " + QString::number(trainProgram->currentRow().lower_cadence, 'f', 0) + " MAX: " + QString::number(trainProgram->currentRow().upper_cadence, 'f', 0));
+                if(trainProgram->currentRow().lower_requested_peloton_resistance != -1)
+                    this->target_peloton_resistance->setSecondLine("MIN: " + QString::number(trainProgram->currentRow().lower_requested_peloton_resistance, 'f', 0) + " MAX: " + QString::number(trainProgram->currentRow().upper_requested_peloton_resistance, 'f', 0));
+                else
+                    this->target_peloton_resistance->setSecondLine("");
+                if(trainProgram->currentRow().lower_cadence != -1)
+                    this->target_cadence->setSecondLine("MIN: " + QString::number(trainProgram->currentRow().lower_cadence, 'f', 0) + " MAX: " + QString::number(trainProgram->currentRow().upper_cadence, 'f', 0));
+                else
+                    this->target_cadence->setSecondLine("");
             }
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
