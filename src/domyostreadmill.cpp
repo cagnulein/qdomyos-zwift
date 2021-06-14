@@ -563,7 +563,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Inclination = incline;
 
     KCal = kcal;
-    Distance = distance;    
+    Distance = DistanceCalculated;
 
     if(speed > 0)
     {
