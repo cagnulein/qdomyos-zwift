@@ -59,11 +59,13 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
     if (type == bluetoothdevice::TREADMILL) {
+
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_TREADMILL);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
+
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_ELLIPTICAL);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ROWING) {
         sessionMesg.SetSport(FIT_SPORT_ROWING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_ROWING);
