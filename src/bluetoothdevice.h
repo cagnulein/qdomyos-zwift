@@ -7,10 +7,12 @@
 #include <QDateTime>
 #include <QObject>
 #include <QTimer>
+
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
@@ -23,6 +25,7 @@
 #endif
 
 class bluetoothdevice : public QObject {
+
     Q_OBJECT
   public:
     bluetoothdevice();
@@ -56,6 +59,7 @@ class bluetoothdevice : public QObject {
     void setDifficult(double d);
     double difficult();
     double weightLoss() { return WeightLoss.value(); }
+    metric wattKg() { return WattKg; }
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
 
@@ -91,6 +95,7 @@ class bluetoothdevice : public QObject {
     metric m_jouls;
     double elevationAcc = 0;
     metric m_watt;
+    metric WattKg;
     metric WeightLoss;
 
     bool paused = false;

@@ -110,6 +110,8 @@ import Qt.labs.settings 1.0
             property int  tile_strokes_count_order: 22
             property bool tile_strokes_length_enabled: false
             property int  tile_strokes_length_order: 23
+            property bool tile_watt_kg_enabled: false
+            property int  tile_watt_kg_order: 25
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -1504,6 +1506,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_target_zone_order = target_zoneOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: wattKgEnabledAccordion
+                        title: qsTr("Watt/Kg")
+                        linkedBoolSetting: "tile_watt_kg_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelwatt_kgOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: watt_kgOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_watt_kg_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = watt_kgOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okwatt_kgOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_watt_kg_order = watt_kgOrderTextField.displayText
                             }
                         }
                     }

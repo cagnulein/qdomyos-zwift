@@ -58,6 +58,7 @@ void rower::clearStats() {
     m_pelotonResistance.clear(false);
     Cadence.clear(false);
     Resistance.clear(false);
+    WattKg.clear(false);
 }
 
 void rower::setPaused(bool p) {
@@ -81,6 +82,7 @@ void rower::setPaused(bool p) {
     RequestedPower.setPaused(p);
     StrokesCount.setPaused(p);
     StrokesLength.setPaused(p);
+    WattKg.setPaused(p);
 }
 
 void rower::setLap() {
@@ -104,6 +106,7 @@ void rower::setLap() {
     m_pelotonResistance.setLap(false);
     Cadence.setLap(false);
     Resistance.setLap(false);
+    WattKg.setLap(false);
 }
 
 // min/500m

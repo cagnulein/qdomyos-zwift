@@ -1,4 +1,5 @@
 #include "bluetoothdevice.h"
+
 #include <QSettings>
 #include <QTime>
 
@@ -42,6 +43,7 @@ QTime bluetoothdevice::currentPace() {
 }
 
 QTime bluetoothdevice::averagePace() {
+
     QSettings settings;
     bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
     double unit_conversion = 1.0;
@@ -58,6 +60,7 @@ QTime bluetoothdevice::averagePace() {
 }
 
 QTime bluetoothdevice::maxPace() {
+
     QSettings settings;
     bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
     double unit_conversion = 1.0;
@@ -96,25 +99,33 @@ double bluetoothdevice::difficult() { return m_difficult; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 
 void bluetoothdevice::update_metrics(const bool watt_calc, const double watts) {
+
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
+
             elapsed += deltaTime;
         }
         if (currentSpeed().value() > 0.0) {
+
             moving += deltaTime;
             m_jouls += (m_watt.value() * deltaTime);
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             if (watt_calc) {
                 m_watt = watts;
+                WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
             }
         } else if (m_watt.value() > 0) {
+
             m_watt = 0;
+            WattKg = 0;
         }
     } else if (m_watt.value() > 0) {
+
         m_watt = 0;
+        WattKg = 0;
     }
 
     _lastTimeUpdate = current;
@@ -122,6 +133,7 @@ void bluetoothdevice::update_metrics(const bool watt_calc, const double watts) {
 }
 
 void bluetoothdevice::clearStats() {
+
     elapsed.clear(true);
     moving.clear(true);
     Speed.clear(false);
@@ -132,9 +144,11 @@ void bluetoothdevice::clearStats() {
     elevationAcc = 0;
     m_watt.clear(false);
     WeightLoss.clear(false);
+    WattKg.clear(false);
 }
 
 void bluetoothdevice::setPaused(bool p) {
+
     paused = p;
     moving.setPaused(p);
     elapsed.setPaused(p);
@@ -145,9 +159,11 @@ void bluetoothdevice::setPaused(bool p) {
     m_jouls.setPaused(p);
     m_watt.setPaused(p);
     WeightLoss.setPaused(p);
+    WattKg.setPaused(p);
 }
 
 void bluetoothdevice::setLap() {
+
     moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
@@ -157,9 +173,11 @@ void bluetoothdevice::setLap() {
     m_jouls.setLap(true);
     m_watt.setLap(false);
     WeightLoss.setLap(false);
+    WattKg.setLap(false);
 }
 
 QStringList bluetoothdevice::metrics() {
+
     QStringList r;
     r.append(QStringLiteral("Speed"));
     r.append(QStringLiteral("Inclination"));
@@ -186,10 +204,12 @@ QStringList bluetoothdevice::metrics() {
     r.append(QStringLiteral("Target Peloton Resistance"));
     r.append(QStringLiteral("Target Cadence"));
     r.append(QStringLiteral("Target Power"));
+    r.append(QStringLiteral("Watt/Kg"));
     return r;
 }
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {
+
     QSettings settings;
     QString setting =
         settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
@@ -215,6 +235,8 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
         return wattsMetric().value();
     } else if (!setting.compare(QStringLiteral("Weight Loss"))) {
         return weightLoss();
+    } else if (!setting.compare(QLatin1String("Watt/Kg"))) {
+        return wattKg().value();
     } else if (!setting.compare(QStringLiteral("AVG Watt"))) {
         return wattsMetric().average();
     } else if (!setting.compare(QStringLiteral("FTP"))) {
