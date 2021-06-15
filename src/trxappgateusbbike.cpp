@@ -2,7 +2,9 @@
 #include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
+
 #include <QDateTime>
+
 #include <QEventLoop>
 #include <QFile>
 #include <QMetaEnum>
@@ -33,6 +35,7 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
@@ -51,9 +54,11 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void trxappgateusbbike::forceResistance(int8_t requestResistance) {
+
     uint8_t resistance[] = {0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00};
     resistance[4] = requestResistance + 1;
     for (uint8_t i = 0; i < sizeof(resistance) - 1; i++) {
+
         resistance[5] += resistance[i]; // the last byte is a sort of a checksum
     }
     writeCharacteristic((uint8_t *)resistance, sizeof(resistance),
@@ -65,22 +70,27 @@ void trxappgateusbbike::update() {
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
+
         emit disconnected();
         return;
     }
 
     if (initRequest) {
+
         initRequest = false;
         btinit(false);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
+
                gattNotify1Characteristic.isValid() &&
                // gattNotify2Characteristic.isValid() &&
                initDone) {
+
         update_metrics(false, 0);
 
         // updating the bike console every second
         if (sec1update++ == (1000 / refresh->interval())) {
+
             sec1update = 0;
             // updateDisplay(elapsed);
         }
@@ -88,15 +98,20 @@ void trxappgateusbbike::update() {
         QSettings settings;
         bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
         if (toorx30 == false && (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE)) {
+
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::DKN_MOTION) {
+        } else if (bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2)) {
+
+
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x02, 0x01, 0x95};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::CHANGYOW) {
+
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::JLL_IC400) {
+
             static unsigned char pollCounter = 0x0b;
             static unsigned char crc = 0x59;
             uint8_t noOpData[] = {0xf0, 0xa2, 0x00, 0xc8, 0x00};
@@ -106,6 +121,7 @@ void trxappgateusbbike::update() {
             pollCounter += 0x0c;
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
+
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0xd3, 0x88};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         }
@@ -119,6 +135,7 @@ void trxappgateusbbike::update() {
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
@@ -128,6 +145,7 @@ void trxappgateusbbike::update() {
 
 void trxappgateusbbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+
 }
 
 void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -171,11 +189,13 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double kcal = 0.0;
     double watt = 0.0;
     if (bike_type != JLL_IC400) {
+
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
     } else {
+
         speed = cadence * 0.37407407407407407407407407407407;
         if (Heart.value() > 0) {
             int avgP = ((settings.value(QStringLiteral("power_hr_pwr1"), 200).toDouble() *
@@ -211,6 +231,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             if (bike_type != JLL_IC400) {
+
                 Heart = ((uint8_t)(newValue.at(15)) - 1);
             } else {
                 Heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
@@ -281,29 +302,34 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 }
 
 uint16_t trxappgateusbbike::GetElapsedFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = (packet.at(4) - 1);
     convertedData += ((packet.at(5) - 1) * 60);
     return convertedData;
 }
 
 double trxappgateusbbike::GetSpeedFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = (packet.at(7) - 1) + ((packet.at(6) - 1) * 100);
     double data = (double)(convertedData) / 10.0f;
     return data;
 }
 
 double trxappgateusbbike::GetKcalFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = ((packet.at(12) - 1) * 100) + (packet.at(13) - 1);
     return (double)(convertedData);
 }
 
 double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
     double data = ((double)(convertedData)) / 10.0f;
     return data;
 }
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData;
     if (bike_type != JLL_IC400)
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
@@ -316,6 +342,7 @@ double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 }
 
 double trxappgateusbbike::GetResistanceFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = packet.at(18);
     double data = (convertedData - 1);
     if (data < 0)
@@ -324,11 +351,13 @@ double trxappgateusbbike::GetResistanceFromPacket(const QByteArray &packet) {
 }
 
 void trxappgateusbbike::btinit(bool startTape) {
+
     Q_UNUSED(startTape);
     QSettings settings;
     bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
 
     if (toorx30 == false && (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE)) {
+
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa1, 0x01, 0x01, 0x93};
         const uint8_t initData3[] = {0xf0, 0xa3, 0x01, 0x01, 0x01, 0x96};
@@ -338,6 +367,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         if (bike_type == TYPE::IRUNNING) {
             QThread::msleep(400);
+
         }
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         if (bike_type == TYPE::IRUNNING) {
@@ -355,7 +385,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         if (bike_type == TYPE::IRUNNING) {
             QThread::msleep(400);
         }
-    } else if (bike_type == TYPE::DKN_MOTION) {
+    } else if (bike_type == TYPE::DKN_MOTION  || bike_type == TYPE::DKN_MOTION_2)) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
         const uint8_t initData3[] = {0xf0, 0xa3, 0x02, 0x01, 0x01, 0x97};
@@ -378,6 +408,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
     } else if (bike_type == TYPE::CHANGYOW) {
+
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x23, 0x01, 0xb4};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x23, 0x01, 0xb5};
@@ -398,6 +429,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else if (bike_type == TYPE::JLL_IC400) {
+
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x03, 0xc9, 0x5c};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x00, 0xc8, 0x59};
@@ -433,6 +465,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else {
+
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa5, 0x23, 0xd3, 0x04, 0x8f};
         const uint8_t initData3[] = {0xf0, 0xa0, 0x23, 0xd3, 0x86};
@@ -454,6 +487,7 @@ void trxappgateusbbike::btinit(bool startTape) {
 }
 
 void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -461,13 +495,14 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
             emit debug(QStringLiteral("characteristic ") + c.uuid().toString());
+
         }
 
         QString uuidWrite = QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb");
         QString uuidNotify1 = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
         QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
 
-        if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE || bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2) {
             bike_type == TYPE::JLL_IC400) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
@@ -503,10 +538,12 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         // ******************************************* virtual bike init *************************************
         if (!firstVirtualBike && !virtualBike) {
+
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
+
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
             }
@@ -529,6 +566,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
 void trxappgateusbbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
+
     initRequest = true;
     emit connectedAndDiscovered();
 }
@@ -542,16 +580,35 @@ void trxappgateusbbike::characteristicWritten(const QLowEnergyCharacteristic &ch
 void trxappgateusbbike::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
+
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
+    QString uuid2 = "49535343-FE7D-4AE5-8FA9-9FAFD205E455";
     if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
         bike_type == TYPE::JLL_IC400)
-        uuid = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
+            uuid = uuid2;
+
+    if(bike_type == DKN_MOTION)
+    {
+        bool found = false;
+        foreach(QBluetoothUuid s, m_control->services())
+        {
+            if(s == QBluetoothUuid::fromString(uuid)) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            bike_type = DKN_MOTION_2;
+            uuid = uuid2;
+        }
+    }
 
     QBluetoothUuid _gattCommunicationChannelServiceId(uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
 
     if (gattCommunicationChannelService == nullptr) {
         qDebug() << QStringLiteral("invalid service") << uuid;
+
         return;
     }
 
@@ -560,18 +617,21 @@ void trxappgateusbbike::serviceScanDone(void) {
 }
 
 void trxappgateusbbike::errorService(QLowEnergyService::ServiceError err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("trxappgateusbbike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
 void trxappgateusbbike::error(QLowEnergyController::Error err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("trxappgateusbbike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
 void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+
     QSettings settings;
     bool JLL_IC400_bike = settings.value(QStringLiteral("jll_IC400_bike"), false).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
@@ -586,18 +646,23 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (JLL_IC400_bike) {
             refresh->start(500ms);
+
             bike_type = TYPE::JLL_IC400;
             qDebug() << QStringLiteral("JLL_IC400 bike found");
         } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
+
             bike_type = TYPE::CHANGYOW;
             qDebug() << QStringLiteral("CHANGYOW bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("BFCP"))) {
+
             bike_type = TYPE::SKANDIKAWIRY;
             qDebug() << QStringLiteral("SKANDIKAWIRY bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) {
+
             bike_type = TYPE::ICONSOLE;
             qDebug() << QStringLiteral("ICONSOLE bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) {
+
             bike_type = TYPE::DKN_MOTION;
             qDebug() << QStringLiteral("DKN MOTION bike found");
         }
@@ -610,6 +675,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, &trxappgateusbbike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &trxappgateusbbike::controllerStateChanged);
+
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -646,6 +712,7 @@ uint16_t trxappgateusbbike::watts() {
 
 bool trxappgateusbbike::connected() {
     if (!m_control) {
+
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
@@ -653,14 +720,18 @@ bool trxappgateusbbike::connected() {
 
 void *trxappgateusbbike::VirtualBike() { return virtualBike; }
 
+
 void *trxappgateusbbike::VirtualDevice() { return VirtualBike(); }
 
+
 double trxappgateusbbike::odometer() { return DistanceCalculated; }
+
 
 void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+
         initDone = false;
         m_control->connectToDevice();
     }
