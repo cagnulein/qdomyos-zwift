@@ -1319,6 +1319,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
             ftpZone = 1;
             ftpZone += (ftpPerc / 55);
+            if(ftpZone >= 2) // double precision could cause unwanted approximation
+                ftpZone = 1.9999;
             ftp->setValueFontColor("white");
         }
         else if(ftpPerc < 76)
@@ -1327,6 +1329,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
             ftpZone = 2;
             ftpZone += ((ftpPerc - 55) / 21);
+            if(ftpZone >= 3) // double precision could cause unwanted approximation
+                ftpZone = 2.9999;
             ftp->setValueFontColor("limegreen");
         }
         else if(ftpPerc < 91)
@@ -1335,6 +1339,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
             ftpZone = 3;
             ftpZone += ((ftpPerc - 76) / 15);
+            if(ftpZone >= 4) // double precision could cause unwanted approximation
+                ftpZone = 3.9999;
             ftp->setValueFontColor("gold");
         }
         else if(ftpPerc < 106)
@@ -1343,6 +1349,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
             ftpZone = 4;
             ftpZone += ((ftpPerc - 91) / 15);
+            if(ftpZone >= 5) // double precision could cause unwanted approximation
+                ftpZone = 4.9999;
             ftp->setValueFontColor("orange");
         }
         else if(ftpPerc < 121)
@@ -1351,6 +1359,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
             ftpZone = 5;
             ftpZone += ((ftpPerc - 106) / 15);
+            if(ftpZone >= 6) // double precision could cause unwanted approximation
+                ftpZone = 5.9999;
             ftp->setValueFontColor("darkorange");
         }
         else if(ftpPerc < 151)
@@ -1359,6 +1369,8 @@ void homeform::update()
             ftpMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
             ftpZone = 6;
             ftpZone += ((ftpPerc - 121) / 30);
+            if(ftpZone >= 7) // double precision could cause unwanted approximation
+                ftpZone = 6.9999;
             ftp->setValueFontColor("orangered");
         }
         else
@@ -1379,6 +1391,8 @@ void homeform::update()
                 requestedMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
                 requestedZone = 1;
                 requestedZone += (requestedPerc / 55);
+                if(requestedZone >= 2) // double precision could cause unwanted approximation
+                    requestedZone = 1.9999;
                 target_zone->setValueFontColor("white");
             }
             else if(requestedPerc < 76)
@@ -1387,6 +1401,8 @@ void homeform::update()
                 requestedMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
                 requestedZone = 2;
                 requestedZone += ((requestedPerc - 55) / 21);
+                if(requestedZone >= 3) // double precision could cause unwanted approximation
+                    requestedZone = 2.9999;
                 target_zone->setValueFontColor("limegreen");
             }
             else if(requestedPerc < 91)
@@ -1395,6 +1411,8 @@ void homeform::update()
                 requestedMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
                 requestedZone = 3;
                 requestedZone += ((requestedPerc - 76) / 15);
+                if(requestedZone >= 4) // double precision could cause unwanted approximation
+                    requestedZone = 3.9999;
                 target_zone->setValueFontColor("gold");
             }
             else if(requestedPerc < 106)
@@ -1403,6 +1421,8 @@ void homeform::update()
                 requestedMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
                 requestedZone = 4;
                 requestedZone += ((requestedPerc - 91) / 15);
+                if(requestedZone >= 5) // double precision could cause unwanted approximation
+                    requestedZone = 4.9999;
                 target_zone->setValueFontColor("orange");
             }
             else if(requestedPerc < 121)
@@ -1411,6 +1431,8 @@ void homeform::update()
                 requestedMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
                 requestedZone = 5;
                 requestedZone += ((requestedPerc - 106) / 15);
+                if(requestedZone >= 6) // double precision could cause unwanted approximation
+                    requestedZone = 5.9999;
                 target_zone->setValueFontColor("darkorange");
             }
             else if(requestedPerc < 151)
@@ -1419,6 +1441,8 @@ void homeform::update()
                 requestedMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
                 requestedZone = 6;
                 requestedZone += ((requestedPerc - 121) / 30);
+                if(requestedZone >= 7) // double precision could cause unwanted approximation
+                    requestedZone = 6.9999;
                 target_zone->setValueFontColor("orangered");
             }
             else
