@@ -669,6 +669,8 @@ void m3ibike::processAdvertising(const QByteArray& data) {
             elapsedTimer->start(1000);
         }
         m_jouls += (m_watt.value() * (k3.time - oldtime));
+        WeightLoss = metric::calculateWeightLoss(KCal.value());
+        WattKg = m_watt.value() / settings.value("weight", 75.0).toFloat();
 
         if (Cadence.value() > 0) {
             CrankRevs++;
