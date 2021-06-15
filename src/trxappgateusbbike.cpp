@@ -99,7 +99,7 @@ void trxappgateusbbike::update()
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x01, 0x01, 0x94 };
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
         }
-        else if(bike_type == TYPE::DKN_MOTION)
+        else if(bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2)
         {
             const uint8_t noOpData[] = { 0xf0, 0xa2, 0x02, 0x01, 0x95 };
             writeCharacteristic((uint8_t*)noOpData, sizeof(noOpData), "noOp", false, true);
@@ -340,7 +340,7 @@ void trxappgateusbbike::btinit(bool startTape)
         writeCharacteristic((uint8_t*)initData5, sizeof(initData5), "init", false, true);
         if(bike_type == TYPE::IRUNNING) QThread::msleep(400);
     }
-    else if(bike_type == TYPE::DKN_MOTION)
+    else if(bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2)
     {
         const uint8_t initData1[] = { 0xf0, 0xa0, 0x01, 0x01, 0x92 };
         const uint8_t initData2[] = { 0xf0, 0xa0, 0x02, 0x01, 0x93 };
@@ -460,7 +460,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state)
         QString uuidNotify1 = "0000fff1-0000-1000-8000-00805f9b34fb";
         QString uuidNotify2 = "49535343-4c8a-39b3-2f49-511cff073b7e";
 
-        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE || bike_type == TYPE::JLL_IC400)
+        if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE || bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2)
         {
             uuidWrite      = "49535343-8841-43f4-a8d4-ecbe34729bb3";
             uuidNotify1    = "49535343-1E4D-4BD9-BA61-23C647249616";
@@ -534,8 +534,25 @@ void trxappgateusbbike::serviceScanDone(void)
     debug("serviceScanDone");
 
     QString uuid = "0000fff0-0000-1000-8000-00805f9b34fb";
+    QString uuid2 = "49535343-FE7D-4AE5-8FA9-9FAFD205E455";
     if(bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE || bike_type == TYPE::JLL_IC400)
-            uuid = "49535343-FE7D-4AE5-8FA9-9FAFD205E455";
+            uuid = uuid2;
+
+    if(bike_type == DKN_MOTION)
+    {
+        bool found = false;
+        foreach(QBluetoothUuid s, m_control->services())
+        {
+            if(s == QBluetoothUuid::fromString(uuid)) {
+                found = true;
+                break;
+            }
+        }
+        if(!found) {
+            bike_type = DKN_MOTION_2;
+            uuid = uuid2;
+        }
+    }
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)uuid);
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);

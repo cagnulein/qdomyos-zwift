@@ -85,6 +85,7 @@ private:
         ICONSOLE = 4,
         JLL_IC400 = 5,
         DKN_MOTION = 6,
+        DKN_MOTION_2 = 7,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
