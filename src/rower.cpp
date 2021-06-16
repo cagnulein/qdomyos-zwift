@@ -118,7 +118,7 @@ QTime rower::currentPace()
     }
     else
     {
-        double speed = Speed.value() * unit_conversion * 2.0;
+        double speed = Speed.value() * unit_conversion;
         return QTime(0, (int)(1.0 / (speed / 60.0)), (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0  );
     }
 }

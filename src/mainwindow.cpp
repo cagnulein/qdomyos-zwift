@@ -58,6 +58,10 @@ void MainWindow::update()
         double peloton_resistance = 0;
         double watts = 0;
         double pace = 0;
+        uint32_t totalStrokes = 0;
+        double avgStrokesRate = 0;
+        double maxStrokesRate = 0;
+        double avgStrokesLength = 0;
 
         ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 2));
         ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart().value()));
@@ -171,7 +175,7 @@ void MainWindow::update()
                       pace, cadence, bluetoothManager->device()->calories(),
                       bluetoothManager->device()->elevationGain(),                      
                       bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600),
-                      false // TODO add lap
+                      false, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength // TODO add lap
                     );
 
         Session.append(s);

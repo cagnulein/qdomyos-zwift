@@ -71,6 +71,14 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     {
         sessionMesg.SetSport(FIT_SPORT_ROWING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_ROWING);
+        if(session.last().totalStrokes)
+            sessionMesg.SetTotalStrokes(session.last().totalStrokes);
+        if(session.last().avgStrokesRate)
+            sessionMesg.SetAvgStrokeCount(session.last().avgStrokesRate);
+        if(session.last().maxStrokesRate)
+            sessionMesg.SetMaxCadence(session.last().maxStrokesRate);
+        if(session.last().avgStrokesLength)
+            sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
     }
     else
     {

@@ -1128,6 +1128,10 @@ void homeform::update()
         double pace = 0;
         double peloton_resistance = 0;
         uint8_t cadence = 0;
+        uint32_t totalStrokes = 0;
+        double avgStrokesRate = 0;
+        double maxStrokesRate = 0;
+        double avgStrokesLength = 0;
 
         bool miles = settings.value("miles_unit", false).toBool();
         double ftpSetting = settings.value("ftp", 200.0).toDouble();
@@ -1139,8 +1143,7 @@ void homeform::update()
 
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine("AVG: " + QString::number((bluetoothManager->device())->currentSpeed().average() * unit_conversion, 'f', 1) + " MAX: " + QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
-        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));        
-        odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
+        heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));                
         calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
@@ -1159,6 +1162,7 @@ void homeform::update()
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL)
         {
+            odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             if(bluetoothManager->device()->currentSpeed().value())
             {
                 pace = 10000 / (((treadmill*)bluetoothManager->device())->currentPace().second() + (((treadmill*)bluetoothManager->device())->currentPace().minute() * 60));
@@ -1213,6 +1217,7 @@ void homeform::update()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
         {
+            odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             cadence = ((bike*)bluetoothManager->device())->currentCadence().value();
             resistance = ((bike*)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((bike*)bluetoothManager->device())->pelotonResistance().value();
@@ -1242,9 +1247,14 @@ void homeform::update()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
         {
+            odometer->setValue(QString::number(bluetoothManager->device()->odometer() * 1000.0 * unit_conversion, 'f', 0));
             cadence = ((rower*)bluetoothManager->device())->currentCadence().value();
             resistance = ((rower*)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((rower*)bluetoothManager->device())->pelotonResistance().value();
+            totalStrokes = ((rower*)bluetoothManager->device())->currentStrokesCount().value();
+            avgStrokesRate = ((rower*)bluetoothManager->device())->currentCadence().average();
+            maxStrokesRate = ((rower*)bluetoothManager->device())->currentCadence().max();
+            avgStrokesLength = ((rower*)bluetoothManager->device())->currentStrokesLength().average();
             this->strokesCount->setValue(QString::number(((rower*)bluetoothManager->device())->currentStrokesCount().value(), 'f', 0));
             this->strokesLength->setValue(QString::number(((rower*)bluetoothManager->device())->currentStrokesLength().value(), 'f', 1));
 
@@ -1312,6 +1322,7 @@ void homeform::update()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
+            odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
             resistance = ((elliptical*)bluetoothManager->device())->currentResistance();
             //this->peloton_resistance->setValue(QString::number(((elliptical*)bluetoothManager->device())->pelotonResistance(), 'f', 0));
@@ -1712,7 +1723,7 @@ void homeform::update()
                         pace, cadence, bluetoothManager->device()->calories(),
                         bluetoothManager->device()->elevationGain(),
                         bluetoothManager->device()->elapsedTime().second() + (bluetoothManager->device()->elapsedTime().minute() * 60) + (bluetoothManager->device()->elapsedTime().hour() * 3600),
-                        lapTrigger);
+                        lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength);
 
             Session.append(s);
 
