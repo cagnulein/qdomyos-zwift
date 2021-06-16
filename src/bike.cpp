@@ -5,7 +5,6 @@
 
 bike::bike() {}
 
-
 void bike::changeResistance(int8_t resistance) {
     if (autoResistanceEnable) {
         requestResistance = (resistance * m_difficult) + gears();
@@ -13,7 +12,6 @@ void bike::changeResistance(int8_t resistance) {
     }
     RequestedResistance = resistance * m_difficult;
 }
-
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
@@ -196,9 +194,7 @@ uint8_t bike::metrics_override_heartrate() {
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
 
         return RequestedPower.value();
-    }
-    else if(!setting.compare("Watt/Kg"))
-    {
+    } else if (!setting.compare("Watt/Kg")) {
         return wattKg().value();
     }
     return currentHeart().value();
