@@ -5,10 +5,13 @@
 #include <math.h>
 
 class metric {
+
   public:
     typedef enum _metric_type {
+
         METRIC_OTHER = 0,
         METRIC_WATT = 1,
+        METRIC_SPEED = 2,
     } _metric_type;
 
     metric();

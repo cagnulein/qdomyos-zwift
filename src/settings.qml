@@ -112,6 +112,8 @@ import Qt.labs.settings 1.0
             property int  tile_strokes_length_order: 23
             property bool tile_watt_kg_enabled: false
             property int  tile_watt_kg_order: 25
+            property bool tile_gears_enabled: false
+            property int  tile_gears_order: 26
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -167,6 +169,9 @@ import Qt.labs.settings 1.0
 
             property real watt_offset: 0
             property real watt_gain: 1
+
+            property real speed_offset: 0
+            property real speed_gain: 1
 
             property string filter_device: "Disabled"
             property string strava_suffix: "#QZ"
@@ -1543,6 +1548,38 @@ import Qt.labs.settings 1.0
                     }
 
                     AccordionCheckElement {
+                        id: gearsEnabledAccordion
+                        title: qsTr("Gears")
+                        linkedBoolSetting: "tile_gears_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelgearsOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: gearsOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_gears_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = gearsOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okgearsOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_gears_order = gearsOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
                         id: datetimeEnabledAccordion
                         title: qsTr("Time")
                         linkedBoolSetting: "tile_datetime_enabled"
@@ -2836,6 +2873,54 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.watt_gain = wattGainTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelspeedOffset
+                            text: qsTr("Speed Offset")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: speedOffsetTextField
+                            text: settings.speed_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.speed_offset = text
+                        }
+                        Button {
+                            id: okspeedOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.speed_offset = speedOffsetTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelspeedGain
+                            text: qsTr("Speed Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: speedGainTextField
+                            text: settings.speed_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.speed_gain = text
+                        }
+                        Button {
+                            id: okSpeedGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.speed_gain = speedGainTextField.text
                         }
                     }
 

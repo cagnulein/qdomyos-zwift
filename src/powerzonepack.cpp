@@ -4,7 +4,9 @@
 #include <QSettings>
 #include <QtXml>
 
+
 powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
+
 
     QSettings settings;
     bluetoothManager = bl;
@@ -50,6 +52,7 @@ void powerzonepack::startEngine() {
 
 void powerzonepack::error(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("powerzonepack ERROR") << code;
+
 }
 
 void powerzonepack::login_onfinish(QNetworkReply *reply) {
@@ -124,9 +127,9 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
     for (int i = 1; i < power_graph.count(); i++) {
 
         trainrow r;
-        int sec = power_graph.at(i).toObject()[QStringLiteral("seconds")].toInt();
+        double sec = power_graph.at(i).toObject()[QStringLiteral("seconds")].toDouble();
         QTime seconds(0, 0, 0, 0);
-        seconds = seconds.addSecs(sec);
+        seconds = seconds.addSecs((int)sec);
         r.duration = QTime(0, 0, lastSeconds.msecsTo(seconds) / 1000, 0);
         r.power = power_graph.at(i - 1).toObject()[QStringLiteral("power_ratio")].toDouble() *
                   settings.value(QStringLiteral("ftp"), 200.0).toDouble();
@@ -138,4 +141,5 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
 
         emit workoutStarted(&trainrows);
     }
+
 }

@@ -22,6 +22,7 @@ echelonconnectsport::echelonconnectsport(bool noWriteResistance, bool noHeartSer
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;

@@ -22,6 +22,7 @@ fitplusbike::fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bi
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;

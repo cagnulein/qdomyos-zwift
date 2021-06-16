@@ -1,19 +1,24 @@
+
 #include "bike.h"
 #include "qdebugfixup.h"
 #include <QSettings>
 
 bike::bike() {}
 
+
 void bike::changeResistance(int8_t resistance) {
     if (autoResistanceEnable) {
-        requestResistance = resistance * m_difficult;
+        requestResistance = (resistance * m_difficult) + gears();
         emit resistanceChanged(requestResistance);
     }
     RequestedResistance = resistance * m_difficult;
 }
+
+
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {
+
     RequestedPower = power;
     QSettings settings;
     bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
@@ -28,6 +33,8 @@ void bike::changePower(int32_t power) {
     if (force_resistance /*&& erg_mode*/ && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
         changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
 }
+int8_t bike::gears() { return m_gears; }
+void bike::setGears(int8_t gears) { m_gears = gears; }
 double bike::currentCrankRevolutions() { return CrankRevs; }
 uint16_t bike::lastCrankEventTime() { return LastCrankEventTime; }
 metric bike::lastRequestedResistance() { return RequestedResistance; }
@@ -47,6 +54,7 @@ void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
 
 void bike::clearStats() {
+
     moving.clear(true);
     elapsed.clear(true);
     Speed.clear(false);
@@ -69,6 +77,7 @@ void bike::clearStats() {
 }
 
 void bike::setPaused(bool p) {
+
     paused = p;
     moving.setPaused(p);
     elapsed.setPaused(p);
@@ -90,6 +99,7 @@ void bike::setPaused(bool p) {
 }
 
 void bike::setLap() {
+
     moving.setLap(true);
     elapsed.setLap(true);
     Speed.setLap(false);
@@ -111,56 +121,80 @@ void bike::setLap() {
 }
 
 uint8_t bike::metrics_override_heartrate() {
+
     QSettings settings;
     QString setting =
         settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return currentHeart().value();
     } else if (!setting.compare(QStringLiteral("Speed"))) {
+
         return currentSpeed().value();
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Cadence"))) {
+
         return Cadence.value();
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
+
         return elevationGain();
     } else if (!setting.compare(QStringLiteral("Calories"))) {
+
         return calories();
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
+
         return odometer();
     } else if (!setting.compare(QStringLiteral("Pace"))) {
+
         return currentPace().second();
     } else if (!setting.compare(QStringLiteral("Resistance"))) {
+
         return Resistance.value();
     } else if (!setting.compare(QStringLiteral("Watt"))) {
+
         return wattsMetric().value();
     } else if (!setting.compare(QStringLiteral("Weight Loss"))) {
+
         return weightLoss();
     } else if (!setting.compare(QStringLiteral("AVG Watt"))) {
+
         return wattsMetric().average();
     } else if (!setting.compare(QStringLiteral("FTP"))) {
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Fan"))) {
+
         return FanSpeed;
     } else if (!setting.compare(QStringLiteral("Jouls"))) {
+
         return jouls().value();
     } else if (!setting.compare(QStringLiteral("Lap Elapsed"))) {
+
         return lapElapsedTime().second();
     } else if (!setting.compare(QStringLiteral("Elapsed"))) {
+
         return elapsed.value();
     } else if (!setting.compare(QStringLiteral("Moving Time"))) {
+
         return movingTime().second();
     } else if (!setting.compare(QStringLiteral("Peloton Offset"))) {
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Peloton Resistance"))) {
+
         return pelotonResistance().value();
     } else if (!setting.compare(QStringLiteral("Date Time"))) {
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Resistance"))) {
+
         return RequestedResistance.value();
     } else if (!setting.compare(QStringLiteral("Target Peloton Resistance"))) {
+
         return RequestedPelotonResistance.value();
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
+
         return RequestedPower.value();
     }
     else if(!setting.compare("Watt/Kg"))

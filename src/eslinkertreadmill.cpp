@@ -13,6 +13,7 @@ using namespace std::chrono_literals;
 eslinkertreadmill::eslinkertreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
                                      double forceInitSpeed, double forceInitInclination) {
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
     this->noHeartService = noHeartService;
 

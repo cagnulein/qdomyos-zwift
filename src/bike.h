@@ -28,6 +28,8 @@ class bike : public bluetoothdevice {
     void setLap();
     void setPaused(bool p);
     uint8_t metrics_override_heartrate();
+    void setGears(int8_t d);
+    int8_t gears();
 
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
@@ -51,6 +53,7 @@ class bike : public bluetoothdevice {
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
     double CrankRevs = 0;
+    int8_t m_gears = 0;
 
     metric m_pelotonResistance;
 };

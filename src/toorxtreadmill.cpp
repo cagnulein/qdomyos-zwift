@@ -9,6 +9,7 @@ using namespace std::chrono_literals;
 
 toorxtreadmill::toorxtreadmill() {
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &toorxtreadmill::update);

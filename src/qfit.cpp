@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <fstream>
 
+
 #include "fit_date_time.hpp"
 #include "fit_encode.hpp"
 
@@ -10,6 +11,7 @@
 #include "fit_mesg_broadcaster.hpp"
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
+
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
                 uint32_t processFlag) {
@@ -64,12 +66,24 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
+
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ROWING) {
+
         sessionMesg.SetSport(FIT_SPORT_ROWING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_ROWING);
-    } else {
+        if(session.last().totalStrokes)
+            sessionMesg.SetTotalStrokes(session.last().totalStrokes);
+        if(session.last().avgStrokesRate)
+            sessionMesg.SetAvgStrokeCount(session.last().avgStrokesRate);
+        if(session.last().maxStrokesRate)
+            sessionMesg.SetMaxCadence(session.last().maxStrokesRate);
+        if(session.last().avgStrokesLength)
+            sessionMesg.SetAvgStrokeDistance(session.last().avgStrokesLength);
+    }
+    else
+    {
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_CYCLING);
     }
@@ -107,8 +121,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
+
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else {
+
 
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }

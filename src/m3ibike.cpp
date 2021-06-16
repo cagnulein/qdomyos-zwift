@@ -260,6 +260,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;

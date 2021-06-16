@@ -14,6 +14,7 @@ using namespace std::chrono_literals;
 
 trxappgateusbtreadmill::trxappgateusbtreadmill() {
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &trxappgateusbtreadmill::update);

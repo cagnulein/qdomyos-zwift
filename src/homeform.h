@@ -440,6 +440,7 @@ class homeform : public QObject {
     DataObject* strokesLength;
     DataObject* strokesCount;
     DataObject* wattKg;
+    DataObject* gears;
 
     QTimer *timer;
     QTimer *backupTimer;
