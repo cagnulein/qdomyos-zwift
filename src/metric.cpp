@@ -37,6 +37,14 @@ void metric::setValue(double v)
             }
         }
     }
+    else if(m_type == METRIC_SPEED)
+    {
+        if(v > 0)
+        {
+            v *= settings.value("speed_gain", 1.0).toDouble();
+            v += settings.value("speed_offset", 0.0).toDouble();
+        }
+    }
     m_value = v;
 
     if(paused) return;

@@ -170,6 +170,9 @@ import Qt.labs.settings 1.0
             property real watt_offset: 0
             property real watt_gain: 1
 
+            property real speed_offset: 0
+            property real speed_gain: 1
+
             property string filter_device: "Disabled"
             property string strava_suffix: "#QZ"
 
@@ -2870,6 +2873,54 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.watt_gain = wattGainTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelspeedOffset
+                            text: qsTr("Speed Offset")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: speedOffsetTextField
+                            text: settings.speed_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.speed_offset = text
+                        }
+                        Button {
+                            id: okspeedOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.speed_offset = speedOffsetTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelspeedGain
+                            text: qsTr("Speed Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: speedGainTextField
+                            text: settings.speed_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.speed_gain = text
+                        }
+                        Button {
+                            id: okSpeedGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.speed_gain = speedGainTextField.text
                         }
                     }
 

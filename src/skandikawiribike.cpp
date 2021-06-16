@@ -11,6 +11,7 @@
 skandikawiribike::skandikawiribike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
 
     this->noWriteResistance = noWriteResistance;

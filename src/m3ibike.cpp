@@ -241,6 +241,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
 #endif
     heartRateBeltDisabled = settings.value("heart_rate_belt_name", "Disabled").toString().startsWith("Disabled");
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;

@@ -10,6 +10,7 @@ public:
     {
         METRIC_OTHER = 0,
         METRIC_WATT = 1,
+        METRIC_SPEED = 2,
     }_metric_type;
 
     metric();

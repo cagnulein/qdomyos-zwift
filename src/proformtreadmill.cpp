@@ -13,6 +13,7 @@
 proformtreadmill::proformtreadmill(bool noWriteResistance, bool noHeartService)
 {
     m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
