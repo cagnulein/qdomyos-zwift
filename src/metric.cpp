@@ -27,13 +27,10 @@ void metric::setValue(double v) {
                 v += settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
             }
         }
-    }
-    else if(m_type == METRIC_SPEED)
-    {
-        if(v > 0)
-        {
-            v *= settings.value("speed_gain", 1.0).toDouble();
-            v += settings.value("speed_offset", 0.0).toDouble();
+    } else if (m_type == METRIC_SPEED) {
+        if (v > 0) {
+            v *= settings.value(QStringLiteral("speed_gain"), 1.0).toDouble();
+            v += settings.value(QStringLiteral("speed_offset"), 0.0).toDouble();
         }
     }
     m_value = v;
@@ -143,8 +140,9 @@ double metric::calculateSpeedFromPower(double power) {
         double f = vel * (aeroEff * tv * tv + tr) - tran * p; // the function
         double fp = aeroEff * (3.0 * vel + hw) * tv + tr;     // the derivative
         double vNew = vel - f / fp;
-        if (qAbs(vNew - vel) < TOL)
-            return vNew * 3.6; // success
+        if (qAbs(vNew - vel) < TOL) {
+            return vNew * 3.6;
+        } // success
         vel = vNew;
     }
     return 0.0; // failed to converge

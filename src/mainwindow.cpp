@@ -5,7 +5,6 @@
 #include <QFileDialog>
 #include <chrono>
 
-
 using namespace std::chrono_literals;
 
 charts *Charts = nullptr;
@@ -125,7 +124,6 @@ void MainWindow::update() {
             } else {
                 ui->trainProgramTotalDistance->setText(QStringLiteral("N/A"));
             }
-
         }
 
         if (bluetoothManager->device()->connected()) {
@@ -211,7 +209,6 @@ void MainWindow::update() {
 }
 
 MainWindow::~MainWindow() { delete ui; }
-
 
 void MainWindow::addEmptyRow() {
 
@@ -307,7 +304,6 @@ void MainWindow::trainProgramSignals() {
         qDebug() << QStringLiteral("trainProgram associated to a device");
     } else {
         qDebug() << QStringLiteral("trainProgram NOT associated to a device");
-
     }
 }
 
@@ -350,7 +346,6 @@ void MainWindow::loadTrainProgram(const QString &fileName) {
             if (trainProgram) {
 
                 delete trainProgram;
-
             }
             trainProgram = trainprogram::load(fileName, bluetoothManager);
         } else if (fileName.endsWith(QStringLiteral("gpx"))) {
@@ -498,7 +493,6 @@ void MainWindow::on_difficulty_valueChanged(int value) {
             trainProgram->loadedRows.at(i).speed + (trainProgram->loadedRows.at(i).speed * (0.02 * (value - 50)));
         trainProgram->rows[i].inclination = trainProgram->loadedRows.at(i).inclination +
                                             (trainProgram->loadedRows.at(i).inclination * (0.02 * (value - 50)));
-
     }
 
     int countRow = 0;
@@ -527,7 +521,6 @@ void MainWindow::on_speedMinus_clicked() {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() - 0.5);
-
         }
     }
 }
@@ -537,7 +530,6 @@ void MainWindow::on_speedPlus_clicked() {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             ((treadmill *)bluetoothManager->device())
                 ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() + 0.5);
-
         }
     }
 }
@@ -547,7 +539,6 @@ void MainWindow::on_inclinationMinus_clicked() {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             ((treadmill *)bluetoothManager->device())
                 ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() - 0.5);
-
         }
     }
 }
@@ -557,7 +548,6 @@ void MainWindow::on_inclinationPlus_clicked() {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             ((treadmill *)bluetoothManager->device())
                 ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() + 0.5);
-
         }
     }
 }
@@ -574,7 +564,6 @@ void MainWindow::on_resistanceMinus_clicked() {
             ((elliptical *)bluetoothManager->device())
                 ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance() - 1);
         }
-
     }
 }
 
@@ -590,7 +579,6 @@ void MainWindow::on_resistancePlus_clicked() {
             ((elliptical *)bluetoothManager->device())
                 ->changeResistance(((elliptical *)bluetoothManager->device())->currentResistance() + 1);
         }
-
     }
 }
 
