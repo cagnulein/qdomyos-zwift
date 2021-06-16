@@ -112,6 +112,8 @@ import Qt.labs.settings 1.0
             property int  tile_strokes_length_order: 23
             property bool tile_watt_kg_enabled: false
             property int  tile_watt_kg_order: 25
+            property bool tile_gears_enabled: false
+            property int  tile_gears_order: 26
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -1538,6 +1540,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_watt_kg_order = watt_kgOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: gearsEnabledAccordion
+                        title: qsTr("Gears")
+                        linkedBoolSetting: "tile_gears_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelgearsOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: gearsOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_gears_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = gearsOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okgearsOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_gears_order = gearsOrderTextField.displayText
                             }
                         }
                     }

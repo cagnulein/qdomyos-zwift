@@ -118,6 +118,7 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     peloton_offset = new DataObject("Peloton Offset", "icons/icons/clock.png", "0", true, "peloton_offset", valueElapsedFontSize, labelFontSize);
     strokesCount = new DataObject("Strokes Count", "icons/icons/cadence.png", "0", false, "strokes_count", 48, labelFontSize);
     strokesLength = new DataObject("Strokes Length", "icons/icons/cadence.png", "0", false, "strokes_length", 48, labelFontSize);
+    gears = new DataObject("Gears", "icons/icons/elevationgain.png", "0", true, "gears", 48, labelFontSize);
 
     if(!settings.value("top_bar_enabled", true).toBool())
     {
@@ -412,7 +413,7 @@ void homeform::trainProgramSignals()
 QStringList homeform::tile_order()
 {
     QStringList r;
-    for(int i = 0; i < 29; i++)
+    for(int i = 0; i < 30; i++)
         r.append(QString::number(i));
     return r;
 }
@@ -574,6 +575,9 @@ void homeform::deviceConnected()
 
             if(settings.value("tile_watt_kg_enabled", false).toBool() && settings.value("tile_watt_kg_order", 24).toInt() == i)
                 dataList.append(wattKg);
+
+            if(settings.value("tile_gears_enabled", false).toBool() && settings.value("tile_gears_order", 25).toInt() == i)
+                dataList.append(gears);
         }
     }
     else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
@@ -782,6 +786,16 @@ void homeform::Plus(QString name)
             }
         }
     }
+    else if(name.contains("gears"))
+    {
+        if(bluetoothManager->device())
+        {
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+            {
+                ((bike*)bluetoothManager->device())->setGears(((bike*)bluetoothManager->device())->gears() + 1);
+            }
+        }
+    }
     else if(name.contains("target_resistance"))
     {
         if(bluetoothManager->device())
@@ -866,6 +880,16 @@ void homeform::Minus(QString name)
             else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
             {
                 ((elliptical*)bluetoothManager->device())->changeInclination(((elliptical*)bluetoothManager->device())->currentInclination().value() - 0.5);
+            }
+        }
+    }
+    else if(name.contains("gears"))
+    {
+        if(bluetoothManager->device())
+        {
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+            {
+                ((bike*)bluetoothManager->device())->setGears(((bike*)bluetoothManager->device())->gears() - 1);
             }
         }
     }
@@ -1199,6 +1223,7 @@ void homeform::update()
             this->target_power->setValue(QString::number(((bike*)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));            
             this->resistance->setValue(QString::number(resistance, 'f', 0));
             this->cadence->setValue(QString::number(cadence));
+            this->gears->setValue(QString::number(((bike*)bluetoothManager->device())->gears()));
 
             this->cadence->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->currentCadence().max(), 'f', 0));
             this->resistance->setSecondLine("AVG: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().average(), 'f', 0) + " MAX: " + QString::number(((bike*)bluetoothManager->device())->currentResistance().max(), 'f', 0));

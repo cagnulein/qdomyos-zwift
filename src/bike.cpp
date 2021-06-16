@@ -7,7 +7,7 @@ bike::bike()
 
 }
 
-void bike::changeResistance(int8_t resistance) { if(autoResistanceEnable) {requestResistance = resistance * m_difficult; emit resistanceChanged(requestResistance);} RequestedResistance = resistance * m_difficult; }
+void bike::changeResistance(int8_t resistance) { if(autoResistanceEnable) {requestResistance = (resistance * m_difficult) + gears(); emit resistanceChanged(requestResistance);} RequestedResistance = resistance * m_difficult; }
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power)
@@ -25,6 +25,8 @@ void bike::changePower(int32_t power)
     if(force_resistance /*&& erg_mode*/ && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
         changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
 }
+int8_t bike::gears() { return m_gears; }
+void bike::setGears(int8_t gears) { m_gears = gears; }
 double bike::currentCrankRevolutions() { return CrankRevs;}
 uint16_t bike::lastCrankEventTime() { return LastCrankEventTime;}
 metric bike::lastRequestedResistance() { return RequestedResistance; }
