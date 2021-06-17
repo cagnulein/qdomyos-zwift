@@ -1349,29 +1349,29 @@ void homeform::update()
             if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
                 requestedPerc = (((bike*)bluetoothManager->device())->lastRequestedPower().value() / ftpSetting) * 100.0;
         }
-        if(ftpPerc < 55)
+        if(ftpPerc < 56)
         {
             ftpMinW = QString::number(0, 'f', 0);
-            ftpMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
+            ftpMaxW = QString::number(ftpSetting * 0.55, 'f', 0);
             ftpZone = 1;
-            ftpZone += (ftpPerc / 55);
+            ftpZone += (ftpPerc / 56);
             if(ftpZone >= 2) // double precision could cause unwanted approximation
                 ftpZone = 1.9999;
             ftp->setValueFontColor("white");
         }
         else if(ftpPerc < 76)
         {
-            ftpMinW = QString::number(ftpSetting * 0.55, 'f', 0);
+            ftpMinW = QString::number((ftpSetting * 0.55) + 1, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
             ftpZone = 2;
-            ftpZone += ((ftpPerc - 55) / 21);
+            ftpZone += ((ftpPerc - 56) / 20);
             if(ftpZone >= 3) // double precision could cause unwanted approximation
                 ftpZone = 2.9999;
             ftp->setValueFontColor("limegreen");
         }
         else if(ftpPerc < 91)
         {
-            ftpMinW = QString::number(ftpSetting * 0.76, 'f', 0);
+            ftpMinW = QString::number((ftpSetting * 0.75) + 1, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
             ftpZone = 3;
             ftpZone += ((ftpPerc - 76) / 15);
@@ -1381,7 +1381,7 @@ void homeform::update()
         }
         else if(ftpPerc < 106)
         {
-            ftpMinW = QString::number(ftpSetting * 0.91, 'f', 0);
+            ftpMinW = QString::number((ftpSetting * 0.90) + 1, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
             ftpZone = 4;
             ftpZone += ((ftpPerc - 91) / 15);
@@ -1391,7 +1391,7 @@ void homeform::update()
         }
         else if(ftpPerc < 121)
         {
-            ftpMinW = QString::number(ftpSetting * 1.06, 'f', 0);
+            ftpMinW = QString::number((ftpSetting * 1.05) + 1, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
             ftpZone = 5;
             ftpZone += ((ftpPerc - 106) / 15);
@@ -1401,7 +1401,7 @@ void homeform::update()
         }
         else if(ftpPerc < 151)
         {
-            ftpMinW = QString::number(ftpSetting * 1.21, 'f', 0);
+            ftpMinW = QString::number((ftpSetting * 1.20) + 1, 'f', 0);
             ftpMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
             ftpZone = 6;
             ftpZone += ((ftpPerc - 121) / 30);
@@ -1411,7 +1411,7 @@ void homeform::update()
         }
         else
         {
-            ftpMinW = QString::number(ftpSetting * 1.51, 'f', 0);
+            ftpMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
             ftpMaxW = "∞";
             ftpZone = 7;
             ftpZone += ((ftpPerc - 151) / 30);
@@ -1421,29 +1421,29 @@ void homeform::update()
         ftp->setSecondLine(ftpMinW + "-" + ftpMaxW + "W " + QString::number(ftpPerc, 'f', 0) + "%");
 
         if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-            if(requestedPerc < 55)
+            if(requestedPerc < 56)
             {
                 requestedMinW = QString::number(0, 'f', 0);
-                requestedMaxW = QString::number(ftpSetting * 0.54, 'f', 0);
+                requestedMaxW = QString::number(ftpSetting * 0.55, 'f', 0);
                 requestedZone = 1;
-                requestedZone += (requestedPerc / 55);
+                requestedZone += (requestedPerc / 56);
                 if(requestedZone >= 2) // double precision could cause unwanted approximation
                     requestedZone = 1.9999;
                 target_zone->setValueFontColor("white");
             }
             else if(requestedPerc < 76)
             {
-                requestedMinW = QString::number(ftpSetting * 0.55, 'f', 0);
+                requestedMinW = QString::number((ftpSetting * 0.55) + 1, 'f', 0);
                 requestedMaxW = QString::number(ftpSetting * 0.75, 'f', 0);
                 requestedZone = 2;
-                requestedZone += ((requestedPerc - 55) / 21);
+                requestedZone += ((requestedPerc - 56) / 20);
                 if(requestedZone >= 3) // double precision could cause unwanted approximation
                     requestedZone = 2.9999;
                 target_zone->setValueFontColor("limegreen");
             }
             else if(requestedPerc < 91)
             {
-                requestedMinW = QString::number(ftpSetting * 0.76, 'f', 0);
+                requestedMinW = QString::number((ftpSetting * 0.75) + 1, 'f', 0);
                 requestedMaxW = QString::number(ftpSetting * 0.90, 'f', 0);
                 requestedZone = 3;
                 requestedZone += ((requestedPerc - 76) / 15);
@@ -1453,7 +1453,7 @@ void homeform::update()
             }
             else if(requestedPerc < 106)
             {
-                requestedMinW = QString::number(ftpSetting * 0.91, 'f', 0);
+                requestedMinW = QString::number((ftpSetting * 0.90) + 1, 'f', 0);
                 requestedMaxW = QString::number(ftpSetting * 1.05, 'f', 0);
                 requestedZone = 4;
                 requestedZone += ((requestedPerc - 91) / 15);
@@ -1463,7 +1463,7 @@ void homeform::update()
             }
             else if(requestedPerc < 121)
             {
-                requestedMinW = QString::number(ftpSetting * 1.06, 'f', 0);
+                requestedMinW = QString::number((ftpSetting * 1.05) + 1, 'f', 0);
                 requestedMaxW = QString::number(ftpSetting * 1.20, 'f', 0);
                 requestedZone = 5;
                 requestedZone += ((requestedPerc - 106) / 15);
@@ -1473,7 +1473,7 @@ void homeform::update()
             }
             else if(requestedPerc < 151)
             {
-                requestedMinW = QString::number(ftpSetting * 1.21, 'f', 0);
+                requestedMinW = QString::number((ftpSetting * 1.20) + 1, 'f', 0);
                 requestedMaxW = QString::number(ftpSetting * 1.50, 'f', 0);
                 requestedZone = 6;
                 requestedZone += ((requestedPerc - 121) / 30);
@@ -1483,7 +1483,7 @@ void homeform::update()
             }
             else
             {
-                requestedMinW = QString::number(ftpSetting * 1.51, 'f', 0);
+                requestedMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
                 requestedMaxW = "∞";
                 requestedZone = 7;
                 requestedZone += ((requestedPerc - 151) / 30);
