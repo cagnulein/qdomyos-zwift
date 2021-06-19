@@ -4,7 +4,9 @@
 #include <QSettings>
 #include <QtXml>
 
+
 powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
+
 
     QSettings settings;
     bluetoothManager = bl;
@@ -15,6 +17,7 @@ powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
     if (!settings.value(QStringLiteral("pzp_username"), QStringLiteral("username"))
              .toString()
              .compare(QStringLiteral("username"))) {
+        pzp_credentials_wrong = true;
         qDebug() << QStringLiteral("invalid peloton credentials");
         return;
     }
@@ -50,6 +53,7 @@ void powerzonepack::startEngine() {
 
 void powerzonepack::error(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("powerzonepack ERROR") << code;
+
 }
 
 void powerzonepack::login_onfinish(QNetworkReply *reply) {
@@ -122,6 +126,7 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
     trainrows.clear();
     QTime lastSeconds(0, 0, 0, 0);
     for (int i = 1; i < power_graph.count(); i++) {
+
         trainrow r;
         double sec = power_graph.at(i).toObject()[QStringLiteral("seconds")].toDouble();
         QTime seconds(0, 0, 0, 0);
@@ -134,6 +139,8 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
     }
 
     if (!trainrows.isEmpty()) {
+
         emit workoutStarted(&trainrows);
     }
+
 }

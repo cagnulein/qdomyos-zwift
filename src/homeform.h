@@ -3,6 +3,7 @@
 
 
 
+
 #include "bluetooth.h"
 
 
@@ -21,6 +22,7 @@
 #include <QQuickItemGrabResult>
 
 class DataObject : public QObject {
+
 
 
     Q_OBJECT
@@ -91,6 +93,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY(bool lap READ getLap NOTIFY changeOflap)
     Q_PROPERTY(bool pelotonAskStart READ pelotonAskStart NOTIFY changePelotonAskStart WRITE setPelotonAskStart)
+    Q_PROPERTY( QString pelotonProvider READ pelotonProvider NOTIFY changePelotonProvider WRITE setPelotonProvider)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
@@ -301,6 +304,8 @@ class homeform : public QObject {
     int pzpLogin() { return m_pzpLoginState; }
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
+    QString pelotonProvider() {return m_pelotonProvider;}
+    void setPelotonProvider(QString value) {m_pelotonProvider = value;}
     bool generalPopupVisible();
     bool labelHelp();
     QStringList metrics();
@@ -400,6 +405,7 @@ class homeform : public QObject {
 
     peloton *pelotonHandler = nullptr;
     bool m_pelotonAskStart = false;
+    QString m_pelotonProvider = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName = QLatin1String("");
@@ -510,6 +516,7 @@ class homeform : public QObject {
     void tile_orderChanged(QStringList value);
     void changeLabelHelp(bool value);
     void changePelotonAskStart(bool value);
+ void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);

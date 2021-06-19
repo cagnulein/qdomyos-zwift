@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
@@ -57,23 +58,28 @@ data_len));
 
 void horizontreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
+
         emit disconnected();
         return;
     }
 
     if (initRequest) {
+
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
+
                                          // m_control->state() == QLowEnergyController::DiscoveredState //&&
                                          // gattCommunicationChannelService &&
                                          // gattWriteCharacteristic.isValid() &&
                                          // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
+
         QSettings settings;
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
+
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
@@ -81,8 +87,10 @@ void horizontreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+
                 double inc = Inclination.value();
                 if (requestInclination != -1) {
+
                     inc = requestInclination;
                     requestInclination = -1;
                 }
@@ -94,8 +102,10 @@ void horizontreadmill::update() {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+
                 double speed = currentSpeed().value();
                 if (requestSpeed != -1) {
+
                     speed = requestSpeed;
                     requestSpeed = -1;
                 }
@@ -106,6 +116,7 @@ void horizontreadmill::update() {
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             if (lastSpeed == 0.0) {
+
                 lastSpeed = 0.5;
             }
             requestStart = -1;
@@ -113,14 +124,17 @@ void horizontreadmill::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+
             requestStop = -1;
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
+
             // sendChangeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
             emit debug(QStringLiteral("decreasing fan speed..."));
+
             // sendChangeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
@@ -135,6 +149,7 @@ void horizontreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
 
 void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+
 }
 
 void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -151,6 +166,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 20 && newValue.at(0) == 0x00 &&
         ((uint8_t)newValue.at(1)) == 0xF4) {
+
         Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         return;
@@ -166,6 +182,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     union flags {
         struct {
+
             uint16_t moreData : 1;
             uint16_t avgSpeed : 1;
             uint16_t totalDistance : 1;
@@ -199,6 +216,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.avgSpeed) {
+
         double avgSpeed;
         avgSpeed =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -208,6 +226,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.totalDistance) {
+
         // ignoring the distance, because it's a total life odometer
         // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
         // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
@@ -230,18 +249,22 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.elevation) {
+
         index += 4; // TODO
     }
 
     if (Flags.instantPace) {
+
         index += 1; // TODO
     }
 
     if (Flags.averagePace) {
+
         index += 1; // TODO
     }
 
     if (Flags.expEnergy) {
+
         KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
@@ -268,33 +291,40 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     {
         if (Flags.heartRate) {
             if (index < newValue.length()) {
+
                 heart = ((double)((newValue.at(index))));
                 emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
             } else {
                 emit debug(QStringLiteral("Error on parsing heart!"));
             }
             // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+
         }
     }
 
     if (Flags.metabolic) {
+
         // todo
     }
 
     if (Flags.elapsedTime) {
+
         // todo
     }
 
     if (Flags.remainingTime) {
+
         // todo
     }
 
     if (Flags.forceBelt) {
+
         // todo
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0 || settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool()) {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             lockscreen h;
@@ -306,6 +336,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 #endif
 #endif
         } else {
+
             Heart = heart;
         }
     }
@@ -327,6 +358,7 @@ void horizontreadmill::stateChanged2(QLowEnergyService::ServiceState state) {
 
     if (!gattNotify2Characteristic.isValid()) {
         qDebug() << QStringLiteral("invalid characteristic");
+
         return;
     }
 
@@ -353,6 +385,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     if (!gattNotify1Characteristic.isValid()) {
         qDebug() << QStringLiteral("invalid characteristic");
+
         return;
     }
 
@@ -371,6 +404,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     initRequest = false;
     emit connectedAndDiscovered();
 
+
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill
 #ifdef Q_OS_IOS
@@ -379,10 +413,12 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
     ) {
+
         QSettings settings;
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &horizontreadmill::debug);
         }
@@ -394,12 +430,14 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
+
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
 void horizontreadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
+
 }
 
 void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
@@ -410,33 +448,41 @@ void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+
 }
 
 void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
+
 
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 
     gattCommunication2ChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0xfff0));
+    if(gattCommunication2ChannelService) {
     connect(gattCommunication2ChannelService, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged2);
-    gattCommunication2ChannelService->discoverDetails();
+
+        gattCommunication2ChannelService->discoverDetails();
+    }
 }
 
 void horizontreadmill::errorService(QLowEnergyService::ServiceError err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("horizontreadmill::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
 void horizontreadmill::error(QLowEnergyController::Error err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("horizontreadmill::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
 void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+
     // ***************************************************************************************************************
     // horizon treadmill and F80 treadmill, so if we want to add inclination support we have to separate the 2 devices
     // ***************************************************************************************************************
@@ -452,6 +498,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, &horizontreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &horizontreadmill::controllerStateChanged);
+
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -480,6 +527,7 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 bool horizontreadmill::connected() {
     if (!m_control) {
+
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
@@ -487,12 +535,15 @@ bool horizontreadmill::connected() {
 
 void *horizontreadmill::VirtualTreadmill() { return virtualTreadmill; }
 
+
 void *horizontreadmill::VirtualDevice() { return VirtualTreadmill(); }
+
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+
         initDone = false;
         m_control->connectToDevice();
     }

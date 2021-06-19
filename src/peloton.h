@@ -16,10 +16,13 @@
 #include <QOAuthHttpServerReplyHandler>
 #include <QObject>
 
+
 #include <QSettings>
+
 
 #include <QTimer>
 #include <QUrlQuery>
+
 
 #include "homefitnessbuddy.h"
 
@@ -29,6 +32,14 @@ class peloton : public QObject {
   public:
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
+
+    enum _PELOTON_API {
+        peloton_api = 0,
+        powerzonepack_api = 1,
+        homefitnessbuddy_api = 2
+    };
+
+    _PELOTON_API currentApi() {return current_api;}
 
     QString user_id;
     QString current_workout_id = QLatin1String("");
@@ -40,6 +51,7 @@ class peloton : public QObject {
     QDateTime current_original_air_time;
 
   private:
+    _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 10;
     bool peloton_credentials_wrong = false;
     QNetworkAccessManager *mgr = nullptr;
