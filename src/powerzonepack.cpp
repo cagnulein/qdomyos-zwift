@@ -15,6 +15,7 @@ powerzonepack::powerzonepack(bluetooth* bl, QObject *parent) : QObject(parent)
 
     if(!settings.value("pzp_username", "username").toString().compare("username"))
     {
+        pzp_credentials_wrong = true;
         qDebug() << "invalid peloton credentials";
         return;
     }
