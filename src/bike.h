@@ -55,6 +55,7 @@ protected:
     int8_t requestResistance = -1;
     double CrankRevs = 0;
     int8_t m_gears = 0;
+    int8_t lastRawRequestedResistanceValue = -1;
 
     metric m_pelotonResistance;
 };

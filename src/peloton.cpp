@@ -220,6 +220,7 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     performance = QJsonDocument::fromJson(payload, &parseError);
+    current_api = peloton_api;
 
     QJsonObject json = performance.object();
     QJsonObject target_performance_metrics = json["target_performance_metrics"].toObject();
@@ -264,7 +265,10 @@ void peloton::performance_onfinish(QNetworkReply* reply)
     else
     {
         if(!PZP->searchWorkout(current_ride_id)) {
+            current_api = homefitnessbuddy_api;
             HFB->searchWorkout(current_original_air_time.date(), current_instructor_name);
+        } else {
+            current_api = powerzonepack_api;
         }
     }
 

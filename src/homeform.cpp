@@ -282,6 +282,20 @@ void homeform::pelotonLoginState(bool ok)
 
 void homeform::pelotonWorkoutStarted(QString name, QString instructor)
 {
+    if(pelotonHandler) {
+        switch(pelotonHandler->currentApi()) {
+        case peloton::homefitnessbuddy_api:
+            m_pelotonProvider = QStringLiteral("Metrics are provided from https://www.homefitnessbuddy.com");
+            break;
+        case peloton::powerzonepack_api:
+            m_pelotonProvider = QStringLiteral("Metrics are provided from https://pzpack.com");
+            break;
+        default:
+            m_pelotonProvider = QStringLiteral("Metrics are provided from https://onepeloton.com");
+            break;
+        }
+    }
+    emit(changePelotonProvider(pelotonProvider()));
     m_pelotonAskStart = true;
     emit(changePelotonAskStart(pelotonAskStart()));
 }

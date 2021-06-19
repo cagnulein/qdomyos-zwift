@@ -23,7 +23,7 @@ HomeForm{
     MessageDialog {
         id: messagePelotonAskStart
         text: "Peloton Workout in progress"
-        informativeText: "Do you want to follow the resistance?"
+        informativeText: "Do you want to follow the resistance? " + rootItem.pelotonProvider
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
         onNoClicked: rootItem.pelotonAskStart = false;
