@@ -11,7 +11,7 @@ void bike::changeResistance(int8_t resistance) {
         requestResistance = (resistance * m_difficult) + gears();
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult + gears(); }
+    RequestedResistance = resistance * m_difficult + gears();
 }
 
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
@@ -36,9 +36,9 @@ void bike::changePower(int32_t power) {
 int8_t bike::gears() { return m_gears; }
 void bike::setGears(int8_t gears) {
     qDebug() << "setGears" << gears;
-    m_gears = gears; 
-    if(lastRawRequestedResistanceValue != -1) { 
-      changeResistance(lastRawRequestedResistanceValue);
+    m_gears = gears;
+    if (lastRawRequestedResistanceValue != -1) {
+        changeResistance(lastRawRequestedResistanceValue);
     }
 }
 
@@ -203,7 +203,7 @@ uint8_t bike::metrics_override_heartrate() {
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
 
         return RequestedPower.value();
-    } else if (!setting.compare("Watt/Kg")) {
+    } else if (!setting.compare(QLatin1String("Watt/Kg"))) {
         return wattKg().value();
     }
     return currentHeart().value();

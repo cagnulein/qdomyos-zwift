@@ -4,10 +4,7 @@
 #include <QSettings>
 #include <QtXml>
 
-
 powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
-
-
     QSettings settings;
     bluetoothManager = bl;
     mgr = new QNetworkAccessManager(this);
@@ -53,7 +50,6 @@ void powerzonepack::startEngine() {
 
 void powerzonepack::error(QNetworkReply::NetworkError code) {
     qDebug() << QStringLiteral("powerzonepack ERROR") << code;
-
 }
 
 void powerzonepack::login_onfinish(QNetworkReply *reply) {
@@ -142,5 +138,4 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
 
         emit workoutStarted(&trainrows);
     }
-
 }

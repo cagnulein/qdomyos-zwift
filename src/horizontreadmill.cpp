@@ -68,10 +68,10 @@ void horizontreadmill::update() {
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
 
-                                         // m_control->state() == QLowEnergyController::DiscoveredState //&&
-                                         // gattCommunicationChannelService &&
-                                         // gattWriteCharacteristic.isValid() &&
-                                         // gattNotify1Characteristic.isValid() &&
+               // m_control->state() == QLowEnergyController::DiscoveredState //&&
+               // gattCommunicationChannelService &&
+               // gattWriteCharacteristic.isValid() &&
+               // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
 
         QSettings settings;
@@ -149,7 +149,6 @@ void horizontreadmill::forceSpeedOrIncline(double requestSpeed, double requestIn
 
 void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
-
 }
 
 void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -298,7 +297,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 emit debug(QStringLiteral("Error on parsing heart!"));
             }
             // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
-
         }
     }
 
@@ -404,7 +402,6 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     initRequest = false;
     emit connectedAndDiscovered();
 
-
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill
 #ifdef Q_OS_IOS
@@ -430,14 +427,12 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
 void horizontreadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
-
 }
 
 void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
@@ -448,20 +443,19 @@ void horizontreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
-
 }
 
 void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
-
 
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 
     gattCommunication2ChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0xfff0));
-    if(gattCommunication2ChannelService) {
-    connect(gattCommunication2ChannelService, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged2);
+    if (gattCommunication2ChannelService) {
+        connect(gattCommunication2ChannelService, &QLowEnergyService::stateChanged, this,
+                &horizontreadmill::stateChanged2);
 
         gattCommunication2ChannelService->discoverDetails();
     }
@@ -499,7 +493,6 @@ void horizontreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this, &horizontreadmill::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &horizontreadmill::controllerStateChanged);
 
-
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -535,9 +528,7 @@ bool horizontreadmill::connected() {
 
 void *horizontreadmill::VirtualTreadmill() { return virtualTreadmill; }
 
-
 void *horizontreadmill::VirtualDevice() { return VirtualTreadmill(); }
-
 
 void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
