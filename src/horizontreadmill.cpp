@@ -443,8 +443,10 @@ void horizontreadmill::serviceScanDone(void)
     gattCommunicationChannelService->discoverDetails();
 
     gattCommunication2ChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0xfff0));
-    connect(gattCommunication2ChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged2(QLowEnergyService::ServiceState)));
-    gattCommunication2ChannelService->discoverDetails();
+    if(gattCommunication2ChannelService) {
+        connect(gattCommunication2ChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged2(QLowEnergyService::ServiceState)));
+        gattCommunication2ChannelService->discoverDetails();
+    }
 }
 
 void horizontreadmill::errorService(QLowEnergyService::ServiceError err)
