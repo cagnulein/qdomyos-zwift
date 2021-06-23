@@ -1,7 +1,5 @@
 #include <QSettings>
 #include <QtXml>
-#include <QNetworkCookieJar>
-#include <QNetworkCookie>
 #include "powerzonepack.h"
 
 powerzonepack::powerzonepack(bluetooth* bl, QObject *parent) : QObject(parent)
@@ -9,9 +7,6 @@ powerzonepack::powerzonepack(bluetooth* bl, QObject *parent) : QObject(parent)
 
     QSettings settings;
     bluetoothManager = bl;
-    mgr = new QNetworkAccessManager(this);
-    QNetworkCookieJar* cookieJar = new QNetworkCookieJar();
-    mgr->setCookieJar(cookieJar);
 
     if(!settings.value("pzp_username", "username").toString().compare("username"))
     {
@@ -27,47 +22,39 @@ void powerzonepack::startEngine()
 {
     if(pzp_credentials_wrong) return;
 
-    QSettings settings;
-    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
-    QUrl url("https://pzpack.com/api");
-    QNetworkRequest request(url);
+    QSettings settings;        
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setHeader(QNetworkRequest::UserAgentHeader, "qdomyos-zwift");
-
-    QJsonArray obj;
-    obj.append("Api_Login");
-    QJsonArray obj2;
-    obj2.append(settings.value("pzp_username", "username").toString());
-    obj2.append(settings.value("pzp_password", "password").toString());
-    obj.append(obj2);
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
-
-    QNetworkReply* reply = mgr->post(request, data);
+    connect(&websocket, &QWebSocket::textMessageReceived, this, &powerzonepack::login_onfinish);
+    connect(&websocket, &QWebSocket::connected,
+                     [&] ()
+                     {
+                       websocket.sendTextMessage("[1,[\"Api_Login\",[\"" + settings.value("pzp_username", "username").toString() + "\",\"" + settings.value("pzp_password", "password").toString() + "\"]]]");
+                     });
+    websocket.open(QUrl("wss://pzpack.com/api"));
 }
 
-void powerzonepack::error(QNetworkReply::NetworkError code)
+void powerzonepack::error(QAbstractSocket::SocketError error)
 {
-    qDebug() << "powerzonepack ERROR" << code;
+    qDebug() << "powerzonepack ERROR" << error;
 }
 
-void powerzonepack::login_onfinish(QNetworkReply* reply)
+void powerzonepack::login_onfinish(const QString &message)
 {
-    disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(login_onfinish(QNetworkReply*)));
-    QByteArray payload = reply->readAll(); // JSON
+    disconnect(&websocket,&QWebSocket::textMessageReceived,this,&powerzonepack::login_onfinish);
+    QByteArray payload = message.toLocal8Bit();
 
     qDebug() << "login_onfinish" << payload;
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
-    QJsonObject json = document.object();
-    token = json["Right"].toString();
+    QJsonArray json = document.array();
+    if(json.count() > 1)
+        token = json.at(1)["Right"].toString();
 
     if(token.length()) emit loginState(true);
 
     // REMOVE IT
-    //searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
+    searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
 }
 
 bool powerzonepack::searchWorkout(QString classid)
@@ -75,35 +62,16 @@ bool powerzonepack::searchWorkout(QString classid)
     if(pzp_credentials_wrong) return false;
 
     lastWorkoutID = classid;
-
-    connect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(search_workout_onfinish(QNetworkReply*)));
-    QUrl url("https://pzpack.com/api");
-    QNetworkRequest request(url);
-
-    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    request.setHeader(QNetworkRequest::UserAgentHeader, "qdomyos-zwift");
-
-    QJsonArray obj;
-    obj.append("Api_Authenticated");
-    QJsonArray obj2;
-    obj2.append(token);
-    QJsonArray obj3;
-    obj3.append("AuthenticatedApi_GetClassByPeletonId");
-    obj3.append(classid);
-    obj2.append(obj3);
-    obj.append(obj2);
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
-
-    QNetworkReply* reply = mgr->post(request, data);
+    connect(&websocket, &QWebSocket::textMessageReceived, this, &powerzonepack::search_workout_onfinish);
+    websocket.sendTextMessage("[2,[\"Api_Authenticated\",[\"" + token + "\",[\"AuthenticatedApi_GetClassByPeletonId\",\""+ classid + "\"]]]]");
 
     return true;
 }
 
-void powerzonepack::search_workout_onfinish(QNetworkReply* reply)
+void powerzonepack::search_workout_onfinish(const QString &message)
 {
-    disconnect(mgr,SIGNAL(finished(QNetworkReply*)),this,SLOT(search_workout_onfinish(QNetworkReply*)));
-    QByteArray payload = reply->readAll(); // JSON
+    disconnect(&websocket,&QWebSocket::binaryMessageReceived,this,&powerzonepack::search_workout_onfinish);
+    QByteArray payload = message.toLocal8Bit(); // JSON
 
     qDebug() << "search_workout_onfinish" << payload;
 
@@ -112,8 +80,9 @@ void powerzonepack::search_workout_onfinish(QNetworkReply* reply)
     QJsonParseError parseError;
     QJsonDocument performance = QJsonDocument::fromJson(payload, &parseError);
 
-    QJsonObject json = performance.object();
-    QJsonArray power_graph = json["_class_power_graph"].toArray();
+    QJsonArray json = performance.array();
+    if(json.count() <= 1) return;
+    QJsonArray power_graph = json.at(1)["_class_power_graph"].toArray();
 
     trainrows.clear();
     QTime lastSeconds(0,0,0,0);

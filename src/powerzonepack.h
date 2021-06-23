@@ -15,6 +15,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QTimer>
+#include <QtWebSockets/QWebSocket>
 #include "trainprogram.h"
 #include "bluetooth.h"
 
@@ -30,7 +31,8 @@ private:
     const int peloton_workout_second_resolution = 10;
     bool pzp_credentials_wrong = false;
 
-    QNetworkAccessManager * mgr = 0;
+    QString response;
+    QWebSocket websocket;
     bluetooth* bluetoothManager = 0;
     QString token;
     QString lastWorkoutID = "";
@@ -38,9 +40,9 @@ private:
     void startEngine();
 
 private slots:
-    void login_onfinish(QNetworkReply* reply);
-    void search_workout_onfinish(QNetworkReply* reply);
-    void error(QNetworkReply::NetworkError code);
+    void search_workout_onfinish(const QString &message);
+    void error(QAbstractSocket::SocketError error);
+    void login_onfinish(const QString &message);
 
 signals:
     void workoutStarted(QList<trainrow>* list);
