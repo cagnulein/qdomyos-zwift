@@ -255,9 +255,10 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     /*if ((uint8_t)(newValue.at(0)) != 0xf0 && (uint8_t)(newValue.at(1)) != 0xd1)
         return;*/
 
-    KCal += ((( (0.048 * ((double)watts(settings.value("weight", 75.0).toFloat())) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
-    if(!firstCharacteristicChanged)
+    if(!firstCharacteristicChanged) {
+        KCal += ((( (0.048 * ((double)watts(settings.value("weight", 75.0).toFloat())) + 1.19) * settings.value("weight", 75.0).toFloat() * 3.5) / 200.0 ) / (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg * 3.5) / 200 ) / 60
         DistanceCalculated += ((Speed.value() / 3600.0) / ( 1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+    }
     Distance = DistanceCalculated;
 
 #ifdef Q_OS_ANDROID
