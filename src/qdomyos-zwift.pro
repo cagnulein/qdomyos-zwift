@@ -35,6 +35,7 @@ SOURCES += \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
    echelonrower.cpp \
+   echelonstride.cpp \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
    fitplusbike.cpp \
@@ -141,6 +142,7 @@ HEADERS += \
 	domyostreadmill.h \
 	echelonconnectsport.h \
    echelonrower.h \
+   echelonstride.h \
 	 elliptical.h \
    eslinkertreadmill.h \
    fitplusbike.h \
@@ -490,5 +492,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.52
+VERSION = 2.6.53
 

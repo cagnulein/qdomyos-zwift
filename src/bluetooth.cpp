@@ -408,6 +408,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 ftmsRower->deviceDiscovered(b);
                 templateManager->start(ftmsRower);
             }
+            else if(b.name().startsWith("ECH-STRIDE") && !echelonStride && filter)
+            {
+                discoveryAgent->stop();
+                echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(echelonStride, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(echelonRower, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(echelonRower, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(echelonRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                echelonStride->deviceDiscovered(b);
+                templateManager->start(echelonStride);
+            }
             else if(b.name().startsWith("ECH-ROW") && !echelonRower && filter)
             {
                 discoveryAgent->stop();
@@ -422,7 +435,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 echelonRower->deviceDiscovered(b);
                 templateManager->start(echelonRower);
             }
-            else if(b.name().startsWith("ECH") && !echelonRower && !echelonConnectSport && filter)
+            else if(b.name().startsWith("ECH") && !echelonRower && !echelonStride && !echelonConnectSport && filter)
             {
                 discoveryAgent->stop();
                 echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -921,6 +934,11 @@ void bluetooth::restart()
         delete echelonRower;
         echelonRower = 0;
     }
+    if(echelonStride)
+    {
+        delete echelonStride;
+        echelonStride = 0;
+    }
     if(ftmsRower)
     {
         delete ftmsRower;
@@ -1049,6 +1067,8 @@ bluetoothdevice* bluetooth::device()
         return echelonConnectSport;
     else if(echelonRower)
         return echelonRower;
+    else if(echelonStride)
+        return echelonStride;
     else if(ftmsRower)
         return ftmsRower;
     else if(smartrowRower)
