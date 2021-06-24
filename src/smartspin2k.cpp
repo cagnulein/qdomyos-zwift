@@ -132,8 +132,10 @@ void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     lastPacket = newValue;
 
-    if(newValue.length() >= 4 )
-        Resistance = ((uint16_t)newValue.at(2)) + (((uint16_t)newValue.at(3)) << 8);
+    if(newValue.length() >= 4 ) {
+        Resistance = (int16_t)(((uint16_t)newValue.at(2)) + (((uint16_t)newValue.at(3)) << 8));
+        qDebug() << "Resistance received from SS2k:" << Resistance.value();
+    }
 }
 
 void smartspin2k::stateChanged(QLowEnergyService::ServiceState state)
