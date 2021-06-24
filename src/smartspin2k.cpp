@@ -80,8 +80,8 @@ void smartspin2k::update()
 
     if(initRequest)
     {
-        uint8_t write[] = { 0x02, 0x1A, 0x01 };
-        writeCharacteristic(write, sizeof(write), "BLE_externalControl enabling");
+        //uint8_t write[] = { 0x02, 0x1A, 0x01 };
+        //writeCharacteristic(write, sizeof(write), "BLE_externalControl enabling");
         initRequest = false;
     }
     else if(bluetoothDevice.isValid() &&
