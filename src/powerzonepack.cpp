@@ -20,14 +20,13 @@ powerzonepack::powerzonepack(bluetooth* bl, QObject *parent) : QObject(parent)
 
 void powerzonepack::startEngine()
 {
-    if(pzp_credentials_wrong) return;
-
-    QSettings settings;        
+    if(pzp_credentials_wrong) return;           
 
     connect(&websocket, &QWebSocket::textMessageReceived, this, &powerzonepack::login_onfinish);
     connect(&websocket, &QWebSocket::connected,
                      [&] ()
                      {
+                       QSettings settings;
                        websocket.sendTextMessage("[1,[\"Api_Login\",[\"" + settings.value("pzp_username", "username").toString() + "\",\"" + settings.value("pzp_password", "password").toString() + "\"]]]");
                      });
     websocket.open(QUrl("wss://pzpack.com/api"));
