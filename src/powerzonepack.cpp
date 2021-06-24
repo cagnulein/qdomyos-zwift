@@ -54,7 +54,7 @@ void powerzonepack::login_onfinish(const QString &message)
     if(token.length()) emit loginState(true);
 
     // REMOVE IT
-    searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
+    //searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
 }
 
 bool powerzonepack::searchWorkout(QString classid)
