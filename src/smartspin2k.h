@@ -53,9 +53,8 @@ private:
     QTimer* refresh;
     virtualbike* virtualBike = 0;
 
-    QList<QLowEnergyService*> gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService* gattFTMSService;
+    QLowEnergyService* gattCommunicationChannelService;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
