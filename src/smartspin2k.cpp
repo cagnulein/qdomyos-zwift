@@ -28,7 +28,17 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService)
 void smartspin2k::resistanceReadFromTheBike(int8_t resistance)
 {
     if(startupResistance == -1)
+    {
         startupResistance = resistance;
+        if(initRequest) {
+            uint8_t enable_syncmode[] = { 0x02, 0x1B, 0x01 };
+            uint8_t disable_syncmode[] = { 0x02, 0x1B, 0x00 };
+            writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
+            forceResistance(startupResistance);
+            writeCharacteristic(disable_syncmode, sizeof(disable_syncmode), "BLE_syncMode disabling", false, true);
+            initRequest = false;
+        }
+    }
     Resistance = resistance;
 }
 
@@ -80,9 +90,7 @@ void smartspin2k::update()
 
     if(initRequest)
     {
-        //uint8_t write[] = { 0x02, 0x1A, 0x01 };
-        //writeCharacteristic(write, sizeof(write), "BLE_externalControl enabling");
-        initRequest = false;
+
     }
     else if(bluetoothDevice.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState //&&
