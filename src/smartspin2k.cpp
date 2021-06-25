@@ -28,9 +28,11 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService)
 void smartspin2k::resistanceReadFromTheBike(int8_t resistance)
 {
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
-    if(initRequest)
-    {
+    if(startupResistance == -1)
         startupResistance = resistance;
+
+    if(initRequest)
+    {        
         uint8_t enable_syncmode[] = { 0x02, 0x1B, 0x01 };
         uint8_t disable_syncmode[] = { 0x02, 0x1B, 0x00 };
         writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
@@ -68,10 +70,6 @@ void smartspin2k::writeCharacteristic(uint8_t* data, uint8_t data_len, QString i
 
 void smartspin2k::forceResistance(int8_t requestResistance)
 {
-    //uint8_t write[] = { FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    //write[3] = ((uint16_t)(requestResistance - startupResistance) * 100) & 0xFF;
-    //write[4] = ((uint16_t)(requestResistance - startupResistance) * 100) >> 8;
-
     uint8_t write[] = { 0x02, 0x17, 0x00, 0x00 };
     write[2] = (uint8_t)(requestResistance & 0xFF);
     write[3] = (uint8_t)(requestResistance >> 8);
@@ -89,7 +87,9 @@ void smartspin2k::update()
 
     if(initRequest)
     {
-
+        // if the first event from the bike occurs before connecting with SS2k, we have to force it
+        if(startupResistance != -1)
+            resistanceReadFromTheBike(startupResistance);
     }
     else if(bluetoothDevice.isValid() &&
        m_control->state() == QLowEnergyController::DiscoveredState //&&
