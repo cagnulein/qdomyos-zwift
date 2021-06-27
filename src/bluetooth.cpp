@@ -575,7 +575,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 spiritTreadmill->deviceDiscovered(b);
                 templateManager->start(spiritTreadmill);
             }
-            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (device.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
+            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (b.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
