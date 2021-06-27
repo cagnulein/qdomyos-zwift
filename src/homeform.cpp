@@ -1428,7 +1428,6 @@ void homeform::update()
             ftpMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
             ftpMaxW = "∞";
             ftpZone = 7;
-            ftpZone += ((ftpPerc - 151) / 30);
             ftp->setValueFontColor("red");
         }
         ftp->setValue("Z" + QString::number(ftpZone, 'f', 1));
@@ -1500,7 +1499,6 @@ void homeform::update()
                 requestedMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
                 requestedMaxW = "∞";
                 requestedZone = 7;
-                requestedZone += ((requestedPerc - 151) / 30);
                 target_zone->setValueFontColor("red");
             }
             target_zone->setValue("Z" + QString::number(requestedZone, 'f', 1));
