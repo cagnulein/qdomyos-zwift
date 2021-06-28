@@ -608,7 +608,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 skandikaWiriBike->deviceDiscovered(b);
                 templateManager->start(skandikaWiriBike);
             }
-            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("RQ") && b.name().length() == 5)) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
+            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("RQ") && b.name().length() == 5) || (b.name().toUpper().startsWith("WAHOO KICKR"))) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
             {
                 discoveryAgent->stop();
                 ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
