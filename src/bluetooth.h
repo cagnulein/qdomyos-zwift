@@ -17,7 +17,6 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
-
 #include "bluetoothdevice.h"
 #include "chronobike.h"
 #include "cscbike.h"
@@ -127,7 +126,7 @@ class bluetooth : public QObject, public SignalHandler {
     double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
 
-    bool handleSignal(int signal);
+    bool handleSignal(int signal) override;
     void stateFileUpdate();
     void stateFileRead();
     bool heartRateBeltAvaiable();
@@ -156,7 +155,6 @@ class bluetooth : public QObject, public SignalHandler {
     void connectedAndDiscovered();
 
   signals:
-
 };
 
 #endif // BLUETOOTH_H
