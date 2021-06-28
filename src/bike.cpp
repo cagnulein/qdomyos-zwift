@@ -118,11 +118,11 @@ uint8_t bike::metrics_override_heartrate()
     QString setting = settings.value("peloton_heartrate_metric", "Heart Rate").toString();
     if(!setting.compare("Heart Rate"))
     {
-        return currentHeart().value();
+        return qRound(currentHeart().value());
     }
     else if(!setting.compare("Speed"))
     {
-        return currentSpeed().value();
+        return qRound(currentSpeed().value());
     }
     else if(!setting.compare("Inclination"))
     {
@@ -130,19 +130,19 @@ uint8_t bike::metrics_override_heartrate()
     }
     else if(!setting.compare("Cadence"))
     {
-        return Cadence.value();
+        return qRound(Cadence.value());
     }
     else if(!setting.compare("Elevation"))
     {
-        return elevationGain();
+        return qRound(elevationGain());
     }
     else if(!setting.compare("Calories"))
     {
-        return calories();
+        return qRound(calories());
     }
     else if(!setting.compare("Odometer"))
     {
-        return odometer();
+        return qRound(odometer());
     }
     else if(!setting.compare("Pace"))
     {
@@ -150,19 +150,19 @@ uint8_t bike::metrics_override_heartrate()
     }
     else if(!setting.compare("Resistance"))
     {
-        return Resistance.value();
+        return qRound(Resistance.value());
     }
     else if(!setting.compare("Watt"))
     {
-        return wattsMetric().value();
+        return qRound(wattsMetric().value());
     }
     else if(!setting.compare("Weight Loss"))
     {
-        return weightLoss();
+        return qRound(weightLoss());
     }
     else if(!setting.compare("AVG Watt"))
     {
-        return wattsMetric().average();
+        return qRound(wattsMetric().average());
     }
     else if(!setting.compare("FTP"))
     {
@@ -174,7 +174,7 @@ uint8_t bike::metrics_override_heartrate()
     }
     else if(!setting.compare("Jouls"))
     {
-        return jouls().value();
+        return qRound(jouls().value());
     }
     else if(!setting.compare("Lap Elapsed"))
     {
@@ -182,7 +182,7 @@ uint8_t bike::metrics_override_heartrate()
     }
     else if(!setting.compare("Elapsed"))
     {
-        return elapsed.value();
+        return qRound(elapsed.value());
     }
     else if(!setting.compare("Moving Time"))
     {
@@ -194,7 +194,7 @@ uint8_t bike::metrics_override_heartrate()
     }
     else if(!setting.compare("Peloton Resistance"))
     {
-        return pelotonResistance().value();
+        return qRound(pelotonResistance().value());
     }
     else if(!setting.compare("Date Time"))
     {
@@ -202,19 +202,19 @@ uint8_t bike::metrics_override_heartrate()
     }
     else if(!setting.compare("Target Resistance"))
     {
-        return RequestedResistance.value();
+        return qRound(RequestedResistance.value());
     }
     else if(!setting.compare("Target Peloton Resistance"))
     {
-        return RequestedPelotonResistance.value();
+        return qRound(RequestedPelotonResistance.value());
     }
     else if(!setting.compare("Target Power"))
     {
-        return RequestedPower.value();
+        return qRound(RequestedPower.value());
     }
     else if(!setting.compare("Watt/Kg"))
     {
-        return wattKg().value();
+        return qRound(wattKg().value());
     }
-    return currentHeart().value();
+    return qRound(currentHeart().value());
 }
