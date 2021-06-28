@@ -540,7 +540,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     FanSpeed = value.at(23);
 
     if(!firstCharacteristicChanged)
-        DistanceCalculated += ((speed / 3600.0) / ( 1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        DistanceCalculated += ((speed / (double)3600.0) / ( (double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
     debug("Current incline: " + QString::number(incline));
@@ -572,7 +573,6 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         lastInclination = incline;
     }
 
-    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     firstCharacteristicChanged = false;
 }
 
