@@ -8,12 +8,15 @@
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
+
 
 #include "bluetoothdevice.h"
 #include "chronobike.h"
@@ -21,10 +24,12 @@
 #include "domyosbike.h"
 #include "domyoselliptical.h"
 #include "domyostreadmill.h"
+
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
 #include "eslinkertreadmill.h"
 #include "fitplusbike.h"
+
 #include "fitshowtreadmill.h"
 #include "flywheelbike.h"
 #include "ftmsbike.h"
@@ -42,10 +47,15 @@
 #include "smartrowrower.h"
 #include "smartspin2k.h"
 #include "snodebike.h"
+
 #include "soleelliptical.h"
+
 #include "spirittreadmill.h"
 #include "sportstechbike.h"
 #include "stagesbike.h"
+
+#include "echelonstride.h"
+
 #include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
 #include "treadmill.h"
@@ -54,6 +64,7 @@
 #include "yesoulbike.h"
 
 class bluetooth : public QObject, public SignalHandler {
+
     Q_OBJECT
   public:
     explicit bluetooth(bool logs, const QString &deviceName = QLatin1String(""), bool noWriteResistance = false,
@@ -99,6 +110,7 @@ class bluetooth : public QObject, public SignalHandler {
     echelonrower *echelonRower = nullptr;
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
+    echelonstride *echelonStride = nullptr;
     ftmsbike *ftmsBike = nullptr;
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
@@ -144,6 +156,7 @@ class bluetooth : public QObject, public SignalHandler {
     void connectedAndDiscovered();
 
   signals:
+
 };
 
 #endif // BLUETOOTH_H

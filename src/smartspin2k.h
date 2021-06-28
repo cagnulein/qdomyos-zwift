@@ -6,10 +6,12 @@
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -22,9 +24,12 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+
+
 
 #include "bike.h"
 #include "ftmsbike.h"
@@ -35,6 +40,7 @@
 #endif
 
 class smartspin2k : public bike {
+
     Q_OBJECT
   public:
     smartspin2k(bool noWriteResistance, bool noHeartService);
@@ -53,9 +59,9 @@ class smartspin2k : public bike {
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
-    QList<QLowEnergyService *> gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattFTMSService;
+    QLowEnergyService* gattCommunicationChannelService;
+    QLowEnergyCharacteristic gattWriteCharacteristic;
+
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;

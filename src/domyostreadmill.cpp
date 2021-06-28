@@ -29,17 +29,21 @@ uint8_t initDataStart5[] = {0xf0, 0xc4, 0x03, 0xb7};
 uint8_t initDataStart6[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0xff};
 
+
 uint8_t initDataStart7[] = {0xff, 0xff, 0x8b}; // power on bt icon
 uint8_t initDataStart8[] = {0xf0, 0xcb, 0x02, 0x00, 0x08, 0xff, 0xff, 0xff, 0xff, 0xff,
                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00};
+
 
 uint8_t initDataStart9[] = {0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xb6}; // power on bt word
 uint8_t initDataStart10[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x05, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0x01, 0xff};
 
+
 uint8_t initDataStart11[] = {0xff, 0xff, 0x94}; // start tape
 uint8_t initDataStart12[] = {0xf0, 0xcb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x14, 0x01, 0xff, 0xff};
+
 
 uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
 
@@ -80,6 +84,7 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
 
+
     }
 
     if (gattCommunicationChannelService->state() != QLowEnergyService::ServiceState::ServiceDiscovered ||
@@ -109,6 +114,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x05, 0x01, 0x01, 0x00, 0x0c, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00};
 
 
+
     QSettings settings;
     bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
 
@@ -118,6 +124,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
         display[4] = ((elapsed / 60) % 60) & 0xFF; // low byte for elasped time (in seconds)
     } else {
 
+
         display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
         display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
     }
@@ -125,21 +132,25 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
     if (distance) {
         if (odometer() < 10.0) {
 
+
             display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
             display[8] = (uint8_t)(odometer() * 100) & 0xFF;
             display[9] = 0x02; // decimal position
         } else if (odometer() < 100.0) {
+
 
             display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
             display[8] = (uint8_t)(odometer() * 10) & 0xFF;
             display[9] = 0x01; // decimal position
         } else {
 
+
             display[7] = ((uint8_t)(odometer()) >> 8) & 0xFF;
             display[8] = (uint8_t)(odometer()) & 0xFF;
             display[9] = 0x00; // decimal position
         }
     } else {
+
 
         display[7] = 0x00;
         display[8] = 0x00;
@@ -168,6 +179,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
 void domyostreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
     uint8_t writeIncline[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                               0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
+
 
 
     writeIncline[4] = ((uint16_t)(requestSpeed * 10) >> 8) & 0xFF;
@@ -224,6 +236,7 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed) {
 void domyostreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
+
         emit disconnected();
         return;
     }
@@ -236,12 +249,14 @@ void domyostreadmill::update() {
                m_control->state() == QLowEnergyController::DiscoveredState && gattCommunicationChannelService &&
                gattWriteCharacteristic.isValid() && gattNotifyCharacteristic.isValid() && initDone) {
 
+
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && searchStopped && !virtualTreadMill) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
 
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &domyostreadmill::debug);
@@ -258,6 +273,7 @@ void domyostreadmill::update() {
         if (sec1Update++ >= (1000 / refresh->interval())) {
             if (incompletePackets == false && noConsole == false) {
 
+
                 sec1Update = 0;
                 updateDisplay(elapsed.value());
             }
@@ -265,6 +281,7 @@ void domyostreadmill::update() {
             if (incompletePackets == false) {
                 writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
             }
+
 
         }
 
@@ -274,6 +291,7 @@ void domyostreadmill::update() {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+
 
                     double inc = Inclination.value();
                     if (requestInclination != -1) {
@@ -329,6 +347,7 @@ void domyostreadmill::update() {
                 requestIncreaseFan = -1;
             } else if (requestDecreaseFan != -1) {
                 emit debug(QStringLiteral("decreasing fan speed..."));
+
 
                 sendChangeFanSpeed(FanSpeed - 1);
                 requestDecreaseFan = -1;
@@ -407,18 +426,22 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     } else if (value.at(22) == 0x07) {
         emit debug(QStringLiteral("stop button pressed!"));
 
+
         requestStop = 1;
     } else if (value.at(22) == 0x0b) {
         emit debug(QStringLiteral("increase speed fan pressed!"));
+
 
         requestIncreaseFan = 1;
     } else if (value.at(22) == 0x0a) {
         emit debug(QStringLiteral("decrease speed fan pressed!"));
 
+
         requestDecreaseFan = 1;
     } else if (value.at(22) == 0x08) {
         emit debug(QStringLiteral("increase speed button on console pressed!"));
         if (domyos_treadmill_buttons) {
+
 
             changeSpeed(currentSpeed().value() + 0.2);
         }
@@ -527,8 +550,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     FanSpeed = value.at(23);
 
     if (!firstCharacteristicChanged) {
-        DistanceCalculated +=
-            ((speed / 3600.0) / (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        DistanceCalculated += ((speed / (double)3600.0) / ( (double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -543,6 +566,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     }
 
     if (Speed.value() != speed) {
+
 
         emit speedChanged(speed);
     }
@@ -562,7 +586,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         lastInclination = incline;
     }
 
-    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+
     firstCharacteristicChanged = false;
 }
 
@@ -712,6 +736,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyostreadmill::controllerStateChanged);
 
 
+
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -744,6 +769,7 @@ void domyostreadmill::controllerStateChanged(QLowEnergyController::ControllerSta
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
 
+
         initDone = false;
         m_control->connectToDevice();
     }
@@ -760,10 +786,15 @@ bool domyostreadmill::connected() {
 void *domyostreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 
+
+
 void *domyostreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 
+
+
 double domyostreadmill::odometer() { return DistanceCalculated; }
+
 
 
 void domyostreadmill::setLastSpeed(double speed) { lastSpeed = speed; }

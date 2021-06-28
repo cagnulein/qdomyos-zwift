@@ -1,15 +1,16 @@
-#include "powerzonepack.h"
-#include <QNetworkCookie>
-#include <QNetworkCookieJar>
+
 #include <QSettings>
 #include <QtXml>
+
+#include "powerzonepack.h"
+
 
 powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
     QSettings settings;
     bluetoothManager = bl;
-    mgr = new QNetworkAccessManager(this);
-    QNetworkCookieJar *cookieJar = new QNetworkCookieJar();
-    mgr->setCookieJar(cookieJar);
+
+
+
 
     if (!settings.value(QStringLiteral("pzp_username"), QStringLiteral("username"))
              .toString()
@@ -27,42 +28,42 @@ void powerzonepack::startEngine() {
         return;
     }
 
-    QSettings settings;
-    connect(mgr, &QNetworkAccessManager::finished, this, &powerzonepack::login_onfinish);
-    QUrl url(QStringLiteral("https://pzpack.com/api"));
-    QNetworkRequest request(url);
+    connect(&websocket, &QWebSocket::textMessageReceived, this, &powerzonepack::login_onfinish);
+    connect(&websocket, &QWebSocket::connected,
+                     [&] ()
+                     {
+                       QSettings settings;
+                       websocket.sendTextMessage("[1,[\"Api_Login\",[\"" + settings.value("pzp_username", "username").toString() + "\",\"" + settings.value("pzp_password", "password").toString() + "\"]]]");
+                     });
+    websocket.open(QUrl("wss://pzpack.com/api"));
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
 
-    QJsonArray obj;
-    obj.append(QStringLiteral("Api_Login"));
-    QJsonArray obj2;
-    obj2.append(settings.value(QStringLiteral("pzp_username"), QStringLiteral("username")).toString());
-    obj2.append(settings.value(QStringLiteral("pzp_password"), QStringLiteral("password")).toString());
-    obj.append(obj2);
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
 
-    // QNetworkReply *reply = //NOTE: clang-analyzer-deadcode.DeadStores
-    mgr->post(request, data); // NOTE: clang-analyzer-deadcode.DeadStores
+
+
+
+
+
+
 }
 
-void powerzonepack::error(QNetworkReply::NetworkError code) {
-    qDebug() << QStringLiteral("powerzonepack ERROR") << code;
+void powerzonepack::error(QAbstractSocket::SocketError error)
+{
+    qDebug() << "powerzonepack ERROR" << error;
 }
 
-void powerzonepack::login_onfinish(QNetworkReply *reply) {
-    disconnect(mgr, &QNetworkAccessManager::finished, this, &powerzonepack::login_onfinish);
-
-    QByteArray payload = reply->readAll(); // JSON
+void powerzonepack::login_onfinish(const QString &message)
+{
+    disconnect(&websocket,&QWebSocket::textMessageReceived,this,&powerzonepack::login_onfinish);
+    QByteArray payload = message.toLocal8Bit();
 
     qDebug() << QStringLiteral("login_onfinish") << payload;
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
-    QJsonObject json = document.object();
-    token = json[QStringLiteral("Right")].toString();
+    QJsonArray json = document.array();
+    if(json.count() > 1)
+        token = json.at(1)["Right"].toString();
 
     if (!token.isEmpty()) {
         emit loginState(true);
@@ -78,46 +79,35 @@ bool powerzonepack::searchWorkout(const QString &classid) {
     }
 
     lastWorkoutID = classid;
+    connect(&websocket, &QWebSocket::textMessageReceived, this, &powerzonepack::search_workout_onfinish);
+    websocket.sendTextMessage("[2,[\"Api_Authenticated\",[\"" + token + "\",[\"AuthenticatedApi_GetClassByPeletonId\",\""+ classid + "\"]]]]");
 
-    connect(mgr, &QNetworkAccessManager::finished, this, &powerzonepack::search_workout_onfinish);
-    QUrl url(QStringLiteral("https://pzpack.com/api"));
-    QNetworkRequest request(url);
 
-    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
-    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
 
-    QJsonArray obj;
-    obj.append(QStringLiteral("Api_Authenticated"));
-    QJsonArray obj2;
-    obj2.append(token);
-    QJsonArray obj3;
-    obj3.append(QStringLiteral("AuthenticatedApi_GetClassByPeletonId"));
-    obj3.append(classid);
-    obj2.append(obj3);
-    obj.append(obj2);
-    QJsonDocument doc(obj);
-    QByteArray data = doc.toJson();
 
-    // QNetworkReply *reply = //NOTE: clang-analyzer-deadcode.DeadStores
-    mgr->post(request, data); // NOTE: clang-analyzer-deadcode.DeadStores
+
+
+
+
+
     return true;
 }
 
-void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
-    disconnect(mgr, &QNetworkAccessManager::finished, this, &powerzonepack::search_workout_onfinish);
+void powerzonepack::search_workout_onfinish(const QString &message)
+{
+    disconnect(&websocket,&QWebSocket::binaryMessageReceived,this,&powerzonepack::search_workout_onfinish);
+    QByteArray payload = message.toLocal8Bit(); // JSON
 
-    QByteArray payload = reply->readAll(); // JSON
-
-    qDebug() << QStringLiteral("search_workout_onfinish") << payload;
+    qDebug() << "search_workout_onfinish" << payload;
 
     QSettings settings;
-    // QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
-    // //NOTE: clazy-unused-non-trivial-variable
+    QString difficulty = settings.value("peloton_difficulty", "lower").toString();
     QJsonParseError parseError;
     QJsonDocument performance = QJsonDocument::fromJson(payload, &parseError);
 
-    QJsonObject json = performance.object();
-    QJsonArray power_graph = json[QStringLiteral("_class_power_graph")].toArray();
+    QJsonArray json = performance.array();
+    if(json.count() <= 1) return;
+    QJsonArray power_graph = json.at(1)["_class_power_graph"].toArray();
 
     trainrows.clear();
     QTime lastSeconds(0, 0, 0, 0);
@@ -138,4 +128,5 @@ void powerzonepack::search_workout_onfinish(QNetworkReply *reply) {
 
         emit workoutStarted(&trainrows);
     }
+
 }

@@ -133,40 +133,40 @@ uint8_t bike::metrics_override_heartrate() {
     QString setting =
         settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
-        return currentHeart().value();
+        return qRound(currentHeart().value());
     } else if (!setting.compare(QStringLiteral("Speed"))) {
 
-        return currentSpeed().value();
+        return qRound(currentSpeed().value());
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Cadence"))) {
 
-        return Cadence.value();
+        return qRound(Cadence.value());
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
 
-        return elevationGain();
+        return qRound(elevationGain());
     } else if (!setting.compare(QStringLiteral("Calories"))) {
 
-        return calories();
+        return qRound(calories());
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
 
-        return odometer();
+        return qRound(odometer());
     } else if (!setting.compare(QStringLiteral("Pace"))) {
 
         return currentPace().second();
     } else if (!setting.compare(QStringLiteral("Resistance"))) {
 
-        return Resistance.value();
+        return qRound(Resistance.value());
     } else if (!setting.compare(QStringLiteral("Watt"))) {
 
-        return wattsMetric().value();
+        return qRound(wattsMetric().value());
     } else if (!setting.compare(QStringLiteral("Weight Loss"))) {
 
-        return weightLoss();
+        return qRound(weightLoss());
     } else if (!setting.compare(QStringLiteral("AVG Watt"))) {
 
-        return wattsMetric().average();
+        return qRound(wattsMetric().average());
     } else if (!setting.compare(QStringLiteral("FTP"))) {
 
         return 0;
@@ -175,13 +175,13 @@ uint8_t bike::metrics_override_heartrate() {
         return FanSpeed;
     } else if (!setting.compare(QStringLiteral("Jouls"))) {
 
-        return jouls().value();
+        return qRound(jouls().value());
     } else if (!setting.compare(QStringLiteral("Lap Elapsed"))) {
 
         return lapElapsedTime().second();
     } else if (!setting.compare(QStringLiteral("Elapsed"))) {
 
-        return elapsed.value();
+        return qRound(elapsed.value());
     } else if (!setting.compare(QStringLiteral("Moving Time"))) {
 
         return movingTime().second();
@@ -190,21 +190,27 @@ uint8_t bike::metrics_override_heartrate() {
         return 0;
     } else if (!setting.compare(QStringLiteral("Peloton Resistance"))) {
 
-        return pelotonResistance().value();
+        return qRound(pelotonResistance().value());
     } else if (!setting.compare(QStringLiteral("Date Time"))) {
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Resistance"))) {
 
-        return RequestedResistance.value();
+        return qRound(RequestedResistance.value());
     } else if (!setting.compare(QStringLiteral("Target Peloton Resistance"))) {
 
-        return RequestedPelotonResistance.value();
+        return qRound(RequestedPelotonResistance.value());
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
 
-        return RequestedPower.value();
-    } else if (!setting.compare(QLatin1String("Watt/Kg"))) {
-        return wattKg().value();
+        return qRound(RequestedPower.value());
+    } else if (!setting.compare(QStringLiteral("Watt/Kg"))) {
+        return qRound(wattKg().value());
     }
-    return currentHeart().value();
+    return qRound(currentHeart().value());
 }
+
+
+
+
+
+
