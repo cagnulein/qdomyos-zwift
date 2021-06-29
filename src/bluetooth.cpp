@@ -608,7 +608,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 skandikaWiriBike->deviceDiscovered(b);
                 templateManager->start(skandikaWiriBike);
             }
-            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("RQ") && b.name().length() == 5) || (b.name().toUpper().startsWith("WAHOO KICKR"))) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
+            else if((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) && !renphoBike && !snodeBike && !fitPlusBike && filter)
+            {
+                discoveryAgent->stop();
+                renphoBike = new renphobike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(renphoBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(renphoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                renphoBike->deviceDiscovered(b);
+                templateManager->start(renphoBike);
+            }
+            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("WAHOO KICKR"))) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
             {
                 discoveryAgent->stop();
                 ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
@@ -1004,6 +1015,11 @@ void bluetooth::restart()
         delete ftmsBike;
         ftmsBike = 0;
     }
+    if(renphoBike)
+    {
+        delete renphoBike;
+        renphoBike = 0;
+    }
     if(fitPlusBike)
     {
         delete fitPlusBike;
@@ -1097,6 +1113,8 @@ bluetoothdevice* bluetooth::device()
         return snodeBike;
     else if(ftmsBike)
         return ftmsBike;
+    else if(renphoBike)
+        return renphoBike;
     else if(fitPlusBike)
         return fitPlusBike;
     else if(skandikaWiriBike)

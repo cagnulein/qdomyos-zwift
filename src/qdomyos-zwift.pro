@@ -82,6 +82,7 @@ SOURCES += \
 	proformbike.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
+   renphobike.cpp \
    rower.cpp \
 	schwinnic4bike.cpp \
    screencapture.cpp \
@@ -385,6 +386,7 @@ HEADERS += \
 	proformbike.h \
 	proformtreadmill.h \
 	qfit.h \
+   renphobike.h \
    rower.h \
 	schwinnic4bike.h \
    screencapture.h \
