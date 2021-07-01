@@ -352,6 +352,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                     emit searchingStop();
                 templateManager->start(horizonTreadmill);
             }
+            else if(b.name().toUpper().startsWith("TACX NEO 2") && !tacxneo2Bike && filter)
+            {
+                discoveryAgent->stop();
+                tacxneo2Bike = new tacxneo2(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(tacxneo2Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(tacxneo2Bike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(tacxneo2Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(tacxneo2Bike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                tacxneo2Bike->deviceDiscovered(b);
+            }
             else if((b.name().toUpper().startsWith(">CABLE") || b.name().toUpper().startsWith("BIKE 1")) && !npeCableBike && filter)
             {
                 discoveryAgent->stop();
@@ -910,6 +923,11 @@ void bluetooth::restart()
         delete npeCableBike;
         npeCableBike = 0;
     }
+    if(tacxneo2Bike)
+    {
+        delete tacxneo2Bike;
+        tacxneo2Bike = 0;
+    }
     if(stagesBike)
     {
         delete stagesBike;
@@ -1067,6 +1085,8 @@ bluetoothdevice* bluetooth::device()
         return cscBike;
     else if(npeCableBike)
         return npeCableBike;
+    else if(tacxneo2Bike)
+        return tacxneo2Bike;
     else if(stagesBike)
         return stagesBike;
     else if(toorx)

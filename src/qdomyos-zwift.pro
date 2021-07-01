@@ -107,6 +107,7 @@ SOURCES += \
    soleelliptical.cpp \
    spirittreadmill.cpp \
    sportstechbike.cpp \
+   tacxneo2.cpp \
     tcpclientinfosender.cpp \
     templateinfosender.cpp \
     templateinfosenderbuilder.cpp \
@@ -413,6 +414,7 @@ HEADERS += \
    soleelliptical.h \
    spirittreadmill.h \
    sportstechbike.h \
+   tacxneo2.h \
     tcpclientinfosender.h \
     templateinfosender.h \
     templateinfosenderbuilder.h \
