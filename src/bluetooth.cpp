@@ -371,6 +371,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 }
                 templateManager->start(horizonTreadmill);
+            } else if (b.name().toUpper().startsWith("TACX NEO 2") && !tacxneo2Bike && filter) {
+                discoveryAgent->stop();
+                tacxneo2Bike = new tacxneo2(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit(deviceConnected());
+                connect(tacxneo2Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                // connect(tacxneo2Bike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(tacxneo2Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // connect(tacxneo2Bike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                tacxneo2Bike->deviceDiscovered(b);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         b.name().toUpper().startsWith(QStringLiteral("BIKE 1"))) &&
                        !npeCableBike && filter) {
@@ -431,6 +442,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsRower->deviceDiscovered(b);
                 templateManager->start(ftmsRower);
             } else if (b.name().startsWith(QLatin1String("ECH-STRIDE")) && !echelonStride && filter) {
+
                 discoveryAgent->stop();
                 echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
                 // stateFileRead();
@@ -444,6 +456,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 echelonStride->deviceDiscovered(b);
                 templateManager->start(echelonStride);
             } else if (b.name().startsWith(QStringLiteral("ECH-ROW")) && !echelonRower && filter) {
+
                 discoveryAgent->stop();
                 echelonRower =
                     new echelonrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -649,11 +662,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(skandikaWiriBike, &skandikawiribike::debug, this, &bluetooth::debug);
                 skandikaWiriBike->deviceDiscovered(b);
                 templateManager->start(skandikaWiriBike);
-            } else if (((b.name().startsWith(QStringLiteral("FS-")) && hammerRacerS) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("RQ")) && b.name().length() == 5) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("WAHOO KICKR")))) &&
+            } else if ((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) && !renphoBike && !snodeBike &&
+                       !fitPlusBike && filter) {
+                discoveryAgent->stop();
+                renphoBike = new renphobike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(renphoBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(renphoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                renphoBike->deviceDiscovered(b);
+                templateManager->start(renphoBike);
+            } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+                        (b.name().toUpper().startsWith("WAHOO KICKR"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && filter) {
-
                 discoveryAgent->stop();
                 ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
                 emit deviceConnected();
@@ -965,9 +986,13 @@ void bluetooth::restart() {
         delete npeCableBike;
         npeCableBike = nullptr;
     }
+    if (tacxneo2Bike) {
+        delete tacxneo2Bike;
+        tacxneo2Bike = nullptr;
+    }
     if (stagesBike) {
-
         delete stagesBike;
+
         stagesBike = nullptr;
     }
     if (toorx) {
@@ -1001,10 +1026,12 @@ void bluetooth::restart() {
         echelonRower = nullptr;
     }
     if (echelonStride) {
+
         delete echelonStride;
         echelonStride = nullptr;
     }
     if (ftmsRower) {
+
         delete ftmsRower;
         ftmsRower = nullptr;
     }
@@ -1068,8 +1095,11 @@ void bluetooth::restart() {
         delete ftmsBike;
         ftmsBike = nullptr;
     }
+    if (renphoBike) {
+        delete renphoBike;
+        renphoBike = nullptr;
+    }
     if (fitPlusBike) {
-
         delete fitPlusBike;
         fitPlusBike = nullptr;
     }
@@ -1115,6 +1145,8 @@ bluetoothdevice *bluetooth::device() {
         return cscBike;
     } else if (npeCableBike) {
         return npeCableBike;
+    } else if (tacxneo2Bike) {
+        return tacxneo2Bike;
     } else if (stagesBike) {
         return stagesBike;
     } else if (toorx) {
@@ -1161,6 +1193,8 @@ bluetoothdevice *bluetooth::device() {
         return snodeBike;
     } else if (ftmsBike) {
         return ftmsBike;
+    } else if (renphoBike) {
+        return renphoBike;
     } else if (fitPlusBike) {
         return fitPlusBike;
     } else if (skandikaWiriBike) {

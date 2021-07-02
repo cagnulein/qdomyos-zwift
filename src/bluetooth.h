@@ -17,12 +17,14 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
+
 #include "bluetoothdevice.h"
 #include "chronobike.h"
 #include "cscbike.h"
 #include "domyosbike.h"
 #include "domyoselliptical.h"
 #include "domyostreadmill.h"
+
 
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
@@ -47,13 +49,18 @@
 #include "smartspin2k.h"
 #include "snodebike.h"
 
+
 #include "soleelliptical.h"
 
 #include "spirittreadmill.h"
 #include "sportstechbike.h"
 #include "stagesbike.h"
 
+#include "renphobike.h"
+#include "tacxneo2.h"
+
 #include "echelonstride.h"
+
 
 #include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
@@ -63,6 +70,7 @@
 #include "yesoulbike.h"
 
 class bluetooth : public QObject, public SignalHandler {
+
 
     Q_OBJECT
   public:
@@ -111,10 +119,13 @@ class bluetooth : public QObject, public SignalHandler {
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
     ftmsbike *ftmsBike = nullptr;
+    tacxneo2 *tacxneo2Bike = nullptr;
+    renphobike *renphoBike = nullptr;
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
     QString filterDevice = QLatin1String("");
+
 
     bool testResistance = false;
     bool noWriteResistance = false;
@@ -155,6 +166,7 @@ class bluetooth : public QObject, public SignalHandler {
     void connectedAndDiscovered();
 
   signals:
+
 };
 
 #endif // BLUETOOTH_H

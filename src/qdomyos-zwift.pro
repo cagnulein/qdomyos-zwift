@@ -89,6 +89,7 @@ SOURCES += \
 	proformbike.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
+   renphobike.cpp \
    rower.cpp \
 	schwinnic4bike.cpp \
    screencapture.cpp \
@@ -113,6 +114,7 @@ SOURCES += \
    soleelliptical.cpp \
    spirittreadmill.cpp \
    sportstechbike.cpp \
+   tacxneo2.cpp \
     tcpclientinfosender.cpp \
     templateinfosender.cpp \
     templateinfosenderbuilder.cpp \
@@ -393,6 +395,7 @@ HEADERS += \
 	proformtreadmill.h \
     qdebugfixup.h \
 	qfit.h \
+   renphobike.h \
    rower.h \
 	schwinnic4bike.h \
    screencapture.h \
@@ -419,6 +422,7 @@ HEADERS += \
    soleelliptical.h \
    spirittreadmill.h \
    sportstechbike.h \
+   tacxneo2.h \
     tcpclientinfosender.h \
     templateinfosender.h \
     templateinfosenderbuilder.h \
@@ -502,5 +506,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.58
+VERSION = 2.6.59
 
