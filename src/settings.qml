@@ -196,6 +196,7 @@ import Qt.labs.settings 1.0
             property bool log_debug: false
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
+            property bool virtual_device_force_bike: false
         }
 
         ColumnLayout {
@@ -2323,6 +2324,31 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.trainprogram_resistance_max = trainProgramRandomResistanceMaxTextField.text
                             }
                         }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id:treadmillAccordion
+                title: qsTr("Treadmill Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    SwitchDelegate {
+                        id: treadmillAsABikeDelegate
+                        text: qsTr("Treadmill as a Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtual_device_force_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.virtual_device_force_bike = checked
                     }
                 }
             }
