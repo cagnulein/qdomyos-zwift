@@ -45,17 +45,15 @@ signals:
     void resistanceRead(int8_t resistance);
 
 protected:
-    metric Cadence;
-    metric Resistance;
     metric RequestedResistance;    
     metric RequestedPelotonResistance;
     metric RequestedCadence;
     metric RequestedPower;
-    uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
-    double CrankRevs = 0;
     int8_t m_gears = 0;
     int8_t lastRawRequestedResistanceValue = -1;
+    uint16_t LastCrankEventTime = 0;
+    double CrankRevs = 0;
 
     metric m_pelotonResistance;
 };

@@ -107,8 +107,8 @@ void MainWindow::update()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
-            cadence = ((elliptical*)bluetoothManager->device())->currentCadence();
-            resistance = ((elliptical*)bluetoothManager->device())->currentResistance();
+            cadence = ((elliptical*)bluetoothManager->device())->currentCadence().value();
+            resistance = ((elliptical*)bluetoothManager->device())->currentResistance().value();
             watts = ((elliptical*)bluetoothManager->device())->watts();
             ui->watt->setText(QString::number(watts));
             ui->resistance->setText(QString::number(resistance));
@@ -574,7 +574,7 @@ void MainWindow::on_resistanceMinus_clicked()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
-            ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() - 1);
+            ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance().value() - 1);
         }
     }
 }
@@ -593,7 +593,7 @@ void MainWindow::on_resistancePlus_clicked()
         }
         else if(bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL)
         {
-            ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance() + 1);
+            ((elliptical*)bluetoothManager->device())->changeResistance(((elliptical*)bluetoothManager->device())->currentResistance().value() + 1);
         }
     }
 }

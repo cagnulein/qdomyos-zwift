@@ -5,7 +5,7 @@
 #include <QSettings>
 #include "ftmsbike.h"
 
-virtualbike::virtualbike(bike* t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
+virtualbike::virtualbike(bluetoothdevice* t, bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain)
 {
     Bike = t;
 
@@ -391,6 +391,9 @@ void virtualbike::slopeChanged(int16_t iresistance)
     qDebug() << "new requested resistance zwift erg grade " + QString::number(iresistance) + " enabled " + force_resistance;
     double resistance = ((double)iresistance * 1.5) / 100.0;
     qDebug() << "calculated erg grade " + QString::number(resistance);
+
+    emit changeInclination(iresistance / 100.0, qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0);
+
     if(force_resistance && !erg_mode)
         Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset + 1); // resistance start from 1
 }

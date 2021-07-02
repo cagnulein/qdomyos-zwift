@@ -26,6 +26,7 @@
 #include <QDateTime>
 
 #include "virtualtreadmill.h"
+#include "virtualbike.h"
 #include "treadmill.h"
 
 #ifdef Q_OS_IOS
@@ -74,6 +75,7 @@ private:
 
     QTimer* refresh;
     virtualtreadmill* virtualTreadMill = 0;
+    virtualbike* virtualBike = 0;
 
     QLowEnergyService* gattCommunicationChannelService = 0;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -104,6 +106,7 @@ private slots:
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);    

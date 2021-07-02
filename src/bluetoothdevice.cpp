@@ -15,6 +15,13 @@ metric bluetoothdevice::currentSpeed(){ return Speed; }
 QTime bluetoothdevice::movingTime() {int hours = (int)(moving.value()/3600.0); return QTime(hours, (int)(moving.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) moving.value()) % 60,0); }
 QTime bluetoothdevice::elapsedTime() {int hours = (int)(elapsed.value()/3600.0); return QTime(hours, (int)(elapsed.value()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.value()) % 60,0); }
 QTime bluetoothdevice::lapElapsedTime() {int hours = (int)(elapsed.lapValue()/3600.0); return QTime(hours, (int)(elapsed.lapValue()-((double)hours * 3600.0)) / 60.0, ((uint32_t) elapsed.lapValue()) % 60,0); }
+metric bluetoothdevice::currentResistance() {return Resistance;}
+metric bluetoothdevice::currentCadence() {return Cadence;}
+double bluetoothdevice::currentCrankRevolutions() {return 0;}
+uint16_t bluetoothdevice::lastCrankEventTime() {return 0;}
+void bluetoothdevice::changeResistance(int8_t resistance) {}
+void bluetoothdevice::changePower(int32_t power){}
+
 
 void bluetoothdevice::offsetElapsedTime(int offset)
 {

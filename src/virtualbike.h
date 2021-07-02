@@ -30,7 +30,7 @@ class virtualbike: public QObject
 {
     Q_OBJECT
 public:
-    virtualbike(bike* t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+    virtualbike(bluetoothdevice* t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected();
 
 private:
@@ -48,7 +48,7 @@ private:
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
-    bike* Bike;
+    bluetoothdevice* Bike;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -65,6 +65,9 @@ private:
 #ifdef Q_OS_IOS
     lockscreen* h = 0;
 #endif
+
+signals:
+    void changeInclination(double grade, double percentage);
 
 private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

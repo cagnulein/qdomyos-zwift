@@ -223,6 +223,11 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed)
    return true;
 }
 
+void domyostreadmill::changeInclinationRequested(double grade, double percentage)
+{
+    Q_UNUSED(grade);
+    changeInclination(percentage);
+}
 
 void domyostreadmill::update()
 {
@@ -246,14 +251,21 @@ void domyostreadmill::update()
     {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************        
-        if(!firstInit && searchStopped && !virtualTreadMill)
+        if(!firstInit && searchStopped && !virtualTreadMill && !virtualBike)
         {            
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if(virtual_device_enabled)
             {
-                debug("creating virtual treadmill interface...");
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
+                if(!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &domyostreadmill::changeInclinationRequested);
+                }
                 firstInit = 1;
             }
         }
