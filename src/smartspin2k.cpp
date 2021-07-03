@@ -7,6 +7,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 
+
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
@@ -29,11 +30,15 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService) {
 }
 
 void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
+
+    static bool first = true;
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
     if(startupResistance == -1) {
         startupResistance = resistance;
     }
-    if(initRequest) {
+    if(initRequest && first) {
+
+        first = false;
         uint8_t enable_syncmode[] = { 0x02, 0x1B, 0x01 };
         uint8_t disable_syncmode[] = { 0x02, 0x1B, 0x00 };
         writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
@@ -86,6 +91,7 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
 void smartspin2k::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
+
         emit disconnected();
         return;
     }
@@ -122,6 +128,7 @@ void smartspin2k::update() {
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
 
                 forceResistance(requestResistance);
             }
@@ -394,6 +401,7 @@ void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::stateChanged, this, &smartspin2k::controllerStateChanged);
 
 
+
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -430,6 +438,8 @@ bool smartspin2k::connected() {
 void *smartspin2k::VirtualBike() { return virtualBike; }
 
 
+
+
 void *smartspin2k::VirtualDevice() { return VirtualBike(); }
 
 
@@ -445,6 +455,7 @@ void smartspin2k::controllerStateChanged(QLowEnergyController::ControllerState s
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+
 
         initDone = false;
         m_control->connectToDevice();
