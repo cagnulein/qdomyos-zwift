@@ -303,6 +303,8 @@ void domyostreadmill::update()
                   double inc = Inclination.value();
                   if(requestInclination != -1)
                   {
+                      // only 0.5 steps ara avaiable
+                      requestInclination = qRound(requestInclination * 2.0) / 2.0;
                       inc = requestInclination;
                       requestInclination = -1;
                   }
@@ -312,6 +314,8 @@ void domyostreadmill::update()
             }
             if(requestInclination != -1)
             {
+                // only 0.5 steps ara avaiable
+                requestInclination = qRound(requestInclination * 2.0) / 2.0;
                if(requestInclination != currentInclination().value() && requestInclination >= 0 && requestInclination <= 15)
                {
                   debug("writing incline " + QString::number(requestInclination));
