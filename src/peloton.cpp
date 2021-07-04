@@ -184,7 +184,9 @@ void peloton::instructor_onfinish(QNetworkReply* reply)
     else
         qDebug() << "instructor_onfinish";
 
-    emit workoutChanged(current_workout_name, current_instructor_name);
+    QString air_time = current_original_air_time.toString("MM/dd/yy");
+    qDebug() << "air_time " + air_time;
+    emit workoutChanged(air_time + " - " + current_workout_name, current_instructor_name);
 
     getPerformance(current_workout_id);
 }

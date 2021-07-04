@@ -352,6 +352,19 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                     emit searchingStop();
                 templateManager->start(horizonTreadmill);
             }
+            else if(b.name().toUpper().startsWith("TACX NEO 2") && !tacxneo2Bike && filter)
+            {
+                discoveryAgent->stop();
+                tacxneo2Bike = new tacxneo2(noWriteResistance, noHeartService);
+                //stateFileRead();
+                emit(deviceConnected());
+                connect(tacxneo2Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(tacxneo2Bike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(tacxneo2Bike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                //connect(tacxneo2Bike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                //connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                tacxneo2Bike->deviceDiscovered(b);
+            }
             else if((b.name().toUpper().startsWith(">CABLE") || b.name().toUpper().startsWith("BIKE 1")) && !npeCableBike && filter)
             {
                 discoveryAgent->stop();
@@ -575,7 +588,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 spiritTreadmill->deviceDiscovered(b);
                 templateManager->start(spiritTreadmill);
             }
-            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (device.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
+            else if(((b.name().startsWith("TOORX")) || (b.name().startsWith("V-RUN")) || (b.name().startsWith("i-Console+")) || (b.name().startsWith("i-Running"))  || (b.name().startsWith("F63"))) && !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter)
             {
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
@@ -608,7 +621,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 skandikaWiriBike->deviceDiscovered(b);
                 templateManager->start(skandikaWiriBike);
             }
-            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("RQ") && b.name().length() == 5)) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
+            else if((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) && !renphoBike && !snodeBike && !fitPlusBike && filter)
+            {
+                discoveryAgent->stop();
+                renphoBike = new renphobike(noWriteResistance, noHeartService);
+                emit(deviceConnected());
+                connect(renphoBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                //connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(renphoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                renphoBike->deviceDiscovered(b);
+                templateManager->start(renphoBike);
+            }
+            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("WAHOO KICKR"))) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
             {
                 discoveryAgent->stop();
                 ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
@@ -899,6 +923,11 @@ void bluetooth::restart()
         delete npeCableBike;
         npeCableBike = 0;
     }
+    if(tacxneo2Bike)
+    {
+        delete tacxneo2Bike;
+        tacxneo2Bike = 0;
+    }
     if(stagesBike)
     {
         delete stagesBike;
@@ -1004,6 +1033,11 @@ void bluetooth::restart()
         delete ftmsBike;
         ftmsBike = 0;
     }
+    if(renphoBike)
+    {
+        delete renphoBike;
+        renphoBike = 0;
+    }
     if(fitPlusBike)
     {
         delete fitPlusBike;
@@ -1051,6 +1085,8 @@ bluetoothdevice* bluetooth::device()
         return cscBike;
     else if(npeCableBike)
         return npeCableBike;
+    else if(tacxneo2Bike)
+        return tacxneo2Bike;
     else if(stagesBike)
         return stagesBike;
     else if(toorx)
@@ -1097,6 +1133,8 @@ bluetoothdevice* bluetooth::device()
         return snodeBike;
     else if(ftmsBike)
         return ftmsBike;
+    else if(renphoBike)
+        return renphoBike;
     else if(fitPlusBike)
         return fitPlusBike;
     else if(skandikaWiriBike)

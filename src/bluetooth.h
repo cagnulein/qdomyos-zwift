@@ -47,6 +47,8 @@
 #include "ftmsbike.h"
 #include "ftmsrower.h"
 #include "smartspin2k.h"
+#include "renphobike.h"
+#include "tacxneo2.h"
 #include "echelonrower.h"
 #include "smartrowrower.h"
 #include "echelonstride.h"
@@ -101,6 +103,8 @@ private:
     smartrowrower* smartrowRower = 0;
     echelonstride *echelonStride = 0;
     ftmsbike* ftmsBike = 0;
+    tacxneo2 *tacxneo2Bike = 0;
+    renphobike *renphoBike = 0;
     heartratebelt* heartRateBelt = 0;
     smartspin2k* ftmsAccessory = 0;
     cscbike* cadenceSensor = 0;

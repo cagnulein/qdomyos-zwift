@@ -45,7 +45,7 @@ void qfit::save(QString filename, QList<SessionLine> session, bluetoothdevice::B
     sessionMesg.SetTimestamp(session.at(0).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(0).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
-    sessionMesg.SetTotalTimerTime(session.last().elapsedTime);
+    sessionMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.at(0).time.toSecsSinceEpoch());
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); //meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);

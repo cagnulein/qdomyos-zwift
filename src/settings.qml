@@ -3041,7 +3041,7 @@ import Qt.labs.settings 1.0
 
             AccordionElement {
                 id: ftmsAccessoryOptionsAccordion
-                title: qsTr("FTMS Accessory Options")
+                title: qsTr("SmartSpin2k Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -3051,7 +3051,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelFTMSAccessoryName
-                            text: qsTr("FTMS Accessory name:")
+                            text: qsTr("SmartSpin2k device:")
                             Layout.fillWidth: true
                         }
                         ComboBox {

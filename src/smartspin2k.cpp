@@ -27,12 +27,14 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService)
 
 void smartspin2k::resistanceReadFromTheBike(int8_t resistance)
 {
+    static bool first = true;
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
     if(startupResistance == -1)
         startupResistance = resistance;
 
-    if(initRequest)
+    if(initRequest && first)
     {        
+        first = false;
         uint8_t enable_syncmode[] = { 0x02, 0x1B, 0x01 };
         uint8_t disable_syncmode[] = { 0x02, 0x1B, 0x00 };
         writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
