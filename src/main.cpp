@@ -7,6 +7,8 @@
 #include <unistd.h> // getuid
 #endif
 #endif
+#include <QQmlContext>
+
 #include "bluetooth.h"
 #include "domyostreadmill.h"
 #include "homeform.h"
@@ -21,6 +23,7 @@
 #include <QStandardPaths>
 
 #ifdef Q_OS_ANDROID
+
 #include "keepawakehelper.h"
 #include <QtAndroid>
 #endif
@@ -65,6 +68,7 @@ static QString logfilename = "debug-" +
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
+
     QSettings settings;
     bool nogui = false;
 
@@ -108,18 +112,23 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-run-cadence-sensor"))
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-train")) {
+
             trainProgram = argv[++i];
         }
         if (!qstrcmp(argv[i], "-name")) {
+
             deviceName = argv[++i];
         }
         if (!qstrcmp(argv[i], "-poll-device-time")) {
+
             pollDeviceTime = atol(argv[++i]);
         }
         if (!qstrcmp(argv[i], "-bike-resistance-gain")) {
+
             bikeResistanceGain = atof(argv[++i]);
         }
         if (!qstrcmp(argv[i], "-bike-resistance-offset")) {
+
             bikeResistanceOffset = atoi(argv[++i]);
         }
     }
@@ -129,6 +138,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     } else if (forceQml) {
         return new QApplication(argc, argv);
     } else {
+
         QApplication *a = new QApplication(argc, argv);
 
         a->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
@@ -167,6 +177,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 }
 
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+
     QSettings settings;
     static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
@@ -200,6 +211,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     }
 
     if (logs == true || logdebug == true) {
+
         QString path = homeform::getWritableAppDir();
 
         // Linux log files are generated on binary location
@@ -216,9 +228,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 }
 
 int main(int argc, char *argv[]) {
+
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
     if (getuid()) {
+
         printf("Runme as root!\n");
         return -1;
     } else
@@ -271,6 +285,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("service_changed"), service_changed);
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
+
     }
 #endif
 
@@ -278,6 +293,7 @@ int main(int argc, char *argv[]) {
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
         if (!s.contains(QStringLiteral("password"))) {
+
             qDebug() << s << settings.value(s);
         }
     }
@@ -299,11 +315,13 @@ int main(int argc, char *argv[]) {
         if (onlyVirtualBike) {
             virtualbike V(new bike(), noWriteResistance,
                           noHeartService); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+
             Q_UNUSED(V)
             return app->exec();
         } else if (onlyVirtualTreadmill) {
             virtualtreadmill V(new treadmill(),
                                noHeartService); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+
             Q_UNUSED(V)
             return app->exec();
         }
@@ -372,6 +390,11 @@ int main(int argc, char *argv[]) {
             if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
                 qDebug() << "BLUETOOTH_ADMIN denied!";
         }
+#endif
+#ifdef Q_OS_ANDROID
+    engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
+#else
+    engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
