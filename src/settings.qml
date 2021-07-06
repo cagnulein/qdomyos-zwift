@@ -196,6 +196,7 @@ import Qt.labs.settings 1.0
             property bool log_debug: false
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
+            property bool volume_change_gears: false
         }
 
         ColumnLayout {
@@ -2954,6 +2955,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.strava_suffix = stravaSuffixTextField.text
                         }
+                    }
+
+                    SwitchDelegate {
+                        id: volumeChangeGearsDelegate
+                        text: qsTr("Volumes buttons change gears")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.volume_change_gears
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.volume_change_gears = checked
                     }
                 }
             }

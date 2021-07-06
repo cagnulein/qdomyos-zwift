@@ -1,11 +1,7 @@
 #ifndef HOMEFORM_H
 #define HOMEFORM_H
 
-
-
-
 #include "bluetooth.h"
-
 
 #include "peloton.h"
 #include "screencapture.h"
@@ -22,8 +18,6 @@
 #include <QQuickItemGrabResult>
 
 class DataObject : public QObject {
-
-
 
     Q_OBJECT
 
@@ -93,7 +87,7 @@ class homeform : public QObject {
     Q_PROPERTY(bool device READ getDevice NOTIFY changeOfdevice)
     Q_PROPERTY(bool lap READ getLap NOTIFY changeOflap)
     Q_PROPERTY(bool pelotonAskStart READ pelotonAskStart NOTIFY changePelotonAskStart WRITE setPelotonAskStart)
-    Q_PROPERTY( QString pelotonProvider READ pelotonProvider NOTIFY changePelotonProvider WRITE setPelotonProvider)
+    Q_PROPERTY(QString pelotonProvider READ pelotonProvider NOTIFY changePelotonProvider WRITE setPelotonProvider)
     Q_PROPERTY(int topBarHeight READ topBarHeight NOTIFY topBarHeightChanged)
     Q_PROPERTY(QString info READ info NOTIFY infoChanged)
     Q_PROPERTY(QString signal READ signal NOTIFY signalChanged)
@@ -132,7 +126,7 @@ class homeform : public QObject {
             QStringLiteral(".jpg");
         QObject *rootObject = engine->rootObjects().constFirst();
         QObject *stack = rootObject;
-        screenCapture s((QQuickView *)stack);
+        screenCapture s(reinterpret_cast<QQuickView *>(stack));
         s.capture(filenameScreenshot);
     }
 
@@ -304,8 +298,8 @@ class homeform : public QObject {
     int pzpLogin() { return m_pzpLoginState; }
     bool pelotonAskStart() { return m_pelotonAskStart; }
     void setPelotonAskStart(bool value) { m_pelotonAskStart = value; }
-    QString pelotonProvider() {return m_pelotonProvider;}
-    void setPelotonProvider(QString value) {m_pelotonProvider = value;}
+    QString pelotonProvider() { return m_pelotonProvider; }
+    void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool labelHelp();
     QStringList metrics();
@@ -439,14 +433,14 @@ class homeform : public QObject {
     DataObject *target_peloton_resistance;
     DataObject *target_cadence;
     DataObject *target_power;
-    DataObject* target_zone;
+    DataObject *target_zone;
     DataObject *ftp;
     DataObject *lapElapsed;
     DataObject *weightLoss;
-    DataObject* strokesLength;
-    DataObject* strokesCount;
-    DataObject* wattKg;
-    DataObject* gears;
+    DataObject *strokesLength;
+    DataObject *strokesCount;
+    DataObject *wattKg;
+    DataObject *gears;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -475,6 +469,8 @@ class homeform : public QObject {
     void Lap();
     void Minus(const QString &);
     void Plus(const QString &);
+    void volumeDown();
+    void volumeUp();
     void deviceFound(const QString &name);
     void deviceConnected();
     void trainprogram_open_clicked(const QUrl &fileName);
@@ -516,7 +512,7 @@ class homeform : public QObject {
     void tile_orderChanged(QStringList value);
     void changeLabelHelp(bool value);
     void changePelotonAskStart(bool value);
- void changePelotonProvider(QString value);
+    void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);

@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
+
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
@@ -57,22 +58,27 @@ data_len));
 
 void schwinnic4bike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
+
         emit disconnected();
         return;
     }
 
     if (initRequest) {
+
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
+
                                          // m_control->state() == QLowEnergyController::DiscoveredState //&&
                                          // gattCommunicationChannelService &&
                                          // gattWriteCharacteristic.isValid() &&
                                          // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
+
         update_metrics(false, watts());
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
+
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
@@ -86,12 +92,14 @@ void schwinnic4bike::update() {
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
                 // forceResistance(requestResistance);
             }
             requestResistance = -1;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
+
 
             // btinit();
 
@@ -100,6 +108,7 @@ void schwinnic4bike::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
@@ -108,10 +117,12 @@ void schwinnic4bike::update() {
 
 void schwinnic4bike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+
 }
 
 void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     double heart = 0.0;
+
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -127,6 +138,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     union flags {
         struct {
+
             uint16_t moreData : 1;
             uint16_t avgSpeed : 1;
             uint16_t instantCadence : 1;
@@ -164,6 +176,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (Flags.avgSpeed) {
+
         double avgSpeed;
         avgSpeed =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -181,6 +194,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (Flags.avgCadence) {
+
         double avgCadence;
         avgCadence =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -198,6 +212,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     } else {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -217,6 +232,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (Flags.avgPower) {
+
         double avgPower;
         avgPower =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
@@ -225,6 +241,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (Flags.expEnergy) {
+
         KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
@@ -251,6 +268,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (Flags.heartRate) {
+
             heart = ((double)(((uint8_t)newValue.at(index))));
             // index += 1; //NOTE: clang-analyzer-deadcode..DeadStores
             emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
@@ -258,18 +276,22 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     if (Flags.metabolic) {
+
         // todo
     }
 
     if (Flags.elapsedTime) {
+
         // todo
     }
 
     if (Flags.remainingTime) {
+
         // todo
     }
 
     if (Cadence.value() > 0) {
+
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
@@ -297,6 +319,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             lockscreen h;
@@ -308,6 +331,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
 #endif
         } else {
+
             Heart = heart;
         }
     }
@@ -317,6 +341,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
@@ -359,6 +384,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
     initRequest = false;
     emit connectedAndDiscovered();
 
+
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualBike
 #ifdef Q_OS_IOS
@@ -367,6 +393,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
     ) {
+
         QSettings settings;
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #ifdef Q_OS_IOS
@@ -374,14 +401,17 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
         bool cadence = settings.value("bike_cadence_sensor", false).toBool();
         bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
         if (ios_peloton_workaround && cadence) {
+
             qDebug() << "ios_peloton_workaround activated!";
             h = new lockscreen();
             h->virtualbike_ios();
         } else
+
 #endif
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
+
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
         }
@@ -393,25 +423,30 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
 void schwinnic4bike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
+
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
 void schwinnic4bike::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
+
 }
 
 void schwinnic4bike::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
 void schwinnic4bike::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+
 }
 
 void schwinnic4bike::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
+
 
     gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &schwinnic4bike::stateChanged);
@@ -419,12 +454,14 @@ void schwinnic4bike::serviceScanDone(void) {
 }
 
 void schwinnic4bike::errorService(QLowEnergyService::ServiceError err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("schwinnic4bike::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
 void schwinnic4bike::error(QLowEnergyController::Error err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("schwinnic4bike::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
@@ -443,6 +480,7 @@ void schwinnic4bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, &schwinnic4bike::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &schwinnic4bike::controllerStateChanged);
+
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -471,6 +509,7 @@ void schwinnic4bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 bool schwinnic4bike::connected() {
     if (!m_control) {
+
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
@@ -478,7 +517,9 @@ bool schwinnic4bike::connected() {
 
 void *schwinnic4bike::VirtualBike() { return virtualBike; }
 
+
 void *schwinnic4bike::VirtualDevice() { return VirtualBike(); }
+
 
 uint16_t schwinnic4bike::watts() {
     if (currentCadence().value() == 0) {
@@ -492,7 +533,17 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance)
+{
+    if(pelotonResistance > 54) return pelotonResistance;
+    if(pelotonResistance < 26) return pelotonResistance / 5;
+
+    //y = 0,04x2 - 1,32x + 11,8
+    return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
 }

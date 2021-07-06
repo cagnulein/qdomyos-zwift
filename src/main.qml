@@ -21,6 +21,8 @@ ApplicationWindow {
     signal strava_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
+    signal volumeUp()
+    signal volumeDown()
 
     Popup {
 	    id: popup
@@ -364,5 +366,8 @@ ApplicationWindow {
         id: stackView
         initialItem: "Home.qml"
         anchors.fill: parent
+        focus: true
+        Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
+        Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
     }
 }
