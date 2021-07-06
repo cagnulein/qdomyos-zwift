@@ -1,15 +1,15 @@
 #ifndef TACXNEO2_H
 #define TACXNEO2_H
 
+#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -18,47 +18,47 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
+#include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-#include <QtCore/qmutex.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QString>
-#include <QDateTime>
 
-#include "virtualbike.h"
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class tacxneo2 : public bike
-{
+class tacxneo2 : public bike {
     Q_OBJECT
-public:
+  public:
     tacxneo2(bool noWriteResistance, bool noHeartService);
     void changeInclination(double inclination);
-    void changePower(int32_t power);
-    bool connected();
+    void changePower(int32_t power) override;
+    bool connected() override;
 
-    void* VirtualBike();
-    void* VirtualDevice();
+    void *VirtualBike();
+    void *VirtualDevice() override;
 
-private:
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
+  private:
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
-    QTimer* refresh;
-    virtualbike* virtualBike = 0;
+    QTimer *refresh;
+    virtualbike *virtualBike = 0;
 
-    QList<QLowEnergyService*> gattCommunicationChannelService;
-    //QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
+    // QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharCustomId;
-    //QLowEnergyService* gattPowerService;
-    QLowEnergyService* gattCustomService;
-    //QLowEnergyCharacteristic gattNotify1Characteristic;
+    // QLowEnergyService* gattPowerService;
+    QLowEnergyService *gattCustomService;
+    // QLowEnergyCharacteristic gattNotify1Characteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -77,17 +77,17 @@ private:
     uint16_t CrankRevsRead = 0;
 
 #ifdef Q_OS_IOS
-    lockscreen* h = 0;
+    lockscreen *h = 0;
 #endif
 
-signals:
+  signals:
     void disconnected();
     void debug(QString string);
 
-public slots:
+  public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
-private slots:
+  private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
@@ -103,7 +103,7 @@ private slots:
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 
-    void powerPacketReceived(QByteArray b);
+    void powerPacketReceived(const QByteArray &b);
 };
 
 #endif // TACXNEO2_H
