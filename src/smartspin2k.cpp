@@ -43,6 +43,7 @@ void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
         uint8_t disable_syncmode[] = { 0x02, 0x1B, 0x00 };
         writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
         forceResistance(startupResistance);
+        QThread::sleep(2);
         writeCharacteristic(disable_syncmode, sizeof(disable_syncmode), "BLE_syncMode disabling", false, true);
         initRequest = false;
     }
