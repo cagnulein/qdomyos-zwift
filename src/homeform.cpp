@@ -65,7 +65,7 @@ void DataObject::setLabelFontSize(int value) {m_labelFontSize = value; emit labe
 void DataObject::setVisible(bool visible) {m_visible = visible; emit visibleChanged(m_visible);}
 
 homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
-{       
+{
     QSettings settings;
     bool miles = settings.value("miles_unit", false).toBool();
     QString unit = "km";
@@ -172,7 +172,10 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
         this, SLOT(loadSettings(QUrl)));
     QObject::connect(stack, SIGNAL(saveSettings(QUrl)),
         this, SLOT(saveSettings(QUrl)));
-
+    QObject::connect(stack, SIGNAL(volumeUp()),
+        this, SLOT(volumeUp()));
+    QObject::connect(stack, SIGNAL(volumeDown()),
+        this, SLOT(volumeDown()));
 
     if(settings.value("top_bar_enabled", true).toBool())
     {
@@ -249,6 +252,22 @@ homeform::homeform(QQmlApplicationEngine* engine, bluetooth* bl)
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
 #endif
+}
+
+void homeform::volumeUp()
+{
+    qDebug() << "volumeUp";
+    QSettings settings;
+    if(settings.value("volume_change_gears", false).toBool())
+        Plus("gears");
+}
+
+void homeform::volumeDown()
+{
+    qDebug() << "volumeDown";
+    QSettings settings;
+    if(settings.value("volume_change_gears", false).toBool())
+        Minus("gears");
 }
 
 void homeform::peloton_start_workout()
@@ -776,6 +795,7 @@ void homeform::deviceFound(QString name)
 
 void homeform::Plus(QString name)
 {
+    qDebug() << "Plus" << name;
     if(name.contains("speed"))
     {
         if(bluetoothManager->device())
@@ -873,6 +893,8 @@ void homeform::Plus(QString name)
 
 void homeform::Minus(QString name)
 {
+    qDebug() << "Minus" << name;
+
     if(name.contains("speed"))
     {
         if(bluetoothManager->device())

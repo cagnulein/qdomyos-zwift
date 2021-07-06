@@ -231,6 +231,9 @@ int main(int argc, char *argv[])
 #endif
 #endif
 
+#ifdef Q_OS_ANDROID
+    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
+#endif
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));            
 #else
