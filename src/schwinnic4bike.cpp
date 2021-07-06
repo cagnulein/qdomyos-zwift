@@ -512,3 +512,12 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
     }
 }
 
+int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance)
+{
+    if(pelotonResistance > 54) return pelotonResistance;
+    if(pelotonResistance < 26) return pelotonResistance / 5;
+
+    //y = 0,04x2 - 1,32x + 11,8
+    return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+}
+

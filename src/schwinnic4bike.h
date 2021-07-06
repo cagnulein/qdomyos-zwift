@@ -40,6 +40,7 @@ class schwinnic4bike : public bike
     Q_OBJECT
 public:
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
+    int pelotonToBikeResistance(int pelotonResistance);
     bool connected();
 
     void* VirtualBike();
