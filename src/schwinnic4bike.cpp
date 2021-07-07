@@ -8,6 +8,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 
+
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
@@ -59,6 +60,7 @@ data_len));
 void schwinnic4bike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
+
         emit disconnected();
         return;
     }
@@ -92,6 +94,7 @@ void schwinnic4bike::update() {
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
 
                 // forceResistance(requestResistance);
             }
@@ -138,6 +141,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     union flags {
         struct {
+
 
             uint16_t moreData : 1;
             uint16_t avgSpeed : 1;
@@ -312,13 +316,14 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
           (2.0 * ar)) *
          settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
         settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
-    Resistance = m_pelotonResistance;
+    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
     emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
         if (heart == 0.0) {
+
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -331,6 +336,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
 #endif
         } else {
+
 
             Heart = heart;
         }
@@ -482,6 +488,7 @@ void schwinnic4bike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::stateChanged, this, &schwinnic4bike::controllerStateChanged);
 
 
+
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -518,6 +525,8 @@ bool schwinnic4bike::connected() {
 void *schwinnic4bike::VirtualBike() { return virtualBike; }
 
 
+
+
 void *schwinnic4bike::VirtualDevice() { return VirtualBike(); }
 
 
@@ -533,6 +542,7 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+
 
         initDone = false;
         m_control->connectToDevice();
