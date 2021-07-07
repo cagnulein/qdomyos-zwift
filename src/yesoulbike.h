@@ -1,15 +1,15 @@
 #ifndef YESOULBIKE_H
 #define YESOULBIKE_H
 
+#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -18,44 +18,44 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
+#include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-#include <QtCore/qmutex.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QString>
-#include <QDateTime>
 
-#include "virtualbike.h"
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class yesoulbike : public bike
-{
+class yesoulbike : public bike {
     Q_OBJECT
-public:
+  public:
     yesoulbike(bool noWriteResistance, bool noHeartService);
     bool connected();
 
-    void* VirtualBike();
-    void* VirtualDevice();
+    void *VirtualBike();
+    void *VirtualDevice();
 
-private:
-    double GetDistanceFromPacket(QByteArray packet);
+  private:
+    double GetDistanceFromPacket(const QByteArray &packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log=false,  bool wait_for_response = false);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
     uint16_t watts();
 
-    QTimer* refresh;
-    virtualbike* virtualBike = 0;
+    QTimer *refresh;
+    virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService* gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
@@ -72,17 +72,17 @@ private:
     bool noHeartService = false;
 
 #ifdef Q_OS_IOS
-    lockscreen* h = 0;
+    lockscreen *h = 0;
 #endif
 
-signals:
+  signals:
     void disconnected();
     void debug(QString string);
 
-public slots:
+  public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
-private slots:
+  private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
@@ -96,6 +96,5 @@ private slots:
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
-
 
 #endif // YESOULBIKE_H

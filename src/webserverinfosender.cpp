@@ -1,24 +1,20 @@
 #include "webserverinfosender.h"
-#include <QWebSocket>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QNetworkReply>
+#include <QWebSocket>
 
-
-WebServerInfoSender::WebServerInfoSender(const QString& id, QObject * parent):TemplateInfoSender(id, parent) {
+WebServerInfoSender::WebServerInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {
     fetcher = new QNetworkAccessManager(this);
     fetcher->setCookieJar(new QNoCookieJar());
-    connect(fetcher, SIGNAL(finished(QNetworkReply*)), this, SLOT(handleFetcherRequest(QNetworkReply*)));
-    connect(fetcher, SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)), this, SLOT(ignoreSSLErrors(QNetworkReply *, const QList<QSslError> &)));
+    connect(fetcher, SIGNAL(finished(QNetworkReply *)), this, SLOT(handleFetcherRequest(QNetworkReply *)));
+    connect(fetcher, SIGNAL(sslErrors(QNetworkReply *, const QList<QSslError> &)), this,
+            SLOT(ignoreSSLErrors(QNetworkReply *, const QList<QSslError> &)));
 }
-WebServerInfoSender::~WebServerInfoSender() {
-    innerStop();
-}
+WebServerInfoSender::~WebServerInfoSender() { innerStop(); }
 
-void WebServerInfoSender::ignoreSSLErrors(QNetworkReply * repl, const QList<QSslError> &) {
-    repl->ignoreSslErrors();
-}
+void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslError> &) { repl->ignoreSslErrors(); }
 
 bool WebServerInfoSender::listen() {
     if (!innerTcpServer)
@@ -27,8 +23,7 @@ bool WebServerInfoSender::listen() {
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
             httpServer->bind(innerTcpServer);
             return true;
-        }
-        else {
+        } else {
             delete innerTcpServer;
             innerTcpServer = 0;
         }
@@ -36,20 +31,17 @@ bool WebServerInfoSender::listen() {
     return false;
 }
 
-bool WebServerInfoSender::isRunning() const {
-    return innerTcpServer && innerTcpServer->isListening();
-}
-bool WebServerInfoSender::send(const QString& data) {
+bool WebServerInfoSender::isRunning() const { return innerTcpServer && innerTcpServer->isListening(); }
+bool WebServerInfoSender::send(const QString &data) {
     if (isRunning() && !data.isEmpty()) {
         bool rv = true, oldrv = false;
-        for (QWebSocket * client: sendToClients) {
-            rv = client->sendTextMessage(data)  > 0;
+        for (QWebSocket *client : sendToClients) {
+            rv = client->sendTextMessage(data) > 0;
             if (!oldrv)
                 oldrv = rv;
         }
         return rv;
-    }
-    else
+    } else
         return false;
 }
 
@@ -76,48 +68,46 @@ bool WebServerInfoSender::init() {
         if (!ok)
             port = 6666;
         if (!httpServer)
-            httpServer = new  QHttpServer(this);
+            httpServer = new QHttpServer(this);
         relative2Absolute.clear();
         for (auto fld : folders) {
             idx = fld.lastIndexOf('/');
-            qDebug() << "Folder"<<fld;
-            if (idx>0) {
+            qDebug() << "Folder" << fld;
+            if (idx > 0) {
                 relative = fld.mid(idx + 1);
-                qDebug() << "Relative"<<relative;
+                qDebug() << "Relative" << relative;
                 relative2Absolute.insert(relative, fld);
-                httpServer->route("/"+relative+"/<arg>", [this] (const QUrl &url, const QHttpServerRequest &request) {
-                    QUrl urlreq = request.url();
-                    QString path = urlreq.path().mid(1);
-                    int idxreq = path.indexOf('/');
-                    QString reqId = idxreq < 0? path:path.mid(0, idxreq);
-                    qDebug() << "Path"<<path<<" req"<<reqId;
-                    path = relative2Absolute.value(reqId);
-                    if (path.isEmpty())
-                        return QHttpServerResponse("text/plain",
-                                                   "Unautorized",
-                                                   QHttpServerResponder::StatusCode::Forbidden);
-                    else
-                        return QHttpServerResponse::fromFile(path + QStringLiteral("/%1").arg(url.path()));
-                });
+                httpServer->route(
+                    "/" + relative + "/<arg>", [this](const QUrl &url, const QHttpServerRequest &request) {
+                        QUrl urlreq = request.url();
+                        QString path = urlreq.path().mid(1);
+                        int idxreq = path.indexOf('/');
+                        QString reqId = idxreq < 0 ? path : path.mid(0, idxreq);
+                        qDebug() << "Path" << path << " req" << reqId;
+                        path = relative2Absolute.value(reqId);
+                        if (path.isEmpty())
+                            return QHttpServerResponse("text/plain", "Unautorized",
+                                                       QHttpServerResponder::StatusCode::Forbidden);
+                        else
+                            return QHttpServerResponse::fromFile(path + QStringLiteral("/%1").arg(url.path()));
+                    });
             }
         }
         if (listen()) {
-            qDebug() << "WebServer listening on port" << port<< " "<<relative2Absolute;
+            qDebug() << "WebServer listening on port" << port << " " << relative2Absolute;
             connect(httpServer, SIGNAL(newWebSocketConnection()), this, SLOT(onNewConnection()));
             return true;
-        }
-        else {
+        } else {
             reinit();
         }
     }
     return false;
-
 }
 
-void WebServerInfoSender::handleFetcherRequest(QNetworkReply* reply) {
+void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
     QPair<QString, QWebSocket *> reqIdRequester = reply2Req.value(reply);
     QString req = reqIdRequester.first;
-    QWebSocket * requester = reqIdRequester.second;
+    QWebSocket *requester = reqIdRequester.second;
     if (!req.isEmpty() && requester) {
         QNetworkReply::NetworkError error = reply->error();
         QString statusText = reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString();
@@ -126,8 +116,8 @@ void WebServerInfoSender::handleFetcherRequest(QNetworkReply* reply) {
         QJsonObject out, init;
         QList<QNetworkReply::RawHeaderPair> rHeaders = reply->rawHeaderPairs();
         QJsonArray headers;
-        for (auto p: rHeaders) {
-            for (auto line: p.second.split('\n')) {
+        for (auto p : rHeaders) {
+            for (auto line : p.second.split('\n')) {
                 QJsonArray arrv;
                 arrv.append(p.first.constData());
                 arrv.append(line.constData());
@@ -148,8 +138,7 @@ void WebServerInfoSender::handleFetcherRequest(QNetworkReply* reply) {
     reply->deleteLater();
 }
 
-void WebServerInfoSender::processTextMessage(QString message)
-{
+void WebServerInfoSender::processTextMessage(QString message) {
     /*QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (pClient) {
         pClient->sendTextMessage(message);
@@ -166,7 +155,7 @@ void WebServerInfoSender::processFetcherRawRequest(QByteArray data) {
     processFetcher(qobject_cast<QWebSocket *>(sender()), data);
 }
 
-void WebServerInfoSender::processFetcher(QWebSocket * sender, const QByteArray& data) {
+void WebServerInfoSender::processFetcher(QWebSocket *sender, const QByteArray &data) {
     qDebug() << "Fetch Request Received" << data;
     QJsonDocument jsonResponse = QJsonDocument::fromJson(data);
     if (jsonResponse.isObject()) {
@@ -188,14 +177,13 @@ void WebServerInfoSender::processFetcher(QWebSocket * sender, const QByteArray& 
                     ++i;
                 }
             }
-            QNetworkReply * repl;
+            QNetworkReply *repl;
             if (method.toLower() == "post") {
                 QByteArray body;
                 if ((tmpv = jsonObject.value("body")).isString())
                     body = tmpv.toString().toUtf8();
                 repl = fetcher->post(request, body);
-            }
-            else {
+            } else {
                 repl = fetcher->get(request);
             }
             reply2Req[repl] = QPair<QString, QWebSocket *>(req, sender);
@@ -203,16 +191,14 @@ void WebServerInfoSender::processFetcher(QWebSocket * sender, const QByteArray& 
     }
 }
 
-void WebServerInfoSender::onNewConnection()
-{
+void WebServerInfoSender::onNewConnection() {
     QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
     QUrl requestUrl = pSocket->requestUrl();
-    qDebug() << "WebSocket connection"<<requestUrl;
+    qDebug() << "WebSocket connection" << requestUrl;
     if (requestUrl.path() == "/fetcher") {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processFetcherRequest(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processFetcherRawRequest(QByteArray)));
-    }
-    else {
+    } else {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processTextMessage(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processBinaryMessage(QByteArray)));
         sendToClients << pSocket;
@@ -222,8 +208,7 @@ void WebServerInfoSender::onNewConnection()
     clients << pSocket;
 }
 
-void WebServerInfoSender::socketDisconnected()
-{
+void WebServerInfoSender::socketDisconnected() {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     qDebug() << "socketDisconnected:" << pClient;
     if (pClient) {
@@ -242,8 +227,7 @@ void WebServerInfoSender::socketDisconnected()
     }
 }
 
-void WebServerInfoSender::processBinaryMessage(QByteArray message)
-{
+void WebServerInfoSender::processBinaryMessage(QByteArray message) {
     /*QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
     if (pClient) {
         pClient->sendBinaryMessage(message);
@@ -251,4 +235,3 @@ void WebServerInfoSender::processBinaryMessage(QByteArray message)
     qDebug() << "Binary Message received:" << message.toHex();
     emit onDataReceived(message);
 }
-

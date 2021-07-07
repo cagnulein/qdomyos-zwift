@@ -1,7 +1,10 @@
 #include "templateinfosender.h"
-#include <QDebug>
+#include "qdebugfixup.h"
+#include <chrono>
 
-TemplateInfoSender::TemplateInfoSender(const QString& id, QObject * parent):QObject(parent),templateId(id) {
+using namespace std::chrono_literals;
+
+TemplateInfoSender::TemplateInfoSender(const QString &id, QObject *parent) : QObject(parent), templateId(id) {
     connect(&retryTimer, &QTimer::timeout, this, [this]() {
         Q_UNUSED(this);
         init();
@@ -9,56 +12,47 @@ TemplateInfoSender::TemplateInfoSender(const QString& id, QObject * parent):QObj
     retryTimer.setSingleShot(true);
 }
 
-TemplateInfoSender::~TemplateInfoSender() {
-    stop();
-}
+TemplateInfoSender::~TemplateInfoSender() { stop(); }
 
-bool TemplateInfoSender::init(const QString& script) {
+bool TemplateInfoSender::init(const QString &script) {
     jscript = script;
     stop();
     return init();
 }
 
-bool TemplateInfoSender::update(QJSEngine * eng) {
+bool TemplateInfoSender::update(QJSEngine *eng) {
     if (!jscript.isEmpty()) {
         QJSValue jsv = eng->evaluate(jscript);
         if (!jsv.isError()) {
             QString evalres = jsv.toString();
-            qDebug()<<"eval res "<<evalres;
+            qDebug() << QStringLiteral("eval res ") << evalres;
             return send(evalres);
-        }
-        else {
+        } else {
 #if (QT_VERSION < QT_VERSION_CHECK(5, 12, 0))
             int errorType = 255;
 #else
             int errorType = jsv.errorType();
 #endif
-            qDebug() << "Scripts contains an error:"<< jscript << "error" << errorType;
+            qDebug() << QStringLiteral("Scripts contains an error:") << jscript << QStringLiteral("error") << errorType;
             return false;
         }
-    }
-    else
+    } else {
         return false;
+    }
 }
 
-QString TemplateInfoSender::js() const {
-    return jscript;
-}
+QString TemplateInfoSender::js() const { return jscript; }
 
-QString TemplateInfoSender::getId() const {
-    return templateId;
-}
+QString TemplateInfoSender::getId() const { return templateId; }
 
 void TemplateInfoSender::stop() {
     retryTimer.stop();
-    innerStop();
+    TemplateInfoSender::innerStop();
 }
 
-void TemplateInfoSender::innerStop() {
-
-}
+void TemplateInfoSender::innerStop() {}
 
 void TemplateInfoSender::reinit() {
     stop();
-    retryTimer.start(5000);
+    retryTimer.start(5s);
 }

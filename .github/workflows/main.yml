@@ -43,9 +43,9 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Install Qt Linux Desktop
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v2.13.2
         with:
-          version: '5.12.9'
+          version: '5.15.2'
           host: 'linux'
           target: 'desktop'
           modules: 'qtcharts debug_info qtnetworkauth'

@@ -3,46 +3,46 @@
 #include "templateinfosender.h"
 #include <QHttpServer>
 #include <QNetworkAccessManager>
-#include <QNetworkCookieJar>
 #include <QNetworkCookie>
+#include <QNetworkCookieJar>
 
-class QNoCookieJar: public QNetworkCookieJar
-{
+class QNoCookieJar : public QNetworkCookieJar {
     Q_OBJECT
-public:
-    QNoCookieJar(QObject *parent = nullptr):QNetworkCookieJar(parent) {}
+  public:
+    QNoCookieJar(QObject *parent = nullptr) : QNetworkCookieJar(parent) {}
     virtual ~QNoCookieJar() {}
 
     QList<QNetworkCookie> cookiesForUrl(const QUrl &url) const { return QList<QNetworkCookie>(); }
-    bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url) {return false; }
+    bool setCookiesFromUrl(const QList<QNetworkCookie> &cookieList, const QUrl &url) { return false; }
 };
 
-class WebServerInfoSender : public TemplateInfoSender
-{
+class WebServerInfoSender : public TemplateInfoSender {
     Q_OBJECT
-public:
-    WebServerInfoSender(const QString& id, QObject * parent = 0);
+  public:
+    WebServerInfoSender(const QString &id, QObject *parent = 0);
     virtual ~WebServerInfoSender();
     virtual bool isRunning() const;
-    virtual bool send(const QString& data);
-private:
-    QHttpServer * httpServer = 0;
+    virtual bool send(const QString &data);
+
+  private:
+    QHttpServer *httpServer = 0;
     QStringList folders;
     bool listen();
-    void processFetcher(QWebSocket * sender, const QByteArray& data);
-protected:
+    void processFetcher(QWebSocket *sender, const QByteArray &data);
+
+  protected:
     virtual void innerStop();
     int port;
-    QTcpServer * innerTcpServer = 0;
+    QTcpServer *innerTcpServer = 0;
     virtual bool init();
     QList<QWebSocket *> clients;
-    QNetworkAccessManager * fetcher = 0;
+    QNetworkAccessManager *fetcher = 0;
     QList<QWebSocket *> sendToClients;
     QHash<QString, QString> relative2Absolute;
     QHash<QNetworkReply *, QPair<QString, QWebSocket *>> reply2Req;
-private slots:
+  private slots:
     void onNewConnection();
-    void handleFetcherRequest(QNetworkReply* reply);
+    void handleFetcherRequest(QNetworkReply *reply);
     void processTextMessage(QString message);
     void processFetcherRawRequest(QByteArray message);
     void processFetcherRequest(QString message);

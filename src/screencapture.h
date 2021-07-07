@@ -1,22 +1,20 @@
 #ifndef SCREENCAPTURE_H
 #define SCREENCAPTURE_H
 
-
 #include <QObject>
 
 class QString;
 class QQuickView;
 
-class screenCapture : public QObject
-{
+class screenCapture : public QObject {
     Q_OBJECT
-public:
-    explicit screenCapture(QQuickView *parent = 0);
+  public:
+    explicit screenCapture(QQuickView *parent = nullptr);
 
-public slots:
+  public slots:
     void capture(QString const &path) const;
 
-private:
+  private:
     QQuickView *currentView_;
 };
 

@@ -1,127 +1,106 @@
 #include "zwiftworkout.h"
 #include <QXmlStreamReader>
 
-QList<trainrow> zwiftworkout::load(QString filename)
-{
+QList<trainrow> zwiftworkout::load(const QString &filename) {
     QSettings settings;
-    QList<trainrow> list;
+    // QList<trainrow> list; //NOTE: clazy-unuzed-non-trivial-variable
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
     return load(input.readAll());
 }
 
-QList<trainrow> zwiftworkout::load(QByteArray input)
-{
+QList<trainrow> zwiftworkout::load(const QByteArray &input) {
     QSettings settings;
     QList<trainrow> list;
     QXmlStreamReader stream(input);
-    while(!stream.atEnd())
-    {
+    while (!stream.atEnd()) {
         stream.readNext();
         QXmlStreamAttributes atts = stream.attributes();
-        if(atts.length())
-        {
-            if(stream.name().contains("IntervalsT"))
-            {
+        if (!atts.isEmpty()) {
+            if (stream.name().contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
                 uint32_t OffDuration = 1;
                 double OnPower = 1;
                 double OffPower = 1;
-                if(atts.hasAttribute("Repeat"))
-                {
-                    repeat = atts.value("Repeat").toUInt();
+                if (atts.hasAttribute(QStringLiteral("Repeat"))) {
+                    repeat = atts.value(QStringLiteral("Repeat")).toUInt();
                 }
-                if(atts.hasAttribute("OnDuration"))
-                {
-                    OnDuration = atts.value("OnDuration").toUInt();
+                if (atts.hasAttribute(QStringLiteral("OnDuration"))) {
+                    OnDuration = atts.value(QStringLiteral("OnDuration")).toUInt();
                 }
-                if(atts.hasAttribute("OffDuration"))
-                {
-                    OffDuration = atts.value("OffDuration").toUInt();
+                if (atts.hasAttribute(QStringLiteral("OffDuration"))) {
+                    OffDuration = atts.value(QStringLiteral("OffDuration")).toUInt();
                 }
-                if(atts.hasAttribute("OnPower"))
-                {
-                    OnPower = atts.value("OnPower").toDouble();
+                if (atts.hasAttribute(QStringLiteral("OnPower"))) {
+                    OnPower = atts.value(QStringLiteral("OnPower")).toDouble();
                 }
-                if(atts.hasAttribute("OffPower"))
-                {
-                    OffPower = atts.value("OffPower").toDouble();
+                if (atts.hasAttribute(QStringLiteral("OffPower"))) {
+                    OffPower = atts.value(QStringLiteral("OffPower")).toDouble();
                 }
 
-                for(uint32_t i=0; i<repeat; i++)
-                {
+                for (uint32_t i = 0; i < repeat; i++) {
                     trainrow row;
                     row.duration = QTime(OnDuration / 3600, OnDuration / 60, OnDuration % 60, 0);
-                    row.power = OnPower * settings.value("ftp", 200.0).toDouble();
+                    row.power = OnPower * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                     list.append(row);
                     row.duration = QTime(OffDuration / 3600, OffDuration / 60, OffDuration % 60, 0);
-                    row.power = OffPower * settings.value("ftp", 200.0).toDouble();
+                    row.power = OffPower * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                     list.append(row);
                 }
-            }
-            else if(stream.name().contains("FreeRide"))
-            {
+            } else if (stream.name().contains(QStringLiteral("FreeRide"))) {
                 uint32_t Duration = 1;
-                double FlatRoad = 1;
-                if(atts.hasAttribute("Duration"))
-                {
-                    Duration = atts.value("Duration").toUInt();
+                // double FlatRoad = 1;
+                if (atts.hasAttribute(QStringLiteral("Duration"))) {
+                    Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
-                if(atts.hasAttribute("FlatRoad"))
-                {
-                    FlatRoad = atts.value("FlatRoad").toDouble();
+                if (atts.hasAttribute(QStringLiteral("FlatRoad"))) {
+                    // NOTE: Value stored to FlatRoad is never read clang-analyzer-deadcode.DeadStores
+                    // FlatRoad = atts.value(QStringLiteral("FlatRoad")).toDouble();
                 }
 
                 trainrow row;
                 row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
                 list.append(row);
-            }
-            else if(stream.name().contains("Ramp") || stream.name().contains("Cooldown"))
-            {
+            } else if (stream.name().contains(QStringLiteral("Ramp")) ||
+                       stream.name().contains(QStringLiteral("Cooldown"))) {
                 uint32_t Duration = 1;
                 double PowerLow = 1;
                 double PowerHigh = 1;
-                if(atts.hasAttribute("Duration"))
-                {
-                    Duration = atts.value("Duration").toUInt();
+                if (atts.hasAttribute(QStringLiteral("Duration"))) {
+                    Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
-                if(atts.hasAttribute("PowerLow"))
-                {
-                    PowerLow = atts.value("PowerLow").toDouble();
+                if (atts.hasAttribute(QStringLiteral("PowerLow"))) {
+                    PowerLow = atts.value(QStringLiteral("PowerLow")).toDouble();
                 }
-                if(atts.hasAttribute("PowerHigh"))
-                {
-                    PowerHigh = atts.value("PowerHigh").toDouble();
+                if (atts.hasAttribute(QStringLiteral("PowerHigh"))) {
+                    PowerHigh = atts.value(QStringLiteral("PowerHigh")).toDouble();
                 }
 
-                for(uint32_t i=0; i<Duration; i++)
-                {
+                for (uint32_t i = 0; i < Duration; i++) {
                     trainrow row;
                     row.duration = QTime(0, 0, 1, 0);
-                    if(PowerHigh > PowerLow)
-                        row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) * settings.value("ftp", 200.0).toDouble();
+                    if (PowerHigh > PowerLow)
+                        row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                    settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                     else
-                        row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) * settings.value("ftp", 200.0).toDouble();
+                        row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                    settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                     list.append(row);
                 }
-            }
-            else if(stream.name().contains("SteadyState"))
-            {
+            } else if (stream.name().contains(QStringLiteral("SteadyState"))) {
                 uint32_t Duration = 1;
                 double Power = 1;
-                if(atts.hasAttribute("Duration"))
-                {
-                    Duration = atts.value("Duration").toUInt();
+                if (atts.hasAttribute(QStringLiteral("Duration"))) {
+                    Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
-                if(atts.hasAttribute("Power"))
-                {
-                    Power = atts.value("Power").toDouble();
+                if (atts.hasAttribute(QStringLiteral("Power"))) {
+                    Power = atts.value(QStringLiteral("Power")).toDouble();
                 }
 
                 trainrow row;
                 row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
-                row.power = Power * settings.value("ftp", 200.0).toDouble();
+                row.power = Power * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                 list.append(row);
             }
         }

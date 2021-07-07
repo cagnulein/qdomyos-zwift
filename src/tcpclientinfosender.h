@@ -4,21 +4,21 @@
 #include "templateinfosender.h"
 #include <QTcpSocket>
 
-class TcpClientInfoSender : public TemplateInfoSender
-{
+class TcpClientInfoSender : public TemplateInfoSender {
     Q_OBJECT
-public:
-    TcpClientInfoSender(const QString& id, QObject * parent = 0);
+  public:
+    TcpClientInfoSender(const QString &id, QObject *parent = nullptr);
     virtual ~TcpClientInfoSender();
     virtual bool isRunning() const;
-    virtual bool send(const QString& data);
-protected:
-    QTcpSocket * tcpSocket = 0;
+    virtual bool send(const QString &data);
+
+  protected:
+    QTcpSocket *tcpSocket = nullptr;
     QString ip;
     int port;
     virtual bool init();
     virtual void innerStop();
-private slots:
+  private slots:
     void readyRead();
     void debugConnected();
     void socketError(int err);

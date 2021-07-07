@@ -3,15 +3,15 @@
 static const int ScanTypeId = qRegisterMetaType<ScanRecordResult>();
 
 #if defined(Q_OS_ANDROID)
-ScanRecordResult ScanRecordResult::fromJObject(JNIEnv * env, jobject java) {
+ScanRecordResult ScanRecordResult::fromJObject(JNIEnv *env, jobject java) {
     if (!java)
         return ScanRecordResult();
     QAndroidJniObject srr(java);
-    //qDebug() << "SRR tos "<<srr.toString();
+    // qDebug() << "SRR tos "<<srr.toString();
     int rssi = srr.callMethod<jint>("getRssi");
-    QAndroidJniObject tmp = srr.callObjectMethod("getName","()Ljava/lang/String;");
+    QAndroidJniObject tmp = srr.callObjectMethod("getName", "()Ljava/lang/String;");
     QString name(tmp.toString());
-    tmp = srr.callObjectMethod("getAddress","()Ljava/lang/String;");
+    tmp = srr.callObjectMethod("getAddress", "()Ljava/lang/String;");
     QString address(tmp.toString());
     tmp = srr.callObjectMethod("getData", "()[B");
     jbyteArray dataArray = tmp.object<jbyteArray>();
@@ -28,26 +28,20 @@ ScanRecordResult ScanRecordResult::fromJObject(JNIEnv * env, jobject java) {
 }
 #endif
 
-bool ScanRecordResult::isValid() const {
-    return !address.isEmpty();
-}
+bool ScanRecordResult::isValid() const { return !address.isEmpty(); }
 
-ScanRecordResult::ScanRecordResult(int rss, const QString& nam, const QString& addres, const QByteArray& dat) {
+ScanRecordResult::ScanRecordResult(int rss, const QString &nam, const QString &addres, const QByteArray &dat) {
     rssi = rss;
     name = nam;
     address = addres;
     data = dat;
 }
 
-ScanRecordResult::ScanRecordResult() {
+ScanRecordResult::ScanRecordResult() {}
 
-}
+ScanRecordResult::~ScanRecordResult() {}
 
-ScanRecordResult::~ScanRecordResult() {
-
-}
-
-ScanRecordResult::ScanRecordResult(const ScanRecordResult& srr) {
+ScanRecordResult::ScanRecordResult(const ScanRecordResult &srr) {
     rssi = srr.rssi;
     name = srr.name;
     address = srr.address;
@@ -55,37 +49,23 @@ ScanRecordResult::ScanRecordResult(const ScanRecordResult& srr) {
 }
 
 QString ScanRecordResult::toString() const {
-    return isValid()? name + " (" + address + ")["+ QString::number(rssi) + "] "+data.toHex(' '): "N/A";
+    return isValid() ? name + QStringLiteral(" (") + address + QStringLiteral(")[") + QString::number(rssi) +
+                           QStringLiteral("] ") + data.toHex(' ')
+                     : QStringLiteral("N/A");
 }
 
-int ScanRecordResult::getRssi() const {
-    return rssi;
-}
+int ScanRecordResult::getRssi() const { return rssi; }
 
-void ScanRecordResult::setRssi(int rssi) {
-    this->rssi = rssi;
-}
+void ScanRecordResult::setRssi(int rssi) { this->rssi = rssi; }
 
-QByteArray ScanRecordResult::getData() const {
-    return data;
-}
+QByteArray ScanRecordResult::getData() const { return data; }
 
-void ScanRecordResult::setData(const QByteArray& data) {
-    this->data = data;
-}
+void ScanRecordResult::setData(const QByteArray &data) { this->data = data; }
 
-QString ScanRecordResult::getName() const {
-    return name;
-}
+QString ScanRecordResult::getName() const { return name; }
 
-void ScanRecordResult::setName(const QString& name) {
-    this->name = name;
-}
+void ScanRecordResult::setName(const QString &name) { this->name = name; }
 
-QString ScanRecordResult::getAddress() const {
-    return address;
-}
+QString ScanRecordResult::getAddress() const { return address; }
 
-void ScanRecordResult::setAddress(const QString& address) {
-    this->address = address;
-}
+void ScanRecordResult::setAddress(const QString &address) { this->address = address; }

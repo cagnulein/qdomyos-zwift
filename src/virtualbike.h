@@ -7,8 +7,9 @@
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
@@ -26,20 +27,21 @@
 #endif
 #include "bike.h"
 
-class virtualbike: public QObject
-{
+class virtualbike : public QObject {
+
     Q_OBJECT
-public:
-    virtualbike(bluetoothdevice* t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
+  public:
+    virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
+                double bikeResistanceGain = 1.0);
     bool connected();
 
-private:
-    QLowEnergyController* leController = 0;
-    QLowEnergyService* serviceHR = 0;
-    QLowEnergyService* serviceBattery = 0;
-    QLowEnergyService* serviceFIT = 0;
-    QLowEnergyService* service = 0;
-    QLowEnergyService* serviceChanged = 0;
+  private:
+    QLowEnergyController *leController = nullptr;
+    QLowEnergyService *serviceHR = nullptr;
+    QLowEnergyService *serviceBattery = nullptr;
+    QLowEnergyService *serviceFIT = nullptr;
+    QLowEnergyService *service = nullptr;
+    QLowEnergyService *serviceChanged = nullptr;
     QLowEnergyAdvertisingData advertisingData;
     QLowEnergyServiceData serviceDataHR;
     QLowEnergyServiceData serviceDataBattery;
@@ -57,19 +59,20 @@ private:
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
-    void writeCharacteristic(QLowEnergyService* service, QLowEnergyCharacteristic characteristic, QByteArray value);
-    
+    void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
+                             const QByteArray &value);
+
     void slopeChanged(int16_t slope);
     void powerChanged(uint16_t power);
-    
+
 #ifdef Q_OS_IOS
-    lockscreen* h = 0;
+    lockscreen *h = 0;
 #endif
 
 signals:
     void changeInclination(double grade, double percentage);
 
-private slots:
+  private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void bikeProvider();
     void reconnect();

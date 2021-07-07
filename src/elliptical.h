@@ -1,13 +1,12 @@
 #ifndef ELLIPTICAL_H
 #define ELLIPTICAL_H
-#include <QObject>
 #include "bluetoothdevice.h"
+#include <QObject>
 
-class elliptical:public bluetoothdevice
-{
+class elliptical : public bluetoothdevice {
     Q_OBJECT
 
-public:
+  public:
     elliptical();
     void update_metrics(const bool watt_calc, const double watts);
     metric lastRequestedResistance();
@@ -17,22 +16,21 @@ public:
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
-    virtual bool connected();    
+    virtual bool connected();
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setPaused(bool p);
     void setLap();
     uint16_t watts();
 
-public slots:
+  public Q_SLOTS:
     virtual void changeResistance(int8_t res);
     virtual void changeInclination(double inclination);
 
-signals:
+  signals:
     void bikeStarted();
 
-protected:    
-
+  protected:
     metric Inclination;
     double requestInclination = -1;
     metric RequestedResistance;

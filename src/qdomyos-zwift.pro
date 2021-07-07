@@ -9,7 +9,14 @@ qtHaveModule(httpserver) {
     HEADERS += webserverinfosender.h
 }
 
-CONFIG += c++11 console debug app_bundle
+CONFIG += c++17 console app_bundle optimize_full ltcg
+QMAKE_LFLAGS_RELEASE += -s
+QMAKE_CXXFLAGS += -fno-sized-deallocation
+unix:android: {
+    CONFIG -= optimize_size
+    QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
+    QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
+}
 macx: CONFIG += static
 
 # The following define makes your compiler emit warnings if you use
@@ -386,6 +393,7 @@ HEADERS += \
    powerzonepack.h \
 	proformbike.h \
 	proformtreadmill.h \
+    qdebugfixup.h \
 	qfit.h \
    renphobike.h \
    rower.h \
@@ -444,6 +452,7 @@ RESOURCES += \
 	qml.qrc
 
 DISTFILES += \
+    .clang-format \
    android/AndroidManifest.xml \
 	android/build.gradle \
 	android/gradle/wrapper/gradle-wrapper.jar \
@@ -467,6 +476,7 @@ DISTFILES += \
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
+#ANDROID_ABIS = arm64-v8a
 
 ios {
     ios_icon.files = $$files($$PWD/icons/ios/*.png)

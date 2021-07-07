@@ -1,43 +1,42 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QDialog>
-#include <QTimer>
-#include <QTime>
-#include <QDebug>
-#include <QTableWidgetItem>
-#include "trainprogram.h"
 #include "domyostreadmill.h"
+#include "qdebugfixup.h"
 #include "sessionline.h"
+#include "trainprogram.h"
+#include <QDialog>
+#include <QTableWidgetItem>
+#include <QTime>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
 }
 
-class MainWindow : public QDialog
-{
+class MainWindow : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     QList<SessionLine> Session;
-    explicit MainWindow(bluetooth* t);
-    explicit MainWindow(bluetooth* t, QString trainProgram);
+    explicit MainWindow(bluetooth *t);
+    explicit MainWindow(bluetooth *t, const QString &trainProgram);
     ~MainWindow();
 
-private:
+  private:
     void addEmptyRow();
-    void load(bluetooth* device);
-    void loadTrainProgram(QString fileName);
-    void createTrainProgram(QList<trainrow> rows);    
+    void load(bluetooth *device);
+    void loadTrainProgram(const QString &fileName);
+    void createTrainProgram(const QList<trainrow> &rows);
     bool editing = false;
-    trainprogram* trainProgram = 0;
+    trainprogram *trainProgram = nullptr;
 
     Ui::MainWindow *ui;
     QTimer *timer;
 
-    bluetooth* bluetoothManager;
+    bluetooth *bluetoothManager;
 
-private slots:
+  private slots:
     void update();
     void on_tableWidget_cellChanged(int row, int column);
     void on_tableWidget_currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);

@@ -1,30 +1,36 @@
 #ifndef PELOTON_H
 #define PELOTON_H
 
-#include <QObject>
-#include <QAbstractOAuth2>
-#include <QNetworkAccessManager>
-#include <QOAuth2AuthorizationCodeFlow>
-#include <QOAuthHttpServerReplyHandler>
-#include <QDesktopServices>
-#include <QJsonDocument>
-#include <QUrlQuery>
-#include <QHttpMultiPart>
-#include <QSettings>
-#include <QNetworkReply>
-#include <QJsonObject>
-#include <QJsonArray>
-#include <QTimer>
-#include "trainprogram.h"
 #include "bluetooth.h"
 #include "powerzonepack.h"
+#include "trainprogram.h"
+#include <QAbstractOAuth2>
+#include <QDesktopServices>
+#include <QHttpMultiPart>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QOAuth2AuthorizationCodeFlow>
+#include <QOAuthHttpServerReplyHandler>
+#include <QObject>
+
+
+#include <QSettings>
+
+
+#include <QTimer>
+#include <QUrlQuery>
+
+
 #include "homefitnessbuddy.h"
 
-class peloton : public QObject
-{
+class peloton : public QObject {
+
     Q_OBJECT
-public:
-    explicit peloton(bluetooth* bl, QObject *parent = nullptr);
+  public:
+    explicit peloton(bluetooth *bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
 
     enum _PELOTON_API {
@@ -36,19 +42,19 @@ public:
     _PELOTON_API currentApi() {return current_api;}
 
     QString user_id;
-    QString current_workout_id = "";
-    QString current_workout_name = "";
-    QString current_workout_status = "";
-    QString current_instructor_id = "";
-    QString current_instructor_name = "";
-    QString current_ride_id = "";
+    QString current_workout_id = QLatin1String("");
+    QString current_workout_name = QLatin1String("");
+    QString current_workout_status = QLatin1String("");
+    QString current_instructor_id = QLatin1String("");
+    QString current_instructor_name = QLatin1String("");
+    QString current_ride_id = QLatin1String("");
     QDateTime current_original_air_time;
 
-private:
+  private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 10;
     bool peloton_credentials_wrong = false;
-    QNetworkAccessManager * mgr = 0;
+    QNetworkAccessManager *mgr = nullptr;
 
     QJsonDocument current_workout;
     QJsonDocument current_workout_summary;
@@ -56,33 +62,33 @@ private:
     QJsonDocument instructor;
     QJsonDocument performance;
 
-    QTimer* timer;
+    QTimer *timer;
 
-    bluetooth* bluetoothManager = 0;
-    powerzonepack* PZP = 0;
+    bluetooth *bluetoothManager = nullptr;
+    powerzonepack *PZP = nullptr;
     homefitnessbuddy* HFB = nullptr;
 
     int total_workout;
     void getWorkoutList(int num);
-    void getSummary(QString workout);
-    void getWorkout(QString workout);
-    void getInstructor(QString instructor_id);
-    void getPerformance(QString workout);
+    void getSummary(const QString &workout);
+    void getWorkout(const QString &workout);
+    void getInstructor(const QString &instructor_id);
+    void getPerformance(const QString &workout);
 
-private slots:
-    void login_onfinish(QNetworkReply* reply);
-    void workoutlist_onfinish(QNetworkReply* reply);
-    void summary_onfinish(QNetworkReply* reply);
-    void workout_onfinish(QNetworkReply* reply);
-    void performance_onfinish(QNetworkReply* reply);
-    void instructor_onfinish(QNetworkReply* reply);
-    void pzp_trainrows(QList<trainrow>* list);
+  private slots:
+    void login_onfinish(QNetworkReply *reply);
+    void workoutlist_onfinish(QNetworkReply *reply);
+    void summary_onfinish(QNetworkReply *reply);
+    void workout_onfinish(QNetworkReply *reply);
+    void performance_onfinish(QNetworkReply *reply);
+    void instructor_onfinish(QNetworkReply *reply);
+    void pzp_trainrows(QList<trainrow> *list);
     void hfb_trainrows(QList<trainrow>* list);
     void pzp_loginState(bool ok);
 
     void startEngine();
 
-signals:
+  signals:
     void loginState(bool ok);
     void pzpLoginState(bool ok);
     void workoutStarted(QString name, QString instructor);

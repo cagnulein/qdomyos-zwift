@@ -13,6 +13,9 @@ src/qdomyos-zwift
 src/ui_charts.h
 src/ui_mainwindow.h
 
+src/build/*
+src/build/*
+
 src/debug-*
 
 *.swo

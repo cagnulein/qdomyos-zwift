@@ -1,14 +1,15 @@
 #ifndef BIKE_H
 #define BIKE_H
 
-#include <QObject>
-#include "bluetoothdevice.h"
 
-class bike:public bluetoothdevice
-{
+#include "bluetoothdevice.h"
+#include <QObject>
+
+class bike : public bluetoothdevice {
+
     Q_OBJECT
 
-public:
+  public:
     bike();
     metric lastRequestedResistance();
     metric lastRequestedPelotonResistance();
@@ -32,24 +33,27 @@ public:
     void setGears(int8_t d);
     int8_t gears();
 
-public slots:
+  public Q_SLOTS:
     virtual void changeResistance(int8_t res);
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     virtual void cadenceSensor(uint8_t cadence);
 
-signals:
+  Q_SIGNALS:
     void bikeStarted();
     void resistanceChanged(int8_t resistance);
     void resistanceRead(int8_t resistance);
 
-protected:
-    metric RequestedResistance;    
+  protected:
+
+    metric RequestedResistance;
     metric RequestedPelotonResistance;
     metric RequestedCadence;
     metric RequestedPower;
+
     int8_t requestResistance = -1;
+
     int8_t m_gears = 0;
     int8_t lastRawRequestedResistanceValue = -1;
     uint16_t LastCrankEventTime = 0;

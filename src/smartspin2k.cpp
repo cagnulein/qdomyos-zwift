@@ -1,39 +1,43 @@
 #include "smartspin2k.h"
+#include "ios/lockscreen.h"
 #include "virtualbike.h"
-#include <QFile>
+#include <QBluetoothLocalDevice>
 #include <QDateTime>
+#include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
-#include <QBluetoothLocalDevice>
-#include <math.h>
+
+
 #include <QThread>
-#include "ios/lockscreen.h"
+#include <math.h>
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
 #include "keepawakehelper.h"
+#include <chrono>
 
-smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService)
-{
+using namespace std::chrono_literals;
+
+smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    connect(refresh, &QTimer::timeout, this, &smartspin2k::update);
+    refresh->start(200ms);
 }
 
-void smartspin2k::resistanceReadFromTheBike(int8_t resistance)
-{
+void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
+
     static bool first = true;
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
-    if(startupResistance == -1)
+    if(startupResistance == -1) {
         startupResistance = resistance;
+    }
+    if(initRequest && first) {
 
-    if(initRequest && first)
-    {        
         first = false;
         uint8_t enable_syncmode[] = { 0x02, 0x1B, 0x01 };
         uint8_t disable_syncmode[] = { 0x02, 0x1B, 0x00 };
@@ -46,8 +50,8 @@ void smartspin2k::resistanceReadFromTheBike(int8_t resistance)
     Resistance = resistance;
 }
 
-void smartspin2k::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool wait_for_response)
-{
+void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                      bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if(wait_for_response)
@@ -65,31 +69,36 @@ void smartspin2k::writeCharacteristic(uint8_t* data, uint8_t data_len, QString i
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data, data_len));
 
-    if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 }
 
-void smartspin2k::forceResistance(int8_t requestResistance)
-{
+void smartspin2k::forceResistance(int8_t requestResistance) {
+
     uint8_t write[] = { 0x02, 0x17, 0x00, 0x00 };
     write[2] = (uint8_t)(requestResistance & 0xFF);
     write[3] = (uint8_t)(requestResistance >> 8);
 
-    writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance));
+
+
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
-void smartspin2k::update()
-{
-    if(m_control->state() == QLowEnergyController::UnconnectedState)
-    {
+void smartspin2k::update() {
+    if (m_control->state() == QLowEnergyController::UnconnectedState) {
+
+
         emit disconnected();
         return;
     }
 
-    if(initRequest)
-    {
+    if (initRequest) {
+
         // if the first event from the bike occurs before connecting with SS2k, we have to force it
         if(startupResistance != -1)
             resistanceReadFromTheBike(startupResistance);
@@ -104,66 +113,177 @@ void smartspin2k::update()
         update_metrics(true, watts());
 
         // updating the treadmill console every second
-        if(sec1Update++ == (500 / refresh->interval()))
-        {
+        if (sec1Update++ == (500 / refresh->interval())) {
+
             sec1Update = 0;
-            //updateDisplay(elapsed);
+            // updateDisplay(elapsed);
         }
 
-        if(requestResistance != -1)
-        {
-            if(requestResistance > 100) requestResistance = 100; // TODO, use the bluetooth value
-           else if(requestResistance == 0) requestResistance = 1;
+        if (requestResistance != -1) {
+            if (requestResistance > 100) {
+                requestResistance = 100;
+            } // TODO, use the bluetooth value
+            else if (requestResistance == 0) {
+                requestResistance = 1;
+            }
 
-           if(requestResistance != currentResistance().value())
-           {
-              debug("writing resistance " + QString::number(requestResistance));
-              forceResistance(requestResistance);
-           }
-           requestResistance = -1;
+            if (requestResistance != currentResistance().value()) {
+                emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
+
+                forceResistance(requestResistance);
+            }
+            requestResistance = -1;
         }
         else {
             uint8_t read[] = { 0x01, 0x17 };
             writeCharacteristic(read, sizeof(read), QStringLiteral("polling"));
+
+
+
+
+
+
+
+
+
         }
     }
 }
 
-void smartspin2k::serviceDiscovered(const QBluetoothUuid &gatt)
-{
-    debug("serviceDiscovered " + gatt.toString());
+void smartspin2k::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+
 }
 
-void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
-{
+void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+
+
     Q_UNUSED(characteristic);
 
-    debug(" << " + newValue.toHex(' '));
+
+
+
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+
+
+
+
 
     lastPacket = newValue;
 
     if(newValue.length() >= 4 ) {
         Resistance = (int16_t)(((uint16_t)newValue.at(2)) + (((uint16_t)newValue.at(3)) << 8));
         qDebug() << "Resistance received from SS2k:" << Resistance.value();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+
+
+
+
+
 }
 
-void smartspin2k::stateChanged(QLowEnergyService::ServiceState state)
-{
+void smartspin2k::stateChanged(QLowEnergyService::ServiceState state) {
+
     QBluetoothUuid _gattWriteCharacteristicId((QString)"77776277-7877-7774-4466-896665500001");
     //QBluetoothUuid _gattNotify1CharacteristicId((QString)"77776277-7877-7774-4466-896665500001");
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    qDebug() << "BTLE stateChanged " + QString::fromLocal8Bit(metaEnum.valueToKey(state));
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if(state == QLowEnergyService::ServiceDiscovered)
     {
         //qDebug() << gattCommunicationChannelService->characteristics();
 
+
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         //gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         //Q_ASSERT(gattNotify1Characteristic.isValid());
+
+
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
@@ -175,92 +295,130 @@ void smartspin2k::stateChanged(QLowEnergyService::ServiceState state)
         connect(gattCommunicationChannelService, SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
                 SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
 
+
+
         firstStateChanged = 1;
+
+
+
+
+
+
+
+
+
+
+
 
         QByteArray descriptor;
         descriptor.append((char)0x02);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(gattWriteCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
+
 }
 
-void smartspin2k::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
-{
-    debug("descriptorWritten " + descriptor.name() + " " + newValue.toHex(' '));
+void smartspin2k::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void smartspin2k::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue)
-{
-    qDebug() << "descriptorRead " << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
+void smartspin2k::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
+
 }
 
-void smartspin2k::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
-{
+void smartspin2k::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+
     Q_UNUSED(characteristic);
-    debug("characteristicWritten " + newValue.toHex(' '));
+    emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void smartspin2k::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue)
-{
-    qDebug() << "characteristicRead " << characteristic.uuid() << newValue.toHex(' ');
+void smartspin2k::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
+
 }
 
-void smartspin2k::serviceScanDone(void)
-{
-    qDebug() << "serviceScanDone";
+void smartspin2k::serviceScanDone(void) {
+    emit debug(QStringLiteral("serviceScanDone"));
+
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString)"77776277-7877-7774-4466-896665500000");
+
+
+
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this, SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
+
+
+
 }
 
-void smartspin2k::errorService(QLowEnergyService::ServiceError err)
-{
+void smartspin2k::errorService(QLowEnergyService::ServiceError err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    debug("smartspin2k::errorService" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("smartspin2k::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
-void smartspin2k::error(QLowEnergyController::Error err)
-{
+void smartspin2k::error(QLowEnergyController::Error err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    debug("smartspin2k::error" + QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
+    emit debug(QStringLiteral("smartspin2k::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+               m_control->errorString());
 }
 
-void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device)
-{
-    debug("Found new device: " + device.name() + " (" + device.address().toString() + ')');
+void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
+               device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, SIGNAL(serviceDiscovered(const QBluetoothUuid &)),
-                this, SLOT(serviceDiscovered(const QBluetoothUuid &)));
-        connect(m_control, SIGNAL(discoveryFinished()),
-                this, SLOT(serviceScanDone()));
-        connect(m_control, SIGNAL(error(QLowEnergyController::Error)),
-                this, SLOT(error(QLowEnergyController::Error)));
-        connect(m_control, SIGNAL(stateChanged(QLowEnergyController::ControllerState)), this, SLOT(controllerStateChanged(QLowEnergyController::ControllerState)));
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &smartspin2k::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &smartspin2k::serviceScanDone);
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+                this, &smartspin2k::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &smartspin2k::controllerStateChanged);
 
-        connect(m_control, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+
+
+        connect(m_control,
+                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
-            Q_UNUSED(error);
-            Q_UNUSED(this);
-            debug("Cannot connect to remote device.");
-            emit disconnected();
-        });
+                    Q_UNUSED(error);
+                    Q_UNUSED(this);
+                    emit debug(QStringLiteral("Cannot connect to remote device."));
+                    emit disconnected();
+                });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
             Q_UNUSED(this);
-            debug("Controller connected. Search services...");
+            emit debug(QStringLiteral("Controller connected. Search services..."));
             m_control->discoverServices();
         });
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
-            debug("LowEnergy controller disconnected");
+            emit debug(QStringLiteral("LowEnergy controller disconnected"));
             emit disconnected();
         });
 
@@ -270,36 +428,36 @@ void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device)
     }
 }
 
-bool smartspin2k::connected()
-{
-    if(!m_control)
+bool smartspin2k::connected() {
+    if (!m_control) {
+
         return false;
+    }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void* smartspin2k::VirtualBike()
-{
-    return virtualBike;
-}
+void *smartspin2k::VirtualBike() { return virtualBike; }
 
-void* smartspin2k::VirtualDevice()
-{
-    return VirtualBike();
-}
 
-uint16_t smartspin2k::watts()
-{
-    if(currentCadence().value() == 0) return 0;
+
+
+void *smartspin2k::VirtualDevice() { return VirtualBike(); }
+
+
+uint16_t smartspin2k::watts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
 
     return m_watt.value();
 }
 
-void smartspin2k::controllerStateChanged(QLowEnergyController::ControllerState state)
-{
-    qDebug() << "controllerStateChanged" << state;
-    if(state == QLowEnergyController::UnconnectedState && m_control)
-    {
-        qDebug() << "trying to connect back again...";
+void smartspin2k::controllerStateChanged(QLowEnergyController::ControllerState state) {
+    qDebug() << QStringLiteral("controllerStateChanged") << state;
+    if (state == QLowEnergyController::UnconnectedState && m_control) {
+        qDebug() << QStringLiteral("trying to connect back again...");
+
+
         initDone = false;
         m_control->connectToDevice();
     }
