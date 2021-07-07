@@ -214,6 +214,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     {
         Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         emit resistanceRead(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
     }
