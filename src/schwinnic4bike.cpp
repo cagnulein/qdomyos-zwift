@@ -286,7 +286,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double cr=97.62165482;
 
     m_pelotonResistance = (((sqrt(pow(br,2.0)-4.0*ar*(cr-(m_watt.value()*132.0/(ac*pow(Cadence.value(),2.0)+bc*Cadence.value()+cc))))-br)/(2.0*ar)) * settings.value("peloton_gain", 1.0).toDouble()) + settings.value("peloton_offset", 0.0).toDouble();
-    Resistance = m_pelotonResistance;
+    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
     emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -510,5 +510,14 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance)
+{
+    if(pelotonResistance > 54) return pelotonResistance;
+    if(pelotonResistance < 26) return pelotonResistance / 5;
+
+    //y = 0,04x2 - 1,32x + 11,8
+    return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
 }
 

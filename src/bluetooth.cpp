@@ -632,7 +632,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device)
                 renphoBike->deviceDiscovered(b);
                 templateManager->start(renphoBike);
             }
-            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("WAHOO KICKR"))) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
+            else if(((b.name().startsWith("FS-") && hammerRacerS) || (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94"))) && !ftmsBike && !snodeBike && !fitPlusBike && filter)
             {
                 discoveryAgent->stop();
                 ftmsBike = new ftmsbike(noWriteResistance, noHeartService);

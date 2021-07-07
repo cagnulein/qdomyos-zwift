@@ -7,6 +7,7 @@
 #include <unistd.h> // getuid
 #endif
 #endif
+#include <QQmlContext>
 #include <QStandardPaths>
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
@@ -230,6 +231,9 @@ int main(int argc, char *argv[])
 #endif
 #endif
 
+#ifdef Q_OS_ANDROID
+    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
+#endif
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));            
 #else
@@ -370,6 +374,11 @@ int main(int argc, char *argv[])
             if(resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
                 qDebug() << "BLUETOOTH_ADMIN denied!";
         }
+#endif
+#ifdef Q_OS_ANDROID
+    engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
+#else
+    engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
 #endif
         engine.load(url);
         homeform* h = new homeform(&engine, bl);

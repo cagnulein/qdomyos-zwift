@@ -363,6 +363,8 @@ private slots:
     void Lap();
     void Minus(QString);
     void Plus(QString);
+    void volumeDown();
+    void volumeUp();
     void deviceFound(QString name);
     void deviceConnected();
     void trainprogram_open_clicked(QUrl fileName);
