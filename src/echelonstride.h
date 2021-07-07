@@ -1,16 +1,15 @@
 #ifndef ECHELONSTRIDE_H
 #define ECHELONSTRIDE_H
 
-
+#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
-#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-#include <QBluetoothDeviceDiscoveryAgent>
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -19,37 +18,37 @@
 #include <QtGui/qguiapplication.h>
 #endif
 #include <QtCore/qlist.h>
+#include <QtCore/qmutex.h>
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
-#include <QtCore/qmutex.h>
 
+#include <QDateTime>
 #include <QObject>
 #include <QString>
-#include <QDateTime>
 
-#include "virtualtreadmill.h"
 #include "treadmill.h"
+#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class echelonstride : public treadmill
-{
+class echelonstride : public treadmill {
     Q_OBJECT
-public:
-    echelonstride(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false, double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
-    bool connected();
-    bool changeFanSpeed(uint8_t speed);
-    double odometer();
+  public:
+    echelonstride(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
+                  double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    bool connected() override;
+    bool changeFanSpeed(uint8_t speed) override;
+    double odometer() override;
 
     void setLastSpeed(double speed);
     void setLastInclination(double inclination);
 
-    void* VirtualTreadMill();
-    void* VirtualDevice();
+    void *VirtualTreadMill();
+    void *VirtualDevice() override;
 
-private:
+  private:
     bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
@@ -59,7 +58,8 @@ private:
     void updateDisplay(uint16_t elapsed);
     void btinit();
     void sendPoll();
-    void writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
     double DistanceCalculated = 0;
     volatile bool incompletePackets = false;
@@ -76,10 +76,10 @@ private:
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
-    QTimer* refresh;
-    virtualtreadmill* virtualTreadMill = 0;
+    QTimer *refresh;
+    virtualtreadmill *virtualTreadMill = nullptr;
 
-    QLowEnergyService* gattCommunicationChannelService = 0;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
@@ -88,21 +88,21 @@ private:
     bool initRequest = false;
 
 #ifdef Q_OS_IOS
-    lockscreen* h = 0;
+    lockscreen *h = 0;
 #endif
 
-signals:
+  signals:
     void disconnected();
     void debug(QString string);
     void speedChanged(double speed);
     void inclinationChanged(double inclination);
     void packetReceived();
 
-public slots:
+  public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void searchingStop();
 
-private slots:
+  private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
