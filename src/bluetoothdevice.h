@@ -8,6 +8,7 @@
 #include <QObject>
 #include <QTimer>
 
+
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
@@ -17,6 +18,7 @@
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+
 
 #if defined(Q_OS_IOS)
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
@@ -43,6 +45,10 @@ class bluetoothdevice : public QObject {
     virtual QTime movingTime();
     virtual QTime lapElapsedTime();
     virtual bool connected();
+    virtual metric currentResistance();
+    virtual metric currentCadence();
+    virtual double currentCrankRevolutions();
+    virtual uint16_t lastCrankEventTime();
     virtual void *VirtualDevice();
     uint16_t watts(double weight);
     metric wattsMetric();
@@ -63,6 +69,7 @@ class bluetoothdevice : public QObject {
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
 
+
     virtual BLUETOOTH_TYPE deviceType();
     static QStringList metrics();
     virtual uint8_t metrics_override_heartrate();
@@ -72,6 +79,8 @@ class bluetoothdevice : public QObject {
     virtual void stop();
     virtual void heartRate(uint8_t heart);
     virtual void cadenceSensor(uint8_t cadence);
+    virtual void changeResistance(int8_t res);
+    virtual void changePower(int32_t power);
 
   Q_SIGNALS:
     void connectedAndDiscovered();
@@ -97,6 +106,8 @@ class bluetoothdevice : public QObject {
     metric m_watt;
     metric WattKg;
     metric WeightLoss;
+    metric Cadence;
+    metric Resistance;
 
     bool paused = false;
     bool autoResistanceEnable = true;

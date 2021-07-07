@@ -7,6 +7,7 @@
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
@@ -27,9 +28,10 @@
 #include "bike.h"
 
 class virtualbike : public QObject {
+
     Q_OBJECT
   public:
-    virtualbike(bike *t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
+    virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
                 double bikeResistanceGain = 1.0);
     bool connected();
 
@@ -48,7 +50,7 @@ class virtualbike : public QObject {
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
-    bike *Bike;
+    bluetoothdevice* Bike;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -66,6 +68,9 @@ class virtualbike : public QObject {
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
+
+signals:
+    void changeInclination(double grade, double percentage);
 
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

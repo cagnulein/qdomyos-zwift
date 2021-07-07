@@ -30,9 +30,11 @@ uint8_t initDataStart6[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0xff};
 
 
+
 uint8_t initDataStart7[] = {0xff, 0xff, 0x8b}; // power on bt icon
 uint8_t initDataStart8[] = {0xf0, 0xcb, 0x02, 0x00, 0x08, 0xff, 0xff, 0xff, 0xff, 0xff,
                             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00};
+
 
 
 uint8_t initDataStart9[] = {0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xb6}; // power on bt word
@@ -40,9 +42,11 @@ uint8_t initDataStart10[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x05, 0xff, 0xff, 0xf
                              0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0x01, 0xff};
 
 
+
 uint8_t initDataStart11[] = {0xff, 0xff, 0x94}; // start tape
 uint8_t initDataStart12[] = {0xf0, 0xcb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                              0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x14, 0x01, 0xff, 0xff};
+
 
 
 uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
@@ -83,6 +87,7 @@ void domyostreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+
 
 
     }
@@ -233,10 +238,15 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed) {
     return true;
 }
 
+void domyostreadmill::changeInclinationRequested(double grade, double percentage) {
+    Q_UNUSED(grade);
+    if(percentage < 0) percentage = 0;
+    changeInclination(percentage);
+}
+
 void domyostreadmill::update() {
-    if (m_control->state() == QLowEnergyController::UnconnectedState) {
-
-
+    if(m_control->state() == QLowEnergyController::UnconnectedState)
+    {
         emit disconnected();
         return;
     }
@@ -250,16 +260,24 @@ void domyostreadmill::update() {
                gattWriteCharacteristic.isValid() && gattNotifyCharacteristic.isValid() && initDone) {
 
 
+
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
-            if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-
-
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &domyostreadmill::debug);
+        if(!firstInit && searchStopped && !virtualTreadMill && !virtualBike)
+        {            
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            if(virtual_device_enabled)
+            {
+                if(!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadMill,&virtualtreadmill::debug ,this,&domyostreadmill::debug);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &domyostreadmill::changeInclinationRequested);
+                }
                 firstInit = 1;
             }
         }
@@ -283,6 +301,7 @@ void domyostreadmill::update() {
             }
 
 
+
         }
 
         // byte 3 - 4 = elapsed time
@@ -293,9 +312,12 @@ void domyostreadmill::update() {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
 
+
                     double inc = Inclination.value();
                     if (requestInclination != -1) {
 
+                      // only 0.5 steps ara avaiable
+                      requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
                         requestInclination = -1;
                     }
@@ -304,9 +326,12 @@ void domyostreadmill::update() {
                 requestSpeed = -1;
             }
             if (requestInclination != -1) {
+                // only 0.5 steps ara avaiable
+                requestInclination = qRound(requestInclination * 2.0) / 2.0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+
 
                     double speed = currentSpeed().value();
                     if (requestSpeed != -1) {
@@ -568,6 +593,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (Speed.value() != speed) {
 
 
+
+
         emit speedChanged(speed);
     }
     Speed = speed;
@@ -737,6 +764,7 @@ void domyostreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 
 
+
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -788,7 +816,12 @@ void *domyostreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 
 
+
+
+
+
 void *domyostreadmill::VirtualDevice() { return VirtualTreadMill(); }
+
 
 
 

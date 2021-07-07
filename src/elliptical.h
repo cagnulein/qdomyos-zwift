@@ -11,8 +11,8 @@ class elliptical : public bluetoothdevice {
     void update_metrics(const bool watt_calc, const double watts);
     metric lastRequestedResistance();
     virtual metric currentInclination();
-    virtual int8_t currentResistance();
-    virtual uint8_t currentCadence();
+    virtual metric currentResistance();
+    virtual metric currentCadence();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
@@ -34,8 +34,8 @@ class elliptical : public bluetoothdevice {
     metric Inclination;
     double requestInclination = -1;
     metric RequestedResistance;
-    uint8_t Cadence = 0;
-    int8_t Resistance = 0;
+    metric Cadence;
+    metric Resistance;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
     double CrankRevs = 0;

@@ -1,6 +1,8 @@
 #include "bluetoothdevice.h"
 
 
+
+
 #include <QSettings>
 #include <QTime>
 
@@ -23,7 +25,15 @@ QTime bluetoothdevice::lapElapsedTime() {
     int hours = (int)(elapsed.lapValue() / 3600.0);
     return QTime(hours, (int)(elapsed.lapValue() - ((double)hours * 3600.0)) / 60.0,
                  ((uint32_t)elapsed.lapValue()) % 60, 0);
+
 }
+
+metric bluetoothdevice::currentResistance() {return Resistance;}
+metric bluetoothdevice::currentCadence() {return Cadence;}
+double bluetoothdevice::currentCrankRevolutions() {return 0;}
+uint16_t bluetoothdevice::lastCrankEventTime() {return 0;}
+void bluetoothdevice::changeResistance(int8_t resistance) {}
+void bluetoothdevice::changePower(int32_t power){}
 
 void bluetoothdevice::offsetElapsedTime(int offset) { elapsed += offset; }
 
@@ -33,6 +43,7 @@ QTime bluetoothdevice::currentPace() {
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
+
 
     }
     if (Speed.value() == 0) {
@@ -52,6 +63,7 @@ QTime bluetoothdevice::averagePace() {
     if (miles) {
         unit_conversion = 0.621371;
 
+
     }
     if (Speed.average() == 0) {
         return QTime(0, 0, 0, 0);
@@ -69,6 +81,7 @@ QTime bluetoothdevice::maxPace() {
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
+
 
     }
     if (Speed.max() == 0) {
@@ -225,74 +238,98 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
         return currentHeart().value();
     } else if (!setting.compare(QStringLiteral("Speed"))) {
 
+
         return currentSpeed().value();
     } else if (!setting.compare(QStringLiteral("Inclination"))) {
+
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Cadence"))) {
 
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
+
 
         return elevationGain();
     } else if (!setting.compare(QStringLiteral("Calories"))) {
 
+
         return calories();
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
+
 
         return odometer();
     } else if (!setting.compare(QStringLiteral("Pace"))) {
 
+
         return currentPace().second();
     } else if (!setting.compare(QStringLiteral("Resistance"))) {
+
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Watt"))) {
 
+
         return wattsMetric().value();
     } else if (!setting.compare(QStringLiteral("Weight Loss"))) {
+
 
         return weightLoss();
     } else if (!setting.compare(QLatin1String("Watt/Kg"))) {
 
+
         return wattKg().value();
     } else if (!setting.compare(QStringLiteral("AVG Watt"))) {
+
 
         return wattsMetric().average();
     } else if (!setting.compare(QStringLiteral("FTP"))) {
 
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Fan"))) {
+
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Jouls"))) {
 
+
         return jouls().value();
     } else if (!setting.compare(QStringLiteral("Lap Elapsed"))) {
+
 
         return lapElapsedTime().second();
     } else if (!setting.compare(QStringLiteral("Elapsed"))) {
 
+
         return elapsed.value();
     } else if (!setting.compare(QStringLiteral("Moving Time"))) {
+
 
         return movingTime().second();
     } else if (!setting.compare(QStringLiteral("Peloton Offset"))) {
 
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Peloton Resistance"))) {
+
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Date Time"))) {
 
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Resistance"))) {
+
 
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Peloton Resistance"))) {
 
+
         return 0;
     } else if (!setting.compare(QStringLiteral("Target Power"))) {
+
 
         return 0;
     }

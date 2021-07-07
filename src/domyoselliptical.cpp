@@ -1,10 +1,12 @@
 #include "domyoselliptical.h"
+
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
+
 #include <QSettings>
 #include <chrono>
 
@@ -29,6 +31,7 @@ domyoselliptical::domyoselliptical(bool noWriteResistance, bool noHeartService, 
 
 domyoselliptical::~domyoselliptical() {
     qDebug() << QStringLiteral("~domyoselliptical()") << virtualTreadmill;
+
     if (virtualTreadmill)
         delete virtualTreadmill;
 }
@@ -44,6 +47,7 @@ void domyoselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
@@ -62,15 +66,18 @@ void domyoselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 }
 
 void domyoselliptical::updateDisplay(uint16_t elapsed) {
+
     // if(bike_type == CHANG_YOW)
     {
         uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                               0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
+
         display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
         display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
 
         for (uint8_t i = 0; i < sizeof(display2) - 1; i++) {
+
             display2[26] += display2[i]; // the last byte is a sort of a checksum
         }
 
@@ -80,6 +87,7 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
 
     uint8_t display[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00,
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
+
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
@@ -92,12 +100,13 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
     // display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     // display[14] = (((uint8_t)calories())) & 0xFF;
 
-    display[16] = (uint8_t)currentCadence();
+    display[16] = (uint8_t)currentCadence().value();
 
     display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
     display[20] = (((uint16_t)calories())) & 0xFF;
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
+
         display[26] += display[i]; // the last byte is a sort of a checksum
     }
 
@@ -110,12 +119,14 @@ void domyoselliptical::forceResistanceAndInclination(int8_t requestResistance, u
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
 
+
     write[10] = requestResistance;
 
     // write[13] = ((uint16_t)(inclination*10) >> 8) & 0xFF;
     // write[14] = inclination; //need a hci snoof log about it
 
     for (uint8_t i = 0; i < sizeof(write) - 1; i++) {
+
         write[22] += write[i]; // the last byte is a sort of a checksum
     }
 
@@ -128,17 +139,20 @@ void domyoselliptical::forceResistanceAndInclination(int8_t requestResistance, u
 }
 
 void domyoselliptical::update() {
+
     uint8_t noOpData[] = {0xf0, 0xac, 0x9c};
 
     // stop tape
     uint8_t initDataF0C800B8[] = {0xf0, 0xc8, 0x00, 0xb8};
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
+
         emit disconnected();
         return;
     }
 
     if (initRequest) {
+
         initRequest = false;
         // if(bike_type == CHANG_YOW)
         btinit_changyow(false);
@@ -147,14 +161,17 @@ void domyoselliptical::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
+
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
         if (!firstVirtual && searchStopped && !virtualTreadmill) {
+
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
+
                 virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyoselliptical::debug);
                 firstVirtual = 1;
@@ -164,15 +181,18 @@ void domyoselliptical::update() {
 
         // updating the treadmill console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
+
             sec1Update = 0;
             updateDisplay(elapsed.value());
         } else {
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
+
         }
 
         if (testResistance) {
             if ((((int)elapsed.value()) % 5) == 0) {
-                uint8_t new_res = currentResistance() + 1;
+
+                uint8_t new_res = currentResistance().value() + 1;
                 if (new_res > 15) {
                     new_res = 1;
                 }
@@ -187,8 +207,9 @@ void domyoselliptical::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance()) {
+            if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+
                 forceResistanceAndInclination(requestResistance, currentInclination().value());
             }
             requestResistance = -1;
@@ -199,14 +220,17 @@ void domyoselliptical::update() {
                 requestInclination = 1;
             }
 
+
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-                forceResistanceAndInclination(currentResistance(), requestInclination);
+
+                forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
             requestInclination = -1;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
+
 
             // if(bike_type == CHANG_YOW)
             btinit_changyow(true);
@@ -219,6 +243,7 @@ void domyoselliptical::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
             writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), QStringLiteral("stop tape"));
+
             requestStop = -1;
         }
     }
@@ -226,6 +251,7 @@ void domyoselliptical::update() {
 
 void domyoselliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+
 }
 
 void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -245,9 +271,11 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     if (newValue.at(22) == 0x06) {
         emit debug(QStringLiteral("inclination up button pressed!"));
+
         // requestStart = 1;
     } else if (newValue.at(22) == 0x07) {
         emit debug(QStringLiteral("inclination down button pressed!")); // i guess it should be the inclination down
+
         // requestStop = 1;
     }
 
@@ -267,8 +295,8 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     Resistance = newValue.at(14);
     Inclination = newValue.at(21);
-    if (Resistance < 1) {
-        emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance) +
+    if (Resistance.value() < 1) {
+        emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
         Resistance = 1;
     }
@@ -290,11 +318,12 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));    
+    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));    
+
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence));
-    emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance));
+    emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
+    emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
@@ -314,23 +343,27 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 double domyoselliptical::GetSpeedFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = (packet.at(6) << 8) | packet.at(7);
     double data = (double)convertedData / 10.0f;
     return data;
 }
 
 double domyoselliptical::GetKcalFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = (packet.at(10) << 8) | ((uint8_t)packet.at(11));
     return (double)convertedData;
 }
 
 double domyoselliptical::GetDistanceFromPacket(const QByteArray &packet) {
+
     uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = ((double)convertedData) / 10.0f;
     return data;
 }
 
 void domyoselliptical::btinit_changyow(bool startTape) {
+
     // set speed and incline to 0
     uint8_t initData1[] = {0xf0, 0xc8, 0x01, 0xb9};
     uint8_t initData2[] = {0xf0, 0xc9, 0xb9};
@@ -343,15 +376,19 @@ void domyoselliptical::btinit_changyow(bool startTape) {
     uint8_t initDataStart5[] = {0xf0, 0xc4, 0x03, 0xb7};
     uint8_t initDataStart6[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0xff};
+
     uint8_t initDataStart7[] = {0xff, 0xff, 0x8b}; // power on bt icon
     uint8_t initDataStart8[] = {0xf0, 0xcb, 0x02, 0x00, 0x08, 0xff, 0xff, 0xff, 0xff, 0xff,
                                 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01, 0x00};
+
     uint8_t initDataStart9[] = {0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xb6}; // power on bt word
     uint8_t initDataStart10[] = {0xf0, 0xad, 0xff, 0xff, 0x00, 0x05, 0xff, 0xff, 0xff, 0xff,
                                  0xff, 0xff, 0xff, 0x00, 0x00, 0xff, 0xff, 0xff, 0x01, 0xff};
+
     uint8_t initDataStart11[] = {0xff, 0xff, 0x94}; // start tape
     uint8_t initDataStart12[] = {0xf0, 0xcb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                                  0xff, 0xff, 0xff, 0xff, 0x01, 0x00, 0x14, 0x01, 0xff, 0xff};
+
     uint8_t initDataStart13[] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xbd};
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
@@ -370,12 +407,14 @@ void domyoselliptical::btinit_changyow(bool startTape) {
         writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
         writeCharacteristic(initDataStart12, sizeof(initDataStart12), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart13, sizeof(initDataStart13), QStringLiteral("init"), false, true);
+
     }
 
     initDone = true;
 }
 
 void domyoselliptical::btinit_telink(bool startTape) {
+
     Q_UNUSED(startTape)
 
     // set speed and incline to 0
@@ -399,10 +438,12 @@ void domyoselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
     QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
 
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     if (state == QLowEnergyService::ServiceDiscovered) {
+
         // qDebug() << gattCommunicationChannelService->characteristics();
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -431,8 +472,10 @@ void domyoselliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
 void domyoselliptical::searchingStop() { searchStopped = true; }
 
+
 void domyoselliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
+
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -447,6 +490,7 @@ void domyoselliptical::characteristicWritten(const QLowEnergyCharacteristic &cha
 void domyoselliptical::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
+
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
@@ -455,12 +499,14 @@ void domyoselliptical::serviceScanDone(void) {
 }
 
 void domyoselliptical::errorService(QLowEnergyService::ServiceError err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("domyoselliptical::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
 void domyoselliptical::error(QLowEnergyController::Error err) {
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("domyoselliptical::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
@@ -475,9 +521,11 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         if (device.address().toString().startsWith(QStringLiteral("57"))) {
             emit debug(QStringLiteral("domyos telink bike found"));
+
             bike_type = TELINK;
         } else {
             emit debug(QStringLiteral("domyos changyow bike found"));
+
             bike_type = CHANG_YOW;
         }
 
@@ -488,6 +536,7 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, &domyoselliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyoselliptical::controllerStateChanged);
+
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -518,6 +567,7 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
 bool domyoselliptical::connected() {
     if (!m_control) {
+
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
@@ -525,9 +575,12 @@ bool domyoselliptical::connected() {
 
 void *domyoselliptical::VirtualTreadmill() { return virtualTreadmill; }
 
+
 void *domyoselliptical::VirtualDevice() { return VirtualTreadmill(); }
 
+
 uint16_t domyoselliptical::watts() {
+
     QSettings settings;
     const uint8_t max_resistance = 15;
     // ref
@@ -597,80 +650,80 @@ uint16_t domyoselliptical::watts() {
     double vwatts =
         ((9.8 * settings.value(QStringLiteral("weight"), 75).toDouble() * (currentInclination().value() / 100.0)));
 
-    if (currentCadence() < 41) {
-        return ((((watt_cad40_max - watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    if (currentCadence().value() < 41) {
+        return ((((watt_cad40_max - watt_cad40_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad40_min) +
                vwatts;
-    } else if (currentCadence() < 46) {
-        return ((((watt_cad45_max - watt_cad45_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 46) {
+        return ((((watt_cad45_max - watt_cad45_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad45_min) +
                vwatts;
-    } else if (currentCadence() < 51) {
-        return ((((watt_cad50_max - watt_cad50_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 51) {
+        return ((((watt_cad50_max - watt_cad50_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad50_min) +
                vwatts;
-    } else if (currentCadence() < 56) {
-        return ((((watt_cad55_max - watt_cad55_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 56) {
+        return ((((watt_cad55_max - watt_cad55_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad55_min) +
                vwatts;
-    } else if (currentCadence() < 61) {
-        return ((((watt_cad60_max - watt_cad60_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 61) {
+        return ((((watt_cad60_max - watt_cad60_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad60_min) +
                vwatts;
-    } else if (currentCadence() < 66) {
-        return ((((watt_cad65_max - watt_cad65_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 66) {
+        return ((((watt_cad65_max - watt_cad65_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad65_min) +
                vwatts;
-    } else if (currentCadence() < 71) {
-        return ((((watt_cad70_max - watt_cad70_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 71) {
+        return ((((watt_cad70_max - watt_cad70_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad70_min) +
                vwatts;
-    } else if (currentCadence() < 76) {
-        return ((((watt_cad75_max - watt_cad75_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 76) {
+        return ((((watt_cad75_max - watt_cad75_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad75_min) +
                vwatts;
-    } else if (currentCadence() < 81) {
-        return ((((watt_cad80_max - watt_cad80_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 81) {
+        return ((((watt_cad80_max - watt_cad80_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad80_min) +
                vwatts;
-    } else if (currentCadence() < 86) {
-        return ((((watt_cad85_max - watt_cad85_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 86) {
+        return ((((watt_cad85_max - watt_cad85_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad85_min) +
                vwatts;
-    } else if (currentCadence() < 91) {
-        return ((((watt_cad90_max - watt_cad90_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 91) {
+        return ((((watt_cad90_max - watt_cad90_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad90_min) +
                vwatts;
-    } else if (currentCadence() < 96) {
-        return ((((watt_cad95_max - watt_cad95_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 96) {
+        return ((((watt_cad95_max - watt_cad95_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad95_min) +
                vwatts;
-    } else if (currentCadence() < 101) {
-        return ((((watt_cad100_max - watt_cad100_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 101) {
+        return ((((watt_cad100_max - watt_cad100_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad100_min) +
                vwatts;
-    } else if (currentCadence() < 106)
-        return ((((watt_cad105_max - watt_cad105_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 106)
+        return ((((watt_cad105_max - watt_cad105_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad105_min) +
                vwatts;
-    else if (currentCadence() < 111) {
-        return ((((watt_cad110_max - watt_cad110_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 111) {
+        return ((((watt_cad110_max - watt_cad110_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad110_min) +
                vwatts;
-    } else if (currentCadence() < 116) {
-        return ((((watt_cad115_max - watt_cad115_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 116) {
+        return ((((watt_cad115_max - watt_cad115_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad115_min) +
                vwatts;
-    } else if (currentCadence() < 121) {
-        return ((((watt_cad120_max - watt_cad120_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 121) {
+        return ((((watt_cad120_max - watt_cad120_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad120_min) +
                vwatts;
-    } else if (currentCadence() < 126) {
-        return ((((watt_cad125_max - watt_cad125_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+    } else if (currentCadence().value() < 126) {
+        return ((((watt_cad125_max - watt_cad125_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad125_min) +
                vwatts;
     } else {
-        return ((((watt_cad130_max - watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1)) +
+        return ((((watt_cad130_max - watt_cad130_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad130_min) +
                vwatts;
     }
@@ -681,6 +734,7 @@ void domyoselliptical::controllerStateChanged(QLowEnergyController::ControllerSt
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
+
         initDone = false;
         m_control->connectToDevice();
     }

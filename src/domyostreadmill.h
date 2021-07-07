@@ -6,10 +6,12 @@
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
 #include <QtBluetooth/qlowenergycharacteristicdata.h>
+
 #include <QtBluetooth/qlowenergycontroller.h>
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
+
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -22,9 +24,13 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+
+
 #include <QDateTime>
 #include <QObject>
 
+
+#include "virtualbike.h"
 #include "treadmill.h"
 #include "virtualtreadmill.h"
 
@@ -33,6 +39,7 @@
 #endif
 
 class domyostreadmill : public treadmill {
+
     Q_OBJECT
   public:
     domyostreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
@@ -75,6 +82,7 @@ class domyostreadmill : public treadmill {
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
+    virtualbike* virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -105,6 +113,7 @@ class domyostreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
