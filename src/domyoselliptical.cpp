@@ -47,7 +47,6 @@ void domyoselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
@@ -72,7 +71,6 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
         uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                               0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-
         display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
         display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
 
@@ -87,7 +85,6 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
 
     uint8_t display[] = {0xf0, 0xcb, 0x03, 0x00, 0x00, 0xff, 0x01, 0x00, 0x00, 0x02, 0x01, 0x00, 0x00, 0x00,
                          0x01, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0x00};
-
 
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
@@ -118,7 +115,6 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
 void domyoselliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination) {
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
-
 
     write[10] = requestResistance;
 
@@ -186,7 +182,6 @@ void domyoselliptical::update() {
             updateDisplay(elapsed.value());
         } else {
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
-
         }
 
         if (testResistance) {
@@ -220,7 +215,6 @@ void domyoselliptical::update() {
                 requestInclination = 1;
             }
 
-
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
 
@@ -230,7 +224,6 @@ void domyoselliptical::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
-
 
             // if(bike_type == CHANG_YOW)
             btinit_changyow(true);
@@ -251,7 +244,6 @@ void domyoselliptical::update() {
 
 void domyoselliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
-
 }
 
 void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -318,8 +310,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));    
-
+    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
@@ -338,7 +329,8 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     Speed = speed;
     KCal = kcal;
-    Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 }
 
@@ -407,7 +399,6 @@ void domyoselliptical::btinit_changyow(bool startTape) {
         writeCharacteristic(initDataStart11, sizeof(initDataStart11), QStringLiteral("init"), false, true);
         writeCharacteristic(initDataStart12, sizeof(initDataStart12), QStringLiteral("init"), false, false);
         writeCharacteristic(initDataStart13, sizeof(initDataStart13), QStringLiteral("init"), false, true);
-
     }
 
     initDone = true;
@@ -437,7 +428,6 @@ void domyoselliptical::btinit_telink(bool startTape) {
 void domyoselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
     QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
-
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -472,10 +462,8 @@ void domyoselliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
 void domyoselliptical::searchingStop() { searchStopped = true; }
 
-
 void domyoselliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
-
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -489,7 +477,6 @@ void domyoselliptical::characteristicWritten(const QLowEnergyCharacteristic &cha
 
 void domyoselliptical::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
-
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
@@ -537,7 +524,6 @@ void domyoselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this, &domyoselliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &domyoselliptical::controllerStateChanged);
 
-
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -575,9 +561,7 @@ bool domyoselliptical::connected() {
 
 void *domyoselliptical::VirtualTreadmill() { return virtualTreadmill; }
 
-
 void *domyoselliptical::VirtualDevice() { return VirtualTreadmill(); }
-
 
 uint16_t domyoselliptical::watts() {
 
@@ -702,7 +686,7 @@ uint16_t domyoselliptical::watts() {
         return ((((watt_cad100_max - watt_cad100_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad100_min) +
                vwatts;
-    } else if (currentCadence().value() < 106)
+    } else if (currentCadence().value() < 106) {
         return ((((watt_cad105_max - watt_cad105_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
                 watt_cad105_min) +
                vwatts;
