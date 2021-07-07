@@ -41,6 +41,10 @@ public:
     virtual QTime movingTime();
     virtual QTime lapElapsedTime();
     virtual bool connected();
+    virtual metric currentResistance();
+    virtual metric currentCadence();
+    virtual double currentCrankRevolutions();
+    virtual uint16_t lastCrankEventTime();
     virtual void* VirtualDevice();
     uint16_t watts(double weight);
     metric wattsMetric();
@@ -76,6 +80,8 @@ public slots:
     virtual void stop();
     virtual void heartRate(uint8_t heart);
     virtual void cadenceSensor(uint8_t cadence);
+    virtual void changeResistance(int8_t res);
+    virtual void changePower(int32_t power);
 
 signals:
     void connectedAndDiscovered();
@@ -101,6 +107,8 @@ protected:
     metric m_watt;
     metric WattKg;
     metric WeightLoss;
+    metric Cadence;
+    metric Resistance;
 
     bool paused = false;
     bool autoResistanceEnable = true;

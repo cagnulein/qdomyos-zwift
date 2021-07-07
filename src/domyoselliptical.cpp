@@ -95,7 +95,7 @@ void domyoselliptical::updateDisplay(uint16_t elapsed)
     //display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     //display[14] = (((uint8_t)calories())) & 0xFF;
 
-    display[16] = (uint8_t)currentCadence();
+    display[16] = (uint8_t)currentCadence().value();
 
     display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
     display[20] = (((uint16_t)calories())) & 0xFF;
@@ -190,7 +190,7 @@ void domyoselliptical::update()
         {
             if((((int)elapsed.value()) % 5) == 0)
             {
-                uint8_t new_res = currentResistance() + 1;
+                uint8_t new_res = currentResistance().value() + 1;
                 if(new_res > 15)
                     new_res = 1;
                 forceResistanceAndInclination(new_res, currentInclination().value());
@@ -202,7 +202,7 @@ void domyoselliptical::update()
            if(requestResistance > 15) requestResistance = 15;
            else if(requestResistance == 0) requestResistance = 1;
 
-           if(requestResistance != currentResistance())
+           if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
               forceResistanceAndInclination(requestResistance, currentInclination().value());
@@ -217,7 +217,7 @@ void domyoselliptical::update()
            if(requestInclination != currentInclination().value())
            {
               debug("writing inclination " + QString::number(requestInclination));
-              forceResistanceAndInclination(currentResistance(), requestInclination);
+              forceResistanceAndInclination(currentResistance().value(), requestInclination);
            }
            requestInclination = -1;
         }
@@ -282,9 +282,9 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
         Cadence = ((uint8_t)newValue.at(9));
     Resistance = newValue.at(14);
     Inclination = newValue.at(21);
-    if(Resistance < 1)
+    if(Resistance.value() < 1)
     {
-        debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
+        debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
         Resistance = 1;
     }
 
@@ -299,12 +299,12 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence));
-    debug("Current resistance: " + QString::number(Resistance));
+    debug("Current cadence: " + QString::number(Cadence.value()));
+    debug("Current resistance: " + QString::number(Resistance.value()));
     debug("Current inclination: " + QString::number(Inclination.value()));
     debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
@@ -635,44 +635,44 @@ uint16_t domyoselliptical::watts()
 
     double vwatts=((9.8* settings.value("weight",75).toDouble() * (currentInclination().value()/100.0)));
 
-    if(currentCadence() < 41)
-        return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad40_min) + vwatts;
-    else if(currentCadence() < 46)
-        return((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad45_min) + vwatts;
-    else if(currentCadence() < 51)
-        return((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad50_min) + vwatts;
-    else if(currentCadence() < 56)
-        return((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad55_min) + vwatts;
-    else if(currentCadence() < 61)
-        return((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad60_min) + vwatts;
-    else if(currentCadence() < 66)
-        return((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad65_min) + vwatts;
-    else if(currentCadence() < 71)
-        return((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad70_min) + vwatts;
-    else if(currentCadence() < 76)
-        return((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad75_min) + vwatts;
-    else if(currentCadence() < 81)
-        return((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad80_min) + vwatts;
-    else if(currentCadence() < 86)
-        return((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad85_min) + vwatts;
-    else if(currentCadence() < 91)
-        return((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad90_min) + vwatts;
-    else if(currentCadence() < 96)
-        return((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad95_min) + vwatts;
-    else if(currentCadence() < 101)
-        return((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad100_min) + vwatts;
-    else if(currentCadence() < 106)
-        return((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad105_min) + vwatts;
-    else if(currentCadence() < 111)
-        return((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad110_min) + vwatts;
-    else if(currentCadence() < 116)
-        return((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad115_min) + vwatts;
-    else if(currentCadence() < 121)
-        return((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad120_min) + vwatts;
-    else if(currentCadence() < 126)
-        return((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad125_min) + vwatts;
+    if(currentCadence().value() < 41)
+        return((((watt_cad40_max-watt_cad40_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad40_min) + vwatts;
+    else if(currentCadence().value() < 46)
+        return((((watt_cad45_max-watt_cad45_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad45_min) + vwatts;
+    else if(currentCadence().value() < 51)
+        return((((watt_cad50_max-watt_cad50_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad50_min) + vwatts;
+    else if(currentCadence().value() < 56)
+        return((((watt_cad55_max-watt_cad55_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad55_min) + vwatts;
+    else if(currentCadence().value() < 61)
+        return((((watt_cad60_max-watt_cad60_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad60_min) + vwatts;
+    else if(currentCadence().value() < 66)
+        return((((watt_cad65_max-watt_cad65_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad65_min) + vwatts;
+    else if(currentCadence().value() < 71)
+        return((((watt_cad70_max-watt_cad70_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad70_min) + vwatts;
+    else if(currentCadence().value() < 76)
+        return((((watt_cad75_max-watt_cad75_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad75_min) + vwatts;
+    else if(currentCadence().value() < 81)
+        return((((watt_cad80_max-watt_cad80_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad80_min) + vwatts;
+    else if(currentCadence().value() < 86)
+        return((((watt_cad85_max-watt_cad85_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad85_min) + vwatts;
+    else if(currentCadence().value() < 91)
+        return((((watt_cad90_max-watt_cad90_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad90_min) + vwatts;
+    else if(currentCadence().value() < 96)
+        return((((watt_cad95_max-watt_cad95_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad95_min) + vwatts;
+    else if(currentCadence().value() < 101)
+        return((((watt_cad100_max-watt_cad100_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad100_min) + vwatts;
+    else if(currentCadence().value() < 106)
+        return((((watt_cad105_max-watt_cad105_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad105_min) + vwatts;
+    else if(currentCadence().value() < 111)
+        return((((watt_cad110_max-watt_cad110_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad110_min) + vwatts;
+    else if(currentCadence().value() < 116)
+        return((((watt_cad115_max-watt_cad115_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad115_min) + vwatts;
+    else if(currentCadence().value() < 121)
+        return((((watt_cad120_max-watt_cad120_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad120_min) + vwatts;
+    else if(currentCadence().value() < 126)
+        return((((watt_cad125_max-watt_cad125_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad125_min) + vwatts;
     else
-        return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance() - 1))+watt_cad130_min) + vwatts;
+        return((((watt_cad130_max-watt_cad130_min) / (max_resistance - 1)) * (currentResistance().value() - 1))+watt_cad130_min) + vwatts;
     return 0;
 }
 

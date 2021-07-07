@@ -68,12 +68,12 @@ void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uin
 
    uint8_t writeDown[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
-   if(currentResistance() < requestResistance)
+   if(currentResistance().value() < requestResistance)
    {
        writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
        writeCharacteristic(writeUp, sizeof(writeUp), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
    }
-   else if(currentResistance() > requestResistance)
+   else if(currentResistance().value() > requestResistance)
    {
        writeCharacteristic(writeDown, sizeof(writeDown), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
        writeCharacteristic(write, sizeof(write), "forceResistance " + QString::number(requestResistance) + " Inclination " + inclination, false, true);
@@ -145,7 +145,7 @@ void soleelliptical::update()
         {
             if((((int)elapsed.value()) % 5) == 0)
             {
-                uint8_t new_res = currentResistance() + 1;
+                uint8_t new_res = currentResistance().value() + 1;
                 if(new_res > 15)
                     new_res = 1;
                 forceResistanceAndInclination(new_res, currentInclination().value());
@@ -157,7 +157,7 @@ void soleelliptical::update()
            if(requestResistance > 20) requestResistance = 20;
            else if(requestResistance == 0) requestResistance = 1;
 
-           if(requestResistance != currentResistance())
+           if(requestResistance != currentResistance().value())
            {
               debug("writing resistance " + QString::number(requestResistance));
               forceResistanceAndInclination(requestResistance, currentInclination().value());
@@ -172,7 +172,7 @@ void soleelliptical::update()
            if(requestInclination != currentInclination().value())
            {
               debug("writing inclination " + QString::number(requestInclination));
-              forceResistanceAndInclination(currentResistance(), requestInclination);
+              forceResistanceAndInclination(currentResistance().value(), requestInclination);
            }
            requestInclination = -1;
         }
@@ -213,7 +213,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     if(newValue.length() == 5 && newValue.at(1) == 0x02)
     {
         Resistance = newValue.at(3) + 1;
-        debug("Current resistance: " + QString::number(Resistance));
+        debug("Current resistance: " + QString::number(Resistance.value()));
         return;
     }
 
@@ -230,9 +230,9 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     m_watt = watt;
 
     //Inclination = newValue.at(21);
-    if(Resistance < 1)
+    if(Resistance.value() < 1)
     {
-        debug("invalid resistance value " + QString::number(Resistance) + " putting to default");
+        debug("invalid resistance value " + QString::number(Resistance.value()) + " putting to default");
         Resistance = 1;
     }
 
@@ -249,11 +249,11 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
 
     CrankRevs++;
-    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence)) / 60.0));
+    LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     debug("Current speed: " + QString::number(speed));
-    debug("Current cadence: " + QString::number(Cadence));    
+    debug("Current cadence: " + QString::number(Cadence.value()));
     debug("Current inclination: " + QString::number(Inclination.value()));
     debug("Current heart: " + QString::number(Heart.value()));
     debug("Current KCal: " + QString::number(kcal));
