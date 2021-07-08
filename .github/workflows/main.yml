@@ -61,10 +61,11 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift
 
-      - name: Test Peloton API
-        run: cd src/qdomyos-zwift/; ./domyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
-        working-directory: src/qdomyos-zwift
-        timeout-minutes: 2
+# i will play with this in the future
+#      - name: Test Peloton API
+#        run: cd src/qdomyos-zwift/; ./domyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+#        working-directory: src/qdomyos-zwift
+#        timeout-minutes: 2
 
 #      - uses: actions/checkout@v2
 #        with:
