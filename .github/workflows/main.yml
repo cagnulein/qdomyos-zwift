@@ -62,7 +62,7 @@ jobs:
           path: src/qdomyos-zwift
 
       - name: Test Peloton API
-        run: cd /src/qdomyos-zwift/; ./domyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+        run: cd src/qdomyos-zwift/; ./domyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
         working-directory: src/qdomyos-zwift
         timeout-minutes: 2
 
