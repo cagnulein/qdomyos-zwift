@@ -42,6 +42,9 @@ bool noHeartService = true;
 bool noConsole = false;
 bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
+bool testPeloton = false;
+QString peloton_username = "";
+QString peloton_password = "";
 bool testResistance = false;
 bool forceQml = false;
 bool miles = false;
@@ -111,6 +114,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             bike_wheel_revs = true;
         if (!qstrcmp(argv[i], "-run-cadence-sensor"))
             run_cadence_sensor = true;
+        if (!qstrcmp(argv[i], "-test-peloton"))
+            testPeloton = true;
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -118,6 +123,14 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-name")) {
 
             deviceName = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-peloton-username")) {
+
+            peloton_username = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-peloton-password")) {
+
+            peloton_password = argv[++i];
         }
         if (!qstrcmp(argv[i], "-poll-device-time")) {
 
@@ -288,7 +301,6 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("service_changed"), service_changed);
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
-
     }
 #endif
 
@@ -326,6 +338,19 @@ int main(int argc, char *argv[]) {
                                noHeartService); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
 
             Q_UNUSED(V)
+            return app->exec();
+        } else if (testPeloton) {
+            settings.setValue("peloton_username", peloton_username);
+            settings.setValue("peloton_password", peloton_password);
+            peloton *p = new peloton(0, 0);
+            p->setTestMode(true);
+            QObject::connect(p, &peloton::loginState, [&](bool ok) {
+                if (ok) {
+                } else {
+                    exit(1);
+                }
+            });
+            QObject::connect(p, &peloton::workoutStarted, [&](QString workout_name, QString instructor) { exit(0); });
             return app->exec();
         }
     }
@@ -395,9 +420,9 @@ int main(int argc, char *argv[]) {
         }
 #endif
 #ifdef Q_OS_ANDROID
-    engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
+        engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
 #else
-    engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
+        engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);

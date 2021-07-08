@@ -16,13 +16,10 @@
 #include <QOAuthHttpServerReplyHandler>
 #include <QObject>
 
-
 #include <QSettings>
-
 
 #include <QTimer>
 #include <QUrlQuery>
-
 
 #include "homefitnessbuddy.h"
 
@@ -33,13 +30,9 @@ class peloton : public QObject {
     explicit peloton(bluetooth *bl, QObject *parent = nullptr);
     QList<trainrow> trainrows;
 
-    enum _PELOTON_API {
-        peloton_api = 0,
-        powerzonepack_api = 1,
-        homefitnessbuddy_api = 2
-    };
+    enum _PELOTON_API { peloton_api = 0, powerzonepack_api = 1, homefitnessbuddy_api = 2 };
 
-    _PELOTON_API currentApi() {return current_api;}
+    _PELOTON_API currentApi() { return current_api; }
 
     QString user_id;
     QString current_workout_id = QLatin1String("");
@@ -49,6 +42,8 @@ class peloton : public QObject {
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");
     QDateTime current_original_air_time;
+
+    void setTestMode(bool test);
 
   private:
     _PELOTON_API current_api = peloton_api;
@@ -66,7 +61,7 @@ class peloton : public QObject {
 
     bluetooth *bluetoothManager = nullptr;
     powerzonepack *PZP = nullptr;
-    homefitnessbuddy* HFB = nullptr;
+    homefitnessbuddy *HFB = nullptr;
 
     int total_workout;
     void getWorkoutList(int num);
@@ -74,6 +69,8 @@ class peloton : public QObject {
     void getWorkout(const QString &workout);
     void getInstructor(const QString &instructor_id);
     void getPerformance(const QString &workout);
+
+    bool testMode = false;
 
   private slots:
     void login_onfinish(QNetworkReply *reply);
@@ -83,7 +80,7 @@ class peloton : public QObject {
     void performance_onfinish(QNetworkReply *reply);
     void instructor_onfinish(QNetworkReply *reply);
     void pzp_trainrows(QList<trainrow> *list);
-    void hfb_trainrows(QList<trainrow>* list);
+    void hfb_trainrows(QList<trainrow> *list);
     void pzp_loginState(bool ok);
 
     void startEngine();

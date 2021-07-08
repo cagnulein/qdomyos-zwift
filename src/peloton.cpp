@@ -128,16 +128,17 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     if ((status.contains(QStringLiteral("IN_PROGRESS"),
                          Qt::CaseInsensitive) && // NOTE: removed toUpper because of qstring-insensitive-allocation
          !current_workout_status.contains(QStringLiteral("IN_PROGRESS"))) ||
-        (status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive) &&
-         id != current_workout_id)) { // NOTE: removed toUpper because of qstring-insensitive-allocation
+        (status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive) && id != current_workout_id) ||
+        testMode) { // NOTE: removed toUpper because of qstring-insensitive-allocation
         current_workout_id = id;
 
         // starting a workout
         qDebug() << QStringLiteral("workoutlist_onfinish IN PROGRESS!");
 
         // peloton bike only
-        if (bluetoothManager && bluetoothManager->device() &&
-            bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        if ((bluetoothManager && bluetoothManager->device() &&
+             bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) ||
+            testMode) {
             getSummary(id);
             timer->start(1min); // timeout request
             current_workout_status = status;
@@ -250,11 +251,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     for (int i = 0; i < current_resistances.count(); i++) {
         trainrow r;
         r.duration = QTime(0, 0, peloton_workout_second_resolution, 0);
-        r.resistance = ((bike *)bluetoothManager->device())->pelotonToBikeResistance(current_resistances.at(i).toInt());
-        r.lower_resistance =
-            ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
-        r.upper_resistance =
-            ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
+        if (bluetoothManager && bluetoothManager->device()) {
+            r.resistance =
+                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(current_resistances.at(i).toInt());
+            r.lower_resistance =
+                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
+            r.upper_resistance =
+                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
+        }
         r.requested_peloton_resistance = current_resistances.at(i).toInt();
         r.lower_requested_peloton_resistance = lower_resistances.at(i).toInt();
         r.upper_requested_peloton_resistance = upper_resistances.at(i).toInt();
@@ -359,3 +363,5 @@ void peloton::getWorkoutList(int num) {
 
     mgr->get(request);
 }
+
+void peloton::setTestMode(bool test) { testMode = test; }
