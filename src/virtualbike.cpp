@@ -629,12 +629,13 @@ void virtualbike::bikeProvider()
 #ifndef IO_UNDER_QT
     if(h)
     {
-        h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(), (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)Bike->wattsMetric().value());
-        h->virtualbike_setHeartRate(Bike->currentHeart().value());
-        if(!erg_mode)
-            slopeChanged(h->virtualbike_getCurrentSlope());
-        else
-            powerChanged(h->virtualbike_getPowerRequested());
+        if(h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(), (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)Bike->wattsMetric().value())) {
+            h->virtualbike_setHeartRate(Bike->currentHeart().value());
+            if(!erg_mode)
+                slopeChanged(h->virtualbike_getCurrentSlope());
+            else
+                powerChanged(h->virtualbike_getPowerRequested());
+        }
         return;
     }
 #endif

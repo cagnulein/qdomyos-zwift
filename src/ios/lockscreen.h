@@ -16,7 +16,7 @@ public:
     void virtualbike_zwift_ios();
     double virtualbike_getCurrentSlope();
     double virtualbike_getPowerRequested();
-    void virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt);
 };
 
 #endif // LOCKSCREEN_H

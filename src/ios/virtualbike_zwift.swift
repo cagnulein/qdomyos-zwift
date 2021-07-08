@@ -31,12 +31,14 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16)
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
         peripheralManager.CurrentResistance = currentResistance
         peripheralManager.CurrentWatt = currentWatt
+        
+        return peripheralManager.connected;
     }
 }
 
@@ -62,6 +64,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var CurrentWatt: UInt16! = 0
     
     public var serviceToggle: Bool = false
+    public var connected: Bool = false
 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
@@ -181,6 +184,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                 var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
                 self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
           }
+          self.connected = true;
           self.peripheralManager.respond(to: requests.first!, withResult: .success)
           print("Responded successfully to a read request")
       }
@@ -195,6 +199,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+    self.connected = true;
     print("Successfully subscribed")
     updateSubscribers();
     self.startSendingDataToSubscribers()
@@ -202,6 +207,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
     //self.notificationTimer.invalidate()
+    self.connected = false;
     print("Successfully unsubscribed")
   }
 
