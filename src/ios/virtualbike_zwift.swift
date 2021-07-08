@@ -185,6 +185,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                 var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
                 self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
           }
+	  self.connected = true;
           self.peripheralManager.respond(to: requests.first!, withResult: .success)
           print("Responded successfully to a read request")
       }
