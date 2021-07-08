@@ -1,9 +1,8 @@
 #ifndef LOCKSCREEN_H
 #define LOCKSCREEN_H
 
-class lockscreen
-{
-public:
+class lockscreen {
+  public:
     void setTimerDisabled();
     void request();
     long heartRate();
@@ -16,7 +15,8 @@ public:
     void virtualbike_zwift_ios();
     double virtualbike_getCurrentSlope();
     double virtualbike_getPowerRequested();
-    void virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt);
+    bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
+                                unsigned short currentCadence, unsigned short currentWatt);
 };
 
 #endif // LOCKSCREEN_H

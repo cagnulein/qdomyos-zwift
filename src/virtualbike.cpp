@@ -71,7 +71,6 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
             services << ((QBluetoothUuid::ServiceClassUuid)0xFF00);
         } else {
             services << (QBluetoothUuid(QStringLiteral("0bf669f0-45f2-11e7-9598-0800200c9a66")));
-
         }
 
         advertisingData.setServices(services);
@@ -409,9 +408,7 @@ void virtualbike::slopeChanged(int16_t iresistance) {
     if (force_resistance && !erg_mode) {
         Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
                                1); // resistance start from 1
-
     }
-
 }
 
 void virtualbike::powerChanged(uint16_t power) { Bike->changePower(power); }
@@ -495,7 +492,6 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         }
         writeCharacteristic(serviceFIT, characteristic, reply);
         break;
-
     }
 
     //******************** ECHELON ***************
@@ -627,7 +623,6 @@ void virtualbike::reconnect() {
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
     leController->startAdvertising(pars, advertisingData, advertisingData);
-
 }
 
 void virtualbike::bikeProvider() {
@@ -647,13 +642,16 @@ void virtualbike::bikeProvider() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
-        h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
-                                  (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)Bike->wattsMetric().value());
-        h->virtualbike_setHeartRate(Bike->currentHeart().value());
-        if (!erg_mode)
-            slopeChanged(h->virtualbike_getCurrentSlope());
-        else
-            powerChanged(h->virtualbike_getPowerRequested());
+        // really connected to a device
+        if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
+                                      (uint16_t)Bike->currentCadence().value() * 2,
+                                      (uint16_t)Bike->wattsMetric().value())) {
+            h->virtualbike_setHeartRate(Bike->currentHeart().value());
+            if (!erg_mode)
+                slopeChanged(h->virtualbike_getCurrentSlope());
+            else
+                powerChanged(h->virtualbike_getPowerRequested());
+        }
         return;
     }
 #endif
@@ -839,7 +837,6 @@ void virtualbike::bikeProvider() {
             writeCharacteristic(service, characteristic, resistance);
         }
         oldresistance = ((uint8_t)Bike->currentResistance().value());
-
     }
     // characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point

@@ -31,12 +31,14 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
         return peripheralManager.PowerRequested;
     }
     
-    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16)
+    @objc public func updateFTMS(normalizeSpeed: UInt16, currentCadence: UInt16, currentResistance: UInt8, currentWatt: UInt16) -> Bool
     {
         peripheralManager.NormalizeSpeed = normalizeSpeed
         peripheralManager.CurrentCadence = currentCadence
         peripheralManager.CurrentResistance = currentResistance
         peripheralManager.CurrentWatt = currentWatt
+
+        return peripheralManager.connected;
     }
 }
 
@@ -62,6 +64,8 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var CurrentWatt: UInt16! = 0
     
     public var serviceToggle: Bool = false
+
+  public var connected: Bool = false
 
   private var notificationTimer: Timer! = nil
   //var delegate: BLEPeripheralManagerDelegate?
@@ -196,12 +200,14 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
     print("Successfully subscribed")
+	 self.connected = true
     updateSubscribers();
     self.startSendingDataToSubscribers()
   }
   
   func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didUnsubscribeFrom characteristic: CBCharacteristic) {
     //self.notificationTimer.invalidate()
+	 self.connected = false
     print("Successfully unsubscribed")
   }
 
