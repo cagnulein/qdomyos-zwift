@@ -61,9 +61,11 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift
           
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt install -y libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+          
       - name: List folder
         run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/
-        timeout-minutes: 2
 
       - name: Test Peloton API
         run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
