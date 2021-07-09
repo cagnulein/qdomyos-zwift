@@ -242,6 +242,16 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
 
 int main(int argc, char *argv[]) {
 
+#ifdef Q_OS_ANDROID
+    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
+#endif
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
+#else
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QScopedPointer<QApplication> app(new QApplication(argc, argv));
+#endif
+
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
     if (getuid() && !testPeloton) {
@@ -251,16 +261,6 @@ int main(int argc, char *argv[]) {
     } else
         printf("%s", "OK, you are root.\n");
 #endif
-#endif
-
-#ifdef Q_OS_ANDROID
-    qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
-#endif
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-    QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
-#else
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
 
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
