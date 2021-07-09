@@ -350,7 +350,7 @@ int main(int argc, char *argv[]) {
                     exit(1);
                 }
             });
-            QObject::connect(p, &peloton::workoutStarted, [&](QString workout_name, QString instructor) { exit(0); });
+            QObject::connect(p, &peloton::workoutStarted, [&](QString workout_name, QString instructor) { app->exit(0); });
             return app->exec();
         }
     }

@@ -2,13 +2,18 @@
 
 name: CI
 
+env:
+  DISPLAY: ':99'
+
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
   push:
-    branches: [ master ]
+    branches: [ master,  github-workflow-playground ]
   pull_request:
     branches: [ master ]
+  schedule:
+    - cron: "0 */12 * * *"    
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -33,6 +38,11 @@ jobs:
 #          path: '${{ github.workspace }}/output/android/'
 #          key: ${{ runner.os }}-QtCache-Android
 
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &    
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -41,29 +51,20 @@ jobs:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
 
-      # Runs a set of commands using the runners shell
-      - name: Install Qt Linux Desktop
-        uses: jurplel/install-qt-action@v2.13.2
-        with:
-          version: '5.15.2'
-          host: 'linux'
-          target: 'desktop'
-          modules: 'qtcharts debug_info qtnetworkauth'
-          dir: '${{ github.workspace }}/output/linux-desktop/'
-#          cached: ${{ steps.cache-qt-linux-desktop.outputs.cache-hit }}
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt-get install -y qt5-default libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
       
       - name: Compile Linux Desktop
-        run: cd src; qmake; make -j4
+        run: cd src; qmake; make -j8
         
       - name: Archive linux-desktop binary
         uses: actions/upload-artifact@v2
         with:
           name: linux-desktop-binary
-          path: src/qdomyos-zwift
+          path: src/qdomyos-zwift              
           
       - name: List folder
-        run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/
-        timeout-minutes: 2
+        run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ls /usr/lib/x86_64-linux-gnu/libxcb-util*;
 
       - name: Test Peloton API
         run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
