@@ -68,8 +68,8 @@ jobs:
         timeout-minutes: 2
 
       - name: Test Home Fitness Buddy API
-		  run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
-		  timeout-minutes: 2
+        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
+        timeout-minutes: 2
 
 #      - uses: actions/checkout@v2
 #        with:
