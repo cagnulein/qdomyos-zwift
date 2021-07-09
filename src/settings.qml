@@ -50,6 +50,7 @@ import Qt.labs.settings 1.0
             property string peloton_difficulty: "lower"
             property string peloton_cadence_metric: "Cadence"
             property string peloton_heartrate_metric: "Heart Rate"
+            property string peloton_date: "Before Title"
 
             property string pzp_username: "username"
             property string pzp_password: "username"
@@ -2084,6 +2085,33 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_heartrate_metric = pelotonHeartRateMetricTextField.displayText;
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelpelotonDateOnStrava
+                            text: qsTr("Date on Strava:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: pelotonDateOnStravaTextField
+                            model: [ "Before Title", "After Title", "Disabled" ]
+                            displayText: settings.peloton_date
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + pelotonDateOnStravaTextField.currentIndex)
+                                displayText = pelotonDateOnStravaTextField.currentValue
+                            }
+
+                        }
+                        Button {
+                            id: okPelotonDateOnStrava
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.peloton_date = pelotonDateOnStravaTextField.displayText
                         }
                     }
                 }

@@ -180,6 +180,7 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
 void peloton::instructor_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
+    QSettings settings;
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     instructor = QJsonDocument::fromJson(payload, &parseError);
@@ -193,7 +194,13 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
 
     QString air_time = current_original_air_time.toString("MM/dd/yy");
     qDebug() << "air_time " + air_time;
-    emit workoutChanged(air_time + " - " + current_workout_name, current_instructor_name);
+    QString workout_name = current_workout_name;
+    if (settings.value("peloton_date", "Before Title").toString().contains("Before")) {
+        workout_name = air_time + " " + workout_name;
+    } else if (settings.value("peloton_date", "Before Title").toString().contains("After")) {
+        workout_name = workout_name + " " + air_time;
+    }
+    emit workoutChanged(workout_name, current_instructor_name);
 
     getPerformance(current_workout_id);
 }
