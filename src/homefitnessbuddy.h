@@ -43,7 +43,7 @@ class homefitnessbuddy : public QObject {
 
   signals:
     void workoutStarted(QList<trainrow> *list);
-    // void loginState(bool ok);
+    void loginState(bool ok);
 };
 
 #endif // HOMEFITNESSBUDDY_H

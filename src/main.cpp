@@ -43,6 +43,7 @@ bool noConsole = false;
 bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
 bool testPeloton = false;
+bool testHomeFitnessBudy = false;
 QString peloton_username = "";
 QString peloton_password = "";
 bool testResistance = false;
@@ -116,6 +117,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
+        if (!qstrcmp(argv[i], "-test-hfb"))
+            testHomeFitnessBudy = true;
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -350,7 +353,24 @@ int main(int argc, char *argv[]) {
                     exit(1);
                 }
             });
-            QObject::connect(p, &peloton::workoutStarted, [&](QString workout_name, QString instructor) { app->exit(0); });
+            QObject::connect(p, &peloton::workoutStarted,
+                             [&](QString workout_name, QString instructor) { app->exit(0); });
+            return app->exec();
+        } else if (testHomeFitnessBudy) {
+            homefitnessbuddy *h = new homefitnessbuddy(0, 0);
+            QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
+                if (ok) {
+                    h->searchWorkout(QDate(2021, 5, 19), "Christine D'Ercole");
+                    QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
+                        if (list->length() > 0)
+                            app->exit(0);
+                        else
+                            app->exit(2);
+                    });
+                } else {
+                    exit(1);
+                }
+            });
             return app->exec();
         }
     }

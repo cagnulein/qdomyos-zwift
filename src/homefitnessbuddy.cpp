@@ -85,7 +85,7 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
             break;
         }
     }
-    // if(token.length()) emit loginState(true);
+    emit loginState(true);
 
     // REMOVE IT
     // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole");

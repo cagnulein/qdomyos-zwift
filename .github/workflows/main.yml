@@ -62,13 +62,14 @@ jobs:
         with:
           name: linux-desktop-binary
           path: src/qdomyos-zwift              
-          
-      - name: List folder
-        run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ls /usr/lib/x86_64-linux-gnu/libxcb-util*;
 
       - name: Test Peloton API
         run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
         timeout-minutes: 2
+
+      - name: Test Home Fitness Buddy API
+		  run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
+		  timeout-minutes: 2
 
 #      - uses: actions/checkout@v2
 #        with:
