@@ -65,7 +65,7 @@ jobs:
         run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ls /usr/lib/x86_64-linux-gnu/libxcb-util*;
 
       - name: Test Peloton API
-        run: export QT_DEBUG_PLUGINS=1; cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
         timeout-minutes: 2
 
 #      - uses: actions/checkout@v2
