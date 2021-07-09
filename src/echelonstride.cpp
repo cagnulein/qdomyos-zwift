@@ -121,8 +121,6 @@ void echelonstride::update() {
         }
         // ********************************************************************************************************
 
-        // debug("Domyos Treadmill RSSI " + QString::number(bluetoothDevice.rssi()));
-
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
         // updating the treadmill console every second
@@ -206,7 +204,8 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     lastPacket = newValue;
 
     if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd3) {
-        Speed = (double)((newValue.at(3) << 8) | newValue.at(4)) / 1000.0;
+        uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
+        Speed = (double)convertedData / 1000.0;
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
