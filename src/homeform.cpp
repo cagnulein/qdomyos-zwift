@@ -2519,7 +2519,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
 
     // catch finished signal
     connect(replyStrava, &QNetworkReply::finished, this, &homeform::writeFileCompleted);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))    
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))    
     connect(replyStrava, &QNetworkReply::errorOccurred, this, &homeform::errorOccurredUploadStrava);
 #endif    
     return true;
