@@ -41,16 +41,8 @@ jobs:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
 
-      # Runs a set of commands using the runners shell
-      - name: Install Qt Linux Desktop
-        uses: jurplel/install-qt-action@v2.13.2
-        with:
-          version: '5.15.2'
-          host: 'linux'
-          target: 'desktop'
-          modules: 'qtcharts debug_info qtnetworkauth'
-          dir: '${{ github.workspace }}/output/linux-desktop/'
-#          cached: ${{ steps.cache-qt-linux-desktop.outputs.cache-hit }}
+      - name: Install packages required to run QZ inside workflow
+        run: sudo apt-get install -y qt5-default
       
       - name: Compile Linux Desktop
         run: cd src; qmake; make -j4
@@ -59,10 +51,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: linux-desktop-binary
-          path: src/qdomyos-zwift
-          
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt install -y libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+          path: src/qdomyos-zwift        
           
       - name: List folder
         run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/
