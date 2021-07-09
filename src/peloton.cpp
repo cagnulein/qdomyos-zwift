@@ -192,13 +192,17 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
         qDebug() << QStringLiteral("instructor_onfinish");
     }
 
-    QString air_time = current_original_air_time.toString("MM/dd/yy");
-    qDebug() << "air_time " + air_time;
+    QString air_time = current_original_air_time.toString(QStringLiteral("MM/dd/yy"));
+    qDebug() << QStringLiteral("air_time ") + air_time;
     QString workout_name = current_workout_name;
-    if (settings.value("peloton_date", "Before Title").toString().contains("Before")) {
-        workout_name = air_time + " " + workout_name;
-    } else if (settings.value("peloton_date", "Before Title").toString().contains("After")) {
-        workout_name = workout_name + " " + air_time;
+    if (settings.value(QStringLiteral("peloton_date"), QStringLiteral("Before Title"))
+            .toString()
+            .contains(QStringLiteral("Before"))) {
+        workout_name = air_time + QStringLiteral(" ") + workout_name;
+    } else if (settings.value(QStringLiteral("peloton_date"), QStringLiteral("Before Title"))
+                   .toString()
+                   .contains(QStringLiteral("After"))) {
+        workout_name = workout_name + QStringLiteral(" ") + air_time;
     }
     emit workoutChanged(workout_name, current_instructor_name);
 
