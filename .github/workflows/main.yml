@@ -2,6 +2,9 @@
 
 name: CI
 
+env:
+  DISPLAY: ':99'
+
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
@@ -33,6 +36,11 @@ jobs:
 #          path: '${{ github.workspace }}/output/android/'
 #          key: ${{ runner.os }}-QtCache-Android
 
+      - name: Xvfb install and run
+        run: |
+          sudo apt-get install -y xvfb
+          Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &    
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -51,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: linux-desktop-binary
-          path: src/qdomyos-zwift        
+          path: src/qdomyos-zwift              
           
       - name: List folder
         run: ls -ltr /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ls /usr/lib/x86_64-linux-gnu/libxcb-util*;
