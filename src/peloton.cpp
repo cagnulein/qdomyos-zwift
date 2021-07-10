@@ -122,6 +122,13 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
     qDebug() << QStringLiteral("data") << data;
+
+    if(data.isEmpty()) {
+        qDebug() << QStringLiteral("Peloton API doens't answer, trying back in 10 seconds...");
+        timer->start(10s);
+        return;
+    }
+
     QString id = data.at(0)[QStringLiteral("id")].toString();
     QString status = data.at(0)[QStringLiteral("status")].toString();
 
