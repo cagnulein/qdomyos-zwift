@@ -411,7 +411,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // SLOT(inclinationChanged(double)));
                 npeCableBike->deviceDiscovered(b);
                 templateManager->start(npeCableBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("STAGES ")) && !stagesBike && filter) {
+            } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
+                        (b.name().toUpper().startsWith("WAHOO KICKR"))
+                     || (b.name().toUpper().startsWith("B94"))
+                        || (b.name().toUpper().startsWith("STAGES BIKE"))) &&
+                       !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
+                discoveryAgent->stop();
+                ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
+                emit deviceConnected();
+                connect(ftmsBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(ftmsBike, &ftmsbike::debug, this, &bluetooth::debug);
+                ftmsBike->deviceDiscovered(b);
+                templateManager->start(ftmsBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("STAGES ")) && !stagesBike && !ftmsBike && filter) {
 
 
                 discoveryAgent->stop();
@@ -699,18 +712,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(renphoBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 renphoBike->deviceDiscovered(b);
                 templateManager->start(renphoBike);
-            } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
-                        (b.name().toUpper().startsWith("WAHOO KICKR")) 
-                     || (b.name().toUpper().startsWith("B94"))) && 
-                       !ftmsBike && !snodeBike && !fitPlusBike && filter) {
-                discoveryAgent->stop();
-                ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
-                emit deviceConnected();
-                connect(ftmsBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-                // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(ftmsBike, &ftmsbike::debug, this, &bluetooth::debug);
-                ftmsBike->deviceDiscovered(b);
-                templateManager->start(ftmsBike);
             } else if ((b.name().startsWith(QStringLiteral("FS-")) && snode_bike) && !snodeBike && !ftmsBike &&
                        !fitPlusBike && filter) {
 
