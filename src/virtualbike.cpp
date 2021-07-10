@@ -634,8 +634,8 @@ void virtualbike::bikeProvider() {
     bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
-    //    bool erg_mode =
-    //        settings.value(QStringLiteral("zwift_erg"), false).toBool(); // NOTE:clang-analyzer-deadcode.DeadStores
+    bool erg_mode =
+            settings.value(QStringLiteral("zwift_erg"), false).toBool();
 
     uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 
@@ -655,6 +655,8 @@ void virtualbike::bikeProvider() {
         return;
     }
 #endif
+#else
+    Q_UNUSED(erg_mode);
 #endif
 
     if (leController->state() != QLowEnergyController::ConnectedState) {

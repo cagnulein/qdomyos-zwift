@@ -2575,6 +2575,31 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
 				);
 				MARKETING_VERSION = 2.6;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-stdlib=libc++",
+					"-g",
+					"-std=gnu++14",
+					"-fobjc-nonfragile-abi",
+					"-fobjc-legacy-dispatch",
+					"-Wall",
+					"-Wextra",
+					"-fPIC",
+					"-DQT_COMPILER_SUPPORTS_SSE2",
+					"-DQT_DEPRECATED_WARNINGS",
+					"-DQT_QML_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_QUICK_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_BLUETOOTH_LIB",
+					"-DQT_XML_LIB",
+					"-DQT_POSITIONING_LIB",
+					"-DQT_QMLMODELS_LIB",
+					"-DQT_QML_LIB",
+					"-DQT_NETWORKAUTH_LIB",
+					"-DQT_NETWORK_LIB",
+					"-DQT_CORE_LIB",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
 				QMAKE_FULL_VERSION = 1.7.0;
@@ -2663,6 +2688,31 @@
 				);
 				MARKETING_VERSION = 2.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-stdlib=libc++",
+					"-g",
+					"-std=gnu++14",
+					"-fobjc-nonfragile-abi",
+					"-fobjc-legacy-dispatch",
+					"-Wall",
+					"-Wextra",
+					"-fPIC",
+					"-DQT_COMPILER_SUPPORTS_SSE2",
+					"-DQT_DEPRECATED_WARNINGS",
+					"-DQT_QML_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_QUICK_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_BLUETOOTH_LIB",
+					"-DQT_XML_LIB",
+					"-DQT_POSITIONING_LIB",
+					"-DQT_QMLMODELS_LIB",
+					"-DQT_QML_LIB",
+					"-DQT_NETWORKAUTH_LIB",
+					"-DQT_NETWORK_LIB",
+					"-DQT_CORE_LIB",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
 				QMAKE_FULL_VERSION = 1.7.0;
