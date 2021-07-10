@@ -882,12 +882,11 @@ void bluetooth::connectedAndDiscovered() {
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(ftmsAccessory, &smartspin2k::debug, this, &bluetooth::debug);
-                // NOTE: Commented due to #358
-                //                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory,
-                //                        SLOT(changeResistance(int8_t)));
-                // NOTE: Commented due to #358
-                //                connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory,
-                //                        SLOT(resistanceReadFromTheBike(int8_t)));
+
+                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory,
+                        SLOT(changeResistance(int8_t)));
+                connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory,
+                    SLOT(resistanceReadFromTheBike(int8_t)));
                 ftmsAccessory->deviceDiscovered(b);
                 break;
             }
