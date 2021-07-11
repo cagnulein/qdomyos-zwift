@@ -64,6 +64,7 @@ jobs:
           path: src/qdomyos-zwift              
 
       - name: Test Peloton API
+        if: github.event == 'push'
         run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
         timeout-minutes: 2
 
