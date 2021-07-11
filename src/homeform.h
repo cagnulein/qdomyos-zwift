@@ -222,22 +222,22 @@ class homeform : public QObject {
                     plotAreaGradient.setColorAt(
                         (220 -
                          (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble() / 100)) /
-                            220,
+                            160,
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
                         (220 -
                          (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble() / 100)) /
-                            220,
+                            160,
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
                         (220 -
                          (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble() / 100)) /
-                            220,
+                            160,
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
                         (220 -
                          (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble() / 100)) /
-                            220,
+                            160,
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
                     plotAreaGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
