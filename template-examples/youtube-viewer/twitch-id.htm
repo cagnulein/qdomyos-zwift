@@ -1,0 +1,30 @@
+<html>
+  <body>
+    <!-- Add a placeholder for the Twitch embed -->
+    <p id="twitch-embed"></p>
+
+    <!-- Load the Twitch embed JavaScript file -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Create a Twitch.Embed object that will render within the "twitch-embed" element -->
+    <script type="text/javascript">
+      $(window).on('load', function () {
+          let search_var = window.location.hash.substring(1);
+          let orig_up = new URLSearchParams(search_var);
+          $('#twitch-embed').text('Access=' + orig_up.get('access_token')+' id_token='+orig_up.get('id_token'));
+          if(window.opener) {
+              let detail = {
+                access: orig_up.get('access_token'),
+                token: orig_up.get('id_token'),
+                state: orig_up.get('state'),
+                line: search_var,
+                error: (!orig_up.has('id_token') || !orig_up.get('access_token'))?'Invalid token '+ search_var:''
+              }
+              const customEvent = new CustomEvent('id-window-closed', {'detail': detail});
+              window.opener.dispatchEvent(customEvent);
+              window.close();
+          }
+      });
+    </script>
+  </body>
+</html>

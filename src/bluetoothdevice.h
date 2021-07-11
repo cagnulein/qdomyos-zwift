@@ -66,6 +66,8 @@ class bluetoothdevice : public QObject {
     double difficult();
     double weightLoss() { return WeightLoss.value(); }
     metric wattKg() { return WattKg; }
+    QString activityDescription() const { return ActivityDescription; }
+    void setActivityDescription(const QString& desc) { ActivityDescription = desc; }
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
 
@@ -108,6 +110,7 @@ class bluetoothdevice : public QObject {
     metric WeightLoss;
     metric Cadence;
     metric Resistance;
+    QString ActivityDescription;
 
     bool paused = false;
     bool autoResistanceEnable = true;

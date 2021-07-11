@@ -15,7 +15,7 @@ class PersonalGrabber {
             </div>
             <div class="form-group">
                 <label for="personal-conv">Conv</label>
-                <input type="number" placeholder="Conv" id="personal-conv" value="0" min="0" max="2" step="1" required/>
+                <input type="number" placeholder="Conv" id="personal-conv" value="0" min="0" max="3" step="1" required/>
             </div>
             </form>
         `);
@@ -27,12 +27,20 @@ class PersonalGrabber {
         this.url = urlParams.has('personal-url')?urlParams.get('personal-url'):(typeof(DEFAULT_PERSONAL_URL) != 'string'? '':DEFAULT_PERSONAL_URL);
         this.user = urlParams.has('personal-username')?urlParams.get('personal-username'):(typeof(DEFAULT_PERSONAL_USER) != 'string'? '':DEFAULT_PERSONAL_USER);
         this.conv = urlParams.has('personal-conv')?urlParams.get('personal-conv'):0;
+        let host = this.url;
+        while (host.lastIndexOf('/') == host.length - 1)
+            host = host.substring(0, host.length -1);
+        let idx;
+        if ((idx = host.lastIndexOf('/')) > 10) {
+            host = host.substring(0, idx);
+        }
         this.ajax_settings = {
             type        : 'GET',
             url         : this.url,
             data: {
                 username: this.user,
                 name: '',
+                host: host,
                 conv: this.conv,
                 fmt: 'json'
             },
@@ -48,10 +56,17 @@ class PersonalGrabber {
         this.form.find('#personal-username').val(this.user);
         this.form.find('#personal-url').val(this.url);
     }
-    get_settings_form(call_on_change){
+    get_settings_form(call_on_change, playlists){
         this.form.find('#personal-conv').change(call_on_change);
         this.form.find('#personal-username').change(call_on_change);
         this.form.find('#personal-url').change(call_on_change);
+        for (let [pn, p] of Object.entries(playlists)) {
+            let urlp = new URLSearchParams(p);
+            if (urlp.get('grabber') == 'personal') {
+                this.configure(urlp);
+                return this.form;
+            }
+        }
         this.set_form_values();
         return this.form;
     }

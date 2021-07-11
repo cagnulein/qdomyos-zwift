@@ -39,8 +39,8 @@ class WebServerInfoSender : public TemplateInfoSender {
     QNetworkAccessManager *fetcher = 0;
     QList<QWebSocket *> sendToClients;
     QHash<QString, QString> relative2Absolute;
-    QHash<QNetworkReply *, QPair<QString, QWebSocket *>> reply2Req;
-  private slots:
+    QHash<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> reply2Req;
+private slots:
     void onNewConnection();
     void handleFetcherRequest(QNetworkReply *reply);
     void processTextMessage(QString message);

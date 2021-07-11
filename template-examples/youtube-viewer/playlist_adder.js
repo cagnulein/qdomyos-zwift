@@ -1,6 +1,6 @@
 let playlist_grabbers_obj = {};
 let playlist_raw_list = [];
-let playlist_grabbers = ['youtube', 'personal'];
+let playlist_grabbers = ['youtube', 'personal', 'twitch'];
 let badge_colors = ['primary', 'success', 'secondary', 'danger', 'warning', 'info', 'light', 'dark'];
 let playlist_load_idx = 0;
 let playlist_current_id = 0;
@@ -14,27 +14,12 @@ function on_grabber_load(grabber_name, grabber_obj) {
     let grabber_btn = btn.data('grabber');
     if (grabber_btn == grabber_name) {
         let clp = $('#grabber-settings');
-        let sf = grabber_obj.get_settings_form(prepare_url);
+        let sf = grabber_obj.get_settings_form(prepare_url, saved_playlists);
         if (sf)
             clp.append(sf);
     }
     grabber_obj.on_grab = process_on_grab;
     playlist_load_grabber_module(playlist_load_idx + 1);
-}
-
-function format_duration(secs) {
-    let hh = Math.floor(secs / 3600);
-    let rem = secs % 3600;
-    let mm = Math.floor(rem / 60);
-    let ss = rem % 60;
-    if (hh > 0) {
-        return '' + hh +'h ' + pad(mm, 2) + 'm ' + pad(ss, 2) + 's';
-    }
-    else if (mm > 0) {
-        return mm + 'm ' + pad(ss, 2) + 's';
-    }
-    else
-        return ss + 's';
 }
 
 function prepare_url() {
@@ -63,6 +48,9 @@ function prepare_url() {
         v = $('#video-width').val();
         if (v)
             params.append('width', v);
+        v = $('#video-type').val();
+        if (v)
+            params.append('player', v);
         urlParams = params;
         search_var = urlParams.toString();
         $('#link-result').val(get_url_without_file() + workout_file + get_search_start_char() + params.toString());
@@ -234,7 +222,7 @@ function playlist_adder_init() {
                 btn.html(et.html());
                 let gs = $('#grabber-settings');
                 gs.empty();
-                let sf = playlist_grabbers_obj[grabber].get_settings_form(prepare_url);
+                let sf = playlist_grabbers_obj[grabber].get_settings_form(prepare_url, saved_playlists);
                 if (sf)
                     gs.append(sf);
             }
@@ -263,6 +251,9 @@ function playlist_adder_init() {
     $('#video-height').on('input', function(e) {
         prepare_url();
     });
+    $('#video-type').on('input', function(e) {
+        prepare_url();
+    });
     let clp = $('#control-load-playlist');
     for (let pl_name of Object.keys(saved_playlists))
         clp.append($('<option>').val(pl_name).text(pl_name));
@@ -285,6 +276,10 @@ function playlist_adder_init() {
             if ((v = loading_playlist.up.get('width'))) {
                 $('#video-width').val(v);
             }
+            if ((v = loading_playlist.up.get('player')))
+                $('#video-type').val(v);
+            else
+                $('#video-type').val('youtube');
             for (let [grabber_name, go] of Object.entries(playlist_grabbers_obj)) {
                 go.configure(loading_playlist.up);
             }

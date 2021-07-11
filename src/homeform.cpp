@@ -2476,7 +2476,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     QHttpPart activityDescriptionPart;
     activityDescriptionPart.setHeader(QNetworkRequest::ContentDispositionHeader,
                                       QVariant(QStringLiteral("form-data; name=\"description\"")));
-    QString activityDescription = QLatin1String("");
+    QString activityDescription = bluetoothManager->device()->activityDescription();
     activityDescriptionPart.setHeader(QNetworkRequest::ContentTypeHeader,
                                       QVariant(QStringLiteral("text/plain;charset=utf-8")));
     activityDescriptionPart.setBody(activityDescription.toUtf8());

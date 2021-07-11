@@ -391,6 +391,7 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
             outObj.insert(key, val);
         }
     }
+    settings.sync();
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_setsettings");
     main[QStringLiteral("content")] = outObj;
@@ -438,6 +439,28 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
     outObj[QStringLiteral("name")] = fileXml;
     main[QStringLiteral("content")] = outObj;
     main[QStringLiteral("msg")] = QStringLiteral("R_loadtrainingprograms");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &msgContent,
+                                                            TemplateInfoSender *tempSender) {
+    QJsonObject content;
+    QJsonValue descV;
+    if (!device || (content = msgContent.toObject()).isEmpty() || !content.contains(QStringLiteral("desc")) ||
+        !(descV = content.value(QStringLiteral("desc"))).isString())
+        return;
+    QString act;
+    QString desc = descV.toString();
+    if (content.contains(QStringLiteral("append")) && content.value(QStringLiteral("append")).toBool()) {
+        act = device->activityDescription();
+        act = act.isEmpty() ? desc : act + "\r\n" + desc;
+    } else
+        act = desc;
+    device->setActivityDescription(act);
+    QJsonObject main;
+    main[QStringLiteral("content")] = act;
+    main[QStringLiteral("msg")] = QStringLiteral("R_appendactivitydescription");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
 }
@@ -547,6 +570,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("loadtrainingprograms")) {
                     onLoadTrainingPrograms(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("appendactivitydescription")) {
+                    onAppendActivityDescription(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);

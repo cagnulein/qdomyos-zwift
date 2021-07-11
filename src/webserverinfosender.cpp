@@ -60,11 +60,11 @@ void WebServerInfoSender::innerStop() {
 
 bool WebServerInfoSender::init() {
     bool ok;
-    folders = settings.value("template_" + templateId + "_folders").toStringList();
+    folders = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_folders")).toStringList();
     if (!folders.isEmpty()) {
         QString relative;
         int idx;
-        port = settings.value("template_" + templateId + "_port", 6666).toInt(&ok);
+        port = settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_port"), 6666).toInt(&ok);
         if (!ok)
             port = 6666;
         if (!httpServer)
@@ -72,29 +72,31 @@ bool WebServerInfoSender::init() {
         relative2Absolute.clear();
         for (auto fld : folders) {
             idx = fld.lastIndexOf('/');
-            qDebug() << "Folder" << fld;
+            qDebug() << QStringLiteral("Folder") << fld;
             if (idx > 0) {
                 relative = fld.mid(idx + 1);
-                qDebug() << "Relative" << relative;
+                qDebug() << QStringLiteral("Relative") << relative;
                 relative2Absolute.insert(relative, fld);
-                httpServer->route(
-                    "/" + relative + "/<arg>", [this](const QUrl &url, const QHttpServerRequest &request) {
-                        QUrl urlreq = request.url();
-                        QString path = urlreq.path().mid(1);
-                        int idxreq = path.indexOf('/');
-                        QString reqId = idxreq < 0 ? path : path.mid(0, idxreq);
-                        qDebug() << "Path" << path << " req" << reqId;
-                        path = relative2Absolute.value(reqId);
-                        if (path.isEmpty())
-                            return QHttpServerResponse("text/plain", "Unautorized",
-                                                       QHttpServerResponder::StatusCode::Forbidden);
-                        else
-                            return QHttpServerResponse::fromFile(path + QStringLiteral("/%1").arg(url.path()));
-                    });
+                httpServer->route(QStringLiteral("/") + relative + QStringLiteral("/<arg>"),
+                                  [this](const QUrl &url, const QHttpServerRequest &request) {
+                                      QUrl urlreq = request.url();
+                                      QString path = urlreq.path().mid(1);
+                                      int idxreq = path.indexOf('/');
+                                      QString reqId = idxreq < 0 ? path : path.mid(0, idxreq);
+                                      qDebug() << QStringLiteral("Path") << path << QStringLiteral("req") << reqId;
+                                      path = relative2Absolute.value(reqId);
+                                      if (path.isEmpty())
+                                          return QHttpServerResponse("text/plain", "Unautorized",
+                                                                     QHttpServerResponder::StatusCode::Forbidden);
+                                      else
+                                          return QHttpServerResponse::fromFile(path +
+                                                                               QStringLiteral("/%1").arg(url.path()));
+                                  });
             }
         }
         if (listen()) {
-            qDebug() << "WebServer listening on port" << port << " " << relative2Absolute;
+            qDebug() << QStringLiteral("WebServer listening on port") << port << QStringLiteral(" ")
+                     << relative2Absolute;
             connect(httpServer, SIGNAL(newWebSocketConnection()), this, SLOT(onNewConnection()));
             return true;
         } else {
@@ -105,8 +107,8 @@ bool WebServerInfoSender::init() {
 }
 
 void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
-    QPair<QString, QWebSocket *> reqIdRequester = reply2Req.value(reply);
-    QString req = reqIdRequester.first;
+    QPair<QJsonObject, QWebSocket *> reqIdRequester = reply2Req.value(reply);
+    QString req = reqIdRequester.first.operator[](QStringLiteral("req")).toString();
     QWebSocket *requester = reqIdRequester.second;
     if (!req.isEmpty() && requester) {
         QNetworkReply::NetworkError error = reply->error();
@@ -124,13 +126,18 @@ void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
                 headers.append(arrv);
             }
         }
-        init["headers"] = headers;
-        init["status"] = statusCode;
-        init["statusText"] = statusText;
-        out["body"] = QJsonValue(body.constData());
-        out["init"] = init;
-        out["req"] = req;
-        out["DBG"] = error;
+        QString respType = reqIdRequester.first.operator[](QStringLiteral("responseType")).toString();
+        init[QStringLiteral("headers")] = headers;
+        init[QStringLiteral("status")] = statusCode;
+        init[QStringLiteral("statusText")] = statusText;
+        init[QStringLiteral("responseURL")] = reply->url().toString();
+        if (respType == QStringLiteral("arraybuffer") || respType == QStringLiteral("blob"))
+            out[QStringLiteral("body")] = QJsonValue(body.toBase64().constData());
+        else
+            out[QStringLiteral("body")] = QJsonValue(body.constData());
+        out[QStringLiteral("init")] = init;
+        out[QStringLiteral("req")] = req;
+        out[QStringLiteral("DBG")] = error;
         QJsonDocument toSend(out);
         requester->sendTextMessage(toSend.toJson());
         reply2Req.remove(reply);
@@ -143,7 +150,7 @@ void WebServerInfoSender::processTextMessage(QString message) {
     if (pClient) {
         pClient->sendTextMessage(message);
     }*/
-    qDebug() << "Message received:" << message;
+    qDebug() << QStringLiteral("Message received:") << message;
     emit onDataReceived(message.toUtf8());
 }
 
@@ -156,20 +163,20 @@ void WebServerInfoSender::processFetcherRawRequest(QByteArray data) {
 }
 
 void WebServerInfoSender::processFetcher(QWebSocket *sender, const QByteArray &data) {
-    qDebug() << "Fetch Request Received" << data;
+    qDebug() << QStringLiteral("Fetch Request Received") << data;
     QJsonDocument jsonResponse = QJsonDocument::fromJson(data);
     if (jsonResponse.isObject()) {
         QJsonObject jsonObject = jsonResponse.object();
-        if (jsonObject.contains("req") && jsonObject.contains("url")) {
-            QString req = jsonObject["req"].toString();
-            QString url = jsonObject["url"].toString();
+        if (jsonObject.contains(QStringLiteral("req")) && jsonObject.contains(QStringLiteral("url"))) {
+            QString req = jsonObject[QStringLiteral("req")].toString();
+            QString url = jsonObject[QStringLiteral("url")].toString();
             QNetworkRequest request(url);
-            QString method = "GET";
+            QString method = QStringLiteral("GET");
             QJsonValue tmpv;
-            request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
-            if ((tmpv = jsonObject.value("method")).isString())
+            request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
+            if ((tmpv = jsonObject.value(QStringLiteral("method"))).isString())
                 method = tmpv.toString();
-            if ((tmpv = jsonObject.value("headers")).isObject()) {
+            if ((tmpv = jsonObject.value(QStringLiteral("headers"))).isObject()) {
                 QVariantHash headers = tmpv.toObject().toVariantHash();
                 QVariantHash::const_iterator i = headers.constBegin();
                 while (i != headers.constEnd()) {
@@ -178,15 +185,15 @@ void WebServerInfoSender::processFetcher(QWebSocket *sender, const QByteArray &d
                 }
             }
             QNetworkReply *repl;
-            if (method.toLower() == "post") {
+            if (method.toLower() == QStringLiteral("post")) {
                 QByteArray body;
-                if ((tmpv = jsonObject.value("body")).isString())
+                if ((tmpv = jsonObject.value(QStringLiteral("body"))).isString())
                     body = tmpv.toString().toUtf8();
                 repl = fetcher->post(request, body);
             } else {
                 repl = fetcher->get(request);
             }
-            reply2Req[repl] = QPair<QString, QWebSocket *>(req, sender);
+            reply2Req[repl] = QPair<QJsonObject, QWebSocket *>(jsonObject, sender);
         }
     }
 }
@@ -194,8 +201,8 @@ void WebServerInfoSender::processFetcher(QWebSocket *sender, const QByteArray &d
 void WebServerInfoSender::onNewConnection() {
     QWebSocket *pSocket = httpServer->nextPendingWebSocketConnection();
     QUrl requestUrl = pSocket->requestUrl();
-    qDebug() << "WebSocket connection" << requestUrl;
-    if (requestUrl.path() == "/fetcher") {
+    qDebug() << QStringLiteral("WebSocket connection") << requestUrl;
+    if (requestUrl.path() == QStringLiteral("/fetcher")) {
         connect(pSocket, SIGNAL(textMessageReceived(QString)), this, SLOT(processFetcherRequest(QString)));
         connect(pSocket, SIGNAL(binaryMessageReceived(QByteArray)), this, SLOT(processFetcherRawRequest(QByteArray)));
     } else {
@@ -210,11 +217,11 @@ void WebServerInfoSender::onNewConnection() {
 
 void WebServerInfoSender::socketDisconnected() {
     QWebSocket *pClient = qobject_cast<QWebSocket *>(sender());
-    qDebug() << "socketDisconnected:" << pClient;
+    qDebug() << QStringLiteral("socketDisconnected:") << pClient;
     if (pClient) {
         clients.removeAll(pClient);
         if (!sendToClients.removeAll(pClient)) {
-            QMutableHashIterator<QNetworkReply *, QPair<QString, QWebSocket *>> i(reply2Req);
+            QMutableHashIterator<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> i(reply2Req);
             while (i.hasNext()) {
                 i.next();
                 if (i.value().second == pClient) {
@@ -232,6 +239,6 @@ void WebServerInfoSender::processBinaryMessage(QByteArray message) {
     if (pClient) {
         pClient->sendBinaryMessage(message);
     }*/
-    qDebug() << "Binary Message received:" << message.toHex();
+    qDebug() << QStringLiteral("Binary Message received:") << message.toHex();
     emit onDataReceived(message);
 }
