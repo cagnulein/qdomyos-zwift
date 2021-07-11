@@ -17,14 +17,12 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
-
 #include "bluetoothdevice.h"
 #include "chronobike.h"
 #include "cscbike.h"
 #include "domyosbike.h"
 #include "domyoselliptical.h"
 #include "domyostreadmill.h"
-
 
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
@@ -49,7 +47,6 @@
 #include "smartspin2k.h"
 #include "snodebike.h"
 
-
 #include "soleelliptical.h"
 
 #include "spirittreadmill.h"
@@ -61,7 +58,6 @@
 
 #include "echelonstride.h"
 
-
 #include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
 #include "treadmill.h"
@@ -70,7 +66,6 @@
 #include "yesoulbike.h"
 
 class bluetooth : public QObject, public SignalHandler {
-
 
     Q_OBJECT
   public:
@@ -82,6 +77,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
+    TemplateInfoSenderBuilder *getTemplateManager() const { return templateManager; }
 
   private:
     TemplateInfoSenderBuilder *templateManager = nullptr;
@@ -126,7 +122,6 @@ class bluetooth : public QObject, public SignalHandler {
     cscbike *cadenceSensor = nullptr;
     QString filterDevice = QLatin1String("");
 
-
     bool testResistance = false;
     bool noWriteResistance = false;
     bool noHeartService = false;
@@ -166,7 +161,6 @@ class bluetooth : public QObject, public SignalHandler {
     void connectedAndDiscovered();
 
   signals:
-
 };
 
 #endif // BLUETOOTH_H

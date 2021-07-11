@@ -8,7 +8,6 @@
 #include <QObject>
 #include <QTimer>
 
-
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
 #include <QtBluetooth/qlowenergyadvertisingparameters.h>
 #include <QtBluetooth/qlowenergycharacteristic.h>
@@ -18,7 +17,6 @@
 #include <QtBluetooth/qlowenergydescriptordata.h>
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
-
 
 #if defined(Q_OS_IOS)
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
@@ -66,11 +64,8 @@ class bluetoothdevice : public QObject {
     double difficult();
     double weightLoss() { return WeightLoss.value(); }
     metric wattKg() { return WattKg; }
-    QString activityDescription() const { return ActivityDescription; }
-    void setActivityDescription(const QString& desc) { ActivityDescription = desc; }
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
-
 
     virtual BLUETOOTH_TYPE deviceType();
     static QStringList metrics();
@@ -110,7 +105,6 @@ class bluetoothdevice : public QObject {
     metric WeightLoss;
     metric Cadence;
     metric Resistance;
-    QString ActivityDescription;
 
     bool paused = false;
     bool autoResistanceEnable = true;

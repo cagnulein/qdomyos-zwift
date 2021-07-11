@@ -202,7 +202,7 @@ void TemplateInfoSenderBuilder::reinit() { load(); }
 
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = dev;
-
+    activityDescription = QLatin1String("");
     updateTimer.start(1s);
 }
 
@@ -450,16 +450,15 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     if (!device || (content = msgContent.toObject()).isEmpty() || !content.contains(QStringLiteral("desc")) ||
         !(descV = content.value(QStringLiteral("desc"))).isString())
         return;
-    QString act;
     QString desc = descV.toString();
     if (content.contains(QStringLiteral("append")) && content.value(QStringLiteral("append")).toBool()) {
-        act = device->activityDescription();
-        act = act.isEmpty() ? desc : act + "\r\n" + desc;
+        activityDescription =
+            activityDescription.isEmpty() ? desc : activityDescription + QStringLiteral("\r\n") + desc;
     } else
-        act = desc;
-    device->setActivityDescription(act);
+        activityDescription = desc;
+    emit activityDescriptionChanged(activityDescription);
     QJsonObject main;
-    main[QStringLiteral("content")] = act;
+    main[QStringLiteral("content")] = activityDescription;
     main[QStringLiteral("msg")] = QStringLiteral("R_appendactivitydescription");
     QJsonDocument out(main);
     tempSender->send(out.toJson());

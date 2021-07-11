@@ -19,10 +19,13 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
+  signals:
+    void activityDescriptionChanged(QString newDescription);
 
   private:
     bool validFileTemplateType(const QString &tp) const;
     void buildContext();
+    QString activityDescription;
     void createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates);
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
