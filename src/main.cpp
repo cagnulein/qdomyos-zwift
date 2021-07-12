@@ -44,8 +44,11 @@ bool onlyVirtualBike = false;
 bool onlyVirtualTreadmill = false;
 bool testPeloton = false;
 bool testHomeFitnessBudy = false;
+bool testPowerZonePack = false;
 QString peloton_username = "";
 QString peloton_password = "";
+QString pzp_username = "";
+QString pzp_password = "";
 bool testResistance = false;
 bool forceQml = false;
 bool miles = false;
@@ -119,6 +122,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
             testHomeFitnessBudy = true;
+        if (!qstrcmp(argv[i], "-test-pzp"))
+            testPowerZonePack = true;
         if (!qstrcmp(argv[i], "-train")) {
 
             trainProgram = argv[++i];
@@ -134,6 +139,14 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
         if (!qstrcmp(argv[i], "-peloton-password")) {
 
             peloton_password = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-pzp-username")) {
+
+            pzp_username = argv[++i];
+        }
+        if (!qstrcmp(argv[i], "-pzp-password")) {
+
+            pzp_password = argv[++i];
         }
         if (!qstrcmp(argv[i], "-poll-device-time")) {
 
@@ -257,7 +270,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID
-    if (getuid() && !testPeloton && !testHomeFitnessBudy) {
+    if (getuid() && !testPeloton && !testHomeFitnessBudy && !testPowerZonePack) {
 
         printf("Runme as root!\n");
         return -1;
@@ -362,6 +375,22 @@ int main(int argc, char *argv[]) {
                 if (ok) {
                     h->searchWorkout(QDate(2021, 5, 19), "Christine D'Ercole");
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
+                        if (list->length() > 0)
+                            app->exit(0);
+                        else
+                            app->exit(2);
+                    });
+                } else {
+                    exit(1);
+                }
+            });
+            return app->exec();
+        } else if (testPowerZonePack) {
+            powerzonepack *h = new powerzonepack(0, 0);
+            QObject::connect(h, &powerzonepack::loginState, [&](bool ok) {
+                if (ok) {
+                    h->searchWorkout("d6a54e1ce634437bb172f61eb1588b27");
+                    QObject::connect(h, &powerzonepack::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);
                         else
