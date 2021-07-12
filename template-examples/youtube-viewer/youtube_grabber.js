@@ -10,7 +10,7 @@ class YoutubeGrabber {
         let match;
         if ((match = /[&?]list=([^&]{16,})/i.exec(el)))
             return match[1];
-        else if ((match = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/gi.exec(el)))
+        else if ((match = /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/gi.exec(el)))
             return match[1];
         else
             return el;

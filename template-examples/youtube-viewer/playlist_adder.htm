@@ -11,8 +11,8 @@
     <script src="./formsave.js"></script>
     <script src="./globals.js"></script>
     <script src="./qtfetcher.js"></script>
-    <script src="./input-spinner.js"></script>
-    <script src="./input-spinner-custom-editors.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/shaack/bootstrap-input-spinner@master/src/bootstrap-input-spinner.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/shaack/bootstrap-input-spinner@master/src/custom-editors.min.js"></script>
     <script src="./main_ws_manager.js"></script>
     <script src="./playlist_adder.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" />
@@ -83,6 +83,7 @@
                     </button>
                     <div class="dropdown-menu">
                         <a class="dropdown-item" data-grabber="youtube" href="#"><i class="fab fa-youtube"></i>&nbsp;&nbsp;Youtube</a>
+                        <a class="dropdown-item" data-grabber="twitch" href="#"><i class="fab fa-twitch"></i>&nbsp;&nbsp;Twitch</a>
                         <a class="dropdown-item" data-grabber="personal" href="#"><i class="fa fa-border-none"></i>&nbsp;&nbsp;Personal</a>
                     </div>
                 </div>
@@ -119,6 +120,15 @@
                     <label for="video-height">Video Height</label>
                     <input type="number" placeholder="Video Height" id="video-height" value="660" min="100" max="4000" step="1" required/>
                 </div>
+                <div class="form-group col">
+                    <label for="video-type">Player</label>
+                    <select id="video-type" class="form-control">
+                      <option value="youtube" selected>Youtube</option>
+                      <option value="dash">Dash</option>
+                      <option value="videojs">VideoJs</option>
+                      <option value="twitch">Twitch</option>
+                    </select>
+                  </div>
             </form>
             <form class="col-md-12" autocomplete="on">
                 <div class="form-group">

@@ -19,10 +19,13 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
+  signals:
+    void activityDescriptionChanged(QString newDescription);
 
   private:
     bool validFileTemplateType(const QString &tp) const;
     void buildContext();
+    QString activityDescription;
     void createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates);
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
@@ -45,6 +48,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
   private slots:
     void onUpdateTimeout();
     void onDataReceived(const QByteArray &data);

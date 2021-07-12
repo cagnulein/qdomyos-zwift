@@ -60,27 +60,65 @@ function on_play_finished(event) {
             index = playlist_arr.length;
         }
     }
+    else if (dir === null) {
+        video_manager_obj.togglePause();
+        return;
+    }
     else {
         index = current_item? playlist_map[current_item.uid] + dir:0;
     }
+    let lnk = '';
+    let title = '';
     console.log('Index found is ' + index);
     if (index < playlist_arr.length) {
         set_next_button_enabled(index < playlist_arr.length - 1);
         set_prev_button_enabled(index > 0);
         current_item = playlist_arr[index];
         vid = current_item.uid;
+        lnk = current_item.link;
+        title = current_item.title;
         set_video_title(current_item.title);
         set_video_enabled(vid);
+        print_duration(index);
     }
-    if (vid.length) {
+    if (vid.length && video_manager_obj.play_video_id)
         video_manager_obj.play_video_id(vid);
-    }
+    else if (lnk.length && video_manager_obj.play_video)
+        video_manager_obj.play_video(lnk);
+
     save_playlist_settings(vid);
+    save_activity_desc(title, lnk);
+}
+
+function on_player_state_changed(player, event) {
+    if (event == VIDEO_STATUS_UNSTARTED || event == VIDEO_STATUS_PAUSED || event === VIDEO_STATUS_CUED)
+        set_pause_button_enabled(true, '<i class="fas fa-play"></i>&nbsp;&nbsp;Play');
+    else if (event == VIDEO_STATUS_PLAYING)
+        set_pause_button_enabled(true, '<i class="fas fa-pause"></i>&nbsp;&nbsp;Pause');
+    else
+        set_pause_button_enabled(false);
+}
+
+function print_duration(idx) {
+    let tot_dur = 0;
+    let duration1 = '';
+    for (let i = idx; i<playlist_arr.length; i++) {
+        let video = playlist_arr[i];
+        let durationi = video?.length || video?.dur || 0;
+        if (i == idx) {
+            duration1 = format_duration(durationi);
+        }
+        tot_dur += durationi;
+    }
+    if (duration1.length) {
+        toast_msg('Video duration is ' + duration1 + '. Remaining videos are ' + (playlist_arr.length - idx) + ' [' + format_duration(tot_dur) + '].', 'info');
+    }
 }
 
 function on_player_load(name, manager_obj) {
     video_manager_obj = manager_obj;
     video_manager_obj.on_play_finished = on_play_finished;
+    video_manager_obj.on_state_changed = on_player_state_changed;
     let sta;
     let event = undefined;
     if (urlParams.has('sta') && (sta = urlParams.get('sta')) && playlist_map[sta] !== undefined) {
@@ -156,6 +194,29 @@ function save_playlist_settings(vid) {
     }
 }
 
+function save_activity_desc(title, lnk) {
+    if (title) {
+        let el = new MainWSQueueElement({
+            msg: 'appendactivitydescription',
+            content: {
+                desc: title + ' ('+lnk+')',
+                append: true
+            }
+        }, function(msg) {
+            if (msg.msg === 'R_appendactivitydescription') {
+                return msg.content;
+            }
+            return null;
+        }, 3000, 1);
+        el.enqueue().then(function(desc) {
+            console.log('New description ' + desc);
+        })
+            .catch(function(err) {
+                console.log('Description not changed ' + err);
+            });
+    }
+}
+
 function get_startup_settings() {
     let orig_up = new URLSearchParams(search_var);
     const settings_key_pre = get_template_name() + '_conf_';
@@ -188,8 +249,10 @@ function get_startup_settings() {
         }
         search_var = orig_up.toString();
         let playlist_save_name = orig_up.get('name') || '';
-        if (playlist_save_name.length)
+        if (playlist_save_name.length) {
+            page_set_title(playlist_save_name + ' - Workout');
             playlist_saves = [namekey = settings_key_pre + playlist_save_name, lastkey];
+        }
         else
             playlist_saves = [lastkey];
         urlParams = orig_up;

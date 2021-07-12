@@ -404,6 +404,7 @@ class homeform : public QObject {
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName = QLatin1String("");
     QString stravaPelotonInstructorName = QLatin1String("");
+    QString activityDescription = QLatin1String("");
 
     QString lastFitFileSaved = QLatin1String("");
 
@@ -494,6 +495,7 @@ class homeform : public QObject {
     void pzpLoginState(bool ok);
     void peloton_start_workout();
     void smtpError(SmtpClient::SmtpError e);
+    void setActivityDescription(QString newdesc);
 
   signals:
 

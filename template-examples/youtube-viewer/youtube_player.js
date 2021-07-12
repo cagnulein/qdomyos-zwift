@@ -1,6 +1,3 @@
-let yt_player = null;
-let yt_player_ready = false;
-
 class YoutubePlayer {
     constructor(video_width, video_height) {
         this.player = new YT.Player('player', {
@@ -13,23 +10,37 @@ class YoutubePlayer {
             }
         });
         this.on_play_finished = null;
+        this.on_state_changed = null;
     }
 
     onPlayerReady(event) {
-        on_player_load("youtube", this);
+        on_player_load('youtube', this);
     }
 
-    // 5. The API calls this function when the player's state changes.
-    //    The function indicates that when playing a video (state=1),
-    //    the player should play for six seconds and then stop.
+    /*
+    -1 (unstarted)
+    0 (ended)
+    1 (playing)
+    2 (paused)
+    3 (buffering)
+    5 (video cued).*/
     onPlayerStateChange(event) {
-        if (event.data == 0 && this.on_play_finished) { // ended
+        if (event.data == VIDEO_STATUS_ENDED && this.on_play_finished) { // ended
             this.on_play_finished(this);
         }
+        if (this.on_state_changed)
+            this.on_state_changed(this, event.data);
     }
 
     play_video_id(vid) {
         this.player.loadVideoById({videoId:vid});
+    }
+
+    togglePause() {
+        if (this.player.getPlayerState() == VIDEO_STATUS_PLAYING)
+            this.player.pauseVideo();
+        else
+            this.player.playVideo();
     }
 }
 
@@ -39,4 +50,4 @@ function onYouTubeIframeAPIReady() {
     new YoutubePlayer(video_width, video_height);
 }
 
-dyn_module_load("https://www.youtube.com/iframe_api");
+dyn_module_load('https://www.youtube.com/iframe_api');
