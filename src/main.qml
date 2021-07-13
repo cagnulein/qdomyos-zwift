@@ -3,6 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
+import QtWebView 1.1
 
 ApplicationWindow {
     id: window
@@ -361,7 +362,7 @@ ApplicationWindow {
 					}
         }
     }    
-
+/*
     StackView {
         id: stackView
         initialItem: "Home.qml"
@@ -369,5 +370,15 @@ ApplicationWindow {
         focus: true
         Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
         Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
-    }
+    }*/
+    WebView {
+            id: webView
+            anchors.fill: parent
+            url: "https://www.chartjs.org/docs/latest/samples/bar/vertical.html"
+            visible: true
+            onLoadingChanged: {
+                if (loadRequest.errorString)
+                    console.error(loadRequest.errorString);
+            }
+        }
 }
