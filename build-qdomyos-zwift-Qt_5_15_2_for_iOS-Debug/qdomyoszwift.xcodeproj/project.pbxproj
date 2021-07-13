@@ -144,6 +144,9 @@
 		87318AAF2683799C00770F13 /* moc_echelonstride.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87318AAE2683799C00770F13 /* moc_echelonstride.cpp */; };
 		87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87318AB026837AA500770F13 /* libQt5WebSockets.a */; };
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
+		87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF5269D770F000C5EC6 /* libQt5WebView.a */; };
+		87420DF8269D7CE2000C5EC6 /* libqtwebview_darwin.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */; };
+		87420DFA269D7F44000C5EC6 /* libdeclarative_webview.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
 		87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4025B8340E00A243C4 /* proformbike.cpp */; };
@@ -612,6 +615,9 @@
 		87318AAE2683799C00770F13 /* moc_echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstride.cpp; sourceTree = "<group>"; };
 		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebSockets.a; sourceTree = "<group>"; };
 		87368824259C602800C71C7E /* watchAppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = watchAppStart.swift; path = ../src/ios/watchAppStart.swift; sourceTree = "<group>"; };
+		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebView.a; sourceTree = "<group>"; };
+		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = ../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin.a; sourceTree = "<group>"; };
+		87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_webview.a; path = ../../Qt/5.15.2/ios/qml/QtWebView/libdeclarative_webview.a; sourceTree = "<group>"; };
 		87440FBB2640291700E4DC0B /* fitplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusbike.h; path = ../src/fitplusbike.h; sourceTree = "<group>"; };
 		87440FBC2640291700E4DC0B /* fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusbike.cpp; path = ../src/fitplusbike.cpp; sourceTree = "<group>"; };
 		87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusbike.cpp; sourceTree = "<group>"; };
@@ -993,6 +999,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87420DF8269D7CE2000C5EC6 /* libqtwebview_darwin.a in Link Binary With Libraries */,
+				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
 				87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */,
 				872BAB50261751FB006A59AB /* libqtchartsqml2.a in Link Binary With Libraries */,
 				872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */,
@@ -1019,6 +1027,7 @@
 				CB4712349D96726A75F70643 /* CoreLocation.framework in Link Binary With Libraries */,
 				772295D025B09DF590D77745 /* qtposition_positionpoll in Link Binary With Libraries */,
 				6E6F464EA774C04145F65971 /* qmldbg_debugger in Link Binary With Libraries */,
+				87420DFA269D7F44000C5EC6 /* libdeclarative_webview.a in Link Binary With Libraries */,
 				8FF7ED75180A8827C6B6AF63 /* qmldbg_inspector in Link Binary With Libraries */,
 				409582A461395DCAEA1D8782 /* qmldbg_local in Link Binary With Libraries */,
 				868B65D0AB5114A4A0D5479E /* qmldbg_messages in Link Binary With Libraries */,
@@ -1428,6 +1437,9 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */,
+				87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */,
+				87420DF5269D770F000C5EC6 /* libQt5WebView.a */,
 				87318AB026837AA500770F13 /* libQt5WebSockets.a */,
 				872BAB4F261751FB006A59AB /* libqtchartsqml2.a */,
 				872BAB4D261750EE006A59AB /* libQt5Charts.a */,
@@ -2573,6 +2585,8 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 				);
 				MARKETING_VERSION = 2.6;
 				OTHER_CPLUSPLUSFLAGS = (
@@ -2685,6 +2699,8 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtGraphicalEffects,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtQuick/Controls.2/Imagine,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 				);
 				MARKETING_VERSION = 2.6;
 				ONLY_ACTIVE_ARCH = YES;
