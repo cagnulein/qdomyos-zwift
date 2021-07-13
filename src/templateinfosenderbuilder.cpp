@@ -201,6 +201,11 @@ TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, co
 void TemplateInfoSenderBuilder::reinit() { load(); }
 
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
+    device = nullptr;
+    for (int i = 0; i < sessionArray.count(); i++) {
+        sessionArray.removeAt(0);
+    }
+    buildContext(true);
     device = dev;
     activityDescription = QLatin1String("");
     updateTimer.start(1s);
@@ -464,6 +469,14 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = sessionArray;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString fileName;
     QJsonArray rows;
@@ -576,6 +589,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("getsessionarray")) {
+                    onGetSessionArray(sender);
+                    return;
                 }
             }
         }
@@ -583,16 +599,16 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
     qDebug() << QStringLiteral("Unrecognized message") << data;
 }
 
-void TemplateInfoSenderBuilder::buildContext() {
+void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue glob = engine->globalObject();
     QJSValue obj;
-    if (!glob.hasOwnProperty(QStringLiteral("workout"))) {
+    if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
         glob.setProperty(QStringLiteral("workout"), obj);
     } else
         obj = glob.property(QStringLiteral("workout"));
 
-    if (!glob.hasOwnProperty(QStringLiteral("settings"))) {
+    if (!glob.hasOwnProperty(QStringLiteral("settings")) || forceReinit) {
         QJSValue sett = engine->newObject();
         glob.setProperty(QStringLiteral("settings"), sett);
         QVariant::Type typesett;
@@ -646,6 +662,7 @@ void TemplateInfoSenderBuilder::buildContext() {
         obj.setProperty(QStringLiteral("deviceRSSI"), device->bluetoothDevice.rssi());
         obj.setProperty(QStringLiteral("deviceType"), (int)device->deviceType());
         obj.setProperty(QStringLiteral("deviceConnected"), (bool)device->connected());
+        obj.setProperty(QStringLiteral("devicePaused"), (bool)device->isPaused());
         obj.setProperty(QStringLiteral("elapsed_s"), el.second());
         obj.setProperty(QStringLiteral("elapsed_m"), el.minute());
         obj.setProperty(QStringLiteral("elapsed_h"), el.hour());
@@ -668,7 +685,7 @@ void TemplateInfoSenderBuilder::buildContext() {
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
         obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
-        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
+        if (tp == bluetoothdevice::BIKE) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
@@ -678,9 +695,24 @@ void TemplateInfoSenderBuilder::buildContext() {
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cranks"), ((bike *)device)->currentCrankRevolutions());
             obj.setProperty(QStringLiteral("cranktime"), ((bike *)device)->lastCrankEventTime());
+        } else if (tp == bluetoothdevice::ROWING) {
+            obj.setProperty(QStringLiteral("peloton_resistance"),
+                            (dep = ((rower *)device)->pelotonResistance()).value());
+            obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence"), (dep = ((rower *)device)->currentCadence()).value());
+            obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("resistance"), (dep = ((rower *)device)->currentResistance()).value());
+            obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());
+            obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
+            obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
+            obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else {
             obj.setProperty(QStringLiteral("resistance"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
         }
+        QJsonObject o;
+        o.fromVariantMap(obj.toVariant().toMap());
+        sessionArray.append(o);
     }
 }

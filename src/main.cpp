@@ -21,7 +21,9 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#ifdef CHARTJS
 #include <QtWebView/QtWebView>
+#endif
 
 #ifdef Q_OS_ANDROID
 
@@ -268,7 +270,9 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
 #endif
+#ifdef CHARTJS
     QtWebView::initialize();
+#endif
 
 #ifdef Q_OS_LINUX
 #ifndef Q_OS_ANDROID

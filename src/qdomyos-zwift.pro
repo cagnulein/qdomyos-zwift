@@ -1,6 +1,17 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets webview
+QT += bluetooth widgets xml positioning quick networkauth websockets
 
 QT+= charts
+
+# android and iOS are using ChartJS
+unix:android: {
+   QT+= webview
+	DEFINES += CHARTJS
+}
+ios: {
+   QT+= webview
+	DEFINES += CHARTJS
+}
+
 unix:android: QT += androidextras gui-private
 qtHaveModule(httpserver) {
     QT += httpserver

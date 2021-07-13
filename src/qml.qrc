@@ -25,5 +25,10 @@
         <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
         <file>SettingsList.qml</file>
+        <file>templates/chart/chart.htm</file>
+        <file>templates/chart/chartjs.3.4.1.min.js</file>
+        <file>templates/chart/dochart.js</file>
+        <file>templates/chart/globals.js</file>
+        <file>templates/chart/main_ws_manager.js</file>
     </qresource>
 </RCC>

@@ -4,6 +4,7 @@
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
+#include <QJsonArray>
 #include <QSettings>
 
 #define TEMPLATE_TYPE_TCPCLIENT QStringLiteral("TcpClient")
@@ -24,11 +25,12 @@ class TemplateInfoSenderBuilder : public QObject {
 
   private:
     bool validFileTemplateType(const QString &tp) const;
-    void buildContext();
+    void buildContext(bool forceReinit = false);
     QString activityDescription;
     void createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates);
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
+    QJsonArray sessionArray;
     QHash<QString, QVariant> context;
     QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
@@ -49,6 +51,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetSessionArray(TemplateInfoSender *tempSender);
   private slots:
     void onUpdateTimeout();
     void onDataReceived(const QByteArray &data);
