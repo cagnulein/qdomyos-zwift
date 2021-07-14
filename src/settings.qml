@@ -138,6 +138,7 @@ import Qt.labs.settings 1.0
             property int  fitshow_user_id: 0x006E13AA
 
             property bool inspire_peloton_formula: false
+            property bool inspire_peloton_formula2: false
 
             property bool hammer_racer_s: false
 
@@ -2428,9 +2429,11 @@ import Qt.labs.settings 1.0
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
-                accordionContent: SwitchDelegate {
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                SwitchDelegate {
                     id: inspirePelotonFormulaDelegate
-                    text: qsTr("Advanced Peloton Formula")
+                    text: qsTr("Advanced Formula (15/3/2021)")
                     spacing: 0
                     bottomPadding: 0
                     topPadding: 0
@@ -2441,6 +2444,21 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.inspire_peloton_formula = checked
+                }
+                SwitchDelegate {
+                    id: inspirePelotonFormula2Delegate
+                    text: qsTr("Advanced Formula (14/7/2021)")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.inspire_peloton_formula2
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.inspire_peloton_formula2 = checked
+                }
                 }
             }
 

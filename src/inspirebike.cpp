@@ -92,8 +92,8 @@ void inspirebike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15) {
-                requestResistance = 15;
+            if (requestResistance > max_resistance) {
+                requestResistance = max_resistance;
             } else if (requestResistance == 0) {
                 requestResistance = 1;
             }
@@ -159,8 +159,14 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
-    // y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
-    if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
+    if (settings.value(QStringLiteral("inspire_peloton_formula2"), false).toBool()) {
+        // y = 0,0002x^3 - 0.1478x^2 + 4.2412x + 1.8102
+        m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0002) - (pow(Resistance.value(), 2) * 0.1478) +
+                                (4.2412 * Resistance.value()) + 1.8102) *
+                               settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+                              settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+    } else if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
+        // y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
         m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) +
                                 (2.575 * Resistance.value()) + 0.0444) *
                                settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
@@ -378,7 +384,24 @@ uint16_t inspirebike::watts() {
         return 0;
     }
 
-    if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
+    if (settings.value(QStringLiteral("inspire_peloton_formula2"), false).toBool()) {
+        const double m[] = {0.6,  0.7, 0.75, 0.7, 0.9,  0.85, 0.85, 1,    1.1,  1.25, 1.5,  1.4,  1.4, 1.5,
+                            1.5,  1.8, 1.75, 2,   2.15, 2.55, 2.65, 2.65, 2.85, 2.9,  3.25, 3.65, 3.4, 4.05,
+                            4.05, 4.2, 4.25, 4.8, 5.35, 5.5,  6.1,  5.35, 5.95, 6.65, 7.25, 7.05};
+        const double q[] = {
+            -7.666666667, -13.33333333, -13.5,        -6,           -20,          -12.83333333, -7.5,   -16.66666667,
+            -21.33333333, -29.16666667, -44.33333333, -31.66666667, -23.66666667, -27,          -20,    -40.33333333,
+            -25.83333333, -38.66666667, -43.16666667, -72.5,        -71.5,        -65.5,        -68.5,  -62.66666667,
+            -80.5,        -103.1666667, -66,          -109.8333333, -95.16666667, -95,          -79.5,  -111.6666667,
+            -136.8333333, -132.3333333, -160,         -66.16666667, -93.5,        -131.5,       -149.5, -92.16666667};
+
+        uint8_t res = qRound(currentResistance().value());
+        if (res - 1 < max_resistance && res > 0)
+            return (uint16_t)((m[res - 1] * (double)(currentCadence().value())) + q[res - 1]);
+        else
+            return 0;
+
+    } else if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {
         return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) *
                            exp(0.088 * (double)(currentResistance().value()))) /
                           2.2);
