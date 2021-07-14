@@ -1,3 +1,12 @@
+window.chartColors = {
+    red: 'rgb(255, 99, 132)',
+    orange: 'rgb(255, 159, 64)',
+    yellow: 'rgb(255, 205, 86)',
+    green: 'rgb(75, 192, 192)',
+    blue: 'rgb(54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey: 'rgb(201, 203, 207)'
+};
 
 function process_arr(arr) {
     let watts = [];
@@ -7,7 +16,7 @@ function process_arr(arr) {
         wattel.y = el.watts;
         watts.push(wattel);
     }
-    var config = {
+    let config = {
         type: 'line',
         data: {
             datasets: [{
@@ -20,36 +29,39 @@ function process_arr(arr) {
         },
         options: {
             responsive: true,
-            gridLines: {
+            grid: {
                 zeroLineColor: 'rgba(0,255,0,1)'
             },
-            title:{
-                display:true,
-                text:'Chart.js Line Chart'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
+            plugins: {
+                title:{
+                    display:true,
+                    text:'Chart.js Line Chart'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                }
             },
             hover: {
                 mode: 'nearest',
                 intersect: true
             },
             scales: {
-                xAxes: [{
+                x: {
+                    type: 'linear',
                     display: true,
-                    scaleLabel: {
+                    title: {
                         display: true,
-                        labelString: 'Seconds'
+                        text: 'Seconds'
                     }
-                }],
-                yAxes: [{
+                },
+                y: {
                     display: true,
-                    scaleLabel: {
+                    title: {
                         display: true,
-                        labelString: 'Watt'
+                        text: 'Watt'
                     }
-                }]
+                }
             }
         }
     };
@@ -66,7 +78,7 @@ function dochart_init() {
             return msg.content;
         }
         return null;
-    }, 5000, 3);
+    }, 15000, 3);
     el.enqueue().then(process_arr).catch(function(err) {
         console.error('Error is ' + err);
     });

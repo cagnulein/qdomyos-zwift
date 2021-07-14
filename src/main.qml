@@ -263,8 +263,10 @@ ApplicationWindow {
                 text: qsTr("Charts")
                 width: parent.width
                 onClicked: {
-                    stackView.push("ChartsEndWorkout.qml")
-                    drawer.close()
+                    stackView.push("ChartJsTest.qml")
+                    stackView.currentItem.popupclosed.connect(function() {
+                        stackView.pop();
+                     });
                 }
             }
             ItemDelegate {

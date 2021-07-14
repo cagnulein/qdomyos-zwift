@@ -711,8 +711,6 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("resistance"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
         }
-        QJsonObject o;
-        o.fromVariantMap(obj.toVariant().toMap());
-        sessionArray.append(o);
+        sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
     }
 }
