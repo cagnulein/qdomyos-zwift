@@ -364,7 +364,7 @@ ApplicationWindow {
 					}
         }
     }    
-/*
+
     StackView {
         id: stackView
         initialItem: "Home.qml"
@@ -372,15 +372,5 @@ ApplicationWindow {
         focus: true
         Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
         Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
-    }*/
-    WebView {
-            id: webView
-            anchors.fill: parent
-            url: "https://www.chartjs.org/docs/latest/samples/bar/vertical.html"
-            visible: true
-            onLoadingChanged: {
-                if (loadRequest.errorString)
-                    console.error(loadRequest.errorString);
-            }
-        }
+    }
 }
