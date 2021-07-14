@@ -28,6 +28,13 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->bikeResistanceOffset = bikeResistanceOffset;
     this->templateManager = TemplateInfoSenderBuilder::getInstance(this);
 
+//#ifdef TEST
+    schwinnIC4Bike = (schwinnic4bike*) new bike();
+    templateManager->start(schwinnIC4Bike);
+    connectedAndDiscovered();
+    return;
+//#endif
+    
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
         debug(QStringLiteral("no bluetooth dongle found!"));
@@ -72,6 +79,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             bt.setDeviceUuid(QBluetoothUuid(settings.value("bluetooth_lastdevice_address", "").toString()));
             qDebug() << "UUID" << bt.deviceUuid();
             schwinnIC4Bike->deviceDiscovered(bt);
+            templateManager->start(schwinnIC4Bike);
             qDebug() << "connecting directly";
         }
 #endif

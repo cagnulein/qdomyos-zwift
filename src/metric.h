@@ -12,6 +12,7 @@ class metric {
         METRIC_OTHER = 0,
         METRIC_WATT = 1,
         METRIC_SPEED = 2,
+        METRIC_ELAPSED = 3,
     } _metric_type;
 
     metric();

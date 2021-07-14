@@ -23,8 +23,12 @@ function process_arr(arr) {
                 label: 'Watts',
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
+                cubicInterpolationMode: 'monotone',
                 data: watts,
                 fill: false,
+                segment: {
+                   borderColor: ctx => ctx.p0.parsed.y < 30 ? 'rgb(192,75,75)' : '',
+                }
             }]
         },
         options: {
@@ -52,7 +56,13 @@ function process_arr(arr) {
                     display: true,
                     title: {
                         display: true,
-                        text: 'Seconds'
+                        text: 'Time'
+                    },
+                    ticks: {
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
+                        }
                     }
                 },
                 y: {
@@ -71,7 +81,27 @@ function process_arr(arr) {
 }
 
 function dochart_init() {
+    onSettingsOK = true;
+    keys_arr = ['ftp', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4']
     let el = new MainWSQueueElement({
+            msg: 'getsettings',
+            content: {
+                keys: keys_arr
+            }
+        }, function(msg) {
+            if (msg.msg === 'R_getsettings') {
+                for (let key of keys_arr) {
+                    if (msg.content[key] === undefined)
+                        return null;
+                }
+                return msg.content;
+            }
+            return null;
+        }, 5000, 3);
+    el.enqueue().then(onSettingsOK).catch(function(err) {
+            console.error('Error is ' + err);
+    })
+    el = new MainWSQueueElement({
         msg: 'getsessionarray'
     }, function(msg) {
         if (msg.msg === 'R_getsessionarray') {

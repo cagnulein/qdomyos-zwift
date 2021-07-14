@@ -31,5 +31,7 @@
         <file>templates/chart/globals.js</file>
         <file>templates/chart/main_ws_manager.js</file>
         <file>ChartJsTest.qml</file>
+        <file>templates/chart/chartjs-adapter-moment.js</file>
+        <file>templates/chart/moment.js</file>
     </qresource>
 </RCC>

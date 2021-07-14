@@ -264,9 +264,7 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     stackView.push("ChartJsTest.qml")
-                    stackView.currentItem.popupclosed.connect(function() {
-                        stackView.pop();
-                     });
+                    drawer.close()
                 }
             }
             ItemDelegate {
