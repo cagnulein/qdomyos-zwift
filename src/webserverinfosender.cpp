@@ -3,7 +3,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
-#include <QWebSocket>
+#include <QtWebSockets/QWebSocket>
 
 WebServerInfoSender::WebServerInfoSender(const QString &id, QObject *parent) : TemplateInfoSender(id, parent) {
     fetcher = new QNetworkAccessManager(this);

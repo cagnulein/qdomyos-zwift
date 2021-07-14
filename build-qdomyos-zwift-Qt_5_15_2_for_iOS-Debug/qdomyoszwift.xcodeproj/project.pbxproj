@@ -242,6 +242,7 @@
 		87D269A025F535200076AA48 /* skandikawiribike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D2699D25F535180076AA48 /* skandikawiribike.cpp */; };
 		87D269A325F535340076AA48 /* moc_skandikawiribike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D269A125F535300076AA48 /* moc_skandikawiribike.cpp */; };
 		87D269A425F535340076AA48 /* moc_m3ibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D269A225F535300076AA48 /* moc_m3ibike.cpp */; };
+		87D44181269DE979003263D5 /* webserverinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D44180269DE979003263D5 /* webserverinfosender.cpp */; };
 		87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68B625E2673600FCDA46 /* eslinkertreadmill.cpp */; };
 		87DF68BD25E2675100FCDA46 /* moc_eslinkertreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68BA25E2675100FCDA46 /* moc_eslinkertreadmill.cpp */; };
 		87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */; };
@@ -775,6 +776,7 @@
 		87D2699D25F535180076AA48 /* skandikawiribike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skandikawiribike.cpp; path = ../src/skandikawiribike.cpp; sourceTree = "<group>"; };
 		87D269A125F535300076AA48 /* moc_skandikawiribike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_skandikawiribike.cpp; sourceTree = "<group>"; };
 		87D269A225F535300076AA48 /* moc_m3ibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_m3ibike.cpp; sourceTree = "<group>"; };
+		87D44180269DE979003263D5 /* webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = webserverinfosender.cpp; path = ../src/webserverinfosender.cpp; sourceTree = "<group>"; };
 		87DF68B625E2673600FCDA46 /* eslinkertreadmill.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = eslinkertreadmill.cpp; path = ../src/eslinkertreadmill.cpp; sourceTree = "<group>"; };
 		87DF68B725E2673600FCDA46 /* eslinkertreadmill.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = eslinkertreadmill.h; path = ../src/eslinkertreadmill.h; sourceTree = "<group>"; };
 		87DF68BA25E2675100FCDA46 /* moc_eslinkertreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_eslinkertreadmill.cpp; sourceTree = "<group>"; };
@@ -1200,6 +1202,7 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87D44180269DE979003263D5 /* webserverinfosender.cpp */,
 				87FE5BAD2692F3130056EFC8 /* tacxneo2.cpp */,
 				87FE5BAE2692F3130056EFC8 /* tacxneo2.h */,
 				87900DC5268B672E000CB351 /* renphobike.cpp */,
@@ -2174,6 +2177,7 @@
 				692540CF811B06A8710A0A52 /* moc_mainwindow.cpp in Compile Sources */,
 				87D269A025F535200076AA48 /* skandikawiribike.cpp in Compile Sources */,
 				8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */,
+				87D44181269DE979003263D5 /* webserverinfosender.cpp in Compile Sources */,
 				87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */,
 				AFEC086E92015064EB841234 /* moc_trainprogram.cpp in Compile Sources */,
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
@@ -2559,6 +2563,7 @@
 					.,
 					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
 					../../Qt/5.15.2/ios/include/QtNetworkAuth,
+					../../Qt/5.15.2/ios/include/QtHttpServer,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -2595,6 +2600,30 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 				);
 				MARKETING_VERSION = 2.6;
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-g",
+					"-fobjc-nonfragile-abi",
+					"-fobjc-legacy-dispatch",
+					"-Wall",
+					"-Wextra",
+					"-fPIC",
+					"-DQT_COMPILER_SUPPORTS_SSE2",
+					"-DQT_DEPRECATED_WARNINGS",
+					"-DQT_QML_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_QUICK_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_BLUETOOTH_LIB",
+					"-DQT_XML_LIB",
+					"-DQT_POSITIONING_LIB",
+					"-DQT_QMLMODELS_LIB",
+					"-DQT_QML_LIB",
+					"-DQT_NETWORKAUTH_LIB",
+					"-DQT_NETWORK_LIB",
+					"-DQT_CORE_LIB",
+					"-DQ_HTTPSERVER",
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
 					"-stdlib=libc++",
@@ -2619,6 +2648,8 @@
 					"-DQT_NETWORKAUTH_LIB",
 					"-DQT_NETWORK_LIB",
 					"-DQT_CORE_LIB",
+					"-DQ_HTTPSERVER",
+					"-DQT_WEBSOCKETS_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -2673,6 +2704,7 @@
 					.,
 					"../../Qt/5.15.2/ios/mkspecs/macx-ios-clang",
 					../../Qt/5.15.2/ios/include/QtNetworkAuth,
+					../../Qt/5.15.2/ios/include/QtHttpServer,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -2710,6 +2742,30 @@
 				);
 				MARKETING_VERSION = 2.6;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-g",
+					"-fobjc-nonfragile-abi",
+					"-fobjc-legacy-dispatch",
+					"-Wall",
+					"-Wextra",
+					"-fPIC",
+					"-DQT_COMPILER_SUPPORTS_SSE2",
+					"-DQT_DEPRECATED_WARNINGS",
+					"-DQT_QML_DEBUG",
+					"-DQT_WIDGETS_LIB",
+					"-DQT_QUICK_LIB",
+					"-DQT_GUI_LIB",
+					"-DQT_BLUETOOTH_LIB",
+					"-DQT_XML_LIB",
+					"-DQT_POSITIONING_LIB",
+					"-DQT_QMLMODELS_LIB",
+					"-DQT_QML_LIB",
+					"-DQT_NETWORKAUTH_LIB",
+					"-DQT_NETWORK_LIB",
+					"-DQT_CORE_LIB",
+					"-DQ_HTTPSERVER",
+				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
 					"-stdlib=libc++",
@@ -2734,6 +2790,8 @@
 					"-DQT_NETWORKAUTH_LIB",
 					"-DQT_NETWORK_LIB",
 					"-DQT_CORE_LIB",
+					"-DQ_HTTPSERVER",
+					"-DQT_WEBSOCKETS_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
