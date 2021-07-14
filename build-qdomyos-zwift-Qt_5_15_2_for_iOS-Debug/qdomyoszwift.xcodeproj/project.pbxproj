@@ -208,6 +208,8 @@
 		87B617F225F260150094A1CB /* moc_fitshowtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617EF25F260140094A1CB /* moc_fitshowtreadmill.cpp */; };
 		87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617F025F260140094A1CB /* moc_snodebike.cpp */; };
 		87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87B617F125F260150094A1CB /* moc_screencapture.cpp */; };
+		87BB1774269E983200F46A1C /* moc_webserverinfosender.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */; };
+		87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87BB1775269E987000F46A1C /* libQt5HttpServer.a */; };
 		87C5F0B526285E5F0067A1B5 /* mimemessage.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F09726285E5A0067A1B5 /* mimemessage.cpp */; };
 		87C5F0B626285E5F0067A1B5 /* quotedprintable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F09A26285E5B0067A1B5 /* quotedprintable.cpp */; };
 		87C5F0B726285E5F0067A1B5 /* mimecontentformatter.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F09B26285E5B0067A1B5 /* mimecontentformatter.cpp */; };
@@ -723,6 +725,8 @@
 		87B617EF25F260140094A1CB /* moc_fitshowtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitshowtreadmill.cpp; sourceTree = "<group>"; };
 		87B617F025F260140094A1CB /* moc_snodebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_snodebike.cpp; sourceTree = "<group>"; };
 		87B617F125F260150094A1CB /* moc_screencapture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_screencapture.cpp; sourceTree = "<group>"; };
+		87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_webserverinfosender.cpp; sourceTree = "<group>"; };
+		87BB1775269E987000F46A1C /* libQt5HttpServer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5HttpServer.a; path = ../../Qt/5.15.2/ios/lib/libQt5HttpServer.a; sourceTree = "<group>"; };
 		87C5F09726285E5A0067A1B5 /* mimemessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mimemessage.cpp; path = ../src/smtpclient/src/mimemessage.cpp; sourceTree = "<group>"; };
 		87C5F09826285E5A0067A1B5 /* mimecontentformatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mimecontentformatter.h; path = ../src/smtpclient/src/mimecontentformatter.h; sourceTree = "<group>"; };
 		87C5F09926285E5B0067A1B5 /* smtpclient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = smtpclient.h; path = ../src/smtpclient/src/smtpclient.h; sourceTree = "<group>"; };
@@ -1004,6 +1008,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */,
 				877A7607269D8E100024DD2C /* libqtwebview_darwin_debug.a in Link Binary With Libraries */,
 				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
 				87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */,
@@ -1125,6 +1130,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */,
 				87FE5BB02692F31E0056EFC8 /* moc_tacxneo2.cpp */,
 				87900DC7268B673C000CB351 /* moc_renphobike.cpp */,
 				87318AAE2683799C00770F13 /* moc_echelonstride.cpp */,
@@ -1444,6 +1450,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87BB1775269E987000F46A1C /* libQt5HttpServer.a */,
 				877A7608269D8E9F0024DD2C /* WebKit.framework */,
 				877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */,
 				87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */,
@@ -2106,6 +2113,7 @@
 				87310B1E266FBB59008BA0D6 /* smartrowrower.cpp in Compile Sources */,
 				87A3BC222656429600D302E3 /* rower.cpp in Compile Sources */,
 				C719682D8D421AF6B2DAAEA9 /* main.cpp in Compile Sources */,
+				87BB1774269E983200F46A1C /* moc_webserverinfosender.cpp in Compile Sources */,
 				25FCD41CCCAF49293B9369E8 /* qfit.cpp in Compile Sources */,
 				87C5F0B926285E5F0067A1B5 /* mimehtml.cpp in Compile Sources */,
 				27E452D452B62D0948DF0755 /* sessionline.cpp in Compile Sources */,
