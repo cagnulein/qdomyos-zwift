@@ -200,6 +200,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(bluetoothManager->getTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
+    connect(bluetoothManager->getTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
+            &homeform::chartSaved);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
@@ -307,13 +309,23 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(minus_clicked(QString)),
         this, SLOT(Minus(QString)));
 #endif
-    
-//#ifdef TEST
+
+    //#ifdef TEST
     deviceConnected();
-//#endif
+    //#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
+
+void homeform::chartSaved(QString fileName) {
+    if (!stopped)
+        return;
+    chartImagesFilenames.append(fileName);
+    if (chartImagesFilenames.length() >= 3) {
+        sendMail();
+        chartImagesFilenames.clear();
+    }
+}
 
 void homeform::volumeUp() {
     qDebug() << QStringLiteral("volumeUp");
@@ -1814,22 +1826,22 @@ void homeform::update() {
                              QStringLiteral(" MAX: ") +
                              QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
 
-/*
-        if(trainProgram)
-        {
-            trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
-            trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
-            trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
+        /*
+                if(trainProgram)
+                {
+                    trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+                    trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+                    trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
 
-            double distance = trainProgram->totalDistance();
-            if(distance > 0)
-            {
-                trainProgramTotalDistance->setText(QString::number(distance));
-            }
-            else
-                trainProgramTotalDistance->setText("N/A");
-        }
-*/
+                    double distance = trainProgram->totalDistance();
+                    if(distance > 0)
+                    {
+                        trainProgramTotalDistance->setText(QString::number(distance));
+                    }
+                    else
+                        trainProgramTotalDistance->setText("N/A");
+                }
+        */
 
 #ifdef Q_OS_ANDROID
         if (settings.value("ant_cadence", false).toBool() && KeepAwakeHelper::antObject(false)) {
@@ -2570,8 +2582,8 @@ void homeform::sendMail() {
         // unit_conversion = 0.621371; // NOTE: clang-analyzer-deadcode.DeadStores
         weightLossUnit = QStringLiteral("Oz");
     }
-// WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 :
-// bluetoothManager->device()->weightLoss()); // NOTE: clang-analyzer-deadcode.DeadStores
+    // WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 :
+    // bluetoothManager->device()->weightLoss()); // NOTE: clang-analyzer-deadcode.DeadStores
 
 #ifdef SMTP_SERVER
 #define _STR(x) #x

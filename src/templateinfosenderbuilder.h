@@ -22,6 +22,7 @@ class TemplateInfoSenderBuilder : public QObject {
     ~TemplateInfoSenderBuilder();
   signals:
     void activityDescriptionChanged(QString newDescription);
+    void chartSaved(QString filename);
 
   private:
     bool validFileTemplateType(const QString &tp) const;
@@ -48,6 +49,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetCadence(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);

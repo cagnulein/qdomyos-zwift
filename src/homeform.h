@@ -496,6 +496,7 @@ class homeform : public QObject {
     void peloton_start_workout();
     void smtpError(SmtpClient::SmtpError e);
     void setActivityDescription(QString newdesc);
+    void chartSaved(QString fileName);
 
   signals:
 

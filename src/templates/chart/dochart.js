@@ -86,6 +86,25 @@ function process_arr(arr) {
             ]
         },
         options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'getsavechart',
+                      content: {
+                          name: 'power',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_getsavechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -147,7 +166,7 @@ function process_arr(arr) {
     };
 
     let ctx = document.getElementById('canvas').getContext('2d');
-    new Chart(ctx, config);
+    var powerChart = new Chart(ctx, config);
 
     config = {
         type: 'line',
@@ -171,6 +190,25 @@ function process_arr(arr) {
             }]
         },
         options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'getsavechart',
+                      content: {
+                          name: 'heart',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_getsavechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -231,7 +269,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
-    new Chart(ctx, config);
+    var heartChart = new Chart(ctx, config);
 
     config = {
         type: 'line',
@@ -267,6 +305,25 @@ function process_arr(arr) {
             ]
         },
         options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'getsavechart',
+                      content: {
+                          name: 'resistance',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_getsavechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
             responsive: true,
             aspectRatio: 1.5,
             grid: {
@@ -317,7 +374,7 @@ function process_arr(arr) {
     };
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
-    new Chart(ctx, config);
+    var resistanceChart = new Chart(ctx, config);
 }
 
 function dochart_init() {

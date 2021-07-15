@@ -544,6 +544,35 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QString filename;
+    QJsonObject image;
+    QJsonObject content;
+    if ((content = msgContent.toObject()).isEmpty() ||
+        (filename = content.value(QStringLiteral("name")).toString()).isEmpty() ||
+        (image = content.value(QStringLiteral("image")).toObject()).isEmpty()) {
+        return;
+    }
+    QString path = homeform::getWritableAppDir();
+    QJsonObject main, outObj;
+    QString filenameScreenshot =
+        path + QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+        QStringLiteral("_") + filename.replace(QStringLiteral(":"), QStringLiteral("_")) + QStringLiteral(".jpg");
+
+    QFile f = QFile(filenameScreenshot);
+    QJsonDocument doc(image);
+    QByteArray bytes = doc.toJson();
+    f.write(bytes);
+    f.close();
+    emit chartSaved(filenameScreenshot);
+
+    outObj[QStringLiteral("name")] = filename;
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_savechart");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
     TemplateInfoSender *sender = qobject_cast<TemplateInfoSender *>(this->sender());
     if (!sender) {
@@ -588,6 +617,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("savechart")) {
+                    onSaveChart(jsonObject[QStringLiteral("content")], sender);
                     return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
