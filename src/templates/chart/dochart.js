@@ -23,19 +23,35 @@ function process_arr(arr) {
     let watts = [];
     let reqpower = [];
     let heart = [];
+    let cadence = [];
+    let resistance = [];
+    let peloton_resistance = [];
     for (let el of arr) {
         let wattel = {};
         let reqpowerel = {};
         let heartel = {};
-        wattel.x = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        let cadenceel = {};
+        let resistanceel = {};
+        let pelotonresistanceel = {};
+        let time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        wattel.x = time;
         wattel.y = el.watts;
         watts.push(wattel);
-        reqpowerel.x = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        reqpowerel.x = time;
         reqpowerel.y = el.req_power;
         reqpower.push(reqpowerel);
-        heartel.x = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        heartel.x = time;
         heartel.y = el.heart;
         heart.push(heartel);
+        cadenceel.x = time;
+        cadenceel.y = el.cadence;
+        cadence.push(cadenceel);
+        resistanceel.x = time;
+        resistanceel.y = el.resistance;
+        resistance.push(resistanceel);
+        pelotonresistanceel.x = time;
+        pelotonresistanceel.y = el.peloton_resistance;
+        peloton_resistance.push(pelotonresistanceel);
     }
     let config = {
         type: 'line',
@@ -216,6 +232,92 @@ function process_arr(arr) {
 
     ctx = document.getElementById('canvasHeart').getContext('2d');
     new Chart(ctx, config);
+
+    config = {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    label: 'Resistance',
+                    cubicInterpolationMode: 'monotone',
+                    data: resistance,
+                    fill: false,
+                    pointRadius: 0,
+                    backgroundColor: window.chartColors.red,
+                    borderColor: window.chartColors.red,
+                },
+                {
+                    label: 'Peloton R.',
+                    cubicInterpolationMode: 'monotone',
+                    data: peloton_resistance,
+                    fill: false,
+                    pointRadius: 0,
+                    backgroundColor: window.chartColors.black,
+                    borderColor: window.chartColors.black,
+                },
+                {
+                    backgroundColor: window.chartColors.blue,
+                    borderColor: window.chartColors.blue,
+                    label: 'Cadence',
+                    cubicInterpolationMode: 'monotone',
+                    data: cadence,
+                    fill: false,
+                    pointRadius: 0,
+                },
+            ]
+        },
+        options: {
+            responsive: true,
+            aspectRatio: 1.5,
+            grid: {
+                zeroLineColor: 'rgba(0,255,0,1)'
+            },
+            plugins: {
+                title:{
+                    display:true,
+                    text:'Resistance vs Peloton Resistance'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                },
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    },
+                    ticks: {
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
+                        }
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Heart rate'
+                    },
+                }
+            }
+        }
+    };
+
+    ctx = document.getElementById('canvasResistance').getContext('2d');
+    new Chart(ctx, config);
 }
 
 function dochart_init() {
@@ -289,26 +391,26 @@ $(window).on('load', function () {
     heartZones[2] = 150;
     heartZones[3] = 170;
 
-    arr = [{'watts': 100, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90},
-           {'watts': 120, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110},
-           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130},
-           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135},
-           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140},
-           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150},
-           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155},
-           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165},
-           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153},
-           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152},
-           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180},
-           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182},
-           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160},
-           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115},
-           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120},
-           {'watts': 271, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112},
-           {'watts': 262, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120},
+    arr = [{'watts': 100, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'peloton_resistance': 15, 'cadence': 80},
+           {'watts': 120, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'peloton_resistance': 30, 'cadence': 90},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'peloton_resistance': 40, 'cadence': 100},
+           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'peloton_resistance': 41, 'cadence': 90},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'peloton_resistance': 43, 'cadence': 95},
+           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'peloton_resistance': 43, 'cadence': 95},
+           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'peloton_resistance': 43, 'cadence': 95},
+           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'peloton_resistance': 35, 'cadence': 95},
+           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'peloton_resistance': 35, 'cadence': 95},
+           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'peloton_resistance': 30, 'cadence': 80},
+           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'peloton_resistance': 25, 'cadence': 90},
+           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'peloton_resistance': 35, 'cadence': 90},
+           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'peloton_resistance': 35, 'cadence': 90},
+           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'peloton_resistance': 35, 'cadence': 80},
+           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90},
+           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90},
+           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80},
+           {'watts': 271, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80},
+           {'watts': 262, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80},
             ]
     process_arr(arr);
 });
