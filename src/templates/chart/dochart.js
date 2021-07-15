@@ -89,13 +89,13 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
-                      msg: 'getsavechart',
+                      msg: 'savechart',
                       content: {
                           name: 'power',
                           image: powerChart.toBase64Image()
                       }
                   }, function(msg) {
-                      if (msg.msg === 'R_getsavechart') {
+                      if (msg.msg === 'R_savechart') {
                           return msg.content;
                       }
                       return null;
@@ -193,13 +193,13 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
-                      msg: 'getsavechart',
+                      msg: 'savechart',
                       content: {
                           name: 'heart',
                           image: powerChart.toBase64Image()
                       }
                   }, function(msg) {
-                      if (msg.msg === 'R_getsavechart') {
+                      if (msg.msg === 'R_savechart') {
                           return msg.content;
                       }
                       return null;
@@ -308,13 +308,13 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
-                      msg: 'getsavechart',
+                      msg: 'savechart',
                       content: {
                           name: 'resistance',
                           image: powerChart.toBase64Image()
                       }
                   }, function(msg) {
-                      if (msg.msg === 'R_getsavechart') {
+                      if (msg.msg === 'R_savechart') {
                           return msg.content;
                       }
                       return null;
@@ -433,7 +433,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init();
+    dochart_init();return;
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);

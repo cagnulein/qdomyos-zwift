@@ -546,24 +546,23 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
 
 void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString filename;
-    QJsonObject image;
+    QString image;
     QJsonObject content;
     if ((content = msgContent.toObject()).isEmpty() ||
         (filename = content.value(QStringLiteral("name")).toString()).isEmpty() ||
-        (image = content.value(QStringLiteral("image")).toObject()).isEmpty()) {
+        (image = content.value(QStringLiteral("image")).toString()).isEmpty()) {
         return;
     }
     QString path = homeform::getWritableAppDir();
     QJsonObject main, outObj;
     QString filenameScreenshot =
         path + QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
-        QStringLiteral("_") + filename.replace(QStringLiteral(":"), QStringLiteral("_")) + QStringLiteral(".jpg");
+        QStringLiteral("_") + filename.replace(QStringLiteral(":"), QStringLiteral("_")) + QStringLiteral(".png");
 
-    QFile f = QFile(filenameScreenshot);
-    QJsonDocument doc(image);
-    QByteArray bytes = doc.toJson();
-    f.write(bytes);
-    f.close();
+    QPixmap imagep;
+    imagep.loadFromData(QByteArray::fromBase64(image.toLocal8Bit().replace("data:image/png;base64,","")));
+    imagep.save(filenameScreenshot);
+
     emit chartSaved(filenameScreenshot);
 
     outObj[QStringLiteral("name")] = filename;
