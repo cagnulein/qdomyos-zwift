@@ -479,6 +479,11 @@ int main(int argc, char *argv[]) {
 #else
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
 #endif
+#ifdef CHARTJS
+        engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
+#else
+        engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
+#endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);
         QObject::connect(app.data(), &QCoreApplication::aboutToQuit, h,

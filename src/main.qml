@@ -263,7 +263,10 @@ ApplicationWindow {
                 text: qsTr("Charts")
                 width: parent.width
                 onClicked: {
-                    stackView.push("ChartJsTest.qml")
+                    if(CHARTJS === true)
+                        stackView.push("ChartJsTest.qml")
+                    else
+                        stackView.push("ChartEndWorkout.qml")
                     drawer.close()
                 }
             }
