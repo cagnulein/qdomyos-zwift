@@ -49,12 +49,12 @@ function process_arr(arr) {
                 fill: false,
                 pointRadius: 0,
                 segment: {
-                   borderColor: ctx => ctx.p0.parsed.y < ftpZones[0] ? window.chartColors.white :
-                                                                       ctx.p0.parsed.y < ftpZones[1] ? window.chartColors.limegreen :
-                                                                       ctx.p0.parsed.y < ftpZones[2] ? window.chartColors.gold :
-                                                                       ctx.p0.parsed.y < ftpZones[3] ? window.chartColors.orange :
-                                                                       ctx.p0.parsed.y < ftpZones[4] ? window.chartColors.darkorange :
-                                                                       ctx.p0.parsed.y < ftpZones[5] ? window.chartColors.orangered :
+                   borderColor: ctx => ctx.p0.parsed.y < ftpZones[0] && ctx.p1.parsed.y < ftpZones[0] ? window.chartColors.white :
+                                                                       ctx.p0.parsed.y < ftpZones[1] && ctx.p1.parsed.y < ftpZones[1] ? window.chartColors.limegreen :
+                                                                       ctx.p0.parsed.y < ftpZones[2] && ctx.p1.parsed.y < ftpZones[2] ? window.chartColors.gold :
+                                                                       ctx.p0.parsed.y < ftpZones[3] && ctx.p1.parsed.y < ftpZones[3] ? window.chartColors.orange :
+                                                                       ctx.p0.parsed.y < ftpZones[4] && ctx.p1.parsed.y < ftpZones[4] ? window.chartColors.darkorange :
+                                                                       ctx.p0.parsed.y < ftpZones[5] && ctx.p1.parsed.y < ftpZones[5] ? window.chartColors.orangered :
                                                                        window.chartColors.red,
                 }
             }, {
@@ -146,10 +146,10 @@ function process_arr(arr) {
                 borderWidth: 5,
                 pointRadius: 0,
                 segment: {
-                   borderColor: ctx => ctx.p0.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
-                                                                       ctx.p0.parsed.y < heartZones[1] ? window.chartColors.green :
-                                                                       ctx.p0.parsed.y < heartZones[2] ? window.chartColors.yellow :
-                                                                       ctx.p0.parsed.y < heartZones[3] ? window.chartColors.orange :
+                   borderColor: ctx => ctx.p0.parsed.y < heartZones[0] && ctx.p1.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
+                                                                       ctx.p0.parsed.y < heartZones[1] && ctx.p1.parsed.y < heartZones[1] ? window.chartColors.green :
+                                                                       ctx.p0.parsed.y < heartZones[2] && ctx.p1.parsed.y < heartZones[2] ? window.chartColors.yellow :
+                                                                       ctx.p0.parsed.y < heartZones[3] && ctx.p1.parsed.y < heartZones[3] ? window.chartColors.orange :
                                                                        window.chartColors.red,
                 }
             }]
