@@ -83,7 +83,10 @@ function process_arr(arr) {
                 tooltips: {
                     mode: 'index',
                     intersect: false,
-                }
+                },
+                legend: {
+                    display: false
+                },
             },
             hover: {
                 mode: 'nearest',
@@ -113,7 +116,8 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
+                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
+                            value === ftpZones[0] * 0.8 ? 'zone 1' :
                             value === ftpZones[0] ? 'zone 2' :
                             value === ftpZones[1] ? 'zone 3' :
                             value === ftpZones[2] ? 'zone 4' :
@@ -138,7 +142,8 @@ function process_arr(arr) {
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
                 data: heart,
-                fill: false,
+                fill: true,
+                borderWidth: 5,
                 pointRadius: 0,
                 segment: {
                    borderColor: ctx => ctx.p0.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
@@ -163,7 +168,10 @@ function process_arr(arr) {
                 tooltips: {
                     mode: 'index',
                     intersect: false,
-                }
+                },
+                legend: {
+                    display: false
+                },
             },
             hover: {
                 mode: 'nearest',
@@ -193,7 +201,8 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
+                        callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
+                            value === heartZones[0] * 0.8 ? 'zone 1' :
                             value === heartZones[0] ? 'zone 2' :
                             value === heartZones[1] ? 'zone 3' :
                             value === heartZones[2] ? 'zone 4' :
