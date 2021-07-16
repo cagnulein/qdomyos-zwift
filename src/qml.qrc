@@ -33,5 +33,7 @@
         <file>ChartJsTest.qml</file>
         <file>templates/chart/chartjs-adapter-moment.js</file>
         <file>templates/chart/moment.js</file>
+        <file>templates/chart/jquery-3.6.0.min.js</file>
+        <file>templates/chart/resize-observer.min.js</file>
     </qresource>
 </RCC>
