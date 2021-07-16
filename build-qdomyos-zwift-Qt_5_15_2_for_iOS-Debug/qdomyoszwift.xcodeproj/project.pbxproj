@@ -2658,6 +2658,7 @@
 					"-DQT_CORE_LIB",
 					"-DQ_HTTPSERVER",
 					"-DQT_WEBSOCKETS_LIB",
+					"-DCHARTJS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -2800,6 +2801,7 @@
 					"-DQT_CORE_LIB",
 					"-DQ_HTTPSERVER",
 					"-DQT_WEBSOCKETS_LIB",
+					"-DCHARTJS",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
