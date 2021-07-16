@@ -35,6 +35,7 @@ var heartZones = [];
 function process_arr(arr) {
     let watts = [];
     let reqpower = [];
+    let reqcadence = [];
     let heart = [];
     let cadence = [];
     let resistance = [];
@@ -51,6 +52,7 @@ function process_arr(arr) {
     for (let el of arr) {
         let wattel = {};
         let reqpowerel = {};
+        let reqcadenceel = {};
         let heartel = {};
         let cadenceel = {};
         let resistanceel = {};
@@ -77,6 +79,9 @@ function process_arr(arr) {
         reqpowerel.x = time;
         reqpowerel.y = el.req_power;
         reqpower.push(reqpowerel);
+        reqcadenceel.x = time;
+        reqcadenceel.y = el.req_cadence;
+        reqcadence.push(reqcadenceel);
         heartel.x = time;
         heartel.y = el.heart;
         heart.push(heartel);
@@ -450,8 +455,8 @@ function process_arr(arr) {
                     data: peloton_resistance,
                     fill: false,
                     pointRadius: 0,
-                    backgroundColor: window.chartColors.black,
-                    borderColor: window.chartColors.black,
+                    backgroundColor: window.chartColors.grayt,
+                    borderColor: window.chartColors.grayt,
                 },
                 {
                     backgroundColor: window.chartColors.blue,
@@ -459,6 +464,15 @@ function process_arr(arr) {
                     label: 'Cadence',
                     cubicInterpolationMode: 'monotone',
                     data: cadence,
+                    fill: false,
+                    pointRadius: 0,
+                },
+                {
+                    backgroundColor: window.chartColors.greent,
+                    borderColor: window.chartColors.greent,
+                    label: 'Peloton C.',
+                    cubicInterpolationMode: 'monotone',
+                    data: reqcadence,
                     fill: false,
                     pointRadius: 0,
                 },
@@ -679,26 +693,26 @@ $(window).on('load', function () {
     heartZones[2] = 150;
     heartZones[3] = 170;
 
-    arr = [{'watts': 100, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'peloton_resistance': 15, 'cadence': 80},
-           {'watts': 120, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'peloton_resistance': 30, 'cadence': 90},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'peloton_resistance': 40, 'cadence': 100},
-           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'peloton_resistance': 41, 'cadence': 90},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'peloton_resistance': 43, 'cadence': 95},
-           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'peloton_resistance': 43, 'cadence': 95},
-           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'peloton_resistance': 43, 'cadence': 95},
-           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'peloton_resistance': 35, 'cadence': 95},
-           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'peloton_resistance': 35, 'cadence': 95},
-           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'peloton_resistance': 30, 'cadence': 80},
-           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'peloton_resistance': 25, 'cadence': 90},
-           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'peloton_resistance': 35, 'cadence': 90},
-           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'peloton_resistance': 35, 'cadence': 90},
-           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'peloton_resistance': 35, 'cadence': 80},
-           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90},
-           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90},
-           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80},
-           {'watts': 271, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80},
-           {'watts': 262, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80},
+    arr = [{'watts': 100, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'peloton_resistance': 15, 'cadence': 80, 'req_cadence': 90},
+           {'watts': 120, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'peloton_resistance': 30, 'cadence': 90, 'req_cadence': 100},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'peloton_resistance': 40, 'cadence': 100, 'req_cadence': 90},
+           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'peloton_resistance': 41, 'cadence': 90, 'req_cadence': 95},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 95},
+           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 95},
+           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 90},
+           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'peloton_resistance': 35, 'cadence': 95, 'req_cadence': 80},
+           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'peloton_resistance': 35, 'cadence': 95, 'req_cadence': 80},
+           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'peloton_resistance': 30, 'cadence': 80, 'req_cadence': 80},
+           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'peloton_resistance': 25, 'cadence': 90, 'req_cadence': 90},
+           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'peloton_resistance': 35, 'cadence': 90, 'req_cadence': 90},
+           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'peloton_resistance': 35, 'cadence': 90, 'req_cadence': 70},
+           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 70},
+           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90, 'req_cadence': 70},
+           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90, 'req_cadence': 90},
+           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 60},
+           {'watts': 271, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 60},
+           {'watts': 262, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 96},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97},
             ]
     process_arr(arr);
 });
