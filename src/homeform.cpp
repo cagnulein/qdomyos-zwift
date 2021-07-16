@@ -321,7 +321,7 @@ void homeform::chartSaved(QString fileName) {
     if (!stopped)
         return;
     chartImagesFilenames.append(fileName);
-    if (chartImagesFilenames.length() >= 3) {
+    if (chartImagesFilenames.length() >= 4) {
         sendMail();
         chartImagesFilenames.clear();
     }

@@ -1,17 +1,30 @@
 window.chartColors = {
     red: 'rgb(255, 99, 132)',
+    redt: 'rgb(255, 99, 132, 0.25)',
     orange: 'rgb(255, 159, 64)',
+    oranget: 'rgb(255, 159, 64, 0.25)',
     darkorange: 'rgb(255, 140, 0)',
+    darkoranget: 'rgb(255, 140, 0, 0.25)',
     orangered: 'rgb(255, 69, 0)',
+    orangeredt: 'rgb(255, 69, 0, 0.25)',
     yellow: 'rgb(255, 205, 86)',
+    yellowt: 'rgb(255, 205, 86, 0.25)',
     green: 'rgb(75, 192, 192)',
+    greent: 'rgb(75, 192, 192, 0.25)',
     blue: 'rgb(54, 162, 235)',
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)',
+    greyt: 'rgb(201, 203, 207, 0.25)',
     white: 'rgb(255, 255, 255)',
+    whitet: 'rgb(255, 255, 255, 0.25)',
     limegreen: 'rgb(50, 205, 50)',
+    limegreent: 'rgb(50, 205, 50, 0.25)',
     gold: 'rgb(255, 215, 0)',
+    goldt: 'rgb(255, 215, 0, 0.25)',
     black: 'rgb(0, 0, 0)',
+    blackt: 'rgb(0, 0, 0, 0.25)',
+    lightsteelblue: 'rgb(176,192,222)',
+    lightsteelbluet: 'rgb(176,192,222, 0.25)',
 };
 
 var ftp = 200;
@@ -26,6 +39,15 @@ function process_arr(arr) {
     let cadence = [];
     let resistance = [];
     let peloton_resistance = [];
+    let distributionPowerZones = [];
+    let maxEl = 0;
+    distributionPowerZones[0] = 0;
+    distributionPowerZones[1] = 0;
+    distributionPowerZones[2] = 0;
+    distributionPowerZones[3] = 0;
+    distributionPowerZones[4] = 0;
+    distributionPowerZones[5] = 0;
+    distributionPowerZones[6] = 0;
     for (let el of arr) {
         let wattel = {};
         let reqpowerel = {};
@@ -34,9 +56,24 @@ function process_arr(arr) {
         let resistanceel = {};
         let pelotonresistanceel = {};
         let time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        maxEl = time;
         wattel.x = time;
         wattel.y = el.watts;
         watts.push(wattel);
+        if(el.watts < ftpZones[0])
+            distributionPowerZones[0]++;
+        else if(el.watts < ftpZones[1])
+            distributionPowerZones[1]++;
+        else if(el.watts < ftpZones[2])
+            distributionPowerZones[2]++;
+        else if(el.watts < ftpZones[3])
+            distributionPowerZones[3]++;
+        else if(el.watts < ftpZones[4])
+            distributionPowerZones[4]++;
+        else if(el.watts < ftpZones[5])
+            distributionPowerZones[5]++;
+        else
+            distributionPowerZones[6]++;
         reqpowerel.x = time;
         reqpowerel.y = el.req_power;
         reqpower.push(reqpowerel);
@@ -122,6 +159,64 @@ function process_arr(arr) {
                 legend: {
                     display: false
                 },
+                annotation: {
+                        annotations: {
+                            box1: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: 0,
+                            yMax: ftpZones[0],
+                            backgroundColor: "#d6d6d620"
+                            },
+                            box2: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[0],
+                            yMax: ftpZones[1],
+                            backgroundColor: window.chartColors.limegreent,
+                            },
+                            box3: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[1],
+                            yMax: ftpZones[2],
+                            backgroundColor: window.chartColors.goldt,
+                            },
+                            box4: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[2],
+                            yMax: ftpZones[3],
+                            backgroundColor: window.chartColors.oranget,
+                            },
+                            box5: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[3],
+                            yMax: ftpZones[4],
+                            backgroundColor: window.chartColors.darkoranget,
+                            },
+                            box6: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[4],
+                            yMax: ftpZones[5],
+                            backgroundColor: window.chartColors.redt,
+                            },
+                        }
+                      }
             },
             hover: {
                 mode: 'nearest',
@@ -132,22 +227,27 @@ function process_arr(arr) {
                     type: 'linear',
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Time'
                     },
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
-                        }
-                    }
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Watt'
                     },
+                    min: 0,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
@@ -159,6 +259,9 @@ function process_arr(arr) {
                             value === ftpZones[3] ? 'zone 5' :
                             value === ftpZones[4] ? 'zone 6' : undefined : undefined,
                         color: 'black',
+                        padding: -50,
+                        align: 'end',
+                        z: 1,
                     }
                 }
             }
@@ -177,7 +280,7 @@ function process_arr(arr) {
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
                 data: heart,
-                fill: true,
+                fill: false,
                 borderWidth: 5,
                 pointRadius: 0,
                 segment: {
@@ -226,6 +329,55 @@ function process_arr(arr) {
                 legend: {
                     display: false
                 },
+                annotation: {
+                        annotations: {
+                            box1: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: 0,
+                            yMax: heartZones[0],
+                            backgroundColor: window.chartColors.lightsteelbluet,
+                            },
+                            box2: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[0],
+                            yMax: heartZones[1],
+                            backgroundColor: window.chartColors.greent,
+                            },
+                            box3: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[1],
+                            yMax: heartZones[2],
+                            backgroundColor: window.chartColors.yellowt,
+                            },
+                            box4: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[2],
+                            yMax: heartZones[3],
+                            backgroundColor: window.chartColors.oranget,
+                            },
+                            box5: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[3],
+                            yMax: maxHeartRate,
+                            backgroundColor: window.chartColors.redt,
+                            },
+                    }
+                },
             },
             hover: {
                 mode: 'nearest',
@@ -236,22 +388,27 @@ function process_arr(arr) {
                     type: 'linear',
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Time'
                     },
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
-                        }
-                    }
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : '';
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Heart rate'
                     },
+                    min: 50,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
@@ -262,6 +419,9 @@ function process_arr(arr) {
                             value === heartZones[2] ? 'zone 4' :
                             value === heartZones[3] ? 'zone 5' : undefined : undefined,
                         color: 'black',
+                        padding: -50,
+                        align: 'end',
+                        z: 1,
                     }
                 }
             }
@@ -352,20 +512,22 @@ function process_arr(arr) {
                     type: 'linear',
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Time'
                     },
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
                             return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
-                        }
-                    }
+                        },
+                        stepSize: 300,
+                    },
                 },
                 y: {
                     display: true,
+                    min: 0,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Heart rate'
                     },
                 }
@@ -375,6 +537,75 @@ function process_arr(arr) {
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
     var resistanceChart = new Chart(ctx, config);
+
+    config = {
+        type: 'polarArea',
+        data: {
+            labels: ['zone 1', 'zone 2', 'zone 3', 'zone 4', 'zone 5', 'zone 6', 'zone 7' ],
+            datasets: [
+                {
+                    data: distributionPowerZones,
+                    backgroundColor: [
+                      window.chartColors.grayt, window.chartColors.limegreent,window.chartColors.goldt,window.chartColors.oranget,window.chartColors.darkoranget,window.chartColors.orangeredt, window.chartColors.redt
+                    ],
+                },
+            ]
+        },
+        options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'savechart',
+                      content: {
+                          name: 'powerDistribution',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_savechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
+            responsive: true,
+            aspectRatio: 1.5,
+            plugins: {
+                title:{
+                    display:true,
+                    text:'Power Distribution'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                legend: {
+                    display: true,
+                    position: 'right',
+                },
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                r: {
+               ticks: {
+                  display: false
+               },
+                gridLines: {
+                   display: false
+                }
+                },
+            },
+        }
+    };
+
+    ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
+    var powerDistributionChart = new Chart(ctx, config);
 }
 
 function dochart_init() {
@@ -433,7 +664,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init();return;
+    dochart_init()
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);

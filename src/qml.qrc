@@ -35,5 +35,6 @@
         <file>templates/chart/moment.js</file>
         <file>templates/chart/jquery-3.6.0.min.js</file>
         <file>templates/chart/resize-observer.min.js</file>
+        <file>templates/chart/chartjs-plugin-annotation.min.js</file>
     </qresource>
 </RCC>
