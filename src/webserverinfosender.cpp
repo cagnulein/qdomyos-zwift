@@ -21,6 +21,10 @@ bool WebServerInfoSender::listen() {
         innerTcpServer = new QTcpServer(this);
     if (!innerTcpServer->isListening()) {
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
+            if (!port) {
+                settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"),
+                                  port = innerTcpServer->serverPort());
+            }
             httpServer->bind(innerTcpServer);
             return true;
         } else {

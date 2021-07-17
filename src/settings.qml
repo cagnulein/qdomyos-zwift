@@ -3400,7 +3400,7 @@ import Qt.labs.settings 1.0
                             id: templateSettingsContent
                         }
                         Component.onCompleted: function() {
-                            let template_ids = settings.value("template_ids", []);
+                            let template_ids = settings.value("template_user_ids", []);
                             console.log("template_ids current val "+template_ids);
                             if (template_ids) {
                                 let accordionCheckComponent = Qt.createComponent("AccordionCheckElement.qml");
