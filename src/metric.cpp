@@ -75,14 +75,14 @@ void metric::clear(bool accumulator) {
 }
 
 double metric::value() {
-//#ifdef TEST
+#ifdef TEST
     if(m_type != METRIC_ELAPSED) {
         static uint8_t i = 0; return (double)(i++); // DEBUG REMOVE random value to test
     } else {
         static uint32_t i = 0; return (double)(i++); // DEBUG REMOVE random value to test
     }
         
-//#endif
+#endif
     return m_value - m_offset;
 }
 

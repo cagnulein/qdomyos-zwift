@@ -1,17 +1,30 @@
 window.chartColors = {
     red: 'rgb(255, 99, 132)',
+    redt: 'rgb(255, 99, 132, 0.25)',
     orange: 'rgb(255, 159, 64)',
+    oranget: 'rgb(255, 159, 64, 0.25)',
     darkorange: 'rgb(255, 140, 0)',
+    darkoranget: 'rgb(255, 140, 0, 0.25)',
     orangered: 'rgb(255, 69, 0)',
+    orangeredt: 'rgb(255, 69, 0, 0.25)',
     yellow: 'rgb(255, 205, 86)',
+    yellowt: 'rgb(255, 205, 86, 0.25)',
     green: 'rgb(75, 192, 192)',
+    greent: 'rgb(75, 192, 192, 0.25)',
     blue: 'rgb(54, 162, 235)',
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(201, 203, 207)',
+    greyt: 'rgb(201, 203, 207, 0.25)',
     white: 'rgb(255, 255, 255)',
+    whitet: 'rgb(255, 255, 255, 0.25)',
     limegreen: 'rgb(50, 205, 50)',
+    limegreent: 'rgb(50, 205, 50, 0.25)',
     gold: 'rgb(255, 215, 0)',
+    goldt: 'rgb(255, 215, 0, 0.25)',
     black: 'rgb(0, 0, 0)',
+    blackt: 'rgb(0, 0, 0, 0.25)',
+    lightsteelblue: 'rgb(176,192,222)',
+    lightsteelbluet: 'rgb(176,192,222, 0.25)',
 };
 
 var ftp = 200;
@@ -22,24 +35,57 @@ var heartZones = [];
 function process_arr(arr) {
     let watts = [];
     let reqpower = [];
+    let reqcadence = [];
     let heart = [];
     let cadence = [];
+    let speed = [];
+    let inclination = [];
     let resistance = [];
     let peloton_resistance = [];
+    let distributionPowerZones = [];
+    let maxEl = 0;
+    distributionPowerZones[0] = 0;
+    distributionPowerZones[1] = 0;
+    distributionPowerZones[2] = 0;
+    distributionPowerZones[3] = 0;
+    distributionPowerZones[4] = 0;
+    distributionPowerZones[5] = 0;
+    distributionPowerZones[6] = 0;
     for (let el of arr) {
         let wattel = {};
         let reqpowerel = {};
+        let reqcadenceel = {};
         let heartel = {};
         let cadenceel = {};
         let resistanceel = {};
         let pelotonresistanceel = {};
+        let speedel = {};
+        let inclinationel = {};
         let time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        maxEl = time;
         wattel.x = time;
         wattel.y = el.watts;
         watts.push(wattel);
+        if(el.watts < ftpZones[0])
+            distributionPowerZones[0]++;
+        else if(el.watts < ftpZones[1])
+            distributionPowerZones[1]++;
+        else if(el.watts < ftpZones[2])
+            distributionPowerZones[2]++;
+        else if(el.watts < ftpZones[3])
+            distributionPowerZones[3]++;
+        else if(el.watts < ftpZones[4])
+            distributionPowerZones[4]++;
+        else if(el.watts < ftpZones[5])
+            distributionPowerZones[5]++;
+        else
+            distributionPowerZones[6]++;
         reqpowerel.x = time;
         reqpowerel.y = el.req_power;
         reqpower.push(reqpowerel);
+        reqcadenceel.x = time;
+        reqcadenceel.y = el.req_cadence;
+        reqcadence.push(reqcadenceel);
         heartel.x = time;
         heartel.y = el.heart;
         heart.push(heartel);
@@ -52,6 +98,12 @@ function process_arr(arr) {
         pelotonresistanceel.x = time;
         pelotonresistanceel.y = el.peloton_resistance;
         peloton_resistance.push(pelotonresistanceel);
+        speedel.x = time;
+        speedel.y = el.speed;
+        speed.push(speedel);
+        inclinationel.x = time;
+        inclinationel.y = el.inclination;
+        inclination.push(inclinationel);
     }
     let config = {
         type: 'line',
@@ -122,6 +174,73 @@ function process_arr(arr) {
                 legend: {
                     display: false
                 },
+                annotation: {
+                        annotations: {
+                            box1: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: 0,
+                            yMax: ftpZones[0],
+                            backgroundColor: "#d6d6d620"
+                            },
+                            box2: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[0],
+                            yMax: ftpZones[1],
+                            backgroundColor: window.chartColors.limegreent,
+                            },
+                            box3: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[1],
+                            yMax: ftpZones[2],
+                            backgroundColor: window.chartColors.goldt,
+                            },
+                            box4: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[2],
+                            yMax: ftpZones[3],
+                            backgroundColor: window.chartColors.oranget,
+                            },
+                            box5: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[3],
+                            yMax: ftpZones[4],
+                            backgroundColor: window.chartColors.darkoranget,
+                            },
+                            box6: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[4],
+                            yMax: ftpZones[5],
+                            backgroundColor: window.chartColors.orangeredt,
+                            },
+                            box7: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: ftpZones[5],
+                            yMax: ftpZones[6],
+                            backgroundColor: window.chartColors.redt,
+                            },
+                        }
+                      }
             },
             hover: {
                 mode: 'nearest',
@@ -132,33 +251,42 @@ function process_arr(arr) {
                     type: 'linear',
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Time'
                     },
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
-                        }
-                    }
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Watt'
                     },
+                    min: 0,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
+                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5], ftpZones[6]].includes(value) ?
                             value === ftpZones[0] * 0.8 ? 'zone 1' :
                             value === ftpZones[0] ? 'zone 2' :
                             value === ftpZones[1] ? 'zone 3' :
                             value === ftpZones[2] ? 'zone 4' :
                             value === ftpZones[3] ? 'zone 5' :
-                            value === ftpZones[4] ? 'zone 6' : undefined : undefined,
+                            value === ftpZones[4] ? 'zone 6' :
+                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
                         color: 'black',
+                        padding: -50,
+                        align: 'end',
+                        z: 1,
                     }
                 }
             }
@@ -177,7 +305,7 @@ function process_arr(arr) {
                 borderColor: window.chartColors.red,
                 cubicInterpolationMode: 'monotone',
                 data: heart,
-                fill: true,
+                fill: false,
                 borderWidth: 5,
                 pointRadius: 0,
                 segment: {
@@ -226,6 +354,55 @@ function process_arr(arr) {
                 legend: {
                     display: false
                 },
+                annotation: {
+                        annotations: {
+                            box1: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: 0,
+                            yMax: heartZones[0],
+                            backgroundColor: window.chartColors.lightsteelbluet,
+                            },
+                            box2: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[0],
+                            yMax: heartZones[1],
+                            backgroundColor: window.chartColors.greent,
+                            },
+                            box3: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[1],
+                            yMax: heartZones[2],
+                            backgroundColor: window.chartColors.yellowt,
+                            },
+                            box4: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[2],
+                            yMax: heartZones[3],
+                            backgroundColor: window.chartColors.oranget,
+                            },
+                            box5: {
+                            // Indicates the type of annotation
+                            type: 'box',
+                            xMin: 0,
+                            xMax: maxEl,
+                            yMin: heartZones[3],
+                            yMax: maxHeartRate,
+                            backgroundColor: window.chartColors.redt,
+                            },
+                    }
+                },
             },
             hover: {
                 mode: 'nearest',
@@ -236,22 +413,27 @@ function process_arr(arr) {
                     type: 'linear',
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Time'
                     },
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
-                        }
-                    }
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : '';
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Heart rate'
                     },
+                    min: 50,
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
@@ -262,6 +444,9 @@ function process_arr(arr) {
                             value === heartZones[2] ? 'zone 4' :
                             value === heartZones[3] ? 'zone 5' : undefined : undefined,
                         color: 'black',
+                        padding: -50,
+                        align: 'end',
+                        z: 1,
                     }
                 }
             }
@@ -290,17 +475,8 @@ function process_arr(arr) {
                     data: peloton_resistance,
                     fill: false,
                     pointRadius: 0,
-                    backgroundColor: window.chartColors.black,
-                    borderColor: window.chartColors.black,
-                },
-                {
-                    backgroundColor: window.chartColors.blue,
-                    borderColor: window.chartColors.blue,
-                    label: 'Cadence',
-                    cubicInterpolationMode: 'monotone',
-                    data: cadence,
-                    fill: false,
-                    pointRadius: 0,
+                    backgroundColor: window.chartColors.grayt,
+                    borderColor: window.chartColors.grayt,
                 },
             ]
         },
@@ -339,7 +515,7 @@ function process_arr(arr) {
                     intersect: false,
                 },
                 legend: {
-                    display: true,
+                    display: false,
                     position: 'bottom',
                 },
             },
@@ -352,22 +528,33 @@ function process_arr(arr) {
                     type: 'linear',
                     display: true,
                     title: {
-                        display: true,
+                        display: false,
                         text: 'Time'
                     },
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0");
-                        }
-                    }
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
                 },
                 y: {
                     display: true,
                     title: {
-                        display: true,
-                        text: 'Heart rate'
+                        display: false,
                     },
+                    min: 0,
+                    ticks: {
+                        stepSize: 10,
+                        autoSkip: false,
+                        color: 'black',
+                        padding: -30,
+                        align: 'end',
+                        z: 1,
+                    }
                 }
             }
         }
@@ -375,6 +562,279 @@ function process_arr(arr) {
 
     ctx = document.getElementById('canvasResistance').getContext('2d');
     var resistanceChart = new Chart(ctx, config);
+
+    config = {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    backgroundColor: window.chartColors.blue,
+                    borderColor: window.chartColors.blue,
+                    label: 'Cadence',
+                    cubicInterpolationMode: 'monotone',
+                    data: cadence,
+                    fill: false,
+                    pointRadius: 0,
+                },
+                {
+                    backgroundColor: window.chartColors.greent,
+                    borderColor: window.chartColors.greent,
+                    label: 'Peloton C.',
+                    cubicInterpolationMode: 'monotone',
+                    data: reqcadence,
+                    fill: false,
+                    pointRadius: 0,
+                },
+            ]
+        },
+        options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'savechart',
+                      content: {
+                          name: 'resistance',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_savechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
+            responsive: true,
+            aspectRatio: 1.5,
+            grid: {
+                zeroLineColor: 'rgba(0,255,0,1)'
+            },
+            plugins: {
+                title:{
+                    display:true,
+                    text:'Cadence vs Peloton Cadence'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                legend: {
+                    display: false,
+                    position: 'bottom',
+                },
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    display: true,
+                    title: {
+                        display: false,
+                        text: 'Time'
+                    },
+                    ticks: {
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: false,
+                    },
+                    min: 0,
+                    ticks: {
+                        stepSize: 10,
+                        autoSkip: false,
+                        color: 'black',
+                        padding: -30,
+                        align: 'end',
+                        z: 1,
+                    }
+                }
+            }
+        }
+    };
+
+    ctx = document.getElementById('canvasCadence').getContext('2d');
+    var cadenceChart = new Chart(ctx, config);
+
+    config = {
+        type: 'bar',
+        data: {
+            labels: ['zone 1', 'zone 2', 'zone 3', 'zone 4', 'zone 5', 'zone 6', 'zone 7' ],
+            datasets: [
+                {
+                    data: distributionPowerZones,
+                    backgroundColor: [
+                      window.chartColors.grayt, window.chartColors.limegreent,window.chartColors.goldt,window.chartColors.oranget,window.chartColors.darkoranget,window.chartColors.orangeredt, window.chartColors.redt
+                    ],
+                },
+            ]
+        },
+        options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'savechart',
+                      content: {
+                          name: 'powerDistribution',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_savechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
+            responsive: true,
+            aspectRatio: 1.5,
+            plugins: {
+                title:{
+                    display:true,
+                    text:'Power Distribution'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                legend: {
+                    display: false,
+                    position: 'right',
+                },
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+        }
+    };
+
+    ctx = document.getElementById('canvasPowerDistribution').getContext('2d');
+    var powerDistributionChart = new Chart(ctx, config);
+
+    config = {
+        type: 'line',
+        data: {
+            datasets: [
+                {
+                    backgroundColor: window.chartColors.blue,
+                    borderColor: window.chartColors.blue,
+                    label: 'Speed',
+                    cubicInterpolationMode: 'monotone',
+                    data: speed,
+                    fill: false,
+                    pointRadius: 0,
+                },
+                {
+                    backgroundColor: window.chartColors.greent,
+                    borderColor: window.chartColors.greent,
+                    label: 'Inclination',
+                    cubicInterpolationMode: 'monotone',
+                    data: inclination,
+                    fill: false,
+                    pointRadius: 0,
+                },
+            ]
+        },
+        options: {
+            animation: {
+              onComplete: function() {
+                  let el = new MainWSQueueElement({
+                      msg: 'savechart',
+                      content: {
+                          name: 'speedInclination',
+                          image: powerChart.toBase64Image()
+                      }
+                  }, function(msg) {
+                      if (msg.msg === 'R_savechart') {
+                          return msg.content;
+                      }
+                      return null;
+                  }, 15000, 3);
+                  el.enqueue().catch(function(err) {
+                      console.error('Error is ' + err);
+                  });
+              }
+            },
+            responsive: true,
+            aspectRatio: 1.5,
+            grid: {
+                zeroLineColor: 'rgba(0,255,0,1)'
+            },
+            plugins: {
+                title:{
+                    display:true,
+                    text:'Speed and Inclination'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                legend: {
+                    display: false,
+                    position: 'bottom',
+                },
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    display: true,
+                    title: {
+                        display: false,
+                        text: 'Time'
+                    },
+                    ticks: {
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                        },
+                        padding: -20,
+                        stepSize: 300,
+                        align: "end",
+                    },
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: false,
+                    },
+                    min: 0,
+                    ticks: {
+                        stepSize: 2,
+                        autoSkip: false,
+                        color: 'black',
+                        padding: -30,
+                        align: 'end',
+                        z: 1,
+                    }
+                }
+            }
+        }
+    };
+
+    ctx = document.getElementById('canvasSpeedInclination').getContext('2d');
+    var speedInclinationChart = new Chart(ctx, config);
 }
 
 function dochart_init() {
@@ -433,7 +893,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init();return;
+    dochart_init(); return;
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);
@@ -448,26 +908,26 @@ $(window).on('load', function () {
     heartZones[2] = 150;
     heartZones[3] = 170;
 
-    arr = [{'watts': 100, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'peloton_resistance': 15, 'cadence': 80},
-           {'watts': 120, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'peloton_resistance': 30, 'cadence': 90},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'peloton_resistance': 40, 'cadence': 100},
-           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'peloton_resistance': 41, 'cadence': 90},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'peloton_resistance': 43, 'cadence': 95},
-           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'peloton_resistance': 43, 'cadence': 95},
-           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'peloton_resistance': 43, 'cadence': 95},
-           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'peloton_resistance': 35, 'cadence': 95},
-           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'peloton_resistance': 35, 'cadence': 95},
-           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'peloton_resistance': 30, 'cadence': 80},
-           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'peloton_resistance': 25, 'cadence': 90},
-           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'peloton_resistance': 35, 'cadence': 90},
-           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'peloton_resistance': 35, 'cadence': 90},
-           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'peloton_resistance': 35, 'cadence': 80},
-           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90},
-           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90},
-           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80},
-           {'watts': 271, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80},
-           {'watts': 262, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80},
+    arr = [{'watts': 100, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'peloton_resistance': 15, 'cadence': 80, 'req_cadence': 90, 'speed': 10, 'inclination': 1},
+           {'watts': 120, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'peloton_resistance': 30, 'cadence': 90, 'req_cadence': 100, 'speed': 8, 'inclination': 2},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'peloton_resistance': 40, 'cadence': 100, 'req_cadence': 90, 'speed': 9, 'inclination': 2.5},
+           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'peloton_resistance': 41, 'cadence': 90, 'req_cadence': 95, 'speed': 11, 'inclination': 1},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 95, 'speed': 10, 'inclination': 4},
+           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 95, 'speed': 12, 'inclination': 1},
+           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 90, 'speed': 10, 'inclination': 3},
+           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'peloton_resistance': 35, 'cadence': 95, 'req_cadence': 80, 'speed': 10, 'inclination': 4},
+           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'peloton_resistance': 35, 'cadence': 95, 'req_cadence': 80, 'speed': 13, 'inclination': 1},
+           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'peloton_resistance': 30, 'cadence': 80, 'req_cadence': 80, 'speed': 12, 'inclination': 3},
+           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'peloton_resistance': 25, 'cadence': 90, 'req_cadence': 90, 'speed': 10, 'inclination': 2},
+           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'peloton_resistance': 35, 'cadence': 90, 'req_cadence': 90, 'speed': 12, 'inclination': 7},
+           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'peloton_resistance': 35, 'cadence': 90, 'req_cadence': 70, 'speed': 10, 'inclination': 10},
+           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 70, 'speed': 7, 'inclination': 12},
+           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90, 'req_cadence': 70, 'speed': 6, 'inclination': 1},
+           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90, 'req_cadence': 90, 'speed': 10, 'inclination': 14},
+           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10},
+           {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9},
+           {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1},
             ]
     process_arr(arr);
 });

@@ -43,6 +43,12 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->chartTemplateManager =
         TemplateInfoSenderBuilder::getInstance(chartId, QStringList({QStringLiteral(":/chartjs/")}), this);
 
+#ifdef TEST
+    schwinnIC4Bike = (schwinnic4bike*) new bike();
+    chartTemplateManager->start(schwinnIC4Bike);
+    connectedAndDiscovered();
+    return;
+#endif
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
         debug(QStringLiteral("no bluetooth dongle found!"));

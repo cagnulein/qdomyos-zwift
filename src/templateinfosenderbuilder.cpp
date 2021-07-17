@@ -719,6 +719,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cranks"), ((bike *)device)->currentCrankRevolutions());
             obj.setProperty(QStringLiteral("cranktime"), ((bike *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("req_power"), (dep = ((bike *)device)->lastRequestedPower()).value());
+            obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
         } else if (tp == bluetoothdevice::ROWING) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((rower *)device)->pelotonResistance()).value());
