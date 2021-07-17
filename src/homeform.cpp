@@ -310,9 +310,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         this, SLOT(Minus(QString)));
 #endif
 
-    //#ifdef TEST
+    #ifdef TEST
     deviceConnected();
-    //#endif
+    #endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }

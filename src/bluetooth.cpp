@@ -28,12 +28,12 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->bikeResistanceOffset = bikeResistanceOffset;
     this->templateManager = TemplateInfoSenderBuilder::getInstance(this);
 
-//#ifdef TEST
+#ifdef TEST
     schwinnIC4Bike = (schwinnic4bike*) new bike();
     templateManager->start(schwinnIC4Bike);
     connectedAndDiscovered();
     return;
-//#endif
+#endif
     
 #if !defined(WIN32) && !defined(Q_OS_IOS)
     if (QBluetoothLocalDevice::allDevices().isEmpty()) {
