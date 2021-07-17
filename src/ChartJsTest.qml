@@ -10,10 +10,13 @@ ColumnLayout {
     id: column1
     spacing: 10
     anchors.fill: parent
+    Settings {
+        id: settings
+    }
     WebView {
         id: webView
         anchors.fill: parent
-        url: "http://localhost:7666/chart/chart.htm"
+        url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
         visible: true
         onLoadingChanged: {
             if (loadRequest.errorString)

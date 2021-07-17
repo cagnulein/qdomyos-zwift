@@ -92,9 +92,11 @@ bool WebServerInfoSender::init() {
                                       if (path.isEmpty())
                                           return QHttpServerResponse("text/plain", "Unautorized",
                                                                      QHttpServerResponder::StatusCode::Forbidden);
-                                      else
-                                          return QHttpServerResponse::fromFile(path +
-                                                                               QStringLiteral("/%1").arg(url.path()));
+                                      else {
+                                          path += QStringLiteral("/%1").arg(url.path());
+                                          qDebug() << "File to look at:" << path;
+                                          return QHttpServerResponse::fromFile(path);
+                                      }
                                   });
             }
         }

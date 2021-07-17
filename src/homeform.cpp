@@ -200,7 +200,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(bluetoothManager->getUserTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
-    connect(bluetoothManager->getChartTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
             &homeform::chartSaved);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
@@ -310,9 +310,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         this, SLOT(Minus(QString)));
 #endif
 
-    #ifdef TEST
+#ifdef TEST
     deviceConnected();
-    #endif
+#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
