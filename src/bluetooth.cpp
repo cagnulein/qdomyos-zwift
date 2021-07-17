@@ -1,4 +1,5 @@
 #include "bluetooth.h"
+#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -26,13 +27,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->logs = logs;
     this->bikeResistanceGain = bikeResistanceGain;
     this->bikeResistanceOffset = bikeResistanceOffset;
-    QString path = QLatin1String("");
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
-    path += QStringLiteral("QZTemplates");
+    QString path = homeform::getWritableAppDir() + QStringLiteral("QZTemplates");
     this->userTemplateManager = TemplateInfoSenderBuilder::getInstance(
         QStringLiteral("user"), QStringList({path, QStringLiteral(":/templates/")}), this);
     QString innerId = QStringLiteral("inner");
