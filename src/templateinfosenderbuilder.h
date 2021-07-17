@@ -14,7 +14,8 @@
 class TemplateInfoSenderBuilder : public QObject {
     Q_OBJECT
   public:
-    static TemplateInfoSenderBuilder *getInstance(QObject *parent = nullptr);
+    static TemplateInfoSenderBuilder *getInstance(const QString &idInfo, const QStringList &folders,
+                                                  QObject *parent = nullptr);
     void reinit();
     void start(bluetoothdevice *device);
     void stop();
@@ -28,15 +29,17 @@ class TemplateInfoSenderBuilder : public QObject {
     bool validFileTemplateType(const QString &tp) const;
     void buildContext(bool forceReinit = false);
     QString activityDescription;
-    void createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates);
+    void createTemplatesFromFolder(const QString &idInfo, const QString &folder, QStringList &dirTemplates);
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
+    QString masterId;
+    QStringList foldersToLook;
     QJsonArray sessionArray;
     QHash<QString, QVariant> context;
     QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
-    void load();
-    static TemplateInfoSenderBuilder *instance;
+    void load(const QString &idInfo, const QStringList &folders);
+    static QHash<QString, TemplateInfoSenderBuilder *> instanceMap;
     QSettings settings;
     QHash<QString, TemplateInfoSender *> templateInfoMap;
     TemplateInfoSender *newTemplate(const QString &id, const QString &tp, const QString &dataTempl);

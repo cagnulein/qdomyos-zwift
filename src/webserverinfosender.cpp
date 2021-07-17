@@ -21,6 +21,10 @@ bool WebServerInfoSender::listen() {
         innerTcpServer = new QTcpServer(this);
     if (!innerTcpServer->isListening()) {
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
+            if (!port) {
+                settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_port"),
+                                  port = innerTcpServer->serverPort());
+            }
             httpServer->bind(innerTcpServer);
             return true;
         } else {
@@ -88,9 +92,11 @@ bool WebServerInfoSender::init() {
                                       if (path.isEmpty())
                                           return QHttpServerResponse("text/plain", "Unautorized",
                                                                      QHttpServerResponder::StatusCode::Forbidden);
-                                      else
-                                          return QHttpServerResponse::fromFile(path +
-                                                                               QStringLiteral("/%1").arg(url.path()));
+                                      else {
+                                          path += QStringLiteral("/%1").arg(url.path());
+                                          qDebug() << "File to look at:" << path;
+                                          return QHttpServerResponse::fromFile(path);
+                                      }
                                   });
             }
         }

@@ -18,7 +18,7 @@
 
 using namespace std::chrono_literals;
 
-TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::instance = nullptr;
+QHash<QString, TemplateInfoSenderBuilder *> TemplateInfoSenderBuilder::instanceMap;
 TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject *parent) : QObject(parent) {
     engine = new QJSEngine(this);
     engine->installExtensions(QJSEngine::AllExtensions);
@@ -48,19 +48,22 @@ void TemplateInfoSenderBuilder::stop() {
     }
 }
 
-TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::getInstance(QObject *parent) {
+TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::getInstance(const QString &idInfo, const QStringList &folders,
+                                                                  QObject *parent) {
+    TemplateInfoSenderBuilder *instance = instanceMap.value(idInfo, nullptr);
     if (instance) {
         return instance;
     } else {
         instance = new TemplateInfoSenderBuilder(parent);
-        instance->load();
+        instance->load(idInfo, folders);
         return instance;
     }
 }
 
 bool TemplateInfoSenderBuilder::validFileTemplateType(const QString &tp) const { return tp == TEMPLATE_TYPE_TCPCLIENT; }
 
-void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates) {
+void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &idInfo, const QString &folder,
+                                                          QStringList &dirTemplates) {
     QDirIterator it(folder);
     QString content, templateId;
     // QString tempType; // NOTE: clazy-unused-non-triviak-variable
@@ -83,6 +86,7 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder,
                 if (idx > 0) {
                     QString tempType = templateId.mid(idx + 1);
                     templateId = templateId.mid(0, idx);
+                    templateId = idInfo + "_" + templateId;
                     qDebug() << QStringLiteral("Template type") << tempType << QStringLiteral(" id") << templateId;
                     templateFilesList.insert(templateId, filePath);
                     QString savedType =
@@ -104,7 +108,7 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder,
         } else if (fileInfo.isDir()) {
             int idx = filePath.lastIndexOf('/');
             QString pathEl = idx < 0 ? filePath : filePath.mid(idx + 1);
-            if (pathEl != QStringLiteral(".") && pathEl != QStringLiteral("..")) {
+            if (pathEl != QStringLiteral(".") && pathEl != QStringLiteral("..") && !dirTemplates.contains(pathEl)) {
                 qDebug() << QStringLiteral("Template Dir Found") << filePath;
                 dirTemplates += pathEl;
             }
@@ -112,37 +116,24 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder,
     }
 }
 
-void TemplateInfoSenderBuilder::load() {
-    QString path = QLatin1String("");
-    QStringList dirTemplatesQrc, dirTemplatesLocal;
+void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &folders) {
     stop();
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+    masterId = idInfo;
+    foldersToLook = folders;
     templateInfoMap.clear();
     templateFilesList.clear();
-    qDebug() << QStringLiteral("Load start from qrc");
-    createTemplatesFromFolder(QStringLiteral(":/templates"), dirTemplatesQrc);
-    qDebug() << QStringLiteral("Load start from local") << path + QStringLiteral("QZTemplates");
-    createTemplatesFromFolder(path + QStringLiteral("QZTemplates"), dirTemplatesLocal);
-    for (auto &tdir : dirTemplatesLocal) {
-        if (dirTemplatesQrc.contains(tdir)) {
-            dirTemplatesQrc.removeAll(tdir);
-        }
+    QStringList globalIdList, globalFolderList;
+    int startIdIndex = 0;
+    for (auto &tdir : folders) {
+        qDebug() << QStringLiteral("Load start from") << tdir;
+        startIdIndex = globalIdList.size();
+        createTemplatesFromFolder(idInfo, tdir, globalIdList);
+        for (int i = startIdIndex; i < globalIdList.size(); i++)
+            globalFolderList.append(tdir + "/" + globalIdList.at(i));
     }
-    QMutableListIterator<QString> it(dirTemplatesLocal);
-    while (it.hasNext()) {
-        it.setValue(path + QStringLiteral("QZTemplates/") + it.next());
-    }
-    dirTemplatesLocal.reserve(dirTemplatesQrc.size() + 1);
-    for (auto &fld : dirTemplatesQrc) {
-        dirTemplatesLocal.append(QStringLiteral(":/templates/") + fld);
-    }
-    if (!dirTemplatesLocal.isEmpty()) {
+    if (!globalFolderList.isEmpty()) {
         QStringList addressList;
-        qDebug() << QStringLiteral("Folder List") << dirTemplatesLocal;
+        qDebug() << QStringLiteral("Folder List") << globalFolderList;
         const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
         for (auto &address : QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
@@ -150,27 +141,28 @@ void TemplateInfoSenderBuilder::load() {
             }
         }
         qDebug() << QStringLiteral("addressList ") << addressList;
-        settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_ips"), addressList);
-        templateFilesList.insert(QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID), TEMPLATE_TYPE_WEBSERVER);
+        QString templateId = idInfo + "_" + QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID);
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_ips"), addressList);
+        templateFilesList.insert(templateId, TEMPLATE_TYPE_WEBSERVER);
         QString temptype =
-            settings.value(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_type"), QString()).toString();
-        settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_folders"), dirTemplatesLocal);
-        settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_ips"), addressList);
+            settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_type"), QString()).toString();
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_folders"), globalFolderList);
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_ips"), addressList);
         if (temptype != TEMPLATE_TYPE_WEBSERVER) {
-            settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_type"),
+            settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_type"),
                               QString(TEMPLATE_TYPE_WEBSERVER));
-            settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled"), false);
-        } else if (settings.value(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled"), false)
+            settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_enabled"), false);
+        } else if (settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_enabled"), false)
                        .toBool()) {
-            newTemplate(QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID), TEMPLATE_TYPE_WEBSERVER,
+            newTemplate(templateId, TEMPLATE_TYPE_WEBSERVER,
                         QStringLiteral("JSON.stringify({msg: \"workout\", content: this.workout})"));
         } else {
-            qDebug() << QStringLiteral("Template") << QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID)
-                     << QStringLiteral(" is disabled: not created");
+            qDebug() << QStringLiteral("Template") << templateId << QStringLiteral(" is disabled: not created");
         }
     }
     qDebug() << QStringLiteral("Setting template_ids") << templateFilesList.keys();
-    settings.setValue(QStringLiteral("template_ids"), QStringList(templateFilesList.keys()));
+    settings.setValue(QStringLiteral("template_") + idInfo + QStringLiteral("_ids"),
+                      QStringList(templateFilesList.keys()));
 }
 
 TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, const QString &tp,
@@ -198,7 +190,7 @@ TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, co
     return tempInfo;
 }
 
-void TemplateInfoSenderBuilder::reinit() { load(); }
+void TemplateInfoSenderBuilder::reinit() { load(masterId, foldersToLook); }
 
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = nullptr;
@@ -560,7 +552,7 @@ void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, Templa
         QStringLiteral("_") + filename.replace(QStringLiteral(":"), QStringLiteral("_")) + QStringLiteral(".png");
 
     QPixmap imagep;
-    imagep.loadFromData(QByteArray::fromBase64(image.toLocal8Bit().replace("data:image/png;base64,","")));
+    imagep.loadFromData(QByteArray::fromBase64(image.toLocal8Bit().replace("data:image/png;base64,", "")));
     imagep.save(filenameScreenshot);
 
     emit chartSaved(filenameScreenshot);

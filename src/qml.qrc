@@ -25,16 +25,18 @@
         <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
         <file>SettingsList.qml</file>
-        <file>templates/chart/chart.htm</file>
-        <file>templates/chart/chartjs.3.4.1.min.js</file>
-        <file>templates/chart/dochart.js</file>
-        <file>templates/chart/globals.js</file>
-        <file>templates/chart/main_ws_manager.js</file>
         <file>ChartJsTest.qml</file>
-        <file>templates/chart/chartjs-adapter-moment.js</file>
-        <file>templates/chart/moment.js</file>
-        <file>templates/chart/jquery-3.6.0.min.js</file>
-        <file>templates/chart/resize-observer.min.js</file>
-        <file>templates/chart/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/chartjs/.eslintrc.js</file>
+        <file>inner_templates/chartjs/.jshintrc</file>
+        <file>inner_templates/chartjs/chart.htm</file>
+        <file>inner_templates/chartjs/chartjs-adapter-moment.js</file>
+        <file>inner_templates/chartjs/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/chartjs/chartjs.3.4.1.min.js</file>
+        <file>inner_templates/chartjs/dochart.js</file>
+        <file>inner_templates/chartjs/globals.js</file>
+        <file>inner_templates/chartjs/jquery-3.6.0.min.js</file>
+        <file>inner_templates/chartjs/main_ws_manager.js</file>
+        <file>inner_templates/chartjs/moment.js</file>
+        <file>inner_templates/chartjs/resize-observer.min.js</file>
     </qresource>
 </RCC>
