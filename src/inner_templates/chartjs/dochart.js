@@ -44,6 +44,13 @@ function process_arr(arr) {
     let peloton_resistance = [];
     let distributionPowerZones = [];
     let maxEl = 0;
+    let saveScreenshot = [];
+    saveScreenshot[0] = false;
+    saveScreenshot[1] = false;
+    saveScreenshot[2] = false;
+    saveScreenshot[3] = false;
+    saveScreenshot[4] = false;
+    saveScreenshot[5] = false;
     distributionPowerZones[0] = 0;
     distributionPowerZones[1] = 0;
     distributionPowerZones[2] = 0;
@@ -139,6 +146,9 @@ function process_arr(arr) {
         options: {
             animation: {
               onComplete: function() {
+                  if(saveScreenshot[0])
+                      return;
+                  saveScreenshot[0] = true;
                   let el = new MainWSQueueElement({
                       msg: 'savechart',
                       content: {
@@ -319,6 +329,9 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
+                      if(saveScreenshot[1])
+                          return;
+                      saveScreenshot[1] = true;
                       msg: 'savechart',
                       content: {
                           name: 'heart',
@@ -482,6 +495,9 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
+                      if(saveScreenshot[2])
+                          return;
+                      saveScreenshot[2] = true;
                       msg: 'savechart',
                       content: {
                           name: 'resistance',
@@ -592,6 +608,9 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
+                      if(saveScreenshot[3])
+                          return;
+                      saveScreenshot[3] = true;
                       msg: 'savechart',
                       content: {
                           name: 'cadence',
@@ -691,6 +710,9 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
+                      if(saveScreenshot[4])
+                          return;
+                      saveScreenshot[4] = true;
                       msg: 'savechart',
                       content: {
                           name: 'powerDistribution',
@@ -761,6 +783,9 @@ function process_arr(arr) {
             animation: {
               onComplete: function() {
                   let el = new MainWSQueueElement({
+                      if(saveScreenshot[5])
+                          return;
+                      saveScreenshot[5] = true;
                       msg: 'savechart',
                       content: {
                           name: 'speedInclination',
