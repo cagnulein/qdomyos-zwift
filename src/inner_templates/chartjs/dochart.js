@@ -130,7 +130,7 @@ function process_arr(arr) {
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
                 borderWidth: 5,
-                cubicInterpolationMode: 'monotone',
+                //cubicInterpolationMode: 'monotone',
                 data: reqpower,
                 fill: false,
                 pointRadius: 0,
@@ -257,10 +257,10 @@ function process_arr(arr) {
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0")  : "";
                         },
                         padding: -20,
-                        stepSize: 300,
+                        //stepSize: 300,
                         align: "end",
                     },
                     max: maxEl,
@@ -303,7 +303,7 @@ function process_arr(arr) {
                 label: 'Heart',
                 backgroundColor: window.chartColors.red,
                 borderColor: window.chartColors.red,
-                cubicInterpolationMode: 'monotone',
+                //cubicInterpolationMode: 'monotone',
                 data: heart,
                 fill: false,
                 borderWidth: 5,
@@ -324,7 +324,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'heart',
-                          image: powerChart.toBase64Image()
+                          image: heartChart.toBase64Image()
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -419,10 +419,10 @@ function process_arr(arr) {
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : '';
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0")  : "";
                         },
                         padding: -20,
-                        stepSize: 300,
+                        //stepSize: 300,
                         align: "end",
                     },
                     max: maxEl,
@@ -462,7 +462,7 @@ function process_arr(arr) {
             datasets: [
                 {
                     label: 'Resistance',
-                    cubicInterpolationMode: 'monotone',
+                    //cubicInterpolationMode: 'monotone',
                     data: resistance,
                     fill: false,
                     pointRadius: 0,
@@ -471,7 +471,7 @@ function process_arr(arr) {
                 },
                 {
                     label: 'Peloton R.',
-                    cubicInterpolationMode: 'monotone',
+                    //cubicInterpolationMode: 'monotone',
                     data: peloton_resistance,
                     fill: false,
                     pointRadius: 0,
@@ -487,7 +487,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'resistance',
-                          image: powerChart.toBase64Image()
+                          image: resistanceChart.toBase64Image()
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -534,10 +534,10 @@ function process_arr(arr) {
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0")  : "";
                         },
                         padding: -20,
-                        stepSize: 300,
+                        //stepSize: 300,
                         align: "end",
                     },
                 },
@@ -571,7 +571,7 @@ function process_arr(arr) {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
                     label: 'Cadence',
-                    cubicInterpolationMode: 'monotone',
+                    //cubicInterpolationMode: 'monotone',
                     data: cadence,
                     fill: false,
                     pointRadius: 0,
@@ -580,7 +580,7 @@ function process_arr(arr) {
                     backgroundColor: window.chartColors.greent,
                     borderColor: window.chartColors.greent,
                     label: 'Peloton C.',
-                    cubicInterpolationMode: 'monotone',
+                    //cubicInterpolationMode: 'monotone',
                     data: reqcadence,
                     fill: false,
                     pointRadius: 0,
@@ -593,8 +593,8 @@ function process_arr(arr) {
                   let el = new MainWSQueueElement({
                       msg: 'savechart',
                       content: {
-                          name: 'resistance',
-                          image: powerChart.toBase64Image()
+                          name: 'cadence',
+                          image: cadenceChart.toBase64Image()
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -641,10 +641,10 @@ function process_arr(arr) {
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0")  : "";
                         },
                         padding: -20,
-                        stepSize: 300,
+                        //stepSize: 300,
                         align: "end",
                     },
                 },
@@ -690,7 +690,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'powerDistribution',
-                          image: powerChart.toBase64Image()
+                          image: powerDistributionChart.toBase64Image()
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -737,7 +737,7 @@ function process_arr(arr) {
                     backgroundColor: window.chartColors.blue,
                     borderColor: window.chartColors.blue,
                     label: 'Speed',
-                    cubicInterpolationMode: 'monotone',
+                    //cubicInterpolationMode: 'monotone',
                     data: speed,
                     fill: false,
                     pointRadius: 0,
@@ -746,7 +746,7 @@ function process_arr(arr) {
                     backgroundColor: window.chartColors.greent,
                     borderColor: window.chartColors.greent,
                     label: 'Inclination',
-                    cubicInterpolationMode: 'monotone',
+                    //cubicInterpolationMode: 'monotone',
                     data: inclination,
                     fill: false,
                     pointRadius: 0,
@@ -760,7 +760,7 @@ function process_arr(arr) {
                       msg: 'savechart',
                       content: {
                           name: 'speedInclination',
-                          image: powerChart.toBase64Image()
+                          image: speedInclinationChart.toBase64Image()
                       }
                   }, function(msg) {
                       if (msg.msg === 'R_savechart') {
@@ -807,10 +807,10 @@ function process_arr(arr) {
                     ticks: {
                         // Include a dollar sign in the ticks
                         callback: function(value, index, values) {
-                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor(value / 60).toString().padStart(2, "0") : "";
+                            return value !== 0 ? Math.floor(value / 3600).toString().padStart(2, "0") + ":" + Math.floor((value / 60) - (Math.floor(value / 3600) * 60)).toString().padStart(2, "0")  : "";
                         },
                         padding: -20,
-                        stepSize: 300,
+                        //stepSize: 300,
                         align: "end",
                     },
                 },
@@ -927,7 +927,7 @@ $(window).on('load', function () {
            {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10},
            {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9},
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':129,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1},
             ]
     process_arr(arr);
 });
