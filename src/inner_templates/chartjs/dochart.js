@@ -129,7 +129,6 @@ function process_arr(arr) {
                 label: 'Req. Watts',
                 backgroundColor: window.chartColors.black,
                 borderColor: window.chartColors.black,
-                borderWidth: 5,
                 //cubicInterpolationMode: 'monotone',
                 data: reqpower,
                 fill: false,
@@ -306,7 +305,6 @@ function process_arr(arr) {
                 //cubicInterpolationMode: 'monotone',
                 data: heart,
                 fill: false,
-                borderWidth: 5,
                 pointRadius: 0,
                 segment: {
                    borderColor: ctx => ctx.p0.parsed.y < heartZones[0] && ctx.p1.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
@@ -554,6 +552,9 @@ function process_arr(arr) {
                         padding: -30,
                         align: 'end',
                         z: 1,
+                        callback: function(value, index, values) {
+                            return value !== 0 ? value  : "";
+                        },
                     }
                 }
             }
@@ -661,6 +662,9 @@ function process_arr(arr) {
                         padding: -30,
                         align: 'end',
                         z: 1,
+                        callback: function(value, index, values) {
+                            return value !== 0 ? value  : "";
+                        },
                     }
                 }
             }
@@ -827,6 +831,9 @@ function process_arr(arr) {
                         padding: -30,
                         align: 'end',
                         z: 1,
+                        callback: function(value, index, values) {
+                            return value !== 0 ? value  : "";
+                        },
                     }
                 }
             }
@@ -927,7 +934,11 @@ $(window).on('load', function () {
            {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10},
            {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9},
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':129,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1},
             ]
     process_arr(arr);
+});
+
+$(document).ready(function () {
+    $('#loading').hide();
 });

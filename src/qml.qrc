@@ -38,5 +38,6 @@
         <file>inner_templates/chartjs/main_ws_manager.js</file>
         <file>inner_templates/chartjs/moment.js</file>
         <file>inner_templates/chartjs/resize-observer.min.js</file>
+        <file>inner_templates/chartjs/ajax-loader.gif</file>
     </qresource>
 </RCC>
