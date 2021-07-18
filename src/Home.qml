@@ -92,10 +92,7 @@ HomeForm{
         onMovementEnded: { headerToolbar.visible = (contentY == 0); }
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
         Screen.onPrimaryOrientationChanged:{
-                if(OS_VERSION === "Android")
                     gridView.leftMargin = (Screen.width % cellWidth) / 2;
-                else
-                    gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
         //        highlight: Rectangle {
