@@ -293,6 +293,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
+                userTemplateManager->start(cscBike);
+                innerTemplateManager->start(cscBike);
             } else if (b.name().startsWith(QStringLiteral("Domyos-Bike")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && filter) {
                 discoveryAgent->stop();
