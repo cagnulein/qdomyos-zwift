@@ -862,13 +862,13 @@ function dochart_init() {
                         age = msg.content[key];
                         maxHeartRate = 220 - age;
                     } else if (key === 'heart_rate_zone1') {
-                        heartZones[0] = Math.round(maxHeartRate * msg.content[key]);
+                        heartZones[0] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     } else if (key === 'heart_rate_zone2') {
-                        heartZones[1] = Math.round(maxHeartRate * msg.content[key]);
+                        heartZones[1] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     } else if (key === 'heart_rate_zone3') {
-                        heartZones[2] = Math.round(maxHeartRate * msg.content[key]);
+                        heartZones[2] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     } else if (key === 'heart_rate_zone4') {
-                        heartZones[3] = Math.round(maxHeartRate * msg.content[key]);
+                        heartZones[3] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     }
                 }
                 return msg.content;
