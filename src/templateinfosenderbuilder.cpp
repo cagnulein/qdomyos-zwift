@@ -733,8 +733,8 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
         } else {
-            obj.setProperty(QStringLiteral("resistance"), (dep = ((treadmill *)device)->currentInclination()).value());
-            obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         }
         sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
     }
