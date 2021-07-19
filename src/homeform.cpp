@@ -2784,23 +2784,24 @@ void homeform::sendMail() {
 
     extern QString logfilename;
     if (settings.value("log_debug").toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
-        QFile f(getWritableAppDir() + logfilename);
+        QString fileName = getWritableAppDir() + logfilename;
+        QFile f(fileName);
         f.open(QIODevice::ReadOnly);
         QTextStream ts(&f);
         QByteArray b = f.readAll();
         f.close();
         QByteArray c = qCompress(b, 9);
-        QFile fc(getWritableAppDir() + logfilename.replace(".log", ".zip"));
-        f.open(QIODevice::WriteOnly);
-        f.write(c);
-        f.close();
+        QFile fc(fileName.replace(".log", ".zip"));
+        fc.open(QIODevice::WriteOnly);
+        c.remove(0, 4);
+        fc.write(c);
+        fc.close();
 
         // Create a MimeInlineFile object for each image
-        MimeInlineFile *log =
-            new MimeInlineFile((new QFile(getWritableAppDir() + logfilename.replace(".log", ".zip"))));
+        MimeInlineFile *log = new MimeInlineFile((new QFile(fileName)));
 
         // An unique content id must be setted
-        log->setContentId(lastFitFileSaved);
+        log->setContentId(fileName);
         log->setContentType(QStringLiteral("application/octet-stream"));
         message.addPart(log);
     }

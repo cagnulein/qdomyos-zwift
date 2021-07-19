@@ -3,7 +3,6 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
-import QtWebView 1.1
 
 ApplicationWindow {
     id: window
