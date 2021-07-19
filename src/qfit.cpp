@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <fstream>
 
-
 #include "fit_date_time.hpp"
 #include "fit_encode.hpp"
 
@@ -11,7 +10,6 @@
 #include "fit_mesg_broadcaster.hpp"
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
-
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
                 uint32_t processFlag) {
@@ -21,9 +19,17 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         return;
     }
     std::fstream file;
+    uint32_t firstRealIndex = 0;
+    for (int i = 0; i < session.length(); i++) {
+        if ((session.at(i).speed > 0 && (type == bluetoothdevice::TREADMILL || type == bluetoothdevice::ELLIPTICAL)) ||
+            (session.at(i).cadence > 0 && (type == bluetoothdevice::BIKE || type == bluetoothdevice::ROWING))) {
+            firstRealIndex = i;
+            break;
+        }
+    }
     double startingDistanceOffset = 0.0;
     if (!session.isEmpty()) {
-        startingDistanceOffset = session.first().distance;
+        startingDistanceOffset = session.at(firstRealIndex).distance;
     }
 
     file.open(filename.toStdString(), std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
@@ -42,13 +48,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fileIdMesg.SetManufacturer(FIT_MANUFACTURER_DEVELOPMENT);
     fileIdMesg.SetProduct(1);
     fileIdMesg.SetSerialNumber(12345);
-    fileIdMesg.SetTimeCreated(session.at(0).time.toSecsSinceEpoch() - 631065600L);
+    fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
     fit::SessionMesg sessionMesg;
-    sessionMesg.SetTimestamp(session.at(0).time.toSecsSinceEpoch() - 631065600L);
-    sessionMesg.SetStartTime(session.at(0).time.toSecsSinceEpoch() - 631065600L);
+    sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+    sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
-    sessionMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() - session.at(0).time.toSecsSinceEpoch());
+    sessionMesg.SetTotalTimerTime(session.last().time.toSecsSinceEpoch() -
+                                  session.at(firstRealIndex).time.toSecsSinceEpoch());
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
@@ -66,11 +73,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
-
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     } else if (type == bluetoothdevice::ROWING) {
-
 
         sessionMesg.SetSport(FIT_SPORT_ROWING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_ROWING);
@@ -96,7 +101,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     devIdMesg.SetDeveloperDataIndex(0);
 
     fit::ActivityMesg activityMesg;
-    activityMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
+    activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     activityMesg.SetTotalTimerTime(session.last().elapsedTime);
     activityMesg.SetNumSessions(1);
     activityMesg.SetType(FIT_ACTIVITY_MANUAL);
@@ -109,8 +114,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
     fit::LapMesg lapMesg;
     lapMesg.SetIntensity(FIT_INTENSITY_ACTIVE);
-    lapMesg.SetStartTime(session.first().time.toSecsSinceEpoch() - 631065600L);
-    lapMesg.SetTimestamp(session.first().time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
+    lapMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     lapMesg.SetEvent(FIT_EVENT_WORKOUT);
     lapMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
@@ -121,10 +126,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
 
-
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else {
-
 
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
@@ -135,12 +138,12 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
 
-    fit::DateTime date((time_t)session.first().time.toSecsSinceEpoch());
+    fit::DateTime date((time_t)session.at(firstRealIndex).time.toSecsSinceEpoch());
     SessionLine sl;
     if (processFlag & QFIT_PROCESS_DISTANCENOISE) {
         double distanceOld = -1.0;
         int startIdx = -1;
-        for (int i = 0; i < session.length(); i++) {
+        for (int i = firstRealIndex; i < session.length(); i++) {
 
             sl = session.at(i);
             if (sl.distance != distanceOld || i == session.length() - 1) {
@@ -157,7 +160,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             }
         }
     }
-    for (int i = 0; i < session.length(); i++) {
+    for (int i = firstRealIndex; i < session.length(); i++) {
 
         fit::RecordMesg newRecord;
         sl = session.at(i);

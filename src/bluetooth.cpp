@@ -408,6 +408,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
                         b.name().toUpper().startsWith(QStringLiteral("BIKE 1"))) &&
                        !npeCableBike && filter) {
                 discoveryAgent->stop();
