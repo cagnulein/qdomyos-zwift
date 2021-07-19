@@ -1233,12 +1233,12 @@ void homeform::Start() {
         }
     } else {
 
-        trainProgram->restart();
         if (bluetoothManager->device()) {
             bluetoothManager->device()->start();
         }
 
         if (stopped) {
+            trainProgram->restart();
             if (bluetoothManager->device()) {
 
                 bluetoothManager->device()->clearStats();
