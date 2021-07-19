@@ -773,6 +773,23 @@ function process_arr(arr) {
                 mode: 'nearest',
                 intersect: true
             },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    title: {
+                        display: false,
+                        text: 'Time'
+                    },
+                    ticks: {
+                        // Include a dollar sign in the ticks
+                        callback: function(value, index, values) {
+                            return value !== 0 ? Math.floor(value / 60).toString().padStart(2, "0") + ":" + Math.floor(value % 60).toString().padStart(2, "0")  : "";
+                        },
+                        align: "end",
+                    },
+                },
+            }
         }
     };
 
@@ -949,7 +966,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init(); //return;
+    dochart_init(); return;
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);
