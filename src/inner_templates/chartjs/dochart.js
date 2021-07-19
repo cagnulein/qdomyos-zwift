@@ -305,6 +305,7 @@ function process_arr(arr) {
                         text: 'Watt'
                     },
                     min: 0,
+                    max: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
