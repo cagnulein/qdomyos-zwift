@@ -710,9 +710,9 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
         obj.setProperty(QStringLiteral("watts_max"), dep.max());
-        obj.setProperty(QStringLiteral("workoutName"), homeform::workoutName());
-        obj.setProperty(QStringLiteral("workoutStartDate"), homeform::workoutStartDate());
-        obj.setProperty(QStringLiteral("instructorName"), homeform::instructorName());
+        obj.setProperty(QStringLiteral("workoutName"), workoutName);
+        obj.setProperty(QStringLiteral("workoutStartDate"), workoutStartDate);
+        obj.setProperty(QStringLiteral("instructorName"), instructorName);
         if (tp == bluetoothdevice::BIKE) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());

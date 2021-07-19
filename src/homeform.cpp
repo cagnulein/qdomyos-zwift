@@ -7,6 +7,7 @@
 
 #include <QAbstractOAuth2>
 #include <QApplication>
+#include <QByteArray>
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QHttpMultiPart>
@@ -206,6 +207,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &homeform::setActivityDescription);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
             &homeform::chartSaved);
+    connect(this, &homeform::workoutNameChanged, bluetoothManager->getInnerTemplateManager(),
+            &TemplateInfoSenderBuilder::onWorkoutNameChanged);
+    connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getInnerTemplateManager(),
+            &TemplateInfoSenderBuilder::onWorkoutStartDate);
+    connect(this, &homeform::instructorNameChanged, bluetoothManager->getInnerTemplateManager(),
+            &TemplateInfoSenderBuilder::onInstructorName);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
@@ -399,6 +406,8 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 
     stravaPelotonActivityName = name;
     stravaPelotonInstructorName = instructor;
+    emit workoutNameChanged(workoutName());
+    emit instructorNameChanged(instructorName());
 
     if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
         return;
@@ -1044,6 +1053,9 @@ void homeform::deviceConnected() {
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
     QObject::connect(home, SIGNAL(plus_clicked(QString)), this, SLOT(Plus(QString)));
     QObject::connect(home, SIGNAL(minus_clicked(QString)), this, SLOT(Minus(QString)));
+
+    emit workoutNameChanged(workoutName());
+    emit instructorNameChanged(instructorName());
 }
 
 void homeform::deviceFound(const QString &name) {
@@ -1236,6 +1248,8 @@ void homeform::Start() {
 
             stravaPelotonActivityName = QLatin1String("");
             stravaPelotonInstructorName = QLatin1String("");
+            emit workoutNameChanged(workoutName());
+            emit instructorNameChanged(instructorName());
         }
 
         paused = false;
@@ -2039,6 +2053,7 @@ void homeform::update() {
                 lapTrigger = false;
             }
         }
+        emit workoutStartDateChanged(workoutStartDate());
     }
 
     emit changeOfdevice();
@@ -2765,6 +2780,29 @@ void homeform::sendMail() {
         fit->setContentId(lastFitFileSaved);
         fit->setContentType(QStringLiteral("application/octet-stream"));
         message.addPart(fit);
+    }
+
+    extern QString logfilename;
+    if (settings.value("log_debug").toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
+        QFile f(getWritableAppDir() + logfilename);
+        f.open(QIODevice::ReadOnly);
+        QTextStream ts(&f);
+        QByteArray b = f.readAll();
+        f.close();
+        QByteArray c = qCompress(b, 9);
+        QFile fc(getWritableAppDir() + logfilename.replace(".log", ".zip"));
+        f.open(QIODevice::WriteOnly);
+        f.write(c);
+        f.close();
+
+        // Create a MimeInlineFile object for each image
+        MimeInlineFile *log =
+            new MimeInlineFile((new QFile(getWritableAppDir() + logfilename.replace(".log", ".zip"))));
+
+        // An unique content id must be setted
+        log->setContentId(lastFitFileSaved);
+        log->setContentType(QStringLiteral("application/octet-stream"));
+        message.addPart(log);
     }
 
     smtp.connectToHost();

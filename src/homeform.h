@@ -272,14 +272,14 @@ class homeform : public QObject {
     QString stopText();
     QString stopIcon();
     QString stopColor();
-    static QString workoutStartDate() {
+    QString workoutStartDate() {
         if (!Session.isEmpty()) {
             return Session.constFirst().time.toString();
         } else {
             return QLatin1String("");
         }
     }
-    static QString workoutName() {
+    QString workoutName() {
         if (!stravaPelotonActivityName.isEmpty()) {
             return stravaPelotonActivityName;
         } else {
@@ -293,7 +293,7 @@ class homeform : public QObject {
             }
         }
     }
-    static QString instructorName() { return stravaPelotonInstructorName; }
+    QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
     bool pelotonAskStart() { return m_pelotonAskStart; }
@@ -377,8 +377,8 @@ class homeform : public QObject {
 
   private:
     QList<QObject *> dataList;
-    static QList<SessionLine> Session;
-    static bluetooth *bluetoothManager;
+    QList<SessionLine> Session;
+    bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     QString backupFitFileName =
@@ -402,9 +402,9 @@ class homeform : public QObject {
     QString m_pelotonProvider = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
-    static QString stravaPelotonActivityName;
-    static QString stravaPelotonInstructorName;
-    static QString activityDescription;
+    QString stravaPelotonActivityName;
+    QString stravaPelotonInstructorName;
+    QString activityDescription;
 
     QString lastFitFileSaved = QLatin1String("");
 
@@ -520,6 +520,9 @@ class homeform : public QObject {
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
     void pzpLoginChanged(int ok);
+    void workoutNameChanged(QString name);
+    void workoutStartDateChanged(QString name);
+    void instructorNameChanged(QString name);
 };
 
 #endif // HOMEFORM_H

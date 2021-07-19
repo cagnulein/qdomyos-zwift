@@ -57,9 +57,16 @@ class TemplateInfoSenderBuilder : public QObject {
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
+    QString workoutName = QStringLiteral("");
+    QString workoutStartDate = QStringLiteral("");
+    QString instructorName = QStringLiteral("");
   private slots:
     void onUpdateTimeout();
     void onDataReceived(const QByteArray &data);
+  public slots:
+    void onWorkoutNameChanged(QString name) { workoutName = name; }
+    void onWorkoutStartDate(QString name) { workoutStartDate = name; }
+    void onInstructorName(QString name) { instructorName = name; }
 };
 
 #endif // TEMPLATEINFOSENDERBUILDER_H
