@@ -193,6 +193,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         emit infoChanged(m_info); // NOTE: clazy-incorrecrt-emit
     }
 
+    stravaPelotonActivityName = QLatin1String("");
+    stravaPelotonInstructorName = QLatin1String("");
+    activityDescription = QLatin1String("");
+
     this->bluetoothManager = bl;
     this->engine = engine;
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
@@ -1826,22 +1830,22 @@ void homeform::update() {
                              QStringLiteral(" MAX: ") +
                              QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
 
-/*
-        if(trainProgram)
-        {
-            trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
-            trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
-            trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
+        /*
+                if(trainProgram)
+                {
+                    trainProgramElapsedTime->setText(trainProgram->totalElapsedTime().toString("hh:mm:ss"));
+                    trainProgramCurrentRowElapsedTime->setText(trainProgram->currentRowElapsedTime().toString("hh:mm:ss"));
+                    trainProgramDuration->setText(trainProgram->duration().toString("hh:mm:ss"));
 
-            double distance = trainProgram->totalDistance();
-            if(distance > 0)
-            {
-                trainProgramTotalDistance->setText(QString::number(distance));
-            }
-            else
-                trainProgramTotalDistance->setText("N/A");
-        }
-*/
+                    double distance = trainProgram->totalDistance();
+                    if(distance > 0)
+                    {
+                        trainProgramTotalDistance->setText(QString::number(distance));
+                    }
+                    else
+                        trainProgramTotalDistance->setText("N/A");
+                }
+        */
 
 #ifdef Q_OS_ANDROID
         if (settings.value("ant_cadence", false).toBool() && KeepAwakeHelper::antObject(false)) {
@@ -2582,8 +2586,7 @@ void homeform::sendMail() {
         // unit_conversion = 0.621371; // NOTE: clang-analyzer-deadcode.DeadStores
         weightLossUnit = QStringLiteral("Oz");
     }
-// WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 :
-// bluetoothManager->device()->weightLoss()); // NOTE: clang-analyzer-deadcode.DeadStores
+    WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
 
 #ifdef SMTP_SERVER
 #define _STR(x) #x

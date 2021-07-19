@@ -272,14 +272,14 @@ class homeform : public QObject {
     QString stopText();
     QString stopIcon();
     QString stopColor();
-    QString workoutStartDate() {
+    static QString workoutStartDate() {
         if (!Session.isEmpty()) {
             return Session.constFirst().time.toString();
         } else {
             return QLatin1String("");
         }
     }
-    QString workoutName() {
+    static QString workoutName() {
         if (!stravaPelotonActivityName.isEmpty()) {
             return stravaPelotonActivityName;
         } else {
@@ -293,7 +293,7 @@ class homeform : public QObject {
             }
         }
     }
-    QString instructorName() { return stravaPelotonInstructorName; }
+    static QString instructorName() { return stravaPelotonInstructorName; }
     int pelotonLogin() { return m_pelotonLoginState; }
     int pzpLogin() { return m_pzpLoginState; }
     bool pelotonAskStart() { return m_pelotonAskStart; }
@@ -377,8 +377,8 @@ class homeform : public QObject {
 
   private:
     QList<QObject *> dataList;
-    QList<SessionLine> Session;
-    bluetooth *bluetoothManager = nullptr;
+    static QList<SessionLine> Session;
+    static bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     QString backupFitFileName =
@@ -402,9 +402,9 @@ class homeform : public QObject {
     QString m_pelotonProvider = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
-    QString stravaPelotonActivityName = QLatin1String("");
-    QString stravaPelotonInstructorName = QLatin1String("");
-    QString activityDescription = QLatin1String("");
+    static QString stravaPelotonActivityName;
+    static QString stravaPelotonInstructorName;
+    static QString activityDescription;
 
     QString lastFitFileSaved = QLatin1String("");
 

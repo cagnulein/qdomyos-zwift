@@ -45,6 +45,13 @@ function process_arr(arr) {
     let distributionPowerZones = [];
     let maxEl = 0;
     let saveScreenshot = [];
+    let workoutName = '';
+    let workoutStartDate = '';
+    let instructorName = '';
+    let watts_avg = 0;
+    let watts_max = 0;
+    let heart_avg = 0;
+    let heart_max = 0;
     saveScreenshot[0] = false;
     saveScreenshot[1] = false;
     saveScreenshot[2] = false;
@@ -58,6 +65,7 @@ function process_arr(arr) {
     distributionPowerZones[4] = 0;
     distributionPowerZones[5] = 0;
     distributionPowerZones[6] = 0;
+
     for (let el of arr) {
         let wattel = {};
         let reqpowerel = {};
@@ -69,6 +77,13 @@ function process_arr(arr) {
         let speedel = {};
         let inclinationel = {};
         let time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
+        workoutName = el.workoutName;
+        workoutStartDate = el.workoutStartDate;
+        instructorName = el.instructorName;
+        watts_avg = el.watts_avg;
+        watts_max = el.watts_max;
+        heart_avg = el.heart_avg;
+        heart_max = el.heart_max;
         maxEl = time;
         wattel.x = time;
         wattel.y = el.watts;
@@ -112,6 +127,15 @@ function process_arr(arr) {
         inclinationel.y = el.inclination;
         inclination.push(inclinationel);
     }
+
+    $('.workoutName').text(workoutName);
+    $('.workoutStartDate').text(workoutStartDate);
+    $('.instructorName').text((instructorName));
+    $('.watts_avg').text('Watt AVG: ' + watts_avg);
+    $('.watts_max').text('Watt MAX: ' + watts_max);
+    $('.heart_avg').text('Heart Rate AVG: ' + heart_avg);
+    $('.heart_max').text('Heart Rate MAX: ' + heart_max);
+
     let config = {
         type: 'line',
         data: {
@@ -925,7 +949,7 @@ function dochart_init() {
 
 
 $(window).on('load', function () {
-    dochart_init(); return;
+    dochart_init(); //return;
 
     // DEBUG
     ftpZones[0] = Math.round(ftp * 0.55);
@@ -959,7 +983,7 @@ $(window).on('load', function () {
            {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10},
            {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9},
            {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
             ]
     process_arr(arr);
 });
