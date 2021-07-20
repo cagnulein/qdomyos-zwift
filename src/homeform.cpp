@@ -2790,6 +2790,7 @@ void homeform::sendMail() {
         message.addPart(fit);
     }
 
+    /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
     extern QString logfilename;
     if (settings.value("log_debug").toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
         QString fileName = getWritableAppDir() + logfilename;
@@ -2812,7 +2813,7 @@ void homeform::sendMail() {
         log->setContentId(fileName);
         log->setContentType(QStringLiteral("application/octet-stream"));
         message.addPart(log);
-    }
+    }*/
 
     smtp.connectToHost();
     smtp.login();
