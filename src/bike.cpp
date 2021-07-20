@@ -3,7 +3,7 @@
 #include "qdebugfixup.h"
 #include <QSettings>
 
-bike::bike() {}
+bike::bike() {elapsed.setType(metric::METRIC_ELAPSED);}
 
 void bike::changeResistance(int8_t resistance) {
     lastRawRequestedResistanceValue = resistance;

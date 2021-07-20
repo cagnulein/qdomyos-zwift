@@ -9,7 +9,7 @@
 			<!-- %%INSERT_FEATURES -->
 
     <supports-screens android:largeScreens="true" android:normalScreens="true" android:anyDensity="true" android:smallScreens="true"/>
-	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon">
+	 <application android:hardwareAccelerated="true" android:debuggable="false" android:name="org.qtproject.qt5.android.bindings.QtApplication" android:label="qdomyos-zwift" android:extractNativeLibs="true" android:icon="@drawable/icon" android:usesCleartextTraffic="true">
 	     <activity android:configChanges="orientation|uiMode|screenLayout|screenSize|smallestScreenSize|layoutDirection|locale|fontScale|keyboard|keyboardHidden|navigation|mcc|mnc|density" android:name="org.qtproject.qt5.android.bindings.QtActivity" android:label="qdomyos-zwift" android:launchMode="singleTop">
 		      <intent-filter>
 				    <action android:name="android.intent.action.MAIN"/>
@@ -75,7 +75,6 @@
 		</application>
 
 <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="29" />
-<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.ACCESS_CHECKIN_PROPERTIES"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>

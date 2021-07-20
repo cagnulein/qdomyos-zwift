@@ -25,5 +25,19 @@
         <file>templates/qz-TcpClient.qzt</file>
         <file>TrainingProgramsList.qml</file>
         <file>SettingsList.qml</file>
+        <file>ChartJsTest.qml</file>
+        <file>inner_templates/chartjs/.eslintrc.js</file>
+        <file>inner_templates/chartjs/.jshintrc</file>
+        <file>inner_templates/chartjs/chart.htm</file>
+        <file>inner_templates/chartjs/chartjs-adapter-moment.js</file>
+        <file>inner_templates/chartjs/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/chartjs/chartjs.3.4.1.min.js</file>
+        <file>inner_templates/chartjs/dochart.js</file>
+        <file>inner_templates/chartjs/globals.js</file>
+        <file>inner_templates/chartjs/jquery-3.6.0.min.js</file>
+        <file>inner_templates/chartjs/main_ws_manager.js</file>
+        <file>inner_templates/chartjs/moment.js</file>
+        <file>inner_templates/chartjs/resize-observer.min.js</file>
+        <file>inner_templates/chartjs/ajax-loader.gif</file>
     </qresource>
 </RCC>

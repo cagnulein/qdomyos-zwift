@@ -18,7 +18,7 @@
 
 using namespace std::chrono_literals;
 
-TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::instance = nullptr;
+QHash<QString, TemplateInfoSenderBuilder *> TemplateInfoSenderBuilder::instanceMap;
 TemplateInfoSenderBuilder::TemplateInfoSenderBuilder(QObject *parent) : QObject(parent) {
     engine = new QJSEngine(this);
     engine->installExtensions(QJSEngine::AllExtensions);
@@ -48,19 +48,22 @@ void TemplateInfoSenderBuilder::stop() {
     }
 }
 
-TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::getInstance(QObject *parent) {
+TemplateInfoSenderBuilder *TemplateInfoSenderBuilder::getInstance(const QString &idInfo, const QStringList &folders,
+                                                                  QObject *parent) {
+    TemplateInfoSenderBuilder *instance = instanceMap.value(idInfo, nullptr);
     if (instance) {
         return instance;
     } else {
         instance = new TemplateInfoSenderBuilder(parent);
-        instance->load();
+        instance->load(idInfo, folders);
         return instance;
     }
 }
 
 bool TemplateInfoSenderBuilder::validFileTemplateType(const QString &tp) const { return tp == TEMPLATE_TYPE_TCPCLIENT; }
 
-void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates) {
+void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &idInfo, const QString &folder,
+                                                          QStringList &dirTemplates) {
     QDirIterator it(folder);
     QString content, templateId;
     // QString tempType; // NOTE: clazy-unused-non-triviak-variable
@@ -83,6 +86,7 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder,
                 if (idx > 0) {
                     QString tempType = templateId.mid(idx + 1);
                     templateId = templateId.mid(0, idx);
+                    templateId = idInfo + "_" + templateId;
                     qDebug() << QStringLiteral("Template type") << tempType << QStringLiteral(" id") << templateId;
                     templateFilesList.insert(templateId, filePath);
                     QString savedType =
@@ -104,7 +108,7 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder,
         } else if (fileInfo.isDir()) {
             int idx = filePath.lastIndexOf('/');
             QString pathEl = idx < 0 ? filePath : filePath.mid(idx + 1);
-            if (pathEl != QStringLiteral(".") && pathEl != QStringLiteral("..")) {
+            if (pathEl != QStringLiteral(".") && pathEl != QStringLiteral("..") && !dirTemplates.contains(pathEl)) {
                 qDebug() << QStringLiteral("Template Dir Found") << filePath;
                 dirTemplates += pathEl;
             }
@@ -112,37 +116,24 @@ void TemplateInfoSenderBuilder::createTemplatesFromFolder(const QString &folder,
     }
 }
 
-void TemplateInfoSenderBuilder::load() {
-    QString path = QLatin1String("");
-    QStringList dirTemplatesQrc, dirTemplatesLocal;
+void TemplateInfoSenderBuilder::load(const QString &idInfo, const QStringList &folders) {
     stop();
-#if defined(Q_OS_ANDROID) || defined(Q_OS_MACOS) || defined(Q_OS_OSX)
-    path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation) + "/";
-#elif defined(Q_OS_IOS)
-    path = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/";
-#endif
+    masterId = idInfo;
+    foldersToLook = folders;
     templateInfoMap.clear();
     templateFilesList.clear();
-    qDebug() << QStringLiteral("Load start from qrc");
-    createTemplatesFromFolder(QStringLiteral(":/templates"), dirTemplatesQrc);
-    qDebug() << QStringLiteral("Load start from local") << path + QStringLiteral("QZTemplates");
-    createTemplatesFromFolder(path + QStringLiteral("QZTemplates"), dirTemplatesLocal);
-    for (auto &tdir : dirTemplatesLocal) {
-        if (dirTemplatesQrc.contains(tdir)) {
-            dirTemplatesQrc.removeAll(tdir);
-        }
+    QStringList globalIdList, globalFolderList;
+    int startIdIndex = 0;
+    for (auto &tdir : folders) {
+        qDebug() << QStringLiteral("Load start from") << tdir;
+        startIdIndex = globalIdList.size();
+        createTemplatesFromFolder(idInfo, tdir, globalIdList);
+        for (int i = startIdIndex; i < globalIdList.size(); i++)
+            globalFolderList.append(tdir + "/" + globalIdList.at(i));
     }
-    QMutableListIterator<QString> it(dirTemplatesLocal);
-    while (it.hasNext()) {
-        it.setValue(path + QStringLiteral("QZTemplates/") + it.next());
-    }
-    dirTemplatesLocal.reserve(dirTemplatesQrc.size() + 1);
-    for (auto &fld : dirTemplatesQrc) {
-        dirTemplatesLocal.append(QStringLiteral(":/templates/") + fld);
-    }
-    if (!dirTemplatesLocal.isEmpty()) {
+    if (!globalFolderList.isEmpty()) {
         QStringList addressList;
-        qDebug() << QStringLiteral("Folder List") << dirTemplatesLocal;
+        qDebug() << QStringLiteral("Folder List") << globalFolderList;
         const QHostAddress &localhost = QHostAddress(QHostAddress::LocalHost);
         for (auto &address : QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost) {
@@ -150,27 +141,28 @@ void TemplateInfoSenderBuilder::load() {
             }
         }
         qDebug() << QStringLiteral("addressList ") << addressList;
-        settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_ips"), addressList);
-        templateFilesList.insert(QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID), TEMPLATE_TYPE_WEBSERVER);
+        QString templateId = idInfo + "_" + QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID);
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_ips"), addressList);
+        templateFilesList.insert(templateId, TEMPLATE_TYPE_WEBSERVER);
         QString temptype =
-            settings.value(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_type"), QString()).toString();
-        settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_folders"), dirTemplatesLocal);
-        settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_ips"), addressList);
+            settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_type"), QString()).toString();
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_folders"), globalFolderList);
+        settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_ips"), addressList);
         if (temptype != TEMPLATE_TYPE_WEBSERVER) {
-            settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_type"),
+            settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_type"),
                               QString(TEMPLATE_TYPE_WEBSERVER));
-            settings.setValue(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled"), false);
-        } else if (settings.value(QStringLiteral("template_" TEMPLATE_PRIVATE_WEBSERVER_ID "_enabled"), false)
+            settings.setValue(QStringLiteral("template_") + templateId + QStringLiteral("_enabled"), false);
+        } else if (settings.value(QStringLiteral("template_") + templateId + QStringLiteral("_enabled"), false)
                        .toBool()) {
-            newTemplate(QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID), TEMPLATE_TYPE_WEBSERVER,
+            newTemplate(templateId, TEMPLATE_TYPE_WEBSERVER,
                         QStringLiteral("JSON.stringify({msg: \"workout\", content: this.workout})"));
         } else {
-            qDebug() << QStringLiteral("Template") << QStringLiteral(TEMPLATE_PRIVATE_WEBSERVER_ID)
-                     << QStringLiteral(" is disabled: not created");
+            qDebug() << QStringLiteral("Template") << templateId << QStringLiteral(" is disabled: not created");
         }
     }
     qDebug() << QStringLiteral("Setting template_ids") << templateFilesList.keys();
-    settings.setValue(QStringLiteral("template_ids"), QStringList(templateFilesList.keys()));
+    settings.setValue(QStringLiteral("template_") + idInfo + QStringLiteral("_ids"),
+                      QStringList(templateFilesList.keys()));
 }
 
 TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, const QString &tp,
@@ -198,9 +190,14 @@ TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, co
     return tempInfo;
 }
 
-void TemplateInfoSenderBuilder::reinit() { load(); }
+void TemplateInfoSenderBuilder::reinit() { load(masterId, foldersToLook); }
 
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
+    device = nullptr;
+    for (int i = 0; i < sessionArray.count(); i++) {
+        sessionArray.removeAt(0);
+    }
+    buildContext(true);
     device = dev;
     activityDescription = QLatin1String("");
     updateTimer.start(1s);
@@ -464,6 +461,14 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = sessionArray;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getsessionarray");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString fileName;
     QJsonArray rows;
@@ -531,6 +536,34 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
+    QString filename;
+    QString image;
+    QJsonObject content;
+    if ((content = msgContent.toObject()).isEmpty() ||
+        (filename = content.value(QStringLiteral("name")).toString()).isEmpty() ||
+        (image = content.value(QStringLiteral("image")).toString()).isEmpty()) {
+        return;
+    }
+    QString path = homeform::getWritableAppDir();
+    QJsonObject main, outObj;
+    QString filenameScreenshot =
+        path + QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+        QStringLiteral("_") + filename.replace(QStringLiteral(":"), QStringLiteral("_")) + QStringLiteral(".png");
+
+    QPixmap imagep;
+    imagep.loadFromData(QByteArray::fromBase64(image.toLocal8Bit().replace("data:image/png;base64,", "")));
+    imagep.save(filenameScreenshot);
+
+    emit chartSaved(filenameScreenshot);
+
+    outObj[QStringLiteral("name")] = filename;
+    main[QStringLiteral("content")] = outObj;
+    main[QStringLiteral("msg")] = QStringLiteral("R_savechart");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
     TemplateInfoSender *sender = qobject_cast<TemplateInfoSender *>(this->sender());
     if (!sender) {
@@ -576,6 +609,12 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("savetrainingprogram")) {
                     onSaveTrainingProgram(jsonObject[QStringLiteral("content")], sender);
                     return;
+                } else if (msg == QStringLiteral("savechart")) {
+                    onSaveChart(jsonObject[QStringLiteral("content")], sender);
+                    return;
+                } else if (msg == QStringLiteral("getsessionarray")) {
+                    onGetSessionArray(sender);
+                    return;
                 }
             }
         }
@@ -583,16 +622,16 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
     qDebug() << QStringLiteral("Unrecognized message") << data;
 }
 
-void TemplateInfoSenderBuilder::buildContext() {
+void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     QJSValue glob = engine->globalObject();
     QJSValue obj;
-    if (!glob.hasOwnProperty(QStringLiteral("workout"))) {
+    if (!glob.hasOwnProperty(QStringLiteral("workout")) || forceReinit) {
         obj = engine->newObject();
         glob.setProperty(QStringLiteral("workout"), obj);
     } else
         obj = glob.property(QStringLiteral("workout"));
 
-    if (!glob.hasOwnProperty(QStringLiteral("settings"))) {
+    if (!glob.hasOwnProperty(QStringLiteral("settings")) || forceReinit) {
         QJSValue sett = engine->newObject();
         glob.setProperty(QStringLiteral("settings"), sett);
         QVariant::Type typesett;
@@ -646,6 +685,7 @@ void TemplateInfoSenderBuilder::buildContext() {
         obj.setProperty(QStringLiteral("deviceRSSI"), device->bluetoothDevice.rssi());
         obj.setProperty(QStringLiteral("deviceType"), (int)device->deviceType());
         obj.setProperty(QStringLiteral("deviceConnected"), (bool)device->connected());
+        obj.setProperty(QStringLiteral("devicePaused"), (bool)device->isPaused());
         obj.setProperty(QStringLiteral("elapsed_s"), el.second());
         obj.setProperty(QStringLiteral("elapsed_m"), el.minute());
         obj.setProperty(QStringLiteral("elapsed_h"), el.hour());
@@ -663,12 +703,17 @@ void TemplateInfoSenderBuilder::buildContext() {
         obj.setProperty(QStringLiteral("distance"), device->odometer());
         obj.setProperty(QStringLiteral("heart"), (dep = device->currentHeart()).value());
         obj.setProperty(QStringLiteral("heart_avg"), dep.average());
+        obj.setProperty(QStringLiteral("heart_max"), dep.max());
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
         obj.setProperty(QStringLiteral("elevation"), device->elevationGain());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
         obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
-        if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
+        obj.setProperty(QStringLiteral("watts_max"), dep.max());
+        obj.setProperty(QStringLiteral("workoutName"), workoutName);
+        obj.setProperty(QStringLiteral("workoutStartDate"), workoutStartDate);
+        obj.setProperty(QStringLiteral("instructorName"), instructorName);
+        if (tp == bluetoothdevice::BIKE) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
             obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
@@ -678,9 +723,24 @@ void TemplateInfoSenderBuilder::buildContext() {
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
             obj.setProperty(QStringLiteral("cranks"), ((bike *)device)->currentCrankRevolutions());
             obj.setProperty(QStringLiteral("cranktime"), ((bike *)device)->lastCrankEventTime());
-        } else {
-            obj.setProperty(QStringLiteral("resistance"), (dep = ((treadmill *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("req_power"), (dep = ((bike *)device)->lastRequestedPower()).value());
+            obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
+        } else if (tp == bluetoothdevice::ROWING) {
+            obj.setProperty(QStringLiteral("peloton_resistance"),
+                            (dep = ((rower *)device)->pelotonResistance()).value());
+            obj.setProperty(QStringLiteral("peloton_resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cadence"), (dep = ((rower *)device)->currentCadence()).value());
+            obj.setProperty(QStringLiteral("cadence_avg"), dep.average());
+            obj.setProperty(QStringLiteral("resistance"), (dep = ((rower *)device)->currentResistance()).value());
             obj.setProperty(QStringLiteral("resistance_avg"), dep.average());
+            obj.setProperty(QStringLiteral("cranks"), ((rower *)device)->currentCrankRevolutions());
+            obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
+            obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
+            obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
+        } else {
+            obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         }
+        sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
     }
 }

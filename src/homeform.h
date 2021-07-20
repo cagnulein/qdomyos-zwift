@@ -378,7 +378,7 @@ class homeform : public QObject {
   private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
-    bluetooth *bluetoothManager = nullptr;
+    bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
     QString backupFitFileName =
@@ -402,9 +402,9 @@ class homeform : public QObject {
     QString m_pelotonProvider = "";
     int m_pelotonLoginState = -1;
     int m_pzpLoginState = -1;
-    QString stravaPelotonActivityName = QLatin1String("");
-    QString stravaPelotonInstructorName = QLatin1String("");
-    QString activityDescription = QLatin1String("");
+    QString stravaPelotonActivityName;
+    QString stravaPelotonInstructorName;
+    QString activityDescription;
 
     QString lastFitFileSaved = QLatin1String("");
 
@@ -496,6 +496,7 @@ class homeform : public QObject {
     void peloton_start_workout();
     void smtpError(SmtpClient::SmtpError e);
     void setActivityDescription(QString newdesc);
+    void chartSaved(QString fileName);
 
   signals:
 
@@ -519,6 +520,9 @@ class homeform : public QObject {
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
     void pzpLoginChanged(int ok);
+    void workoutNameChanged(QString name);
+    void workoutStartDateChanged(QString name);
+    void instructorNameChanged(QString name);
 };
 
 #endif // HOMEFORM_H

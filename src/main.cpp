@@ -21,6 +21,9 @@
 #include <QQmlApplicationEngine>
 #include <QSettings>
 #include <QStandardPaths>
+#ifdef CHARTJS
+#include <QtWebView/QtWebView>
+#endif
 
 #ifdef Q_OS_ANDROID
 
@@ -65,13 +68,13 @@ QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
 uint8_t bikeResistanceOffset = 4;
 double bikeResistanceGain = 1.0;
-static QString logfilename = "debug-" +
-                             QDateTime::currentDateTime()
-                                 .toString()
-                                 .replace(QStringLiteral(":"), QStringLiteral("_"))
-                                 .replace(QStringLiteral(" "), QStringLiteral("_"))
-                                 .replace(QStringLiteral("."), QStringLiteral("_")) +
-                             QStringLiteral(".log");
+QString logfilename = QStringLiteral("debug-") +
+                      QDateTime::currentDateTime()
+                          .toString()
+                          .replace(QStringLiteral(":"), QStringLiteral("_"))
+                          .replace(QStringLiteral(" "), QStringLiteral("_"))
+                          .replace(QStringLiteral("."), QStringLiteral("_")) +
+                      QStringLiteral(".log");
 static const QtMessageHandler QT_DEFAULT_MESSAGE_HANDLER = qInstallMessageHandler(0);
 
 QCoreApplication *createApplication(int &argc, char *argv[]) {
@@ -266,6 +269,9 @@ int main(int argc, char *argv[]) {
 #else
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QScopedPointer<QApplication> app(new QApplication(argc, argv));
+#endif
+#ifdef CHARTJS
+    QtWebView::initialize();
 #endif
 
 #ifdef Q_OS_LINUX
@@ -472,6 +478,11 @@ int main(int argc, char *argv[]) {
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
 #else
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
+#endif
+#ifdef CHARTJS
+        engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));
+#else
+        engine.rootContext()->setContextProperty("CHARTJS", QVariant(false));
 #endif
         engine.load(url);
         homeform *h = new homeform(&engine, &bl);

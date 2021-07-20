@@ -133,6 +133,8 @@ import Qt.labs.settings 1.0
 
             property real domyos_elliptical_speed_ratio: 1.0
 
+            property string echelon_watttable: "Echelon"
+
             property real proform_wheel_ratio: 0.33
 
             property int  fitshow_user_id: 0x006E13AA
@@ -2424,6 +2426,46 @@ import Qt.labs.settings 1.0
             }
 
             AccordionElement {
+                id: echelonBikeOptionsAccordion
+                title: qsTr("Echelon Bike Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelEchelonWattTable
+                            text: qsTr("Watt Profile:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: echelonWattTableTextField
+                            model: [ "Echelon", "mgarcea" ]
+                            displayText: settings.echelon_watttable
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + echelonWattTableTextField.currentIndex)
+                                displayText = echelonWattTableTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okEchelonWattTable
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.echelon_watttable = echelonWattTableTextField.displayText
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
                 id: inspireBikeAccordion
                 title: qsTr("Inspire Bike Options")
                 indicatRectColor: Material.color(Material.Grey)
@@ -3418,7 +3460,7 @@ import Qt.labs.settings 1.0
                             id: templateSettingsContent
                         }
                         Component.onCompleted: function() {
-                            let template_ids = settings.value("template_ids", []);
+                            let template_ids = settings.value("template_user_ids", []);
                             console.log("template_ids current val "+template_ids);
                             if (template_ids) {
                                 let accordionCheckComponent = Qt.createComponent("AccordionCheckElement.qml");

@@ -66,7 +66,14 @@ HomeForm{
     }
 
     start.onClicked: { start_clicked(); }
-    stop.onClicked: { stop_clicked(); rootItem.save_screenshot(); stackView.push("ChartsEndWorkout.qml") }
+    stop.onClicked: {
+        stop_clicked();
+        rootItem.save_screenshot();
+        if(CHARTJS)
+            stackView.push("ChartJsTest.qml")
+        else
+            stackView.push("ChartsEndWorkout.qml")
+    }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
     Component.onCompleted: { console.log("completed"); }
@@ -85,10 +92,7 @@ HomeForm{
         onMovementEnded: { headerToolbar.visible = (contentY == 0); }
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
         Screen.onPrimaryOrientationChanged:{
-                if(OS_VERSION === "Android")
                     gridView.leftMargin = (Screen.width % cellWidth) / 2;
-                else
-                    gridView.leftMargin = (parent.width % cellWidth) / 2;
         }
 
         //        highlight: Rectangle {

@@ -31,7 +31,7 @@ void heartratebelt::characteristicChanged(const QLowEnergyCharacteristic &charac
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (newValue.length() > 1) {
-        Heart = newValue[1];
+        Heart = (uint8_t)newValue[1];
         emit heartRate((uint8_t)Heart.value());
     }
 

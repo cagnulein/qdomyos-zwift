@@ -4,6 +4,7 @@
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
+#include <QJsonArray>
 #include <QSettings>
 
 #define TEMPLATE_TYPE_TCPCLIENT QStringLiteral("TcpClient")
@@ -13,7 +14,8 @@
 class TemplateInfoSenderBuilder : public QObject {
     Q_OBJECT
   public:
-    static TemplateInfoSenderBuilder *getInstance(QObject *parent = nullptr);
+    static TemplateInfoSenderBuilder *getInstance(const QString &idInfo, const QStringList &folders,
+                                                  QObject *parent = nullptr);
     void reinit();
     void start(bluetoothdevice *device);
     void stop();
@@ -21,19 +23,23 @@ class TemplateInfoSenderBuilder : public QObject {
     ~TemplateInfoSenderBuilder();
   signals:
     void activityDescriptionChanged(QString newDescription);
+    void chartSaved(QString filename);
 
   private:
     bool validFileTemplateType(const QString &tp) const;
-    void buildContext();
+    void buildContext(bool forceReinit = false);
     QString activityDescription;
-    void createTemplatesFromFolder(const QString &folder, QStringList &dirTemplates);
+    void createTemplatesFromFolder(const QString &idInfo, const QString &folder, QStringList &dirTemplates);
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
+    QString masterId;
+    QStringList foldersToLook;
+    QJsonArray sessionArray;
     QHash<QString, QVariant> context;
     QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
-    void load();
-    static TemplateInfoSenderBuilder *instance;
+    void load(const QString &idInfo, const QStringList &folders);
+    static QHash<QString, TemplateInfoSenderBuilder *> instanceMap;
     QSettings settings;
     QHash<QString, TemplateInfoSender *> templateInfoMap;
     TemplateInfoSender *newTemplate(const QString &id, const QString &tp, const QString &dataTempl);
@@ -46,12 +52,21 @@ class TemplateInfoSenderBuilder : public QObject {
     void onSetCadence(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetSpeed(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSetDifficult(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onSaveChart(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
+    void onGetSessionArray(TemplateInfoSender *tempSender);
+    QString workoutName = QStringLiteral("");
+    QString workoutStartDate = QStringLiteral("");
+    QString instructorName = QStringLiteral("");
   private slots:
     void onUpdateTimeout();
     void onDataReceived(const QByteArray &data);
+  public slots:
+    void onWorkoutNameChanged(QString name) { workoutName = name; }
+    void onWorkoutStartDate(QString name) { workoutStartDate = name; }
+    void onInstructorName(QString name) { instructorName = name; }
 };
 
 #endif // TEMPLATEINFOSENDERBUILDER_H

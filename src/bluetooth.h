@@ -77,10 +77,12 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
-    TemplateInfoSenderBuilder *getTemplateManager() const { return templateManager; }
+    TemplateInfoSenderBuilder *getUserTemplateManager() const { return userTemplateManager; }
+    TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 
   private:
-    TemplateInfoSenderBuilder *templateManager = nullptr;
+    TemplateInfoSenderBuilder *userTemplateManager = nullptr;
+    TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     fitshowtreadmill *fitshowTreadmill = nullptr;

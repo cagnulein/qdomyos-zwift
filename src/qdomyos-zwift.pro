@@ -1,12 +1,23 @@
 QT += bluetooth widgets xml positioning quick networkauth websockets
 
 QT+= charts
+
 unix:android: QT += androidextras gui-private
 qtHaveModule(httpserver) {
     QT += httpserver
     DEFINES += Q_HTTPSERVER
     SOURCES += webserverinfosender.cpp
     HEADERS += webserverinfosender.h
+
+    # android and iOS are using ChartJS
+    unix:android: {
+        QT+= webview
+        DEFINES += CHARTJS
+    }
+    ios: {
+        QT+= webview
+        DEFINES += CHARTJS
+    }
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
@@ -506,5 +517,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.6.61
+VERSION = 2.8.2
 
