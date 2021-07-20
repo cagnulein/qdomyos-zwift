@@ -1092,6 +1092,14 @@ void homeform::Plus(const QString &name) {
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
         }
+    } else if(name.contains("gears")) {
+        if(bluetoothManager->device())
+        {
+            if(bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+            {
+                ((bike*)bluetoothManager->device())->setGears(((bike*)bluetoothManager->device())->gears() + 1);
+            }
+        }
     } else if (name.contains(QStringLiteral("target_resistance"))) {
         if (bluetoothManager->device()) {
 
