@@ -176,7 +176,6 @@
 		876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */; };
 		8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */; };
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
-		877A7607269D8E100024DD2C /* libqtwebview_darwin_debug.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 877A7606269D8E0F0024DD2C /* libqtwebview_darwin_debug.a */; };
 		877A7609269D8E9F0024DD2C /* WebKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 877A7608269D8E9F0024DD2C /* WebKit.framework */; };
 		8780D947264FB8AC00192D41 /* smartspin2k.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8780D946264FB8AB00192D41 /* smartspin2k.cpp */; };
 		8780D949264FB8B800192D41 /* moc_smartspin2k.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8780D948264FB8B800192D41 /* moc_smartspin2k.cpp */; };
@@ -254,6 +253,7 @@
 		87E6A85B25B5C8B900371D28 /* flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85925B5C8B900371D28 /* flywheelbike.cpp */; };
 		87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */; };
 		87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */; };
+		87F1179E26A5FBDE00541B3A /* libqtwebview_darwin.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */; };
 		87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE5BAD2692F3130056EFC8 /* tacxneo2.cpp */; };
 		87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87FE5BB02692F31E0056EFC8 /* moc_tacxneo2.cpp */; };
 		8C3422A825EF7ECD78951307 /* moc_bluetoothdevice.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 1B96B43BE93B05F81BBF0CCF /* moc_bluetoothdevice.cpp */; settings = {ATTRIBUTES = (); }; };
@@ -1009,7 +1009,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */,
-				877A7607269D8E100024DD2C /* libqtwebview_darwin_debug.a in Link Binary With Libraries */,
 				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
 				87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */,
 				872BAB50261751FB006A59AB /* libqtchartsqml2.a in Link Binary With Libraries */,
@@ -1095,6 +1094,7 @@
 				15364689D2AB5A30E87A689F /* Security.framework in Link Binary With Libraries */,
 				D4639595C3BCF2A39D88DF6E /* SystemConfiguration.framework in Link Binary With Libraries */,
 				906D4B242F504925A3CF2DBB /* GSS.framework in Link Binary With Libraries */,
+				87F1179E26A5FBDE00541B3A /* libqtwebview_darwin.a in Link Binary With Libraries */,
 				A2512002BCC1BFB4FC6D60C1 /* Qt5Core in Link Binary With Libraries */,
 				F8B465CE34D8DF87AAE95913 /* CoreFoundation.framework in Link Binary With Libraries */,
 				F26454630C80841CBDCFE1CA /* Foundation.framework in Link Binary With Libraries */,
@@ -2548,7 +2548,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.6.60;
+				CURRENT_PROJECT_VERSION = 2.8.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -2607,7 +2607,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 				);
-				MARKETING_VERSION = 2.6;
+				MARKETING_VERSION = 2.8;
 				OTHER_CFLAGS = (
 					"-pipe",
 					"-g",
@@ -2688,7 +2688,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.6.60;
+				CURRENT_PROJECT_VERSION = 2.8.1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -2749,7 +2749,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 				);
-				MARKETING_VERSION = 2.6;
+				MARKETING_VERSION = 2.8;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-pipe",
@@ -2864,7 +2864,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.60;
+				CURRENT_PROJECT_VERSION = 2.8.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -2884,7 +2884,7 @@
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 2.6;
+				MARKETING_VERSION = 2.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -2954,7 +2954,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.60;
+				CURRENT_PROJECT_VERSION = 2.8.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -2970,7 +2970,7 @@
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 2.6;
+				MARKETING_VERSION = 2.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -3038,7 +3038,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.60;
+				CURRENT_PROJECT_VERSION = 2.8.1;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3058,7 +3058,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.6;
+				MARKETING_VERSION = 2.8;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
@@ -3125,7 +3125,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.6.60;
+				CURRENT_PROJECT_VERSION = 2.8.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -3141,7 +3141,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.6;
+				MARKETING_VERSION = 2.8;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_LDFLAGS = (
