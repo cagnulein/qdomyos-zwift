@@ -341,6 +341,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(this, &bluetooth::searchingStop, soleElliptical, &soleelliptical::searchingStop);
                 if (!discoveryAgent->isActive())
                     emit searchingStop();
+                userTemplateManager->start(soleElliptical);
+                innerTemplateManager->start(soleElliptical);
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBr")) && !domyos && !domyosElliptical &&
                        !domyosBike && filter) {
@@ -407,6 +409,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(tacxneo2Bike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 // connect(tacxneo2Bike, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 tacxneo2Bike->deviceDiscovered(b);
+                userTemplateManager->start(tacxneo2Bike);
+                innerTemplateManager->start(tacxneo2Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
                         b.name().toUpper().startsWith(QStringLiteral("BIKE 1"))) &&
