@@ -375,7 +375,7 @@ void TemplateInfoSenderBuilder::onSetSettings(const QJsonValue &msgContent, Temp
         if (settings.contains(key)) {
             val = obj[key];
             valConv = val.toVariant();
-            settingVal.setValue(settings.value(key));
+            settingVal = settings.value(key);
             if (valConv.type() == settingVal.type()) {
                 settings.setValue(key, valConv);
                 outObj.insert(key, val);
