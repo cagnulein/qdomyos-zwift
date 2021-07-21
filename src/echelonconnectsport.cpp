@@ -535,6 +535,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
 
     double wattTable_mgarcea[wattTableFirstDimension][wattTableSecondDimension] = {
         {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
+        {Epsilon, 1.0, 2.2, 4.8, 9.5, 13.6, 16.7, 22.6, 26.3, 29.2, 47.0},
         {Epsilon, 1.3, 3.0, 5.4, 10.4, 14.5, 18.5, 24.6, 27.6, 33.5, 49.5},
         {Epsilon, 1.5, 3.7, 6.7, 11.7, 15.9, 19.6, 26.1, 30.8, 35.2, 51.2},
         {Epsilon, 1.6, 4.7, 7.5, 13.7, 17.6, 22.6, 29.0, 36.9, 42.6, 57.2},
