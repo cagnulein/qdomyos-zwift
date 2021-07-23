@@ -269,6 +269,11 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
 #endif
 
+    // these useless lines are needed to calculate the AVG resistance and AVG peloton resistance since
+    // echelon just send the resistance values when it changes
+    Resistance = Resistance.value();
+    m_pelotonResistance = m_pelotonResistance.value();
+
     qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
