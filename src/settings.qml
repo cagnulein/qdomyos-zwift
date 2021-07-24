@@ -160,6 +160,7 @@ import Qt.labs.settings 1.0
             property bool fitplus_bike: false
 
             property int flywheel_filter: 2
+            property bool flywheel_life_fitness_ic8: false
 
             property bool trainprogram_random: false
             property int trainprogram_total: 60
@@ -2685,6 +2686,20 @@ import Qt.labs.settings 1.0
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                    }
+                    SwitchDelegate {
+                        id: lifeFitnessIC8Delegate
+                        text: qsTr("Life Fitness IC8")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.flywheel_life_fitness_ic8
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.flywheel_life_fitness_ic8 = checked
                     }
                 }
             }

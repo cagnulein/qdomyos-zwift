@@ -217,6 +217,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString cscName = settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled")).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) || csc_as_bike;
     bool hammerRacerS = settings.value(QStringLiteral("hammer_racer_s"), false).toBool();
+    bool flywheel_life_fitness_ic8 = settings.value(QStringLiteral("flywheel_life_fitness_ic8"), false).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -413,7 +414,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(tacxneo2Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
-                        b.name().toUpper().startsWith(QStringLiteral("BIKE 1"))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) && flywheel_life_fitness_ic8 == false)) &&
                        !npeCableBike && filter) {
                 discoveryAgent->stop();
                 npeCableBike = new npecablebike(noWriteResistance, noHeartService);
@@ -639,7 +640,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 eslinkerTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(eslinkerTreadmill);
                 innerTemplateManager->start(eslinkerTreadmill);
-            } else if (b.name().startsWith(QStringLiteral("Flywheel")) && !flywheelBike && filter) {
+            } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) && flywheel_life_fitness_ic8 == true)) &&
+                       !flywheelBike && filter) {
 
                 discoveryAgent->stop();
                 flywheelBike = new flywheelbike(noWriteResistance, noHeartService);
