@@ -2665,27 +2665,30 @@ import Qt.labs.settings 1.0
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
-                accordionContent: RowLayout {
-                    spacing: 10
-                    Label {
-                        id: labelflywheelBikeFilter
-                        text: qsTr("Samples Filter:")
-                        Layout.fillWidth: true
-                    }
-                    TextField {
-                        id: flywheelBikeFilterTextField
-                        text: settings.flywheel_filter
-                        horizontalAlignment: Text.AlignRight
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
-                        onAccepted: settings.flywheel_filter = text
-                    }
-                    Button {
-                        id: okflywheelBikeFilterButton
-                        text: "OK"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelflywheelBikeFilter
+                            text: qsTr("Samples Filter:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: flywheelBikeFilterTextField
+                            text: settings.flywheel_filter
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.flywheel_filter = text
+                        }
+                        Button {
+                            id: okflywheelBikeFilterButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                        }
                     }
                     SwitchDelegate {
                         id: lifeFitnessIC8Delegate
