@@ -131,9 +131,9 @@ function process_arr(arr) {
     $('.workoutName').text(workoutName);
     $('.workoutStartDate').text(workoutStartDate);
     $('.instructorName').text((instructorName));
-    $('.watts_avg').text('Watt AVG: ' + watts_avg);
+    $('.watts_avg').text('Watt AVG: ' + Math.floor(watts_avg));
     $('.watts_max').text('Watt MAX: ' + watts_max);
-    $('.heart_avg').text('Heart Rate AVG: ' + heart_avg);
+    $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
     $('.heart_max').text('Heart Rate MAX: ' + heart_max);
 
     let config = {
@@ -892,7 +892,7 @@ function process_arr(arr) {
                     },
                     min: 0,
                     ticks: {
-                        stepSize: 2,
+                        stepSize: 5,
                         autoSkip: false,
                         color: 'black',
                         padding: -30,
