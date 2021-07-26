@@ -37,4 +37,7 @@ ColumnLayout {
             bottom: parent.bottom
         }
     }
+	 Component.onCompleted: {
+	     headerToolbar.visible = true;
+	 }
 }
