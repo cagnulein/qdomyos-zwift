@@ -41,9 +41,3 @@ jobs:
 #        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
 #        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
 #        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
