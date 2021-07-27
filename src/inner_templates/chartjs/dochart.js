@@ -147,6 +147,7 @@ function process_arr(arr) {
                 data: watts,
                 fill: false,
                 pointRadius: 0,
+                borderWidth: 1,
                 segment: {
                    borderColor: ctx => ctx.p0.parsed.y < ftpZones[0] && ctx.p1.parsed.y < ftpZones[0] ? window.chartColors.grey :
                                                                        ctx.p0.parsed.y < ftpZones[1] && ctx.p1.parsed.y < ftpZones[1] ? window.chartColors.limegreen :
@@ -164,6 +165,7 @@ function process_arr(arr) {
                 data: reqpower,
                 fill: false,
                 pointRadius: 0,
+                borderWidth: 1,
             },
             ]
         },
@@ -269,7 +271,7 @@ function process_arr(arr) {
                             xMin: 0,
                             xMax: maxEl,
                             yMin: ftpZones[5],
-                            yMax: ftpZones[6],
+                            yMax: (watts_max > ftpZones[3] * 2 ? watts_max + 10 : ftpZones[3] * 2),
                             backgroundColor: window.chartColors.redt,
                             },
                         }
@@ -309,7 +311,7 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5], ftpZones[6]].includes(value) ?
+                        callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
                             value === ftpZones[0] * 0.8 ? 'zone 1' :
                             value === ftpZones[0] ? 'zone 2' :
                             value === ftpZones[1] ? 'zone 3' :
@@ -341,6 +343,7 @@ function process_arr(arr) {
                 data: heart,
                 fill: false,
                 pointRadius: 0,
+                borderWidth: 1,
                 segment: {
                    borderColor: ctx => ctx.p0.parsed.y < heartZones[0] && ctx.p1.parsed.y < heartZones[0] ? window.chartColors.lightsteelblue :
                                                                        ctx.p0.parsed.y < heartZones[1] && ctx.p1.parsed.y < heartZones[1] ? window.chartColors.green :
@@ -502,6 +505,7 @@ function process_arr(arr) {
                     data: resistance,
                     fill: false,
                     pointRadius: 0,
+                    borderWidth: 1,
                     backgroundColor: window.chartColors.red,
                     borderColor: window.chartColors.red,
                 },
@@ -511,6 +515,7 @@ function process_arr(arr) {
                     data: peloton_resistance,
                     fill: false,
                     pointRadius: 0,
+                    borderWidth: 1,
                     backgroundColor: window.chartColors.grayt,
                     borderColor: window.chartColors.grayt,
                 },
@@ -579,6 +584,7 @@ function process_arr(arr) {
                         //stepSize: 300,
                         align: "end",
                     },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
@@ -617,6 +623,7 @@ function process_arr(arr) {
                     data: cadence,
                     fill: false,
                     pointRadius: 0,
+                    borderWidth: 1,
                 },
                 {
                     backgroundColor: window.chartColors.greent,
@@ -626,6 +633,7 @@ function process_arr(arr) {
                     data: reqcadence,
                     fill: false,
                     pointRadius: 0,
+                    borderWidth: 1,
                 },
             ]
         },
@@ -692,6 +700,7 @@ function process_arr(arr) {
                         //stepSize: 300,
                         align: "end",
                     },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
@@ -809,6 +818,7 @@ function process_arr(arr) {
                     data: speed,
                     fill: false,
                     pointRadius: 0,
+                    borderWidth: 1,
                 },
                 {
                     backgroundColor: window.chartColors.greent,
@@ -818,6 +828,7 @@ function process_arr(arr) {
                     data: inclination,
                     fill: false,
                     pointRadius: 0,
+                    borderWidth: 1,
                 },
             ]
         },
@@ -884,6 +895,7 @@ function process_arr(arr) {
                         //stepSize: 300,
                         align: "end",
                     },
+                    max: maxEl,
                 },
                 y: {
                     display: true,
