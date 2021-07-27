@@ -1,0 +1,49 @@
+# This is a basic workflow to help you get started with Actions
+
+name: build-ios
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  #push:
+  #  branches: [ master ]
+  #pull_request:
+  #  branches: [ master ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: macOS-latest
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v2
+    - uses: Apple-Actions/import-codesign-certs@v1
+      with:
+        p12-file-base64: ${{ secrets.CERTIFICATES_FILE_BASE64 }}
+        p12-password: ${{ secrets.CERTIFICATES_PASSWORD }}
+    - uses: Apple-Actions/download-provisioning-profiles@v1
+      with:
+        bundle-id: org.cagnulein.qdomyoszwift
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+    - name: "#️⃣ Generate Build Number"
+      id: buildnumber
+      uses: einaregilsson/build-number@v2
+      with:
+        token: ${{ secrets.github_token }}
+    - run: ./Build
+#    - uses: Apple-Actions/upload-testflight-build@master
+#      with:
+#        app-path: .build/Artifacts/Example-iOS.ipa/Example-iOS.ipa
+#        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+#        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+#        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+
+      # Runs a set of commands using the runners shell
+      - name: Run a multi-line script
+        run: |
+          echo Add other actions to build,
+          echo test, and deploy your project.
