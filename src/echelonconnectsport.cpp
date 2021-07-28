@@ -152,25 +152,31 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance - 1; i++) {
+    for (int i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }
     }
-    return Resistance.value();
+    if(pelotonResistance < bikeResistanceToPeloton(1))
+        return 1;
+    else
+        return max_resistance;
 }
 
 uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    for (int i = 1; i < max_resistance - 1; i++) {
+    for (int i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
             return i;
         }
     }
-    return Resistance.value();
+    if(power < wattsFromResistance(1))
+        return 1;
+    else
+        return max_resistance;
 }
 
 double echelonconnectsport::bikeResistanceToPeloton(double resistance) {

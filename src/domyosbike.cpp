@@ -632,12 +632,15 @@ int domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (peloton
 uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
 
-    for (int i = 1; i < max_resistance - 1; i++) {
+    for (int i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             return i;
         }
     }
-    return Resistance.value();
+    if(power < wattsFromResistance(1))
+        return 1;
+    else
+        return max_resistance;
 }
 
 uint16_t domyosbike::wattsFromResistance(double resistance) {
