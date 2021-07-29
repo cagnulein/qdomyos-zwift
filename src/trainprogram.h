@@ -31,13 +31,14 @@ class trainprogram : public QObject {
     Q_OBJECT
 
   public:
-    trainprogram(const QList<trainrow>&, bluetooth *b);
+    trainprogram(const QList<trainrow> &, bluetooth *b);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b);
     static QList<trainrow> loadXML(const QString &filename);
     static bool saveXML(const QString &filename, const QList<trainrow> &rows);
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
+    QTime currentRowRemainingTime();
     QTime duration();
     double totalDistance();
     trainrow currentRow();

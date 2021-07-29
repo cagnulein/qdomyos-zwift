@@ -123,7 +123,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     QJsonArray data = json[QStringLiteral("data")].toArray();
     qDebug() << QStringLiteral("data") << data;
 
-    if(data.isEmpty()) {
+    if (data.isEmpty()) {
         qDebug() << QStringLiteral("Peloton API doens't answer, trying back in 10 seconds...");
         timer->start(10s);
         return;
@@ -137,6 +137,9 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
          !current_workout_status.contains(QStringLiteral("IN_PROGRESS"))) ||
         (status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive) && id != current_workout_id) ||
         testMode) { // NOTE: removed toUpper because of qstring-insensitive-allocation
+
+        if (testMode)
+            id = "eaa6f381891443b995f68f89f9a178be";
         current_workout_id = id;
 
         // starting a workout
@@ -283,7 +286,16 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         r.cadence = current_cadences.at(i).toInt();
         r.lower_cadence = lower_cadences.at(i).toInt();
         r.upper_cadence = upper_cadences.at(i).toInt();
-        trainrows.append(r);
+
+        // in order to have compact rows in the training program to have an Reamining Time tile set correctly
+        if (i == 0 || (r.requested_peloton_resistance != trainrows.last().requested_peloton_resistance ||
+                       r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
+                       r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
+                       r.cadence != trainrows.last().cadence || r.lower_cadence != trainrows.last().lower_cadence ||
+                       r.upper_cadence != trainrows.last().upper_cadence))
+            trainrows.append(r);
+        else
+            trainrows.last().duration = trainrows.last().duration.addSecs(peloton_workout_second_resolution);
     }
 
     if (log_request) {

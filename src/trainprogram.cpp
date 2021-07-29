@@ -358,7 +358,26 @@ QTime trainprogram::currentRowElapsedTime() {
         calculatedElapsedTime += currentLine;
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
-            return QTime(0, 0, calculatedElapsedTime - currentLine + ticks);
+            return QTime(0, 0, ticks - (calculatedElapsedTime - currentLine));
+        }
+    }
+    return QTime(0, 0, 0);
+}
+
+QTime trainprogram::currentRowRemainingTime() {
+    uint32_t calculatedLine;
+    uint32_t calculatedElapsedTime = 0;
+
+    if (rows.length() == 0)
+        return QTime(0, 0, 0);
+
+    for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
+
+        uint32_t currentLine = calculateTimeForRow(calculatedLine);
+        calculatedElapsedTime += currentLine;
+
+        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+            return QTime(0, 0, calculatedElapsedTime - ticks);
         }
     }
     return QTime(0, 0, 0);

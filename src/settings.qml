@@ -115,6 +115,8 @@ import Qt.labs.settings 1.0
             property int  tile_watt_kg_order: 25
             property bool tile_gears_enabled: false
             property int  tile_gears_order: 26
+            property bool tile_remainingtimetrainprogramrow_enabled: false
+            property int  tile_remainingtimetrainprogramrow_order: 27
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -1582,6 +1584,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_gears_order = gearsOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: remainingTimeTrainingProgramRowEnabledAccordion
+                        title: qsTr("Remaining Time/Row")
+                        linkedBoolSetting: "tile_remainingtimetrainprogramrow_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelremainingTimeTrainingProgramRowOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: remainingTimeTrainingProgramRowOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_remainingtimetrainprogramrow_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = remainingTimeTrainingProgramRowOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okremainingTimeTrainingProgramRowOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText
                             }
                         }
                     }
