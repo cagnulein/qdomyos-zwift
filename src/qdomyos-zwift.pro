@@ -92,6 +92,7 @@ SOURCES += \
    horizontreadmill.cpp \
 	inspirebike.cpp \
 	keepawakehelper.cpp \
+   kingsmithr1protreadmill.cpp \
 	     main.cpp \
 		metric.cpp \
     npecablebike.cpp \
@@ -168,6 +169,7 @@ HEADERS += \
    fitplusbike.h \
     ftmsrower.h \
    homefitnessbuddy.h \
+   kingsmithr1protreadmill.h \
    m3ibike.h \
         fitshowtreadmill.h \
 	fit-sdk/FitDecode.h \

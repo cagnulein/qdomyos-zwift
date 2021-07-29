@@ -371,6 +371,35 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(domyos);
                 innerTemplateManager->start(domyos);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) && !kingsmithR1ProTreadmill && filter) {
+                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
+#ifndef Q_OS_IOS
+                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
+#else
+                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
+#endif
+
+                discoveryAgent->stop();
+                kingsmithR1ProTreadmill = new kingsmithr1protreadmill(this->pollDeviceTime, noConsole, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected();
+                connect(kingsmithR1ProTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(kingsmithR1ProTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(kingsmithR1ProTreadmill, &kingsmithr1protreadmill::debug, this, &bluetooth::debug);
+                connect(kingsmithR1ProTreadmill, &kingsmithr1protreadmill::speedChanged, this,
+                        &bluetooth::speedChanged);
+                connect(kingsmithR1ProTreadmill, &kingsmithr1protreadmill::inclinationChanged, this,
+                        &bluetooth::inclinationChanged);
+                kingsmithR1ProTreadmill->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, kingsmithR1ProTreadmill,
+                        &kingsmithr1protreadmill::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(kingsmithR1ProTreadmill);
+                innerTemplateManager->start(kingsmithR1ProTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("F80")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
@@ -1025,6 +1054,11 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (kingsmithR1ProTreadmill) {
+
+        delete kingsmithR1ProTreadmill;
+        kingsmithR1ProTreadmill = nullptr;
+    }
     if (domyosBike) {
 
         delete domyosBike;
@@ -1227,6 +1261,8 @@ bluetoothdevice *bluetooth::device() {
         return trxappgateusbBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (kingsmithR1ProTreadmill) {
+        return kingsmithR1ProTreadmill;
     } else if (echelonConnectSport) {
         return echelonConnectSport;
     } else if (echelonRower) {
