@@ -414,7 +414,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(tacxneo2Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) && flywheel_life_fitness_ic8 == false)) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) &&
+                         flywheel_life_fitness_ic8 == false)) &&
                        !npeCableBike && filter) {
                 discoveryAgent->stop();
                 npeCableBike = new npecablebike(noWriteResistance, noHeartService);
@@ -443,7 +444,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 userTemplateManager->start(ftmsBike);
                 innerTemplateManager->start(ftmsBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("STAGES ")) && !stagesBike && !ftmsBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("ASSIOMA"))) &&
+                       !stagesBike && !ftmsBike && filter) {
 
                 discoveryAgent->stop();
                 stagesBike = new stagesbike(noWriteResistance, noHeartService);
@@ -641,7 +644,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(eslinkerTreadmill);
                 innerTemplateManager->start(eslinkerTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) && flywheel_life_fitness_ic8 == true)) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) &&
+                         flywheel_life_fitness_ic8 == true)) &&
                        !flywheelBike && filter) {
 
                 discoveryAgent->stop();
