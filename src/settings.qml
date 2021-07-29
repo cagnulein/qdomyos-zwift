@@ -152,6 +152,7 @@ import Qt.labs.settings 1.0
             property bool trx_route_key: false
             property bool toorx_bike: false
             property bool jll_IC400_bike: false
+            property bool ASVIVA_bike: false
 
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 90
@@ -2626,6 +2627,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.jll_IC400_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: toorxBikeASVIVADelegate
+                        text: qsTr("Asviva Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ASVIVA_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ASVIVA_bike = checked
                     }
                 }
             }

@@ -112,6 +112,10 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::ASVIVA) {
+
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x00, 0xc8, 0x5a};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::JLL_IC400) {
 
             static unsigned char pollCounter = 0x0b;
@@ -159,7 +163,8 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if ((newValue.length() != 21 && bike_type != JLL_IC400) || (newValue.length() != 19 && bike_type == JLL_IC400)) {
+    if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA)) ||
+        (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA))) {
         return;
     }
 
@@ -187,7 +192,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double resistance = 0.0;
     double kcal = 0.0;
     double watt = 0.0;
-    if (bike_type != JLL_IC400) {
+    if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
 
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
@@ -229,7 +234,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            if (bike_type != JLL_IC400) {
+            if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
 
                 Heart = ((uint8_t)(newValue.at(15)) - 1);
             } else {
@@ -287,7 +292,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
           (2.0 * ar)) *
          settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
         settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
-    if (bike_type == JLL_IC400) {
+    if (bike_type == JLL_IC400 || bike_type == ASVIVA) {
         resistance = m_pelotonResistance.value();
     }
 
@@ -330,7 +335,7 @@ double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (bike_type != JLL_IC400) {
+    if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
     } else {
         convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
@@ -464,6 +469,33 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+    } else if (bike_type == TYPE::ASVIVA) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0xc9, 0x5a};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x00, 0xc8, 0x59};
+        const uint8_t initData4[] = {0xf0, 0xa1, 0x00, 0xc8, 0x59};
+        const uint8_t initData5[] = {0xf0, 0xa2, 0x00, 0xc8, 0x5a};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
     } else {
 
@@ -633,6 +665,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
     bool JLL_IC400_bike = settings.value(QStringLiteral("jll_IC400_bike"), false).toBool();
+    bool ASVIVA_bike = settings.value(QStringLiteral("ASVIVA_bike"), false).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-")
@@ -648,6 +681,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::JLL_IC400;
             qDebug() << QStringLiteral("JLL_IC400 bike found");
+        } else if (ASVIVA_bike) {
+            refresh->start(500ms);
+
+            bike_type = TYPE::ASVIVA;
+            qDebug() << QStringLiteral("ASVIVA bike found");
         } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
 
             bike_type = TYPE::CHANGYOW;
