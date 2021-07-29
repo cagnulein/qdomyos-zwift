@@ -209,6 +209,9 @@ ApplicationWindow {
                 stackView.currentItem.loadSettings.connect(loadSettings)
                 stackView.currentItem.loadSettings.connect(function(url) {
                     stackView.pop();
+                    if (stackView.depth > 1) {
+                        stackView.pop()
+                    }
                     popupLoadSettings.open();
                  });
                 drawer.close()
