@@ -2888,9 +2888,10 @@ void homeform::saveSettings(const QUrl &filename) {
     Q_UNUSED(filename)
     QString path = getWritableAppDir();
 
+    QDir().mkdir(path + QStringLiteral("settings/"));
     QSettings settings;
     QSettings settings2Save(
-        path + QStringLiteral("settings_") +
+        path + QStringLiteral("settings/settings_") +
             QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
             QStringLiteral(".qzs"),
         QSettings::IniFormat);
@@ -2905,7 +2906,7 @@ void homeform::saveSettings(const QUrl &filename) {
 void homeform::loadSettings(const QUrl &filename) {
 
     QSettings settings;
-    QSettings settings2Load(filename.fileName(), QSettings::IniFormat);
+    QSettings settings2Load(filename.toLocalFile(), QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
         if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
