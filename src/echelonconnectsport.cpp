@@ -157,7 +157,7 @@ int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
             return i;
         }
     }
-    if(pelotonResistance < bikeResistanceToPeloton(1))
+    if (pelotonResistance < bikeResistanceToPeloton(1))
         return 1;
     else
         return max_resistance;
@@ -173,7 +173,7 @@ uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
             return i;
         }
     }
-    if(power < wattsFromResistance(1))
+    if (power < wattsFromResistance(1))
         return 1;
     else
         return max_resistance;
@@ -555,11 +555,11 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
         {Epsilon, 2.0, 6.2, 9.5, 16.8, 21.8, 28.1, 37.0, 42.8, 57.8, 68.4},
         {Epsilon, 2.1, 6.8, 10.8, 18.2, 23.6, 29.5, 40.0, 47.6, 60.5, 72.1},
         {Epsilon, 2.2, 7.3, 11.5, 19.3, 26.3, 33.5, 45.3, 51.8, 66.7, 76.8},
-        {Epsilon, 2.4, 7.9, 12.7, 20.8, 29.8, 37.6, 52.2, 56.2, 73.5, 83.6},
-        {Epsilon, 2.6, 8.5, 13.5, 23.5, 33.6, 41.9, 55.1, 59.0, 78.6, 89.7},
-        {Epsilon, 2.7, 9.1, 14.2, 25.6, 35.4, 45.3, 57.3, 62.8, 81.3, 95.0},
-        {Epsilon, 2.9, 9.6, 16.8, 29.1, 37.5, 49.6, 62.5, 69.0, 84.7, 99.3},
-        {Epsilon, 3.0, 10.0, 22.3, 31.2, 40.3, 51.8, 65.0, 70.0, 92.6, 108.2},
+        {Epsilon, 2.4, 7.9, 12.7, 20.8, 15.6, 22.6, 29.6, 36.6, 43.5, 50.5},
+        {Epsilon, 2.6, 8.5, 13.5, 23.5, 19.7, 26.9, 34.1, 41.4, 48.6, 55.8},
+        {Epsilon, 2.7, 9.1, 14.2, 25.6, 23.3, 30.3, 37.3, 44.3, 51.3, 58.3},
+        {Epsilon, 2.9, 9.6, 16.8, 29.1, 27.9, 34.6, 41.3, 48.0, 54.7, 61.4},
+        {Epsilon, 3.0, 10.0, 22.3, 31.2, 28.2, 36.8, 45.4, 54.0, 62.6, 71.2},
         {Epsilon, 3.2, 10.4, 24.0, 36.6, 27.8, 40.4, 53.0, 65.6, 78.2, 90.8},
         {Epsilon, 3.5, 10.9, 25.1, 38.5, 29.2, 44.1, 59.0, 73.9, 88.8, 103.7},
         {Epsilon, 3.7, 11.5, 26.0, 41.0, 36.3, 53.2, 70.0, 86.9, 103.7, 120.6},
