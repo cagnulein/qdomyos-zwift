@@ -47,7 +47,7 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
 }
 
 void renphobike::forceResistance(int8_t requestResistance) {
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x33};
 
     write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
     write[4] = ((uint16_t)requestResistance * 100) >> 8;

@@ -665,7 +665,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
     bool JLL_IC400_bike = settings.value(QStringLiteral("jll_IC400_bike"), false).toBool();
-    bool ASVIVA_bike = settings.value(QStringLiteral("ASVIVA_bike"), false).toBool();
+    bool ASVIVA_bike = settings.value(QStringLiteral("asviva_bike"), false).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-")
