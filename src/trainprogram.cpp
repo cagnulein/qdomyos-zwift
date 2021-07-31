@@ -197,6 +197,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.lower_resistance >= 0) {
                 stream.writeAttribute(QStringLiteral("lower_resistance"), QString::number(row.lower_resistance));
             }
+            if (row.mets >= 0) {
+                stream.writeAttribute(QStringLiteral("mets"), QString::number(row.mets));
+            }
             if (row.upper_resistance >= 0) {
                 stream.writeAttribute(QStringLiteral("upper_resistance"), QString::number(row.upper_resistance));
             }
@@ -289,6 +292,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             if (atts.hasAttribute(QStringLiteral("lower_resistance"))) {
                 row.lower_resistance = atts.value(QStringLiteral("lower_resistance")).toInt();
             }
+            if (atts.hasAttribute(QStringLiteral("mets"))) {
+                row.mets = atts.value(QStringLiteral("mets")).toInt();
+            }
             if (atts.hasAttribute(QStringLiteral("upper_resistance"))) {
                 row.upper_resistance = atts.value(QStringLiteral("upper_resistance")).toInt();
             }
@@ -342,6 +348,12 @@ trainrow trainprogram::currentRow() {
         return rows.at(currentStep);
     }
     return trainrow();
+}
+
+double trainprogram::currentTargetMets() {
+    if(currentRow().mets)
+        return currentRow().mets;
+    else return 0;
 }
 
 QTime trainprogram::currentRowElapsedTime() {

@@ -25,6 +25,7 @@ class trainrow {
     int8_t zoneHR = -1;
     int8_t maxSpeed = -1;
     int32_t power = -1;
+    int32_t mets = -1;
 };
 
 class trainprogram : public QObject {
@@ -39,6 +40,7 @@ class trainprogram : public QObject {
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
+    double currentTargetMets();
     QTime duration();
     double totalDistance();
     trainrow currentRow();

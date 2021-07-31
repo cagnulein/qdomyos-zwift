@@ -145,9 +145,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
         // starting a workout
         qDebug() << QStringLiteral("workoutlist_onfinish IN PROGRESS!");
 
-        // peloton bike only
-        if ((bluetoothManager && bluetoothManager->device() &&
-             bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) ||
+        if ((bluetoothManager && bluetoothManager->device()) ||
             testMode) {
             getSummary(id);
             timer->start(1min); // timeout request
@@ -255,47 +253,63 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
     QJsonObject json = performance.object();
     QJsonObject target_performance_metrics = json[QStringLiteral("target_performance_metrics")].toObject();
-    QJsonArray target_graph_metrics = target_performance_metrics[QStringLiteral("target_graph_metrics")].toArray();
-    QJsonObject resistances = target_graph_metrics[1].toObject();
-    QJsonObject graph_data_resistances = resistances[QStringLiteral("graph_data")].toObject();
-    QJsonArray current_resistances = graph_data_resistances[difficulty].toArray();
-    QJsonArray lower_resistances = graph_data_resistances[QStringLiteral("lower")].toArray();
-    QJsonArray upper_resistances = graph_data_resistances[QStringLiteral("upper")].toArray();
-    QJsonObject cadences = target_graph_metrics[0].toObject();
-    QJsonObject graph_data_cadences = cadences[QStringLiteral("graph_data")].toObject();
-    QJsonArray current_cadences = graph_data_cadences[difficulty].toArray();
-    QJsonArray lower_cadences = graph_data_cadences[QStringLiteral("lower")].toArray();
-    QJsonArray upper_cadences = graph_data_cadences[QStringLiteral("upper")].toArray();
+    QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
+    if(!target_performance_metrics.isEmpty()) {
+        QJsonArray target_graph_metrics = target_performance_metrics[QStringLiteral("target_graph_metrics")].toArray();
+        QJsonObject resistances = target_graph_metrics[1].toObject();
+        QJsonObject graph_data_resistances = resistances[QStringLiteral("graph_data")].toObject();
+        QJsonArray current_resistances = graph_data_resistances[difficulty].toArray();
+        QJsonArray lower_resistances = graph_data_resistances[QStringLiteral("lower")].toArray();
+        QJsonArray upper_resistances = graph_data_resistances[QStringLiteral("upper")].toArray();
+        QJsonObject cadences = target_graph_metrics[0].toObject();
+        QJsonObject graph_data_cadences = cadences[QStringLiteral("graph_data")].toObject();
+        QJsonArray current_cadences = graph_data_cadences[difficulty].toArray();
+        QJsonArray lower_cadences = graph_data_cadences[QStringLiteral("lower")].toArray();
+        QJsonArray upper_cadences = graph_data_cadences[QStringLiteral("upper")].toArray();
 
-    trainrows.clear();
-    trainrows.reserve(current_resistances.count() + 1);
-    for (int i = 0; i < current_resistances.count(); i++) {
-        trainrow r;
-        r.duration = QTime(0, 0, peloton_workout_second_resolution, 0);
-        if (bluetoothManager && bluetoothManager->device()) {
-            r.resistance =
-                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(current_resistances.at(i).toInt());
-            r.lower_resistance =
-                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
-            r.upper_resistance =
-                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
+        trainrows.clear();
+        trainrows.reserve(current_resistances.count() + 1);
+        for (int i = 0; i < current_resistances.count(); i++) {
+            trainrow r;
+            r.duration = QTime(0, 0, peloton_workout_second_resolution, 0);
+            if (bluetoothManager && bluetoothManager->device()) {
+                r.resistance =
+                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(current_resistances.at(i).toInt());
+                r.lower_resistance =
+                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
+                r.upper_resistance =
+                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
+            }
+            r.requested_peloton_resistance = current_resistances.at(i).toInt();
+            r.lower_requested_peloton_resistance = lower_resistances.at(i).toInt();
+            r.upper_requested_peloton_resistance = upper_resistances.at(i).toInt();
+            r.cadence = current_cadences.at(i).toInt();
+            r.lower_cadence = lower_cadences.at(i).toInt();
+            r.upper_cadence = upper_cadences.at(i).toInt();
+
+            // in order to have compact rows in the training program to have an Reamining Time tile set correctly
+            if (i == 0 || (r.requested_peloton_resistance != trainrows.last().requested_peloton_resistance ||
+                           r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
+                           r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
+                           r.cadence != trainrows.last().cadence || r.lower_cadence != trainrows.last().lower_cadence ||
+                           r.upper_cadence != trainrows.last().upper_cadence))
+                trainrows.append(r);
+            else
+                trainrows.last().duration = trainrows.last().duration.addSecs(peloton_workout_second_resolution);
         }
-        r.requested_peloton_resistance = current_resistances.at(i).toInt();
-        r.lower_requested_peloton_resistance = lower_resistances.at(i).toInt();
-        r.upper_requested_peloton_resistance = upper_resistances.at(i).toInt();
-        r.cadence = current_cadences.at(i).toInt();
-        r.lower_cadence = lower_cadences.at(i).toInt();
-        r.upper_cadence = upper_cadences.at(i).toInt();
-
-        // in order to have compact rows in the training program to have an Reamining Time tile set correctly
-        if (i == 0 || (r.requested_peloton_resistance != trainrows.last().requested_peloton_resistance ||
-                       r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
-                       r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
-                       r.cadence != trainrows.last().cadence || r.lower_cadence != trainrows.last().lower_cadence ||
-                       r.upper_cadence != trainrows.last().upper_cadence))
-            trainrows.append(r);
-        else
-            trainrows.last().duration = trainrows.last().duration.addSecs(peloton_workout_second_resolution);
+    } else if(!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
+        trainrows.clear();
+        trainrows.reserve(segment_list.count() + 1);
+        foreach(QJsonValue o, segment_list) {
+            int len = o["length"].toInt();
+            int mets = o["intensity_in_mets"].toInt();
+            if(len > 0) {
+                trainrow r;
+                r.duration = QTime(0, len / 60, len % 60, 0);
+                r.mets = mets;
+                trainrows.append(r);
+            }
+        }
     }
 
     if (log_request) {

@@ -181,6 +181,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         QStringLiteral("Time to Next"), valueElapsedFontSize, labelFontSize);
     mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
                             false, QStringLiteral("mets"), 48, labelFontSize);
+    targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+                            false, QStringLiteral("Target mets"), 48, labelFontSize);
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
@@ -543,8 +545,8 @@ void homeform::trainProgramSignals() {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(32);
-    for (int i = 0; i < 32; i++) {
+    r.reserve(34);
+    for (int i = 0; i < 33; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -676,6 +678,11 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
 
                 dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+
+                dataList.append(targetMets);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -819,6 +826,11 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
 
                 dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+
+                dataList.append(targetMets);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -969,6 +981,11 @@ void homeform::deviceConnected() {
 
                 dataList.append(mets);
             }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+
+                dataList.append(targetMets);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
         for (int i = 0; i < 100; i++) {
@@ -1092,6 +1109,11 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
 
                 dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+
+                dataList.append(targetMets);
             }
         }
     }
@@ -1482,6 +1504,7 @@ void homeform::update() {
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
+            targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
         }
         mets->setValue(QString::number(bluetoothManager->device()->currentMETS().value(), 'f', 1));
         mets->setSecondLine(
