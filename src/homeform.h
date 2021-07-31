@@ -390,8 +390,9 @@ class homeform : public QObject {
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
-    QOAuth2AuthorizationCodeFlow *strava;
+    QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
+    QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
 
     bool paused = false;
     bool stopped = false;

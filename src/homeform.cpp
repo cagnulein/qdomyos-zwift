@@ -2287,10 +2287,8 @@ homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl
             parameters->insert(QStringLiteral("approval_prompt"),
                                QStringLiteral("force")); /* force user check scope again */
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
-            // NOTE: Maybe this could be a better alternative
-            parameters->find(QStringLiteral("code"))->setValue(QUrl::fromPercentEncoding(code));
-            //(*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); //NOTE: Old code replaced by
-            // above
+            // DON'T TOUCH THIS LINE, THANKS Roberto Viola
+            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); //NOTE: Old code replaced by
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);
@@ -2618,9 +2616,19 @@ QOAuth2AuthorizationCodeFlow *homeform::strava_connect() {
         delete manager;
         manager = nullptr;
     }
+    if (strava) {
+
+        delete strava;
+        strava = nullptr;
+    }
+    if (stravaReplyHandler) {
+
+        delete stravaReplyHandler;
+        stravaReplyHandler = nullptr;
+    }
     manager = new QNetworkAccessManager(this);
     OAuth2Parameter parameter;
-    auto strava = new QOAuth2AuthorizationCodeFlow(manager, this);
+    strava = new QOAuth2AuthorizationCodeFlow(manager, this);
     strava->setScope(QStringLiteral("activity:read_all,activity:write"));
     strava->setClientIdentifier(QStringLiteral(STRAVA_CLIENT_ID_S));
     strava->setAuthorizationUrl(QUrl(QStringLiteral("https://www.strava.com/oauth/authorize")));
@@ -2636,11 +2644,11 @@ QOAuth2AuthorizationCodeFlow *homeform::strava_connect() {
 #endif
     strava->setModifyParametersFunction(
         buildModifyParametersFunction(QUrl(QLatin1String("")), QUrl(QLatin1String(""))));
-    auto replyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
-    connect(replyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &homeform::replyDataReceived);
-    connect(replyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &homeform::callbackReceived);
+    stravaReplyHandler = new QOAuthHttpServerReplyHandler(QHostAddress(QStringLiteral("127.0.0.1")), 8091, this);
+    connect(stravaReplyHandler, &QOAuthHttpServerReplyHandler::replyDataReceived, this, &homeform::replyDataReceived);
+    connect(stravaReplyHandler, &QOAuthHttpServerReplyHandler::callbackReceived, this, &homeform::callbackReceived);
 
-    strava->setReplyHandler(replyHandler);
+    strava->setReplyHandler(stravaReplyHandler);
 
     return strava;
 }
@@ -2648,7 +2656,7 @@ QOAuth2AuthorizationCodeFlow *homeform::strava_connect() {
 void homeform::strava_connect_clicked() {
     QLoggingCategory::setFilterRules(QStringLiteral("qt.networkauth.*=true"));
 
-    strava = strava_connect();
+    strava_connect();
     connect(strava, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, this, &homeform::onStravaAuthorizeWithBrowser);
     connect(strava, &QOAuth2AuthorizationCodeFlow::granted, this, &homeform::onStravaGranted);
 
