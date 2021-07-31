@@ -136,8 +136,21 @@ function process_arr(arr) {
     $('.heart_avg').text('Heart Rate AVG: ' + Math.floor(heart_avg));
     $('.heart_max').text('Heart Rate MAX: ' + heart_max);
 
+    const backgroundFill = {
+      id: 'custom_canvas_background_color',
+      beforeDraw: (chart) => {
+        const ctx = chart.canvas.getContext('2d');
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-over';
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, chart.width, chart.height);
+        ctx.restore();
+      }
+    };
+
     let config = {
         type: 'line',
+        plugins: [backgroundFill],
         data: {
             datasets: [{
                 label: 'Watts',
@@ -334,6 +347,7 @@ function process_arr(arr) {
 
     config = {
         type: 'line',
+        plugins: [backgroundFill],
         data: {
             datasets: [{
                 label: 'Heart',
@@ -497,6 +511,7 @@ function process_arr(arr) {
 
     config = {
         type: 'line',
+        plugins: [backgroundFill],
         data: {
             datasets: [
                 {
@@ -516,8 +531,8 @@ function process_arr(arr) {
                     fill: false,
                     pointRadius: 0,
                     borderWidth: 1,
-                    backgroundColor: window.chartColors.grayt,
-                    borderColor: window.chartColors.grayt,
+                    backgroundColor: window.chartColors.black,
+                    borderColor: window.chartColors.black,
                 },
             ]
         },
@@ -613,6 +628,7 @@ function process_arr(arr) {
 
     config = {
         type: 'line',
+        plugins: [backgroundFill],
         data: {
             datasets: [
                 {
@@ -626,8 +642,8 @@ function process_arr(arr) {
                     borderWidth: 1,
                 },
                 {
-                    backgroundColor: window.chartColors.greent,
-                    borderColor: window.chartColors.greent,
+                    backgroundColor: window.chartColors.black,
+                    borderColor: window.chartColors.black,
                     label: 'Peloton C.',
                     //cubicInterpolationMode: 'monotone',
                     data: reqcadence,
@@ -729,6 +745,7 @@ function process_arr(arr) {
 
     config = {
         type: 'bar',
+        plugins: [backgroundFill],
         data: {
             labels: ['zone 1', 'zone 2', 'zone 3', 'zone 4', 'zone 5', 'zone 6', 'zone 7' ],
             datasets: [
@@ -808,6 +825,7 @@ function process_arr(arr) {
 
     config = {
         type: 'line',
+        plugins: [backgroundFill],
         data: {
             datasets: [
                 {
@@ -821,8 +839,8 @@ function process_arr(arr) {
                     borderWidth: 1,
                 },
                 {
-                    backgroundColor: window.chartColors.greent,
-                    borderColor: window.chartColors.greent,
+                    backgroundColor: window.chartColors.green,
+                    borderColor: window.chartColors.green,
                     label: 'Inclination',
                     //cubicInterpolationMode: 'monotone',
                     data: inclination,
