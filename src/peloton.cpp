@@ -139,15 +139,14 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
         testMode) { // NOTE: removed toUpper because of qstring-insensitive-allocation
 
         if (testMode)
-            id = "eaa6f381891443b995f68f89f9a178be";
+            id = "45227285ab41439e8b9155e61c6cfa63";
         current_workout_id = id;
 
         // starting a workout
         qDebug() << QStringLiteral("workoutlist_onfinish IN PROGRESS!");
 
         // peloton bike only
-        if ((bluetoothManager && bluetoothManager->device() &&
-             bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) ||
+        if ((bluetoothManager && bluetoothManager->device()) ||
             testMode) {
             getSummary(id);
             timer->start(1min); // timeout request
