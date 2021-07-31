@@ -389,7 +389,9 @@ QTime trainprogram::currentRowRemainingTime() {
         calculatedElapsedTime += currentLine;
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
-            return QTime(0, 0, calculatedElapsedTime - ticks);
+            int seconds = calculatedElapsedTime - ticks;
+            int hours = seconds / 3600;
+            return QTime(hours, (seconds / 60) - (hours * 60), seconds % 60);
         }
     }
     return QTime(0, 0, 0);
