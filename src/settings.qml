@@ -117,6 +117,8 @@ import Qt.labs.settings 1.0
             property int  tile_gears_order: 26
             property bool tile_remainingtimetrainprogramrow_enabled: false
             property int  tile_remainingtimetrainprogramrow_order: 27
+            property bool tile_mets_enabled: false
+            property int  tile_mets_order: 28
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -1617,6 +1619,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: metsEnabledAccordion
+                        title: qsTr("METS")
+                        linkedBoolSetting: "tile_mets_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelmetsOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: metsOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_mets_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = metsOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okmetsOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_mets_order = metsOrderTextField.displayText
                             }
                         }
                     }

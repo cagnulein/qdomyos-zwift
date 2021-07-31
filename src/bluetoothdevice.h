@@ -63,7 +63,8 @@ class bluetoothdevice : public QObject {
     void setDifficult(double d);
     double difficult();
     double weightLoss() { return WeightLoss.value(); }
-    metric wattKg() { return WattKg; }
+    metric wattKg() { return WattKg; }    
+    metric currentMETS() { return METS;}
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
 
@@ -105,6 +106,7 @@ class bluetoothdevice : public QObject {
     metric WeightLoss;
     metric Cadence;
     metric Resistance;
+    metric METS;
 
     bool paused = false;
     bool autoResistanceEnable = true;
@@ -112,6 +114,7 @@ class bluetoothdevice : public QObject {
     QDateTime _lastTimeUpdate;
     bool _firstUpdate = true;
     void update_metrics(const bool watt_calc, const double watts);
+    double calculateMETS();
 };
 
 #endif // BLUETOOTHDEVICE_H

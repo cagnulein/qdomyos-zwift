@@ -179,6 +179,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     remaningTimeTrainingProgramCurrentRow = new DataObject(
         QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), false,
         QStringLiteral("Time to Next"), valueElapsedFontSize, labelFontSize);
+    mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
+                            false, QStringLiteral("mets"), 48, labelFontSize);
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
@@ -542,7 +544,7 @@ QStringList homeform::tile_order() {
 
     QStringList r;
     r.reserve(32);
-    for (int i = 0; i < 31; i++) {
+    for (int i = 0; i < 32; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -669,6 +671,11 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
 
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+
+                dataList.append(mets);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -807,6 +814,11 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
 
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+
+                dataList.append(mets);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -952,6 +964,11 @@ void homeform::deviceConnected() {
 
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
             }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+
+                dataList.append(mets);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
         for (int i = 0; i < 100; i++) {
@@ -1070,6 +1087,11 @@ void homeform::deviceConnected() {
                 settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
 
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+
+                dataList.append(mets);
             }
         }
     }
@@ -1461,6 +1483,10 @@ void homeform::update() {
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
         }
+        mets->setValue(QString::number(bluetoothManager->device()->currentMETS().value(), 'f', 1));
+        mets->setSecondLine(
+            QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->currentMETS().average(), 'f', 1) +
+            QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->currentMETS().max(), 'f', 1));
         lapElapsed->setValue(bluetoothManager->device()->lapElapsedTime().toString(QStringLiteral("h:mm:ss")));
         avgWatt->setValue(QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0));
         wattKg->setValue(QString::number(bluetoothManager->device()->wattKg().value(), 'f', 1));

@@ -115,6 +115,10 @@ void bluetoothdevice::setDifficult(double d) { m_difficult = d; }
 double bluetoothdevice::difficult() { return m_difficult; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 
+double bluetoothdevice::calculateMETS() {
+    return ((0.048 * m_watt.value()) + 1.19);
+}
+
 // keiser m3i has a separate management of this, so please check it
 void bluetoothdevice::update_metrics(const bool watt_calc, const double watts) {
 
@@ -148,6 +152,7 @@ void bluetoothdevice::update_metrics(const bool watt_calc, const double watts) {
         m_watt = 0;
         WattKg = 0;
     }
+    METS = calculateMETS();
 
     _lastTimeUpdate = current;
     _firstUpdate = false;

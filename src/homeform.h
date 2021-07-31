@@ -443,6 +443,7 @@ class homeform : public QObject {
     DataObject *wattKg;
     DataObject *gears;
     DataObject *remaningTimeTrainingProgramCurrentRow;
+    DataObject *mets;
 
     QTimer *timer;
     QTimer *backupTimer;
