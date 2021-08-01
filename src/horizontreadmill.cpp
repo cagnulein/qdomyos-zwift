@@ -18,7 +18,15 @@
 
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) {
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
+
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
