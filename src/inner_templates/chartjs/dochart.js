@@ -752,7 +752,7 @@ function process_arr(arr) {
                 {
                     data: distributionPowerZones,
                     backgroundColor: [
-                      window.chartColors.grayt, window.chartColors.limegreent,window.chartColors.goldt,window.chartColors.oranget,window.chartColors.darkoranget,window.chartColors.orangeredt, window.chartColors.redt
+                      window.chartColors.lightsteelbluet, window.chartColors.limegreent,window.chartColors.goldt,window.chartColors.oranget,window.chartColors.darkoranget,window.chartColors.orangeredt, window.chartColors.redt
                     ],
                 },
             ]
