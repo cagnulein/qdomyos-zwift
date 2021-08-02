@@ -89,7 +89,6 @@ class horizontreadmill : public treadmill {
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
-    void stateChanged2(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);

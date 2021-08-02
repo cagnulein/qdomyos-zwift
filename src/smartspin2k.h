@@ -24,12 +24,9 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-
 #include <QDateTime>
 #include <QObject>
 #include <QString>
-
-
 
 #include "bike.h"
 #include "ftmsbike.h"
@@ -55,13 +52,14 @@ class smartspin2k : public bike {
     void startDiscover();
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
+    void setShiftStep();
+    void lowInit();
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService* gattCommunicationChannelService;
+    QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -87,6 +85,7 @@ class smartspin2k : public bike {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void resistanceReadFromTheBike(int8_t resistance);
+    void autoResistanceChanged(bool value);
 
   private slots:
 

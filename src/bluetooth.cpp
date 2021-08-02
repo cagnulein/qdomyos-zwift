@@ -949,6 +949,7 @@ void bluetooth::connectedAndDiscovered() {
                         SLOT(changeResistance(int8_t)));
                 connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory,
                         SLOT(resistanceReadFromTheBike(int8_t)));
+                emit ftmsAccessoryConnected(ftmsAccessory);
                 ftmsAccessory->deviceDiscovered(b);
                 break;
             }

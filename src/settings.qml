@@ -197,6 +197,7 @@ import Qt.labs.settings 1.0
             property real power_hr_hr2: 170
 
             property string ftms_accessory_name: "Disabled"
+            property real ss2k_shift_step: 900
 
             property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
@@ -3344,6 +3345,30 @@ import Qt.labs.settings 1.0
                         text: "Refresh Devices List"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelSS2KShiftStep
+                            text: qsTr("Shift Step")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: ss2kShiftStepTextField
+                            text: settings.ss2k_shift_step
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.ss2k_shift_step = text
+                        }
+                        Button {
+                            id: okSS2kShiftStep
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.ss2k_shift_step = ss2kShiftStepTextField.text
+                        }
                     }
                 }
             }

@@ -179,10 +179,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     remaningTimeTrainingProgramCurrentRow = new DataObject(
         QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), false,
         QStringLiteral("Time to Next"), valueElapsedFontSize, labelFontSize);
-    mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
-                            false, QStringLiteral("mets"), 48, labelFontSize);
-    targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"),
-                            false, QStringLiteral("Target mets"), 48, labelFontSize);
+    mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
+                          QStringLiteral("mets"), 48, labelFontSize);
+    targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"),
+                                QStringLiteral("0"), false, QStringLiteral("Target mets"), 48, labelFontSize);
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
@@ -209,6 +209,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     this->engine = engine;
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
+    connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
     connect(bluetoothManager->getUserTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
@@ -550,6 +551,10 @@ QStringList homeform::tile_order() {
         r.append(QString::number(i));
     }
     return r;
+}
+
+void homeform::ftmsAccessoryConnected(smartspin2k *d) {
+    connect(this, &homeform::autoResistanceChanged, d, &smartspin2k::autoResistanceChanged);
 }
 
 void homeform::deviceConnected() {
@@ -2288,7 +2293,7 @@ homeform::buildModifyParametersFunction(const QUrl &clientIdentifier, const QUrl
                                QStringLiteral("force")); /* force user check scope again */
             QByteArray code = parameters->value(QStringLiteral("code")).toByteArray();
             // DON'T TOUCH THIS LINE, THANKS Roberto Viola
-            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); //NOTE: Old code replaced by
+            (*parameters)[QStringLiteral("code")] = QUrl::fromPercentEncoding(code); // NOTE: Old code replaced by
         }
         if (stage == QAbstractOAuth::Stage::RefreshingAccessToken) {
             parameters->insert(QStringLiteral("client_id"), clientIdentifier);

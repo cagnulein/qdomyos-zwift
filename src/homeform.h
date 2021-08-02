@@ -478,6 +478,7 @@ class homeform : public QObject {
     void volumeUp();
     void deviceFound(const QString &name);
     void deviceConnected();
+    void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();

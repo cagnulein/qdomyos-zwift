@@ -147,6 +147,7 @@ class bluetooth : public QObject, public SignalHandler {
     void deviceConnected();
     void deviceFound(QString name);
     void searchingStop();
+    void ftmsAccessoryConnected(smartspin2k *d);
 
   public slots:
     void restart();
