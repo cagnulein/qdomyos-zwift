@@ -459,6 +459,7 @@ void ftmsbike::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
+    initRequest = false;
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));

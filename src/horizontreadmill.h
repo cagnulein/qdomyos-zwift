@@ -53,10 +53,9 @@ class horizontreadmill : public treadmill {
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService;
-    QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyService *gattCommunication2ChannelService;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
+    QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QLowEnergyService *gattFTMSService;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;

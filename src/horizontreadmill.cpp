@@ -169,11 +169,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 20 && newValue.at(0) == 0x00 &&
         ((uint8_t)newValue.at(1)) == 0xF4) {
-
         Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         return;
@@ -223,7 +222,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.avgSpeed) {
-
         double avgSpeed;
         avgSpeed =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
@@ -233,7 +231,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.totalDistance) {
-
         // ignoring the distance, because it's a total life odometer
         // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
         // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
@@ -256,22 +253,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.elevation) {
-
         index += 4; // TODO
     }
 
     if (Flags.instantPace) {
-
         index += 1; // TODO
     }
 
     if (Flags.averagePace) {
-
         index += 1; // TODO
     }
 
     if (Flags.expEnergy) {
-
         KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
@@ -310,22 +303,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (Flags.metabolic) {
-
         // todo
     }
 
     if (Flags.elapsedTime) {
-
         // todo
     }
 
     if (Flags.remainingTime) {
-
         // todo
     }
 
     if (Flags.forceBelt) {
-
         // todo
     }
 
@@ -355,61 +344,85 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 }
 
-void horizontreadmill::stateChanged2(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered) {
-        return;
-    }
-
-    QBluetoothUuid _gattNotify2CharacteristicId((quint16)0xFFF4);
-    gattNotify2Characteristic = gattCommunication2ChannelService->characteristic(_gattNotify2CharacteristicId);
-
-    if (!gattNotify2Characteristic.isValid()) {
-        qDebug() << QStringLiteral("invalid characteristic");
-
-        return;
-    }
-
-    qDebug() << state;
-
-    QByteArray descriptor;
-    descriptor.append((char)0x01);
-    descriptor.append((char)0x00);
-
-    gattCommunication2ChannelService->writeDescriptor(
-        gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-
-    connect(gattCommunication2ChannelService, &QLowEnergyService::characteristicChanged, this,
-            &horizontreadmill::characteristicChanged);
-}
-
 void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
-    if (state != QLowEnergyService::ServiceDiscovered) {
-        return;
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
+        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            qDebug() << QStringLiteral("not all services discovered");
+            return;
+        }
     }
 
-    QBluetoothUuid _gattNotify1CharacteristicId((quint16)0x2ACD);
-    gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+    qDebug() << QStringLiteral("all services discovered!");
 
-    if (!gattNotify1Characteristic.isValid()) {
-        qDebug() << QStringLiteral("invalid characteristic");
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+            // establish hook into notifications
+            connect(s, &QLowEnergyService::characteristicChanged, this, &horizontreadmill::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicWritten, this, &horizontreadmill::characteristicWritten);
+            connect(s, &QLowEnergyService::characteristicRead, this, &horizontreadmill::characteristicRead);
+            connect(
+                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &horizontreadmill::errorService);
+            connect(s, &QLowEnergyService::descriptorWritten, this, &horizontreadmill::descriptorWritten);
+            connect(s, &QLowEnergyService::descriptorRead, this, &horizontreadmill::descriptorRead);
 
-        return;
+            qDebug() << s->serviceUuid() << QStringLiteral("connected!");
+
+            auto characteristics_list = s->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                auto descriptors_list = c.descriptors();
+                for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                }
+
+                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x01);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
+
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
+                           QLowEnergyCharacteristic::Indicate) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x02);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
+
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                    // s->readCharacteristic(c);
+                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                }
+
+                QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                    qDebug() << QStringLiteral("FTMS service and Control Point found");
+                    gattWriteCharControlPointId = c;
+                    gattFTMSService = s;
+                }
+            }
+        }
     }
-
-    qDebug() << state;
-
-    QByteArray descriptor;
-    descriptor.append((char)0x01);
-    descriptor.append((char)0x00);
-
-    gattCommunicationChannelService->writeDescriptor(
-        gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-
-    connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-            &horizontreadmill::characteristicChanged);
-
-    initRequest = false;
-    emit connectedAndDiscovered();
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill
@@ -457,16 +470,13 @@ void horizontreadmill::characteristicRead(const QLowEnergyCharacteristic &charac
 void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &horizontreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
-
-    gattCommunication2ChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0xfff0));
-    if (gattCommunication2ChannelService) {
-        connect(gattCommunication2ChannelService, &QLowEnergyService::stateChanged, this,
-                &horizontreadmill::stateChanged2);
-
-        gattCommunication2ChannelService->discoverDetails();
+    initRequest = false;
+    auto services_list = m_control->services();
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        gattCommunicationChannelService.append(m_control->createServiceObject(s));
+        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                &horizontreadmill::stateChanged);
+        gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 
