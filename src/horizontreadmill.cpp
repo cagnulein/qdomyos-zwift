@@ -169,153 +169,166 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.length() + " " + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 20 && newValue.at(0) == 0x00 &&
         ((uint8_t)newValue.at(1)) == 0xF4) {
         Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         return;
-    }
-
-    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2ACD)) {
-        return;
-    }
-
-    lastPacket = newValue;
-
-    // default flags for this treadmill is 84 04
-
-    union flags {
-        struct {
-
-            uint16_t moreData : 1;
-            uint16_t avgSpeed : 1;
-            uint16_t totalDistance : 1;
-            uint16_t inclination : 1;
-            uint16_t elevation : 1;
-            uint16_t instantPace : 1;
-            uint16_t averagePace : 1;
-            uint16_t expEnergy : 1;
-            uint16_t heartRate : 1;
-            uint16_t metabolic : 1;
-            uint16_t elapsedTime : 1;
-            uint16_t remainingTime : 1;
-            uint16_t forceBelt : 1;
-            uint16_t spare : 3;
-        };
-
-        uint16_t word_flags;
-    };
-
-    flags Flags;
-    int index = 0;
-    Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
-    index += 2;
-
-    if (!Flags.moreData) {
-        Speed =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-            100.0;
-        index += 2;
+    } else if(characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 && newValue.at(0) == 0x55 &&
+              ((uint8_t)newValue.at(1)) == 0xAa) {
+        Speed = (double)((uint8_t)newValue.at(16)) / 10.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-    }
 
-    if (Flags.avgSpeed) {
-        double avgSpeed;
-        avgSpeed =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-            100.0;
-        index += 2;
-        emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
-    }
+        Inclination = (double)(((uint8_t)newValue.at(14)) >> 4) / 2.0;
 
-    if (Flags.totalDistance) {
-        // ignoring the distance, because it's a total life odometer
-        // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-        // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
-        index += 3;
-    }
-    // else
-    {
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-    }
-
-    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-
-    if (Flags.inclination) {
-        Inclination =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-            10.0;
-        index += 4; // the ramo value is useless
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
-    }
 
-    if (Flags.elevation) {
-        index += 4; // TODO
-    }
-
-    if (Flags.instantPace) {
-        index += 1; // TODO
-    }
-
-    if (Flags.averagePace) {
-        index += 1; // TODO
-    }
-
-    if (Flags.expEnergy) {
-        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        index += 2;
-
-        // energy per hour
-        index += 2;
-
-        // energy per minute
-        index += 1;
-    } else {
         KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
                    settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-    }
 
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
+        lastPacket = newValue;
 
-#ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
-#endif
-    {
-        if (Flags.heartRate) {
-            if (index < newValue.length()) {
+        // default flags for this treadmill is 84 04
 
-                heart = ((double)((newValue.at(index))));
-                emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
-            } else {
-                emit debug(QStringLiteral("Error on parsing heart!"));
-            }
-            // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+        union flags {
+            struct {
+
+                uint16_t moreData : 1;
+                uint16_t avgSpeed : 1;
+                uint16_t totalDistance : 1;
+                uint16_t inclination : 1;
+                uint16_t elevation : 1;
+                uint16_t instantPace : 1;
+                uint16_t averagePace : 1;
+                uint16_t expEnergy : 1;
+                uint16_t heartRate : 1;
+                uint16_t metabolic : 1;
+                uint16_t elapsedTime : 1;
+                uint16_t remainingTime : 1;
+                uint16_t forceBelt : 1;
+                uint16_t spare : 3;
+            };
+
+            uint16_t word_flags;
+        };
+
+        flags Flags;
+        int index = 0;
+        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        index += 2;
+
+        if (!Flags.moreData) {
+            Speed =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+                100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
-    }
 
-    if (Flags.metabolic) {
-        // todo
-    }
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+                100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
 
-    if (Flags.elapsedTime) {
-        // todo
-    }
+        if (Flags.totalDistance) {
+            // ignoring the distance, because it's a total life odometer
+            // Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+            // (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)))) / 1000.0;
+            index += 3;
+        }
+        // else
+        {
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        }
 
-    if (Flags.remainingTime) {
-        // todo
-    }
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
-    if (Flags.forceBelt) {
-        // todo
+        if (Flags.inclination) {
+            Inclination =
+                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+                10.0;
+            index += 4; // the ramo value is useless
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+        }
+
+        if (Flags.elevation) {
+            index += 4; // TODO
+        }
+
+        if (Flags.instantPace) {
+            index += 1; // TODO
+        }
+
+        if (Flags.averagePace) {
+            index += 1; // TODO
+        }
+
+        if (Flags.expEnergy) {
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+
+            // energy per hour
+            index += 2;
+
+            // energy per minute
+            index += 1;
+        } else {
+            KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                       settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                      // kg * 3.5) / 200 ) / 60
+        }
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+    #ifdef Q_OS_ANDROID
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+    #endif
+        {
+            if (Flags.heartRate) {
+                if (index < newValue.length()) {
+
+                    heart = ((double)((newValue.at(index))));
+                    emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
+                } else {
+                    emit debug(QStringLiteral("Error on parsing heart!"));
+                }
+                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+            }
+        }
+
+        if (Flags.metabolic) {
+            // todo
+        }
+
+        if (Flags.elapsedTime) {
+            // todo
+        }
+
+        if (Flags.remainingTime) {
+            // todo
+        }
+
+        if (Flags.forceBelt) {
+            // todo
+        }
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
