@@ -53,7 +53,7 @@ class smartspin2k : public bike {
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
     void setShiftStep();
-    void lowInit();
+    void lowInit(int8_t resistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
