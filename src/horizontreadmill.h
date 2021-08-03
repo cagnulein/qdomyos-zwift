@@ -49,6 +49,7 @@ class horizontreadmill : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    void btinit();
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
@@ -56,6 +57,8 @@ class horizontreadmill : public treadmill {
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService;
+    QLowEnergyCharacteristic gattWriteCharCustomService;
+    QLowEnergyService *gattCustomService;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -69,6 +72,8 @@ class horizontreadmill : public treadmill {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    uint8_t customRecvIndex = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

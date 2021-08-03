@@ -36,33 +36,50 @@ horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) 
     connect(refresh, &QTimer::timeout, this, &horizontreadmill::update);
     refresh->start(200ms);
 }
-/*
-void horizontreadmill::writeCharacteristic(uint8_t* data, uint8_t data_len, QString info, bool disable_log, bool
-wait_for_response)
-{
+
+void horizontreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
-    if(wait_for_response)
-    {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic,QByteArray)),
-                &loop, SLOT(quit()));
+    if (wait_for_response) {
+        connect(gattCustomService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
+                SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
-    }
-    else
-    {
-        connect(gattCommunicationChannelService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic,QByteArray)),
-                &loop, SLOT(quit()));
+    } else {
+        connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
+                SLOT(quit()));
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, QByteArray((const char*)data,
-data_len));
+    gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
 
-    if(!disable_log)
-        debug(" >> " + QByteArray((const char*)data, data_len).toHex(' ') + " // " + info);
+    if (!disable_log)
+        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
 
     loop.exec();
-}*/
+}
+
+void horizontreadmill::btinit() {
+    uint8_t initData01[] = {0x55, 0xaa, 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x00};
+    uint8_t initData1[] = {0x55, 0xaa, 0x0d, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
+    uint8_t initData2[] = {0x55, 0xaa, 0x0e, 0x00, 0x03, 0x14, 0x08, 0x00, 0x3f,
+                           0x01, 0xe5, 0x07, 0x02, 0x08, 0x13, 0x12, 0x21, 0x00};
+    uint8_t initData3[] = {0x55, 0xaa, 0x0f, 0x00, 0x03, 0x01, 0x01, 0x00, 0xd1, 0xf1, 0x01};
+    uint8_t initData4[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
+    uint8_t initData5[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
+                           0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
+    uint8_t initData6[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
+
+    writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+    initDone = true;
+}
 
 void horizontreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -72,7 +89,7 @@ void horizontreadmill::update() {
     }
 
     if (initRequest) {
-
+        btinit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
 
@@ -169,30 +186,35 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.length() + " " + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.length() + " " +
+               newValue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 20 && newValue.at(0) == 0x00 &&
-        ((uint8_t)newValue.at(1)) == 0xF4) {
-        Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
-        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
-        return;
-    } else if(characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 && newValue.at(0) == 0x55 &&
-              ((uint8_t)newValue.at(1)) == 0xAa) {
-        Speed = (double)((uint8_t)newValue.at(16)) / 10.0;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 20) {
+        if (newValue.at(0) == 0x55)
+            customRecvIndex = 0;
+        else
+            customRecvIndex++;
+        if (customRecvIndex == 3) {
+            Speed = ((double)((uint8_t)newValue.at(1)) / 10.0) * 1.60934; // miles/h
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-        Inclination = (double)(((uint8_t)newValue.at(14)) >> 4) / 2.0;
+            Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
-
-        KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
                    settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
-        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+            emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+        }
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
@@ -226,18 +248,18 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         index += 2;
 
         if (!Flags.moreData) {
-            Speed =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-                100.0;
+            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index)))) /
+                    100.0;
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
 
         if (Flags.avgSpeed) {
             double avgSpeed;
-            avgSpeed =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-                100.0;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
             index += 2;
             emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
         }
@@ -257,9 +279,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         if (Flags.inclination) {
-            Inclination =
-                ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-                10.0;
+            Inclination = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)))) /
+                          10.0;
             index += 4; // the ramo value is useless
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         }
@@ -277,7 +299,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
 
         if (Flags.expEnergy) {
-            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
             index += 2;
 
             // energy per hour
@@ -286,21 +309,22 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             // energy per minute
             index += 1;
         } else {
-            KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                       settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                      200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                      // kg * 3.5) / 200 ) / 60
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
-    #ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
         if (settings.value("ant_heart", false).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
-    #endif
+#endif
         {
             if (Flags.heartRate) {
                 if (index < newValue.length()) {
@@ -432,6 +456,13 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
+                }
+
+                QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                    qDebug() << QStringLiteral("Custom service and Control Point found");
+                    gattWriteCharCustomService = c;
+                    gattCustomService = s;
                 }
             }
         }
