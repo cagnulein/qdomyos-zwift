@@ -221,6 +221,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &TemplateInfoSenderBuilder::onWorkoutStartDate);
     connect(this, &homeform::instructorNameChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::onInstructorName);
+    connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getInnerTemplateManager(),
+            &TemplateInfoSenderBuilder::workoutEventStateChanged);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
@@ -1313,6 +1315,7 @@ void homeform::Start() {
         if (bluetoothManager->device()) {
             bluetoothManager->device()->stop();
         }
+        emit workoutEventStateChanged(bluetoothdevice::PAUSED);
     } else {
 
         if (bluetoothManager->device()) {
@@ -1332,7 +1335,9 @@ void homeform::Start() {
             stravaPelotonInstructorName = QLatin1String("");
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
-        }
+            emit workoutEventStateChanged(bluetoothdevice::STARTED);
+        } else
+            emit workoutEventStateChanged(bluetoothdevice::RESUMED);
 
         paused = false;
         stopped = false;
@@ -1363,6 +1368,8 @@ void homeform::Stop() {
 
     paused = false;
     stopped = true;
+
+    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
 
     fit_save_clicked();
 
@@ -2419,6 +2426,10 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
         QStringLiteral(" ") + settings.value(QStringLiteral("strava_suffix"), QStringLiteral("#QZ")).toString();
     if (!stravaPelotonActivityName.isEmpty()) {
         activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName + activityName;
+        if (pelotonHandler)
+            activityDescription =
+                QStringLiteral("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
+                pelotonHandler->current_ride_id;
     } else {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             activityName = QStringLiteral("Run") + activityName;

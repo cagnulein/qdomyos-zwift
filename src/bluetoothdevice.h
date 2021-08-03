@@ -63,10 +63,11 @@ class bluetoothdevice : public QObject {
     void setDifficult(double d);
     double difficult();
     double weightLoss() { return WeightLoss.value(); }
-    metric wattKg() { return WattKg; }    
-    metric currentMETS() { return METS;}
+    metric wattKg() { return WattKg; }
+    metric currentMETS() { return METS; }
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
+    enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
 
     virtual BLUETOOTH_TYPE deviceType();
     static QStringList metrics();

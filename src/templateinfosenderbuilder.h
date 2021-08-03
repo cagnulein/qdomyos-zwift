@@ -30,6 +30,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void buildContext(bool forceReinit = false);
     QString activityDescription;
     void createTemplatesFromFolder(const QString &idInfo, const QString &folder, QStringList &dirTemplates);
+    void clearSessionArray();
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
     QString masterId;
@@ -67,6 +68,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onWorkoutNameChanged(QString name) { workoutName = name; }
     void onWorkoutStartDate(QString name) { workoutStartDate = name; }
     void onInstructorName(QString name) { instructorName = name; }
+    void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };
 
 #endif // TEMPLATEINFOSENDERBUILDER_H

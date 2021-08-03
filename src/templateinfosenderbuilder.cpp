@@ -192,11 +192,15 @@ TemplateInfoSender *TemplateInfoSenderBuilder::newTemplate(const QString &id, co
 
 void TemplateInfoSenderBuilder::reinit() { load(masterId, foldersToLook); }
 
-void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
-    device = nullptr;
+void TemplateInfoSenderBuilder::clearSessionArray() {
     for (int i = 0; i < sessionArray.count(); i++) {
         sessionArray.removeAt(0);
     }
+}
+
+void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
+    device = nullptr;
+    clearSessionArray();
     buildContext(true);
     device = dev;
     activityDescription = QLatin1String("");
@@ -741,6 +745,13 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         }
-        sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
+        if (!device->isPaused())
+            sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
+    }
+}
+
+void TemplateInfoSenderBuilder::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) {
+    if (state == bluetoothdevice::STARTED) {
+        clearSessionArray();
     }
 }
