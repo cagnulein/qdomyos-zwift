@@ -211,6 +211,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::deviceConnected);
     connect(bluetoothManager, &bluetooth::ftmsAccessoryConnected, this, &homeform::ftmsAccessoryConnected);
     connect(bluetoothManager, &bluetooth::deviceConnected, this, &homeform::trainProgramSignals);
+    connect(this, &homeform::workoutNameChanged, bluetoothManager->getUserTemplateManager(),
+            &TemplateInfoSenderBuilder::onWorkoutNameChanged);
+    connect(this, &homeform::workoutStartDateChanged, bluetoothManager->getUserTemplateManager(),
+            &TemplateInfoSenderBuilder::onWorkoutStartDate);
+    connect(this, &homeform::instructorNameChanged, bluetoothManager->getUserTemplateManager(),
+            &TemplateInfoSenderBuilder::onInstructorName);
+    connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getUserTemplateManager(),
+            &TemplateInfoSenderBuilder::workoutEventStateChanged);
     connect(bluetoothManager->getUserTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
             &homeform::setActivityDescription);
     connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::chartSaved, this,
@@ -223,6 +231,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
             &TemplateInfoSenderBuilder::onInstructorName);
     connect(this, &homeform::workoutEventStateChanged, bluetoothManager->getInnerTemplateManager(),
             &TemplateInfoSenderBuilder::workoutEventStateChanged);
+    connect(bluetoothManager->getInnerTemplateManager(), &TemplateInfoSenderBuilder::activityDescriptionChanged, this,
+            &homeform::setActivityDescription);
     engine->rootContext()->setContextProperty(QStringLiteral("rootItem"), (QObject *)this);
 
     this->trainProgram = new trainprogram(QList<trainrow>(), bl);
