@@ -152,6 +152,8 @@ import Qt.labs.settings 1.0
 
             property bool yesoul_peloton_formula: false
 
+            property bool nordictrack_10_treadmill: false
+
             property bool toorx_3_0: false
             property bool trx_route_key: false
             property bool toorx_bike: false
@@ -2486,6 +2488,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.virtual_device_force_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: nordictrack10Delegate
+                        text: qsTr("Nordictrack 10")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_10_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.nordictrack_10_treadmill = checked
                     }
                 }
             }
