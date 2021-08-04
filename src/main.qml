@@ -224,7 +224,8 @@ ApplicationWindow {
             id: toolButtonSaveSettings
             icon.source: "icons/icons/tray-arrow-down.png"
             onClicked: {
-                saveSettings("settings")
+                saveSettings("settings");
+                popupSaveFile.open()
             }
             anchors.right: toolButtonAutoResistance.left
             visible: false
