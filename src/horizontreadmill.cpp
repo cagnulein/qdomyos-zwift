@@ -51,7 +51,8 @@ void horizontreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
+    gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len),
+                                           QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log)
         debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
@@ -70,13 +71,15 @@ void horizontreadmill::btinit() {
                            0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
     uint8_t initData6[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
 
-    writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+    if (gattCustomService) {
+        writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
