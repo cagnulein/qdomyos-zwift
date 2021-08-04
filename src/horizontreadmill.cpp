@@ -91,7 +91,7 @@ void horizontreadmill::update() {
         return;
     }
 
-    if (initRequest) {
+    if (initRequest && firstStateChanged) {
         btinit();
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
@@ -518,6 +518,7 @@ void horizontreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
+    firstStateChanged = 0;
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
