@@ -48,7 +48,6 @@ void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
@@ -162,6 +161,10 @@ void soleelliptical::update() {
             }
         }
 
+        // Resistance as incline on Sole E95s Elliptical #419
+        if (requestInclination != -1)
+            requestResistance = requestInclination;
+
         if (requestResistance != -1) {
             if (requestResistance > 20) {
                 requestResistance = 20;
@@ -182,7 +185,6 @@ void soleelliptical::update() {
                 requestInclination = 1;
             }
 
-
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
 
@@ -192,7 +194,6 @@ void soleelliptical::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
-
 
             btinit(true);
 
@@ -210,7 +211,6 @@ void soleelliptical::update() {
 
 void soleelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
-
 }
 
 void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -348,7 +348,6 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
     QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
 
-
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -382,10 +381,8 @@ void soleelliptical::stateChanged(QLowEnergyService::ServiceState state) {
 
 void soleelliptical::searchingStop() { searchStopped = true; }
 
-
 void soleelliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
-
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -399,7 +396,6 @@ void soleelliptical::characteristicWritten(const QLowEnergyCharacteristic &chara
 
 void soleelliptical::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
-
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
 
@@ -435,7 +431,6 @@ void soleelliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, &soleelliptical::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &soleelliptical::controllerStateChanged);
-
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -474,12 +469,9 @@ bool soleelliptical::connected() {
 
 void *soleelliptical::VirtualTreadmill() { return virtualTreadmill; }
 
-
 void *soleelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
-
 uint16_t soleelliptical::watts() { return m_watt.value(); }
-
 
 void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
