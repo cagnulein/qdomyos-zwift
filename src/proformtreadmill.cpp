@@ -65,17 +65,15 @@ void proformtreadmill::update() {
         bool nordictrack10 = settings.value("nordictrack_10_treadmill", false).toBool();
 
         if (nordictrack10) {
-            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
-            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
-                                   0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
-            uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00,
+            uint8_t noOpData1[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
-            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
+            uint8_t noOpData2[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData3[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                                   0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData4[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x84, 0x74, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData7[] = {0xfe, 0x02, 0x17, 0x03};
+            uint8_t noOpData6[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                                   0x0d, 0x1b, 0x94, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
 
             switch (counterPoll) {
             case 0:
@@ -91,14 +89,15 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
                 break;
             case 4:
-                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
                 break;
-            case 6:
-                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
-                break;
+            }
+            counterPoll++;
+            if (counterPoll > 5) {
+                counterPoll = 0;
             }
         } else {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
@@ -136,11 +135,10 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
                 break;
             }
-        }
-
-        counterPoll++;
-        if (counterPoll > 6) {
-            counterPoll = 0;
+            counterPoll++;
+            if (counterPoll > 6) {
+                counterPoll = 0;
+            }
         }
 
         // updating the treadmill console every second
@@ -283,6 +281,16 @@ void proformtreadmill::btinit() {
                                 0x98, 0x3d, 0xd0, 0x71, 0x10, 0xb5, 0x48, 0xe1, 0xb8, 0x4d};
         uint8_t initData12[] = {0xff, 0x08, 0xe0, 0xb1, 0x40, 0x80, 0x02, 0x00, 0x00, 0x75,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                               0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t noOpData3[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
@@ -315,6 +323,18 @@ void proformtreadmill::btinit() {
         writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
         QThread::msleep(400);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
         QThread::msleep(400);
     } else {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
