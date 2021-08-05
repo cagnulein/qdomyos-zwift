@@ -1,4 +1,5 @@
 #include "virtualtreadmill.h"
+#include "elliptical.h"
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
@@ -209,10 +210,12 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             double requestIncline = (double)sincline / 10.0;
             if (requestIncline < 0)
                 requestIncline = 0;
-            // Resistance as incline on Sole E95s Elliptical #419
-            if (treadMill->deviceType() == bluetoothdevice::TREADMILL ||
-                treadMill->deviceType() == bluetoothdevice::ELLIPTICAL)
+
+            if (treadMill->deviceType() == bluetoothdevice::TREADMILL)
                 ((treadmill *)treadMill)->changeInclination(requestIncline);
+            // Resistance as incline on Sole E95s Elliptical #419
+            else if (treadMill->deviceType() == bluetoothdevice::ELLIPTICAL)
+                ((elliptical *)treadMill)->changeInclination(requestIncline);
             emit debug("new requested incline " + QString::number(requestIncline));
         } else if ((char)newValue.at(0) == 0x07) // Start request
         {
