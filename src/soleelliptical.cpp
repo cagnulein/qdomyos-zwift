@@ -94,6 +94,13 @@ void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uin
     }
 }
 
+void soleelliptical::changeInclinationRequested(double grade, double percentage) {
+    Q_UNUSED(grade);
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(percentage);
+}
+
 void soleelliptical::update() {
 
     uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
@@ -115,16 +122,22 @@ void soleelliptical::update() {
 
         update_metrics(true, watts());
 
-        // ******************************************* virtual bike init *************************************
-        if (!firstVirtual && searchStopped && !virtualTreadmill) {
-
-            QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        QSettings settings;
+        // ******************************************* virtual treadmill init *************************************
+        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadmill, &virtualtreadmill::debug, this, &soleelliptical::debug);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &soleelliptical::debug);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &soleelliptical::changeInclinationRequested);
+                }
                 firstVirtual = 1;
             }
         }
