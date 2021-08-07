@@ -462,7 +462,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService) {
                     qDebug() << QStringLiteral("Custom service and Control Point found");
                     gattWriteCharCustomService = c;
                     gattCustomService = s;
