@@ -89,12 +89,12 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
                     charDataFIT.setUuid(
                         (QBluetoothUuid::CharacteristicType)0x2ACC); // FitnessMachineFeatureCharacteristicUuid
                     QByteArray valueFIT;
-                    valueFIT.append((char)0x80); // resistance level supported
+                    valueFIT.append((char)0x83); // average speed, cadence and resistance level supported
                     valueFIT.append((char)0x14); // heart rate and elapsed time
                     valueFIT.append((char)0x00);
                     valueFIT.append((char)0x00);
-                    valueFIT.append((char)0x00);
-                    valueFIT.append((char)0x00);
+                    valueFIT.append((char)0x0C); // resistance and power target supported
+                    valueFIT.append((char)0xE0); // indoor simulation, wheel and spin down supported
                     valueFIT.append((char)0x00);
                     valueFIT.append((char)0x00);
                     charDataFIT.setValue(valueFIT);
@@ -638,8 +638,7 @@ void virtualbike::bikeProvider() {
     bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
-    bool erg_mode =
-            settings.value(QStringLiteral("zwift_erg"), false).toBool();
+    bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
 
     uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 

@@ -98,7 +98,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
         let FitnessMachineFeaturePermissions: CBAttributePermissions = [.readable]
         self.FitnessMachineFeatureCharacteristic = CBMutableCharacteristic(type: FitnessMachineFeatureCharacteristicUuid,
                                                                properties: FitnessMachineFeatureProperties,
-                                                                                 value: Data (bytes: [0x80, 0x14, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]),
+																					                  value: Data (bytes: [0x83, 0x14, 0x00, 0x00, 0x0c, 0xe0, 0x00, 0x00]),
                                                                                  permissions: FitnessMachineFeaturePermissions)
         
       let supported_resistance_level_rangeProperties: CBCharacteristicProperties = [.read]
