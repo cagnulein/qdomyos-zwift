@@ -59,6 +59,7 @@ class horizontreadmill : public treadmill {
     QLowEnergyService *gattFTMSService = nullptr;
     QLowEnergyCharacteristic gattWriteCharCustomService;
     QLowEnergyService *gattCustomService = nullptr;
+    volatile int notificationSubscribed = 0;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;

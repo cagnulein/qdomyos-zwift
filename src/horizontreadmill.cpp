@@ -218,6 +218,26 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         }
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
+               newValue.at(0) == 0x55) {
+        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
+        // Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
+        // emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+
+        KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+        // kg * 3.5) / 200 ) / 60
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
@@ -398,6 +418,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     qDebug() << QStringLiteral("all services discovered!");
 
+    notificationSubscribed = 0;
+
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
@@ -426,6 +448,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        notificationSubscribed++;
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
@@ -441,6 +464,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     descriptor.append((char)0x00);
                     if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
                         s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                        notificationSubscribed++;
                     } else {
                         qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
                                  << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
@@ -496,8 +520,13 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 void horizontreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    if (notificationSubscribed)
+        notificationSubscribed--;
+
+    if (!notificationSubscribed) {
+        initRequest = true;
+        emit connectedAndDiscovered();
+    }
 }
 
 void horizontreadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
