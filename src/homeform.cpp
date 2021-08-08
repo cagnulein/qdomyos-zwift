@@ -2716,7 +2716,7 @@ void homeform::sendMail() {
     }
 
     if (miles) {
-        // unit_conversion = 0.621371; // NOTE: clang-analyzer-deadcode.DeadStores
+        unit_conversion = 0.621371; // clang, don't touch it!
         weightLossUnit = QStringLiteral("Oz");
     }
     WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
