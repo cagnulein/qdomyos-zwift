@@ -51,8 +51,7 @@ void horizontreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
         timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
-    gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len),
-                                           QLowEnergyService::WriteWithoutResponse);
+    gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
 
     if (!disable_log)
         debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
