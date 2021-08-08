@@ -47,6 +47,36 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     loop.exec();
 }
 
+void proformtreadmill::forceIncline(double incline) {
+
+    uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
+                       0x02, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    write[12] = ((uint16_t)(incline * 100) >> 8) & 0xFF;
+    write[11] = ((uint16_t)(incline * 100) & 0xFF);
+
+    for (uint8_t i = 0; i < 7; i++) {
+        write[14] += write[i + 6];
+    }
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"));
+}
+
+void proformtreadmill::forceSpeed(double speed) {
+
+    uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
+                       0x01, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    write[12] = ((uint16_t)(speed * 100) >> 8) & 0xFF;
+    write[11] = ((uint16_t)(speed * 100) & 0xFF);
+
+    for (uint8_t i = 0; i < 7; i++) {
+        write[14] += write[i + 6];
+    }
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceSpeed"));
+}
+
 void proformtreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -151,14 +181,16 @@ void proformtreadmill::update() {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                //                double speed = currentSpeed().value(); //NOTE: clang-analyzer-deadcode.DeadStores
-                //                if (requestSpeed != -1) {
-                //                    speed = requestSpeed;
-                //                    requestSpeed = -1;
-                //                }
-                // forceSpeedOrIncline(speed, requestInclination);
+                forceIncline(requestInclination);
             }
             requestInclination = -1;
+        }
+        if (requestSpeed != -1) {
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                forceSpeed(requestSpeed);
+            }
+            requestSpeed = -1;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -174,6 +206,13 @@ void proformtreadmill::update() {
             requestStop = -1;
         }
     }
+}
+
+void proformtreadmill::changeInclinationRequested(double grade, double percentage) {
+    Q_UNUSED(grade);
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(percentage);
 }
 
 void proformtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -436,6 +475,8 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformtreadmill::debug);
+                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                        &proformtreadmill::changeInclinationRequested);
             }
         }
         firstStateChanged = 1;

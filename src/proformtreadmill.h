@@ -51,6 +51,8 @@ class proformtreadmill : public treadmill {
     void startDiscover();
     void sendPoll();
     uint16_t watts();
+    void forceIncline(double incline);
+    void forceSpeed(double speed);
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
@@ -90,6 +92,7 @@ class proformtreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
