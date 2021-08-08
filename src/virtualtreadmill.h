@@ -42,8 +42,11 @@ class virtualtreadmill : public QObject {
 
     bool noHeartService = false;
 
+    void slopeChanged(int16_t iresistance);
+
   signals:
     void debug(QString string);
+    void changeInclination(double grade, double percentage);
 
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

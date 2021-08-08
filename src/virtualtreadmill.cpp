@@ -1,5 +1,6 @@
 #include "virtualtreadmill.h"
 #include "elliptical.h"
+#include "ftmsbike.h"
 #include <QSettings>
 #include <QtMath>
 #include <chrono>
@@ -187,6 +188,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     char a;
     char b;
+    QByteArray reply;
 
     switch (characteristic.uuid().toUInt16()) {
     case 0x2AD9: // Fitness Machine Control Point
@@ -225,9 +227,43 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         {
             treadMill->stop();
             emit debug(QStringLiteral("request to stop"));
+        } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
+        {
+            qDebug() << QStringLiteral("indoor bike simulation parameters");
+            int16_t iresistance = (((uint8_t)newValue.at(3)) + (newValue.at(4) << 8));
+            slopeChanged(iresistance);
         }
         break;
     }
+
+    reply.append((quint8)FTMS_RESPONSE_CODE);
+    reply.append((quint8)newValue.at(0));
+    reply.append((quint8)FTMS_SUCCESS);
+
+    QLowEnergyCharacteristic chara = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9);
+    Q_ASSERT(chara.isValid());
+    if (leController->state() != QLowEnergyController::ConnectedState) {
+        qDebug() << QStringLiteral("virtual treadmill not connected");
+
+        return;
+    }
+    try {
+        qDebug() << QStringLiteral("virtualtreadmill::writeCharacteristic ") + service->serviceName() +
+                        QStringLiteral(" ") + chara.name() + QStringLiteral(" ") + reply.toHex(' ');
+        service->writeCharacteristic(chara, reply); // Potentially causes notification.
+    } catch (...) {
+        qDebug() << QStringLiteral("virtual treadmill error!");
+    }
+}
+
+void virtualtreadmill::slopeChanged(int16_t iresistance) {
+
+    QSettings settings;
+    qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance);
+    double resistance = ((double)iresistance * 1.5) / 100.0;
+    qDebug() << QStringLiteral("calculated erg grade ") + QString::number(resistance);
+
+    emit changeInclination(iresistance / 100.0, qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0);
 }
 
 void virtualtreadmill::reconnect() {

@@ -132,6 +132,8 @@ void soleelliptical::update() {
                     debug("creating virtual treadmill interface...");
                     virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &soleelliptical::debug);
+                    connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                            &soleelliptical::changeInclinationRequested);
                 } else {
                     debug("creating virtual bike interface...");
                     virtualBike = new virtualbike(this);
