@@ -468,24 +468,26 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &proformtreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstStateChanged && !virtualTreadmill
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-            && !h
-#endif
-#endif
-        ) {
-            QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        QSettings settings;
+        if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformtreadmill::debug);
-                connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
-                        &proformtreadmill::changeInclinationRequested);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformtreadmill::debug);
+                    connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                            &proformtreadmill::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &proformtreadmill::changeInclinationRequested);
+                }
+                firstStateChanged = 1;
             }
         }
-        firstStateChanged = 1;
         // ********************************************************************************************************
 
         QByteArray descriptor;

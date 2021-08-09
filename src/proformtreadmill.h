@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -56,6 +57,7 @@ class proformtreadmill : public treadmill {
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
