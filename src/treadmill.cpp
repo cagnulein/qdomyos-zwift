@@ -5,7 +5,11 @@
 treadmill::treadmill() {}
 
 void treadmill::changeSpeed(double speed) { requestSpeed = speed; }
-void treadmill::changeInclination(double inclination) { requestInclination = inclination; }
+void treadmill::changeInclination(double inclination) {
+    if (autoResistanceEnable) {
+        requestInclination = inclination;
+    }
+}
 bool treadmill::changeFanSpeed(uint8_t speed) {
     requestFanSpeed = speed;
     return true;
