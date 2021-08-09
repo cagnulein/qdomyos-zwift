@@ -69,14 +69,31 @@ void horizontreadmill::btinit() {
     uint8_t initData5[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
                            0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
     uint8_t initData6[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
-    uint8_t initData7[] = {0x55, 0xaa, 0x0d, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
-    uint8_t initData8[] = {0x55, 0xaa, 0x0e, 0x00, 0x03, 0x14, 0x08, 0x00, 0x3f,
-                           0x01, 0xe5, 0x07, 0x02, 0x08, 0x13, 0x12, 0x21, 0x00};
-    uint8_t initData9[] = {0x55, 0xaa, 0x0f, 0x00, 0x03, 0x01, 0x01, 0x00, 0xd1, 0xf1, 0x01};
-    uint8_t initData10[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
-    uint8_t initData11[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
-                            0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
-    uint8_t initData12[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
+
+    uint8_t initData7[] = {0x55, 0xaa, 0x08, 0x00, 0x01, 0x16, 0xdb, 0x02, 0x03, 0x0d,
+                           0x05, 0x55, 0x73, 0x65, 0x72, 0x20, 0x35, 0x00, 0x00, 0x00};
+    uint8_t initData8[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t initData9[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xdc, 0x05, 0xc2, 0x07};
+    uint8_t initData10[] = {0x01, 0x01, 0x00, 0x8e, 0x6a, 0x0c, 0x00, 0x01, 0x01, 0x02,
+                            0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
+    uint8_t initData11[] = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+                            0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
+    uint8_t initData12[] = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
+                            0x30, 0x30, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t initData13[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30,
+                            0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
+    uint8_t initData14[] = {0x30};
+
+    uint8_t initData70[] = {0x55, 0xaa, 0x0d, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
+    uint8_t initData80[] = {0x55, 0xaa, 0x0e, 0x00, 0x03, 0x14, 0x08, 0x00, 0x3f,
+                            0x01, 0xe5, 0x07, 0x02, 0x08, 0x13, 0x12, 0x21, 0x00};
+    uint8_t initData90[] = {0x55, 0xaa, 0x0f, 0x00, 0x03, 0x01, 0x01, 0x00, 0xd1, 0xf1, 0x01};
+    uint8_t initData100[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
+    uint8_t initData110[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
+                             0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
+    uint8_t initData120[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
@@ -86,12 +103,52 @@ void horizontreadmill::btinit() {
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
         writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData13, sizeof(initData13), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData14, sizeof(initData14), QStringLiteral("init"), false, true);
+
+        writeCharacteristic(initData70, sizeof(initData70), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData80, sizeof(initData80), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData90, sizeof(initData90), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData100, sizeof(initData100), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData110, sizeof(initData110), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData120, sizeof(initData120), QStringLiteral("init"), false, true);
     }
 
     initDone = true;
