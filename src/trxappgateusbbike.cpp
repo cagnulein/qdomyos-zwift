@@ -153,6 +153,7 @@ void trxappgateusbbike::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                               const QByteArray &newValue) {
+    double heart = 0;
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
@@ -236,12 +237,40 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
 
-                Heart = ((uint8_t)(newValue.at(15)) - 1);
+                heart = ((uint8_t)(newValue.at(15)) - 1);
             } else {
-                Heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
+                heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
+            }
+            if (heart == 0.0 || settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool()) {
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
+                Heart = appleWatchHeartRate;
+                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+            } else {
+
+                Heart = heart;
             }
         }
     }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+    }
+#endif
+#endif
+
     FanSpeed = 0;
 
     if (!firstCharChanged) {
