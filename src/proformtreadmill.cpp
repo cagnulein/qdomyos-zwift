@@ -49,6 +49,7 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 
 void proformtreadmill::forceIncline(double incline) {
 
+    uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
                        0x02, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -59,11 +60,13 @@ void proformtreadmill::forceIncline(double incline) {
         write[14] += write[i + 6];
     }
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"));
+    writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceIncline"));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
 }
 
 void proformtreadmill::forceSpeed(double speed) {
 
+    uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
                        0x01, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -74,7 +77,8 @@ void proformtreadmill::forceSpeed(double speed) {
         write[14] += write[i + 6];
     }
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceSpeed"));
+    writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceSpeed"));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceSpeed"), false, true);
 }
 
 void proformtreadmill::update() {
@@ -117,6 +121,23 @@ void proformtreadmill::update() {
                 break;
             case 3:
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+
+                if (requestInclination != -1) {
+                    if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                        requestInclination <= 15) {
+                        emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                        forceIncline(requestInclination);
+                    }
+                    requestInclination = -1;
+                }
+                if (requestSpeed != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                        forceSpeed(requestSpeed);
+                    }
+                    requestSpeed = -1;
+                }
+
                 break;
             case 4:
                 writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
@@ -177,21 +198,6 @@ void proformtreadmill::update() {
             // updateDisplay(elapsed);
         }
 
-        if (requestInclination != -1) {
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                forceIncline(requestInclination);
-            }
-            requestInclination = -1;
-        }
-        if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                forceSpeed(requestSpeed);
-            }
-            requestSpeed = -1;
-        }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
