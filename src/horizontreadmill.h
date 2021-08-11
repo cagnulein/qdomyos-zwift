@@ -48,6 +48,7 @@ class horizontreadmill : public treadmill {
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    void waitForAPacket();
     void startDiscover();
     void btinit();
 
@@ -74,7 +75,7 @@ class horizontreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    uint8_t customRecvIndex = 0;
+    int32_t customRecv = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -83,6 +84,7 @@ class horizontreadmill : public treadmill {
   signals:
     void disconnected();
     void debug(QString string);
+    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

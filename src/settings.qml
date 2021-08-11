@@ -152,7 +152,7 @@ import Qt.labs.settings 1.0
 
             property bool yesoul_peloton_formula: false
 
-            property bool nordictrack_10_treadmill: false
+            property bool nordictrack_10_treadmill: true
 
             property bool toorx_3_0: false
             property bool trx_route_key: false

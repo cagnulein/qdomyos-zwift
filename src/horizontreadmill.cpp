@@ -42,20 +42,27 @@ void horizontreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
-        connect(gattCustomService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
-                SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
+        timeout.singleShot(3000, &loop, SLOT(quit()));
     } else {
         connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
     gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
 
     if (!disable_log)
-        debug(" >> " + QByteArray((const char *)data, data_len).toHex(' ') + " // " + info);
+        qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
 
+    loop.exec();
+}
+
+void horizontreadmill::waitForAPacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
 }
 
@@ -94,6 +101,7 @@ void horizontreadmill::btinit() {
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
+        waitForAPacket();
 
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
         writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
@@ -256,6 +264,20 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
+        if (newValue.at(0) == 0x55) {
+            customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
+            qDebug() << "new custom packet received. Len expected: " << customRecv;
+        }
+
+        customRecv -= newValue.length();
+        if (customRecv <= 0) {
+            qDebug() << "full custom packet received";
+            customRecv = 0;
+            emit packetReceived();
+        }
+    }
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 && newValue.at(0) == 0x55 &&
         newValue.at(5) == 0x12) {
