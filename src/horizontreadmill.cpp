@@ -548,8 +548,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
-                    ((c.uuid() == _gattWriteCharControlPointId && !gattCustomService) ||
-                     (c.uuid() == _gattWriteCharCustomService && gattCustomService))) {
+                    ((s->serviceUuid() == gattFTMSService->serviceUuid() && !gattCustomService) ||
+                     (s->serviceUuid() == gattCustomService->serviceUuid() && gattCustomService))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
