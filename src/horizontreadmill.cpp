@@ -489,6 +489,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
+    QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -520,12 +522,34 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                    qDebug() << QStringLiteral("FTMS service and Control Point found");
+                    gattWriteCharControlPointId = c;
+                    gattFTMSService = s;
+                }
+
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService) {
+                    qDebug() << QStringLiteral("Custom service and Control Point found");
+                    gattWriteCharCustomService = c;
+                    gattCustomService = s;
+                }
+            }
+        }
+    }
+
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+            auto characteristics_list = s->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
-                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
+                    ((c.uuid() == _gattWriteCharControlPointId && !gattCustomService) ||
+                     (c.uuid() == _gattWriteCharCustomService && gattCustomService))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -540,39 +564,6 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
-                           QLowEnergyCharacteristic::Indicate) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x02);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                        notificationSubscribed++;
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
-                    }
-
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
-                    // s->readCharacteristic(c);
-                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
-                }
-
-                QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
-                    qDebug() << QStringLiteral("FTMS service and Control Point found");
-                    gattWriteCharControlPointId = c;
-                    gattFTMSService = s;
-                }
-
-                QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
-                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharCustomService) {
-                    qDebug() << QStringLiteral("Custom service and Control Point found");
-                    gattWriteCharCustomService = c;
-                    gattCustomService = s;
                 }
             }
         }
