@@ -371,7 +371,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(domyos);
                 innerTemplateManager->start(domyos);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) && !kingsmithR1ProTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
+                        b.name().toUpper().startsWith(
+                            QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
+                       !kingsmithR1ProTreadmill &&
+                       filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
 #ifndef Q_OS_IOS
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
