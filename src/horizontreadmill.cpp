@@ -1260,7 +1260,7 @@ const int CRC_TABLE[256] = {
        16050,
        3793,
        7920,
-   }
+   };
 
 int horizontreadmill::GenerateCRC_CCITT(uint8_t* PUPtr8, int PU16_Count) {
     if (PU16_Count == 0) {
