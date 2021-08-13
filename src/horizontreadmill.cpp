@@ -506,38 +506,40 @@ void horizontreadmill::update() {
     }
 }
 
+// example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     messageID++;
     uint8_t datas[3];
-    datas[0] = (uint8_t)(requestSpeed * 10) & 0xff;
-    datas[1] = (uint16_t)(requestSpeed * 10) >> 8;
-    datas[2] = 1;
+    datas[0] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
+    datas[1] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
+    datas[2] = 0;
     int confirm = GenerateCRC_CCITT(datas, 3);
-    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x05, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     write[2] = messageID & 0xff;
     write[3] = messageID >> 8;
-    write[8] = confirm & 0xff;
-    write[9] = confirm >> 8;
-    write[10] = datas[0];
-    write[11] = datas[1];
-    write[12] = datas[2];
+    write[9] = confirm & 0xff;
+    write[10] = confirm >> 8;
+    write[11] = datas[0];
+    write[12] = datas[1];
+    write[13] = datas[2];
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceSpeed"), false, true);
 }
 
+// example frame: 55aa3800030603005d0b0a0000
 void horizontreadmill::forceIncline(double requestIncline) {
     messageID++;
     uint8_t datas[2];
     datas[0] = (uint8_t)(requestIncline)&0xff;
     datas[1] = (uint16_t)(requestIncline) >> 8;
     int confirm = GenerateCRC_CCITT(datas, 2);
-    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x06, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     write[2] = messageID & 0xff;
     write[3] = messageID >> 8;
-    write[8] = confirm & 0xff;
-    write[9] = confirm >> 8;
-    write[10] = datas[0];
-    write[11] = datas[1];
+    write[9] = confirm & 0xff;
+    write[10] = confirm >> 8;
+    write[11] = datas[0];
+    write[12] = datas[1];
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
 }
