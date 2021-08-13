@@ -64,7 +64,10 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         QLowEnergyCharacteristicData charData3;
         charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
-        charData3.setProperties(QLowEnergyCharacteristic::Write);
+        charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+        const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                      QByteArray(2, 0));
+        charData3.addDescriptor(cpClientConfig);
 
         QLowEnergyCharacteristicData charDataFIT5;
         charDataFIT5.setUuid((QBluetoothUuid::CharacteristicType)0x2ADA); // Fitness Machine status
@@ -96,9 +99,21 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         QByteArray descriptor7;
         descriptor7.append((char)0x01);
         descriptor7.append((char)0x00);
-        const QLowEnergyDescriptorData clientConfig7(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                     descriptor7);
+        const QLowEnergyDescriptorData clientConfig7(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor7);
         charDataFIT7.addDescriptor(clientConfig7);
+
+        QLowEnergyCharacteristicData charDataFIT2;
+        charDataFIT2.setUuid(
+            (QBluetoothUuid::CharacteristicType)0x2AD6); // supported_resistance_level_rangeCharacteristicUuid
+        charDataFIT2.setProperties(QLowEnergyCharacteristic::Read);
+        QByteArray valueFIT2;
+        valueFIT2.append((char)0x0A); // min resistance value
+        valueFIT2.append((char)0x00); // min resistance value
+        valueFIT2.append((char)0x96); // max resistance value
+        valueFIT2.append((char)0x00); // max resistance value
+        valueFIT2.append((char)0x0A); // step resistance
+        valueFIT2.append((char)0x00); // step resistance
+        charDataFIT2.setValue(valueFIT2);
 
         serviceData.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceData.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); // FitnessMachineServiceUuid
@@ -108,6 +123,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceData.addCharacteristic(charDataFIT5);
         serviceData.addCharacteristic(charDataFIT6);
         serviceData.addCharacteristic(charDataFIT7);
+        serviceData.addCharacteristic(charDataFIT2);
     } else {
         QLowEnergyCharacteristicData charData;
         charData.setUuid(QBluetoothUuid::CharacteristicType::RSCFeature);
@@ -388,13 +404,13 @@ void virtualtreadmill::treadmillProvider() {
         valueBike.append((char)(((uint16_t)(cadence * 2) >> 8) & 0xFF)); // cadence
 
         valueBike.append((char)(0)); // resistance
-        valueBike.append((char)(0));                               // resistance
+        valueBike.append((char)(0)); // resistance
 
         valueBike.append((char)(((uint16_t)treadMill->wattsMetric().value()) & 0xFF));      // watts
         valueBike.append((char)(((uint16_t)treadMill->wattsMetric().value()) >> 8) & 0xFF); // watts
 
         valueBike.append(char(treadMill->currentHeart().value())); // Actual value.
-        valueBike.append((char)0);                            // Bkool FTMS protocol HRM offset 1280 fix
+        valueBike.append((char)0);                                 // Bkool FTMS protocol HRM offset 1280 fix
 
         if (!service) {
             qDebug() << QStringLiteral("serviceFIT not available");

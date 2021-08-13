@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.8.29" android:versionCode="170" android:installLocation="auto">
+<manifest package="org.cagnulen.qdomyoszwift" xmlns:android="http://schemas.android.com/apk/res/android" android:versionName="2.8.31" android:versionCode="171" android:installLocation="auto">
     <!-- The following comment will be replaced upon deployment with default permissions based on the dependencies of the application.
 	      Remove the comment if you do not require these default permissions. -->
 			<!-- %%INSERT_PERMISSIONS -->
