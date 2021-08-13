@@ -40,7 +40,8 @@ class horizontreadmill : public treadmill {
   public:
     horizontreadmill(bool noWriteResistance, bool noHeartService);
     bool connected();
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
 
     void *VirtualTreadmill();
     void *VirtualDevice();
@@ -77,6 +78,7 @@ class horizontreadmill : public treadmill {
 
     int32_t customRecv = 0;
     int32_t messageID = 0;
+    int GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count);
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

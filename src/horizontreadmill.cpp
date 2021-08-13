@@ -466,14 +466,7 @@ void horizontreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-
-                double inc = Inclination.value();
-                if (requestInclination != -1) {
-
-                    inc = requestInclination;
-                    requestInclination = -1;
-                }
-                forceSpeedOrIncline(requestSpeed, inc);
+                forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
@@ -481,14 +474,7 @@ void horizontreadmill::update() {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-
-                double speed = currentSpeed().value();
-                if (requestSpeed != -1) {
-
-                    speed = requestSpeed;
-                    requestSpeed = -1;
-                }
-                forceSpeedOrIncline(speed, requestInclination);
+                forceIncline(requestInclination);
             }
             requestInclination = -1;
         }
@@ -520,10 +506,40 @@ void horizontreadmill::update() {
     }
 }
 
-void horizontreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
-    Q_UNUSED(requestSpeed)
-    Q_UNUSED(requestIncline)
-    // TODO
+void horizontreadmill::forceSpeed(double requestSpeed) {
+    messageID++;
+    uint8_t datas[3];
+    datas[0] = (uint8_t)(requestSpeed * 10) & 0xff;
+    datas[1] = (uint16_t)(requestSpeed * 10) >> 8;
+    datas[2] = 1;
+    int confirm = GenerateCRC_CCITT(datas, 3);
+    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x05, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    write[2] = messageID & 0xff;
+    write[3] = messageID >> 8;
+    write[8] = confirm & 0xff;
+    write[9] = confirm >> 8;
+    write[10] = datas[0];
+    write[11] = datas[1];
+    write[12] = datas[2];
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceSpeed"), false, true);
+}
+
+void horizontreadmill::forceIncline(double requestIncline) {
+    messageID++;
+    uint8_t datas[2];
+    datas[0] = (uint8_t)(requestIncline)&0xff;
+    datas[1] = (uint16_t)(requestIncline) >> 8;
+    int confirm = GenerateCRC_CCITT(datas, 2);
+    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x06, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00};
+    write[2] = messageID & 0xff;
+    write[3] = messageID >> 8;
+    write[8] = confirm & 0xff;
+    write[9] = confirm >> 8;
+    write[10] = datas[0];
+    write[11] = datas[1];
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
 }
 
 void horizontreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -988,265 +1004,265 @@ void horizontreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
     }
 }
 
-int CRC_TABLE[256] = {
-       iArr[1] = 4129;
-       iArr[2] = 8258;
-       iArr[3] = 12387;
-       iArr[4] = 16516;
-       iArr[5] = 20645;
-       iArr[6] = 24774;
-       iArr[7] = 28903;
-       iArr[8] = 33032;
-       iArr[9] = 37161;
-       iArr[10] = 41290;
-       iArr[11] = 45419;
-       iArr[12] = 49548;
-       iArr[13] = 53677;
-       iArr[14] = 57806;
-       iArr[15] = 61935;
-       iArr[16] = 4657;
-       iArr[17] = 528;
-       iArr[18] = 12915;
-       iArr[19] = 8786;
-       iArr[20] = 21173;
-       iArr[21] = 17044;
-       iArr[22] = 29431;
-       iArr[23] = 25302;
-       iArr[24] = 37689;
-       iArr[25] = 33560;
-       iArr[26] = 45947;
-       iArr[27] = 41818;
-       iArr[28] = 54205;
-       iArr[29] = 50076;
-       iArr[30] = 62463;
-       iArr[31] = 58334;
-       iArr[32] = 9314;
-       iArr[33] = 13379;
-       iArr[34] = 1056;
-       iArr[35] = 5121;
-       iArr[36] = 25830;
-       iArr[37] = 29895;
-       iArr[38] = 17572;
-       iArr[39] = 21637;
-       iArr[40] = 42346;
-       iArr[41] = 46411;
-       iArr[42] = 34088;
-       iArr[43] = 38153;
-       iArr[44] = 58862;
-       iArr[45] = 62927;
-       iArr[46] = 50604;
-       iArr[47] = 54669;
-       iArr[48] = 13907;
-       iArr[49] = 9842;
-       iArr[50] = 5649;
-       iArr[51] = 1584;
-       iArr[52] = 30423;
-       iArr[53] = 26358;
-       iArr[54] = 22165;
-       iArr[55] = 18100;
-       iArr[56] = 46939;
-       iArr[57] = 42874;
-       iArr[58] = 38681;
-       iArr[59] = 34616;
-       iArr[60] = 63455;
-       iArr[61] = 59390;
-       iArr[62] = 55197;
-       iArr[63] = 51132;
-       iArr[64] = 18628;
-       iArr[65] = 22757;
-       iArr[66] = 26758;
-       iArr[67] = 30887;
-       iArr[68] = 2112;
-       iArr[69] = 6241;
-       iArr[70] = 10242;
-       iArr[71] = 14371;
-       iArr[72] = 51660;
-       iArr[73] = 55789;
-       iArr[74] = 59790;
-       iArr[75] = 63919;
-       iArr[76] = 35144;
-       iArr[77] = 39273;
-       iArr[78] = 43274;
-       iArr[79] = 47403;
-       iArr[80] = 23285;
-       iArr[81] = 19156;
-       iArr[82] = 31415;
-       iArr[83] = 27286;
-       iArr[84] = 6769;
-       iArr[85] = 2640;
-       iArr[86] = 14899;
-       iArr[87] = 10770;
-       iArr[88] = 56317;
-       iArr[89] = 52188;
-       iArr[90] = 64447;
-       iArr[91] = 60318;
-       iArr[92] = 39801;
-       iArr[93] = 35672;
-       iArr[94] = 47931;
-       iArr[95] = 43802;
-       iArr[96] = 27814;
-       iArr[97] = 31879;
-       iArr[98] = 19684;
-       iArr[99] = 23749;
-       iArr[100] = 11298;
-       iArr[101] = 15363;
-       iArr[102] = 3168;
-       iArr[103] = 7233;
-       iArr[104] = 60846;
-       iArr[105] = 64911;
-       iArr[106] = 52716;
-       iArr[107] = 56781;
-       iArr[108] = 44330;
-       iArr[109] = 48395;
-       iArr[110] = 36200;
-       iArr[111] = 40265;
-       iArr[112] = 32407;
-       iArr[113] = 28342;
-       iArr[114] = 24277;
-       iArr[115] = 20212;
-       iArr[116] = 15891;
-       iArr[117] = 11826;
-       iArr[118] = 7761;
-       iArr[119] = 3696;
-       iArr[120] = 65439;
-       iArr[121] = 61374;
-       iArr[122] = 57309;
-       iArr[123] = 53244;
-       iArr[124] = 48923;
-       iArr[125] = 44858;
-       iArr[126] = 40793;
-       iArr[127] = 36728;
-       iArr[128] = 37256;
-       iArr[129] = 33193;
-       iArr[130] = 45514;
-       iArr[131] = 41451;
-       iArr[132] = 53516;
-       iArr[133] = 49453;
-       iArr[134] = 61774;
-       iArr[135] = 57711;
-       iArr[136] = 4224;
-       iArr[137] = 161;
-       iArr[138] = 12482;
-       iArr[139] = 8419;
-       iArr[140] = 20484;
-       iArr[141] = 16421;
-       iArr[142] = 28742;
-       iArr[143] = 24679;
-       iArr[144] = 33721;
-       iArr[145] = 37784;
-       iArr[146] = 41979;
-       iArr[147] = 46042;
-       iArr[148] = 49981;
-       iArr[149] = 54044;
-       iArr[150] = 58239;
-       iArr[151] = 62302;
-       iArr[152] = 689;
-       iArr[153] = 4752;
-       iArr[154] = 8947;
-       iArr[155] = 13010;
-       iArr[156] = 16949;
-       iArr[157] = 21012;
-       iArr[158] = 25207;
-       iArr[159] = 29270;
-       iArr[160] = 46570;
-       iArr[161] = 42443;
-       iArr[162] = 38312;
-       iArr[163] = 34185;
-       iArr[164] = 62830;
-       iArr[165] = 58703;
-       iArr[166] = 54572;
-       iArr[167] = 50445;
-       iArr[168] = 13538;
-       iArr[169] = 9411;
-       iArr[170] = 5280;
-       iArr[171] = 1153;
-       iArr[172] = 29798;
-       iArr[173] = 25671;
-       iArr[174] = 21540;
-       iArr[175] = 17413;
-       iArr[176] = 42971;
-       iArr[177] = 47098;
-       iArr[178] = 34713;
-       iArr[179] = 38840;
-       iArr[180] = 59231;
-       iArr[181] = 63358;
-       iArr[182] = 50973;
-       iArr[183] = 55100;
-       iArr[184] = 9939;
-       iArr[185] = 14066;
-       iArr[186] = 1681;
-       iArr[187] = 5808;
-       iArr[188] = 26199;
-       iArr[189] = 30326;
-       iArr[190] = 17941;
-       iArr[191] = 22068;
-       iArr[192] = 55628;
-       iArr[193] = 51565;
-       iArr[194] = 63758;
-       iArr[195] = 59695;
-       iArr[196] = 39368;
-       iArr[197] = 35305;
-       iArr[198] = 47498;
-       iArr[199] = 43435;
-       iArr[200] = 22596;
-       iArr[201] = 18533;
-       iArr[202] = 30726;
-       iArr[203] = 26663;
-       iArr[204] = 6336;
-       iArr[205] = 2273;
-       iArr[206] = 14466;
-       iArr[207] = 10403;
-       iArr[208] = 52093;
-       iArr[209] = 56156;
-       iArr[210] = 60223;
-       iArr[211] = 64286;
-       iArr[212] = 35833;
-       iArr[213] = 39896;
-       iArr[214] = 43963;
-       iArr[215] = 48026;
-       iArr[216] = 19061;
-       iArr[217] = 23124;
-       iArr[218] = 27191;
-       iArr[219] = 31254;
-       iArr[220] = 2801;
-       iArr[221] = 6864;
-       iArr[222] = 10931;
-       iArr[223] = 14994;
-       iArr[224] = 64814;
-       iArr[225] = 60687;
-       iArr[226] = 56684;
-       iArr[227] = 52557;
-       iArr[228] = 48554;
-       iArr[229] = 44427;
-       iArr[230] = 40424;
-       iArr[231] = 36297;
-       iArr[232] = 31782;
-       iArr[233] = 27655;
-       iArr[234] = 23652;
-       iArr[235] = 19525;
-       iArr[236] = 15522;
-       iArr[237] = 11395;
-       iArr[238] = 7392;
-       iArr[239] = 3265;
-       iArr[240] = 61215;
-       iArr[241] = 65342;
-       iArr[242] = 53085;
-       iArr[243] = 57212;
-       iArr[244] = 44955;
-       iArr[245] = 49082;
-       iArr[246] = 36825;
-       iArr[247] = 40952;
-       iArr[248] = 28183;
-       iArr[249] = 32310;
-       iArr[250] = 20053;
-       iArr[251] = 24180;
-       iArr[252] = 11923;
-       iArr[253] = 16050;
-       iArr[254] = 3793;
-       iArr[255] = 7920;
+const int CRC_TABLE[256] = {
+       4129,
+       8258,
+       12387,
+       16516,
+       20645,
+       24774,
+       28903,
+       33032,
+       37161,
+       41290,
+       45419,
+       49548,
+       53677,
+       57806,
+       61935,
+       4657,
+       528,
+       12915,
+       8786,
+       21173,
+       17044,
+       29431,
+       25302,
+       37689,
+       33560,
+       45947,
+       41818,
+       54205,
+       50076,
+       62463,
+       58334,
+       9314,
+       13379,
+       1056,
+       5121,
+       25830,
+       29895,
+       17572,
+       21637,
+       42346,
+       46411,
+       34088,
+       38153,
+       58862,
+       62927,
+       50604,
+       54669,
+       13907,
+       9842,
+       5649,
+       1584,
+       30423,
+       26358,
+       22165,
+       18100,
+       46939,
+       42874,
+       38681,
+       34616,
+       63455,
+       59390,
+       55197,
+       51132,
+       18628,
+       22757,
+       26758,
+       30887,
+       2112,
+       6241,
+       10242,
+       14371,
+       51660,
+       55789,
+       59790,
+       63919,
+       35144,
+       39273,
+       43274,
+       47403,
+       23285,
+       19156,
+       31415,
+       27286,
+       6769,
+       2640,
+       14899,
+       10770,
+       56317,
+       52188,
+       64447,
+       60318,
+       39801,
+       35672,
+       47931,
+       43802,
+       27814,
+       31879,
+       19684,
+       23749,
+       11298,
+       15363,
+       3168,
+       7233,
+       60846,
+       64911,
+       52716,
+       56781,
+       44330,
+       48395,
+       36200,
+       40265,
+       32407,
+       28342,
+       24277,
+       20212,
+       15891,
+       11826,
+       7761,
+       3696,
+       65439,
+       61374,
+       57309,
+       53244,
+       48923,
+       44858,
+       40793,
+       36728,
+       37256,
+       33193,
+       45514,
+       41451,
+       53516,
+       49453,
+       61774,
+       57711,
+       4224,
+       161,
+       12482,
+       8419,
+       20484,
+       16421,
+       28742,
+       24679,
+       33721,
+       37784,
+       41979,
+       46042,
+       49981,
+       54044,
+       58239,
+       62302,
+       689,
+       4752,
+       8947,
+       13010,
+       16949,
+       21012,
+       25207,
+       29270,
+       46570,
+       42443,
+       38312,
+       34185,
+       62830,
+       58703,
+       54572,
+       50445,
+       13538,
+       9411,
+       5280,
+       1153,
+       29798,
+       25671,
+       21540,
+       17413,
+       42971,
+       47098,
+       34713,
+       38840,
+       59231,
+       63358,
+       50973,
+       55100,
+       9939,
+       14066,
+       1681,
+       5808,
+       26199,
+       30326,
+       17941,
+       22068,
+       55628,
+       51565,
+       63758,
+       59695,
+       39368,
+       35305,
+       47498,
+       43435,
+       22596,
+       18533,
+       30726,
+       26663,
+       6336,
+       2273,
+       14466,
+       10403,
+       52093,
+       56156,
+       60223,
+       64286,
+       35833,
+       39896,
+       43963,
+       48026,
+       19061,
+       23124,
+       27191,
+       31254,
+       2801,
+       6864,
+       10931,
+       14994,
+       64814,
+       60687,
+       56684,
+       52557,
+       48554,
+       44427,
+       40424,
+       36297,
+       31782,
+       27655,
+       23652,
+       19525,
+       15522,
+       11395,
+       7392,
+       3265,
+       61215,
+       65342,
+       53085,
+       57212,
+       44955,
+       49082,
+       36825,
+       40952,
+       28183,
+       32310,
+       20053,
+       24180,
+       11923,
+       16050,
+       3793,
+       7920,
    }
 
-int horizontreadmill::GenerateCRC_CCITT(QByteArray PUPtr8, int PU16_Count) {
+int horizontreadmill::GenerateCRC_CCITT(uint8_t* PUPtr8, int PU16_Count) {
     if (PU16_Count == 0) {
         return 0;
     }
