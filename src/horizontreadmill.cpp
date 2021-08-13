@@ -428,6 +428,8 @@ void horizontreadmill::btinit() {
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
         writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+
+        messageID = 0x11;
     }
 
     initDone = true;
@@ -558,7 +560,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 && newValue.at(0) == 0x55 &&
         newValue.at(5) == 0x12) {
         Speed =
-            (((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 100.0) *
+            (((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
             1.60934; // miles/h
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 

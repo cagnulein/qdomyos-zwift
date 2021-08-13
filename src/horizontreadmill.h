@@ -76,6 +76,7 @@ class horizontreadmill : public treadmill {
     bool noHeartService = false;
 
     int32_t customRecv = 0;
+    int32_t messageID = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
