@@ -532,8 +532,8 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
 void horizontreadmill::forceIncline(double requestIncline) {
     messageID++;
     uint8_t datas[3];
-    datas[0] = (uint8_t)(requestIncline)&0xff;
-    datas[1] = (uint16_t)(requestIncline) >> 8;
+    datas[0] = (uint8_t)(requestIncline * 10) & 0xff;
+    datas[1] = (uint16_t)(requestIncline * 10) >> 8;
     datas[2] = 0;
     int confirm = GenerateCRC_CCITT(datas, 3);
     uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
