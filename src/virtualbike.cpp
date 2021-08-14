@@ -631,6 +631,7 @@ void virtualbike::reconnect() {
 
 void virtualbike::bikeProvider() {
 
+    static double rand;
     QSettings settings;
     bool cadence = settings.value(QStringLiteral("bike_cadence_sensor"), false).toBool();
     bool battery = settings.value(QStringLiteral("battery_service"), false).toBool();
@@ -640,7 +641,9 @@ void virtualbike::bikeProvider() {
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
     bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
 
-    uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
+    rand++;
+
+    uint16_t normalizeSpeed = (uint16_t)qRound(rand * 100);
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -687,13 +690,13 @@ void virtualbike::bikeProvider() {
                 value.append((char)(normalizeSpeed & 0xFF));      // speed
                 value.append((char)(normalizeSpeed >> 8) & 0xFF); // speed
 
-                value.append((char)((uint16_t)(Bike->currentCadence().value() * 2) & 0xFF));        // cadence
-                value.append((char)(((uint16_t)(Bike->currentCadence().value() * 2) >> 8) & 0xFF)); // cadence
+                value.append((char)((uint16_t)(rand * 2) & 0xFF));        // cadence
+                value.append((char)(((uint16_t)(rand * 2) >> 8) & 0xFF)); // cadence
 
-                value.append((char)Bike->currentResistance().value()); // resistance
+                value.append((char)rand); // resistance
                 value.append((char)(0));                               // resistance
 
-                value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF));      // watts
+                value.append((char)(((uint16_t)rand) & 0xFF));      // watts
                 value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF); // watts
 
                 value.append(char(Bike->currentHeart().value())); // Actual value.
@@ -797,7 +800,7 @@ void virtualbike::bikeProvider() {
         value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 8));  // distance
         value.append((uint8_t)(Bike->odometer() * 100));                     // distance
         value.append((char)0x00);
-        value.append(Bike->currentCadence().value());
+        value.append(rand);
         value.append((uint8_t)Bike->currentHeart().value());
 
         uint8_t sum = 0;
@@ -830,7 +833,7 @@ void virtualbike::bikeProvider() {
         resistance.append(0xf0);
         resistance.append(0xd2);
         resistance.append(0x01);
-        resistance.append(Bike->currentResistance().value());
+        resistance.append(rand);
 
         sum = 0;
         for (uint8_t i = 0; i < resistance.length(); i++) {
@@ -838,10 +841,10 @@ void virtualbike::bikeProvider() {
             sum += resistance[i]; // the last byte is a sort of a checksum
         }
         resistance.append(sum);
-        if (oldresistance != ((uint8_t)Bike->currentResistance().value())) {
+        if (oldresistance != ((uint8_t)rand)) {
             writeCharacteristic(service, characteristic, resistance);
         }
-        oldresistance = ((uint8_t)Bike->currentResistance().value());
+        oldresistance = ((uint8_t)rand);
     }
     // characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point

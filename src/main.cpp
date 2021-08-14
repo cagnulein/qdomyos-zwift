@@ -409,13 +409,13 @@ int main(int argc, char *argv[]) {
             return app->exec();
         }
     }
-#endif
+#endif    
 
-    /* test virtual echelon
-     * settings.setValue("virtual_device_echelon", true);
-    virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
+    /* test virtual echelon*/
+    settings.setValue("virtual_device_echelon", true);
+    virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);        
     Q_UNUSED(V)
-    return app->exec();*/
+    return app->exec();
     bluetooth bl(logs, deviceName, noWriteResistance, noHeartService, pollDeviceTime, noConsole, testResistance,
                  bikeResistanceOffset,
                  bikeResistanceGain); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
