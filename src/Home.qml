@@ -85,7 +85,7 @@ HomeForm{
         cellHeight: 130 * settings.ui_zoom / 100
         focus: true
         model: appModel
-        leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
+        leftMargin: { (Screen.width % cellWidth) / 2 }
         anchors.topMargin: rootItem.topBarHeight + 30
         id: gridView
         objectName: "gridview"
