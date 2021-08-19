@@ -1,6 +1,6 @@
 window.chartColors = {
-    red: 'rgb(255, 99, 132)',
-    redt: 'rgb(255, 99, 132, 0.25)',
+    red: 'rgb(255, 29, 0)',
+    redt: 'rgb(255, 29, 0, 0.25)',
     orange: 'rgb(255, 159, 64)',
     oranget: 'rgb(255, 159, 64, 0.25)',
     darkorange: 'rgb(255, 140, 0)',
@@ -41,7 +41,7 @@ function process_arr(arr) {
     let speed = [];
     let inclination = [];
     let resistance = [];
-    let peloton_resistance = [];
+    let reqresistance = [];
     let distributionPowerZones = [];
     let maxEl = 0;
     let saveScreenshot = [];
@@ -73,7 +73,7 @@ function process_arr(arr) {
         let heartel = {};
         let cadenceel = {};
         let resistanceel = {};
-        let pelotonresistanceel = {};
+        let reqresistanceel = {};
         let speedel = {};
         let inclinationel = {};
         let time = el.elapsed_s + el.elapsed_m * 60 + el.elapsed_h * 3600;
@@ -117,9 +117,9 @@ function process_arr(arr) {
         resistanceel.x = time;
         resistanceel.y = el.resistance;
         resistance.push(resistanceel);
-        pelotonresistanceel.x = time;
-        pelotonresistanceel.y = el.peloton_resistance;
-        peloton_resistance.push(pelotonresistanceel);
+        reqresistanceel.x = time;
+        reqresistanceel.y = el.req_resistance;
+        reqresistance.push(reqresistanceel);
         speedel.x = time;
         speedel.y = el.speed;
         speed.push(speedel);
@@ -525,9 +525,9 @@ function process_arr(arr) {
                     borderColor: window.chartColors.red,
                 },
                 {
-                    label: 'Peloton R.',
+                    label: 'Target R.',
                     //cubicInterpolationMode: 'monotone',
-                    data: peloton_resistance,
+                    data: reqresistance,
                     fill: false,
                     pointRadius: 0,
                     borderWidth: 1,
@@ -567,7 +567,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Resistance vs Peloton Resistance'
+                    text:'Resistance vs Target Resistance'
                 },
                 tooltips: {
                     mode: 'index',
@@ -644,7 +644,7 @@ function process_arr(arr) {
                 {
                     backgroundColor: window.chartColors.black,
                     borderColor: window.chartColors.black,
-                    label: 'Peloton C.',
+                    label: 'Target C.',
                     //cubicInterpolationMode: 'monotone',
                     data: reqcadence,
                     fill: false,
@@ -684,7 +684,7 @@ function process_arr(arr) {
             plugins: {
                 title:{
                     display:true,
-                    text:'Cadence vs Peloton Cadence'
+                    text:'Cadence vs Target Cadence'
                 },
                 tooltips: {
                     mode: 'index',
@@ -1012,26 +1012,26 @@ $(window).on('load', function () {
     heartZones[2] = 150;
     heartZones[3] = 170;
 
-    arr = [{'watts': 50, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'peloton_resistance': 15, 'cadence': 80, 'req_cadence': 90, 'speed': 10, 'inclination': 1},
-           {'watts': 60, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'peloton_resistance': 30, 'cadence': 90, 'req_cadence': 100, 'speed': 8, 'inclination': 2},
-           {'watts': 70, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'peloton_resistance': 40, 'cadence': 100, 'req_cadence': 90, 'speed': 9, 'inclination': 2.5},
-           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'peloton_resistance': 41, 'cadence': 90, 'req_cadence': 95, 'speed': 11, 'inclination': 1},
-           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 95, 'speed': 10, 'inclination': 4},
-           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 95, 'speed': 12, 'inclination': 1},
-           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'peloton_resistance': 43, 'cadence': 95, 'req_cadence': 90, 'speed': 10, 'inclination': 3},
-           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'peloton_resistance': 35, 'cadence': 95, 'req_cadence': 80, 'speed': 10, 'inclination': 4},
-           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'peloton_resistance': 35, 'cadence': 95, 'req_cadence': 80, 'speed': 13, 'inclination': 1},
-           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'peloton_resistance': 30, 'cadence': 80, 'req_cadence': 80, 'speed': 12, 'inclination': 3},
-           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'peloton_resistance': 25, 'cadence': 90, 'req_cadence': 90, 'speed': 10, 'inclination': 2},
-           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'peloton_resistance': 35, 'cadence': 90, 'req_cadence': 90, 'speed': 12, 'inclination': 7},
-           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'peloton_resistance': 35, 'cadence': 90, 'req_cadence': 70, 'speed': 10, 'inclination': 10},
-           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 70, 'speed': 7, 'inclination': 12},
-           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90, 'req_cadence': 70, 'speed': 6, 'inclination': 1},
-           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'peloton_resistance': 50, 'cadence': 90, 'req_cadence': 90, 'speed': 10, 'inclination': 14},
-           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'peloton_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10},
-           {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9},
-           {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5},
-           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'peloton_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
+    arr = [{'watts': 50, 'req_power': 150, 'elapsed_s':0,'elapsed_m':0,'elapsed_h':0, 'heart':90, 'resistance': 10, 'req_resistance': 15, 'cadence': 80, 'req_cadence': 90, 'speed': 10, 'inclination': 1},
+           {'watts': 60, 'req_power': 150, 'elapsed_s':1,'elapsed_m':1,'elapsed_h':0, 'heart':92, 'resistance': 11, 'req_resistance': 30, 'cadence': 90, 'req_cadence': 100, 'speed': 8, 'inclination': 2},
+           {'watts': 70, 'req_power': 170, 'elapsed_s':2,'elapsed_m':2,'elapsed_h':0, 'heart':110, 'resistance': 12, 'req_resistance': 40, 'cadence': 100, 'req_cadence': 90, 'speed': 9, 'inclination': 2.5},
+           {'watts': 140, 'req_power': 170, 'elapsed_s':3,'elapsed_m':3,'elapsed_h':0, 'heart':115, 'resistance': 16, 'req_resistance': 41, 'cadence': 90, 'req_cadence': 95, 'speed': 11, 'inclination': 1},
+           {'watts': 130, 'req_power': 170, 'elapsed_s':4,'elapsed_m':4,'elapsed_h':0, 'heart':130, 'resistance': 18, 'req_resistance': 43, 'cadence': 95, 'req_cadence': 95, 'speed': 10, 'inclination': 4},
+           {'watts': 160, 'req_power': 170, 'elapsed_s':5,'elapsed_m':5,'elapsed_h':0, 'heart':135, 'resistance': 22, 'req_resistance': 43, 'cadence': 95, 'req_cadence': 95, 'speed': 12, 'inclination': 1},
+           {'watts': 180, 'req_power': 130, 'elapsed_s':6,'elapsed_m':6,'elapsed_h':0, 'heart':140, 'resistance': 31, 'req_resistance': 43, 'cadence': 95, 'req_cadence': 90, 'speed': 10, 'inclination': 3},
+           {'watts': 120, 'req_power': 130, 'elapsed_s':7,'elapsed_m':7,'elapsed_h':0, 'heart':150, 'resistance': 18, 'req_resistance': 35, 'cadence': 95, 'req_cadence': 80, 'speed': 10, 'inclination': 4},
+           {'watts': 190, 'req_power': 150, 'elapsed_s':1,'elapsed_m':8,'elapsed_h':0, 'heart':155, 'resistance': 17, 'req_resistance': 35, 'cadence': 95, 'req_cadence': 80, 'speed': 13, 'inclination': 1},
+           {'watts': 195, 'req_power': 170, 'elapsed_s':2,'elapsed_m':9,'elapsed_h':0, 'heart':165, 'resistance': 19, 'req_resistance': 30, 'cadence': 80, 'req_cadence': 80, 'speed': 12, 'inclination': 3},
+           {'watts': 200, 'req_power': 170, 'elapsed_s':3,'elapsed_m':10,'elapsed_h':0, 'heart':153, 'resistance': 20, 'req_resistance': 25, 'cadence': 90, 'req_cadence': 90, 'speed': 10, 'inclination': 2},
+           {'watts': 206, 'req_power': 170, 'elapsed_s':4,'elapsed_m':11,'elapsed_h':0, 'heart':152, 'resistance': 21, 'req_resistance': 35, 'cadence': 90, 'req_cadence': 90, 'speed': 12, 'inclination': 7},
+           {'watts': 211, 'req_power': 170, 'elapsed_s':5,'elapsed_m':12,'elapsed_h':0, 'heart':180, 'resistance': 25, 'req_resistance': 35, 'cadence': 90, 'req_cadence': 70, 'speed': 10, 'inclination': 10},
+           {'watts': 222, 'req_power': 130, 'elapsed_s':6,'elapsed_m':13,'elapsed_h':0, 'heart':182, 'resistance': 31, 'req_resistance': 35, 'cadence': 80, 'req_cadence': 70, 'speed': 7, 'inclination': 12},
+           {'watts': 237, 'req_power': 130, 'elapsed_s':7,'elapsed_m':14,'elapsed_h':0, 'heart':160, 'resistance': 20, 'req_resistance': 50, 'cadence': 90, 'req_cadence': 70, 'speed': 6, 'inclination': 1},
+           {'watts': 250, 'req_power': 170, 'elapsed_s':3,'elapsed_m':15,'elapsed_h':0, 'heart':115, 'resistance': 20, 'req_resistance': 50, 'cadence': 90, 'req_cadence': 90, 'speed': 10, 'inclination': 14},
+           {'watts': 266, 'req_power': 170, 'elapsed_s':4,'elapsed_m':16,'elapsed_h':0, 'heart':120, 'resistance': 11, 'req_resistance': 35, 'cadence': 80, 'req_cadence': 60, 'speed': 10, 'inclination': 10},
+           {'watts': 351, 'req_power': 170, 'elapsed_s':5,'elapsed_m':17,'elapsed_h':0, 'heart':112, 'resistance': 22, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 60, 'speed': 5, 'inclination': 9},
+           {'watts': 322, 'req_power': 130, 'elapsed_s':6,'elapsed_m':18,'elapsed_h':0, 'heart':90, 'resistance': 25, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 96, 'speed': 10, 'inclination': 5},
+           {'watts': 257, 'req_power': 130, 'elapsed_s':7,'elapsed_m':19,'elapsed_h':0, 'heart':120, 'resistance': 10, 'req_resistance': 23, 'cadence': 80, 'req_cadence': 97, 'speed': 10, 'inclination': 1, 'workoutName': '45min Power Zone Ride', 'workoutStartDate': '20/12/2021', 'instructorName': "Roberto Viola", 'watts_avg': 200, 'watts_max' : 250, 'heart_avg': 120, 'heart_max' : 150},
             ]
     process_arr(arr);
 });
