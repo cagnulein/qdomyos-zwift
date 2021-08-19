@@ -41,6 +41,12 @@ void horizontreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
                                            bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if(!gattCustomService) {
+        qDebug() << "no gattCustomService available";
+        return;
+    }
+
     if (wait_for_response) {
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(3000, &loop, SLOT(quit()));
