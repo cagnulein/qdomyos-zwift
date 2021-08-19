@@ -183,6 +183,7 @@ import Qt.labs.settings 1.0
 
             property real watt_offset: 0
             property real watt_gain: 1
+            property bool power_avg_5s: false
 
             property real speed_offset: 0
             property real speed_gain: 1
@@ -2129,20 +2130,6 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.run_cadence_sensor = checked
                     }
-                    SwitchDelegate {
-                        id: iosPelotonWorkaroundDelegate
-                        text: qsTr("iOS Peloton Workaround")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.ios_peloton_workaround
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.ios_peloton_workaround = checked
-                    }
                     /*
                     RowLayout {
                         spacing: 10
@@ -3237,6 +3224,21 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.volume_change_gears = checked
                     }
+
+                    SwitchDelegate {
+                        id: powerAvg5s
+                        text: qsTr("Power Average 5 sec.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_avg_5s
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.power_avg_5s = checked
+                    }
                 }
             }
 
@@ -3684,6 +3686,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.android_wakelock = checked
+                    }
+
+                    SwitchDelegate {
+                        id: iosPelotonWorkaroundDelegate
+                        text: qsTr("iOS Peloton Workaround")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_peloton_workaround
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ios_peloton_workaround = checked
                     }
 
                     SwitchDelegate {

@@ -20,6 +20,7 @@ class metric {
     void setValue(double value);
     double value();
     double average();
+    double average5s();
     double min();
     double max();
     double lapValue();
@@ -43,6 +44,7 @@ class metric {
     double m_min = 999999999;
     double m_max = 0;
     double m_offset = 0;
+    QList<double> m_last5;
 
     double m_lapOffset = 0;
     double m_lapTotValue = 0;

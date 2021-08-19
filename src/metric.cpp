@@ -49,6 +49,9 @@ void metric::setValue(double v) {
         m_lapCountValue++;
         m_totValue += value();
         m_lapTotValue += value();
+        m_last5.append(value());
+        if(m_last5.count() > 5)
+            m_last5.removeAt(0);
 
         if (value() < m_min) {
             m_min = value();
@@ -76,6 +79,7 @@ void metric::clear(bool accumulator) {
     m_totValue = 0;
     m_countValue = 0;
     m_min = 999999999;
+    m_last5.clear();
     clearLap(accumulator);
     #ifdef TEST
     random_value_uint8 = 0;
@@ -84,6 +88,8 @@ void metric::clear(bool accumulator) {
 }
 
 double metric::value() {
+    QSettings settings;
+    bool power5s = settings.value(QStringLiteral("power_avg_5s"), false).toBool();
 #ifdef TEST
     if(m_type != METRIC_ELAPSED) {
         return (double)(rand() % 256);
@@ -92,6 +98,9 @@ double metric::value() {
     }
         
 #endif
+    if (m_type == METRIC_WATT && power5s) {
+        return average5s() - m_offset;
+    }
     return m_value - m_offset;
 }
 
@@ -110,6 +119,27 @@ double metric::lapAverage() {
         return 0;
     } else {
         return (m_lapTotValue / m_lapCountValue);
+    }
+}
+
+double metric::average5s()
+{
+    if(m_last5.count() == 0)
+        return 0;
+    else {
+        double sum = 0;
+        uint8_t c = 0;
+        QMutableListIterator<double> i(m_last5);
+        while (i.hasNext()) {
+            double b = i.next();
+            sum += b;
+            c++;
+        }
+
+        if(c>0)
+            return (sum / c);
+        else
+            return 0;
     }
 }
 
