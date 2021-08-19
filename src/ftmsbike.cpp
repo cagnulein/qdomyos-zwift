@@ -120,6 +120,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -259,7 +260,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     else
 #endif
     {
-        if (Flags.heartRate) {
+        if (Flags.heartRate && !disable_hr_frommachinery) {
             Heart = ((double)((newValue.at(index))));
             // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
             emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
@@ -285,7 +286,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
