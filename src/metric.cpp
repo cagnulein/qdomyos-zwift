@@ -2,6 +2,11 @@
 #include "qdebugfixup.h"
 #include <QSettings>
 
+#ifdef TEST
+static uint32_t random_value_uint32 = 0;
+static uint8_t random_value_uint8 = 0;
+#endif
+
 metric::metric() {}
 
 void metric::setType(_metric_type t) { m_type = t; }
@@ -72,14 +77,18 @@ void metric::clear(bool accumulator) {
     m_countValue = 0;
     m_min = 999999999;
     clearLap(accumulator);
+    #ifdef TEST
+    random_value_uint8 = 0;
+    random_value_uint32 = 0;
+    #endif
 }
 
 double metric::value() {
 #ifdef TEST
     if(m_type != METRIC_ELAPSED) {
-        static uint8_t i = 0; return (double)(i++); // DEBUG REMOVE random value to test
+        return (double)(rand() % 256);
     } else {
-        static uint32_t i = 0; return (double)(i++); // DEBUG REMOVE random value to test
+        return (double)(random_value_uint32++);
     }
         
 #endif
