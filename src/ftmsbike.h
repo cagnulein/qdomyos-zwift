@@ -69,7 +69,8 @@ enum FtmsResultCode {
 class ftmsbike : public bike {
     Q_OBJECT
   public:
-    ftmsbike(bool noWriteResistance, bool noHeartService);
+    ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+             double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
@@ -93,6 +94,8 @@ class ftmsbike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
     bool initDone = false;
     bool initRequest = false;

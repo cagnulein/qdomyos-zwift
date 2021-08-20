@@ -471,7 +471,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SMB1"))) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 discoveryAgent->stop();
-                ftmsBike = new ftmsbike(noWriteResistance, noHeartService);
+                ftmsBike = new ftmsbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected();
                 connect(ftmsBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));

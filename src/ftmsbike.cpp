@@ -16,12 +16,15 @@
 
 using namespace std::chrono_literals;
 
-ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService) {
+ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                   double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &ftmsbike::update);
     refresh->start(200ms);
@@ -421,7 +424,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
         }
     }
