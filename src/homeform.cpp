@@ -1503,6 +1503,7 @@ void homeform::update() {
         bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
         double ftpSetting = settings.value(QStringLiteral("ftp"), 200.0).toDouble();
         double unit_conversion = 1.0;
+        bool power5s = settings.value(QStringLiteral("power_avg_5s"), false).toBool();
         if (miles) {
             unit_conversion = 0.621371;
         }
@@ -1539,7 +1540,10 @@ void homeform::update() {
             QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
             QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
         datetime->setValue(QTime::currentTime().toString(QStringLiteral("hh:mm:ss")));
-        watts = bluetoothManager->device()->wattsMetric().value();
+        if(power5s)
+            watts = bluetoothManager->device()->wattsMetric().average5s();
+        else
+            watts = bluetoothManager->device()->wattsMetric().value();
         watt->setValue(QString::number(watts));
         weightLoss->setValue(QString::number(miles ? bluetoothManager->device()->weightLoss() * 35.274
                                                    : bluetoothManager->device()->weightLoss(),

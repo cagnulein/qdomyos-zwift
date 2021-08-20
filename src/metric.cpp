@@ -88,8 +88,6 @@ void metric::clear(bool accumulator) {
 }
 
 double metric::value() {
-    QSettings settings;
-    bool power5s = settings.value(QStringLiteral("power_avg_5s"), false).toBool();
 #ifdef TEST
     if(m_type != METRIC_ELAPSED) {
         return (double)(rand() % 256);
@@ -98,9 +96,6 @@ double metric::value() {
     }
         
 #endif
-    if (m_type == METRIC_WATT && power5s) {
-        return average5s() - m_offset;
-    }
     return m_value - m_offset;
 }
 
