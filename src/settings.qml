@@ -30,6 +30,7 @@ import Qt.labs.settings 1.0
             property real weight: 75.0
             property real ftp: 200.0
             property string user_email: ""
+            property string user_nickname: ""
             property bool miles_unit: false
             property bool pause_on_start: false
             property bool continuous_moving: false
@@ -214,6 +215,8 @@ import Qt.labs.settings 1.0
             property bool virtual_device_echelon: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
+
+            property bool classifica_enable: false
         }
 
         ColumnLayout {
@@ -335,6 +338,29 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.ftp = ftpTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelNickname
+                            text: qsTr("Nickname:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: nicknameTextField
+                            text: settings.user_nickname
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onAccepted: settings.user_nickname = text
+                        }
+                        Button {
+                            id: okNicknameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.user_nickname = nicknameTextField.text
                         }
                     }
 
@@ -3716,6 +3742,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.log_debug = checked
+                    }
+
+                    SwitchDelegate {
+                        id: logClassificaDelegate
+                        text: qsTr("QZ Classifica™")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.classifica_enable
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.classifica_enable = checked
                     }
                 }
             }

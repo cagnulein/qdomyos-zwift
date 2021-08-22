@@ -677,6 +677,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
     } else {
         QTime el = device->elapsedTime();
         QString name;
+        QString nickName;
         bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
 
         metric dep;
@@ -715,9 +716,14 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());
         obj.setProperty(QStringLiteral("watts_max"), dep.max());
+        obj.setProperty(QStringLiteral("kgwatts"), (dep = device->wattKg()).value());
+        obj.setProperty(QStringLiteral("kgwatts_avg"), dep.average());
+        obj.setProperty(QStringLiteral("kgwatts_max"), dep.max());
         obj.setProperty(QStringLiteral("workoutName"), workoutName);
         obj.setProperty(QStringLiteral("workoutStartDate"), workoutStartDate);
         obj.setProperty(QStringLiteral("instructorName"), instructorName);
+        obj.setProperty(QStringLiteral("nickName"),
+                        (nickName = settings.value(QStringLiteral("user_nickname"),QStringLiteral("")).toString()).isEmpty() ? QString(QStringLiteral("N/A")) : nickName);
         if (tp == bluetoothdevice::BIKE) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());

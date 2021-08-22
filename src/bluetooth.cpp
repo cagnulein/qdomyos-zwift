@@ -40,6 +40,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
+    userTemplateManager->start(schwinnIC4Bike);
     innerTemplateManager->start(schwinnIC4Bike);
     connectedAndDiscovered();
     return;
