@@ -3,6 +3,7 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
+import Qt.labs.settings 1.0
 
 ApplicationWindow {
     id: window
@@ -23,6 +24,11 @@ ApplicationWindow {
     signal saveSettings(url name)
     signal volumeUp()
     signal volumeDown()
+
+    Settings {
+        id: settings
+        property bool classifica_enable: false
+    }
 
     Popup {
 	    id: popup
@@ -52,6 +58,35 @@ ApplicationWindow {
 			}
 		 }
 	}
+
+    Popup {
+        id: popupClassificaHelper
+         parent: Overlay.overlay
+
+       x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 110
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings and enable the\nQZ Classifica setting in the experimental settings section and\nrestart the app.")
+            }
+         }
+    }
 
     Popup {
         id: popupLoadSettings
@@ -227,8 +262,15 @@ ApplicationWindow {
                 saveSettings("settings");
                 popupSaveFile.open()
             }
-            anchors.right: toolButtonAutoResistance.left
+            anchors.right: toolClassifica.left
             visible: false
+        }
+
+        ToolButton {
+            id: toolClassifica
+            icon.source: "icons/icons/chart.png"
+            onClicked: { if(!settings.classifica_enable) popupClassificaHelper.open(); stackView.push("Classifica.qml") }
+            anchors.right: toolButtonAutoResistance.left
         }
 
         ToolButton {

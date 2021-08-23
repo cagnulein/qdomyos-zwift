@@ -39,5 +39,6 @@
         <file>inner_templates/chartjs/moment.js</file>
         <file>inner_templates/chartjs/resize-observer.min.js</file>
         <file>inner_templates/chartjs/ajax-loader.gif</file>
+        <file>Classifica.qml</file>
     </qresource>
 </RCC>
