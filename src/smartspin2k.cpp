@@ -132,8 +132,9 @@ void smartspin2k::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 100) {
-                requestResistance = 100;
+            // TODO the max resistance should be inherited from the parent
+            if (requestResistance > 32) {
+                requestResistance = 32;
             } // TODO, use the bluetooth value
             else if (requestResistance == 0) {
                 requestResistance = 1;

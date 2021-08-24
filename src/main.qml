@@ -66,10 +66,11 @@ ApplicationWindow {
        x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
          width: 380
-         height: 110
+         height: 130
          modal: true
          focus: true
          palette.text: "white"
+         onClosed: stackView.push("Classifica.qml");
          closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
          enter: Transition
          {
@@ -83,7 +84,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
              anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings and enable the\nQZ Classifica setting in the experimental settings section and\nrestart the app.")
+             text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
             }
          }
     }
@@ -269,7 +270,7 @@ ApplicationWindow {
         ToolButton {
             id: toolClassifica
             icon.source: "icons/icons/chart.png"
-            onClicked: { if(!settings.classifica_enable) popupClassificaHelper.open(); stackView.push("Classifica.qml") }
+            onClicked: {  if(settings.classifica_enable) stackView.push("Classifica.qml"); else popupClassificaHelper.open(); }
             anchors.right: toolButtonAutoResistance.left
         }
 
