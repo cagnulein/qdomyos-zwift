@@ -2346,7 +2346,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_min = text
                             }
                             Button {
@@ -2370,7 +2370,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_max = text
                             }
                             Button {
@@ -2394,7 +2394,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_min = text
                             }
                             Button {
@@ -2418,7 +2418,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_max = text
                             }
                             Button {
