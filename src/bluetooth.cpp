@@ -405,10 +405,34 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(kingsmithR1ProTreadmill);
                 innerTemplateManager->start(kingsmithR1ProTreadmill);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("F80"))) &&
+                       !soleF80 && filter) {
+                discoveryAgent->stop();
+                soleF80 = new solef80(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected();
+                connect(soleF80, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(soleF80, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(soleF80, &solef80::debug, this, &bluetooth::debug);
+                // NOTE: Commented due to #358
+                // connect(soleF80, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // NOTE: Commented due to #358
+                // connect(soleF80, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                soleF80->deviceDiscovered(b);
+                // NOTE: Commented due to #358
+                // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(soleF80);
+                innerTemplateManager->start(soleF80);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("HORIZON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("F80")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
@@ -1062,6 +1086,11 @@ void bluetooth::restart() {
         delete horizonTreadmill;
         horizonTreadmill = nullptr;
     }
+    if (soleF80) {
+
+        delete soleF80;
+        soleF80 = nullptr;
+    }
     if (kingsmithR1ProTreadmill) {
 
         delete kingsmithR1ProTreadmill;
@@ -1269,6 +1298,8 @@ bluetoothdevice *bluetooth::device() {
         return trxappgateusbBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
+    } else if (soleF80) {
+        return soleF80;
     } else if (kingsmithR1ProTreadmill) {
         return kingsmithR1ProTreadmill;
     } else if (echelonConnectSport) {

@@ -49,6 +49,7 @@
 #include "snodebike.h"
 
 #include "soleelliptical.h"
+#include "solef80.h"
 
 #include "spirittreadmill.h"
 #include "sportstechbike.h"
@@ -111,6 +112,7 @@ class bluetooth : public QObject, public SignalHandler {
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
+    solef80 *soleF80 = nullptr;
     chronobike *chronoBike = nullptr;
     fitplusbike *fitPlusBike = nullptr;
     echelonrower *echelonRower = nullptr;
