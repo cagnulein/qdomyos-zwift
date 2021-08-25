@@ -95,13 +95,14 @@ void powerzonepack::search_workout_onfinish(const QString &message) {
         r.duration = QTime(0, 0, lastSeconds.msecsTo(seconds) / 1000, 0);
         r.power = power_graph.at(i - 1).toObject()[QStringLiteral("power_ratio")].toDouble() *
                   settings.value(QStringLiteral("ftp"), 200.0).toDouble();
-        lastSeconds = seconds;
 
         // in order to have compact rows in the training program to have an Reamining Time tile set correctly
         if (i == 1 || (r.power != trainrows.last().power))
             trainrows.append(r);
         else
-            trainrows.last().duration = trainrows.last().duration.addSecs((int)sec);
+            trainrows.last().duration = trainrows.last().duration.addSecs(lastSeconds.msecsTo(seconds) / 1000);
+
+        lastSeconds = seconds;
     }
 
     if (!trainrows.isEmpty()) {
