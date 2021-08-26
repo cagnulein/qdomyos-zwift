@@ -263,16 +263,16 @@ ApplicationWindow {
                 saveSettings("settings");
                 popupSaveFile.open()
             }
-            anchors.right: toolClassifica.left
+            anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
             visible: false
         }
 
-        ToolButton {
+        /*ToolButton {
             id: toolClassifica
             icon.source: "icons/icons/chart.png"
             onClicked: {  if(settings.classifica_enable) stackView.push("Classifica.qml"); else popupClassificaHelper.open(); }
             anchors.right: toolButtonAutoResistance.left
-        }
+        }*/
 
         ToolButton {
             id: toolButtonAutoResistance
