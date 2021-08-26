@@ -38,11 +38,11 @@ solef80::solef80(bool noWriteResistance, bool noHeartService) {
 }
 
 void solef80::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                           bool wait_for_response) {
+                                  bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
-    if(!gattCustomService) {
+    if (!gattCustomService) {
         qDebug() << "no gattCustomService available";
         return;
     }
@@ -157,21 +157,16 @@ void solef80::update() {
 }
 
 // example frame: 55aa320003050400532c00150000
-void solef80::forceSpeed(double requestSpeed) {
-
-}
+void solef80::forceSpeed(double requestSpeed) {}
 
 // example frame: 55aa3800030603005d0b0a0000
-void solef80::forceIncline(double requestIncline) {
-
-}
+void solef80::forceIncline(double requestIncline) {}
 
 void solef80::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void solef80::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                             const QByteArray &newValue) {
+void solef80::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
                       // UndefinedBinaryOperatorResult
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -183,7 +178,8 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616")) && newValue.length() == 18) {
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616")) &&
+        newValue.length() == 18) {
 
         // 9-10 should be the speed in case
         Inclination = (double)((uint8_t)newValue.at(11));
@@ -283,13 +279,14 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
             // energy per minute
             index += 1;
         } else {
-            KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+            if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+                KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                           settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                // kg * 3.5) / 200 ) / 60
         }
 
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -469,8 +466,7 @@ void solef80::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByte
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
 
-void solef80::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
-                                             const QByteArray &newValue) {
+void solef80::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }

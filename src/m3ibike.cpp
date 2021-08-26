@@ -680,10 +680,11 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         if (settings.value(QStringLiteral("m3i_bike_kcal"), true).toBool()) {
             KCal = k3.calorie;
         } else {
-            KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
-                       3.5) /
-                      200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+            if (watts())
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         }
         Distance = k3.distance;
         if (!not_in_pause || k3.time_orig <= 10) {

@@ -40,7 +40,6 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     } else {
         connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-
     }
 
     gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
@@ -108,7 +107,6 @@ void ftmsrower::update() {
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
-
             // btinit();
 
             requestStart = -1;
@@ -125,7 +123,6 @@ void ftmsrower::update() {
 
 void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
-
 }
 
 void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -174,7 +171,8 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (!Flags.moreData) {
 
         Cadence = ((uint8_t)newValue.at(index)) / 2;
-        StrokesCount = (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
+        StrokesCount =
+            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
         index += 3;
 
@@ -201,7 +199,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     } else {
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -259,12 +256,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         // energy per minute
         index += 1;
     } else {
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                              // kg * 3.5) / 200 ) / 60
+        if (watts())
+            KCal +=
+                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+                   3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
     }
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -338,7 +337,6 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
-
 }
 
 void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
@@ -369,7 +367,6 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                 this, &ftmsrower::errorService);
             connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
             connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
-
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
@@ -465,14 +462,12 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 void ftmsrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
-
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
 void ftmsrower::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
-
 }
 
 void ftmsrower::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -483,12 +478,10 @@ void ftmsrower::characteristicWritten(const QLowEnergyCharacteristic &characteri
 
 void ftmsrower::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
-
 }
 
 void ftmsrower::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
-
 
 #ifdef Q_OS_ANDROID
     QLowEnergyConnectionParameters c;
@@ -535,7 +528,6 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this, &ftmsrower::error);
         connect(m_control, &QLowEnergyController::stateChanged, this, &ftmsrower::controllerStateChanged);
 
-
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
                 this, [this](QLowEnergyController::Error error) {
@@ -571,9 +563,7 @@ bool ftmsrower::connected() {
 
 void *ftmsrower::VirtualBike() { return virtualBike; }
 
-
 void *ftmsrower::VirtualDevice() { return VirtualBike(); }
-
 
 uint16_t ftmsrower::watts() {
     if (currentCadence().value() == 0) {

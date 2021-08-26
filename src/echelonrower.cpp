@@ -219,7 +219,9 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         Cadence = ((uint8_t)newValue.at(11));
     }
     Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
-    KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg

@@ -247,12 +247,14 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // energy per minute
         index += 1;
     } else {
-        KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-              200.0) /
-             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                              // kg * 3.5) / 200 ) / 60
+        if (watts())
+            KCal +=
+                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+                   3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
     }
 
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -289,7 +291,8 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
@@ -424,7 +427,8 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
         }
     }
