@@ -46,13 +46,21 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
     loop.exec();
 }
 
+void renphobike::forcePower(int8_t requestPower) {
+    uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
+
+    write[1] = ((uint16_t)requestPower) & 0xFF;
+    write[2] = ((uint16_t)requestPower) >> 8;
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+}
+
 void renphobike::forceResistance(int8_t requestResistance) {
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x28, 0x33};
-
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
-
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
+    double cadence = RequestedCadence.value();
+    if (cadence <= 0)
+        cadence = Cadence.value();
+    forcePower((requestResistance * cadence) / 9.5488);
 }
 
 void renphobike::update() {
@@ -81,9 +89,15 @@ void renphobike::update() {
             // updateDisplay(elapsed);
         }
 
+        if (requestPower != -1) {
+            debug("writing power request " + QString::number(requestPower));
+            forcePower(requestPower);
+            requestPower = -1;
+            requestResistance = -1;
+        }
         if (requestResistance != -1) {
-            if (requestResistance > 100)
-                requestResistance = 100; // TODO, use the bluetooth value
+            if (requestResistance > 40)
+                requestResistance = 40; // TODO, use the bluetooth value
             else if (requestResistance == 0)
                 requestResistance = 1;
 
@@ -203,9 +217,10 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     if (Flags.resistanceLvl) {
         Resistance =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+            2;
         emit resistanceRead(Resistance.value());
-        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value() * 2);
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
     }

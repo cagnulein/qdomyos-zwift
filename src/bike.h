@@ -1,7 +1,6 @@
 #ifndef BIKE_H
 #define BIKE_H
 
-
 #include "bluetoothdevice.h"
 #include <QObject>
 
@@ -46,13 +45,13 @@ class bike : public bluetoothdevice {
     void resistanceRead(int8_t resistance);
 
   protected:
-
     metric RequestedResistance;
     metric RequestedPelotonResistance;
     metric RequestedCadence;
     metric RequestedPower;
 
     int8_t requestResistance = -1;
+    int16_t requestPower = -1;
 
     int8_t m_gears = 0;
     int8_t lastRawRequestedResistanceValue = -1;

@@ -3,7 +3,7 @@
 #include "qdebugfixup.h"
 #include <QSettings>
 
-bike::bike() {elapsed.setType(metric::METRIC_ELAPSED);}
+bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
 void bike::changeResistance(int8_t resistance) {
     lastRawRequestedResistanceValue = resistance;
@@ -19,6 +19,7 @@ void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {
 
     RequestedPower = power;
+    requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
     bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
     // bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool(); //Not used anywhere in code
@@ -208,9 +209,3 @@ uint8_t bike::metrics_override_heartrate() {
     }
     return qRound(currentHeart().value());
 }
-
-
-
-
-
-
