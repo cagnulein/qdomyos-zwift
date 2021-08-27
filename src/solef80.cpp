@@ -181,7 +181,8 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616")) &&
         newValue.length() == 18) {
 
-        Speed = (double)((uint8_t)newValue.at(10)) / 10.0;
+        // speed in miles by default
+        Speed = ((double)((uint8_t)newValue.at(10)) / 10.0) * 1.60934;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Inclination = (double)((uint8_t)newValue.at(11));
