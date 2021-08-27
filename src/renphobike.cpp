@@ -46,7 +46,7 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
     loop.exec();
 }
 
-void renphobike::forcePower(int8_t requestPower) {
+void renphobike::forcePower(int16_t requestPower) {
     uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
     write[1] = ((uint16_t)requestPower) & 0xFF;
