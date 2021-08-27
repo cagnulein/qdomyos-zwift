@@ -1540,7 +1540,7 @@ void homeform::update() {
             QStringLiteral("AVG: ") + QString::number(bluetoothManager->device()->wattKg().average(), 'f', 1) +
             QStringLiteral("MAX: ") + QString::number(bluetoothManager->device()->wattKg().max(), 'f', 1));
         datetime->setValue(QTime::currentTime().toString(QStringLiteral("hh:mm:ss")));
-        if(power5s)
+        if (power5s)
             watts = bluetoothManager->device()->wattsMetric().average5s();
         else
             watts = bluetoothManager->device()->wattsMetric().value();
@@ -2077,6 +2077,7 @@ void homeform::update() {
                         .contains(QStringLiteral("Disabled")) ||
                    (trainProgram && trainProgram->currentRow().zoneHR > 0)) {
             static uint32_t last_seconds_pid_heart_zone = 0;
+            static uint32_t pid_heart_zone_small_inc_counter = 0;
             uint32_t seconds = bluetoothManager->device()->elapsedTime().second() +
                                (bluetoothManager->device()->elapsedTime().minute() * 60) +
                                (bluetoothManager->device()->elapsedTime().hour() * 3600);
@@ -2112,12 +2113,23 @@ void homeform::update() {
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                            pid_heart_zone_small_inc_counter = 0;
                         } else if (zone > currentHRZone && maxSpeed >= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
                                     currentSpeed + step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                            pid_heart_zone_small_inc_counter = 0;
+                        } else {
+                            pid_heart_zone_small_inc_counter++;
+                            if (pid_heart_zone_small_inc_counter > 6) {
+                                ((treadmill *)bluetoothManager->device())
+                                    ->changeSpeedAndInclination(
+                                        currentSpeed + step,
+                                        ((treadmill *)bluetoothManager->device())->currentInclination().value());
+                                pid_heart_zone_small_inc_counter = 0;
+                            }
                         }
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 

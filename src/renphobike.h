@@ -53,7 +53,7 @@ class renphobike : public bike {
     void startDiscover();
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
-    void forcePower(int8_t requestPower);
+    void forcePower(int16_t requestPower);
 
     QTimer *refresh;
     virtualbike *virtualBike = 0;
