@@ -21,7 +21,7 @@ renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(200);
+    refresh->start(1000);
 }
 
 void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
@@ -83,16 +83,20 @@ void renphobike::update() {
                /*initDone*/) {
         update_metrics(true, watts());
 
-        // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+        // zwift send this every 5 seconds
+        if (sec1Update++ == (5000 / refresh->interval())) {
             sec1Update = 0;
-            // updateDisplay(elapsed);
+            uint8_t write[] = {FTMS_REQUEST_CONTROL};
+            writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+            write[0] = {FTMS_START_RESUME};
+            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
         }
 
         if (requestPower != -1) {
             debug("writing power request " + QString::number(requestPower));
-            forcePower(requestPower);
-            requestPower = -1;
+            if (autoResistanceEnable)
+                forcePower(requestPower);
+            // requestPower = -1;   // power should be always sent as zwift does
             requestResistance = -1;
         }
         if (requestResistance != -1) {
