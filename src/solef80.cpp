@@ -181,9 +181,23 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
     if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616")) &&
         newValue.length() == 18) {
 
-        // 9-10 should be the speed in case
+        Speed = (double)((uint8_t)newValue.at(10)) / 10.0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
         Inclination = (double)((uint8_t)newValue.at(11));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
 
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
