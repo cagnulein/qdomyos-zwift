@@ -373,6 +373,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(domyos);
                 innerTemplateManager->start(domyos);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("R1 PRO")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !kingsmithR1ProTreadmill &&
