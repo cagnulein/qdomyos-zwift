@@ -309,12 +309,16 @@ double kingsmithr1protreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
 void kingsmithr1protreadmill::btinit(bool startTape) {
     uint8_t initData1[] = {0xf7, 0xa5, 0x61, 0x01, 0x6a, 0x23, 0x1d, 0xbe, 0x6f, 0xfd};
+    uint8_t initData1b[] = {0xf7, 0xa5, 0x61, 0x2b, 0xe9, 0x19, 0xc7, 0xd2, 0xcc, 0xfd};
     uint8_t initData2[] = {0xf7, 0xa2, 0x00, 0x00, 0xa2, 0xfd};
     uint8_t initData3[] = {0xf7, 0xa6, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa6, 0xfd};
     uint8_t initData4[] = {0xf7, 0xb1, 0x05, 0x07, 0x15, 0x16, 0x08, 0x18, 0x08, 0xfd};
     uint8_t initData5[] = {0xf7, 0xb3, 0x02, 0x1d, 0x00, 0xd2, 0xfd};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    if(version == CLASSIC)
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    else
+        writeCharacteristic(initData1b, sizeof(initData1b), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
     writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
@@ -395,6 +399,13 @@ void kingsmithr1protreadmill::error(QLowEnergyController::Error err) {
 }
 
 void kingsmithr1protreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    if(!device.name().toUpper().compare(QStringLiteral("RE")))
+        version = RE;
+    else
+        version = CLASSIC;
+
+    qDebug() << "version" << version;
+
     {
 
         bluetoothDevice = device;
