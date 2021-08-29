@@ -52,8 +52,12 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+    if(version == CLASSIC)
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
                                                          QByteArray((const char *)data, data_len));
+    else
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+                                                         QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
