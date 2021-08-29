@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "elliptical.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 class domyoselliptical : public elliptical {
@@ -56,6 +57,7 @@ class domyoselliptical : public elliptical {
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = nullptr;
     uint8_t firstVirtual = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
@@ -95,6 +97,7 @@ class domyoselliptical : public elliptical {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

@@ -161,15 +161,23 @@ void domyoselliptical::update() {
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
-        if (!firstVirtual && searchStopped && !virtualTreadmill) {
-
-            QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        QSettings settings;
+        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyoselliptical::debug);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyoselliptical::debug);
+                    connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                            &domyoselliptical::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &domyoselliptical::changeInclinationRequested);
+                }
                 firstVirtual = 1;
             }
         }
@@ -194,6 +202,10 @@ void domyoselliptical::update() {
                 forceResistanceAndInclination(new_res, currentInclination().value());
             }
         }
+
+        // Resistance as incline on Sole E95s Elliptical #419
+        if (requestInclination != -1)
+            requestResistance = requestInclination;
 
         if (requestResistance != -1) {
             if (requestResistance > 15) {
@@ -240,6 +252,13 @@ void domyoselliptical::update() {
             requestStop = -1;
         }
     }
+}
+
+void domyoselliptical::changeInclinationRequested(double grade, double percentage) {
+    Q_UNUSED(grade);
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(percentage);
 }
 
 void domyoselliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
