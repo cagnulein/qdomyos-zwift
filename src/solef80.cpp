@@ -18,6 +18,10 @@
 
 using namespace std::chrono_literals;
 
+QBluetoothUuid _gattWriteCharCustomService(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
+QBluetoothUuid _gattWriteCharControlPointId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
+QBluetoothUuid _gattNotifyCharId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616"));
+
 #ifdef Q_OS_IOS
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
@@ -49,11 +53,11 @@ void solef80::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info,
 
     if (wait_for_response) {
         connect(this, &solef80::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(3000, &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     } else {
         connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
-        timeout.singleShot(3000, &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
     }
 
     gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
@@ -102,7 +106,7 @@ void solef80::update() {
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
         // updating the treadmill console every second
-        if (sec1Update++ == (500 / refresh->interval())) {
+        if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
             // updateDisplay(elapsed);
@@ -133,6 +137,11 @@ void solef80::update() {
             if (lastSpeed == 0.0) {
 
                 lastSpeed = 0.5;
+            }
+            uint8_t start[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+
+            if (gattCustomService) {
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
             }
             requestStart = -1;
             emit tapeStarted();
@@ -178,8 +187,7 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
-    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("49535343-1e4d-4bd9-ba61-23c647249616")) &&
-        newValue.length() == 18) {
+    if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
 
         Speed = ((double)((uint8_t)newValue.at(10)) / 10.0);
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -368,8 +376,6 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
 void solef80::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
-    QBluetoothUuid _gattWriteCharCustomService(QStringLiteral("49535343-fe7d-4ae5-8fa9-9fafd205e455"));
-    QBluetoothUuid _gattWriteCharControlPointId(QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3"));
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -404,7 +410,8 @@ void solef80::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
-                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
+                    c.uuid() == _gattNotifyCharId) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -418,21 +425,20 @@ void solef80::stateChanged(QLowEnergyService::ServiceState state) {
                     }
 
                     qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
-                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
-                           QLowEnergyCharacteristic::Indicate) {
-                    QByteArray descriptor;
-                    descriptor.append((char)0x02);
-                    descriptor.append((char)0x00);
-                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
-                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-                    } else {
-                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
-                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
-                                 << QStringLiteral(" is not valid");
-                    }
+                    /*} else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
+                               QLowEnergyCharacteristic::Indicate) {
+                        QByteArray descriptor;
+                        descriptor.append((char)0x02);
+                        descriptor.append((char)0x00);
+                        if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                            s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration),
+                       descriptor); } else { qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                     << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                     << QStringLiteral(" is not valid");
+                        }
 
-                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+                        qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");*/
                 } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
                     // s->readCharacteristic(c);
                     // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
