@@ -52,12 +52,12 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
         return;
     }
 
-    if(version == CLASSIC)
+    if (version == CLASSIC)
         gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+                                                             QByteArray((const char *)data, data_len));
     else
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+        gattCommunicationChannelService->writeCharacteristic(
+            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -319,7 +319,7 @@ void kingsmithr1protreadmill::btinit(bool startTape) {
     uint8_t initData4[] = {0xf7, 0xb1, 0x05, 0x07, 0x15, 0x16, 0x08, 0x18, 0x08, 0xfd};
     uint8_t initData5[] = {0xf7, 0xb3, 0x02, 0x1d, 0x00, 0xd2, 0xfd};
 
-    if(version == CLASSIC)
+    if (version == CLASSIC)
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     else
         writeCharacteristic(initData1b, sizeof(initData1b), QStringLiteral("init"), false, true);
@@ -403,7 +403,8 @@ void kingsmithr1protreadmill::error(QLowEnergyController::Error err) {
 }
 
 void kingsmithr1protreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
-    if(!device.name().toUpper().compare(QStringLiteral("RE")))
+    if (!device.name().toUpper().compare(QStringLiteral("RE")) ||
+        !device.name().toUpper().compare(QStringLiteral("KS-S1")))
         version = RE;
     else
         version = CLASSIC;
