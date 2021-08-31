@@ -73,7 +73,14 @@ void kingsmithr1protreadmill::writeCharacteristic(uint8_t *data, uint8_t data_le
 
 void kingsmithr1protreadmill::updateDisplay(uint16_t elapsed) {}
 
-void kingsmithr1protreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {}
+void kingsmithr1protreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
+    Q_UNUSED(requestIncline)
+    uint8_t speed[] = {0xf7, 0xa2, 0x01, 0x19, 0xbc, 0xfd};
+    speed[3] = requestSpeed * 10;
+    speed[4] = speed[1] + speed[2] + speed[3];
+    writeCharacteristic(speed, sizeof(speed), QStringLiteral("forceSpeed") + QString::number(requestSpeed), false,
+                        true);
+}
 
 bool kingsmithr1protreadmill::sendChangeFanSpeed(uint8_t speed) { return false; }
 
