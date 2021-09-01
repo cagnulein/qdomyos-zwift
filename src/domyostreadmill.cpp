@@ -565,7 +565,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Speed = speed;
     if (Inclination.value() != incline) {
 
-        emit inclinationChanged(incline);
+        emit inclinationChanged(0, incline);
     }
     Inclination = incline;
 

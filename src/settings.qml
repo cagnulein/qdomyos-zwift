@@ -202,6 +202,8 @@ import Qt.labs.settings 1.0
 
             property string power_sensor_name: "Disabled"
 
+            property string elite_rizer_name: "Disabled"
+
             property string ftms_accessory_name: "Disabled"
             property real ss2k_shift_step: 900
 
@@ -3395,6 +3397,49 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            AccordionElement {
+                id: eliteRizerOptionsAccordion
+                title: qsTr("Elite Rizer Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 10
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelEliteRizerName
+                            text: qsTr("Elite Rizer:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: eliteRizerNameTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.elite_rizer_name
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + eliteRizerNameTextField.currentIndex)
+                                displayText = eliteRizerNameTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okEliteRizerNameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.elite_rizer_name = eliteRizerNameTextField.displayText;
+                        }
+                    }
+
+                    Button {
+                        id: refreshEliteRizerNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+                }
+            }
 
             AccordionElement {
                 id: ftmsAccessoryOptionsAccordion

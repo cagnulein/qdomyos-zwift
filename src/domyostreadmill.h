@@ -24,14 +24,11 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
-
-
 #include <QDateTime>
 #include <QObject>
 
-
-#include "virtualbike.h"
 #include "treadmill.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -82,7 +79,7 @@ class domyostreadmill : public treadmill {
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike* virtualBike = 0;
+    virtualbike *virtualBike = 0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -99,7 +96,6 @@ class domyostreadmill : public treadmill {
     void disconnected();
     void debug(QString string);
     void speedChanged(double speed);
-    void inclinationChanged(double inclination);
     void packetReceived();
 
   public slots:

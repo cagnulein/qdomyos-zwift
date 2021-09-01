@@ -1,5 +1,5 @@
-#ifndef KINGSMITHR1PROTREADMILL_H
-#define KINGSMITHR1PROTREADMILL_H
+#ifndef ELITERIZER_H
+#define ELITERIZER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -26,89 +26,70 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <QString>
 
-#include "treadmill.h"
+#include "bike.h"
+#include "ftmsbike.h"
 #include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class kingsmithr1protreadmill : public treadmill {
+class eliterizer : public bike {
 
     Q_OBJECT
   public:
-    kingsmithr1protreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                            double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+    eliterizer(bool noWriteResistance, bool noHeartService);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
-    double odometer();
 
-    void setLastSpeed(double speed);
-    void setLastInclination(double inclination);
-
-    void *VirtualTreadMill();
+    void *VirtualBike();
     void *VirtualDevice();
 
   private:
-    typedef enum K1_VERSION { CLASSIC = 0, RE = 1 } K1_VERSION;
-    K1_VERSION version = CLASSIC;
-
-    bool sendChangeFanSpeed(uint8_t speed);
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
-    void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    double DistanceCalculated = 0;
-    bool noConsole = false;
-    bool noHeartService = false;
-    uint32_t pollDeviceTime = 200;
-    bool searchStopped = false;
-    double lastSpeed = 0.0;
-    double lastInclination = 0;
-    uint8_t sec1Update = 0;
-    uint8_t firstInit = 0;
-    QByteArray lastPacket;
-    QDateTime lastTimeCharacteristicChanged;
-    bool firstCharacteristicChanged = true;
+    uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-    virtualbike *virtualBike = 0;
+    virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
+    uint8_t sec1Update = 0;
+    QByteArray lastPacket;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
+
     bool initDone = false;
     bool initRequest = false;
+
+    bool noWriteResistance = false;
+    bool noHeartService = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
 
-  Q_SIGNALS:
+  signals:
     void disconnected();
     void debug(QString string);
-    void speedChanged(double speed);
-    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
+    // void resistanceReadFromTheBike(int8_t resistance);
+    void autoResistanceChanged(bool value);
 
   private slots:
 
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
     void changeInclinationRequested(double grade, double percentage);
@@ -120,4 +101,4 @@ class kingsmithr1protreadmill : public treadmill {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // KINGSMITHR1PROTREADMILL_H
+#endif // ELITERIZER_H

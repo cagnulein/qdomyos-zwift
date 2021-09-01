@@ -393,6 +393,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&echelonconnectsport::debug);
+                connect(virtualBike, &virtualbike::changeInclination, this, &echelonconnectsport::inclinationChanged);
             }
         }
         firstStateChanged = 1;

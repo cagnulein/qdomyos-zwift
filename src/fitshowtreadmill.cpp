@@ -417,7 +417,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
                 if (Inclination.value() != incline) {
                     Inclination = incline;
-                    emit inclinationChanged(incline);
+                    emit inclinationChanged(0, incline);
                 }
 
                 KCal = kcal;
@@ -479,7 +479,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             }
             if (Inclination.value() != 0.0) {
                 Inclination = 0.0;
-                emit inclinationChanged(0.0);
+                emit inclinationChanged(0.0, 0.0);
             }
         }
     } else if (cmd == FITSHOW_SYS_DATA) {

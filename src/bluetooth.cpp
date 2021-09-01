@@ -121,14 +121,17 @@ void bluetooth::finished() {
     QString cscName = settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled")).toString();
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
+    QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) && !csc_as_bike;
     bool powerSensorFound = powerSensorName.startsWith(QStringLiteral("Disabled"));
+    bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
 
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
-        (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable())) {
+        (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
+        (!eliteRizerFound && !eliteRizerAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -204,6 +207,20 @@ bool bluetooth::powerSensorAvaiable() {
     return false;
 }
 
+bool bluetooth::eliteRizerAvaiable() {
+
+    QSettings settings;
+    QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
+
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (!eliteRizerName.compare(b.name())) {
+
+            return true;
+        }
+    }
+    return false;
+}
+
 bool bluetooth::heartRateBeltAvaiable() {
 
     QSettings settings;
@@ -239,7 +256,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool flywheel_life_fitness_ic8 = settings.value(QStringLiteral("flywheel_life_fitness_ic8"), false).toBool();
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
+    QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
     bool powerSensorFound = powerSensorName.startsWith(QStringLiteral("Disabled"));
+    bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
 
     if (!heartRateBeltFound) {
 
@@ -256,6 +275,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!powerSensorFound) {
 
         powerSensorFound = powerSensorAvaiable();
+    }
+    if (!eliteRizerFound) {
+
+        eliteRizerFound = eliteRizerAvaiable();
     }
 
     bool found = false;
@@ -282,7 +305,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (onlyDiscover)
         return;
 
-    if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound) || forceHeartBeltOffForTimeout) {
+    if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound) ||
+        forceHeartBeltOffForTimeout) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
 
             bool filter = true;
@@ -929,6 +953,7 @@ void bluetooth::connectedAndDiscovered() {
     QString cscName = settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled")).toString();
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
+    QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
 
     // only at the first very connection, setting the user default resistance
     if (device() && firstConnected &&
@@ -1044,7 +1069,7 @@ void bluetooth::connectedAndDiscovered() {
 #ifndef Q_OS_IOS
             settings.setValue(QStringLiteral("power_sensor_address"), b.address().toString());
 #else
-            settings.setValue("csc_sensor_address", b.deviceUuid().toString());
+            settings.setValue("power_sensor_address", b.deviceUuid().toString());
 #endif
             powerSensor = new stagesbike(false, false, true);
             // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -1052,6 +1077,26 @@ void bluetooth::connectedAndDiscovered() {
             connect(powerSensor, &stagesbike::debug, this, &bluetooth::debug);
             connect(powerSensor, &bluetoothdevice::powerChanged, this->device(), &bluetoothdevice::powerSensor);
             powerSensor->deviceDiscovered(b);
+            break;
+        }
+    }
+
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+        if (((b.name().startsWith(eliteRizerName))) && !eliteRizer &&
+            !eliteRizerName.startsWith(QStringLiteral("Disabled"))) {
+            settings.setValue(QStringLiteral("elite_rizer_lastdevice_name"), b.name());
+
+#ifndef Q_OS_IOS
+            settings.setValue(QStringLiteral("elite_rizer_address"), b.address().toString());
+#else
+            settings.setValue("elite_rizer_address", b.deviceUuid().toString());
+#endif
+            eliteRizer = new eliterizer(false, false);
+            // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+            connect(eliteRizer, &eliterizer::debug, this, &bluetooth::debug);
+            connect(this->device(), &bluetoothdevice::inclinationChanged, eliteRizer, &eliterizer::inclinationChanged);
+            eliteRizer->deviceDiscovered(b);
             break;
         }
     }
@@ -1317,6 +1362,12 @@ void bluetooth::restart() {
         delete powerSensor;
         powerSensor = nullptr;
     }
+    if (eliteRizer) {
+
+        // heartRateBelt->disconnectBluetooth(); // to test
+        delete eliteRizer;
+        eliteRizer = nullptr;
+    }
     discoveryAgent->start();
 }
 
@@ -1493,8 +1544,9 @@ void bluetooth::speedChanged(double speed) {
     stateFileUpdate();
 }
 
-void bluetooth::inclinationChanged(double inclination) {
+void bluetooth::inclinationChanged(double grade, double inclination) {
 
+    Q_UNUSED(grade);
     Q_UNUSED(inclination);
     stateFileUpdate();
 }

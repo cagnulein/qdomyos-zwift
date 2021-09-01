@@ -54,6 +54,7 @@ SOURCES += \
 		echelonconnectsport.cpp \
    echelonrower.cpp \
    echelonstride.cpp \
+   eliterizer.cpp \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
    fitplusbike.cpp \
@@ -165,6 +166,7 @@ HEADERS += \
 	echelonconnectsport.h \
    echelonrower.h \
    echelonstride.h \
+   eliterizer.h \
 	 elliptical.h \
    eslinkertreadmill.h \
    fitplusbike.h \

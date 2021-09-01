@@ -95,7 +95,6 @@ class echelonstride : public treadmill {
     void disconnected();
     void debug(QString string);
     void speedChanged(double speed);
-    void inclinationChanged(double inclination);
     void packetReceived();
 
   public slots:

@@ -191,6 +191,7 @@ void domyosbike::update() {
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
+                connect(virtualBike, &virtualbike::changeInclination, this, &domyosbike::inclinationChanged);
             }
         }
         firstStateChanged = 1;
@@ -637,7 +638,7 @@ uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
             return i;
         }
     }
-    if(power < wattsFromResistance(1))
+    if (power < wattsFromResistance(1))
         return 1;
     else
         return max_resistance;

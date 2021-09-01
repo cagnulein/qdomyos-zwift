@@ -436,6 +436,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
             debug("creating virtual bike interface...");
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&renphobike::debug);
+            connect(virtualBike, &virtualbike::changeInclination, this, &renphobike::inclinationChanged);
         }
     }
     firstStateChanged = 1;

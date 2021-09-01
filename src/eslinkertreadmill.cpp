@@ -223,7 +223,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
     Speed = speed;
     if (Inclination.value() != incline) {
-        emit inclinationChanged(incline);
+        emit inclinationChanged(0.0, incline);
     }
     Inclination = incline;
 
