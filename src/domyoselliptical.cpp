@@ -586,152 +586,21 @@ void *domyoselliptical::VirtualDevice() { return VirtualTreadmill(); }
 uint16_t domyoselliptical::watts() {
 
     QSettings settings;
-    const uint8_t max_resistance = 15;
-    // ref
-    // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    const uint16_t watt_cad40_min = 25;
-    const uint16_t watt_cad40_max = 55;
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
-    const uint16_t watt_cad45_min = 35;
-    const uint16_t watt_cad45_max = 65;
+    uint16_t watts = 0;
+    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    if (currentSpeed().value() > 0) {
 
-    const uint16_t watt_cad50_min = 40;
-    const uint16_t watt_cad50_max = 80;
-
-    const uint16_t watt_cad55_min = 50;
-    const uint16_t watt_cad55_max = 105;
-
-    const uint16_t watt_cad60_min = 60;
-    const uint16_t watt_cad60_max = 125;
-
-    const uint16_t watt_cad65_min = 70;
-    const uint16_t watt_cad65_max = 160;
-
-    const uint16_t watt_cad70_min = 85;
-    const uint16_t watt_cad70_max = 190;
-
-    const uint16_t watt_cad75_min = 100;
-    const uint16_t watt_cad75_max = 240;
-
-    const uint16_t watt_cad80_min = 115;
-    const uint16_t watt_cad80_max = 280;
-
-    const uint16_t watt_cad85_min = 130;
-    const uint16_t watt_cad85_max = 340;
-
-    const uint16_t watt_cad90_min = 150;
-    const uint16_t watt_cad90_max = 390;
-
-    const uint16_t watt_cad95_min = 175;
-    const uint16_t watt_cad95_max = 450;
-
-    const uint16_t watt_cad100_min = 195;
-    const uint16_t watt_cad100_max = 520;
-
-    const uint16_t watt_cad105_min = 210;
-    const uint16_t watt_cad105_max = 600;
-
-    const uint16_t watt_cad110_min = 245;
-    const uint16_t watt_cad110_max = 675;
-
-    const uint16_t watt_cad115_min = 270;
-    const uint16_t watt_cad115_max = 760;
-
-    const uint16_t watt_cad120_min = 300;
-    const uint16_t watt_cad120_max = 850;
-
-    const uint16_t watt_cad125_min = 330;
-    const uint16_t watt_cad125_max = 945;
-
-    const uint16_t watt_cad130_min = 360;
-    const uint16_t watt_cad130_max = 1045;
-
-    if (currentSpeed().value() <= 0) {
-        return 0;
+        double pace = 60 / currentSpeed().value();
+        double VO2R = 210.0 / pace;
+        double VO2A = (VO2R * weight) / 1000.0;
+        double hwatts = 75 * VO2A;
+        double vwatts = ((9.8 * weight) * (currentInclination().value() / 100.0));
+        watts = hwatts + vwatts;
     }
-
-    double vwatts =
-        ((9.8 * settings.value(QStringLiteral("weight"), 75).toDouble() * (currentInclination().value() / 100.0)));
-
-    if (currentCadence().value() < 41) {
-        return ((((watt_cad40_max - watt_cad40_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad40_min) +
-               vwatts;
-    } else if (currentCadence().value() < 46) {
-        return ((((watt_cad45_max - watt_cad45_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad45_min) +
-               vwatts;
-    } else if (currentCadence().value() < 51) {
-        return ((((watt_cad50_max - watt_cad50_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad50_min) +
-               vwatts;
-    } else if (currentCadence().value() < 56) {
-        return ((((watt_cad55_max - watt_cad55_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad55_min) +
-               vwatts;
-    } else if (currentCadence().value() < 61) {
-        return ((((watt_cad60_max - watt_cad60_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad60_min) +
-               vwatts;
-    } else if (currentCadence().value() < 66) {
-        return ((((watt_cad65_max - watt_cad65_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad65_min) +
-               vwatts;
-    } else if (currentCadence().value() < 71) {
-        return ((((watt_cad70_max - watt_cad70_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad70_min) +
-               vwatts;
-    } else if (currentCadence().value() < 76) {
-        return ((((watt_cad75_max - watt_cad75_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad75_min) +
-               vwatts;
-    } else if (currentCadence().value() < 81) {
-        return ((((watt_cad80_max - watt_cad80_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad80_min) +
-               vwatts;
-    } else if (currentCadence().value() < 86) {
-        return ((((watt_cad85_max - watt_cad85_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad85_min) +
-               vwatts;
-    } else if (currentCadence().value() < 91) {
-        return ((((watt_cad90_max - watt_cad90_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad90_min) +
-               vwatts;
-    } else if (currentCadence().value() < 96) {
-        return ((((watt_cad95_max - watt_cad95_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad95_min) +
-               vwatts;
-    } else if (currentCadence().value() < 101) {
-        return ((((watt_cad100_max - watt_cad100_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad100_min) +
-               vwatts;
-    } else if (currentCadence().value() < 106) {
-        return ((((watt_cad105_max - watt_cad105_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad105_min) +
-               vwatts;
-    } else if (currentCadence().value() < 111) {
-        return ((((watt_cad110_max - watt_cad110_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad110_min) +
-               vwatts;
-    } else if (currentCadence().value() < 116) {
-        return ((((watt_cad115_max - watt_cad115_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad115_min) +
-               vwatts;
-    } else if (currentCadence().value() < 121) {
-        return ((((watt_cad120_max - watt_cad120_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad120_min) +
-               vwatts;
-    } else if (currentCadence().value() < 126) {
-        return ((((watt_cad125_max - watt_cad125_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad125_min) +
-               vwatts;
-    } else {
-        return ((((watt_cad130_max - watt_cad130_min) / (max_resistance - 1)) * (currentResistance().value() - 1)) +
-                watt_cad130_min) +
-               vwatts;
-    }
-    return 0;
+    return watts;
 }
 
 void domyoselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
