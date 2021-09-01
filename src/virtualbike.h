@@ -31,8 +31,8 @@ class virtualbike : public QObject {
 
     Q_OBJECT
   public:
-    virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false, uint8_t bikeResistanceOffset = 4,
-                double bikeResistanceGain = 1.0);
+    virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
+                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected();
 
   private:
@@ -50,7 +50,7 @@ class virtualbike : public QObject {
     QLowEnergyServiceData serviceDataChanged;
     QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
-    bluetoothdevice* Bike;
+    bluetoothdevice *Bike;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -69,8 +69,11 @@ class virtualbike : public QObject {
     lockscreen *h = 0;
 #endif
 
-signals:
+  signals:
     void changeInclination(double grade, double percentage);
+
+    // need to be implemented also in the iOS peloton workaround
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

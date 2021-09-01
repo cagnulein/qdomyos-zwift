@@ -430,6 +430,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 
+    emit ftmsCharacteristicChanged(characteristic, newValue);
+
     switch (characteristic.uuid().toUInt16()) {
 
     case 0x2AD9: // Fitness Machine Control Point

@@ -352,6 +352,9 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
     QBluetoothUuid _gattNotify1CharacteristicId((quint16)0x2AD2);
     gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
 
+    QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+    gattWriteCharControlPointId = gattCommunicationChannelService->characteristic(_gattWriteCharControlPointId);
+
     qDebug() << state;
 
     QByteArray descriptor;
@@ -397,10 +400,18 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&snodebike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &snodebike::inclinationChanged);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &snodebike::ftmsCharacteristicChanged);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void snodebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    if (gattWriteCharControlPointId.isValid()) {
+        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue;
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharControlPointId, newValue);
+    }
 }
 
 void snodebike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

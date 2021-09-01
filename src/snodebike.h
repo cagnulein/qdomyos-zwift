@@ -55,6 +55,7 @@ class snodebike : public bike {
 
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattWriteCharControlPointId;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -93,6 +94,8 @@ class snodebike : public bike {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // SNODEBIKE_H
