@@ -16,12 +16,13 @@
 
 using namespace std::chrono_literals;
 
-stagesbike::stagesbike(bool noWriteResistance, bool noHeartService) {
+stagesbike::stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->noVirtualDevice = noVirtualDevice;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &stagesbike::update);
     refresh->start(200ms);
@@ -131,6 +132,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             m_watt = (((uint16_t)((uint8_t)newValue.at(3)) << 8) | (uint16_t)((uint8_t)newValue.at(2)));
         }
 
+        emit powerChanged(m_watt.value());
         emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
         if ((flags & 0x1) == 0x01) // Pedal Power Balance Present
@@ -225,23 +227,25 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         }
     }
 
+    if (!noVirtualDevice) {
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool()) {
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-        debug("Current Heart: " + QString::number(Heart.value()));
-    }
+        if (settings.value("ant_heart", false).toBool()) {
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+            debug("Current Heart: " + QString::number(Heart.value()));
+        }
 #endif
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        lockscreen h;
-        long appleWatchHeartRate = h.heartRate();
-        h.setKcal(KCal.value());
-        h.setDistance(Distance.value());
-        Heart = appleWatchHeartRate;
-        debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
+        }
     }
 
     if (Cadence.value() > 0) {
@@ -251,16 +255,18 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    if (!noVirtualDevice) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+#endif
+#endif
     }
-#endif
-#endif
 
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -344,7 +350,7 @@ void stagesbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !virtualBike && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h

@@ -36,7 +36,7 @@
 class stagesbike : public bike {
     Q_OBJECT
   public:
-    stagesbike(bool noWriteResistance, bool noHeartService);
+    stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected();
 
     void *VirtualBike();
@@ -65,6 +65,7 @@ class stagesbike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+    bool noVirtualDevice = false;
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;

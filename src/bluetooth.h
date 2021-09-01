@@ -126,6 +126,7 @@ class bluetooth : public QObject, public SignalHandler {
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
+    stagesbike *powerSensor = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
@@ -144,6 +145,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool heartRateBeltAvaiable();
     bool ftmsAccessoryAvaiable();
     bool cscSensorAvaiable();
+    bool powerSensorAvaiable();
 
   signals:
     void deviceConnected();

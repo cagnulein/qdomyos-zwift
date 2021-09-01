@@ -200,6 +200,8 @@ import Qt.labs.settings 1.0
             property real power_hr_pwr2: 230
             property real power_hr_hr2: 170
 
+            property string power_sensor_name: "Disabled"
+
             property string ftms_accessory_name: "Disabled"
             property real ss2k_shift_step: 900
 
@@ -3348,6 +3350,51 @@ import Qt.labs.settings 1.0
                     }
                 }
             }
+
+            AccordionElement {
+                id: powerSensorOptionsAccordion
+                title: qsTr("Power Sensor Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 10
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelPowerSensorName
+                            text: qsTr("Power Sensor:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: powerSensorNameTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.power_sensor_name
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + powerSensorNameTextField.currentIndex)
+                                displayText = powerSensorNameTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okPowerSensorNameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.power_sensor_name = powerSensorNameTextField.displayText;
+                        }
+                    }
+
+                    Button {
+                        id: refreshPowerSensorNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+                }
+            }
+
 
             AccordionElement {
                 id: ftmsAccessoryOptionsAccordion

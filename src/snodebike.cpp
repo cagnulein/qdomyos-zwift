@@ -219,8 +219,11 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.instantPower) {
-        m_watt =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+            m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                               (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
     }

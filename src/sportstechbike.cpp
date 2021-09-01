@@ -174,7 +174,10 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
     }
-    m_watt = watt;
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+        m_watt = watt;
 
     lastTimeCharChanged = QTime::currentTime();
     firstCharChanged = false;

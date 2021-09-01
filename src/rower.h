@@ -38,6 +38,7 @@ class rower : public bike {
     virtual void changePower(int32_t power);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     virtual void cadenceSensor(uint8_t cadence);
+    virtual void powerSensor(uint16_t power);
 
   signals:
     void bikeStarted();

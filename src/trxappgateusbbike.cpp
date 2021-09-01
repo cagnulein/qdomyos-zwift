@@ -303,7 +303,10 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
     }
-    m_watt = watt;
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+        m_watt = watt;
 
     double ac = 0.01243107769;
     double bc = 1.145964912;

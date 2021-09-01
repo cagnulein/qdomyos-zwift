@@ -138,7 +138,10 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (newValue.length() != 19)
         return;
 
-    m_watt = (uint16_t)((uint8_t)newValue.at(17)) + ((uint16_t)((uint8_t)newValue.at(18)) << 8);
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+        m_watt = (uint16_t)((uint8_t)newValue.at(17)) + ((uint16_t)((uint8_t)newValue.at(18)) << 8);
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {

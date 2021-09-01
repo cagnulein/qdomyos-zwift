@@ -8,7 +8,7 @@ class elliptical : public bluetoothdevice {
 
   public:
     elliptical();
-    void update_metrics(const bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts);
     metric lastRequestedResistance();
     virtual metric currentInclination();
     virtual metric currentResistance();

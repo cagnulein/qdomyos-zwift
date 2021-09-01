@@ -8,7 +8,7 @@ class treadmill : public bluetoothdevice {
 
   public:
     treadmill();
-    void update_metrics(const bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts);
     virtual metric currentInclination();
     virtual uint8_t fanSpeed();
     virtual bool connected();

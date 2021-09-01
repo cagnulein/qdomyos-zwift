@@ -78,12 +78,14 @@ class bluetoothdevice : public QObject {
     virtual void stop();
     virtual void heartRate(uint8_t heart);
     virtual void cadenceSensor(uint8_t cadence);
+    virtual void powerSensor(uint16_t power);
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
 
   Q_SIGNALS:
     void connectedAndDiscovered();
     void cadenceChanged(uint8_t cadence);
+    void powerChanged(uint16_t power);
 
   protected:
     QLowEnergyController *m_control = nullptr;
@@ -114,7 +116,7 @@ class bluetoothdevice : public QObject {
 
     QDateTime _lastTimeUpdate;
     bool _firstUpdate = true;
-    void update_metrics(const bool watt_calc, const double watts);
+    void update_metrics(bool watt_calc, const double watts);
     double calculateMETS();
 };
 

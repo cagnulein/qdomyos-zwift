@@ -670,7 +670,10 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 .startsWith(QStringLiteral("Disabled"))) {
             Cadence = k3.rpm;
         }
-        m_watt = k3.watt;
+        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+            m_watt = k3.watt;
         watts(); // to update avg and max
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = k3.speed;

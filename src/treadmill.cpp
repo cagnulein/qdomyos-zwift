@@ -23,7 +23,7 @@ uint8_t treadmill::fanSpeed() { return FanSpeed; };
 bool treadmill::connected() { return false; }
 bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }
 
-void treadmill::update_metrics(const bool watt_calc, const double watts) {
+void treadmill::update_metrics(bool watt_calc, const double watts) {
 
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
