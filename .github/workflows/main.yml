@@ -52,8 +52,9 @@ jobs:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
 
-      - name: Install packages required to run QZ inside workflow
-        run: sudo apt-get install -y qt5-default libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+# removed because i removed the peloton account
+#      - name: Install packages required to run QZ inside workflow
+#        run: sudo apt-get install -y qt5-default libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
       
       - name: Compile Linux Desktop
         run: cd src; qmake; make -j8
@@ -64,14 +65,14 @@ jobs:
           name: linux-desktop-binary
           path: src/qdomyos-zwift              
 
-      - name: Test Peloton API
-        if: github.event_name == 'push' || github.event_name == 'schedule'
-        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
-        timeout-minutes: 2
+#      - name: Test Peloton API
+#        if: github.event_name == 'push' || github.event_name == 'schedule'
+#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-peloton -peloton-username ${{ secrets.peloton_username }} -peloton-password ${{ secrets.peloton_password }}
+#        timeout-minutes: 2
 
-      - name: Test Home Fitness Buddy API
-        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
-        timeout-minutes: 2
+#      - name: Test Home Fitness Buddy API
+#        run: cd /home/runner/work/qdomyos-zwift/qdomyos-zwift/src/; ./qdomyos-zwift -test-hfb
+#        timeout-minutes: 2
 
 #      - uses: actions/checkout@v2
 #        with:
