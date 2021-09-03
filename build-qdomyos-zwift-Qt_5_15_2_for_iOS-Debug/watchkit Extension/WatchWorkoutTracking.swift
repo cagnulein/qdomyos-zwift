@@ -195,6 +195,7 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
             
         }
+        workoutBuilder.finishWorkout{ (success, error) in }
     }
     
     func fetchStepCounts() {
