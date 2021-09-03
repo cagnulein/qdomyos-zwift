@@ -189,7 +189,8 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
 
-        Speed = ((double)((uint8_t)newValue.at(10)) / 10.0);
+        // the treadmill send the speed in miles always
+        Speed = ((double)((uint8_t)newValue.at(10)) / 10.0) * 1.60934;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Inclination = (double)((uint8_t)newValue.at(11));
