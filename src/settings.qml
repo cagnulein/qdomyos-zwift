@@ -219,8 +219,6 @@ import Qt.labs.settings 1.0
             property bool virtual_device_echelon: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
-
-            property bool classifica_enable: false
         }
 
         ColumnLayout {
@@ -3834,21 +3832,6 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.log_debug = checked
-                    }
-
-                    SwitchDelegate {
-                        id: logClassificaDelegate
-                        text: qsTr("QZ Classifica™")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.classifica_enable
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.classifica_enable = checked
                     }
                 }
             }

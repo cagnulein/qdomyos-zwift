@@ -27,7 +27,6 @@ ApplicationWindow {
 
     Settings {
         id: settings
-        property bool classifica_enable: false
     }
 
     Popup {

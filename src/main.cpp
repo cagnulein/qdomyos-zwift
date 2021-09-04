@@ -326,13 +326,6 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    settings.setValue("template_user_qz_enabled", settings.value("classifica_enable", false).toBool());
-    if(settings.value("classifica_enable", false).toBool()) {
-        settings.setValue("template_user_qz_type", TEMPLATE_TYPE_TCPCLIENT);
-        settings.setValue("template_user_qz_ip", "80.211.67.253");
-        settings.setValue("template_user_qz_port", "4321");
-    }
-
     qInstallMessageHandler(myMessageOutput);
     qDebug() << QStringLiteral("version ") << app->applicationVersion();
     foreach (QString s, settings.allKeys()) {
