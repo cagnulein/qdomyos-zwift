@@ -72,6 +72,13 @@ void solef80::btinit() {
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+    uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
+    uint8_t initData05[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+    uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x5d};
+    uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
+    uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+    uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+    uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
@@ -79,6 +86,14 @@ void solef80::btinit() {
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init"), false, true);
         writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData04, sizeof(initData04), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
     }
 
     initDone = true;
@@ -138,7 +153,7 @@ void solef80::update() {
 
                 lastSpeed = 0.5;
             }
-            uint8_t start[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+            uint8_t start[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
             if (gattCustomService) {
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
