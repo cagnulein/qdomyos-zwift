@@ -82,6 +82,7 @@ void solef80::btinit() {
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
+        waitForAPacket();
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
@@ -99,6 +100,14 @@ void solef80::btinit() {
     }
 
     initDone = true;
+}
+
+void solef80::waitForAPacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &solef80::packetReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
 }
 
 void solef80::update() {
@@ -203,6 +212,9 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
+
+    if (characteristic.uuid() == _gattNotifyCharId)
+        emit packetReceived();
 
     if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
 
