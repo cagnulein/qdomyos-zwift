@@ -52,6 +52,7 @@ import Qt.labs.settings 1.0
             property string peloton_cadence_metric: "Cadence"
             property string peloton_heartrate_metric: "Heart Rate"
             property string peloton_date: "Before Title"
+            property bool peloton_description_link: true
 
             property string pzp_username: "username"
             property string pzp_password: "username"
@@ -2238,6 +2239,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.peloton_date = pelotonDateOnStravaTextField.displayText
                         }
+                    }
+
+                    SwitchDelegate {
+                        id: pelotonDescriptionLinkDelegate
+                        text: qsTr("Activity Link in Strava")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.peloton_description_link
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.peloton_description_link = checked
                     }
                 }
             }
