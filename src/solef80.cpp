@@ -81,19 +81,21 @@ void solef80::btinit() {
     uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
-        writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData04, sizeof(initData04), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
+        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
+        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
+        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
+        writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
+        writeCharacteristic(initData04, sizeof(initData04), QStringLiteral("init4"), false, true);
+        writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init5"), false, true);
+        writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init5"), false, true);
+        writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init6"), false, true);
+        writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
+        writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+        writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
     }
 
     initDone = true;
