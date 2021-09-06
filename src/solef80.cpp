@@ -53,11 +53,11 @@ void solef80::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info,
 
     if (wait_for_response) {
         connect(this, &solef80::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        timeout.singleShot(2000, &loop, SLOT(quit()));
     } else {
         connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
-        timeout.singleShot(300, &loop, SLOT(quit()));
+        timeout.singleShot(2000, &loop, SLOT(quit()));
     }
 
     gattCustomService->writeCharacteristic(gattWriteCharCustomService, QByteArray((const char *)data, data_len));
