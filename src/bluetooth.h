@@ -38,6 +38,7 @@
 #include "horizontreadmill.h"
 #include "inspirebike.h"
 #include "kingsmithr1protreadmill.h"
+#include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "npecablebike.h"
 #include "proformbike.h"
@@ -121,6 +122,7 @@ class bluetooth : public QObject, public SignalHandler {
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
+    kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     renphobike *renphoBike = nullptr;

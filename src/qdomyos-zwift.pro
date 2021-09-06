@@ -94,6 +94,7 @@ SOURCES += \
 	inspirebike.cpp \
 	keepawakehelper.cpp \
    kingsmithr1protreadmill.cpp \
+   kingsmithr2treadmill.cpp \
 	     main.cpp \
 		metric.cpp \
     npecablebike.cpp \
@@ -173,6 +174,7 @@ HEADERS += \
     ftmsrower.h \
    homefitnessbuddy.h \
    kingsmithr1protreadmill.h \
+   kingsmithr2treadmill.h \
    m3ibike.h \
         fitshowtreadmill.h \
 	fit-sdk/FitDecode.h \
@@ -523,5 +525,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.8.53
+VERSION = 2.8.54
 
