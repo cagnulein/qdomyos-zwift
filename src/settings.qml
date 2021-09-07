@@ -21,8 +21,8 @@ import Qt.labs.settings 1.0
             property int bike_resistance_offset: 4
             property real bike_resistance_gain_f: 1.0
             property bool zwift_erg: false
-            property real zwift_erg_filter: 0.0
-            property real zwift_erg_filter_down: 0.0
+            property real zwift_erg_filter: 10.0
+            property real zwift_erg_filter_down: 10.0
 
             property bool speed_power_based: false
             property int bike_resistance_start: 1
