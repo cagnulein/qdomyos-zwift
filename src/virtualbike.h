@@ -73,7 +73,7 @@ class virtualbike : public QObject {
     void changeInclination(double grade, double percentage);
 
     // need to be implemented also in the iOS peloton workaround
-    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, QByteArray &newValue);
 
   private slots:
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);

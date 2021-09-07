@@ -95,7 +95,7 @@ class snodebike : public bike {
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 
-    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, QByteArray &newValue);
 };
 
 #endif // SNODEBIKE_H
