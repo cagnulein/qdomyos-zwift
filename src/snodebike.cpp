@@ -407,20 +407,21 @@ void snodebike::stateChanged(QLowEnergyService::ServiceState state) {
     // ********************************************************************************************************
 }
 
-void snodebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, QByteArray &newValue) {
+void snodebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QByteArray b = newValue;
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue;
 
         // this bike doesn't handle negative values, so i have to filter it
         if (newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) {
-            int16_t iresistance = (((uint8_t)newValue.at(3)) + (newValue.at(4) << 8));
+            int16_t iresistance = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             if (iresistance < 0) {
-                newValue[3] = 0;
-                newValue[4] = 0;
+                b[3] = 0;
+                b[4] = 0;
             }
         }
 
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharControlPointId, newValue);
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharControlPointId, b);
     }
 }
 
