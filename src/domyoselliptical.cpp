@@ -204,10 +204,6 @@ void domyoselliptical::update() {
             }
         }
 
-        // Resistance as incline on Sole E95s Elliptical #419
-        if (requestInclination != -1)
-            requestResistance = requestInclination;
-
         if (requestResistance != -1) {
             if (requestResistance > 15) {
                 requestResistance = 15;
