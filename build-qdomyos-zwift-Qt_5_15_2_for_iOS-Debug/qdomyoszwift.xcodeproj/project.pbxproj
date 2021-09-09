@@ -146,7 +146,6 @@
 		87318AAF2683799C00770F13 /* moc_echelonstride.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87318AAE2683799C00770F13 /* moc_echelonstride.cpp */; };
 		87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87318AB026837AA500770F13 /* libQt5WebSockets.a */; };
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
-		873D7B5F26D78950001062A4 /* moc_solef80.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873D7B5E26D78950001062A4 /* moc_solef80.cpp */; };
 		87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF5269D770F000C5EC6 /* libQt5WebView.a */; };
 		87420DFA269D7F44000C5EC6 /* libdeclarative_webview.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
@@ -633,7 +632,6 @@
 		87318AAE2683799C00770F13 /* moc_echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstride.cpp; sourceTree = "<group>"; };
 		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebSockets.a; sourceTree = "<group>"; };
 		87368824259C602800C71C7E /* watchAppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = watchAppStart.swift; path = ../src/ios/watchAppStart.swift; sourceTree = "<group>"; };
-		873D7B5E26D78950001062A4 /* moc_solef80.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_solef80.cpp; sourceTree = "<group>"; };
 		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebView.a; sourceTree = "<group>"; };
 		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = ../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin.a; sourceTree = "<group>"; };
 		87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_webview.a; path = ../../Qt/5.15.2/ios/qml/QtWebView/libdeclarative_webview.a; sourceTree = "<group>"; };
@@ -1161,7 +1159,6 @@
 				87DAE16626E9FF5000B0527E /* moc_shuaa5treadmill.cpp */,
 				87DAE16826E9FF5000B0527E /* moc_solef80treadmill.cpp */,
 				87C481FB26DFA7D1006211AD /* moc_eliterizer.cpp */,
-				873D7B5E26D78950001062A4 /* moc_solef80.cpp */,
 				871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */,
 				87BB1773269E983200F46A1C /* moc_webserverinfosender.cpp */,
 				87FE5BB02692F31E0056EFC8 /* moc_tacxneo2.cpp */,
@@ -2241,7 +2238,6 @@
 				87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */,
 				AFEC086E92015064EB841234 /* moc_trainprogram.cpp in Compile Sources */,
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
-				873D7B5F26D78950001062A4 /* moc_solef80.cpp in Compile Sources */,
 				87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */,
 				8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */,
 				87C5F0B626285E5F0067A1B5 /* quotedprintable.cpp in Compile Sources */,

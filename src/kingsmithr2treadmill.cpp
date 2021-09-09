@@ -265,7 +265,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         return;
     }
 
-    QList _props = data.split(QStringLiteral(" "), QString::SkipEmptyParts);
+    QStringList _props = data.split(QStringLiteral(" "), QString::SkipEmptyParts);
     for (int i = 1; i < _props.size(); i += 2) {
         QString key = _props.at(i);
         // skip string params
