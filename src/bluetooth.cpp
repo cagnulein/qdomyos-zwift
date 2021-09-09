@@ -485,6 +485,31 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(kingsmithR1ProTreadmill);
                 innerTemplateManager->start(kingsmithR1ProTreadmill);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
+                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
+#ifndef Q_OS_IOS
+                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
+#else
+                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
+#endif
+
+                discoveryAgent->stop();
+                shuaA5Treadmill = new shuaa5treadmill(noWriteResistance, noHeartService);
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                stateFileRead();
+#endif
+                emit deviceConnected();
+                connect(shuaA5Treadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(shuaA5Treadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(shuaA5Treadmill, &shuaa5treadmill::debug, this, &bluetooth::debug);
+                connect(shuaA5Treadmill, &shuaa5treadmill::speedChanged, this, &bluetooth::speedChanged);
+                connect(shuaA5Treadmill, &shuaa5treadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                shuaA5Treadmill->deviceDiscovered(b);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(shuaA5Treadmill);
+                innerTemplateManager->start(shuaA5Treadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("F80"))) && !soleF80 && filter) {
                 discoveryAgent->stop();
                 soleF80 = new solef80treadmill(noWriteResistance, noHeartService);
@@ -1222,6 +1247,11 @@ void bluetooth::restart() {
         delete kingsmithR1ProTreadmill;
         kingsmithR1ProTreadmill = nullptr;
     }
+    if (shuaA5Treadmill) {
+
+        delete shuaA5Treadmill;
+        shuaA5Treadmill = nullptr;
+    }
     if (domyosBike) {
 
         delete domyosBike;
@@ -1442,6 +1472,8 @@ bluetoothdevice *bluetooth::device() {
         return kingsmithR2Treadmill;
     } else if (kingsmithR1ProTreadmill) {
         return kingsmithR1ProTreadmill;
+    } else if (shuaA5Treadmill) {
+        return shuaA5Treadmill;
     } else if (echelonConnectSport) {
         return echelonConnectSport;
     } else if (echelonRower) {

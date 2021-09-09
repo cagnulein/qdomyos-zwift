@@ -108,6 +108,7 @@ SOURCES += \
 	schwinnic4bike.cpp \
    screencapture.cpp \
 	sessionline.cpp \
+   shuaa5treadmill.cpp \
 	signalhandler.cpp \
     skandikawiribike.cpp \
    smartrowrower.cpp \
@@ -418,6 +419,7 @@ HEADERS += \
 	schwinnic4bike.h \
    screencapture.h \
 	sessionline.h \
+   shuaa5treadmill.h \
 	signalhandler.h \
     skandikawiribike.h \
    smartrowrower.h \

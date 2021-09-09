@@ -50,6 +50,7 @@
 #include "smartspin2k.h"
 #include "snodebike.h"
 
+#include "shuaa5treadmill.h"
 #include "soleelliptical.h"
 #include "solef80treadmill.h"
 
@@ -126,6 +127,7 @@ class bluetooth : public QObject, public SignalHandler {
     ftmsbike *ftmsBike = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     renphobike *renphoBike = nullptr;
+    shuaa5treadmill *shuaA5Treadmill = nullptr;
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
