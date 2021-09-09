@@ -150,6 +150,8 @@ void shuaa5treadmill::forceIncline(double requestIncline) {
                         true);
 }
 
+double shuaa5treadmill::minStepInclination() { return 1.0; }
+
 void shuaa5treadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }

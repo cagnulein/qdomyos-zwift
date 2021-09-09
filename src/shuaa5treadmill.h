@@ -42,6 +42,7 @@ class shuaa5treadmill : public treadmill {
     bool connected();
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
+    double minStepInclination();
 
     void *VirtualTreadmill();
     void *VirtualDevice();

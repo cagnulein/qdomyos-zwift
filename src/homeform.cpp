@@ -1174,7 +1174,8 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 ((treadmill *)bluetoothManager->device())
-                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() + 0.5);
+                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() +
+                                        ((treadmill *)bluetoothManager->device())->minStepInclination());
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5);
@@ -1252,7 +1253,8 @@ void homeform::Minus(const QString &name) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 ((treadmill *)bluetoothManager->device())
-                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() - 0.5);
+                    ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() -
+                                        ((treadmill *)bluetoothManager->device())->minStepInclination());
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() - 0.5);
