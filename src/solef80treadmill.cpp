@@ -1,4 +1,4 @@
-#include "solef80.h"
+#include "solef80treadmill.h"
 
 #include "ios/lockscreen.h"
 #include "virtualtreadmill.h"
@@ -26,7 +26,7 @@ QBluetoothUuid _gattNotifyCharId(QStringLiteral("49535343-1e4d-4bd9-ba61-23c6472
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
-solef80::solef80(bool noWriteResistance, bool noHeartService) {
+solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) {
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
@@ -37,12 +37,12 @@ solef80::solef80(bool noWriteResistance, bool noHeartService) {
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, &QTimer::timeout, this, &solef80::update);
+    connect(refresh, &QTimer::timeout, this, &solef80treadmill::update);
     refresh->start(200ms);
 }
 
-void solef80::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                  bool wait_for_response) {
+void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -52,7 +52,7 @@ void solef80::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info,
     }
 
     if (wait_for_response) {
-        connect(this, &solef80::packetReceived, &loop, &QEventLoop::quit);
+        connect(this, &solef80treadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(2000, &loop, SLOT(quit()));
     } else {
         connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
@@ -68,7 +68,7 @@ void solef80::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info,
     loop.exec();
 }
 
-void solef80::btinit() {
+void solef80treadmill::btinit() {
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
@@ -78,7 +78,7 @@ void solef80::btinit() {
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    //uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+    // uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
@@ -96,23 +96,23 @@ void solef80::btinit() {
         writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
 
         // the treadmill auto start to a workout, i need to figure out which lines start it
-        //writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-        //writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-        //writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+        // writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+        // writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+        // writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
     }
 
     initDone = true;
 }
 
-void solef80::waitForAPacket() {
+void solef80treadmill::waitForAPacket() {
     QEventLoop loop;
     QTimer timeout;
-    connect(this, &solef80::packetReceived, &loop, &QEventLoop::quit);
+    connect(this, &solef80treadmill::packetReceived, &loop, &QEventLoop::quit);
     timeout.singleShot(3000, &loop, SLOT(quit()));
     loop.exec();
 }
 
-void solef80::update() {
+void solef80treadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -194,16 +194,17 @@ void solef80::update() {
 }
 
 // example frame: 55aa320003050400532c00150000
-void solef80::forceSpeed(double requestSpeed) {}
+void solef80treadmill::forceSpeed(double requestSpeed) {}
 
 // example frame: 55aa3800030603005d0b0a0000
-void solef80::forceIncline(double requestIncline) {}
+void solef80treadmill::forceIncline(double requestIncline) {}
 
-void solef80::serviceDiscovered(const QBluetoothUuid &gatt) {
+void solef80treadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void solef80::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
     double heart = 0; // NOTE : Should be initialized with a value to shut clang-analyzer's
                       // UndefinedBinaryOperatorResult
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -406,7 +407,7 @@ void solef80::characteristicChanged(const QLowEnergyCharacteristic &characterist
     }
 }
 
-void solef80::stateChanged(QLowEnergyService::ServiceState state) {
+void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -423,14 +424,14 @@ void solef80::stateChanged(QLowEnergyService::ServiceState state) {
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
-            connect(s, &QLowEnergyService::characteristicChanged, this, &solef80::characteristicChanged);
-            connect(s, &QLowEnergyService::characteristicWritten, this, &solef80::characteristicWritten);
-            connect(s, &QLowEnergyService::characteristicRead, this, &solef80::characteristicRead);
+            connect(s, &QLowEnergyService::characteristicChanged, this, &solef80treadmill::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicWritten, this, &solef80treadmill::characteristicWritten);
+            connect(s, &QLowEnergyService::characteristicRead, this, &solef80treadmill::characteristicRead);
             connect(
                 s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &solef80::errorService);
-            connect(s, &QLowEnergyService::descriptorWritten, this, &solef80::descriptorWritten);
-            connect(s, &QLowEnergyService::descriptorRead, this, &solef80::descriptorRead);
+                this, &solef80treadmill::errorService);
+            connect(s, &QLowEnergyService::descriptorWritten, this, &solef80treadmill::descriptorWritten);
+            connect(s, &QLowEnergyService::descriptorRead, this, &solef80treadmill::descriptorRead);
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
@@ -500,34 +501,35 @@ void solef80::stateChanged(QLowEnergyService::ServiceState state) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
-            connect(virtualTreadmill, &virtualtreadmill::debug, this, &solef80::debug);
+            connect(virtualTreadmill, &virtualtreadmill::debug, this, &solef80treadmill::debug);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
 }
 
-void solef80::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void solef80treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void solef80::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void solef80treadmill::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
 
-void solef80::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void solef80treadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void solef80::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void solef80treadmill::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
-void solef80::serviceScanDone(void) {
+void solef80treadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     initRequest = false;
@@ -536,26 +538,26 @@ void solef80::serviceScanDone(void) {
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &solef80::stateChanged);
+                &solef80treadmill::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 
-void solef80::errorService(QLowEnergyService::ServiceError err) {
+void solef80treadmill::errorService(QLowEnergyService::ServiceError err) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("solef80::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("solef80treadmill::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void solef80::error(QLowEnergyController::Error err) {
+void solef80treadmill::error(QLowEnergyController::Error err) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("solef80::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("solef80treadmill::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void solef80::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
@@ -563,12 +565,12 @@ void solef80::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &solef80::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &solef80::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &solef80treadmill::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &solef80treadmill::serviceScanDone);
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &solef80::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &solef80::controllerStateChanged);
+                this, &solef80treadmill::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &solef80treadmill::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -595,7 +597,7 @@ void solef80::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
-bool solef80::connected() {
+bool solef80treadmill::connected() {
     if (!m_control) {
 
         return false;
@@ -603,11 +605,11 @@ bool solef80::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *solef80::VirtualTreadmill() { return virtualTreadmill; }
+void *solef80treadmill::VirtualTreadmill() { return virtualTreadmill; }
 
-void *solef80::VirtualDevice() { return VirtualTreadmill(); }
+void *solef80treadmill::VirtualDevice() { return VirtualTreadmill(); }
 
-void solef80::controllerStateChanged(QLowEnergyController::ControllerState state) {
+void solef80treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");

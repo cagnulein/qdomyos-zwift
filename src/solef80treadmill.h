@@ -35,10 +35,10 @@
 #include "ios/lockscreen.h"
 #endif
 
-class solef80 : public treadmill {
+class solef80treadmill : public treadmill {
     Q_OBJECT
   public:
-    solef80(bool noWriteResistance, bool noHeartService);
+    solef80treadmill(bool noWriteResistance, bool noHeartService);
     bool connected();
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);

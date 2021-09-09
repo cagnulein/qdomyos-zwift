@@ -424,8 +424,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC"))) &&
-                       !kingsmithR2Treadmill &&
-                       filter) {
+                       !kingsmithR2Treadmill && filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
 #ifndef Q_OS_IOS
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
@@ -443,13 +442,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         &bluetooth::connectedAndDiscovered);
                 // connect(kingsmithR2Treadmill, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(kingsmithR2Treadmill, &kingsmithr2treadmill::debug, this, &bluetooth::debug);
-                connect(kingsmithR2Treadmill, &kingsmithr2treadmill::speedChanged, this,
-                        &bluetooth::speedChanged);
+                connect(kingsmithR2Treadmill, &kingsmithr2treadmill::speedChanged, this, &bluetooth::speedChanged);
                 connect(kingsmithR2Treadmill, &kingsmithr2treadmill::inclinationChanged, this,
                         &bluetooth::inclinationChanged);
                 kingsmithR2Treadmill->deviceDiscovered(b);
-                connect(this, &bluetooth::searchingStop, kingsmithR2Treadmill,
-                        &kingsmithr2treadmill::searchingStop);
+                connect(this, &bluetooth::searchingStop, kingsmithR2Treadmill, &kingsmithr2treadmill::searchingStop);
                 if (!discoveryAgent->isActive())
                     emit searchingStop();
                 userTemplateManager->start(kingsmithR2Treadmill);
@@ -490,14 +487,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(kingsmithR1ProTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("F80"))) && !soleF80 && filter) {
                 discoveryAgent->stop();
-                soleF80 = new solef80(noWriteResistance, noHeartService);
+                soleF80 = new solef80treadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                 stateFileRead();
 #endif
                 emit deviceConnected();
                 connect(soleF80, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 // connect(soleF80, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(soleF80, &solef80::debug, this, &bluetooth::debug);
+                connect(soleF80, &solef80treadmill::debug, this, &bluetooth::debug);
                 // NOTE: Commented due to #358
                 // connect(soleF80, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 // NOTE: Commented due to #358

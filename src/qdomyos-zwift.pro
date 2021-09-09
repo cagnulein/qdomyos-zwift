@@ -126,7 +126,7 @@ SOURCES += \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
    soleelliptical.cpp \
-    solef80.cpp \
+   solef80treadmill.cpp \
    spirittreadmill.cpp \
    sportstechbike.cpp \
    tacxneo2.cpp \
@@ -438,7 +438,7 @@ HEADERS += \
     smtpclient/src/smtpexports.h \
    snodebike.h \
    soleelliptical.h \
-    solef80.h \
+   solef80treadmill.h \
    spirittreadmill.h \
    sportstechbike.h \
    tacxneo2.h \
