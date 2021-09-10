@@ -211,8 +211,10 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         qDebug() << "speed2" << convertedData;
         convertedData = convertedData << 8;
         qDebug() << "speed3" << convertedData;
-        convertedData = convertedData + newValue.at(4);
+        convertedData = convertedData & 0xFF00;
         qDebug() << "speed4" << convertedData;
+        convertedData = convertedData + newValue.at(4);
+        qDebug() << "speed5" << convertedData;
         Speed = ((double)convertedData) / 1000.0;
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
