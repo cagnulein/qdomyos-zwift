@@ -204,8 +204,16 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     lastPacket = newValue;
 
     if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd3) {
-        uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
-        Speed = (double)convertedData / 1000.0;
+        // this line on iOS sometimes gives strange overflow values
+        // uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
+        qDebug() << "speed1" << newValue.at(3);
+        uint16_t convertedData = newValue.at(3);
+        qDebug() << "speed2" << convertedData;
+        convertedData = convertedData << 8;
+        qDebug() << "speed3" << convertedData;
+        convertedData = convertedData + newValue.at(4);
+        qDebug() << "speed4" << convertedData;
+        Speed = ((double)convertedData) / 1000.0;
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
