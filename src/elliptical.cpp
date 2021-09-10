@@ -42,7 +42,11 @@ void elliptical::changeResistance(int8_t resistance) {
     requestResistance = resistance;
     RequestedResistance = resistance;
 }
-void elliptical::changeInclination(double inclination) { requestInclination = inclination; }
+void elliptical::changeInclination(double inclination) {
+    if (autoResistanceEnable) {
+        requestInclination = inclination;
+    }
+}
 double elliptical::currentCrankRevolutions() { return CrankRevs; }
 uint16_t elliptical::lastCrankEventTime() { return LastCrankEventTime; }
 metric elliptical::currentResistance() { return Resistance; }
