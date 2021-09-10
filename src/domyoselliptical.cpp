@@ -112,26 +112,34 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
                         QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, true);
 }
 
-void domyoselliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination) {
+void domyoselliptical::forceInclination(int8_t requestInclination) {
+    uint8_t write[] = {0xf0, 0xe3, 0x00, 0x00};
+
+    write[2] = requestInclination;
+
+    for (uint8_t i = 0; i < sizeof(write) - 1; i++) {
+
+        write[3] += write[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(write, sizeof(write),
+                        QStringLiteral("forceInclination ") + QString::number(requestInclination));
+}
+
+void domyoselliptical::forceResistance(int8_t requestResistance) {
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
 
     write[10] = requestResistance;
-
-    // write[13] = ((uint16_t)(inclination*10) >> 8) & 0xFF;
-    // write[14] = inclination; //need a hci snoof log about it
 
     for (uint8_t i = 0; i < sizeof(write) - 1; i++) {
 
         write[22] += write[i]; // the last byte is a sort of a checksum
     }
 
-    writeCharacteristic(write, 20,
-                        QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                            QStringLiteral(" Inclination ") + inclination);
+    writeCharacteristic(write, 20, QStringLiteral("forceResistance ") + QString::number(requestResistance));
     writeCharacteristic(&write[20], sizeof(write) - 20,
-                        QStringLiteral("forceResistance ") + QString::number(requestResistance) +
-                            QStringLiteral(" Inclination ") + inclination);
+                        QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
 void domyoselliptical::update() {
@@ -193,17 +201,6 @@ void domyoselliptical::update() {
             writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), true, true);
         }
 
-        if (testResistance) {
-            if ((((int)elapsed.value()) % 5) == 0) {
-
-                uint8_t new_res = currentResistance().value() + 1;
-                if (new_res > 15) {
-                    new_res = 1;
-                }
-                forceResistanceAndInclination(new_res, currentInclination().value());
-            }
-        }
-
         if (requestResistance != -1) {
             if (requestResistance > 15) {
                 requestResistance = 15;
@@ -214,7 +211,7 @@ void domyoselliptical::update() {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
 
-                forceResistanceAndInclination(requestResistance, currentInclination().value());
+                forceResistance(requestResistance);
             }
             requestResistance = -1;
         } else if (requestInclination != -1) {
@@ -227,7 +224,7 @@ void domyoselliptical::update() {
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
 
-                forceResistanceAndInclination(currentResistance().value(), requestInclination);
+                forceInclination(requestInclination);
             }
             requestInclination = -1;
         }

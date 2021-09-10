@@ -46,7 +46,8 @@ class domyoselliptical : public elliptical {
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    void forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination);
+    void forceResistance(int8_t requestResistance);
+    void forceInclination(int8_t requestInclination);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);
     void btinit_telink(bool startTape);
