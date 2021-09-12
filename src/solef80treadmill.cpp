@@ -221,6 +221,8 @@ void solef80treadmill::update() {
     }
 }
 
+double solef80treadmill::minStepInclination() { return 1.0; }
+
 void solef80treadmill::forceSpeed(double requestSpeed) {
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
