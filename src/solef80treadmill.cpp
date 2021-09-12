@@ -88,8 +88,6 @@ void solef80treadmill::btinit() {
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
-
-        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
 
         writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
@@ -158,7 +156,7 @@ void solef80treadmill::update() {
 
         if (gattCustomService) {
             writeCharacteristic(noop, sizeof(noop), QStringLiteral("noop"), false, true);
-            writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, false);
+            writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
         }
 
         if (requestSpeed != -1) {
@@ -227,28 +225,65 @@ void solef80treadmill::forceSpeed(double requestSpeed) {
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
-    if(requestSpeed < Speed.value()) {
+    if(requestSpeed > Speed.value()) {
+        if(requestSpeedState == IDLE)
+            requestSpeedState = UP;
+        else if(requestSpeedState == DOWN)
+        {
+            requestSpeedState = IDLE;
+            this->requestSpeed = -1;
+            return;
+        }
+
         if (gattCustomService)
             writeCharacteristic(up, sizeof(up), QStringLiteral("speed up"), false, true);
-    } else if(requestSpeed > Speed.value()) {
+    } else if(requestSpeed < Speed.value()) {
+        if(requestSpeedState == IDLE)
+            requestSpeedState = DOWN;
+        else if(requestSpeedState == UP)
+        {
+            requestSpeedState = IDLE;
+            this->requestSpeed = -1;
+            return;
+        }
         if (gattCustomService)
             writeCharacteristic(down, sizeof(down), QStringLiteral("speed down"), false, true);
-    } else
+    } else {
         this->requestSpeed = -1;
+        requestSpeedState = IDLE;
+    }
 }
 
 void solef80treadmill::forceIncline(double requestIncline) {
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
 
-    if(requestIncline < Inclination.value()) {
+    if(requestIncline > Inclination.value()) {
+        if(requestInclinationState == IDLE)
+            requestInclinationState = UP;
+        else if(requestInclinationState == DOWN)
+        {
+            requestInclinationState = IDLE;
+            this->requestInclination = -1;
+            return;
+        }
         if (gattCustomService)
             writeCharacteristic(up, sizeof(up), QStringLiteral("Inclination up"), false, true);
-    } else if(requestIncline > Inclination.value()) {
+    } else if(requestIncline < Inclination.value()) {
+        if(requestInclinationState == IDLE)
+            requestInclinationState = DOWN;
+        else if(requestInclinationState == UP)
+        {
+            requestInclinationState = IDLE;
+            this->requestInclination = -1;
+            return;
+        }
         if (gattCustomService)
             writeCharacteristic(down, sizeof(down), QStringLiteral("Inclination down"), false, true);
-    } else
+    } else {
         this->requestInclination = -1;
+        requestInclinationState = IDLE;
+    }
 }
 
 void solef80treadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
