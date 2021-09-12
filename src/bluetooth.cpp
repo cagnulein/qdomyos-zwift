@@ -510,7 +510,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(shuaA5Treadmill);
                 innerTemplateManager->start(shuaA5Treadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("F80"))) && !soleF80 && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) || b.name().toUpper().startsWith(QStringLiteral("F65"))) && !soleF80 && filter) {
                 discoveryAgent->stop();
                 soleF80 = new solef80treadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
