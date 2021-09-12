@@ -38,7 +38,7 @@ solef80treadmill::solef80treadmill(bool noWriteResistance, bool noHeartService) 
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &solef80treadmill::update);
-    refresh->start(200ms);
+    refresh->start(300ms);
 }
 
 void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
@@ -70,35 +70,48 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
 
 void solef80treadmill::btinit() {
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
+    uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
     uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
     uint8_t initData05[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
-    uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x5d};
+    uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
-    uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+    uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
+    //uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         waitForAPacket();
+        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
 
+        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+        writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
+
         writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
+
+        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
+        writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
+
+        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+
         writeCharacteristic(initData04, sizeof(initData04), QStringLiteral("init4"), false, true);
         writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init5"), false, true);
         writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init5"), false, true);
         writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init6"), false, true);
         writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
+
         writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
         writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
 
+        // start workout
+        /*writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
         writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);*/
     }
 
     initDone = true;
@@ -138,11 +151,14 @@ void solef80treadmill::update() {
 
             sec1Update = 0;
             // updateDisplay(elapsed);
-            uint8_t noop[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+        }
 
-            if (gattCustomService) {
-                writeCharacteristic(noop, sizeof(noop), QStringLiteral("noop"), false, true);
-            }
+        uint8_t noop[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+        uint8_t noop2[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+
+        if (gattCustomService) {
+            writeCharacteristic(noop, sizeof(noop), QStringLiteral("noop"), false, true);
+            writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, false);
         }
 
         if (requestSpeed != -1) {
@@ -166,9 +182,11 @@ void solef80treadmill::update() {
 
                 lastSpeed = 0.5;
             }
-            uint8_t start[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
+            uint8_t start[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
             if (gattCustomService) {
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
             }
             requestStart = -1;
@@ -176,6 +194,14 @@ void solef80treadmill::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+
+            uint8_t stop[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
+
+            if (gattCustomService) {
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+            }
 
             requestStop = -1;
         }
