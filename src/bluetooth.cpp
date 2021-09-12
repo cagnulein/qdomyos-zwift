@@ -379,7 +379,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(domyosElliptical);
                 innerTemplateManager->start(domyosElliptical);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("E95S")) && !soleElliptical && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
+                       b.name().toUpper().startsWith(QStringLiteral("E25")) ||
+                       b.name().toUpper().startsWith(QStringLiteral("E35")) ||
+                       b.name().toUpper().startsWith(QStringLiteral("E55")) ||
+                       b.name().toUpper().startsWith(QStringLiteral("E95")) ||
+                       b.name().toUpper().startsWith(QStringLiteral("E98")) ||
+                       b.name().toUpper().startsWith(QStringLiteral("E98S"))) && !soleElliptical && filter) {
                 discoveryAgent->stop();
                 soleElliptical = new soleelliptical(noWriteResistance, noHeartService, testResistance,
                                                     bikeResistanceOffset, bikeResistanceGain);
@@ -510,7 +516,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(shuaA5Treadmill);
                 innerTemplateManager->start(shuaA5Treadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) || b.name().toUpper().startsWith(QStringLiteral("F65"))) && !soleF80 && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("F80")) || b.name().toUpper().startsWith(QStringLiteral("F65"))
+                         || b.name().toUpper().startsWith(QStringLiteral("F63"))  || b.name().toUpper().startsWith(QStringLiteral("F85"))) && !soleF80 && filter) {
                 discoveryAgent->stop();
                 soleF80 = new solef80treadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
