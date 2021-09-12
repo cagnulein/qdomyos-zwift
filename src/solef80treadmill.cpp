@@ -166,7 +166,8 @@ void solef80treadmill::update() {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
             }
-            requestSpeed = -1;
+            // i have to do the reset on when the speed is equal to the current
+            //requestSpeed = -1;
         }
         if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -174,7 +175,8 @@ void solef80treadmill::update() {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            // i have to do the reset on when the inclination is equal to the current
+            //requestInclination = -1;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -219,11 +221,33 @@ void solef80treadmill::update() {
     }
 }
 
-// example frame: 55aa320003050400532c00150000
-void solef80treadmill::forceSpeed(double requestSpeed) {}
+void solef80treadmill::forceSpeed(double requestSpeed) {
+    uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
+    uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
-// example frame: 55aa3800030603005d0b0a0000
-void solef80treadmill::forceIncline(double requestIncline) {}
+    if(requestSpeed < Speed.value()) {
+        if (gattCustomService)
+            writeCharacteristic(up, sizeof(up), QStringLiteral("speed up"), false, true);
+    } else if(requestSpeed > Speed.value()) {
+        if (gattCustomService)
+            writeCharacteristic(down, sizeof(down), QStringLiteral("speed down"), false, true);
+    } else
+        this->requestSpeed = -1;
+}
+
+void solef80treadmill::forceIncline(double requestIncline) {
+    uint8_t up[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
+    uint8_t down[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
+
+    if(requestIncline < Inclination.value()) {
+        if (gattCustomService)
+            writeCharacteristic(up, sizeof(up), QStringLiteral("Inclination up"), false, true);
+    } else if(requestIncline > Inclination.value()) {
+        if (gattCustomService)
+            writeCharacteristic(down, sizeof(down), QStringLiteral("Inclination down"), false, true);
+    } else
+        this->requestInclination = -1;
+}
 
 void solef80treadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
