@@ -218,6 +218,7 @@ import Qt.labs.settings 1.0
             property bool log_debug: false
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
+            property bool virtual_device_ifit: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
         }
@@ -3728,6 +3729,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.virtual_device_echelon = checked
+                    }
+
+                    SwitchDelegate {
+                        id: virtualDeviceIfitDelegate
+                        text: qsTr("Virtual iFit")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtual_device_ifit
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.virtual_device_ifit = checked
                     }
 
                     SwitchDelegate {
