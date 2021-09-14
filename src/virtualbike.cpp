@@ -604,11 +604,37 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply2 = QByteArray::fromHex("ff0a010402060706900208a731373131302d4e4e");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
+        } else if (newValue.length() > 9 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00 &&
+                   ((uint8_t)newValue.at(3)) == 0x80) {
+            reply1 = QByteArray::fromHex("fe0209020205070502021000000000b400000003");
+            reply2 = QByteArray::fromHex("ff0901040205070502021000000000b400000003");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x3d) {
+            reply1 = QByteArray::fromHex("fe0209020205070502021000000000b400000003");
+            reply2 = QByteArray::fromHex("ff0901040205070502021000000000b400000003");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
             reply1 = QByteArray::fromHex("fe02330400caaf020000000000330000df130013");
             reply2 = QByteArray::fromHex("00120104022f072f020200003d00650000003700");
             reply3 = QByteArray::fromHex("01120000000114000000021400f5061400000067");
             reply4 = QByteArray::fromHex("ff0fd702002c013300b4000000000000a1000067");
+
+            reply2[11] = Bike->currentResistance().value();
+            reply2[12] = ((uint16_t)Bike->wattsMetric().value()) & 0xFF;
+            reply2[13] = (((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF;
+            reply2[18] = Bike->currentCadence().value();
+
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+            writeCharacteristic(service, characteristic, reply3);
+            writeCharacteristic(service, characteristic, reply4);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x39) {
+            reply1 = QByteArray::fromHex("fe023304002c012700b400000000000005000085");
+            reply2 = QByteArray::fromHex("00120104022f072f020200003900450000003500");
+            reply3 = QByteArray::fromHex("01120000ffffffffffffffff00000000020d000d");
+            reply4 = QByteArray::fromHex("ff0f000000bac00100000000002e0000aa0d000d");
 
             reply2[11] = Bike->currentResistance().value();
             reply2[12] = ((uint16_t)Bike->wattsMetric().value()) & 0xFF;
