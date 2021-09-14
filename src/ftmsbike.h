@@ -69,8 +69,7 @@ enum FtmsResultCode {
 class ftmsbike : public bike {
     Q_OBJECT
   public:
-    ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-             double bikeResistanceGain);
+    ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
@@ -129,6 +128,7 @@ class ftmsbike : public bike {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // FTMSBIKE_H

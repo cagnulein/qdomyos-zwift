@@ -53,6 +53,11 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 }
 
 void ftmsbike::forceResistance(int8_t requestResistance) {
+
+    // if the FTMS is connected, the ftmsChaarcteristicChanged event will do all the stuff because it's a FTMS bike
+    if (virtualBike->connected())
+        return;
+
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
@@ -434,10 +439,20 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &ftmsbike::inclinationChanged);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &ftmsbike::ftmsCharacteristicChanged);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QByteArray b = newValue;
+    if (gattWriteCharControlPointId.isValid()) {
+        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+    }
 }
 
 void ftmsbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
