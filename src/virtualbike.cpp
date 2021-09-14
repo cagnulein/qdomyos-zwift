@@ -454,6 +454,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QSettings settings;
     bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
     bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
+    bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
+    bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
     //    double erg_filter_upper =
     //        settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble(); //
     //        NOTE:clang-analyzer-deadcode.DeadStores
@@ -462,7 +464,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 
-    emit ftmsCharacteristicChanged(characteristic, newValue);
+    if (!echelon && !ifit)
+        emit ftmsCharacteristicChanged(characteristic, newValue);
 
     switch (characteristic.uuid().toUInt16()) {
 
@@ -630,7 +633,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
             writeCharacteristic(service, characteristic, reply4);
-        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x39) {
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x07 &&
+                   ((uint8_t)newValue.at(7)) == 0x10) {
             reply1 = QByteArray::fromHex("fe023304002c012700b400000000000005000085");
             reply2 = QByteArray::fromHex("00120104022f072f020200003900450000003500");
             reply3 = QByteArray::fromHex("01120000ffffffffffffffff00000000020d000d");
