@@ -598,6 +598,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
+        } else if (newValue.length() > 9 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00 &&
+                   ((uint8_t)newValue.at(9)) == 0xd1) {
+            reply1 = QByteArray::fromHex("fe020a025a313130313737af31373131302d4e4e");
+            reply2 = QByteArray::fromHex("ff0a010402060706900208a731373131302d4e4e");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
             reply1 = QByteArray::fromHex("fe02330400caaf020000000000330000df130013");
             reply2 = QByteArray::fromHex("00120104022f072f020200003d00650000003700");
