@@ -236,8 +236,10 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
     }
 
+    // the snode bike KCal calculation is very bad, a user said, so i will skip it
     if (Flags.expEnergy) {
-        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        // KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+        // (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
         // energy per hour
@@ -245,7 +247,8 @@ void snodebike::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         // energy per minute
         index += 1;
-    } else {
+    } /*else*/
+    {
         if (watts())
             KCal +=
                 ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
