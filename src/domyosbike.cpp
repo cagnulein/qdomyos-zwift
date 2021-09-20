@@ -427,7 +427,7 @@ double domyosbike::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 double domyosbike::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
+    uint16_t convertedData = (packet.at(12) << 8) | ((uint8_t)packet.at(13));
     double data = ((double)convertedData) / 10.0f;
     return data;
 }
