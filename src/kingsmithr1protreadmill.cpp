@@ -478,10 +478,4 @@ void *kingsmithr1protreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *kingsmithr1protreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double kingsmithr1protreadmill::odometer() { return DistanceCalculated; }
-
-void kingsmithr1protreadmill::setLastSpeed(double speed) { lastSpeed = speed; }
-
-void kingsmithr1protreadmill::setLastInclination(double inclination) { lastInclination = inclination; }
-
 void kingsmithr1protreadmill::searchingStop() { searchStopped = true; }

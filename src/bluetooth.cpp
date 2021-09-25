@@ -1573,8 +1573,8 @@ void bluetooth::stateFileRead() {
             double speed = machine.attribute(QStringLiteral("Speed"), QStringLiteral("0.0")).toDouble();
             double inclination = machine.attribute(QStringLiteral("Incline"), QStringLiteral("0.0")).toDouble();
 
-            qobject_cast<domyostreadmill *>(device())->setLastSpeed(speed);
-            qobject_cast<domyostreadmill *>(device())->setLastInclination(inclination);
+            qobject_cast<treadmill *>(device())->setLastSpeed(speed);
+            qobject_cast<treadmill *>(device())->setLastInclination(inclination);
         }
 
         // Next component

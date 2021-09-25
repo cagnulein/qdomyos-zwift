@@ -727,12 +727,6 @@ void *fitshowtreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *fitshowtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double fitshowtreadmill::odometer() { return DistanceCalculated; }
-
-void fitshowtreadmill::setLastSpeed(double speed) { lastSpeed = speed; }
-
-void fitshowtreadmill::setLastInclination(double inclination) { lastInclination = inclination; }
-
 void fitshowtreadmill::searchingStop() { searchStopped = true; }
 
 void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
