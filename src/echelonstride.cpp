@@ -426,10 +426,4 @@ void *echelonstride::VirtualTreadMill() { return virtualTreadMill; }
 
 void *echelonstride::VirtualDevice() { return VirtualTreadMill(); }
 
-double echelonstride::odometer() { return DistanceCalculated; }
-
-void echelonstride::setLastSpeed(double speed) { lastSpeed = speed; }
-
-void echelonstride::setLastInclination(double inclination) { lastInclination = inclination; }
-
 void echelonstride::searchingStop() { searchStopped = true; }

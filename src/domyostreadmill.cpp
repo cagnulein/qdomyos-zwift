@@ -772,10 +772,4 @@ void *domyostreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *domyostreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double domyostreadmill::odometer() { return DistanceCalculated; }
-
-void domyostreadmill::setLastSpeed(double speed) { lastSpeed = speed; }
-
-void domyostreadmill::setLastInclination(double inclination) { lastInclination = inclination; }
-
 void domyostreadmill::searchingStop() { searchStopped = true; }

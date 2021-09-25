@@ -82,10 +82,6 @@ class fitshowtreadmill : public treadmill {
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     virtual ~fitshowtreadmill();
     bool connected();
-    double odometer();
-
-    void setLastSpeed(double speed);
-    void setLastInclination(double inclination);
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -102,12 +98,9 @@ class fitshowtreadmill : public treadmill {
     void removeFromBuffer();
     QBluetoothUuid serviceId;
     int retrySend = 0;
-    double DistanceCalculated = 0;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
-    double lastSpeed = 0.0;
-    double lastInclination = 0;
     uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;

@@ -520,10 +520,4 @@ void *kingsmithr2treadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *kingsmithr2treadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double kingsmithr2treadmill::odometer() { return DistanceCalculated; }
-
-void kingsmithr2treadmill::setLastSpeed(double speed) { lastSpeed = speed; }
-
-void kingsmithr2treadmill::setLastInclination(double inclination) { lastInclination = inclination; }
-
 void kingsmithr2treadmill::searchingStop() { searchStopped = true; }

@@ -44,10 +44,6 @@ class kingsmithr2treadmill : public treadmill {
                             double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     bool changeFanSpeed(uint8_t speed);
-    double odometer();
-
-    void setLastSpeed(double speed);
-    void setLastInclination(double inclination);
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -71,8 +67,6 @@ class kingsmithr2treadmill : public treadmill {
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
-    double lastSpeed = 0.0;
-    double lastInclination = 0;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QMap<QString, double> props;
