@@ -426,10 +426,4 @@ void *eslinkertreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *eslinkertreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double eslinkertreadmill::odometer() { return DistanceCalculated; }
-
-void eslinkertreadmill::setLastSpeed(double speed) { lastSpeed = speed; }
-
-void eslinkertreadmill::setLastInclination(double inclination) { lastInclination = inclination; }
-
 void eslinkertreadmill::searchingStop() { searchStopped = true; }

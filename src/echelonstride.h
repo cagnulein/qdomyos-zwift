@@ -40,10 +40,6 @@ class echelonstride : public treadmill {
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
     bool changeFanSpeed(uint8_t speed) override;
-    double odometer() override;
-
-    void setLastSpeed(double speed);
-    void setLastInclination(double inclination);
 
     void *VirtualTreadMill();
     void *VirtualDevice() override;
@@ -67,8 +63,6 @@ class echelonstride : public treadmill {
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
-    double lastSpeed = 0.0;
-    double lastInclination = 0;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     uint8_t counterPoll = 1;

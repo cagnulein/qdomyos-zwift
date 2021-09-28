@@ -43,10 +43,6 @@ class domyostreadmill : public treadmill {
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     bool changeFanSpeed(uint8_t speed);
-    double odometer();
-
-    void setLastSpeed(double speed);
-    void setLastInclination(double inclination);
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -63,14 +59,11 @@ class domyostreadmill : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    double DistanceCalculated = 0;
     volatile bool incompletePackets = false;
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
-    double lastSpeed = 0.0;
-    double lastInclination = 0;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QByteArray lastPacket;

@@ -18,6 +18,9 @@ class treadmill : public bluetoothdevice {
     void clearStats();
     void setLap();
     void setPaused(bool p);
+    virtual double odometer();
+    virtual void setLastSpeed(double speed);
+    virtual void setLastInclination(double inclination);
 
   public slots:
     virtual bool changeFanSpeed(uint8_t speed);
@@ -29,10 +32,13 @@ class treadmill : public bluetoothdevice {
     void tapeStarted();
 
   protected:
+    double DistanceCalculated = 0;
     metric Inclination;
     double requestSpeed = -1;
     double requestInclination = -1;
     double requestFanSpeed = -1;
+    double lastSpeed = 0.0;
+    double lastInclination = 0;
 };
 
 #endif // TREADMILL_H

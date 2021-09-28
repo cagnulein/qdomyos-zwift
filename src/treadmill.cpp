@@ -125,3 +125,9 @@ void treadmill::setLap() {
 
     Inclination.setLap(false);
 }
+
+double treadmill::odometer() { return DistanceCalculated; }
+
+void treadmill::setLastSpeed(double speed) { lastSpeed = speed; }
+
+void treadmill::setLastInclination(double inclination) { lastInclination = inclination; }
