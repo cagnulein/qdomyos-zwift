@@ -94,6 +94,7 @@ class trxappgateusbbike : public bike {
         DKN_MOTION = 6,
         DKN_MOTION_2 = 7,
         ASVIVA = 8,
+        FYTTER_RI08 = 9,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
