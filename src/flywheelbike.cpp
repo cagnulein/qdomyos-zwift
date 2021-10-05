@@ -327,7 +327,7 @@ void flywheelbike::btinit() {
 }
 
 void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"))
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("6E400002-B5A3-F393-E0A9-E50E24DCCA9E"));
     QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("6E400003-B5A3-F393-E0A9-E50E24DCCA9E"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
