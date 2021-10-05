@@ -15,7 +15,7 @@ void metric::setValue(double v) {
     QSettings settings;
     if (m_type == METRIC_WATT) {
         if (v > 0) {
-            if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() <= 1.25) {
+            if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() <= 2.00) {
                 if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() != 1.0) {
                     qDebug() << QStringLiteral("watt value was ") << v
                              << QStringLiteral("but it will be transformed to")

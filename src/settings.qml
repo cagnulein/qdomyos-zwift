@@ -3170,7 +3170,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelwattGain
-                            text: qsTr("Watt Gain (max value 1.25):")
+                            text: qsTr("Watt Gain (max value 2.00):")
                             Layout.fillWidth: true
                         }
                         TextField {
