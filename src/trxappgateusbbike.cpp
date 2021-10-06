@@ -195,7 +195,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     double watt = 0.0;
     if(bike_type == FYTTER_RI08) {
         speed = cadence * 0.37407407407407407407407407407407;
-        watt = (newValue.at(7));
+        watt = GetWattFromPacketFytter(newValue);
         kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
                                  settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
                                 200.0) /
@@ -364,6 +364,15 @@ double trxappgateusbbike::GetKcalFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData = ((packet.at(12) - 1) * 100) + (packet.at(13) - 1);
     return (double)(convertedData);
+}
+
+double trxappgateusbbike::GetWattFromPacketFytter(const QByteArray &packet) {
+
+    if(!packet.at(6))
+        return 0;
+    uint16_t convertedData = ((packet.at(6) - 1) * 100) + (packet.at(7));
+    double data = ((double)(convertedData));
+    return data;
 }
 
 double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {

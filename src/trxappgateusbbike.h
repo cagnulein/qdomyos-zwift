@@ -56,6 +56,7 @@ class trxappgateusbbike : public bike {
     void startDiscover();
     uint16_t watts();
     double GetWattFromPacket(const QByteArray &packet);
+    double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
     double DistanceCalculated = 0;
 
