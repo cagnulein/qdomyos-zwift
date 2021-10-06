@@ -428,7 +428,8 @@ void flywheelbike::error(QLowEnergyController::Error err) {
 void flywheelbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("Flywheel"))) {
+    //if (device.name().startsWith(QStringLiteral("Flywheel")))
+    {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
