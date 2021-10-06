@@ -446,6 +446,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().startsWith(QStringLiteral("i-Running")) || device.name().startsWith(QStringLiteral("F63")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (device.name().startsWith(QStringLiteral("i-Running")) ||
+            device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
             device.name().startsWith(QStringLiteral("i-Console+")) || device.name().startsWith(QStringLiteral("F63")) ||
             device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
             treadmill_type = TYPE::IRUNNING;
