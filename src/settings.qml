@@ -157,6 +157,7 @@ import Qt.labs.settings 1.0
             property bool nordictrack_10_treadmill: true
 
             property bool toorx_3_0: false
+            property bool jtx_fitness_sprint_treadmill: false
             property bool trx_route_key: false
             property bool toorx_bike: false
             property bool jll_IC400_bike: false
@@ -2701,6 +2702,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.trx_route_key = checked
+                    }
+
+                    SwitchDelegate {
+                        id: jtxFitnessSprintTreadmillDelegate
+                        text: qsTr("JTX Fitness Sprint Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.jtx_fitness_sprint_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.jtx_fitness_sprint_treadmill = checked
                     }
 
                     SwitchDelegate {
