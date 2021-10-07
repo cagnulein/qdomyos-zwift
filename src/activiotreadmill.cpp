@@ -339,7 +339,6 @@ void activiotreadmill::btinit(bool startTape) {
 
 void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
-    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("6a4e2800-667b-11e3-949a-0800200c9a66"));
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("6a4e2814-667b-11e3-949a-0800200c9a66"));
     QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("6a4e2813-667b-11e3-949a-0800200c9a66"));
 
@@ -387,6 +386,7 @@ void activiotreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 }
 
 void activiotreadmill::serviceScanDone(void) {
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("6a4e2800-667b-11e3-949a-0800200c9a66"));
     emit debug(QStringLiteral("serviceScanDone"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
