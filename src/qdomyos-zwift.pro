@@ -44,6 +44,7 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 android: include(../android_openssl/openssl.pri)
 
 SOURCES += \
+    activiotreadmill.cpp \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
@@ -158,6 +159,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    activiotreadmill.h \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
@@ -527,5 +529,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.8.69
+VERSION = 2.8.70
 

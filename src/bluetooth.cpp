@@ -860,6 +860,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 spiritTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(spiritTreadmill);
                 innerTemplateManager->start(spiritTreadmill);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("RUNNERT")) && !activioTreadmill && filter) {
+
+                discoveryAgent->stop();
+                activioTreadmill = new activiotreadmill();
+                emit deviceConnected();
+                connect(activioTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(activioTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(activioTreadmill, &activioTreadmill::debug, this, &bluetooth::debug);
+                activioTreadmill->deviceDiscovered(b);
+                userTemplateManager->start(activioTreadmill);
+                innerTemplateManager->start(activioTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
                         (b.name().startsWith(QStringLiteral("V-RUN"))) ||
                         (b.name().startsWith(QStringLiteral("i-Console+"))) ||
@@ -1318,6 +1330,11 @@ void bluetooth::restart() {
         delete spiritTreadmill;
         spiritTreadmill = nullptr;
     }
+    if (activioTreadmill) {
+
+        delete activioTreadmill;
+        activioTreadmill = nullptr;
+    }
     if (trxappgateusbBike) {
 
         delete trxappgateusbBike;
@@ -1475,6 +1492,8 @@ bluetoothdevice *bluetooth::device() {
         return toorx;
     } else if (spiritTreadmill) {
         return spiritTreadmill;
+    } else if (activioTreadmill) {
+        return activioTreadmill;
     } else if (trxappgateusb) {
         return trxappgateusb;
     } else if (trxappgateusbBike) {

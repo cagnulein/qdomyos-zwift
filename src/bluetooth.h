@@ -17,6 +17,7 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
+#include "activiotreadmill.h"
 #include "bluetoothdevice.h"
 #include "chronobike.h"
 #include "cscbike.h"
@@ -97,6 +98,7 @@ class bluetooth : public QObject, public SignalHandler {
     toorxtreadmill *toorx = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
+    activiotreadmill *activioTreadmill = nullptr;
     trxappgateusbbike *trxappgateusbBike = nullptr;
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
