@@ -259,6 +259,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
     bool powerSensorFound = powerSensorName.startsWith(QStringLiteral("Disabled"));
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
+    bool fake_bike = settings.value(QStringLiteral("applewatch_fakedevice"), false).toBool();
 
     if (!heartRateBeltFound) {
 
@@ -331,6 +332,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     userTemplateManager->start(m3iBike);
                     innerTemplateManager->start(m3iBike);
                 }
+            } else if (fake_bike && !fakeBike) {
+                discoveryAgent->stop();
+                fakeBike = new fakebike(noWriteResistance, noHeartService, false);
+                emit deviceConnected();
+                connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(fakeBike);
+                innerTemplateManager->start(fakeBike);
             } else if (csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter) {
 
                 discoveryAgent->stop();
@@ -1299,6 +1312,11 @@ void bluetooth::restart() {
         delete cscBike;
         cscBike = nullptr;
     }
+    if (fakeBike) {
+
+        delete fakeBike;
+        fakeBike = nullptr;
+    }
     if (npeCableBike) {
 
         delete npeCableBike;
@@ -1482,6 +1500,8 @@ bluetoothdevice *bluetooth::device() {
         return soleElliptical;
     } else if (cscBike) {
         return cscBike;
+    } else if (fakeBike) {
+        return fakeBike;
     } else if (npeCableBike) {
         return npeCableBike;
     } else if (tacxneo2Bike) {

@@ -29,6 +29,7 @@
 #include "echelonrower.h"
 #include "eliterizer.h"
 #include "eslinkertreadmill.h"
+#include "fakebike.h"
 #include "fitplusbike.h"
 
 #include "fitshowtreadmill.h"
@@ -135,6 +136,7 @@ class bluetooth : public QObject, public SignalHandler {
     cscbike *cadenceSensor = nullptr;
     stagesbike *powerSensor = nullptr;
     eliterizer *eliteRizer = nullptr;
+    fakebike *fakeBike = nullptr;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;

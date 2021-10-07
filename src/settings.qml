@@ -223,6 +223,7 @@ import Qt.labs.settings 1.0
             property bool virtual_device_ifit: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
+            property bool applewatch_fakedevice: false
         }
 
         ColumnLayout {
@@ -3880,6 +3881,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.ios_peloton_workaround = checked
+                    }
+
+                    SwitchDelegate {
+                        id: appleWatchFakeDeviceDelegate
+                        text: qsTr("Apple Watch Fake Device")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.applewatch_fakedevice
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.applewatch_fakedevice = checked
                     }
 
                     SwitchDelegate {
