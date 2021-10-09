@@ -881,7 +881,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(activioTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(activioTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-                //connect(activioTreadmill, &activioTreadmill::debug, this, &bluetooth::debug);
+                connect(activioTreadmill, &activiotreadmill::debug, this, &bluetooth::debug);
                 activioTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(activioTreadmill);
                 innerTemplateManager->start(activioTreadmill);

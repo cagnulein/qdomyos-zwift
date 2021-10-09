@@ -389,9 +389,19 @@ void activiotreadmill::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("6a4e2800-667b-11e3-949a-0800200c9a66"));
     emit debug(QStringLiteral("serviceScanDone"));
 
+    auto services_list = m_control->services();
+    emit debug("Services found:");
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        emit debug(s.toString());
+    }
+
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &activiotreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    if(gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &activiotreadmill::stateChanged);
+        gattCommunicationChannelService->discoverDetails();
+    } else {
+        emit debug(QStringLiteral("error on find Service"));
+    }
 }
 
 void activiotreadmill::errorService(QLowEnergyService::ServiceError err) {
