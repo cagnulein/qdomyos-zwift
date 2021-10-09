@@ -47,6 +47,11 @@ void flywheelbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
 }
 
 void flywheelbike::update() {
+    if (!m_control) {
+        emit disconnected();
+        return;
+    }
+
     qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
              << gattWriteCharacteristic.isValid() << gattNotify1Characteristic.isValid() << initDone;
 
