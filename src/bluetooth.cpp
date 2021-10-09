@@ -783,7 +783,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 yesoulBike->deviceDiscovered(b);
                 userTemplateManager->start(yesoulBike);
                 innerTemplateManager->start(yesoulBike);
-            } else if (b.name().startsWith(QStringLiteral("I_EB")) && !proformBike && filter) {
+            } else if ((b.name().startsWith(QStringLiteral("I_EB")) || b.name().startsWith(QStringLiteral("I_SB"))) && !proformBike && filter) {
 
                 discoveryAgent->stop();
                 proformBike =
