@@ -60,6 +60,8 @@ bool trxappgateusbtreadmill::changeFanSpeed(uint8_t speed) {
 }
 
 void trxappgateusbtreadmill::update() {
+    QSettings settings;
+    bool jtx_fitness_sprint_treadmill = settings.value(QStringLiteral("jtx_fitness_sprint_treadmill"), false).toBool();
     // qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
 
@@ -88,7 +90,7 @@ void trxappgateusbtreadmill::update() {
         }
 
         bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
-        if (toorx30 == false) {
+        if (toorx30 == false || jtx_fitness_sprint_treadmill) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0xd3, 0x66};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
@@ -264,26 +266,7 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
     bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
     bool jtx_fitness_sprint_treadmill = settings.value(QStringLiteral("jtx_fitness_sprint_treadmill"), false).toBool();
 
-    if (jtx_fitness_sprint_treadmill) {
-        const uint8_t initData1[] = {0xf0, 0xa0, 0x01};
-        const uint8_t initData2[] = {0xf0, 0xa5, 0x01};
-        const uint8_t initData3[] = {0xf0, 0xa1, 0x01};
-        const uint8_t initData4[] = {0xf0, 0xa3, 0x01};
-        const uint8_t initData5[] = {0xf0, 0xa4, 0x01};
-        const uint8_t initData6[] = {0xf0, 0xaf, 0x01};
-
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    } else if (toorx30 == false) {
+    if (toorx30 == false || jtx_fitness_sprint_treadmill) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d};
         const uint8_t initData3[] = {0xf0, 0xa0, 0x01, 0xd3, 0x64};
@@ -313,7 +296,7 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         if (treadmill_type == TYPE::IRUNNING) {
             QThread::msleep(400);
         }
-        if (treadmill_type == TYPE::IRUNNING) {
+        if (treadmill_type == TYPE::IRUNNING || jtx_fitness_sprint_treadmill) {
             writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
             QThread::msleep(400);
             writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
@@ -464,6 +447,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
     if (device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
         device.name().startsWith(QStringLiteral("FS-")) || device.name().startsWith(QStringLiteral("i-Console+")) ||
         device.name().startsWith(QStringLiteral("i-Running")) || device.name().startsWith(QStringLiteral("F63")) ||
+        device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (device.name().startsWith(QStringLiteral("i-Running")) ||
             device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
