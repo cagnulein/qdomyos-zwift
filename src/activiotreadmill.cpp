@@ -339,8 +339,8 @@ void activiotreadmill::btinit(bool startTape) {
 
 void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
-    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("6a4e2814-667b-11e3-949a-0800200c9a66"));
-    QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("6a4e2813-667b-11e3-949a-0800200c9a66"));
+    QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("e54eaa57-371b-476c-99a3-74d267e3edae"));
+    QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("e54eaa56-371b-476c-99a3-74d267e3edae"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
