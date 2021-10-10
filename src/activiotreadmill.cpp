@@ -347,6 +347,10 @@ void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     if (state == QLowEnergyService::ServiceDiscovered) {
 
         // qDebug() << gattCommunicationChannelService->characteristics();
+        auto characteristics_list = gattCommunicationChannelService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+        }
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
@@ -386,7 +390,7 @@ void activiotreadmill::characteristicWritten(const QLowEnergyCharacteristic &cha
 }
 
 void activiotreadmill::serviceScanDone(void) {
-    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("6a4e2800-667b-11e3-949a-0800200c9a66"));
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("e54eaa50-371b-476c-99a3-74d267e3edae"));
     emit debug(QStringLiteral("serviceScanDone"));
 
     auto services_list = m_control->services();
