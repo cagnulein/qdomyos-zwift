@@ -674,6 +674,7 @@ void trxappgateusbbike::serviceScanDone(void) {
 
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     QString uuid2 = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
+    QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
         bike_type == TYPE::JLL_IC400 || bike_type == TYPE::FYTTER_RI08) {
         uuid = uuid2;
@@ -705,7 +706,7 @@ void trxappgateusbbike::serviceScanDone(void) {
         }
         if (!found) {
             bike_type = ICONSOLE_2;
-            uuid = uuid2;
+            uuid = uuid3;
         }
     }
 
