@@ -633,7 +633,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(ftmsBike);
                 innerTemplateManager->start(ftmsBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("ASSIOMA"))) &&
+                        (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) && powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
 
                 discoveryAgent->stop();
