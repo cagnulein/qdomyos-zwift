@@ -23,6 +23,7 @@ class DataObject : public QObject {
 
     Q_PROPERTY(QString name READ name NOTIFY nameChanged)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
+    Q_PROPERTY(int gridId READ gridId NOTIFY gridIdChanged WRITE setGridId)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(QString secondLine READ secondLine WRITE setSecondLine NOTIFY secondLineChanged)
     Q_PROPERTY(int valueFontSize READ valueFontSize WRITE setValueFontSize NOTIFY valueFontSizeChanged)
@@ -36,17 +37,19 @@ class DataObject : public QObject {
   public:
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                int valueFontSize, int labelFontSize, const QString &valueFontColor = QStringLiteral("white"),
-               const QString &secondLine = QLatin1String(""));
+               const QString &secondLine = QLatin1String(""), const int gridId = 0);
     void setValue(const QString &value);
     void setSecondLine(const QString &value);
     void setValueFontSize(int value);
     void setValueFontColor(const QString &value);
     void setLabelFontSize(int value);
     void setVisible(bool visible);
+    void setGridId(int id);
     QString name() { return m_name; }
     QString icon() { return m_icon; }
     QString value() { return m_value; }
     QString secondLine() { return m_secondLine; }
+    int gridId() { return m_gridId; }
     int valueFontSize() { return m_valueFontSize; }
     QString valueFontColor() { return m_valueFontColor; }
     int labelFontSize() { return m_labelFontSize; }
@@ -61,6 +64,7 @@ class DataObject : public QObject {
     QString m_value;
     QString m_secondLine = QLatin1String("");
     int m_valueFontSize;
+    int m_gridId;
     QString m_valueFontColor = QStringLiteral("white");
     int m_labelFontSize;
     bool m_writable;
@@ -72,6 +76,7 @@ class DataObject : public QObject {
     void valueFontSizeChanged(int value);
     void valueFontColorChanged(QString value);
     void labelFontSizeChanged(int value);
+    void gridIdChanged(int value);
     void nameChanged(QString value);
     void iconChanged(QString value);
     void writableChanged(bool value);
@@ -334,6 +339,10 @@ class homeform : public QObject {
 
     Q_INVOKABLE void sendMail();
 
+    Q_INVOKABLE void sortTiles();
+    Q_INVOKABLE void moveTile(QString name, int newIndex, int oldIndex);
+    DataObject *tileFromName(QString name);
+
     QList<double> workout_watt_points() {
         QList<double> l;
         l.reserve(Session.size() + 1);
@@ -502,6 +511,7 @@ class homeform : public QObject {
     void smtpError(SmtpClient::SmtpError e);
     void setActivityDescription(QString newdesc);
     void chartSaved(QString fileName);
+    void sortTilesTimeout();
 
   signals:
 

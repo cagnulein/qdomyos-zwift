@@ -111,6 +111,32 @@ HomeForm{
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
+
+            Behavior on x {
+                enabled: id1.state != "active"
+                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
+            }
+
+            Behavior on y {
+                enabled: id1.state != "active"
+                NumberAnimation { duration: 400; easing.type: Easing.OutBack }
+            }
+
+            SequentialAnimation on rotation {
+                NumberAnimation { to:  2; duration: 60 }
+                NumberAnimation { to: -2; duration: 120 }
+                NumberAnimation { to:  0; duration: 60 }
+                running: loc.currentId !== -1 && id1.state !== "active"
+                loops: Animation.Infinite; alwaysRunToEnd: true
+            }
+
+            states: State {
+                name: "active"; when: loc.currentId === gridId
+                PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
+            }
+
+            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
+
             Rectangle {
                 width: 168 * settings.ui_zoom / 100
                 height: 123 * settings.ui_zoom / 100
@@ -211,6 +237,29 @@ HomeForm{
                 anchors.fill: parent
                 onClicked: parent.GridView.view.currentIndex = index
             }*/
+        }
+    }
+
+    MouseArea {
+        property int currentId: -1 // Original position in model
+        property int newIndex // Current Position in model
+        property int index: gridView.indexAt(mouseX - gridView.x, mouseY - gridView.y) // Item underneath cursor
+
+        id: loc
+        anchors.fill: parent
+        onPressAndHold: { console.log("onPressAndHold " + index); if(index !== -1) currentId = appModel[newIndex = index].gridId; else currentId = -1; }
+        onReleased: {
+            console.log("onReleased " + currentId + " " + index );
+            if (currentId !== -1 && index !== -1 && index !== newIndex) {
+                rootItem.moveTile(appModel[currentId].name, index, newIndex);
+            } currentId = -1
+        }
+
+        onPositionChanged: {
+            console.log("onPositionChanged " + currentId + " " + index + " " + newIndex)
+            if (currentId !== -1 && index !== -1 && index !== newIndex) {
+                //appModel.move(newIndex, newIndex = index)
+            }
         }
     }
 }
