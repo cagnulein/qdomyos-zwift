@@ -195,6 +195,7 @@ ApplicationWindow {
                     stackView.pop()
                     toolButtonLoadSettings.visible = false;
                     toolButtonSaveSettings.visible = false;
+                    rootItem.sortTiles()
                 } else {
                     drawer.open()
                 }
@@ -300,8 +301,8 @@ ApplicationWindow {
                 onClicked: {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
-                    stackView.push("settings.qml")
-                    drawer.close()
+                    stackView.push("settings.qml")                    
+                    drawer.close()                    
                 }
             }
             ItemDelegate {

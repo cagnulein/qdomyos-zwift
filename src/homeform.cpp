@@ -50,7 +50,8 @@ using namespace std::chrono_literals;
 #define STRAVA_CLIENT_ID_S STRINGIFY(STRAVA_CLIENT_ID)
 
 DataObject::DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
-                       int valueFontSize, int labelFontSize, const QString &valueFontColor, const QString &secondLine) {
+                       int valueFontSize, int labelFontSize, const QString &valueFontColor, const QString &secondLine,
+                       const int gridId) {
     m_name = name;
     m_icon = icon;
     m_value = value;
@@ -60,6 +61,7 @@ DataObject::DataObject(const QString &name, const QString &icon, const QString &
     m_valueFontSize = valueFontSize;
     m_valueFontColor = valueFontColor;
     m_labelFontSize = labelFontSize;
+    m_gridId = gridId;
 
     emit plusNameChanged(plusName());   // NOTE: clazy-incorrecrt-emit
     emit minusNameChanged(minusName()); // NOTE: clazy-incorrecrt-emit
@@ -84,6 +86,10 @@ void DataObject::setValueFontColor(const QString &value) {
 void DataObject::setLabelFontSize(int value) {
     m_labelFontSize = value;
     emit labelFontSizeChanged(m_labelFontSize);
+}
+void DataObject::setGridId(int id) {
+    m_gridId = id;
+    emit gridIdChanged(m_gridId);
 }
 void DataObject::setVisible(bool visible) {
     m_visible = visible;
@@ -171,18 +177,18 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
         new DataObject(QStringLiteral("Moving T."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"),
                        false, QStringLiteral("moving_time"), valueElapsedFontSize, labelFontSize);
     datetime = new DataObject(QStringLiteral("Clock"), QStringLiteral("icons/icons/clock.png"),
-                              QTime::currentTime().toString(QStringLiteral("hh:mm:ss")), false, QStringLiteral("time"),
-                              valueTimeFontSize, labelFontSize);
+                              QTime::currentTime().toString(QStringLiteral("hh:mm:ss")), false,
+                              QStringLiteral("datetime"), valueTimeFontSize, labelFontSize);
     lapElapsed = new DataObject(QStringLiteral("Lap Elapsed"), QStringLiteral("icons/icons/clock.png"),
                                 QStringLiteral("0:00:00"), false, QStringLiteral("lapElapsed"), valueElapsedFontSize,
                                 labelFontSize);
     remaningTimeTrainingProgramCurrentRow = new DataObject(
         QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), false,
-        QStringLiteral("Time to Next"), valueElapsedFontSize, labelFontSize);
+        QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
     mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("mets"), 48, labelFontSize);
     targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"),
-                                QStringLiteral("0"), false, QStringLiteral("Target mets"), 48, labelFontSize);
+                                QStringLiteral("0"), false, QStringLiteral("targetmets"), 48, labelFontSize);
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
@@ -282,64 +288,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::workoutChanged, this, &homeform::pelotonWorkoutChanged);
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
-
-// populate the UI
-#if 0
-#warning("disable me!")
-    {
-        if(settings.value("tile_speed_enabled", true).toBool())
-            dataList.append(speed);
-
-        if(settings.value("tile_cadence_enabled", true).toBool())
-            dataList.append(cadence);
-
-        if(settings.value("tile_elevation_enabled", true).toBool())
-            dataList.append(elevation);
-
-        if(settings.value("tile_elapsed_enabled", true).toBool())
-            dataList.append(elapsed);
-
-        if(settings.value("tile_moving_time_enabled", true).toBool())
-            dataList.append(moving_time);
-
-        if(settings.value("tile_calories_enabled", true).toBool())
-            dataList.append(calories);
-
-        if(settings.value("tile_odometer_enabled", true).toBool())
-            dataList.append(odometer);
-
-        if(settings.value("tile_resistance_enabled", true).toBool())
-            dataList.append(resistance);
-
-        if(settings.value("tile_peloton_resistance_enabled", true).toBool())
-            dataList.append(peloton_resistance);
-
-        if(settings.value("tile_watt_enabled", true).toBool())
-            dataList.append(watt);
-
-        if(settings.value("tile_avgwatt_enabled", true).toBool())
-            dataList.append(avgWatt);
-
-        if(settings.value("tile_ftp_enabled", true).toBool())
-            dataList.append(ftp);
-
-        if(settings.value("tile_jouls_enabled", true).toBool())
-            dataList.append(jouls);
-
-        if(settings.value("tile_heart_enabled", true).toBool())
-            dataList.append(heart);
-
-        if(settings.value("tile_fan_enabled", true).toBool())
-            dataList.append(fan);
-    }
-
-    engine->rootContext()->setContextProperty("appModel", QVariant::fromValue(dataList));
-
-    QObject::connect(home, SIGNAL(plus_clicked(QString)),
-        this, SLOT(Plus(QString)));
-    QObject::connect(home, SIGNAL(minus_clicked(QString)),
-        this, SLOT(Minus(QString)));
-#endif
 
 #ifdef TEST
     deviceConnected();
@@ -569,6 +517,712 @@ void homeform::ftmsAccessoryConnected(smartspin2k *d) {
     connect(this, &homeform::autoResistanceChanged, d, &smartspin2k::autoResistanceChanged);
 }
 
+void homeform::sortTiles() {
+
+    QSettings settings;
+
+    if (!bluetoothManager || !bluetoothManager->device())
+        return;
+
+    dataList.clear();
+
+    if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        for (int i = 0; i < 100; i++) {
+            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
+
+                speed->setGridId(i);
+                dataList.append(speed);
+            }
+
+            if (settings.value(QStringLiteral("tile_inclination_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_inclination_order"), 0).toInt() == i) {
+                inclination->setGridId(i);
+                dataList.append(inclination);
+            }
+
+            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
+                elevation->setGridId(i);
+                dataList.append(elevation);
+            }
+
+            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
+                elapsed->setGridId(i);
+                dataList.append(elapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
+                moving_time->setGridId(i);
+                dataList.append(moving_time);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
+                peloton_offset->setGridId(i);
+                dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
+                calories->setGridId(i);
+                dataList.append(calories);
+            }
+
+            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
+                odometer->setGridId(i);
+                dataList.append(odometer);
+            }
+
+            if (settings.value(QStringLiteral("tile_pace_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_pace_order"), 0).toInt() == i) {
+                pace->setGridId(i);
+                dataList.append(pace);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
+                watt->setGridId(i);
+                dataList.append(watt);
+            }
+
+            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
+                weightLoss->setGridId(i);
+                dataList.append(weightLoss);
+            }
+
+            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
+                avgWatt->setGridId(i);
+                dataList.append(avgWatt);
+            }
+
+            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
+                ftp->setGridId(i);
+                dataList.append(ftp);
+            }
+
+            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
+                jouls->setGridId(i);
+                dataList.append(jouls);
+            }
+
+            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
+                heart->setGridId(i);
+                dataList.append(heart);
+            }
+
+            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
+                fan->setGridId(i);
+                dataList.append(fan);
+            }
+
+            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
+                datetime->setGridId(i);
+                dataList.append(datetime);
+            }
+
+            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
+                lapElapsed->setGridId(i);
+                dataList.append(lapElapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
+                wattKg->setGridId(i);
+                dataList.append(wattKg);
+            }
+
+            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
+
+                remaningTimeTrainingProgramCurrentRow->setGridId(i);
+                dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+
+                mets->setGridId(i);
+                dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+
+                targetMets->setGridId(i);
+                dataList.append(targetMets);
+            }
+        }
+    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        for (int i = 0; i < 100; i++) {
+            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
+
+                speed->setGridId(i);
+                dataList.append(speed);
+            }
+
+            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
+                cadence->setGridId(i);
+                dataList.append(cadence);
+            }
+
+            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
+                elevation->setGridId(i);
+                dataList.append(elevation);
+            }
+
+            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
+                elapsed->setGridId(i);
+                dataList.append(elapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
+                moving_time->setGridId(i);
+                dataList.append(moving_time);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
+                peloton_offset->setGridId(i);
+                dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
+                calories->setGridId(i);
+                dataList.append(calories);
+            }
+
+            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
+                odometer->setGridId(i);
+                dataList.append(odometer);
+            }
+
+            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
+                resistance->setGridId(i);
+                dataList.append(resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
+                peloton_resistance->setGridId(i);
+                dataList.append(peloton_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
+                watt->setGridId(i);
+                dataList.append(watt);
+            }
+
+            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
+                weightLoss->setGridId(i);
+                dataList.append(weightLoss);
+            }
+
+            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
+                avgWatt->setGridId(i);
+                dataList.append(avgWatt);
+            }
+
+            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
+                ftp->setGridId(i);
+                dataList.append(ftp);
+            }
+
+            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
+                jouls->setGridId(i);
+                dataList.append(jouls);
+            }
+
+            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
+                heart->setGridId(i);
+                dataList.append(heart);
+            }
+
+            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
+                fan->setGridId(i);
+                dataList.append(fan);
+            }
+
+            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
+                datetime->setGridId(i);
+                dataList.append(datetime);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
+                target_resistance->setGridId(i);
+                dataList.append(target_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_peloton_resistance_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_peloton_resistance_order"), 21).toInt() == i) {
+                target_peloton_resistance->setGridId(i);
+                dataList.append(target_peloton_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_cadence_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_cadence_order"), 19).toInt() == i) {
+                target_cadence->setGridId(i);
+                dataList.append(target_cadence);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_power_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_power_order"), 20).toInt() == i) {
+                target_power->setGridId(i);
+                dataList.append(target_power);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_zone_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_zone_order"), 24).toInt() == i) {
+                target_zone->setGridId(i);
+                dataList.append(target_zone);
+            }
+
+            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
+                lapElapsed->setGridId(i);
+                dataList.append(lapElapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
+                wattKg->setGridId(i);
+                dataList.append(wattKg);
+            }
+            if (settings.value(QStringLiteral("tile_gears_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_gears_order"), 25).toInt() == i) {
+                gears->setGridId(i);
+                dataList.append(gears);
+            }
+
+            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
+
+                remaningTimeTrainingProgramCurrentRow->setGridId(i);
+                dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+                mets->setGridId(i);
+                dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+                targetMets->setGridId(i);
+                dataList.append(targetMets);
+            }
+        }
+    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+        for (int i = 0; i < 100; i++) {
+            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
+                speed->setGridId(i);
+                dataList.append(speed);
+            }
+
+            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
+                cadence->setGridId(i);
+                dataList.append(cadence);
+            }
+
+            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
+                elevation->setGridId(i);
+                dataList.append(elevation);
+            }
+
+            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
+                elapsed->setGridId(i);
+                dataList.append(elapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
+                moving_time->setGridId(i);
+                dataList.append(moving_time);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
+                peloton_offset->setGridId(i);
+                dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
+                calories->setGridId(i);
+                dataList.append(calories);
+            }
+
+            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
+                odometer->setGridId(i);
+                dataList.append(odometer);
+            }
+
+            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
+                resistance->setGridId(i);
+                dataList.append(resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
+                peloton_resistance->setGridId(i);
+                dataList.append(peloton_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
+                watt->setGridId(i);
+                dataList.append(watt);
+            }
+
+            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
+                weightLoss->setGridId(i);
+                dataList.append(weightLoss);
+            }
+
+            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
+                avgWatt->setGridId(i);
+                dataList.append(avgWatt);
+            }
+
+            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
+                ftp->setGridId(i);
+                dataList.append(ftp);
+            }
+
+            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
+                jouls->setGridId(i);
+                dataList.append(jouls);
+            }
+
+            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
+                heart->setGridId(i);
+                dataList.append(heart);
+            }
+
+            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
+                fan->setGridId(i);
+                dataList.append(fan);
+            }
+
+            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
+                datetime->setGridId(i);
+                dataList.append(datetime);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
+                target_resistance->setGridId(i);
+                dataList.append(target_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_peloton_resistance_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_peloton_resistance_order"), 21).toInt() == i) {
+                target_peloton_resistance->setGridId(i);
+                dataList.append(target_peloton_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_cadence_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_cadence_order"), 19).toInt() == i) {
+                target_cadence->setGridId(i);
+                dataList.append(target_cadence);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_power_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_power_order"), 20).toInt() == i) {
+                target_power->setGridId(i);
+                dataList.append(target_power);
+            }
+
+            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
+                lapElapsed->setGridId(i);
+                dataList.append(lapElapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_strokes_length_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_strokes_length_order"), 21).toInt() == i) {
+                strokesLength->setGridId(i);
+                dataList.append(strokesLength);
+            }
+
+            if (settings.value(QStringLiteral("tile_strokes_count_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_strokes_count_order"), 22).toInt() == i) {
+                strokesCount->setGridId(i);
+                dataList.append(strokesCount);
+            }
+
+            if (settings.value(QStringLiteral("tile_pace_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_pace_order"), 0).toInt() == i) {
+                pace->setGridId(i);
+                dataList.append(pace);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
+                wattKg->setGridId(i);
+                dataList.append(wattKg);
+            }
+
+            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
+                remaningTimeTrainingProgramCurrentRow->setGridId(i);
+                dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+                mets->setGridId(i);
+                dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+                targetMets->setGridId(i);
+                dataList.append(targetMets);
+            }
+        }
+    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+        for (int i = 0; i < 100; i++) {
+            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
+                speed->setGridId(i);
+                dataList.append(speed);
+            }
+
+            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
+                cadence->setGridId(i);
+                dataList.append(cadence);
+            }
+
+            if (settings.value(QStringLiteral("tile_inclination_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_inclination_order"), 0).toInt() == i) {
+                inclination->setGridId(i);
+                dataList.append(inclination);
+            }
+
+            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
+                elevation->setGridId(i);
+                dataList.append(elevation);
+            }
+
+            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
+                elapsed->setGridId(i);
+                dataList.append(elapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
+                moving_time->setGridId(i);
+                dataList.append(moving_time);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
+                peloton_offset->setGridId(i);
+                dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
+                calories->setGridId(i);
+                dataList.append(calories);
+            }
+
+            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
+                odometer->setGridId(i);
+                dataList.append(odometer);
+            }
+
+            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
+                resistance->setGridId(i);
+                dataList.append(resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
+                peloton_resistance->setGridId(i);
+                dataList.append(peloton_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
+                watt->setGridId(i);
+                dataList.append(watt);
+            }
+
+            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
+                weightLoss->setGridId(i);
+                dataList.append(weightLoss);
+            }
+
+            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
+                avgWatt->setGridId(i);
+                dataList.append(avgWatt);
+            }
+
+            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
+                ftp->setGridId(i);
+                dataList.append(ftp);
+            }
+
+            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
+                jouls->setGridId(i);
+                dataList.append(jouls);
+            }
+
+            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
+                heart->setGridId(i);
+                dataList.append(heart);
+            }
+
+            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
+                fan->setGridId(i);
+                dataList.append(fan);
+            }
+
+            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
+                datetime->setGridId(i);
+                dataList.append(datetime);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
+                target_resistance->setGridId(i);
+                dataList.append(target_resistance);
+            }
+
+            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
+                lapElapsed->setGridId(i);
+                dataList.append(lapElapsed);
+            }
+
+            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
+                wattKg->setGridId(i);
+                dataList.append(wattKg);
+            }
+
+            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
+                remaningTimeTrainingProgramCurrentRow->setGridId(i);
+                dataList.append(remaningTimeTrainingProgramCurrentRow);
+            }
+            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
+                mets->setGridId(i);
+                dataList.append(mets);
+            }
+            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
+                targetMets->setGridId(i);
+                dataList.append(targetMets);
+            }
+        }
+    }
+
+    engine->rootContext()->setContextProperty(QStringLiteral("appModel"), QVariant::fromValue(dataList));
+}
+
+DataObject *homeform::tileFromName(QString name) {
+    foreach (QObject *d, dataList) {
+        if (!((DataObject *)d)->name().compare(name)) {
+            return (DataObject *)d;
+        }
+    }
+    return nullptr;
+}
+
+void homeform::moveTile(QString name, int newIndex, int oldIndex) {
+    QSettings settings;
+    DataObject *current = tileFromName(name);
+    if (current) {
+        qDebug() << "moveTile" << name << newIndex << oldIndex;
+
+        foreach (QString s, settings.allKeys()) {
+            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
+
+                qDebug() << s << settings.value(s);
+            }
+        }
+
+        int i = 0;
+        foreach (QObject *d, dataList) {
+            if (i == newIndex) {
+                settings.setValue("tile_" + current->m_id.toLower() + "_order", i);
+                i++;
+            }
+            QString n = ((DataObject *)d)->m_id;
+            if (((DataObject *)d)->name().compare(name)) {
+                settings.setValue("tile_" + n.toLower() + "_order", i);
+                i++;
+            }
+        }
+
+        foreach (QString s, settings.allKeys()) {
+            if (s.contains(QStringLiteral("tile_")) && s.contains(QStringLiteral("_order"))) {
+
+                qDebug() << s << settings.value(s);
+            }
+        }
+
+        // sortTiles();
+        // dataList.move(oldIndex, newIndex);
+        // very dirty, but i needed a way to synchronize QML with C++
+        QTimer::singleShot(100, this, &homeform::sortTilesTimeout);
+    }
+}
+
+void homeform::sortTilesTimeout() { sortTiles(); }
+
 void homeform::deviceConnected() {
 
     // if the device reconnects in the same session, the tiles shouldn't be created again
@@ -588,554 +1242,7 @@ void homeform::deviceConnected() {
         Start();
     }
 
-    if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-        for (int i = 0; i < 100; i++) {
-            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
-
-                dataList.append(speed);
-            }
-
-            if (settings.value(QStringLiteral("tile_inclination_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_inclination_order"), 0).toInt() == i) {
-                dataList.append(inclination);
-            }
-
-            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
-                dataList.append(elevation);
-            }
-
-            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
-                dataList.append(elapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
-                dataList.append(moving_time);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
-                dataList.append(peloton_offset);
-            }
-
-            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
-                dataList.append(calories);
-            }
-
-            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
-                dataList.append(odometer);
-            }
-
-            if (settings.value(QStringLiteral("tile_pace_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_pace_order"), 0).toInt() == i) {
-                dataList.append(pace);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
-                dataList.append(watt);
-            }
-
-            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
-                dataList.append(weightLoss);
-            }
-
-            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
-                dataList.append(avgWatt);
-            }
-
-            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
-                dataList.append(ftp);
-            }
-
-            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
-                dataList.append(jouls);
-            }
-
-            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
-                dataList.append(heart);
-            }
-
-            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
-                dataList.append(fan);
-            }
-
-            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
-                dataList.append(datetime);
-            }
-
-            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
-                dataList.append(lapElapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
-                dataList.append(wattKg);
-            }
-
-            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
-
-                dataList.append(remaningTimeTrainingProgramCurrentRow);
-            }
-            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
-
-                dataList.append(mets);
-            }
-            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
-
-                dataList.append(targetMets);
-            }
-        }
-    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-        for (int i = 0; i < 100; i++) {
-            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
-
-                dataList.append(speed);
-            }
-
-            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
-                dataList.append(cadence);
-            }
-
-            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
-                dataList.append(elevation);
-            }
-
-            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
-                dataList.append(elapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
-                dataList.append(moving_time);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
-                dataList.append(peloton_offset);
-            }
-
-            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
-                dataList.append(calories);
-            }
-
-            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
-                dataList.append(odometer);
-            }
-
-            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
-                dataList.append(resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
-                dataList.append(peloton_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
-                dataList.append(watt);
-            }
-
-            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
-                dataList.append(weightLoss);
-            }
-
-            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
-                dataList.append(avgWatt);
-            }
-
-            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
-                dataList.append(ftp);
-            }
-
-            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
-                dataList.append(jouls);
-            }
-
-            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
-                dataList.append(heart);
-            }
-
-            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
-                dataList.append(fan);
-            }
-
-            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
-                dataList.append(datetime);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
-                dataList.append(target_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_peloton_resistance_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_peloton_resistance_order"), 21).toInt() == i) {
-                dataList.append(target_peloton_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_cadence_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_cadence_order"), 19).toInt() == i) {
-                dataList.append(target_cadence);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_power_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_power_order"), 20).toInt() == i) {
-                dataList.append(target_power);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_zone_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_zone_order"), 24).toInt() == i) {
-                dataList.append(target_zone);
-            }
-
-            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
-                dataList.append(lapElapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
-                dataList.append(wattKg);
-            }
-            if (settings.value(QStringLiteral("tile_gears_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_gears_order"), 25).toInt() == i) {
-                dataList.append(gears);
-            }
-
-            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
-
-                dataList.append(remaningTimeTrainingProgramCurrentRow);
-            }
-            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
-
-                dataList.append(mets);
-            }
-            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
-
-                dataList.append(targetMets);
-            }
-        }
-    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-        for (int i = 0; i < 100; i++) {
-            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
-
-                dataList.append(speed);
-            }
-
-            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
-                dataList.append(cadence);
-            }
-
-            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
-                dataList.append(elevation);
-            }
-
-            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
-                dataList.append(elapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
-                dataList.append(moving_time);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
-                dataList.append(peloton_offset);
-            }
-
-            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
-                dataList.append(calories);
-            }
-
-            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
-                dataList.append(odometer);
-            }
-
-            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
-                dataList.append(resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
-                dataList.append(peloton_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
-                dataList.append(watt);
-            }
-
-            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
-                dataList.append(weightLoss);
-            }
-
-            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
-                dataList.append(avgWatt);
-            }
-
-            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
-                dataList.append(ftp);
-            }
-
-            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
-                dataList.append(jouls);
-            }
-
-            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
-                dataList.append(heart);
-            }
-
-            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
-                dataList.append(fan);
-            }
-
-            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
-                dataList.append(datetime);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
-                dataList.append(target_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_peloton_resistance_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_peloton_resistance_order"), 21).toInt() == i) {
-                dataList.append(target_peloton_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_cadence_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_cadence_order"), 19).toInt() == i) {
-                dataList.append(target_cadence);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_power_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_power_order"), 20).toInt() == i) {
-                dataList.append(target_power);
-            }
-
-            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
-                dataList.append(lapElapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_strokes_length_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_strokes_length_order"), 21).toInt() == i) {
-                dataList.append(strokesLength);
-            }
-
-            if (settings.value(QStringLiteral("tile_strokes_count_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_strokes_count_order"), 22).toInt() == i) {
-                dataList.append(strokesCount);
-            }
-
-            if (settings.value(QStringLiteral("tile_pace_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_pace_order"), 0).toInt() == i) {
-                dataList.append(pace);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
-                dataList.append(wattKg);
-            }
-
-            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
-
-                dataList.append(remaningTimeTrainingProgramCurrentRow);
-            }
-            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
-
-                dataList.append(mets);
-            }
-            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
-
-                dataList.append(targetMets);
-            }
-        }
-    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
-        for (int i = 0; i < 100; i++) {
-            if (settings.value(QStringLiteral("tile_speed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_speed_order"), 0).toInt() == i) {
-
-                dataList.append(speed);
-            }
-
-            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
-                dataList.append(cadence);
-            }
-
-            if (settings.value(QStringLiteral("tile_inclination_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_inclination_order"), 0).toInt() == i) {
-                dataList.append(inclination);
-            }
-
-            if (settings.value(QStringLiteral("tile_elevation_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elevation_order"), 0).toInt() == i) {
-                dataList.append(elevation);
-            }
-
-            if (settings.value(QStringLiteral("tile_elapsed_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_elapsed_order"), 0).toInt() == i) {
-                dataList.append(elapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_moving_time_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_moving_time_order"), 19).toInt() == i) {
-                dataList.append(moving_time);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_offset_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
-                dataList.append(peloton_offset);
-            }
-
-            if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
-                dataList.append(calories);
-            }
-
-            if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
-                dataList.append(odometer);
-            }
-
-            if (settings.value(QStringLiteral("tile_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_resistance_order"), 0).toInt() == i) {
-                dataList.append(resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_peloton_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_peloton_resistance_order"), 0).toInt() == i) {
-                dataList.append(peloton_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_watt_order"), 0).toInt() == i) {
-                dataList.append(watt);
-            }
-
-            if (settings.value(QStringLiteral("tile_weight_loss_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_weight_loss_order"), 24).toInt() == i) {
-                dataList.append(weightLoss);
-            }
-
-            if (settings.value(QStringLiteral("tile_avgwatt_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_avgwatt_order"), 0).toInt() == i) {
-                dataList.append(avgWatt);
-            }
-
-            if (settings.value(QStringLiteral("tile_ftp_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_ftp_order"), 0).toInt() == i) {
-                dataList.append(ftp);
-            }
-
-            if (settings.value(QStringLiteral("tile_jouls_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_jouls_order"), 0).toInt() == i) {
-                dataList.append(jouls);
-            }
-
-            if (settings.value(QStringLiteral("tile_heart_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_heart_order"), 0).toInt() == i) {
-                dataList.append(heart);
-            }
-
-            if (settings.value(QStringLiteral("tile_fan_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_fan_order"), 0).toInt() == i) {
-                dataList.append(fan);
-            }
-
-            if (settings.value(QStringLiteral("tile_datetime_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_datetime_order"), 0).toInt() == i) {
-                dataList.append(datetime);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_resistance_enabled"), true).toBool() &&
-                settings.value(QStringLiteral("tile_target_resistance_order"), 0).toInt() == i) {
-                dataList.append(target_resistance);
-            }
-
-            if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_lapelapsed_order"), 18).toInt() == i) {
-                dataList.append(lapElapsed);
-            }
-
-            if (settings.value(QStringLiteral("tile_watt_kg_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_watt_kg_order"), 24).toInt() == i) {
-                dataList.append(wattKg);
-            }
-
-            if (settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_remainingtimetrainprogramrow_order"), 27).toInt() == i) {
-
-                dataList.append(remaningTimeTrainingProgramCurrentRow);
-            }
-            if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
-
-                dataList.append(mets);
-            }
-            if (settings.value(QStringLiteral("tile_targetmets_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
-
-                dataList.append(targetMets);
-            }
-        }
-    }
-
-    engine->rootContext()->setContextProperty(QStringLiteral("appModel"), QVariant::fromValue(dataList));
+    sortTiles();
 
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
