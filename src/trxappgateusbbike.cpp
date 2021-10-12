@@ -55,6 +55,11 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 
 void trxappgateusbbike::forceResistance(int8_t requestResistance) {
 
+    if(!initDone) {
+        emit debug(QStringLiteral("forceResistance Ignored, init not done yet"));
+        return;
+    }
+
     uint8_t resistance[] = {0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00};
     if (bike_type == DKN_MOTION_2) {
         resistance[2] = 0x02;
