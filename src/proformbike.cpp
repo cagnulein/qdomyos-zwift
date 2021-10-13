@@ -150,6 +150,9 @@ void proformbike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         update_metrics(true, watts());
 
+        QSettings settings;
+        bool proform_tour_de_france_clc = settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool();
+
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
                                0x0f, 0xbc, 0x90, 0x70, 0x00, 0x00, 0x00, 0x40, 0x00, 0x00};
@@ -162,15 +165,31 @@ void proformbike::update() {
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
         uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
 
+        // proform_tour_de_france_clc
+        uint8_t noOpData2_proform_tour_de_france_clc[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
+                                                          0x0f, 0x80, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData3_proform_tour_de_france_clc[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xfd, 0x00,
+                                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6_proform_tour_de_france_clc[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xb3, 0x00, 0x00, 0x00,
+                                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         switch (counterPoll) {
         case 0:
             writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             break;
         case 1:
-            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+            if (proform_tour_de_france_clc)
+                writeCharacteristic(noOpData2_proform_tour_de_france_clc, sizeof(noOpData2_proform_tour_de_france_clc),
+                                    QStringLiteral("noOp"));
+            else
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
             break;
         case 2:
-            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+            if (proform_tour_de_france_clc)
+                writeCharacteristic(noOpData3_proform_tour_de_france_clc, sizeof(noOpData3_proform_tour_de_france_clc),
+                                    QStringLiteral("noOp"));
+            else
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
             writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
@@ -179,7 +198,11 @@ void proformbike::update() {
             writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
         case 5:
-            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+            if (proform_tour_de_france_clc)
+                writeCharacteristic(noOpData6_proform_tour_de_france_clc, sizeof(noOpData6_proform_tour_de_france_clc),
+                                    QStringLiteral("noOp"));
+            else
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
             break;
         case 6:
             writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
@@ -201,6 +224,9 @@ void proformbike::update() {
 
         counterPoll++;
         if (counterPoll > 6) {
+            counterPoll = 0;
+        } else if (counterPoll == 6 && proform_tour_de_france_clc && requestResistance == -1) {
+            // this bike sends the frame noOpData7 only when it needs to change the resistance
             counterPoll = 0;
         }
 
@@ -457,6 +483,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 }
 
 void proformbike::btinit() {
+
+    QSettings settings;
+
     uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
     uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -472,12 +501,6 @@ void proformbike::btinit() {
     uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
-    uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
-                            0x01, 0x10, 0xcc, 0x7a, 0x3e, 0xf4, 0xb8, 0x66, 0x3a, 0xf8};
-    uint8_t initData11[] = {0x01, 0x12, 0xb4, 0x72, 0x46, 0x1c, 0xf0, 0xbe, 0x92, 0x40,
-                            0x3c, 0xea, 0xce, 0xa4, 0x88, 0x76, 0x4a, 0x28, 0x04, 0xe2};
-    uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
-                            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     QThread::msleep(400);
@@ -505,12 +528,39 @@ void proformbike::btinit() {
     QThread::msleep(400);
     writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
     QThread::msleep(400);
-    writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
+
+    if (settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool()) {
+
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
+                                0x01, 0xb9, 0xf8, 0x45, 0x80, 0xc9, 0x10, 0x6d, 0xb8, 0x09};
+        uint8_t initData11[] = {0x01, 0x12, 0x58, 0xa5, 0xf0, 0x59, 0xa0, 0x1d, 0x78, 0xd9,
+                                0x38, 0x85, 0xe0, 0x49, 0xd0, 0x2d, 0xb8, 0x09, 0x98, 0xe5};
+        uint8_t initData12[] = {0xff, 0x08, 0x70, 0xf9, 0x40, 0x98, 0x02, 0x00, 0x00, 0xfc,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+
+    } else {
+
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
+                                0x01, 0x10, 0xcc, 0x7a, 0x3e, 0xf4, 0xb8, 0x66, 0x3a, 0xf8};
+        uint8_t initData11[] = {0x01, 0x12, 0xb4, 0x72, 0x46, 0x1c, 0xf0, 0xbe, 0x92, 0x40,
+                                0x3c, 0xea, 0xce, 0xa4, 0x88, 0x76, 0x4a, 0x28, 0x04, 0xe2};
+        uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+    }
 
     initDone = true;
 }
@@ -617,7 +667,7 @@ void proformbike::error(QLowEnergyController::Error err) {
 
 void proformbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
-    //if (device.name().startsWith(QStringLiteral("I_EB")))
+    // if (device.name().startsWith(QStringLiteral("I_EB")))
     {
         bluetoothDevice = device;
 
