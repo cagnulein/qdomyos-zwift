@@ -581,23 +581,6 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
     }
-
-    // ******************************************* virtual bike init *************************************
-    if (!firstVirtualBike && !virtualBike) {
-
-        QSettings settings;
-        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
-        if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::inclinationChanged);
-        }
-    }
-    firstVirtualBike = 1;
-    // ********************************************************************************************************
-
     initDone = true;
 }
 
@@ -649,6 +632,22 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
                 this, &trxappgateusbbike::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &trxappgateusbbike::descriptorWritten);
+
+        // ******************************************* virtual bike init *************************************
+        if (!firstVirtualBike && !virtualBike) {
+
+            QSettings settings;
+            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            if (virtual_device_enabled) {
+                emit debug(QStringLiteral("creating virtual bike interface..."));
+
+                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
+                connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::inclinationChanged);
+            }
+        }
+        firstVirtualBike = 1;
+        // ********************************************************************************************************
 
         QByteArray descriptor;
         descriptor.append((char)0x01);
