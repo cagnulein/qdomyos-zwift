@@ -194,7 +194,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     if (CrankRevs != oldCrankRevs && deltaT) {
         double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
-        if (cadence >= 0)
+        if (cadence >= 0 && cadence < 256)
             Cadence = cadence;
         lastGoodCadence = QDateTime::currentDateTime();
     } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
