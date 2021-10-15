@@ -86,7 +86,7 @@ HomeForm{
         focus: true
         model: appModel
         leftMargin: { if(OS_VERSION === "Android") (Screen.width % cellWidth) / 2; else (parent.width % cellWidth) / 2; }
-        anchors.topMargin: rootItem.topBarHeight + 30
+        anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
         id: gridView
         objectName: "gridview"
         onMovementEnded: { headerToolbar.visible = (contentY == 0); }
@@ -111,8 +111,6 @@ HomeForm{
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-            // disabling the drap and drop ability temporarily
-            /*
             Behavior on x {
                 enabled: id1.state != "active"
                 NumberAnimation { duration: 400; easing.type: Easing.OutBack }
@@ -127,16 +125,16 @@ HomeForm{
                 NumberAnimation { to:  2; duration: 60 }
                 NumberAnimation { to: -2; duration: 120 }
                 NumberAnimation { to:  0; duration: 60 }
-                running: loc.currentId !== -1 && id1.state !== "active"
+                running: loc.currentId !== -1 && id1.state !== "active" && window.lockTiles
                 loops: Animation.Infinite; alwaysRunToEnd: true
             }
 
             states: State {
-                name: "active"; when: loc.currentId === gridId
+                name: "active"; when: loc.currentId === gridId && window.lockTiles
                 PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
             }
 
-            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }*/
+            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
 
             Rectangle {
                 width: 168 * settings.ui_zoom / 100
@@ -241,14 +239,13 @@ HomeForm{
         }
     }
 
-    // disable temporary because it conflicts with the scrolling ability of the grid view
-    /*
     MouseArea {
         property int currentId: -1 // Original position in model
         property int newIndex // Current Position in model
-        property int index: gridView.indexAt(mouseX - gridView.x, mouseY - gridView.y) // Item underneath cursor
+        property int index:  (Math.floor(gridView.width / gridView.cellWidth) * Math.floor(mouseY / gridView.cellHeight)) + Math.floor(mouseX / gridView.cellWidth)  //  gridView.indexAt(mouseX - gridView.x, mouseY - gridView.y) // Item underneath cursor
 
         id: loc
+        enabled: window.lockTiles
         anchors.fill: parent
         onPressAndHold: { console.log("onPressAndHold " + index); if(index !== -1) currentId = appModel[newIndex = index].gridId; else currentId = -1; }
         onReleased: {
@@ -259,10 +256,10 @@ HomeForm{
         }
 
         onPositionChanged: {
-            console.log("onPositionChanged " + currentId + " " + index + " " + newIndex)
+            console.log("onPositionChanged " + currentId + " " + index + " " + newIndex + " " + mouseX + " " + mouseY)
             if (currentId !== -1 && index !== -1 && index !== newIndex) {
                 //appModel.move(newIndex, newIndex = index)
             }
         }
-    }*/
+    }
 }

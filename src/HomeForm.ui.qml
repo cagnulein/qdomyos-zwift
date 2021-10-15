@@ -17,6 +17,7 @@ Page {
         width: parent.width
         height: rootItem.topBarHeight
         id: topBar
+        visible: !window.lockTiles
 
         Row {
             id: row

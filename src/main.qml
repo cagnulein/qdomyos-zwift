@@ -25,6 +25,8 @@ ApplicationWindow {
     signal volumeUp()
     signal volumeDown()
 
+    property bool lockTiles: false
+
     Settings {
         id: settings
     }
@@ -237,6 +239,41 @@ ApplicationWindow {
             onTriggered: popupAutoResistance.close();
         }
 
+        Popup {
+            id: popuplockTiles
+             parent: Overlay.overlay
+
+             x: Math.round((parent.width - width) / 2)
+             y: Math.round((parent.height - height) / 2)
+             width: 380
+             height: 60
+             modal: true
+             focus: true
+             palette.text: "white"
+             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+             enter: Transition
+             {
+                 NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+             }
+             exit: Transition
+             {
+                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+             }
+             Column {
+                 anchors.horizontalCenter: parent.horizontalCenter
+             Label {
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 text: window.lockTiles ? qsTr("You can move the tiles!") : qsTr("The tiles are locked now")
+                }
+             }
+        }
+
+        Timer {
+            id: popuplockTilesAutoClose
+            interval: 2000; running: false; repeat: false
+            onTriggered: popuplockTiles.close();
+        }
+
         ToolButton {
             id: toolButtonLoadSettings
             icon.source: "icons/icons/tray-arrow-up.png"
@@ -273,6 +310,14 @@ ApplicationWindow {
             onClicked: {  if(settings.classifica_enable) stackView.push("Classifica.qml"); else popupClassificaHelper.open(); }
             anchors.right: toolButtonAutoResistance.left
         }*/
+
+        ToolButton {
+            id: toolButtonLockTiles
+            icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
+            onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
+            anchors.right: toolButtonAutoResistance.left
+            visible: !toolButtonSaveSettings.visible
+        }
 
         ToolButton {
             id: toolButtonAutoResistance

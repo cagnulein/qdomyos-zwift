@@ -27,5 +27,7 @@
         <file>icons/lap.png</file>
         <file>icons/tray-arrow-down.png</file>
         <file>icons/tray-arrow-up.png</file>
+        <file>icons/lock.png</file>
+        <file>icons/unlock.png</file>
     </qresource>
 </RCC>
