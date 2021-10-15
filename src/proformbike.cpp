@@ -152,6 +152,7 @@ void proformbike::update() {
 
         QSettings settings;
         bool proform_tour_de_france_clc = settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool();
+        bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -173,32 +174,55 @@ void proformbike::update() {
         uint8_t noOpData6_proform_tour_de_france_clc[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x81, 0xb3, 0x00, 0x00, 0x00,
                                                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        // proform_studio
+        uint8_t noOpData2_proform_studio[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x08, 0x15, 0x02, 0x00,
+                                              0x0f, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData3_proform_studio[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0xbe, 0x00,
+                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData4_proform_studio[] = {0xfe, 0x02, 0x14, 0x03};
+        uint8_t noOpData5_proform_studio[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x10, 0x08, 0x10, 0x02, 0x00,
+                                              0x0a, 0x3e, 0x90, 0x30, 0x04, 0x00, 0x00, 0x50, 0x00, 0x00};
+        uint8_t noOpData6_proform_studio[] = {0xff, 0x02, 0x08, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
         switch (counterPoll) {
         case 0:
             writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
             break;
         case 1:
-            if (proform_tour_de_france_clc)
+            if (proform_studio)
+                writeCharacteristic(noOpData2_proform_studio, sizeof(noOpData2_proform_studio), QStringLiteral("noOp"));
+            else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData2_proform_tour_de_france_clc, sizeof(noOpData2_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
             else
                 writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
             break;
         case 2:
-            if (proform_tour_de_france_clc)
+            if (proform_studio)
+                writeCharacteristic(noOpData3_proform_studio, sizeof(noOpData3_proform_studio), QStringLiteral("noOp"));
+            else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData3_proform_tour_de_france_clc, sizeof(noOpData3_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
             else
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
             break;
         case 3:
-            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+            if (proform_studio)
+                writeCharacteristic(noOpData4_proform_studio, sizeof(noOpData4_proform_studio), QStringLiteral("noOp"));
+            else
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
             break;
         case 4:
-            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
+            if (proform_studio)
+                writeCharacteristic(noOpData5_proform_studio, sizeof(noOpData5_proform_studio), QStringLiteral("noOp"));
+            else
+                writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
             break;
         case 5:
-            if (proform_tour_de_france_clc)
+            if (proform_studio)
+                writeCharacteristic(noOpData6_proform_studio, sizeof(noOpData6_proform_studio), QStringLiteral("noOp"));
+            else if (proform_tour_de_france_clc)
                 writeCharacteristic(noOpData6_proform_tour_de_france_clc, sizeof(noOpData6_proform_tour_de_france_clc),
                                     QStringLiteral("noOp"));
             else
@@ -314,108 +338,146 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 ||
-        (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
-         ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
-         ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
-         ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
-        return;
-    }
-
-    m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
-
-    // filter some strange values from proform
-    if (m_watts > 3000) {
-        m_watts = 0;
-    } else {
-        switch ((uint8_t)newValue.at(11)) {
-        case 0x02:
-            Resistance = 1;
-            m_pelotonResistance = 10;
-            break;
-        case 0x04:
-            Resistance = 2;
-            m_pelotonResistance = 20;
-            break;
-        case 0x07:
-            Resistance = 3;
-            m_pelotonResistance = 25;
-            break;
-        case 0x09:
-            Resistance = 4;
-            m_pelotonResistance = 30;
-            break;
-        case 0x0b:
-            Resistance = 5;
-            m_pelotonResistance = 35;
-            break;
-        case 0x0e:
-            Resistance = 6;
-            m_pelotonResistance = 40;
-            break;
-        case 0x10:
-            Resistance = 7;
-            m_pelotonResistance = 45;
-            break;
-        case 0x13:
-            Resistance = 8;
-            m_pelotonResistance = 50;
-            break;
-        case 0x15:
-            Resistance = 9;
-            m_pelotonResistance = 55;
-            break;
-        case 0x18:
-            Resistance = 10;
-            m_pelotonResistance = 60;
-            break;
-        case 0x1a:
-            Resistance = 11;
-            m_pelotonResistance = 65;
-            break;
-        case 0x1d:
-            Resistance = 12;
-            m_pelotonResistance = 70;
-            break;
-        case 0x1f:
-            Resistance = 13;
-            m_pelotonResistance = 75;
-            break;
-        case 0x21:
-            Resistance = 14;
-            m_pelotonResistance = 80;
-            break;
-        case 0x24:
-            Resistance = 15;
-            m_pelotonResistance = 85;
-            break;
-        case 0x26:
-            Resistance = 16;
-            m_pelotonResistance = 100;
-            break;
-            /* when the proform bike is changing the resistance, it sends some strange values, so i'm keeping the last
-            good one default: Resistance = 0; m_pelotonResistance = 0; break;
-            */
-        }
-        emit resistanceRead(Resistance.value());
-
-        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-            Cadence = ((uint8_t)newValue.at(18));
+    if (proform_studio) {
+        if (newValue.length() != 20 ||
+            // frames with power
+            (newValue.at(0) != 0x00 && newValue.at(0) != 0x01) || newValue.at(1) != 0x12 ||
+            (newValue.at(0) == 0x00 &&
+             (newValue.at(2) != 0x01 || newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || newValue.at(5) != 0x2c))) {
+            return;
         }
 
-        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-            Speed =
-                (settings.value(QStringLiteral("proform_wheel_ratio"), 0.33).toDouble()) * ((double)Cadence.value());
+        if (newValue.at(0) == 0x00) {
+            m_watts = ((uint16_t)(((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
+            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                Speed = ((double)((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) /
+                         100.0);
+            } else {
+                Speed = metric::calculateSpeedFromPower(m_watt.value());
+            }
+
+            double incline =
+                ((double)((uint16_t)(((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0);
+
+            emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+
+            Resistance = newValue.at(19);
+            m_pelotonResistance = (100 / 32) * Resistance.value();
+            emit resistanceRead(Resistance.value());
+
+            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((uint8_t)newValue.at(2));
+            }
+        }
+    } else {
+
+        if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
+            newValue.at(3) != 0x04 ||
+            (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
+             ((uint8_t)newValue.at(14)) == 0xFF && ((uint8_t)newValue.at(15)) == 0xFF &&
+             ((uint8_t)newValue.at(16)) == 0xFF && ((uint8_t)newValue.at(17)) == 0xFF &&
+             ((uint8_t)newValue.at(18)) == 0xFF && ((uint8_t)newValue.at(19)) == 0xFF)) {
+            return;
+        }
+
+        m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+
+        // filter some strange values from proform
+        if (m_watts > 3000) {
+            m_watts = 0;
+        } else {
+            switch ((uint8_t)newValue.at(11)) {
+            case 0x02:
+                Resistance = 1;
+                m_pelotonResistance = 10;
+                break;
+            case 0x04:
+                Resistance = 2;
+                m_pelotonResistance = 20;
+                break;
+            case 0x07:
+                Resistance = 3;
+                m_pelotonResistance = 25;
+                break;
+            case 0x09:
+                Resistance = 4;
+                m_pelotonResistance = 30;
+                break;
+            case 0x0b:
+                Resistance = 5;
+                m_pelotonResistance = 35;
+                break;
+            case 0x0e:
+                Resistance = 6;
+                m_pelotonResistance = 40;
+                break;
+            case 0x10:
+                Resistance = 7;
+                m_pelotonResistance = 45;
+                break;
+            case 0x13:
+                Resistance = 8;
+                m_pelotonResistance = 50;
+                break;
+            case 0x15:
+                Resistance = 9;
+                m_pelotonResistance = 55;
+                break;
+            case 0x18:
+                Resistance = 10;
+                m_pelotonResistance = 60;
+                break;
+            case 0x1a:
+                Resistance = 11;
+                m_pelotonResistance = 65;
+                break;
+            case 0x1d:
+                Resistance = 12;
+                m_pelotonResistance = 70;
+                break;
+            case 0x1f:
+                Resistance = 13;
+                m_pelotonResistance = 75;
+                break;
+            case 0x21:
+                Resistance = 14;
+                m_pelotonResistance = 80;
+                break;
+            case 0x24:
+                Resistance = 15;
+                m_pelotonResistance = 85;
+                break;
+            case 0x26:
+                Resistance = 16;
+                m_pelotonResistance = 100;
+                break;
+                /* when the proform bike is changing the resistance, it sends some strange values, so i'm keeping
+                the last good one default: Resistance = 0; m_pelotonResistance = 0; break;
+                */
+            }
+            emit resistanceRead(Resistance.value());
+
+            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+                Cadence = ((uint8_t)newValue.at(18));
+            }
+
+            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                Speed = (settings.value(QStringLiteral("proform_wheel_ratio"), 0.33).toDouble()) *
+                        ((double)Cadence.value());
+            } else {
+                Speed = metric::calculateSpeedFromPower(m_watt.value());
+            }
         }
         if (watts())
             KCal +=
@@ -486,56 +548,56 @@ void proformbike::btinit() {
 
     QSettings settings;
 
-    uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
-    uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x80, 0x8b,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x88, 0x93,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
-    uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
-                           0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
-                           0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+    if (settings.value(QStringLiteral("proform_studio"), false).toBool()) {
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
-    writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
-    QThread::msleep(400);
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x08, 0x04, 0x80, 0x8c,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x08, 0x04, 0x88, 0x94,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
+                               0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
 
-    if (settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool()) {
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
 
-        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
-                                0x01, 0xb9, 0xf8, 0x45, 0x80, 0xc9, 0x10, 0x6d, 0xb8, 0x09};
-        uint8_t initData11[] = {0x01, 0x12, 0x58, 0xa5, 0xf0, 0x59, 0xa0, 0x1d, 0x78, 0xd9,
-                                0x38, 0x85, 0xe0, 0x49, 0xd0, 0x2d, 0xb8, 0x09, 0x98, 0xe5};
-        uint8_t initData12[] = {0xff, 0x08, 0x70, 0xf9, 0x40, 0x98, 0x02, 0x00, 0x00, 0xfc,
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x08, 0x28, 0x90, 0x04,
+                                0x00, 0x68, 0xec, 0x62, 0xee, 0x6c, 0xf8, 0x7e, 0x0a, 0x80};
+        uint8_t initData11[] = {0x01, 0x12, 0x14, 0xaa, 0x36, 0xc4, 0x70, 0xe6, 0x82, 0x38,
+                                0xdc, 0x72, 0x1e, 0xbc, 0x48, 0xee, 0xba, 0x50, 0xe4, 0xba};
+        uint8_t initData12[] = {0xff, 0x08, 0x46, 0x14, 0xe0, 0x88, 0x02, 0x00, 0x00, 0x66,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
         writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
@@ -547,19 +609,81 @@ void proformbike::btinit() {
 
     } else {
 
-        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
-                                0x01, 0x10, 0xcc, 0x7a, 0x3e, 0xf4, 0xb8, 0x66, 0x3a, 0xf8};
-        uint8_t initData11[] = {0x01, 0x12, 0xb4, 0x72, 0x46, 0x1c, 0xf0, 0xbe, 0x92, 0x40,
-                                0x3c, 0xea, 0xce, 0xa4, 0x88, 0x76, 0x4a, 0x28, 0x04, 0xe2};
-        uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
-                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x80, 0x8b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x07, 0x04, 0x88, 0x93,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
+                               0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
 
-        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
         QThread::msleep(400);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+
+        if (settings.value(QStringLiteral("proform_tour_de_france_clc"), false).toBool()) {
+
+            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
+                                    0x01, 0xb9, 0xf8, 0x45, 0x80, 0xc9, 0x10, 0x6d, 0xb8, 0x09};
+            uint8_t initData11[] = {0x01, 0x12, 0x58, 0xa5, 0xf0, 0x59, 0xa0, 0x1d, 0x78, 0xd9,
+                                    0x38, 0x85, 0xe0, 0x49, 0xd0, 0x2d, 0xb8, 0x09, 0x98, 0xe5};
+            uint8_t initData12[] = {0xff, 0x08, 0x70, 0xf9, 0x40, 0x98, 0x02, 0x00, 0x00, 0xfc,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+
+        } else {
+
+            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
+                                    0x01, 0x10, 0xcc, 0x7a, 0x3e, 0xf4, 0xb8, 0x66, 0x3a, 0xf8};
+            uint8_t initData11[] = {0x01, 0x12, 0xb4, 0x72, 0x46, 0x1c, 0xf0, 0xbe, 0x92, 0x40,
+                                    0x3c, 0xea, 0xce, 0xa4, 0x88, 0x76, 0x4a, 0x28, 0x04, 0xe2};
+            uint8_t initData12[] = {0xff, 0x08, 0xf6, 0xcc, 0xe0, 0x98, 0x02, 0x00, 0x00, 0xd1,
+                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+            QThread::msleep(400);
+        }
     }
 
     initDone = true;
