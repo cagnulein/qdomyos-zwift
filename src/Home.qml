@@ -111,7 +111,8 @@ HomeForm{
             visible: visibleItem
             Component.onCompleted: console.log("completed " + objectName)
 
-
+            // disabling the drap and drop ability temporarily
+            /*
             Behavior on x {
                 enabled: id1.state != "active"
                 NumberAnimation { duration: 400; easing.type: Easing.OutBack }
@@ -135,7 +136,7 @@ HomeForm{
                 PropertyChanges { target: id1; x: loc.mouseX - gridView.x - width/2; y: loc.mouseY - gridView.y - height/2; scale: 0.5; z: 10 }
             }
 
-            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }
+            transitions: Transition { NumberAnimation { property: "scale"; duration: 200} }*/
 
             Rectangle {
                 width: 168 * settings.ui_zoom / 100
@@ -240,6 +241,8 @@ HomeForm{
         }
     }
 
+    // disable temporary because it conflicts with the scrolling ability of the grid view
+    /*
     MouseArea {
         property int currentId: -1 // Original position in model
         property int newIndex // Current Position in model
@@ -261,5 +264,5 @@ HomeForm{
                 //appModel.move(newIndex, newIndex = index)
             }
         }
-    }
+    }*/
 }
