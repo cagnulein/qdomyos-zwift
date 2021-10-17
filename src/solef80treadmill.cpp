@@ -152,11 +152,13 @@ void solef80treadmill::update() {
         }
 
         uint8_t noop[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-        uint8_t noop2[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+        //seems that this frame will put the speed to the minimum sometimes on the international
+        //version of this treadmill
+        //uint8_t noop2[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
 
         if (gattCustomService) {
             writeCharacteristic(noop, sizeof(noop), QStringLiteral("noop"), false, true);
-            writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
+            //writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
         }
 
         if (requestSpeed != -1) {
