@@ -14,7 +14,7 @@
 using namespace std::chrono_literals;
 
 activiotreadmill::activiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
-                                 double forceInitInclination) {
+                                   double forceInitInclination) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -35,7 +35,7 @@ activiotreadmill::activiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool
 }
 
 void activiotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                          bool wait_for_response) {
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -69,7 +69,6 @@ void activiotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     }
 }
 
-
 void activiotreadmill::forceSpeed(double requestSpeed) {
     uint8_t writeSpeed[] = {0x03, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00};
 
@@ -77,10 +76,8 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
     writeSpeed[5] += writeSpeed[1];
     writeSpeed[6] = writeSpeed[1] + 1;
 
-
     writeCharacteristic(writeSpeed, sizeof(writeSpeed),
-                        QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed),
-                        false, false);
+                        QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
 }
 
 void activiotreadmill::forceIncline(double requestIncline) {
@@ -91,13 +88,10 @@ void activiotreadmill::forceIncline(double requestIncline) {
     writeIncline[6] += requestIncline;
 
     writeCharacteristic(writeIncline, sizeof(writeIncline),
-                        QStringLiteral("forceIncline incline=") + QString::number(requestIncline),
-                        false, false);
+                        QStringLiteral("forceIncline incline=") + QString::number(requestIncline), false, false);
 }
 
-bool activiotreadmill::sendChangeFanSpeed(uint8_t speed) {
-    return false;
-}
+bool activiotreadmill::sendChangeFanSpeed(uint8_t speed) { return false; }
 
 bool activiotreadmill::changeFanSpeed(uint8_t speed) {
 
@@ -176,7 +170,7 @@ void activiotreadmill::update() {
 
                     lastSpeed = 0.5;
                 }
-                //btinit(true);
+                // btinit(true);
                 requestStart = -1;
                 emit tapeStarted();
             }
@@ -210,7 +204,7 @@ void activiotreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                            const QByteArray &newValue) {
+                                             const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -221,14 +215,15 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
     emit packetReceived();
 
-    if(newValue.length() < 12) return;
+    if (newValue.length() < 12)
+        return;
 
     lastPacket = value;
 
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
-    //double kcal = GetKcalFromPacket(value);
-    //double distance = GetDistanceFromPacket(value);
+    // double kcal = GetKcalFromPacket(value);
+    // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -276,8 +271,8 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    //emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-    //emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
+    // emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    // emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -311,14 +306,14 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 double activiotreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint8_t convertedData = (uint8_t)packet.at(1);
+    uint8_t convertedData = (uint8_t)packet.at(3);
     double data = (double)(convertedData - 0x49) / 10.0f;
     return data;
 }
 
 double activiotreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = packet.at(9);
+    uint16_t convertedData = (uint8_t)packet.at(9);
     double data = (double)(convertedData - 0x49);
     return data;
 }
@@ -331,7 +326,6 @@ void activiotreadmill::btinit(bool startTape) {
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
     if (startTape) {
-
     }
 
     initDone = true;
@@ -349,7 +343,8 @@ void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         // qDebug() << gattCommunicationChannelService->characteristics();
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle()
+                     << c.properties();
         }
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
@@ -384,7 +379,7 @@ void activiotreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor,
 }
 
 void activiotreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
-                                            const QByteArray &newValue) {
+                                             const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
@@ -400,8 +395,9 @@ void activiotreadmill::serviceScanDone(void) {
     }
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    if(gattCommunicationChannelService) {
-        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &activiotreadmill::stateChanged);
+    if (gattCommunicationChannelService) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+                &activiotreadmill::stateChanged);
         gattCommunicationChannelService->discoverDetails();
     } else {
         emit debug(QStringLiteral("error on find Service"));
