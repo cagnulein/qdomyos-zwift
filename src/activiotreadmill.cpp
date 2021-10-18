@@ -331,6 +331,8 @@ void activiotreadmill::btinit(bool startTape) {
     initDone = true;
 }
 
+double activiotreadmill::minStepInclination() { return 1.0; }
+
 void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("e54eaa57-371b-476c-99a3-74d267e3edae"));
