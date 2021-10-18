@@ -442,6 +442,7 @@ void virtualbike::slopeChanged(int16_t iresistance) {
     emit changeInclination(iresistance / 100.0, qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0);
 
     if (force_resistance && !erg_mode) {
+        // same on the training program
         Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
                                1); // resistance start from 1
     }

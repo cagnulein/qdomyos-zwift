@@ -128,6 +128,17 @@ void trainprogram::scheduler() {
                                     QString::number(rows.at(currentStep).requested_peloton_resistance);
                     emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
                 }
+
+                if (rows.at(currentStep).inclination != -1) {
+                    // this should be converted in a signal as all the other signals...
+                    double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
+                    double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+                    qDebug() << QStringLiteral("trainprogram change inclination") +
+                                    QString::number(rows.at(currentStep).inclination);
+                    bluetoothManager->device()->changeResistance(
+                        (int8_t)(round(rows.at(currentStep).inclination * bikeResistanceGain)) + bikeResistanceOffset +
+                        1); // resistance start from 1)
+                }
             }
 
             if (rows.at(currentStep).fanspeed != -1) {
@@ -351,9 +362,10 @@ trainrow trainprogram::currentRow() {
 }
 
 double trainprogram::currentTargetMets() {
-    if(currentRow().mets)
+    if (currentRow().mets)
         return currentRow().mets;
-    else return 0;
+    else
+        return 0;
 }
 
 QTime trainprogram::currentRowElapsedTime() {
