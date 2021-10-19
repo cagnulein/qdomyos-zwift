@@ -34,7 +34,8 @@ activiotreadmill::activiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     refresh->start(pollDeviceTime);
 }
 
-void activiotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic characteristc, uint8_t *data,
+                                           uint8_t data_len, const QString &info, bool disable_log,
                                            bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
@@ -54,8 +55,7 @@ void activiotreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
         return;
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    gattCommunicationChannelService->writeCharacteristic(characteristc, QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -76,7 +76,7 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
     writeSpeed[5] += writeSpeed[1];
     writeSpeed[6] = writeSpeed[1] + 1;
 
-    writeCharacteristic(writeSpeed, sizeof(writeSpeed),
+    writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
                         QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
 }
 
@@ -87,7 +87,7 @@ void activiotreadmill::forceIncline(double requestIncline) {
     writeIncline[5] += requestIncline;
     writeIncline[6] += requestIncline;
 
-    writeCharacteristic(writeIncline, sizeof(writeIncline),
+    writeCharacteristic(gattWriteCharacteristic, writeIncline, sizeof(writeIncline),
                         QStringLiteral("forceIncline incline=") + QString::number(requestIncline), false, false);
 }
 
@@ -170,12 +170,23 @@ void activiotreadmill::update() {
 
                     lastSpeed = 0.5;
                 }
-                // btinit(true);
+
+                uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
+
+                writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("start"),
+                                    false, true);
+
                 requestStart = -1;
                 emit tapeStarted();
             }
             if (requestStop != -1) {
                 emit debug(QStringLiteral("stopping..."));
+
+                uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
+
+                writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
+                                    true);
+
                 requestStop = -1;
             }
             if (requestFanSpeed != -1) {
@@ -306,8 +317,8 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 double activiotreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint8_t convertedData = (uint8_t)packet.at(3);
-    double data = (double)(convertedData - 0x49) / 10.0f;
+    uint8_t convertedData = (uint8_t)packet.at(1);
+    double data = ((double)(convertedData - 0x49) / 10.0f);
     return data;
 }
 
@@ -322,8 +333,8 @@ void activiotreadmill::btinit(bool startTape) {
     uint8_t initData1[] = {0x88};
     uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    writeCharacteristic(gattWrite2Characteristic, initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("init"), false, true);
 
     if (startTape) {
     }
@@ -336,6 +347,7 @@ double activiotreadmill::minStepInclination() { return 1.0; }
 void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("e54eaa57-371b-476c-99a3-74d267e3edae"));
+    QBluetoothUuid _gattWrite2CharacteristicId(QStringLiteral("e54eaa55-371b-476c-99a3-74d267e3edae"));
     QBluetoothUuid _gattNotifyCharacteristicId(QStringLiteral("e54eaa56-371b-476c-99a3-74d267e3edae"));
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
@@ -350,8 +362,10 @@ void activiotreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         }
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
+        gattWrite2Characteristic = gattCommunicationChannelService->characteristic(_gattWrite2CharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
+        Q_ASSERT(gattWrite2Characteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
         // establish hook into notifications

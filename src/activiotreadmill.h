@@ -55,8 +55,8 @@ class activiotreadmill : public treadmill {
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
-                             bool wait_for_response = false);
+    void writeCharacteristic(const QLowEnergyCharacteristic characteristc, uint8_t *data, uint8_t data_len,
+                             const QString &info, bool disable_log = false, bool wait_for_response = false);
     void startDiscover();
     bool noConsole = false;
     bool noHeartService = false;
@@ -74,6 +74,7 @@ class activiotreadmill : public treadmill {
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattWrite2Characteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
 
     bool initDone = false;
