@@ -38,12 +38,15 @@ class proformbike : public bike {
   public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     int pelotonToBikeResistance(int pelotonResistance);
+    uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
   private:
+    const int max_resistance = 16;
+    uint16_t wattsFromResistance(uint8_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
