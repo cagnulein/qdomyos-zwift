@@ -97,43 +97,43 @@ void trainprogram::scheduler() {
             currentStep = calculatedLine;
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
-                    qDebug() << QStringLiteral("trainprogram change speed") +
+                    qDebug() << QStringLiteral("trainprogram change speed ") +
                                     QString::number(rows.at(currentStep).speed);
                     emit changeSpeedAndInclination(rows.at(currentStep).speed, rows.at(currentStep).inclination);
                 }
-                qDebug() << QStringLiteral("trainprogram change inclination") +
+                qDebug() << QStringLiteral("trainprogram change inclination ") +
                                 QString::number(rows.at(currentStep).inclination);
                 emit changeInclination(rows.at(currentStep).inclination);
             } else {
                 if (rows.at(currentStep).resistance != -1) {
-                    qDebug() << QStringLiteral("trainprogram change resistance") +
+                    qDebug() << QStringLiteral("trainprogram change resistance ") +
                                     QString::number(rows.at(currentStep).resistance);
                     emit changeResistance(rows.at(currentStep).resistance);
                 }
 
                 if (rows.at(currentStep).cadence != -1) {
-                    qDebug() << QStringLiteral("trainprogram change cadence") +
+                    qDebug() << QStringLiteral("trainprogram change cadence ") +
                                     QString::number(rows.at(currentStep).cadence);
                     emit changeCadence(rows.at(currentStep).cadence);
                 }
 
                 if (rows.at(currentStep).power != -1) {
-                    qDebug() << QStringLiteral("trainprogram change power") +
+                    qDebug() << QStringLiteral("trainprogram change power ") +
                                     QString::number(rows.at(currentStep).power);
                     emit changePower(rows.at(currentStep).power);
                 }
 
                 if (rows.at(currentStep).requested_peloton_resistance != -1) {
-                    qDebug() << QStringLiteral("trainprogram change requested peloton resistance") +
+                    qDebug() << QStringLiteral("trainprogram change requested peloton resistance ") +
                                     QString::number(rows.at(currentStep).requested_peloton_resistance);
                     emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
                 }
 
-                if (rows.at(currentStep).inclination != -1) {
+                if (rows.at(currentStep).inclination != -200) {
                     // this should be converted in a signal as all the other signals...
                     double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                     double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
-                    qDebug() << QStringLiteral("trainprogram change inclination") +
+                    qDebug() << QStringLiteral("trainprogram change inclination ") +
                                     QString::number(rows.at(currentStep).inclination);
                     bluetoothManager->device()->changeResistance(
                         (int8_t)(round(rows.at(currentStep).inclination * bikeResistanceGain)) + bikeResistanceOffset +
@@ -142,7 +142,7 @@ void trainprogram::scheduler() {
             }
 
             if (rows.at(currentStep).fanspeed != -1) {
-                qDebug() << QStringLiteral("trainprogram change fanspeed") +
+                qDebug() << QStringLiteral("trainprogram change fanspeed ") +
                                 QString::number(rows.at(currentStep).fanspeed);
                 emit changeFanSpeed(rows.at(currentStep).fanspeed);
             }
@@ -157,7 +157,7 @@ void trainprogram::scheduler() {
 
         } else {
             if (rows.length() > currentStep && rows.at(currentStep).power != -1) {
-                qDebug() << QStringLiteral("trainprogram change power") + QString::number(rows.at(currentStep).power);
+                qDebug() << QStringLiteral("trainprogram change power ") + QString::number(rows.at(currentStep).power);
                 emit changePower(rows.at(currentStep).power);
             }
         }
