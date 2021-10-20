@@ -55,7 +55,7 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 
 void trxappgateusbbike::forceResistance(int8_t requestResistance) {
 
-    if(!initDone) {
+    if (!initDone) {
         emit debug(QStringLiteral("forceResistance Ignored, init not done yet"));
         return;
     }
@@ -252,7 +252,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
 
-                heart = ((uint8_t)(newValue.at(15)) - 1);
+                heart = ((uint8_t)(newValue.at(15)) - 1) + ((uint8_t)((newValue.at(14)) - 1) * 100); // #454
             } else {
                 heart = ((uint8_t)(newValue.at(17))) + (((uint8_t)(newValue.at(16))) * 83);
             }
