@@ -171,21 +171,38 @@ void activiotreadmill::update() {
                     lastSpeed = 0.5;
                 }
 
-                uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
+                // should be:
+                // 0x49 = inited
+                // 0x8a = tape stopped after a pause
+                if (lastState == 0x49) {
+                    uint8_t initData2[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x26, 0x03};
 
-                writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("start"),
-                                    false, true);
+                    writeCharacteristic(gattWriteCharacteristic, initData2, sizeof(initData2), QStringLiteral("start"),
+                                        false, true);
+                } else {
+                    uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
+
+                    writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
+                                        true);
+                }
 
                 requestStart = -1;
                 emit tapeStarted();
             }
             if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping..."));
+                emit debug(QStringLiteral("stopping... ") + paused);
+                if (paused) {
+                    uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
 
-                uint8_t pause[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x2a, 0x07};
+                    writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
+                                        true);
 
-                writeCharacteristic(gattWriteCharacteristic, pause, sizeof(pause), QStringLiteral("pause"), false,
-                                    true);
+                } else {
+                    uint8_t stop[] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x27, 0x04};
+
+                    writeCharacteristic(gattWriteCharacteristic, stop, sizeof(stop), QStringLiteral("stop"), false,
+                                        true);
+                }
 
                 requestStop = -1;
             }
@@ -230,6 +247,7 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         return;
 
     lastPacket = value;
+    lastState = value.at(0);
 
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
