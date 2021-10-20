@@ -445,6 +445,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+    bool proform_tdf_jonseed_watt = settings.value(QStringLiteral("proform_tdf_jonseed_watt"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -495,10 +496,11 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
-        m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+        if (!proform_tdf_jonseed_watt)
+            m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
 
         // filter some strange values from proform
-        if (m_watts > 3000) {
+        if (m_watts > 3000 || proform_tdf_jonseed_watt) {
             m_watts = 0;
         } else {
             switch ((uint8_t)newValue.at(11)) {
@@ -571,6 +573,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 */
             }
             emit resistanceRead(Resistance.value());
+
+            if (proform_tdf_jonseed_watt)
+                m_watts = wattsFromResistance(Resistance.value());
 
             if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
                     .toString()

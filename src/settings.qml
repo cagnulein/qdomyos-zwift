@@ -145,6 +145,7 @@ import Qt.labs.settings 1.0
 
             property real proform_wheel_ratio: 0.33
             property bool proform_tour_de_france_clc: false
+            property bool proform_tdf_jonseed_watt: false
             property bool proform_studio: false
 
             property int  fitshow_user_id: 0x006E13AA
@@ -3022,6 +3023,20 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.proform_studio = checked
+                }
+                SwitchDelegate {
+                    id: proformTdfJonseedWattdelegate
+                    text: qsTr("TDF CBC Jonseed Watt table")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.proform_tdf_jonseed_watt
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.proform_tdf_jonseed_watt = checked
                 }
             }
             AccordionElement {
