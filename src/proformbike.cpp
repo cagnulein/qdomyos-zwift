@@ -500,7 +500,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
 
         // filter some strange values from proform
-        if (m_watts > 3000 || proform_tdf_jonseed_watt) {
+        if (m_watts > 3000 && !proform_tdf_jonseed_watt) {
             m_watts = 0;
         } else {
             switch ((uint8_t)newValue.at(11)) {
