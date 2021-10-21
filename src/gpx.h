@@ -13,6 +13,8 @@ class gpx_altitude_point_for_treadmill {
     uint32_t seconds;
     float inclination;
     float speed;
+    double latitude;
+    double longitude;
 };
 
 class gpx_point {

@@ -476,6 +476,8 @@ void homeform::trainProgramSignals() {
                    &trainprogram::onTapeStarted);
         disconnect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram,
                    &trainprogram::onTapeStarted);
+        disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
+                   &bluetoothdevice::changeGeoPosition);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
@@ -496,6 +498,8 @@ void homeform::trainProgramSignals() {
         connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                 &trainprogram::onTapeStarted);
         connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram, &trainprogram::onTapeStarted);
+        connect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
+                &bluetoothdevice::changeGeoPosition);
 
         qDebug() << QStringLiteral("trainProgram associated to a device");
     } else {
@@ -2276,7 +2280,8 @@ void homeform::update() {
                               (bluetoothManager->device()->elapsedTime().minute() * 60) +
                               (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
-                          lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength);
+                          lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
+                          bluetoothManager->device()->currentCordinate());
 
             Session.append(s);
 
@@ -2385,6 +2390,8 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 r.duration = QTime(0, 0, 0, 0);
                 r.duration = r.duration.addSecs(p.seconds);
                 r.inclination = p.inclination;
+                r.latitude = p.latitude;
+                r.longitude = p.longitude;
                 r.forcespeed = true;
                 list.append(r);
             }

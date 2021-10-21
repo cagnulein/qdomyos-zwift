@@ -308,3 +308,6 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     }
     return currentHeart().value();
 }
+
+void bluetoothdevice::changeGeoPosition(QGeoCoordinate p) { coordinate = p; }
+QGeoCoordinate bluetoothdevice::currentCordinate() { return coordinate; }

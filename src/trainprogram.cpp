@@ -67,11 +67,31 @@ void trainprogram::scheduler() {
                                 QString::number(rows.at(0).requested_peloton_resistance);
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
+
+            if (rows.at(0).inclination != -200) {
+                // this should be converted in a signal as all the other signals...
+                double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
+                double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+                qDebug() << QStringLiteral("trainprogram change inclination ") +
+                                QString::number(rows.at(0).inclination);
+                bluetoothManager->device()->changeResistance(
+                    (int8_t)(round(rows.at(0).inclination * bikeResistanceGain)) + bikeResistanceOffset +
+                    1); // resistance start from 1)
+            }
         }
 
         if (rows.at(0).fanspeed != -1) {
             qDebug() << QStringLiteral("trainprogram change fanspeed") + QString::number(rows.at(0).fanspeed);
             emit changeFanSpeed(rows.at(0).fanspeed);
+        }
+
+        if (rows.at(0).latitude != NAN || rows.at(0).longitude != NAN) {
+            qDebug() << QStringLiteral("trainprogram change GEO position") + QString::number(rows.at(0).latitude) +
+                            " " + QString::number(rows.at(0).longitude);
+            QGeoCoordinate p;
+            p.setLatitude(rows.at(0).latitude);
+            p.setLongitude(rows.at(0).longitude);
+            emit changeGeoPosition(p);
         }
     }
 
@@ -146,6 +166,16 @@ void trainprogram::scheduler() {
                                 QString::number(rows.at(currentStep).fanspeed);
                 emit changeFanSpeed(rows.at(currentStep).fanspeed);
             }
+
+            if (rows.at(currentStep).latitude != NAN || rows.at(currentStep).longitude != NAN) {
+                qDebug() << QStringLiteral("trainprogram change GEO position") +
+                                QString::number(rows.at(currentStep).latitude) + " " +
+                                QString::number(rows.at(currentStep).longitude);
+                QGeoCoordinate p;
+                p.setLatitude(rows.at(currentStep).latitude);
+                p.setLongitude(rows.at(currentStep).longitude);
+                emit changeGeoPosition(p);
+            }
         } else {
             qDebug() << QStringLiteral("trainprogram ends!");
 
@@ -210,6 +240,12 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             }
             if (row.mets >= 0) {
                 stream.writeAttribute(QStringLiteral("mets"), QString::number(row.mets));
+            }
+            if (row.latitude != NAN) {
+                stream.writeAttribute(QStringLiteral("latitude"), QString::number(row.latitude));
+            }
+            if (row.longitude != NAN) {
+                stream.writeAttribute(QStringLiteral("longitude"), QString::number(row.longitude));
             }
             if (row.upper_resistance >= 0) {
                 stream.writeAttribute(QStringLiteral("upper_resistance"), QString::number(row.upper_resistance));
@@ -305,6 +341,12 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
             }
             if (atts.hasAttribute(QStringLiteral("mets"))) {
                 row.mets = atts.value(QStringLiteral("mets")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("latitude"))) {
+                row.latitude = atts.value(QStringLiteral("latitude")).toInt();
+            }
+            if (atts.hasAttribute(QStringLiteral("longitude"))) {
+                row.longitude = atts.value(QStringLiteral("longitude")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("upper_resistance"))) {
                 row.upper_resistance = atts.value(QStringLiteral("upper_resistance")).toInt();

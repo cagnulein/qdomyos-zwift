@@ -5,6 +5,7 @@
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
 #include <QDateTime>
+#include <QGeoCoordinate>
 #include <QObject>
 #include <QTimer>
 
@@ -46,6 +47,7 @@ class bluetoothdevice : public QObject {
     virtual metric currentResistance();
     virtual metric currentCadence();
     virtual double currentCrankRevolutions();
+    virtual QGeoCoordinate currentCordinate();
     virtual uint16_t lastCrankEventTime();
     virtual void *VirtualDevice();
     uint16_t watts(double weight);
@@ -81,6 +83,7 @@ class bluetoothdevice : public QObject {
     virtual void powerSensor(uint16_t power);
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
+    virtual void changeGeoPosition(QGeoCoordinate p);
 
   Q_SIGNALS:
     void connectedAndDiscovered();
@@ -111,6 +114,7 @@ class bluetoothdevice : public QObject {
     metric Cadence;
     metric Resistance;
     metric METS;
+    QGeoCoordinate coordinate;
 
     bool paused = false;
     bool autoResistanceEnable = true;

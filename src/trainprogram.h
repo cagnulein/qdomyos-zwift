@@ -1,6 +1,7 @@
 #ifndef TRAINPROGRAM_H
 #define TRAINPROGRAM_H
 #include "bluetooth.h"
+#include <QGeoCoordinate>
 #include <QObject>
 #include <QTime>
 #include <QTimer>
@@ -26,6 +27,8 @@ class trainrow {
     int8_t maxSpeed = -1;
     int32_t power = -1;
     int32_t mets = -1;
+    double latitude = NAN;
+    double longitude = NAN;
 };
 
 class trainprogram : public QObject {
@@ -70,6 +73,7 @@ class trainprogram : public QObject {
     void changeCadence(int16_t cadence);
     void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
+    void changeGeoPosition(QGeoCoordinate p);
 
   private:
     uint32_t calculateTimeForRow(int32_t row);

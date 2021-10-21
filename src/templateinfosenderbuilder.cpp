@@ -434,6 +434,8 @@ void TemplateInfoSenderBuilder::onLoadTrainingPrograms(const QJsonValue &msgCont
             item[QStringLiteral("loopTimeHR")] = row.loopTimeHR;
             item[QStringLiteral("zoneHR")] = row.zoneHR;
             item[QStringLiteral("maxSpeed")] = row.maxSpeed;
+            item[QStringLiteral("latitude")] = row.latitude;
+            item[QStringLiteral("longitude")] = row.longitude;
             outArr.append(item);
         }
     }
@@ -519,6 +521,12 @@ void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgConte
             }
             if (row.contains(QStringLiteral("maxSpeed"))) {
                 tR.maxSpeed = row[QStringLiteral("maxSpeed")].toInt();
+            }
+            if (row.contains(QStringLiteral("latitude"))) {
+                tR.latitude = row[QStringLiteral("latitude")].toDouble();
+            }
+            if (row.contains(QStringLiteral("longitude"))) {
+                tR.longitude = row[QStringLiteral("longitude")].toDouble();
             }
             trainRows.append(tR);
         }
@@ -722,8 +730,13 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("workoutName"), workoutName);
         obj.setProperty(QStringLiteral("workoutStartDate"), workoutStartDate);
         obj.setProperty(QStringLiteral("instructorName"), instructorName);
-        obj.setProperty(QStringLiteral("nickName"),
-                        (nickName = settings.value(QStringLiteral("user_nickname"),QStringLiteral("")).toString()).isEmpty() ? QString(QStringLiteral("N/A")) : nickName);
+        obj.setProperty(QStringLiteral("latitude"), device->currentCordinate().latitude());
+        obj.setProperty(QStringLiteral("longitude"), device->currentCordinate().longitude());
+        obj.setProperty(
+            QStringLiteral("nickName"),
+            (nickName = settings.value(QStringLiteral("user_nickname"), QStringLiteral("")).toString()).isEmpty()
+                ? QString(QStringLiteral("N/A"))
+                : nickName);
         if (tp == bluetoothdevice::BIKE) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((bike *)device)->pelotonResistance()).value());
@@ -736,7 +749,8 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cranktime"), ((bike *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("req_power"), (dep = ((bike *)device)->lastRequestedPower()).value());
             obj.setProperty(QStringLiteral("req_cadence"), (dep = ((bike *)device)->lastRequestedCadence()).value());
-            obj.setProperty(QStringLiteral("req_resistance"), (dep = ((bike *)device)->lastRequestedResistance()).value());
+            obj.setProperty(QStringLiteral("req_resistance"),
+                            (dep = ((bike *)device)->lastRequestedResistance()).value());
         } else if (tp == bluetoothdevice::ROWING) {
             obj.setProperty(QStringLiteral("peloton_resistance"),
                             (dep = ((rower *)device)->pelotonResistance()).value());
@@ -753,8 +767,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         }
-        if (!device->isPaused())
-        {
+        if (!device->isPaused()) {
             sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
         }
     }

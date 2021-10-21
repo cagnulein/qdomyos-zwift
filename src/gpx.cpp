@@ -52,6 +52,8 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
         g.seconds = dT;
         g.speed = (distance / 1000.0) * (3600 / dT);
         g.inclination = (elevation / distance) * 100;
+        g.latitude = pP.p.latitude();
+        g.longitude = pP.p.longitude();
         inclinationList.append(g);
     }
     return inclinationList;
