@@ -478,6 +478,8 @@ void homeform::trainProgramSignals() {
                    &trainprogram::onTapeStarted);
         disconnect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
                    &bluetoothdevice::changeGeoPosition);
+        disconnect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
+                   &bluetoothdevice::workoutEventStateChanged);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
@@ -500,6 +502,8 @@ void homeform::trainProgramSignals() {
         connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram, &trainprogram::onTapeStarted);
         connect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
                 &bluetoothdevice::changeGeoPosition);
+        connect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
+                &bluetoothdevice::workoutEventStateChanged);
 
         qDebug() << QStringLiteral("trainProgram associated to a device");
     } else {

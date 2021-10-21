@@ -311,3 +311,5 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
 
 void bluetoothdevice::changeGeoPosition(QGeoCoordinate p) { coordinate = p; }
 QGeoCoordinate bluetoothdevice::currentCordinate() { return coordinate; }
+
+void bluetoothdevice::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) { lastState = state; }

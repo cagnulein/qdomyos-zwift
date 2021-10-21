@@ -80,8 +80,6 @@ class activiotreadmill : public treadmill {
     bool initDone = false;
     bool initRequest = false;
 
-    uint8_t lastState = 0x00;
-
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif

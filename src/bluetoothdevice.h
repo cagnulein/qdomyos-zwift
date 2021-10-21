@@ -84,6 +84,7 @@ class bluetoothdevice : public QObject {
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
     virtual void changeGeoPosition(QGeoCoordinate p);
+    virtual void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 
   Q_SIGNALS:
     void connectedAndDiscovered();
@@ -116,6 +117,7 @@ class bluetoothdevice : public QObject {
     metric METS;
     QGeoCoordinate coordinate;
 
+    bluetoothdevice::WORKOUT_EVENT_STATE lastState;
     bool paused = false;
     bool autoResistanceEnable = true;
 
