@@ -212,8 +212,16 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
         speed = GetSpeedFromPacket(newValue);
         resistance = GetResistanceFromPacket(newValue);
-        kcal = GetKcalFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
+        if (!settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool())
+            kcal = GetKcalFromPacket(newValue);
+        else
+            kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                                     settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                    200.0) /
+                                   (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body
+                                                                            //weight in kg * 3.5) / 200 ) / 60
     } else {
 
         speed = cadence * 0.37407407407407407407407407407407;

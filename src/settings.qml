@@ -39,6 +39,7 @@ import Qt.labs.settings 1.0
             property bool bike_power_sensor: false
             property string heart_rate_belt_name: "Disabled"
             property bool heart_ignore_builtin: false
+            property bool kcal_ignore_builtin: false
 
             property bool ant_cadence: false
             property bool ant_heart: false
@@ -432,6 +433,20 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
                                 onClicked: settings.heart_ignore_builtin = checked
+                            }
+                            SwitchDelegate {
+                                id: switchBultinKcalDelegate
+                                text: qsTr("Disable KCal from Machinery")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.kcal_ignore_builtin
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.kcal_ignore_builtin = checked
                             }
                             RowLayout {
                                 spacing: 10
