@@ -336,70 +336,73 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 double activiotreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint8_t convertedData = (uint8_t)packet.at(1);
-    convertedData = convertedData - 0x49;
-    if (!convertedData)
-        return 0.0;
-
+    convertedData = convertedData - 0x40;
     uint8_t lownibble = convertedData & 0x0F;
     uint8_t highnibble = convertedData & 0xF0;
-    highnibble = highnibble - 0x40;
+    highnibble = ((highnibble >> 4) & 0x0F);
     switch (lownibble) {
-    case 0x07:
+    case 0x09:
         lownibble = 0x00;
         break;
-    case 0x08:
+    case 0x0A:
         lownibble = 0x01;
         break;
-    case 0x05:
-        lownibble = 0x02;
-        break;
-    case 0x06:
-        lownibble = 0x03;
-        break;
-    case 0x0B:
-        lownibble = 0x04;
-        break;
-    case 0x0C:
-        lownibble = 0x05;
-        break;
-    case 0x09:
-        lownibble = 0x06;
-        break;
-    case 0x0A:
-        lownibble = 0x07;
-        break;
     case 0x0F:
-        lownibble = 0x08;
+        lownibble = 0x02;
         break;
     case 0x00:
         highnibble--;
-        lownibble = 0x09;
+        lownibble = 0x03;
         break;
     case 0x0D:
-        lownibble = 0x0A;
+        lownibble = 0x04;
         break;
     case 0x0E:
-        lownibble = 0x0B;
+        lownibble = 0x05;
         break;
     case 0x03:
         highnibble--;
-        lownibble = 0x0C;
+        lownibble = 0x06;
         break;
     case 0x04:
         highnibble--;
-        lownibble = 0x0D;
+        lownibble = 0x07;
         break;
     case 0x01:
         highnibble--;
-        lownibble = 0x0E;
+        lownibble = 0x08;
         break;
     case 0x02:
+        highnibble--;
+        lownibble = 0x09;
+        break;
+    case 0x07:
+        highnibble--;
+        lownibble = 0x0A;
+        break;
+    case 0x08:
+        highnibble--;
+        lownibble = 0x0B;
+        break;
+    case 0x05:
+        highnibble--;
+        lownibble = 0x0C;
+        break;
+    case 0x06:
+        highnibble--;
+        lownibble = 0x0D;
+        break;
+    case 0x0B:
+        highnibble--;
+        lownibble = 0x0E;
+        break;
+    case 0x0C:
         highnibble--;
         lownibble = 0x0F;
         break;
     }
 
-    convertedData = highnibble + lownibble;
+    convertedData = (highnibble << 4) + lownibble;
 
     double data = ((double)(convertedData) / 10.0f);
     return data;
