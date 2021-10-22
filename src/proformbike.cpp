@@ -496,11 +496,12 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             return;
         }
 
-        if (!proform_tdf_jonseed_watt)
-            m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
+        // wattage needs to be calculate always as a local variable because it's used as a filter for strange values
+        // from proform even if the proform_tdf_jonseed_watt is ON.
+        m_watts = ((uint16_t)(((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12)));
 
         // filter some strange values from proform
-        if (m_watts > 3000 && !proform_tdf_jonseed_watt) {
+        if (m_watts > 3000) {
             m_watts = 0;
         } else {
             switch ((uint8_t)newValue.at(11)) {
