@@ -68,6 +68,9 @@ uint8_t proformbike::resistanceFromPowerRequest(uint16_t power) {
 
 uint16_t proformbike::wattsFromResistance(uint8_t resistance) {
     QSettings settings;
+
+    if(currentCadence().value() == 0) return 0;
+
     double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
     double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
 
