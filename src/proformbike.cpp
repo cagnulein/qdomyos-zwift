@@ -578,8 +578,11 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             }
             emit resistanceRead(Resistance.value());
 
-            if (proform_tdf_jonseed_watt)
+            if (proform_tdf_jonseed_watt) {
                 m_watts = wattsFromResistance(Resistance.value());
+                if(m_watts > 3000)
+                    m_watts = 0;
+            }
 
             if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
                     .toString()
