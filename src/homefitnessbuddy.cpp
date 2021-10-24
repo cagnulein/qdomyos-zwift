@@ -6,6 +6,8 @@
 #include <QTextDocument>
 #include <QtXml>
 
+using namespace std::chrono_literals;
+
 homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(parent) {
 
     QSettings settings;
@@ -13,14 +15,19 @@ homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(par
     mgr = new QNetworkAccessManager(this);
     QNetworkCookieJar *cookieJar = new QNetworkCookieJar();
     mgr->setCookieJar(cookieJar);
+    retry.setSingleShot(true);
+    retry.setInterval(10s);
+    connect(&retry, &QTimer::timeout, this, &homefitnessbuddy::startEngine);
 
     startEngine();
 }
 
 void homefitnessbuddy::startEngine() {
-    QSettings settings;
+    QSettings settings;    
+    retry.stop();
     connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::login_onfinish);
     QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/"));
+    qDebug() << QStringLiteral("Connecting to ") << url.toString();
     QNetworkRequest request(url);
 
     // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
@@ -38,6 +45,13 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
     QByteArray payload = reply->readAll(); // JSON
 
     qDebug() << QStringLiteral("login_onfinish") << payload;
+
+    if(!payload.length()) {
+        qDebug() << QStringLiteral("homefitnessbuddy error, trying again");
+        retry.setSingleShot(true);
+        retry.start(10s);
+        return;
+    }
 
     QTextStream in(payload);
     QStringList fieldNames;

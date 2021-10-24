@@ -30,16 +30,17 @@ class homefitnessbuddy : public QObject {
     const int peloton_workout_second_resolution = 10;
 
     QNetworkAccessManager *mgr = nullptr;
-    bluetooth *bluetoothManager = nullptr;
-
-    void startEngine();
+    bluetooth *bluetoothManager = nullptr;    
 
     QJsonArray lessons;
+
+    QTimer retry;
 
   private slots:
     void login_onfinish(QNetworkReply *reply);
     void search_workout_onfinish(QNetworkReply *reply);
     void error(QNetworkReply::NetworkError code);
+    void startEngine();
 
   signals:
     void workoutStarted(QList<trainrow> *list);
