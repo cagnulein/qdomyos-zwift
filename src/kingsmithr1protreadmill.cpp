@@ -137,6 +137,8 @@ void kingsmithr1protreadmill::update() {
 
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
+        uint8_t start_pause[] = {0xf7, 0xa2, 0x04, 0x01, 0xa7, 0xfd};
+
         // updating the treadmill console every second
         if (sec1Update++ >= (1000 / refresh->interval())) {
 
@@ -188,12 +190,24 @@ void kingsmithr1protreadmill::update() {
 
                 lastSpeed = 0.5;
             }
-            // btinit(true);
+            writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("start"), false, true);
+
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+
+            if (lastState == PAUSED) {
+                writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("pause"), false, true);
+            } else {
+                uint8_t stop1[] = {0xf7, 0xa6, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa6, 0xfd};
+                uint8_t stop2[] = {0xf7, 0xa7, 0xaa, 0xff, 0x50, 0xfd};
+
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop1"), false, true);
+                writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop2"), false, true);
+            }
+
             requestStop = -1;
         }
         if (requestFanSpeed != -1) {
