@@ -33,6 +33,7 @@ class bluetoothdevice : public QObject {
     virtual metric currentHeart();
     virtual metric currentSpeed();
     virtual QTime currentPace();
+    virtual metric currentInclination();
     virtual QTime averagePace();
     virtual QTime maxPace();
     virtual double odometer();
@@ -83,6 +84,7 @@ class bluetoothdevice : public QObject {
     virtual void powerSensor(uint16_t power);
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
+    virtual void changeInclination(double inclination);
     virtual void changeGeoPosition(QGeoCoordinate p);
     virtual void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 
@@ -116,6 +118,7 @@ class bluetoothdevice : public QObject {
     metric Resistance;
     metric METS;
     QGeoCoordinate coordinate;
+    metric Inclination;
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
     bool paused = false;

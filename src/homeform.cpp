@@ -528,6 +528,7 @@ void homeform::ftmsAccessoryConnected(smartspin2k *d) {
 void homeform::sortTiles() {
 
     QSettings settings;
+    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
 
     if (!bluetoothManager || !bluetoothManager->device())
         return;
@@ -843,6 +844,16 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_targetmets_order"), 29).toInt() == i) {
                 targetMets->setGridId(i);
                 dataList.append(targetMets);
+            }
+            // the proform studio is the only bike managed with an inclination properties.
+            // In order to don't break the tiles layout to all the bikes users, i enable this
+            // only if this bike is selected
+            if (proform_studio) {
+                if (settings.value(QStringLiteral("tile_inclination_enabled"), true).toBool() &&
+                    settings.value(QStringLiteral("tile_inclination_order"), 29).toInt() == i) {
+                    inclination->setGridId(i);
+                    dataList.append(inclination);
+                }
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -1294,6 +1305,9 @@ void homeform::Plus(const QString &name) {
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5);
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                ((bike *)bluetoothManager->device())
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
         }
     } else if (name.contains("gears")) {
@@ -1373,6 +1387,9 @@ void homeform::Minus(const QString &name) {
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 ((elliptical *)bluetoothManager->device())
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() - 0.5);
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                ((bike *)bluetoothManager->device())
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
             }
         }
     } else if (name.contains(QStringLiteral("gears"))) {
@@ -1719,6 +1736,17 @@ void homeform::update() {
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
+            bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+
+            if (proform_studio) {
+                inclination = ((bike *)bluetoothManager->device())->currentInclination().value();
+                this->inclination->setValue(QString::number(inclination, 'f', 1));
+                this->inclination->setSecondLine(
+                    QStringLiteral("AVG: ") +
+                    QString::number(((bike *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
+                    QStringLiteral(" MAX: ") +
+                    QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
+            }
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             cadence = ((bike *)bluetoothManager->device())->currentCadence().value();
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();

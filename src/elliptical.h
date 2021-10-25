@@ -31,13 +31,12 @@ class elliptical : public bluetoothdevice {
     void bikeStarted();
 
   protected:
-    metric Inclination;
-    double requestInclination = -1;
     metric RequestedResistance;
     metric Cadence;
     metric Resistance;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
+    double requestInclination = -1;
     double CrankRevs = 0;
 };
 

@@ -56,6 +56,7 @@ class proformbike : public bike {
     void sendPoll();
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
+    void forceIncline(double incline);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

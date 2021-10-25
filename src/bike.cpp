@@ -14,6 +14,11 @@ void bike::changeResistance(int8_t resistance) {
     RequestedResistance = resistance * m_difficult + gears();
 }
 
+void bike::changeInclination(double inclination) {
+    if (autoResistanceEnable) {
+        requestInclination = inclination;
+    }
+}
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {

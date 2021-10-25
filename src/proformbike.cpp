@@ -69,7 +69,8 @@ uint8_t proformbike::resistanceFromPowerRequest(uint16_t power) {
 uint16_t proformbike::wattsFromResistance(uint8_t resistance) {
     QSettings settings;
 
-    if(currentCadence().value() == 0) return 0;
+    if (currentCadence().value() == 0)
+        return 0;
 
     double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
     double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
@@ -245,6 +246,18 @@ void proformbike::forceResistance(int8_t requestResistance) {
     }
 }
 
+void proformbike::forceIncline(double incline) {
+    uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x08, 0x09, 0x02, 0x01,
+                       0x02, 0x38, 0xff, 0x00, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    write[11] = ((uint16_t)(incline * 100)) & 0x00FF;
+    write[12] = ((((uint16_t)(incline * 100)) & 0xFF00) >> 8) & 0x00FF;
+    write[14] = write[6] + write[7] + write[8] + write[9] + write[10] + write[11] + write[12];
+
+    writeCharacteristic((uint8_t *)write, sizeof(write), QStringLiteral("incline ") + QString::number(incline), false,
+                        true);
+}
+
 void proformbike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -351,6 +364,13 @@ void proformbike::update() {
                     forceResistance(requestResistance);
                 }
                 requestResistance = -1;
+            }
+            if (requestInclination != -1 && proform_studio) {
+                if (requestInclination != currentInclination().value()) {
+                    emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+                    forceIncline(requestInclination);
+                }
+                requestInclination = -1;
             }
             break;
         }
@@ -475,6 +495,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             double incline =
                 ((double)((uint16_t)(((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0);
 
+            Inclination = incline;
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
         } else {
 
@@ -580,7 +601,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
             if (proform_tdf_jonseed_watt) {
                 m_watts = wattsFromResistance(Resistance.value());
-                if(m_watts > 3000)
+                if (m_watts > 3000)
                     m_watts = 0;
             }
 

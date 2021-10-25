@@ -10,6 +10,7 @@ void bluetoothdevice::start() { requestStart = 1; }
 void bluetoothdevice::stop() { requestStop = 1; }
 metric bluetoothdevice::currentHeart() { return Heart; }
 metric bluetoothdevice::currentSpeed() { return Speed; }
+metric bluetoothdevice::currentInclination() { return Inclination; }
 QTime bluetoothdevice::movingTime() {
     int hours = (int)(moving.value() / 3600.0);
     return QTime(hours, (int)(moving.value() - ((double)hours * 3600.0)) / 60.0, ((uint32_t)moving.value()) % 60, 0);
@@ -30,6 +31,7 @@ double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
 void bluetoothdevice::changeResistance(int8_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
+void bluetoothdevice::changeInclination(double inclination) {}
 
 void bluetoothdevice::offsetElapsedTime(int offset) { elapsed += offset; }
 

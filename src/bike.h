@@ -39,6 +39,7 @@ class bike : public bluetoothdevice {
     virtual void changeRequestedPelotonResistance(int8_t resistance);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
+    virtual void changeInclination(double inclination);
 
   Q_SIGNALS:
     void bikeStarted();
@@ -52,6 +53,7 @@ class bike : public bluetoothdevice {
     metric RequestedPower;
 
     int8_t requestResistance = -1;
+    double requestInclination = -1;
     int16_t requestPower = -1;
 
     int8_t m_gears = 0;
