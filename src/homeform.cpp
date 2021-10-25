@@ -1661,7 +1661,7 @@ void homeform::update() {
             watts = bluetoothManager->device()->wattsMetric().average5s();
         else
             watts = bluetoothManager->device()->wattsMetric().value();
-        watt->setValue(QString::number(watts));
+        watt->setValue(QString::number(watts, 'f', 0));
         weightLoss->setValue(QString::number(miles ? bluetoothManager->device()->weightLoss() * 35.274
                                                    : bluetoothManager->device()->weightLoss(),
                                              'f', 2));
