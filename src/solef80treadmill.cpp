@@ -45,6 +45,13 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
                                            bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    QSettings settings;
+    bool inclination = settings.value(QStringLiteral("sole_treadmill_inclination"), false).toBool();
+
+    if (!inclination) {
+        qDebug() << "inclination support disabled";
+        return;
+    }
 
     if (!gattCustomService) {
         qDebug() << "no gattCustomService available";
@@ -69,6 +76,10 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
 }
 
 void solef80treadmill::btinit() {
+
+    QSettings settings;
+    bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
+
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
@@ -79,12 +90,15 @@ void solef80treadmill::btinit() {
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
-    //uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+    // uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         waitForAPacket();
-        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+
+        if (f65)
+            writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
@@ -92,10 +106,11 @@ void solef80treadmill::btinit() {
 
         writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
 
-        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
-        writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
-
-        writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+        if (f65) {
+            writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
+            writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
+            writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+        }
 
         writeCharacteristic(initData04, sizeof(initData04), QStringLiteral("init4"), false, true);
         writeCharacteristic(initData05, sizeof(initData05), QStringLiteral("init5"), false, true);
@@ -124,6 +139,10 @@ void solef80treadmill::waitForAPacket() {
 }
 
 void solef80treadmill::update() {
+
+    QSettings settings;
+    bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -152,13 +171,12 @@ void solef80treadmill::update() {
         }
 
         uint8_t noop[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-        //seems that this frame will put the speed to the minimum sometimes on the international
-        //version of this treadmill
-        //uint8_t noop2[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+        uint8_t noop2[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
 
         if (gattCustomService) {
             writeCharacteristic(noop, sizeof(noop), QStringLiteral("noop"), false, true);
-            //writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
+            if (f65)
+                writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
         }
 
         if (requestSpeed != -1) {
@@ -167,7 +185,7 @@ void solef80treadmill::update() {
                 forceSpeed(requestSpeed);
             }
             // i have to do the reset on when the speed is equal to the current
-            //requestSpeed = -1;
+            // requestSpeed = -1;
         }
         if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -176,7 +194,7 @@ void solef80treadmill::update() {
                 forceIncline(requestInclination);
             }
             // i have to do the reset on when the inclination is equal to the current
-            //requestInclination = -1;
+            // requestInclination = -1;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -227,11 +245,10 @@ void solef80treadmill::forceSpeed(double requestSpeed) {
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
-    if(requestSpeed > Speed.value()) {
-        if(requestSpeedState == IDLE)
+    if (requestSpeed > Speed.value()) {
+        if (requestSpeedState == IDLE)
             requestSpeedState = UP;
-        else if(requestSpeedState == DOWN)
-        {
+        else if (requestSpeedState == DOWN) {
             requestSpeedState = IDLE;
             this->requestSpeed = -1;
             return;
@@ -239,11 +256,10 @@ void solef80treadmill::forceSpeed(double requestSpeed) {
 
         if (gattCustomService)
             writeCharacteristic(up, sizeof(up), QStringLiteral("speed up"), false, true);
-    } else if(requestSpeed < Speed.value()) {
-        if(requestSpeedState == IDLE)
+    } else if (requestSpeed < Speed.value()) {
+        if (requestSpeedState == IDLE)
             requestSpeedState = DOWN;
-        else if(requestSpeedState == UP)
-        {
+        else if (requestSpeedState == UP) {
             requestSpeedState = IDLE;
             this->requestSpeed = -1;
             return;
@@ -260,22 +276,20 @@ void solef80treadmill::forceIncline(double requestIncline) {
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x04, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x05, 0x5d};
 
-    if(requestIncline > Inclination.value()) {
-        if(requestInclinationState == IDLE)
+    if (requestIncline > Inclination.value()) {
+        if (requestInclinationState == IDLE)
             requestInclinationState = UP;
-        else if(requestInclinationState == DOWN)
-        {
+        else if (requestInclinationState == DOWN) {
             requestInclinationState = IDLE;
             this->requestInclination = -1;
             return;
         }
         if (gattCustomService)
             writeCharacteristic(up, sizeof(up), QStringLiteral("Inclination up"), false, true);
-    } else if(requestIncline < Inclination.value()) {
-        if(requestInclinationState == IDLE)
+    } else if (requestIncline < Inclination.value()) {
+        if (requestInclinationState == IDLE)
             requestInclinationState = DOWN;
-        else if(requestInclinationState == UP)
-        {
+        else if (requestInclinationState == UP) {
             requestInclinationState = IDLE;
             this->requestInclination = -1;
             return;
@@ -502,6 +516,10 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
+
+    QSettings settings;
+    bool inclination = settings.value(QStringLiteral("sole_treadmill_inclination"), false).toBool();
+
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -538,7 +556,7 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify &&
-                    c.uuid() == _gattNotifyCharId) {
+                    ((c.uuid() == _gattNotifyCharId && inclination) || (!inclination))) {
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);

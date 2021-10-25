@@ -179,6 +179,9 @@ import Qt.labs.settings 1.0
             property int flywheel_filter: 2
             property bool flywheel_life_fitness_ic8: false
 
+            property bool sole_treadmill_inclination: false
+            property bool sole_treadmill_f65: false
+
             property bool trainprogram_random: false
             property int trainprogram_total: 60
             property real trainprogram_period_seconds: 60
@@ -2557,44 +2560,114 @@ import Qt.labs.settings 1.0
                         onClicked: settings.nordictrack_10_treadmill = checked
                     }
                 }
-            }
 
-            AccordionElement {
-                id: domyosTreadmillAccordion
-                title: qsTr("Domyos Treadmill Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    SwitchDelegate {
-                        id: domyosTreadmillButtonsDelegate
-                        text: qsTr("Speed/Inclination Buttons")
+                AccordionElement {
+                    id: domyosTreadmillAccordion
+                    title: qsTr("Domyos Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
                         spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.domyos_treadmill_buttons
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.domyos_treadmill_buttons = checked
+                        SwitchDelegate {
+                            id: domyosTreadmillButtonsDelegate
+                            text: qsTr("Speed/Inclination Buttons")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyos_treadmill_buttons
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyos_treadmill_buttons = checked
+                        }
+
+                        SwitchDelegate {
+                            id: domyosTreadmillDistanceDisplayDelegate
+                            text: qsTr("Distance on Console")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyos_treadmill_distance_display
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyos_treadmill_distance_display = checked
+                        }
                     }
+                }
 
-                    SwitchDelegate {
-                        id: domyosTreadmillDistanceDisplayDelegate
-                        text: qsTr("Distance on Console")
+                AccordionElement {
+                    id:soleTreadmillAccordion
+                    title: qsTr("Sole Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
                         spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.domyos_treadmill_distance_display
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.domyos_treadmill_distance_display = checked
+                        SwitchDelegate {
+                            id: soleInclinationDelegate
+                            text: qsTr("Inclination (experimental)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_inclination
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_inclination = checked
+                        }
+                        SwitchDelegate {
+                            id: soleF65Delegate
+                            text: qsTr("Sole F65")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_f65
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_f65 = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: fitshowAccordion
+                    title: qsTr("Fitshow Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelfitshowTreadmillUserId
+                            text: qsTr("User ID:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: fitshowTreadmillUserIdTextField
+                            text: settings.fitshow_user_id
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.fitshow_user_id = text
+                        }
+                        Button {
+                            id: okfitshowTreadmillUserIdButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                        }
                     }
                 }
             }
@@ -3054,36 +3127,7 @@ import Qt.labs.settings 1.0
                     onClicked: settings.proform_tdf_jonseed_watt = checked
                 }
             }
-            AccordionElement {
-                id: fitshowAccordion
-                title: qsTr("Fitshow Treadmill Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: RowLayout {
-                    spacing: 10
-                    Label {
-                        id: labelfitshowTreadmillUserId
-                        text: qsTr("User ID:")
-                        Layout.fillWidth: true
-                    }
-                    TextField {
-                        id: fitshowTreadmillUserIdTextField
-                        text: settings.fitshow_user_id
-                        horizontalAlignment: Text.AlignRight
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
-                        onAccepted: settings.fitshow_user_id = text
-                    }
-                    Button {
-                        id: okfitshowTreadmillUserIdButton
-                        text: "OK"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
-                    }
-                }
-            }
+
             AccordionElement {
                 id: m3iBikeAccordion
                 title: qsTr("M3i Bike Options")
