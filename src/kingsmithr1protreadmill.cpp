@@ -198,15 +198,7 @@ void kingsmithr1protreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            if (lastState == PAUSED) {
-                writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("pause"), false, true);
-            } else {
-                uint8_t stop1[] = {0xf7, 0xa6, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa6, 0xfd};
-                uint8_t stop2[] = {0xf7, 0xa7, 0xaa, 0xff, 0x50, 0xfd};
-
-                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop1"), false, true);
-                writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop2"), false, true);
-            }
+            writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("pause"), false, true);
 
             requestStop = -1;
         }
