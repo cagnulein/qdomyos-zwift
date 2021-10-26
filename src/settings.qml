@@ -182,6 +182,8 @@ import Qt.labs.settings 1.0
             property bool sole_treadmill_inclination: false
             property bool sole_treadmill_f65: false
 
+            property bool schwinn_bike_resistance: false
+
             property bool trainprogram_random: false
             property int trainprogram_total: 60
             property real trainprogram_period_seconds: 60
@@ -715,6 +717,31 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.bike_resistance_start = bikeResistanceStartTextField.text
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: schwinnBikeAccordion
+                    title: qsTr("Schwinn Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: schwinnBikeResistanceDelegate
+                            text: qsTr("Calc. Resistance")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.schwinn_bike_resistance
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.schwinn_bike_resistance = checked
                         }
                     }
                 }

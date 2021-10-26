@@ -314,7 +314,11 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
           (2.0 * ar)) *
          settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
         settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
-    Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+
+    if (settings.value(QStringLiteral("schwinn_bike_resistance"), false).toBool())
+        Resistance = pelotonToBikeResistance(m_pelotonResistance.value());
+    else
+        Resistance = m_pelotonResistance;
     emit resistanceRead(Resistance.value());
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
@@ -535,11 +539,16 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
-    if (pelotonResistance > 54)
-        return pelotonResistance;
-    if (pelotonResistance < 26)
-        return pelotonResistance / 5;
+    QSettings settings;
+    if (settings.value(QStringLiteral("schwinn_bike_resistance"), false).toBool()) {
+        if (pelotonResistance > 54)
+            return pelotonResistance;
+        if (pelotonResistance < 26)
+            return pelotonResistance / 5;
 
-    // y = 0,04x2 - 1,32x + 11,8
-    return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+        // y = 0,04x2 - 1,32x + 11,8
+        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+    } else {
+        return pelotonResistance;
+    }
 }
