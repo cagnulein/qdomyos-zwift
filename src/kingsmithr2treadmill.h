@@ -25,8 +25,8 @@
 #include <QtCore/qtimer.h>
 
 #include <QDateTime>
-#include <QObject>
 #include <QMap>
+#include <QObject>
 
 #include "treadmill.h"
 #include "virtualbike.h"
@@ -41,7 +41,7 @@ class kingsmithr2treadmill : public treadmill {
     Q_OBJECT
   public:
     kingsmithr2treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                            double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+                         double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     bool changeFanSpeed(uint8_t speed);
 
@@ -49,8 +49,10 @@ class kingsmithr2treadmill : public treadmill {
     void *VirtualDevice();
 
   private:
-    const QByteArray PLAINTEXT_TABLE = QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();
-    const QByteArray ENCRYPT_TABLE =   QStringLiteral("SaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KZ3=").toUtf8();
+    const QByteArray PLAINTEXT_TABLE =
+        QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();
+    const QByteArray ENCRYPT_TABLE =
+        QStringLiteral("SaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KZ3=").toUtf8();
 
     bool sendChangeFanSpeed(uint8_t speed);
     double GetInclinationFromPacket(const QByteArray &packet);
@@ -62,7 +64,6 @@ class kingsmithr2treadmill : public treadmill {
     void writeCharacteristic(const QString &data, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    double DistanceCalculated = 0;
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;

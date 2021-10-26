@@ -34,7 +34,6 @@ class spirittreadmill : public treadmill {
     spirittreadmill();
     bool connected();
     bool changeFanSpeed(uint8_t speed);
-    double odometer();
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -51,7 +50,6 @@ class spirittreadmill : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
     void startDiscover();
-    double DistanceCalculated = 0;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;

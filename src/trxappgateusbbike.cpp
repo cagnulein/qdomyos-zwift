@@ -202,13 +202,13 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (bike_type == FYTTER_RI08) {
         speed = cadence * 0.37407407407407407407407407407407;
         watt = GetWattFromPacketFytter(newValue);
-        if(watt)
-            kcal = KCal.value() +
-               ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                 200.0) /
-                (60000.0 /
-                 ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
-                                                                                // body weight in kg * 3.5) / 200 ) / 60
+        if (watt)
+            kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                                     settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                    200.0) /
+                                   (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                                            // body weight in kg * 3.5) / 200 ) / 60
         else
             kcal = KCal.value();
     } else if (bike_type != JLL_IC400 && bike_type != ASVIVA) {
@@ -219,13 +219,14 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         if (!settings.value(QStringLiteral("kcal_ignore_builtin"), false).toBool())
             kcal = GetKcalFromPacket(newValue);
         else {
-            if(watt)
-                kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
-                                     settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                                    200.0) /
-                                   (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body
-                                                                            // weight in kg * 3.5) / 200 ) / 60
+            if (watt)
+                kcal =
+                    KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                                      settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                     200.0) /
+                                    (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                   QTime::currentTime())))); //(( (0.048* Output in watts +1.19) * body
+                                                                             // weight in kg * 3.5) / 200 ) / 60
             else
                 kcal = KCal.value();
         }
@@ -249,13 +250,13 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
                 watt = 0;
             }
 
-            if(watt)
+            if (watt)
                 kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
-                                     settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                                    200.0) /
-                                   (60000.0 / ((double)lastTimeCharChanged.msecsTo(
-                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
-                                                                            // body weight in kg * 3.5) / 200 ) / 60
+                                         settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                        200.0) /
+                                       (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                      QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                                                // body weight in kg * 3.5) / 200 ) / 60
             else
                 kcal = KCal.value();
         }
@@ -307,7 +308,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     FanSpeed = 0;
 
     if (!firstCharChanged) {
-        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
+        Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -318,7 +319,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral("Current Elapsed from the bike (not used): ") +
                QString::number(GetElapsedFromPacket(newValue)));
     emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -330,7 +331,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         Speed = metric::calculateSpeedFromPower(m_watt.value());
     }
     KCal = kcal;
-    Distance = DistanceCalculated;
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
@@ -862,8 +862,6 @@ bool trxappgateusbbike::connected() {
 void *trxappgateusbbike::VirtualBike() { return virtualBike; }
 
 void *trxappgateusbbike::VirtualDevice() { return VirtualBike(); }
-
-double trxappgateusbbike::odometer() { return DistanceCalculated; }
 
 void trxappgateusbbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

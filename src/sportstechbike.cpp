@@ -143,7 +143,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     FanSpeed = 0;
 
     if (!firstCharChanged) {
-        DistanceCalculated += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
+        Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
@@ -154,7 +154,7 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
     emit debug(QStringLiteral("Current Elapsed from the bike (not used): ") +
                QString::number(GetElapsedFromPacket(newValue)));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -168,7 +168,6 @@ void sportstechbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());
     KCal = kcal;
-    Distance = DistanceCalculated;
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
@@ -394,8 +393,6 @@ bool sportstechbike::connected() {
 void *sportstechbike::VirtualBike() { return virtualBike; }
 
 void *sportstechbike::VirtualDevice() { return VirtualBike(); }
-
-double sportstechbike::odometer() { return DistanceCalculated; }
 
 void sportstechbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

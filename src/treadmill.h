@@ -18,7 +18,6 @@ class treadmill : public bluetoothdevice {
     void clearStats();
     void setLap();
     void setPaused(bool p);
-    virtual double odometer();
     virtual void setLastSpeed(double speed);
     virtual void setLastInclination(double inclination);
 
@@ -32,7 +31,6 @@ class treadmill : public bluetoothdevice {
     void tapeStarted();
 
   protected:
-    double DistanceCalculated = 0;
     double requestSpeed = -1;
     double requestFanSpeed = -1;
     double requestInclination = -1;

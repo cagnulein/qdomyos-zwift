@@ -12,7 +12,7 @@
 using namespace std::chrono_literals;
 
 kingsmithr2treadmill::kingsmithr2treadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
-                                                 double forceInitSpeed, double forceInitInclination) {
+                                           double forceInitSpeed, double forceInitInclination) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -32,8 +32,8 @@ kingsmithr2treadmill::kingsmithr2treadmill(uint32_t pollDeviceTime, bool noConso
     refresh->start(pollDeviceTime);
 }
 
-void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QString &info,
-                                               bool disable_log, bool wait_for_response) {
+void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QString &info, bool disable_log,
+                                               bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -64,14 +64,13 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
         emit debug(QStringLiteral(" >> encrypted: ") + QString(encrypted) + QStringLiteral(" // ") + info);
     }
     encrypted.append('\x0d');
-    for (int i = 0; i < encrypted.length(); i+=16) {
-        gattCommunicationChannelService->writeCharacteristic(
-            gattWriteCharacteristic, encrypted.mid(i, 16), QLowEnergyService::WriteWithoutResponse);
+    for (int i = 0; i < encrypted.length(); i += 16) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, encrypted.mid(i, 16),
+                                                             QLowEnergyService::WriteWithoutResponse);
     }
 
     if (!disable_log) {
-        emit debug(QStringLiteral(" >> ") + encrypted.toHex(' ') +
-                   QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + encrypted.toHex(' ') + QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -86,8 +85,8 @@ void kingsmithr2treadmill::updateDisplay(uint16_t elapsed) {}
 void kingsmithr2treadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
     Q_UNUSED(requestIncline)
     QString speed = QString::number(requestSpeed);
-    writeCharacteristic(
-        QStringLiteral("props CurrentSpeed ") + speed, QStringLiteral("forceSpeed") + speed, false, true);
+    writeCharacteristic(QStringLiteral("props CurrentSpeed ") + speed, QStringLiteral("forceSpeed") + speed, false,
+                        true);
 }
 
 bool kingsmithr2treadmill::sendChangeFanSpeed(uint8_t speed) { return false; }
@@ -151,7 +150,7 @@ void kingsmithr2treadmill::update() {
             sec1Update = 0;
             updateDisplay(elapsed.value());
         } else {
-            //writeCharacteristic(QStringLiteral(""), QStringLiteral("noOp"), false, true);
+            // writeCharacteristic(QStringLiteral(""), QStringLiteral("noOp"), false, true);
         }
 
         // byte 3 - 4 = elapsed time
@@ -228,7 +227,7 @@ void kingsmithr2treadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                                    const QByteArray &newValue) {
+                                                 const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -269,8 +268,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     for (int i = 1; i < _props.size(); i += 2) {
         QString key = _props.at(i);
         // skip string params
-        if (!key.compare(QStringLiteral("mcu_version")) ||
-            !key.compare(QStringLiteral("goal"))) {
+        if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
         }
         QString value = _props.at(i + 1);
@@ -285,7 +283,6 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // - BurnCalories (int) : KCal * 1000
     // - RunningTotalTime (int; sec)
     // - spm (int) : steps per minute
-
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -324,9 +321,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
         // kg * 3.5) / 200 ) / 60
 
-        DistanceCalculated +=
-            ((speed / (double)3600.0) /
-             ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        Distance += ((speed / (double)3600.0) /
+                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
@@ -335,7 +331,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     // emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -346,7 +342,6 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         emit speedChanged(speed);
     }
     Speed = speed;
-    Distance = DistanceCalculated;
 
     if (speed > 0) {
 
@@ -377,10 +372,9 @@ void kingsmithr2treadmill::btinit(bool startTape) {
     // version 0014
 
     // read current properties
-    //writeCharacteristic(
+    // writeCharacteristic(
     //    QStringLiteral("servers getProp 1 3 7 8 9 16 17 18 19 21 22 23 24 31"), QStringLiteral("init"), false, true);
-    writeCharacteristic(
-        QStringLiteral("servers getProp 1 2 7 12 23 24 31"), QStringLiteral("init"), false, true);
+    writeCharacteristic(QStringLiteral("servers getProp 1 2 7 12 23 24 31"), QStringLiteral("init"), false, true);
 
     // TODO need reset BurnCalories & RunningDistance
     initDone = true;
@@ -430,7 +424,7 @@ void kingsmithr2treadmill::descriptorWritten(const QLowEnergyDescriptor &descrip
 }
 
 void kingsmithr2treadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
-                                                    const QByteArray &newValue) {
+                                                 const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }

@@ -57,7 +57,6 @@ class echelonstride : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    double DistanceCalculated = 0;
     volatile bool incompletePackets = false;
     bool noConsole = false;
     bool noHeartService = false;

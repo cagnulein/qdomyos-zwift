@@ -503,8 +503,6 @@ void *trxappgateusbtreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *trxappgateusbtreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double trxappgateusbtreadmill::odometer() { return DistanceCalculated; }
-
 void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {

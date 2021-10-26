@@ -239,10 +239,9 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
                  (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-        DistanceCalculated += ((Speed.value() / 3600.0) /
-                               (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        Distance += ((Speed.value() / 3600.0) /
+                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
-    Distance = DistanceCalculated;
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())

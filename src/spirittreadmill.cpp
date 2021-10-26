@@ -416,8 +416,6 @@ void *spirittreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *spirittreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-double spirittreadmill::odometer() { return DistanceCalculated; }
-
 void spirittreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {

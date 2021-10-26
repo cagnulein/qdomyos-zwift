@@ -292,9 +292,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
         // kg * 3.5) / 200 ) / 60
 
-        DistanceCalculated +=
-            ((speed / (double)3600.0) /
-             ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        Distance += ((speed / (double)3600.0) /
+                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
@@ -303,7 +302,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     // emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -314,7 +313,6 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
         emit speedChanged(speed);
     }
     Speed = speed;
-    Distance = DistanceCalculated;
 
     if (speed > 0) {
 

@@ -33,7 +33,6 @@ class sportstechbike : public bike {
   public:
     sportstechbike(bool noWriteResistance, bool noHeartService);
     bool connected();
-    double odometer();
 
     void *VirtualBike();
     void *VirtualDevice();
@@ -53,7 +52,6 @@ class sportstechbike : public bike {
     uint16_t watts();
     double GetWattFromPacket(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
-    double DistanceCalculated = 0;
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

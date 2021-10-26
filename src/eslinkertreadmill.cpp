@@ -203,7 +203,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
 
     if (!firstCharacteristicChanged) {
-        DistanceCalculated +=
+        Distance +=
             ((speed / 3600.0) / (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
@@ -212,7 +212,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     // debug("Current Distance: " + QString::number(distance));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();

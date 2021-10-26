@@ -37,7 +37,6 @@ class trxappgateusbbike : public bike {
   public:
     trxappgateusbbike(bool noWriteResistance, bool noHeartService);
     bool connected();
-    double odometer();
 
     void *VirtualBike();
     void *VirtualDevice();
@@ -58,7 +57,6 @@ class trxappgateusbbike : public bike {
     double GetWattFromPacket(const QByteArray &packet);
     double GetWattFromPacketFytter(const QByteArray &packet);
     double GetCadenceFromPacket(const QByteArray &packet);
-    double DistanceCalculated = 0;
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

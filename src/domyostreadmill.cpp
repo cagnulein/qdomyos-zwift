@@ -541,9 +541,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     FanSpeed = value.at(23);
 
     if (!firstCharacteristicChanged) {
-        DistanceCalculated +=
-            ((speed / (double)3600.0) /
-             ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        Distance += ((speed / (double)3600.0) /
+                     ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
     }
 
@@ -552,7 +551,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(DistanceCalculated));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -570,7 +569,6 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     Inclination = incline;
 
     KCal = kcal;
-    Distance = DistanceCalculated;
 
     if (speed > 0) {
 
