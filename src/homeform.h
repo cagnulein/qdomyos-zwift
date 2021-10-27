@@ -487,7 +487,7 @@ class homeform : public QObject {
     void volumeDown();
     void volumeUp();
     void deviceFound(const QString &name);
-    void deviceConnected();
+    void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
     void gpx_open_clicked(const QUrl &fileName);

@@ -159,7 +159,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteRizerAvaiable();
 
   signals:
-    void deviceConnected();
+    void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
     void ftmsAccessoryConnected(smartspin2k *d);

@@ -1242,7 +1242,7 @@ void homeform::moveTile(QString name, int newIndex, int oldIndex) {
 
 void homeform::sortTilesTimeout() { sortTiles(); }
 
-void homeform::deviceConnected() {
+void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 
     // if the device reconnects in the same session, the tiles shouldn't be created again
     static bool first = false;
@@ -1250,6 +1250,9 @@ void homeform::deviceConnected() {
         return;
     }
     first = true;
+
+    if (b.isValid())
+        deviceFound(b.name());
 
     m_labelHelp = false;
     emit changeLabelHelp(m_labelHelp);
@@ -1273,7 +1276,7 @@ void homeform::deviceConnected() {
 }
 
 void homeform::deviceFound(const QString &name) {
-    if (name.trimmed().isEmpty()) {
+    if (name.trimmed().isEmpty() || m_labelHelp == false) {
         return;
     }
 
