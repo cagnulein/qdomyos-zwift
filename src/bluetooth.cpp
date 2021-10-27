@@ -79,7 +79,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
             // stateFileRead();
             QBluetoothDeviceInfo bt;
             bt.setDeviceUuid(QBluetoothUuid(settings.value("bluetooth_lastdevice_address", "").toString()));
-            bt.setName(b);
+            // set name method doesn't exist
             emit(deviceConnected(bt));
             connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
             // connect(echelonConnectSport, SIGNAL(disconnected()), this, SLOT(restart()));
@@ -1220,7 +1220,7 @@ void bluetooth::connectedAndDiscovered() {
         QBluetoothDeviceInfo bt;
         QString b = settings.value("bluetooth_lastdevice_name", "").toString();
         bt.setDeviceUuid(QBluetoothUuid(settings.value("bluetooth_lastdevice_address", "").toString()));
-        bt.setName(b);
+        // set name method doesn't exist
         emit(deviceConnected(bt));
     }
 #endif
