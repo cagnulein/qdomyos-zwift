@@ -1276,11 +1276,15 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 }
 
 void homeform::deviceFound(const QString &name) {
-    if (name.trimmed().isEmpty() || m_labelHelp == false) {
+    if (name.trimmed().isEmpty()) {
         return;
     }
 
     emit bluetoothDevicesChanged(bluetoothDevices());
+
+    if (m_labelHelp == false) {
+        return;
+    }
 
     QSettings settings;
     if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
