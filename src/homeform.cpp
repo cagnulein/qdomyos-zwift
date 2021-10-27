@@ -1291,9 +1291,15 @@ void homeform::Plus(const QString &name) {
     qDebug() << QStringLiteral("Plus") << name;
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
+            // round up to the next .5 increment (.0 or .5)
+            double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+            int rest = 5 - (((int)(speed * 10.0)) % 5);
+            if (rest == 5 || rest == 0)
+                speed = speed + 0.5;
+            else
+                speed = speed + (((double)rest) / 10.0);
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() + 0.5);
+                ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
             }
         }
     } else if (name.contains(QStringLiteral("inclination"))) {
@@ -1366,7 +1372,7 @@ void homeform::Plus(const QString &name) {
     } else {
         qDebug() << name << QStringLiteral("not handled");
 
-        qDebug() << "Minus" << name;
+        qDebug() << "Plus" << name;
     }
 }
 
@@ -1374,8 +1380,16 @@ void homeform::Minus(const QString &name) {
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                ((treadmill *)bluetoothManager->device())
-                    ->changeSpeed(((treadmill *)bluetoothManager->device())->currentSpeed().value() - 0.5);
+                // round up to the next .5 increment (.0 or .5)
+                double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                int rest = 5 - (((int)(speed * 10.0)) % 5);
+                if (rest == 5 || rest == 0)
+                    speed = speed - 0.5;
+                else
+                    speed = speed - (((double)rest) / 10.0);
+                if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                    ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
+                }
             }
         }
     } else if (name.contains(QStringLiteral("inclination"))) {
@@ -1447,6 +1461,7 @@ void homeform::Minus(const QString &name) {
         }
     } else {
         qDebug() << name << QStringLiteral("not handled");
+        qDebug() << "Minus" << name;
     }
 }
 
