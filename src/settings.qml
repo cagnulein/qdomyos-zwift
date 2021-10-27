@@ -221,6 +221,7 @@ import Qt.labs.settings 1.0
 
             property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
+            property bool bluetooth_30m_hangs: false
             property bool battery_service: false
             property bool service_changed: false
             property bool virtual_device_enabled: true
@@ -3817,6 +3818,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bluetooth_relaxed = checked
+                    }
+
+                    SwitchDelegate {
+                        id: bluetooth30mHangsDelegate
+                        text: qsTr("Bluetooth hangs after 30m")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bluetooth_30m_hangs
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bluetooth_30m_hangs = checked
                     }
 
                     SwitchDelegate {

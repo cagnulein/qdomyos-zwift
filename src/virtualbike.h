@@ -54,6 +54,7 @@ class virtualbike : public QObject {
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
+    qint64 lastFTMSFrameReceived = 0;
 
     bool noHeartService = false;
     uint8_t bikeResistanceOffset = 4;

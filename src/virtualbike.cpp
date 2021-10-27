@@ -465,12 +465,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 
+    lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+
     if (!echelon && !ifit)
         emit ftmsCharacteristicChanged(characteristic, newValue);
 
     switch (characteristic.uuid().toUInt16()) {
 
     case 0x2AD9: // Fitness Machine Control Point
+
         if ((char)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
 
             // Set Target Resistance
@@ -827,10 +830,20 @@ void virtualbike::bikeProvider() {
         return;
     } else {
         bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+        bool bluetooth_30m_hangs = settings.value(QStringLiteral("bluetooth_30m_hangs"), false).toBool();
         if (bluetooth_relaxed) {
 
             leController->stopAdvertising();
         }
+
+        if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() > (lastFTMSFrameReceived + 5000) &&
+            bluetooth_30m_hangs) {
+            lastFTMSFrameReceived = 0;
+            qDebug() << QStringLiteral("virtual bike timeout, reconnecting...");
+
+            reconnect();
+        }
+
         qDebug() << QStringLiteral("virtual bike connected");
     }
 
