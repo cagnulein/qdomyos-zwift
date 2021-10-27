@@ -1465,19 +1465,21 @@ void homeform::Minus(const QString &name) {
     }
 }
 
-void homeform::Start() {
+void homeform::Start() { Start_inner(true); }
+
+void homeform::Start_inner(bool send_event_to_device) {
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     if (!paused && !stopped) {
 
         paused = true;
-        if (bluetoothManager->device()) {
+        if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->stop();
         }
         emit workoutEventStateChanged(bluetoothdevice::PAUSED);
     } else {
 
-        if (bluetoothManager->device()) {
+        if (bluetoothManager->device() && send_event_to_device) {
             bluetoothManager->device()->start();
         }
 
@@ -1749,6 +1751,15 @@ void homeform::update() {
                 speed->setValueFontColor(QStringLiteral("red"));
                 this->pace->setValueFontColor(QStringLiteral("red"));
             }
+
+            // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
+            // so this logic should care about sync the treadmill state to the UI state
+            if (((treadmill *)bluetoothManager->device())->autoPauseWhenSpeedIsZero() &&
+                bluetoothManager->device()->currentSpeed().value() == 0 && paused == false && stopped == false) {
+                qDebug() << QStringLiteral("autoPauseWhenSpeedIsZero!");
+                Start_inner(false);
+            }
+
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
             bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();

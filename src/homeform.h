@@ -471,6 +471,7 @@ class homeform : public QObject {
     void backup();
     bool getDevice();
     bool getLap();
+    void Start_inner(bool send_event_to_device);
 
   public slots:
     void aboutToQuit();

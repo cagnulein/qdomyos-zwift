@@ -129,3 +129,5 @@ void treadmill::setLap() {
 void treadmill::setLastSpeed(double speed) { lastSpeed = speed; }
 
 void treadmill::setLastInclination(double inclination) { lastInclination = inclination; }
+
+bool treadmill::autoPauseWhenSpeedIsZero() { return false; }
