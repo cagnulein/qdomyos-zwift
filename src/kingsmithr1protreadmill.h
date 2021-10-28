@@ -84,6 +84,7 @@ class kingsmithr1protreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    bool requestUnlock = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

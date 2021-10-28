@@ -184,6 +184,11 @@ void kingsmithr1protreadmill::update() {
             }
             requestInclination = -1;
         }
+        if (requestUnlock) {
+            uint8_t unlock[] = {0xf7, 0xa2, 0x02, 0x01, 0xa5, 0xfd};
+            writeCharacteristic(unlock, sizeof(unlock), QStringLiteral("unlocking..."), false, true);
+            requestUnlock = false;
+        }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             if (lastSpeed == 0.0) {
@@ -243,6 +248,11 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     if (newValue.length() != 20) {
         emit debug(QStringLiteral("packet ignored"));
         return;
+    }
+
+    if (newValue.at(2) == 0x05) {
+        emit debug(QStringLiteral("lock byte found, asking to unlock the treadmill"));
+        requestUnlock = true;
     }
 
     double speed = GetSpeedFromPacket(value);
