@@ -484,4 +484,4 @@ void *kingsmithr1protreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr1protreadmill::searchingStop() { searchStopped = true; }
 
-bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() { return false; }
+bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() { return true; }
