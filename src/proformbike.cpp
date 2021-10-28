@@ -53,110 +53,96 @@ void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 uint8_t proformbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    QSettings settings;
+
+    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+
     for (int i = 1; i < max_resistance; i++) {
-        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
-            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
+        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
+            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest")
+                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
+                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
             return i;
         }
     }
-    if (power < wattsFromResistance(1))
+    if (power < ((wattsFromResistance(1) * watt_gain) + watt_offset))
         return 1;
     else
         return max_resistance;
 }
 
 uint16_t proformbike::wattsFromResistance(uint8_t resistance) {
-    QSettings settings;
 
     if (currentCadence().value() == 0)
         return 0;
-
-    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
-    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
 
     switch (resistance) {
     case 0:
     case 1:
         // -13.5 + 0.999x + 0.00993x²
-        return ((-13.5 + (0.999 * currentCadence().value()) + (0.00993 * pow(currentCadence().value(), 2))) *
-                watt_gain) +
-               watt_offset;
+        return (-13.5 + (0.999 * currentCadence().value()) + (0.00993 * pow(currentCadence().value(), 2)));
     case 2:
         // -17.7 + 1.2x + 0.0116x²
-        return ((-17.7 + (1.2 * currentCadence().value()) + (0.0116 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-17.7 + (1.2 * currentCadence().value()) + (0.0116 * pow(currentCadence().value(), 2)));
 
     case 3:
         // -17.5 + 1.24x + 0.014x²
-        return ((-17.5 + (1.24 * currentCadence().value()) + (0.014 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-17.5 + (1.24 * currentCadence().value()) + (0.014 * pow(currentCadence().value(), 2)));
 
     case 4:
         // -20.9 + 1.43x + 0.016x²
-        return ((-20.9 + (1.43 * currentCadence().value()) + (0.016 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-20.9 + (1.43 * currentCadence().value()) + (0.016 * pow(currentCadence().value(), 2)));
 
     case 5:
         // -27.9 + 1.75x+0.0172x²
-        return ((-27.9 + (1.75 * currentCadence().value()) + (0.0172 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-27.9 + (1.75 * currentCadence().value()) + (0.0172 * pow(currentCadence().value(), 2)));
 
     case 6:
         // -26.7 + 1.9x + 0.0201x²
-        return ((-26.7 + (1.9 * currentCadence().value()) + (0.0201 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-26.7 + (1.9 * currentCadence().value()) + (0.0201 * pow(currentCadence().value(), 2)));
 
     case 7:
         // -33.5 + 2.23x + 0.0225x²
-        return ((-33.5 + (2.23 * currentCadence().value()) + (0.0225 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-33.5 + (2.23 * currentCadence().value()) + (0.0225 * pow(currentCadence().value(), 2)));
 
     case 8:
         // -36.5+2.5x+0.0262x²
-        return ((-36.5 + (2.5 * currentCadence().value()) + (0.0262 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-36.5 + (2.5 * currentCadence().value()) + (0.0262 * pow(currentCadence().value(), 2)));
 
     case 9:
         // -38+2.62x+0.0305x²
-        return ((-38.0 + (2.62 * currentCadence().value()) + (0.0305 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-38.0 + (2.62 * currentCadence().value()) + (0.0305 * pow(currentCadence().value(), 2)));
 
     case 10:
         // -41.2+2.85x+0.0327x²
-        return ((-41.2 + (2.85 * currentCadence().value()) + (0.0327 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-41.2 + (2.85 * currentCadence().value()) + (0.0327 * pow(currentCadence().value(), 2)));
 
     case 11:
         // -43.4+3.01x+0.0359x²
-        return ((-43.4 + (3.01 * currentCadence().value()) + (0.0359 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-43.4 + (3.01 * currentCadence().value()) + (0.0359 * pow(currentCadence().value(), 2)));
 
     case 12:
         // -46.8+3.23x+0.0364x²
-        return ((-46.8 + (3.23 * currentCadence().value()) + (0.0364 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-46.8 + (3.23 * currentCadence().value()) + (0.0364 * pow(currentCadence().value(), 2)));
 
     case 13:
         // -49+3.39x+0.0371x²
-        return ((-49.0 + (3.39 * currentCadence().value()) + (0.0371 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-49.0 + (3.39 * currentCadence().value()) + (0.0371 * pow(currentCadence().value(), 2)));
 
     case 14:
         // -53.4+3.55x+0.0383x²
-        return ((-53.4 + (3.55 * currentCadence().value()) + (0.0383 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-53.4 + (3.55 * currentCadence().value()) + (0.0383 * pow(currentCadence().value(), 2)));
 
     case 15:
         // -49.9+3.37x+0.0429x²
-        return ((-49.9 + (3.37 * currentCadence().value()) + (0.0429 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-49.9 + (3.37 * currentCadence().value()) + (0.0429 * pow(currentCadence().value(), 2)));
 
     case 16:
     default:
         // -47.1+3.25x+0.0464x²
-        return ((-47.1 + (3.25 * currentCadence().value()) + (0.0464 * pow(currentCadence().value(), 2))) * watt_gain) +
-               watt_offset;
+        return (-47.1 + (3.25 * currentCadence().value()) + (0.0464 * pow(currentCadence().value(), 2)));
     }
 }
 

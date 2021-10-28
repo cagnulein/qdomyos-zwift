@@ -842,6 +842,7 @@ void virtualbike::bikeProvider() {
             qDebug() << QStringLiteral("virtual bike timeout, reconnecting...");
 
             reconnect();
+            return;
         }
 
         qDebug() << QStringLiteral("virtual bike connected");
