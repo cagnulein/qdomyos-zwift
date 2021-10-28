@@ -199,6 +199,7 @@ void kingsmithr1protreadmill::update() {
 
             requestStart = -1;
             emit tapeStarted();
+            lastStart = QDateTime::currentMSecsSinceEpoch();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -256,6 +257,8 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     }
 
     double speed = GetSpeedFromPacket(value);
+    if (speed > 0)
+        lastStart = 0; // telling to the UI that it could be autostoppable when the speed it will reach again 0
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -494,4 +497,9 @@ void *kingsmithr1protreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr1protreadmill::searchingStop() { searchStopped = true; }
 
-bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() { return true; }
+bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
