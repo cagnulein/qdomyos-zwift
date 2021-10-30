@@ -503,3 +503,7 @@ bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() {
     else
         return false;
 }
+
+bool kingsmithr1protreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    return true;
+}

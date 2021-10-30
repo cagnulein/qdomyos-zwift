@@ -48,6 +48,7 @@ class kingsmithr1protreadmill : public treadmill {
     void *VirtualDevice();
 
     bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
   private:
     typedef enum K1_VERSION { CLASSIC = 0, RE = 1 } K1_VERSION;

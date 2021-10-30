@@ -1765,6 +1765,10 @@ void homeform::update() {
                 bluetoothManager->device()->currentSpeed().value() == 0 && paused == false && stopped == false) {
                 qDebug() << QStringLiteral("autoPauseWhenSpeedIsZero!");
                 Start_inner(false);
+            } else if (((treadmill *)bluetoothManager->device())->autoStartWhenSpeedIsGreaterThenZero() &&
+                bluetoothManager->device()->currentSpeed().value() > 0 && (paused == true || stopped == true)) {
+                qDebug() << QStringLiteral("autoStartWhenSpeedIsGreaterThenZero!");
+                Start_inner(false);
             }
 
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {

@@ -21,6 +21,7 @@ class treadmill : public bluetoothdevice {
     virtual void setLastSpeed(double speed);
     virtual void setLastInclination(double inclination);
     virtual bool autoPauseWhenSpeedIsZero();
+    virtual bool autoStartWhenSpeedIsGreaterThenZero();
 
   public slots:
     virtual bool changeFanSpeed(uint8_t speed);
