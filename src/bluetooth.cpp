@@ -624,8 +624,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
                         (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
                         (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
-                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("SMB1")) ||
-                        (b.name().toUpper().startsWith("JFIC")) // HORIZON GR7
+                        (b.name().toUpper().startsWith("DIRETO XR")) || (b.name().toUpper().startsWith("SMB1"))
                         ) &&
                        !ftmsBike && !snodeBike && !fitPlusBike && !stagesBike && filter) {
                 discoveryAgent->stop();
@@ -637,6 +636,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 userTemplateManager->start(ftmsBike);
                 innerTemplateManager->start(ftmsBike);
+            } else if (((b.name().toUpper().startsWith("JFIC")) // HORIZON GR7
+                        ) &&
+                       !horizonGr7Bike && filter) {
+                discoveryAgent->stop();
+                horizonGr7Bike = new horizongr7bike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(horizonGr7Bike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(horizonGr7Bike, &horizongr7bike::debug, this, &bluetooth::debug);
+                horizonGr7Bike->deviceDiscovered(b);
+                userTemplateManager->start(horizonGr7Bike);
+                innerTemplateManager->start(horizonGr7Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("STAGES ")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
@@ -1448,6 +1459,11 @@ void bluetooth::restart() {
         delete ftmsBike;
         ftmsBike = nullptr;
     }
+    if (horizonGr7Bike) {
+
+        delete horizonGr7Bike;
+        horizonGr7Bike = nullptr;
+    }
     if (renphoBike) {
 
         delete renphoBike;
@@ -1572,6 +1588,8 @@ bluetoothdevice *bluetooth::device() {
         return snodeBike;
     } else if (ftmsBike) {
         return ftmsBike;
+    } else if (horizonGr7Bike) {
+        return horizonGr7Bike;
     } else if (renphoBike) {
         return renphoBike;
     } else if (fitPlusBike) {

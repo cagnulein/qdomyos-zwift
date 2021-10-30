@@ -37,6 +37,7 @@
 #include "ftmsbike.h"
 #include "ftmsrower.h"
 #include "heartratebelt.h"
+#include "horizongr7bike.h"
 #include "horizontreadmill.h"
 #include "inspirebike.h"
 #include "kingsmithr1protreadmill.h"
@@ -107,6 +108,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformbike *proformBike = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
+    horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
     inspirebike *inspireBike = nullptr;
