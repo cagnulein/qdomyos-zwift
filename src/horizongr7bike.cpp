@@ -1,3 +1,4 @@
+#include "ftmsbike.h"
 #include "horizongr7bike.h"
 #include "ios/lockscreen.h"
 #include "virtualbike.h"
