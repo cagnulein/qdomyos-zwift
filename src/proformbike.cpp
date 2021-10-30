@@ -479,7 +479,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             }
 
             double incline =
-                ((double)((uint16_t)(((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0);
+                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((int8_t)newValue.at(10))) / 100.0);
 
             Inclination = incline;
             emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
