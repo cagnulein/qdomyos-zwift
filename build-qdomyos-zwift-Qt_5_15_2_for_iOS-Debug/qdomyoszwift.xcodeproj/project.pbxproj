@@ -2711,6 +2711,8 @@
 					"-DQT_NETWORK_LIB",
 					"-DQT_CORE_LIB",
 					"-DQ_HTTPSERVER",
+					"-DNS_FORMAT_ARGUMENT(A)=",
+					"-D_Nullable_result=_Nullable",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -2739,6 +2741,8 @@
 					"-DQ_HTTPSERVER",
 					"-DQT_WEBSOCKETS_LIB",
 					"-DCHARTJS",
+					"-D_Nullable_result=_Nullable",
+					"-DNS_FORMAT_ARGUMENT(A)=",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -2854,6 +2858,8 @@
 					"-DQT_NETWORK_LIB",
 					"-DQT_CORE_LIB",
 					"-DQ_HTTPSERVER",
+					"-DNS_FORMAT_ARGUMENT(A)=",
+					"-D_Nullable_result=_Nullable",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -2882,6 +2888,8 @@
 					"-DQ_HTTPSERVER",
 					"-DQT_WEBSOCKETS_LIB",
 					"-DCHARTJS",
+					"-D_Nullable_result=_Nullable",
+					"-DNS_FORMAT_ARGUMENT(A)=",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
