@@ -481,8 +481,12 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             double incline =
                 ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((int8_t)newValue.at(10))) / 100.0);
 
-            Inclination = incline;
-            emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+            if((uint16_t)(incline * 10) % 5 == 0) {
+                Inclination = incline;
+                emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+            } else {
+                emit debug(QStringLiteral("Filtering bad inclination"));
+            }
         } else {
 
             Resistance = newValue.at(19);
@@ -604,68 +608,68 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Speed = metric::calculateSpeedFromPower(m_watt.value());
             }
         }
-        if (watts())
-            KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
-                   3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
-        // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+    }
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
+               3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
+    // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
+    if (Cadence.value() > 0) {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
-            Heart = (uint8_t)KeepAwakeHelper::heart();
-        else
+    if (settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
 #endif
-        {
-            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+    {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
-            }
         }
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-        }
+    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+    }
 #endif
 #endif
 
-        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
-        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-        // debug("Current Distance: " + QString::number(distance));
-        emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
-        emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    // debug("Current Distance: " + QString::number(distance));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-        if (m_control->error() != QLowEnergyController::NoError) {
-            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-        }
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 }
 
