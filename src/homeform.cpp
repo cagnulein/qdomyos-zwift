@@ -1537,6 +1537,15 @@ void homeform::Stop() {
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     if (bluetoothManager->device()) {
+
+        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            QTime zero(0,0,0,0);
+            if(bluetoothManager->device()->currentSpeed().value() == 0.0 && zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
+                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+                return;
+            }
+        }
+
         bluetoothManager->device()->stop();
     }
 

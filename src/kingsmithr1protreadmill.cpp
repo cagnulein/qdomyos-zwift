@@ -204,7 +204,8 @@ void kingsmithr1protreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("pause"), false, true);
+            if(Speed.value() != 0)
+                writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("pause"), false, true);
 
             requestStop = -1;
         }
