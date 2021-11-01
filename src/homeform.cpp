@@ -1300,6 +1300,9 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             // round up to the next .5 increment (.0 or .5)
             double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+            double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
+            if(requestedspeed != -1)
+                speed = requestedspeed;
             int rest = 5 - (((int)(speed * 10.0)) % 5);
             if (rest == 5 || rest == 0)
                 speed = speed + 0.5;
@@ -1389,6 +1392,9 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 // round up to the next .5 increment (.0 or .5)
                 double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
+                if(requestedspeed != -1)
+                    speed = requestedspeed;
                 int rest = 5 - (((int)(speed * 10.0)) % 5);
                 if (rest == 5 || rest == 0)
                     speed = speed - 0.5;

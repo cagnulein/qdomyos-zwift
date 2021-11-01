@@ -12,6 +12,8 @@ class treadmill : public bluetoothdevice {
     virtual uint8_t fanSpeed();
     virtual bool connected();
     virtual metric currentInclination();
+    virtual double requestedSpeed();
+    virtual double requestedInclination();
     virtual double minStepInclination();
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
