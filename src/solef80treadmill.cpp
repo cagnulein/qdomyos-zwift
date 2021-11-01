@@ -342,6 +342,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     } else if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
                newValue.at(1) == 0x02 && newValue.at(2) == 0x03) {
         // stop event from the treadmill
@@ -487,6 +489,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (Flags.forceBelt) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
@@ -507,8 +511,6 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             Heart = heart;
         }
     }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
