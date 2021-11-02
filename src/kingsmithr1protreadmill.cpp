@@ -204,8 +204,10 @@ void kingsmithr1protreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            if(Speed.value() != 0)
+            if (Speed.value() != 0)
                 writeCharacteristic(start_pause, sizeof(start_pause), QStringLiteral("pause"), false, true);
+
+            lastStop = QDateTime::currentMSecsSinceEpoch();
 
             requestStop = -1;
         }
@@ -260,6 +262,10 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     double speed = GetSpeedFromPacket(value);
     if (speed > 0)
         lastStart = 0; // telling to the UI that it could be autostoppable when the speed it will reach again 0
+    else
+        lastStop = 0;
+
+    targetSpeed = GetTargetSpeedFromPacket(value);
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -304,6 +310,7 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+    emit debug(QStringLiteral("Current target speed: ") + QString::number(targetSpeed));
     // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
@@ -332,6 +339,13 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
 double kingsmithr1protreadmill::GetSpeedFromPacket(const QByteArray &packet) {
 
     uint8_t convertedData = (uint8_t)packet.at(3);
+    double data = (double)convertedData / 10.0f;
+    return data;
+}
+
+double kingsmithr1protreadmill::GetTargetSpeedFromPacket(const QByteArray &packet) {
+
+    uint8_t convertedData = (uint8_t)packet.at(14);
     double data = (double)convertedData / 10.0f;
     return data;
 }
@@ -506,5 +520,8 @@ bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool kingsmithr1protreadmill::autoStartWhenSpeedIsGreaterThenZero() {
-    return true;
+    if (lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000))
+        return true;
+    else
+        return false;
 }

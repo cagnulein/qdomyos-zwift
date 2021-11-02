@@ -13,6 +13,7 @@ class treadmill : public bluetoothdevice {
     virtual bool connected();
     virtual metric currentInclination();
     virtual double requestedSpeed();
+    virtual double currentTargetSpeed();
     virtual double requestedInclination();
     virtual double minStepInclination();
     uint16_t watts(double weight);
@@ -36,6 +37,7 @@ class treadmill : public bluetoothdevice {
 
   protected:
     volatile double requestSpeed = -1;
+    double targetSpeed = -1;
     double requestFanSpeed = -1;
     double requestInclination = -1;
     double lastSpeed = 0.0;

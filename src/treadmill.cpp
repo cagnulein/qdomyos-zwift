@@ -131,7 +131,8 @@ void treadmill::setLastSpeed(double speed) { lastSpeed = speed; }
 void treadmill::setLastInclination(double inclination) { lastInclination = inclination; }
 
 bool treadmill::autoPauseWhenSpeedIsZero() { return false; }
-bool treadmill::autoStartWhenSpeedIsGreaterThenZero() {return false;}
+bool treadmill::autoStartWhenSpeedIsGreaterThenZero() { return false; }
 
 double treadmill::requestedSpeed() { return requestSpeed; }
-double treadmill::requestedInclination() { return requestInclination;}
+double treadmill::requestedInclination() { return requestInclination; }
+double treadmill::currentTargetSpeed() { return targetSpeed; }

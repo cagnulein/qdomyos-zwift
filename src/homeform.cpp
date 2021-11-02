@@ -1301,8 +1301,11 @@ void homeform::Plus(const QString &name) {
             // round up to the next .5 increment (.0 or .5)
             double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
             double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
+            double targetspeed = ((treadmill *)bluetoothManager->device())->currentTargetSpeed();
             qDebug() << QStringLiteral("Current Speed") << speed << QStringLiteral("Current Requested Speed")
-                     << requestedspeed;
+                     << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
+            if (targetspeed != -1)
+                speed = targetspeed;
             if (requestedspeed != -1)
                 speed = requestedspeed;
             int rest = 5 - (((int)(speed * 10.0)) % 5);
@@ -1395,8 +1398,11 @@ void homeform::Minus(const QString &name) {
                 // round up to the next .5 increment (.0 or .5)
                 double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
                 double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
+                double targetspeed = ((treadmill *)bluetoothManager->device())->currentTargetSpeed();
                 qDebug() << QStringLiteral("Current Speed") << speed << QStringLiteral("Current Requested Speed")
-                         << requestedspeed;
+                         << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
+                if (targetspeed != -1)
+                    speed = targetspeed;
                 if (requestedspeed != -1)
                     speed = requestedspeed;
                 int rest = 5 - (((int)(speed * 10.0)) % 5);
