@@ -479,9 +479,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             }
 
             double incline =
-                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((int8_t)newValue.at(10))) / 100.0);
+                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((uint8_t)newValue.at(10))) / 100.0);
 
-            if((uint16_t)(incline * 10) % 5 == 0) {
+            if ((uint16_t)(qAbs(incline) * 10) % 5 == 0) {
                 Inclination = incline;
                 emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
             } else {
@@ -611,8 +611,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     }
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
-               3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
