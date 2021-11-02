@@ -35,7 +35,7 @@ class treadmill : public bluetoothdevice {
     void tapeStarted();
 
   protected:
-    double requestSpeed = -1;
+    volatile double requestSpeed = -1;
     double requestFanSpeed = -1;
     double requestInclination = -1;
     double lastSpeed = 0.0;

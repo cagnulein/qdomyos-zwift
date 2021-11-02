@@ -1301,7 +1301,9 @@ void homeform::Plus(const QString &name) {
             // round up to the next .5 increment (.0 or .5)
             double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
             double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
-            if(requestedspeed != -1)
+            qDebug() << QStringLiteral("Current Speed") << speed << QStringLiteral("Current Requested Speed")
+                     << requestedspeed;
+            if (requestedspeed != -1)
                 speed = requestedspeed;
             int rest = 5 - (((int)(speed * 10.0)) % 5);
             if (rest == 5 || rest == 0)
@@ -1393,7 +1395,9 @@ void homeform::Minus(const QString &name) {
                 // round up to the next .5 increment (.0 or .5)
                 double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
                 double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
-                if(requestedspeed != -1)
+                qDebug() << QStringLiteral("Current Speed") << speed << QStringLiteral("Current Requested Speed")
+                         << requestedspeed;
+                if (requestedspeed != -1)
                     speed = requestedspeed;
                 int rest = 5 - (((int)(speed * 10.0)) % 5);
                 if (rest == 5 || rest == 0)
@@ -1538,9 +1542,10 @@ void homeform::Stop() {
 
     if (bluetoothManager->device()) {
 
-        if(bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-            QTime zero(0,0,0,0);
-            if(bluetoothManager->device()->currentSpeed().value() == 0.0 && zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            QTime zero(0, 0, 0, 0);
+            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
+                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
                 qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
                 return;
             }
@@ -1781,7 +1786,7 @@ void homeform::update() {
                 qDebug() << QStringLiteral("autoPauseWhenSpeedIsZero!");
                 Start_inner(false);
             } else if (((treadmill *)bluetoothManager->device())->autoStartWhenSpeedIsGreaterThenZero() &&
-                bluetoothManager->device()->currentSpeed().value() > 0 && (paused == true || stopped == true)) {
+                       bluetoothManager->device()->currentSpeed().value() > 0 && (paused == true || stopped == true)) {
                 qDebug() << QStringLiteral("autoStartWhenSpeedIsGreaterThenZero!");
                 Start_inner(false);
             }
