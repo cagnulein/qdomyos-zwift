@@ -180,6 +180,7 @@ import Qt.labs.settings 1.0
             property bool flywheel_life_fitness_ic8: false
 
             property bool sole_treadmill_inclination: false
+            property bool sole_treadmill_miles: true
             property bool sole_treadmill_f65: false
 
             property bool schwinn_bike_resistance: false
@@ -2650,6 +2651,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_inclination = checked
+                        }
+                        SwitchDelegate {
+                            id: soleMilesDelegate
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_miles = checked
                         }
                         SwitchDelegate {
                             id: soleF65Delegate
