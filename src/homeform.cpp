@@ -1769,6 +1769,14 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain(), 'f', 1));
 
+            // for Stryd and similar
+            cadence = ((treadmill *)bluetoothManager->device())->currentCadence().value();
+            this->cadence->setSecondLine(
+                QStringLiteral("AVG: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
+                QStringLiteral(" MAX: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
+
             if (bluetoothManager->device()->currentSpeed().value() < 9) {
                 speed->setValueFontColor(QStringLiteral("white"));
                 this->pace->setValueFontColor(QStringLiteral("white"));
