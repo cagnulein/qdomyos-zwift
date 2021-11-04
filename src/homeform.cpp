@@ -1333,7 +1333,8 @@ void homeform::Plus(const QString &name) {
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + 0.5,
+                                        ((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
         }
     } else if (name.contains("gears")) {
@@ -1431,7 +1432,8 @@ void homeform::Minus(const QString &name) {
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() - 0.5);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - 0.5,
+                                        ((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
             }
         }
     } else if (name.contains(QStringLiteral("gears"))) {
