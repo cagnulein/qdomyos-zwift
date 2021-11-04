@@ -14,9 +14,10 @@ void bike::changeResistance(int8_t resistance) {
     RequestedResistance = resistance * m_difficult + gears();
 }
 
-void bike::changeInclination(double inclination) {
+void bike::changeInclination(double grade, double percentage) {
+    qDebug() << QStringLiteral("bike::changeInclination") << autoResistanceEnable << grade << percentage;
     if (autoResistanceEnable) {
-        requestInclination = inclination;
+        requestInclination = percentage;
     }
 }
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
