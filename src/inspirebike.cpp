@@ -163,7 +163,7 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     if (settings.value(QStringLiteral("inspire_peloton_formula2"), false).toBool()) {
         // y = 0,0002x^3 - 0.1478x^2 + 4.2412x + 1.8102
-        m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0002) - (pow(Resistance.value(), 2) * 0.1478) +
+        m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.002) - (pow(Resistance.value(), 2) * 0.1478) +
                                 (4.2412 * Resistance.value()) + 1.8102) *
                                settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
                               settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
