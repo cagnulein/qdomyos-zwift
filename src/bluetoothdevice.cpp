@@ -107,6 +107,7 @@ void bluetoothdevice::setDifficult(double d) { m_difficult = d; }
 double bluetoothdevice::difficult() { return m_difficult; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
+void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
@@ -116,10 +117,13 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
+    bool power_as_bike = settings.value(QStringLiteral("power_sensor_as_bike"), false).toBool();
+    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
 
     if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
-            .toString()
-            .startsWith(QStringLiteral("Disabled")) == false)
+                .toString()
+                .startsWith(QStringLiteral("Disabled")) == false &&
+        !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
     if (!_firstUpdate && !paused) {

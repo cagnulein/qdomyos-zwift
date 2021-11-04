@@ -52,6 +52,7 @@
 #include "smartrowrower.h"
 #include "smartspin2k.h"
 #include "snodebike.h"
+#include "strydrunpowersensor.h"
 
 #include "shuaa5treadmill.h"
 #include "soleelliptical.h"
@@ -137,6 +138,9 @@ class bluetooth : public QObject, public SignalHandler {
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
     stagesbike *powerSensor = nullptr;
+    strydrunpowersensor *powerSensorRun = nullptr;
+    stagesbike *powerBike = nullptr;
+    strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     fakebike *fakeBike = nullptr;
     QString filterDevice = QLatin1String("");

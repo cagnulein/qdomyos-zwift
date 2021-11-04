@@ -82,6 +82,7 @@ class bluetoothdevice : public QObject {
     virtual void heartRate(uint8_t heart);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
+    virtual void speedSensor(double speed);
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double inclination);
@@ -90,6 +91,7 @@ class bluetoothdevice : public QObject {
 
   Q_SIGNALS:
     void connectedAndDiscovered();
+    void speedChanged(double speed);
     void cadenceChanged(uint8_t cadence);
     void powerChanged(uint16_t power);
     void inclinationChanged(double grade, double percentage);

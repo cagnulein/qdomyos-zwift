@@ -670,6 +670,11 @@ void homeform::sortTiles() {
                 targetMets->setGridId(i);
                 dataList.append(targetMets);
             }
+            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_cadence_order"), 30).toInt() == i) {
+                cadence->setGridId(i);
+                dataList.append(cadence);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         for (int i = 0; i < 100; i++) {

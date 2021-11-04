@@ -215,6 +215,8 @@ import Qt.labs.settings 1.0
             property real power_hr_hr2: 170
 
             property string power_sensor_name: "Disabled"
+            property bool power_sensor_as_bike: false
+            property bool power_sensor_as_treadmill: false
 
             property string elite_rizer_name: "Disabled"
 
@@ -3581,6 +3583,34 @@ import Qt.labs.settings 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 10
+                    SwitchDelegate {
+                        id: powerSensorAsBikeDelegate
+                        text: qsTr("Power Sensor as a Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_sensor_as_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.power_sensor_as_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: powerSensorAsTreadmillDelegate
+                        text: qsTr("Power Sensor as a Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_sensor_as_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.power_sensor_as_treadmill = checked
+                    }
                     RowLayout {
                         spacing: 10
                         Label {

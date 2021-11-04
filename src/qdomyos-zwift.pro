@@ -133,6 +133,7 @@ SOURCES += \
    solef80treadmill.cpp \
    spirittreadmill.cpp \
    sportstechbike.cpp \
+   strydrunpowersensor.cpp \
    tacxneo2.cpp \
     tcpclientinfosender.cpp \
     templateinfosender.cpp \
@@ -449,6 +450,7 @@ HEADERS += \
    solef80treadmill.h \
    spirittreadmill.h \
    sportstechbike.h \
+   strydrunpowersensor.h \
    tacxneo2.h \
     tcpclientinfosender.h \
     templateinfosender.h \

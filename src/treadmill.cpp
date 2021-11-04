@@ -30,6 +30,14 @@ void treadmill::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
+    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
+
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled")) == false &&
+        !power_as_treadmill)
+        watt_calc = false;
+
     if (!_firstUpdate && !paused) {
         if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
             elapsed += deltaTime;
@@ -136,3 +144,7 @@ bool treadmill::autoStartWhenSpeedIsGreaterThenZero() { return false; }
 double treadmill::requestedSpeed() { return requestSpeed; }
 double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
+
+void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
+void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power); }
+void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
