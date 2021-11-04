@@ -9,7 +9,6 @@
 #include <QSettings>
 
 #include <QThread>
-#include <cmath.h>
 #include <math.h>
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
