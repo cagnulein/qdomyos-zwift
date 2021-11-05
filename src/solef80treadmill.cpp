@@ -203,11 +203,13 @@ void solef80treadmill::update() {
                 lastSpeed = 0.5;
             }
             uint8_t start[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+            uint8_t start2[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
             if (gattCustomService) {
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start2, sizeof(start2), QStringLiteral("start"), false, true);
             }
             requestStart = -1;
             emit tapeStarted();
@@ -215,12 +217,18 @@ void solef80treadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            uint8_t stop[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
+            uint8_t stop[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
+            uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
+            uint8_t stop2[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
 
             if (gattCustomService) {
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
             }
 
             requestStop = -1;
