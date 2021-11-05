@@ -17,6 +17,7 @@ class lockscreen {
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt);
+    double getVolume();
 };
 
 #endif // LOCKSCREEN_H
