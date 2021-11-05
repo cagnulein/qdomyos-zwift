@@ -94,6 +94,7 @@ SOURCES += \
 	homeform.cpp \
     horizongr7bike.cpp \
    horizontreadmill.cpp \
+   iconceptbike.cpp \
 	inspirebike.cpp \
 	keepawakehelper.cpp \
    kingsmithr1protreadmill.cpp \
@@ -181,6 +182,7 @@ HEADERS += \
     ftmsrower.h \
    homefitnessbuddy.h \
     horizongr7bike.h \
+   iconceptbike.h \
    kingsmithr1protreadmill.h \
    kingsmithr2treadmill.h \
    m3ibike.h \

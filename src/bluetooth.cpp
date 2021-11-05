@@ -16,6 +16,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
                      double bikeResistanceGain) {
     QSettings settings;
     bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
+    bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
 
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -94,7 +95,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
 #endif
 
-        if (!trx_route_key)
+        if (!trx_route_key && !bh_spada_2)
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         else
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
@@ -130,6 +131,7 @@ void bluetooth::finished() {
         powerSensorName.startsWith(QStringLiteral("Disabled")) && !power_as_bike && !power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
+    bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
 
@@ -141,7 +143,7 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
-    if (!trx_route_key) {
+    if (!trx_route_key && !bh_spada_2) {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     } else {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
@@ -923,6 +925,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 toorx->deviceDiscovered(b);
                 userTemplateManager->start(toorx);
                 innerTemplateManager->start(toorx);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("BH DUALKIT"))) && !iConceptBike && filter) {
+
+                discoveryAgent->stop();
+                iConceptBike = new iconceptbike();
+                emit deviceConnected(b);
+                connect(iConceptBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(toorx, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(iConceptBike, &iconceptbike::debug, this, &bluetooth::debug);
+                iConceptBike->deviceDiscovered(b);
+                userTemplateManager->start(iConceptBike);
+                innerTemplateManager->start(iConceptBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("XT485")) && !spiritTreadmill && filter) {
 
                 discoveryAgent->stop();
@@ -1432,6 +1446,11 @@ void bluetooth::restart() {
         delete toorx;
         toorx = nullptr;
     }
+    if (iConceptBike) {
+
+        delete iConceptBike;
+        iConceptBike = nullptr;
+    }
     if (trxappgateusb) {
 
         delete trxappgateusb;
@@ -1619,6 +1638,8 @@ bluetoothdevice *bluetooth::device() {
         return stagesBike;
     } else if (toorx) {
         return toorx;
+    } else if (iConceptBike) {
+        return iConceptBike;
     } else if (spiritTreadmill) {
         return spiritTreadmill;
     } else if (activioTreadmill) {

@@ -39,6 +39,7 @@
 #include "heartratebelt.h"
 #include "horizongr7bike.h"
 #include "horizontreadmill.h"
+#include "iconceptbike.h"
 #include "inspirebike.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
@@ -99,6 +100,7 @@ class bluetooth : public QObject, public SignalHandler {
     domyosbike *domyosBike = nullptr;
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
+    iconceptbike *iConceptBike = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
