@@ -260,12 +260,13 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     }
 
     double speed = GetSpeedFromPacket(value);
-    if (speed > 0)
+    if (speed > 0) {
         lastStart = 0; // telling to the UI that it could be autostoppable when the speed it will reach again 0
-    else
+        targetSpeed = GetTargetSpeedFromPacket(value);
+    } else {
         lastStop = 0;
-
-    targetSpeed = GetTargetSpeedFromPacket(value);
+        targetSpeed = 0;
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
