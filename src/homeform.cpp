@@ -291,7 +291,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
 #ifdef TEST
-    deviceConnected();
+    QBluetoothDeviceInfo b;
+    deviceConnected(b);
 #endif
 }
 
@@ -1745,7 +1746,7 @@ void homeform::update() {
         if (settings.value(QStringLiteral("volume_change_gears"), false).toBool()) {
             lockscreen h;
             static double volumeLast = -1;
-            double currentVolume = getVolume() * 10.0;
+            double currentVolume = h.getVolume() * 10.0;
             qDebug() << "volume" << volumeLast << currentVolume;
             if (volumeLast == -1)
                 qDebug() << "volume init";
@@ -1758,7 +1759,7 @@ void homeform::update() {
                 for (int i = 0; i < diff; i++)
                     Plus(QStringLiteral("gears"));
             }
-            volumeLast = currentVolume * 10.0;
+            volumeLast = currentVolume;
         }
 #endif
 
