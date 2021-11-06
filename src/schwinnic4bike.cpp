@@ -306,7 +306,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     double br = -5.841344538;
     double cr = 97.62165482;
 
-    m_pelotonResistance =
+    double res =
         (((sqrt(pow(br, 2.0) -
                 4.0 * ar *
                     (cr - (m_watt.value() * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
@@ -314,6 +314,11 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
           (2.0 * ar)) *
          settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
         settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+
+    if (isnan(res))
+        m_pelotonResistance = 0;
+    else
+        m_pelotonResistance = res;
 
     if (settings.value(QStringLiteral("schwinn_bike_resistance"), false).toBool())
         Resistance = pelotonToBikeResistance(m_pelotonResistance.value());

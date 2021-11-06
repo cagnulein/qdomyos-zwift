@@ -145,6 +145,8 @@
 		87318AAD2683799100770F13 /* echelonstride.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87318AAB2683799100770F13 /* echelonstride.cpp */; };
 		87318AAF2683799C00770F13 /* moc_echelonstride.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87318AAE2683799C00770F13 /* moc_echelonstride.cpp */; };
 		87318AB126837C7600770F13 /* libQt5WebSockets.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87318AB026837AA500770F13 /* libQt5WebSockets.a */; };
+		8732C17F27353464006DF424 /* iconceptbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8732C17D27353463006DF424 /* iconceptbike.cpp */; };
+		8732C1812735346F006DF424 /* moc_iconceptbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8732C1802735346E006DF424 /* moc_iconceptbike.cpp */; };
 		87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87368824259C602800C71C7E /* watchAppStart.swift */; };
 		87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF5269D770F000C5EC6 /* libQt5WebView.a */; };
 		87420DFA269D7F44000C5EC6 /* libdeclarative_webview.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */; };
@@ -196,6 +198,8 @@
 		87900DC8268B673C000CB351 /* moc_renphobike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87900DC7268B673C000CB351 /* moc_renphobike.cpp */; };
 		8791A8AA25C8603F003B50B2 /* moc_inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */; };
 		8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8791A8A825C8602A003B50B2 /* inspirebike.cpp */; };
+		8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8862733E103003148B3 /* strydrunpowersensor.cpp */; };
+		8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8882733E10E003148B3 /* moc_strydrunpowersensor.cpp */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -637,6 +641,9 @@
 		87318AAC2683799100770F13 /* echelonstride.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = echelonstride.h; path = ../src/echelonstride.h; sourceTree = "<group>"; };
 		87318AAE2683799C00770F13 /* moc_echelonstride.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_echelonstride.cpp; sourceTree = "<group>"; };
 		87318AB026837AA500770F13 /* libQt5WebSockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebSockets.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebSockets.a; sourceTree = "<group>"; };
+		8732C17D27353463006DF424 /* iconceptbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = iconceptbike.cpp; path = ../src/iconceptbike.cpp; sourceTree = "<group>"; };
+		8732C17E27353464006DF424 /* iconceptbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iconceptbike.h; path = ../src/iconceptbike.h; sourceTree = "<group>"; };
+		8732C1802735346E006DF424 /* moc_iconceptbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iconceptbike.cpp; sourceTree = "<group>"; };
 		87368824259C602800C71C7E /* watchAppStart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = watchAppStart.swift; path = ../src/ios/watchAppStart.swift; sourceTree = "<group>"; };
 		87420DF5269D770F000C5EC6 /* libQt5WebView.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5WebView.a; path = ../../Qt/5.15.2/ios/lib/libQt5WebView.a; sourceTree = "<group>"; };
 		87420DF7269D7CE1000C5EC6 /* libqtwebview_darwin.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtwebview_darwin.a; path = ../../Qt/5.15.2/ios/plugins/webview/libqtwebview_darwin.a; sourceTree = "<group>"; };
@@ -721,6 +728,9 @@
 		8791A8A725C8602A003B50B2 /* inspirebike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = inspirebike.h; path = ../src/inspirebike.h; sourceTree = "<group>"; };
 		8791A8A825C8602A003B50B2 /* inspirebike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = inspirebike.cpp; path = ../src/inspirebike.cpp; sourceTree = "<group>"; };
 		8791A8A925C8603F003B50B2 /* moc_inspirebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inspirebike.cpp; sourceTree = "<group>"; };
+		8798C8852733E103003148B3 /* strydrunpowersensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = strydrunpowersensor.h; path = ../src/strydrunpowersensor.h; sourceTree = "<group>"; };
+		8798C8862733E103003148B3 /* strydrunpowersensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = strydrunpowersensor.cpp; path = ../src/strydrunpowersensor.cpp; sourceTree = "<group>"; };
+		8798C8882733E10E003148B3 /* moc_strydrunpowersensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_strydrunpowersensor.cpp; sourceTree = "<group>"; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/cscbike.cpp; sourceTree = "<group>"; };
@@ -1170,6 +1180,8 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8732C1802735346E006DF424 /* moc_iconceptbike.cpp */,
+				8798C8882733E10E003148B3 /* moc_strydrunpowersensor.cpp */,
 				87BE6FDD272D2A3E00C35795 /* moc_horizongr7bike.cpp */,
 				878531662711A3EB004B153D /* moc_activiotreadmill.cpp */,
 				878531672711A3EB004B153D /* moc_fakebike.cpp */,
@@ -1256,6 +1268,10 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				8732C17D27353463006DF424 /* iconceptbike.cpp */,
+				8732C17E27353464006DF424 /* iconceptbike.h */,
+				8798C8862733E103003148B3 /* strydrunpowersensor.cpp */,
+				8798C8852733E103003148B3 /* strydrunpowersensor.h */,
 				87BE6FDA272D2A3100C35795 /* horizongr7bike.cpp */,
 				87BE6FDB272D2A3100C35795 /* horizongr7bike.h */,
 				878531612711A3E1004B153D /* activiotreadmill.cpp */,
@@ -2079,6 +2095,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87C5F0BB26285E5F0067A1B5 /* mimetext.cpp in Compile Sources */,
+				8732C17F27353464006DF424 /* iconceptbike.cpp in Compile Sources */,
 				2F0E70F826316F3600E11F3A /* virtualbike_zwift.swift in Compile Sources */,
 				8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */,
 				87062646259480B200D06586 /* ViewController.swift in Compile Sources */,
@@ -2101,6 +2118,7 @@
 				87C5F0BF26285E5F0067A1B5 /* smtpclient.cpp in Compile Sources */,
 				87C5F0D826285E7E0067A1B5 /* moc_quotedprintable.cpp in Compile Sources */,
 				62D26402BFE7552BD542F6DF /* echelonconnectsport.cpp in Compile Sources */,
+				8732C1812735346F006DF424 /* moc_iconceptbike.cpp in Compile Sources */,
 				8718CBA5263063BD004BF4EE /* tcpclientinfosender.cpp in Compile Sources */,
 				87318AAF2683799C00770F13 /* moc_echelonstride.cpp in Compile Sources */,
 				E858A5D7A16BAF2837B51B61 /* fit.cpp in Compile Sources */,
@@ -2172,6 +2190,7 @@
 				FE77C778768741F1A161682E /* fit_mesg_definition.cpp in Compile Sources */,
 				875F69B926342E8D0009FD78 /* spirittreadmill.cpp in Compile Sources */,
 				87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */,
+				8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */,
 				8781907E2615089D0085E656 /* peloton.cpp in Compile Sources */,
 				2B800DC34C91D8B080DEFBE8 /* fit_mesg_with_event_broadcaster.cpp in Compile Sources */,
 				6DC5D7C695B8763F9E2E029F /* fit_profile.cpp in Compile Sources */,
@@ -2270,6 +2289,7 @@
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
 				87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */,
 				8762D50F2601F7EA00F6F049 /* M3iNS.mm in Compile Sources */,
+				8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */,
 				87C5F0B626285E5F0067A1B5 /* quotedprintable.cpp in Compile Sources */,
 				87310B23266FBB78008BA0D6 /* moc_smartrowrower.cpp in Compile Sources */,
 				EE29228550794460E7654533 /* moc_trxappgateusbtreadmill.cpp in Compile Sources */,

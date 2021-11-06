@@ -159,10 +159,12 @@ import Qt.labs.settings 1.0
             property bool yesoul_peloton_formula: false
 
             property bool nordictrack_10_treadmill: true
+            property bool proform_treadmill_995i: false
 
             property bool toorx_3_0: false
             property bool jtx_fitness_sprint_treadmill: false
             property bool trx_route_key: false
+            property bool bh_spada_2: false
             property bool toorx_bike: false
             property bool jll_IC400_bike: false
             property bool fytter_ri08_bike: false
@@ -180,6 +182,7 @@ import Qt.labs.settings 1.0
             property bool flywheel_life_fitness_ic8: false
 
             property bool sole_treadmill_inclination: false
+            property bool sole_treadmill_miles: true
             property bool sole_treadmill_f65: false
 
             property bool schwinn_bike_resistance: false
@@ -213,6 +216,8 @@ import Qt.labs.settings 1.0
             property real power_hr_hr2: 170
 
             property string power_sensor_name: "Disabled"
+            property bool power_sensor_as_bike: false
+            property bool power_sensor_as_treadmill: false
 
             property string elite_rizer_name: "Disabled"
 
@@ -2573,19 +2578,44 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.virtual_device_force_bike = checked
                     }
-                    SwitchDelegate {
-                        id: nordictrack10Delegate
-                        text: qsTr("Nordictrack 10")
+                }
+
+                AccordionElement {
+                    id: proformTreadmillAccordion
+                    title: qsTr("Proform/Nordictrack Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
                         spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.nordictrack_10_treadmill
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.nordictrack_10_treadmill = checked
+                        SwitchDelegate {
+                            id: nordictrack10Delegate
+                            text: qsTr("Nordictrack 10")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_10_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_10_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            id: proform995iDelegate
+                            text: qsTr("Proform 995i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_995i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_995i = checked
+                        }
                     }
                 }
 
@@ -2650,6 +2680,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_inclination = checked
+                        }
+                        SwitchDelegate {
+                            id: soleMilesDelegate
+                            text: qsTr("Miles unit from the device")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_miles
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_miles = checked
                         }
                         SwitchDelegate {
                             id: soleF65Delegate
@@ -2822,6 +2866,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.trx_route_key = checked
+                    }
+
+                    SwitchDelegate {
+                        id: bhSpadaDelegate
+                        text: qsTr("BH SPADA Compatibility")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bh_spada_2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bh_spada_2 = checked
                     }
 
                     SwitchDelegate {
@@ -3540,6 +3599,34 @@ import Qt.labs.settings 1.0
                 color: Material.backgroundColor
                 accordionContent: ColumnLayout {
                     spacing: 10
+                    SwitchDelegate {
+                        id: powerSensorAsBikeDelegate
+                        text: qsTr("Power Sensor as a Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_sensor_as_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.power_sensor_as_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: powerSensorAsTreadmillDelegate
+                        text: qsTr("Power Sensor as a Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.power_sensor_as_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.power_sensor_as_treadmill = checked
+                    }
                     RowLayout {
                         spacing: 10
                         Label {

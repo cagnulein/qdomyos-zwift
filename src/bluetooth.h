@@ -39,6 +39,7 @@
 #include "heartratebelt.h"
 #include "horizongr7bike.h"
 #include "horizontreadmill.h"
+#include "iconceptbike.h"
 #include "inspirebike.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
@@ -52,6 +53,7 @@
 #include "smartrowrower.h"
 #include "smartspin2k.h"
 #include "snodebike.h"
+#include "strydrunpowersensor.h"
 
 #include "shuaa5treadmill.h"
 #include "soleelliptical.h"
@@ -98,6 +100,7 @@ class bluetooth : public QObject, public SignalHandler {
     domyosbike *domyosBike = nullptr;
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
+    iconceptbike *iConceptBike = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
@@ -137,6 +140,9 @@ class bluetooth : public QObject, public SignalHandler {
     smartspin2k *ftmsAccessory = nullptr;
     cscbike *cadenceSensor = nullptr;
     stagesbike *powerSensor = nullptr;
+    strydrunpowersensor *powerSensorRun = nullptr;
+    stagesbike *powerBike = nullptr;
+    strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     fakebike *fakeBike = nullptr;
     QString filterDevice = QLatin1String("");

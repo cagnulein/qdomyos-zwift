@@ -12,6 +12,9 @@ class treadmill : public bluetoothdevice {
     virtual uint8_t fanSpeed();
     virtual bool connected();
     virtual metric currentInclination();
+    virtual double requestedSpeed();
+    virtual double currentTargetSpeed();
+    virtual double requestedInclination();
     virtual double minStepInclination();
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
@@ -28,12 +31,16 @@ class treadmill : public bluetoothdevice {
     virtual void changeSpeed(double speed);
     virtual void changeInclination(double inclination);
     virtual void changeSpeedAndInclination(double speed, double inclination);
+    virtual void cadenceSensor(uint8_t cadence);
+    virtual void powerSensor(uint16_t power);
+    virtual void speedSensor(double speed);
 
   signals:
     void tapeStarted();
 
   protected:
-    double requestSpeed = -1;
+    volatile double requestSpeed = -1;
+    double targetSpeed = -1;
     double requestFanSpeed = -1;
     double requestInclination = -1;
     double lastSpeed = 0.0;

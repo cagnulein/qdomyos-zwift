@@ -203,11 +203,13 @@ void solef80treadmill::update() {
                 lastSpeed = 0.5;
             }
             uint8_t start[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+            uint8_t start2[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
             if (gattCustomService) {
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start2, sizeof(start2), QStringLiteral("start"), false, true);
             }
             requestStart = -1;
             emit tapeStarted();
@@ -215,12 +217,18 @@ void solef80treadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
-            uint8_t stop[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
+            uint8_t stop[] = {0x5b, 0x02, 0x03, 0x06, 0x5d};
+            uint8_t stop1[] = {0x5b, 0x02, 0x03, 0x07, 0x5d};
+            uint8_t stop2[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
 
             if (gattCustomService) {
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop2, sizeof(stop2), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop1, sizeof(stop1), QStringLiteral("stop"), false, true);
             }
 
             requestStop = -1;
@@ -325,7 +333,11 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
 
         // the treadmill send the speed in miles always
-        Speed = ((double)((uint8_t)newValue.at(10)) / 10.0) * 1.60934;
+        double miles = 1;
+        if (settings.value(QStringLiteral("sole_treadmill_miles"), true).toBool())
+            miles = 1.60934;
+
+        Speed = ((double)((uint8_t)newValue.at(10)) / 10.0) * miles;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
         Inclination = (double)((uint8_t)newValue.at(11));
@@ -342,6 +354,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     } else if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
                newValue.at(1) == 0x02 && newValue.at(2) == 0x03) {
         // stop event from the treadmill
@@ -487,6 +501,8 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (Flags.forceBelt) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
@@ -507,8 +523,6 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             Heart = heart;
         }
     }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();

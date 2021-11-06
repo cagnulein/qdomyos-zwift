@@ -1,5 +1,6 @@
 #include "homeform.h"
 #include "gpx.h"
+#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "material.h"
 #include "qfit.h"
@@ -670,6 +671,11 @@ void homeform::sortTiles() {
                 targetMets->setGridId(i);
                 dataList.append(targetMets);
             }
+            if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
+                settings.value(QStringLiteral("tile_cadence_order"), 30).toInt() == i) {
+                cadence->setGridId(i);
+                dataList.append(cadence);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         for (int i = 0; i < 100; i++) {
@@ -1300,6 +1306,14 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device()) {
             // round up to the next .5 increment (.0 or .5)
             double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+            double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
+            double targetspeed = ((treadmill *)bluetoothManager->device())->currentTargetSpeed();
+            qDebug() << QStringLiteral("Current Speed") << speed << QStringLiteral("Current Requested Speed")
+                     << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
+            if (targetspeed != -1)
+                speed = targetspeed;
+            if (requestedspeed != -1)
+                speed = requestedspeed;
             int rest = 5 - (((int)(speed * 10.0)) % 5);
             if (rest == 5 || rest == 0)
                 speed = speed + 0.5;
@@ -1320,7 +1334,8 @@ void homeform::Plus(const QString &name) {
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() + 0.5,
+                                        ((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
         }
     } else if (name.contains("gears")) {
@@ -1389,6 +1404,14 @@ void homeform::Minus(const QString &name) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 // round up to the next .5 increment (.0 or .5)
                 double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                double requestedspeed = ((treadmill *)bluetoothManager->device())->requestedSpeed();
+                double targetspeed = ((treadmill *)bluetoothManager->device())->currentTargetSpeed();
+                qDebug() << QStringLiteral("Current Speed") << speed << QStringLiteral("Current Requested Speed")
+                         << requestedspeed << QStringLiteral("Current Target Speed") << targetspeed;
+                if (targetspeed != -1)
+                    speed = targetspeed;
+                if (requestedspeed != -1)
+                    speed = requestedspeed;
                 int rest = 5 - (((int)(speed * 10.0)) % 5);
                 if (rest == 5 || rest == 0)
                     speed = speed - 0.5;
@@ -1410,7 +1433,8 @@ void homeform::Minus(const QString &name) {
                     ->changeInclination(((elliptical *)bluetoothManager->device())->currentInclination().value() - 0.5);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
-                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
+                    ->changeInclination(((bike *)bluetoothManager->device())->currentInclination().value() - 0.5,
+                                        ((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
             }
         }
     } else if (name.contains(QStringLiteral("gears"))) {
@@ -1531,6 +1555,16 @@ void homeform::Stop() {
     qDebug() << QStringLiteral("Stop pressed - paused") << paused << QStringLiteral("stopped") << stopped;
 
     if (bluetoothManager->device()) {
+
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            QTime zero(0, 0, 0, 0);
+            if (bluetoothManager->device()->currentSpeed().value() == 0.0 &&
+                zero.secsTo(bluetoothManager->device()->elapsedTime()) == 0) {
+                qDebug() << QStringLiteral("Stop pressed - nothing to do. Elapsed time is 0 and current speed is 0");
+                return;
+            }
+        }
+
         bluetoothManager->device()->stop();
     }
 
@@ -1707,6 +1741,27 @@ void homeform::update() {
                                                    : bluetoothManager->device()->weightLoss(),
                                              'f', 2));
 
+#ifdef Q_OS_IOS
+        if (settings.value(QStringLiteral("volume_change_gears"), false).toBool()) {
+            lockscreen h;
+            static double volumeLast = -1;
+            double currentVolume = getVolume() * 10.0;
+            qDebug() << "volume" << volumeLast << currentVolume;
+            if (volumeLast == -1)
+                qDebug() << "volume init";
+            else if (volumeLast > currentVolume) {
+                double diff = volumeLast - currentVolume;
+                for (int i = 0; i < diff; i++)
+                    Minus(QStringLiteral("gears"));
+            } else if (volumeLast < currentVolume) {
+                double diff = currentVolume - volumeLast;
+                for (int i = 0; i < diff; i++)
+                    Plus(QStringLiteral("gears"));
+            }
+            volumeLast = currentVolume * 10.0;
+        }
+#endif
+
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
@@ -1735,6 +1790,14 @@ void homeform::update() {
                 QStringLiteral(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain(), 'f', 1));
+
+            // for Stryd and similar
+            cadence = ((treadmill *)bluetoothManager->device())->currentCadence().value();
+            this->cadence->setSecondLine(
+                QStringLiteral("AVG: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
+                QStringLiteral(" MAX: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
 
             if (bluetoothManager->device()->currentSpeed().value() < 9) {
                 speed->setValueFontColor(QStringLiteral("white"));
@@ -1766,7 +1829,7 @@ void homeform::update() {
                 qDebug() << QStringLiteral("autoPauseWhenSpeedIsZero!");
                 Start_inner(false);
             } else if (((treadmill *)bluetoothManager->device())->autoStartWhenSpeedIsGreaterThenZero() &&
-                bluetoothManager->device()->currentSpeed().value() > 0 && (paused == true || stopped == true)) {
+                       bluetoothManager->device()->currentSpeed().value() > 0 && (paused == true || stopped == true)) {
                 qDebug() << QStringLiteral("autoStartWhenSpeedIsGreaterThenZero!");
                 Start_inner(false);
             }

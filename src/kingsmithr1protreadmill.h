@@ -56,6 +56,7 @@ class kingsmithr1protreadmill : public treadmill {
 
     bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);
+    double GetTargetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
@@ -87,6 +88,7 @@ class kingsmithr1protreadmill : public treadmill {
     bool initRequest = false;
     bool requestUnlock = false;
     int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

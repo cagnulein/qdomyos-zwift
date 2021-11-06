@@ -147,88 +147,109 @@ uint16_t proformbike::wattsFromResistance(uint8_t resistance) {
 }
 
 void proformbike::forceResistance(int8_t requestResistance) {
-    const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0x32, 0x02, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0xa3, 0x04, 0x00, 0xbe, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res3[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0x14, 0x07, 0x00, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res4[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0x85, 0x09, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0xf6, 0x0b, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res6[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0x67, 0x0e, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0xd8, 0x10, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res8[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0x49, 0x13, 0x00, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res9[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                            0x04, 0xba, 0x15, 0x00, 0xe6, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0x2b, 0x18, 0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res11[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0x9c, 0x1a, 0x00, 0xcd, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res12[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0x0d, 0x1d, 0x00, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res13[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0x7e, 0x1f, 0x00, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res14[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0xef, 0x21, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res15[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0x60, 0x24, 0x00, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00};
-    const uint8_t res16[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
-                             0x04, 0xd1, 0x26, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00};
+    QSettings settings;
+    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
 
-    switch (requestResistance) {
-    case 1:
-        writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
-        break;
-    case 2:
-        writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
-        break;
-    case 3:
-        writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
-        break;
-    case 4:
-        writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
-        break;
-    case 5:
-        writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
-        break;
-    case 6:
-        writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
-        break;
-    case 7:
-        writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
-        break;
-    case 8:
-        writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
-        break;
-    case 9:
-        writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
-        break;
-    case 10:
-        writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
-        break;
-    case 11:
-        writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
-        break;
-    case 12:
-        writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
-        break;
-    case 13:
-        writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
-        break;
-    case 14:
-        writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
-        break;
-    case 15:
-        writeCharacteristic((uint8_t *)res15, sizeof(res15), QStringLiteral("resistance15"), false, true);
-        break;
-    case 16:
-        writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
-        break;
+    if (proform_studio) {
+        const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
+        uint8_t res2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x12, 0x08, 0x12, 0x02, 0x04,
+                          0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06};
+
+        res2[18] = requestResistance;
+
+        uint8_t res3[] = {0xff, 0x04, 0x00, 0x1b, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00,
+                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        res3[5] = 0x45 + requestResistance;
+
+        writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, false);
+        writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, false);
+        writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, false);
+
+    } else {
+        const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x32, 0x02, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xa3, 0x04, 0x00, 0xbe, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res3[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x14, 0x07, 0x00, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res4[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x85, 0x09, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xf6, 0x0b, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res6[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x67, 0x0e, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xd8, 0x10, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res8[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0x49, 0x13, 0x00, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res9[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                0x04, 0xba, 0x15, 0x00, 0xe6, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x2b, 0x18, 0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res11[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x9c, 0x1a, 0x00, 0xcd, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res12[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x0d, 0x1d, 0x00, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res13[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x7e, 0x1f, 0x00, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res14[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0xef, 0x21, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res15[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0x60, 0x24, 0x00, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00};
+        const uint8_t res16[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                 0x04, 0xd1, 0x26, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+        switch (requestResistance) {
+        case 1:
+            writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
+            break;
+        case 2:
+            writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
+            break;
+        case 3:
+            writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
+            break;
+        case 4:
+            writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
+            break;
+        case 5:
+            writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
+            break;
+        case 6:
+            writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
+            break;
+        case 7:
+            writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
+            break;
+        case 8:
+            writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
+            break;
+        case 9:
+            writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
+            break;
+        case 10:
+            writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
+            break;
+        case 11:
+            writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
+            break;
+        case 12:
+            writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
+            break;
+        case 13:
+            writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
+            break;
+        case 14:
+            writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
+            break;
+        case 15:
+            writeCharacteristic((uint8_t *)res15, sizeof(res15), QStringLiteral("resistance15"), false, true);
+            break;
+        case 16:
+            writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
+            break;
+        }
     }
 }
 
@@ -293,6 +314,10 @@ void proformbike::update() {
         uint8_t noOpData6_proform_studio[] = {0xff, 0x02, 0x08, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+        uint8_t max_resistance = 16;
+        if (proform_studio)
+            max_resistance = 32;
+
         switch (counterPoll) {
         case 0:
             writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
@@ -339,8 +364,8 @@ void proformbike::update() {
         case 6:
             writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
             if (requestResistance != -1) {
-                if (requestResistance > 16) {
-                    requestResistance = 16;
+                if (requestResistance > max_resistance) {
+                    requestResistance = max_resistance;
                 } else if (requestResistance == 0) {
                     requestResistance = 1;
                 }
@@ -479,10 +504,14 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             }
 
             double incline =
-                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((int8_t)newValue.at(10))) / 100.0);
+                ((double)((int16_t)(((int8_t)newValue.at(11)) << 8) + (int16_t)((uint8_t)newValue.at(10))) / 100.0);
 
-            Inclination = incline;
-            emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+            if ((uint16_t)(qAbs(incline) * 10) % 5 == 0) {
+                Inclination = incline;
+                emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+            } else {
+                emit debug(QStringLiteral("Filtering bad inclination"));
+            }
         } else {
 
             Resistance = newValue.at(19);
@@ -604,68 +633,67 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Speed = metric::calculateSpeedFromPower(m_watt.value());
             }
         }
-        if (watts())
-            KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
-                   3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
-        // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+    }
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                              // kg * 3.5) / 200 ) / 60
+    // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
-        if (Cadence.value() > 0) {
-            CrankRevs++;
-            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
-        }
+    if (Cadence.value() > 0) {
+        CrankRevs++;
+        LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+    }
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
-            Heart = (uint8_t)KeepAwakeHelper::heart();
-        else
+    if (settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
 #endif
-        {
-            if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+    {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-                lockscreen h;
-                long appleWatchHeartRate = h.heartRate();
-                h.setKcal(KCal.value());
-                h.setDistance(Distance.value());
-                Heart = appleWatchHeartRate;
-                debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
 #endif
 #endif
-            }
         }
+    }
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
-        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-        }
+    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+    }
 #endif
 #endif
 
-        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
-        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-        // debug("Current Distance: " + QString::number(distance));
-        emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
-        emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    // debug("Current Distance: " + QString::number(distance));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
-        if (m_control->error() != QLowEnergyController::NoError) {
-            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-        }
+    if (m_control->error() != QLowEnergyController::NoError) {
+        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 }
 

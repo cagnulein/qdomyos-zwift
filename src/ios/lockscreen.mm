@@ -87,4 +87,9 @@ bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResi
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt];
     return 0;
 }
+
+double lockscreen::getVolume()
+{
+    return [[AVAudioSession sharedInstance] outputVolume];
+}
 #endif

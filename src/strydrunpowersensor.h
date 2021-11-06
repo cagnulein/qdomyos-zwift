@@ -1,5 +1,5 @@
-#ifndef TRXAPPGATEUSBTREADMILL_H
-#define TRXAPPGATEUSBTREADMILL_H
+#ifndef STRYDRUNPOWERSENSOR_H
+#define STRYDRUNPOWERSENSOR_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -22,60 +22,61 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+#include <QDateTime>
 #include <QObject>
-#include <QTime>
+#include <QString>
 
 #include "treadmill.h"
 #include "virtualtreadmill.h"
 
-class trxappgateusbtreadmill : public treadmill {
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+class strydrunpowersensor : public treadmill {
     Q_OBJECT
   public:
-    trxappgateusbtreadmill();
+    strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
 
-    void *VirtualTreadMill();
+    void *VirtualTreadmill();
     void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
-    void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response);
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
+                             bool wait_for_response = false);
     void startDiscover();
-    double DistanceCalculated = 0;
+    uint16_t watts();
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
+    virtualtreadmill *virtualTreadmill = nullptr;
 
-    uint8_t firstVirtualTreadmill = 0;
-    bool firstCharChanged = true;
-    QTime lastTimeCharChanged;
-    uint8_t sec1update = 0;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
+    // QLowEnergyCharacteristic gattNotify1Characteristic;
+
+    uint8_t sec1Update = 0;
     QByteArray lastPacket;
-
-    QLowEnergyService *gattCommunicationChannelService = nullptr;
-    QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
 
     bool initDone = false;
     bool initRequest = false;
-    bool readyToStart = false;
 
-    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2 } TYPE;
-    TYPE treadmill_type = TRXAPPGATE;
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+    bool noVirtualDevice = false;
+
+    uint16_t oldLastCrankEventTime = 0;
+    uint16_t oldCrankRevs = 0;
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   signals:
     void disconnected();
     void debug(QString string);
-    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -85,6 +86,8 @@ class trxappgateusbtreadmill : public treadmill {
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
+    void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
+    void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
@@ -94,5 +97,4 @@ class trxappgateusbtreadmill : public treadmill {
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
-
-#endif // TRXAPPGATEUSBTREADMILL_H
+#endif // STRYDRUNPOWERSENSOR_H

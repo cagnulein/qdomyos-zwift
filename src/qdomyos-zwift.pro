@@ -95,6 +95,7 @@ SOURCES += \
 	homeform.cpp \
     horizongr7bike.cpp \
    horizontreadmill.cpp \
+   iconceptbike.cpp \
 	inspirebike.cpp \
 	keepawakehelper.cpp \
    kingsmithr1protreadmill.cpp \
@@ -134,6 +135,7 @@ SOURCES += \
    solef80treadmill.cpp \
    spirittreadmill.cpp \
    sportstechbike.cpp \
+   strydrunpowersensor.cpp \
    tacxneo2.cpp \
     tcpclientinfosender.cpp \
     templateinfosender.cpp \
@@ -181,6 +183,7 @@ HEADERS += \
     ftmsrower.h \
    homefitnessbuddy.h \
     horizongr7bike.h \
+   iconceptbike.h \
    kingsmithr1protreadmill.h \
    kingsmithr2treadmill.h \
    m3ibike.h \
@@ -450,6 +453,7 @@ HEADERS += \
    solef80treadmill.h \
    spirittreadmill.h \
    sportstechbike.h \
+   strydrunpowersensor.h \
    tacxneo2.h \
     tcpclientinfosender.h \
     templateinfosender.h \
