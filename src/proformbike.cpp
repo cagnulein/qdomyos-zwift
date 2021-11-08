@@ -164,7 +164,7 @@ void proformbike::forceResistance(int8_t requestResistance) {
 
         writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, false);
         writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, false);
-        writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, false);
+        writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
 
     } else {
         const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
@@ -265,6 +265,22 @@ void proformbike::forceIncline(double incline) {
                         true);
 }
 
+void proformbike::innerWriteResistance() {
+    if (requestResistance != -1) {
+        if (requestResistance > max_resistance) {
+            requestResistance = max_resistance;
+        } else if (requestResistance == 0) {
+            requestResistance = 1;
+        }
+
+        if (requestResistance != currentResistance().value()) {
+            emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+            forceResistance(requestResistance);
+        }
+        requestResistance = -1;
+    }
+}
+
 void proformbike::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -362,19 +378,12 @@ void proformbike::update() {
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
             break;
         case 6:
+            if (proform_studio) {
+                innerWriteResistance();
+            }
             writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
-            if (requestResistance != -1) {
-                if (requestResistance > max_resistance) {
-                    requestResistance = max_resistance;
-                } else if (requestResistance == 0) {
-                    requestResistance = 1;
-                }
-
-                if (requestResistance != currentResistance().value()) {
-                    emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                    forceResistance(requestResistance);
-                }
-                requestResistance = -1;
+            if (!proform_studio) {
+                innerWriteResistance();
             }
             if (requestInclination != -1 && proform_studio) {
                 if (requestInclination != currentInclination().value()) {
