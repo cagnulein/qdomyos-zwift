@@ -262,10 +262,21 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
     double speed = GetSpeedFromPacket(value);
     if (speed > 0) {
         lastStart = 0; // telling to the UI that it could be autostoppable when the speed it will reach again 0
-        targetSpeed = GetTargetSpeedFromPacket(value);
+
+        // sometimes, the treadmill, in the startup phase, send a bugged target speed
+        // https://github.com/cagnulein/qdomyos-zwift/issues/470#issuecomment-963025129
+        double t = GetTargetSpeedFromPacket(value);
+        if (t == lastTargetSpeed) {
+            targetSpeed = speed;
+            emit debug(QStringLiteral("ignoring target speed"));
+        } else {
+            targetSpeed = t;
+            lastTargetSpeed = -1;
+        }
     } else {
         lastStop = 0;
         targetSpeed = 0;
+        lastTargetSpeed = GetTargetSpeedFromPacket(value);
     }
 
 #ifdef Q_OS_ANDROID
