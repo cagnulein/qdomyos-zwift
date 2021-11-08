@@ -165,8 +165,13 @@ uint8_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
         return max_resistance;
 }
 
+uint16_t pafersbike::wattsFromResistance(double resistance) {
+    // to be changed
+    return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
+}
+
 double pafersbike::bikeResistanceToPeloton(double resistance) {
-    // 0,0097x3 - 0,4972x2 + 10,126x - 37,08
+    // to be changed
     double p = ((pow(resistance, 3) * 0.0097) - (0.4972 * pow(resistance, 2)) + (10.126 * resistance) - 37.08);
     if (p < 0) {
         p = 0;
@@ -259,7 +264,6 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
 #endif
 #endif
 
-    qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
