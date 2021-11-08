@@ -159,7 +159,7 @@ import Qt.labs.settings 1.0
             property bool yesoul_peloton_formula: false
 
             property bool nordictrack_10_treadmill: true
-            property bool proform_treadmill_995i: false
+            //property bool proform_treadmill_995i: false
 
             property bool toorx_3_0: false
             property bool jtx_fitness_sprint_treadmill: false
@@ -2602,6 +2602,7 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_10_treadmill = checked
                         }
+                        /*
                         SwitchDelegate {
                             id: proform995iDelegate
                             text: qsTr("Proform 995i")
@@ -2615,7 +2616,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_995i = checked
-                        }
+                        }*/
                     }
                 }
 

@@ -97,9 +97,9 @@ void proformtreadmill::update() {
 
         QSettings settings;
         bool nordictrack10 = settings.value("nordictrack_10_treadmill", false).toBool();
-        bool proform_treadmill_995i = settings.value("proform_treadmill_995i", false).toBool();
+        // bool proform_treadmill_995i = settings.value("proform_treadmill_995i", false).toBool();
 
-        if (proform_treadmill_995i) {
+        /*if (proform_treadmill_995i) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
             uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
                                    0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -137,7 +137,8 @@ void proformtreadmill::update() {
             if (counterPoll > 2) {
                 counterPoll = 0;
             }
-        } else if (nordictrack10) {
+        } else*/
+        if (nordictrack10) {
             uint8_t noOpData1[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             uint8_t noOpData2[] = {0xfe, 0x02, 0x17, 0x03};
@@ -159,7 +160,7 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 break;
             case 3:
-                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
 
                 if (requestInclination != -1) {
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -344,9 +345,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void proformtreadmill::btinit() {
     QSettings settings;
     bool nordictrack10 = settings.value("nordictrack_10_treadmill", false).toBool();
-    bool proform_treadmill_995i = settings.value("proform_treadmill_995i", false).toBool();
+    // bool proform_treadmill_995i = settings.value("proform_treadmill_995i", false).toBool();
 
-    if (proform_treadmill_995i) {
+    /*if (proform_treadmill_995i) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -422,7 +423,8 @@ void proformtreadmill::btinit() {
         QThread::msleep(400);
         writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-    } else if (nordictrack10) {
+    } else*/
+    if (nordictrack10) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
