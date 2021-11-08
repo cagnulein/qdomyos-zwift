@@ -1,5 +1,6 @@
 #include "homeform.h"
 #include "gpx.h"
+#include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "material.h"
 #include "qfit.h"
@@ -290,7 +291,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
 #ifdef TEST
-    deviceConnected();
+    QBluetoothDeviceInfo b;
+    deviceConnected(b);
 #endif
 }
 
@@ -1739,6 +1741,27 @@ void homeform::update() {
         weightLoss->setValue(QString::number(miles ? bluetoothManager->device()->weightLoss() * 35.274
                                                    : bluetoothManager->device()->weightLoss(),
                                              'f', 2));
+
+#ifdef Q_OS_IOS
+        if (settings.value(QStringLiteral("volume_change_gears"), false).toBool()) {
+            lockscreen h;
+            static double volumeLast = -1;
+            double currentVolume = h.getVolume() * 10.0;
+            qDebug() << "volume" << volumeLast << currentVolume;
+            if (volumeLast == -1)
+                qDebug() << "volume init";
+            else if (volumeLast > currentVolume) {
+                double diff = volumeLast - currentVolume;
+                for (int i = 0; i < diff; i++)
+                    Minus(QStringLiteral("gears"));
+            } else if (volumeLast < currentVolume) {
+                double diff = currentVolume - volumeLast;
+                for (int i = 0; i < diff; i++)
+                    Plus(QStringLiteral("gears"));
+            }
+            volumeLast = currentVolume;
+        }
+#endif
 
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
 

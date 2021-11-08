@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 #import <WatchConnectivity/WatchConnectivity.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#import <AVFoundation/AVFoundation.h>
 #import "qdomyoszwift-Swift2.h"
 #include "ios/lockscreen.h"
 
@@ -86,5 +87,11 @@ bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResi
     if(_virtualbike_zwift != nil)
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt];
     return 0;
+}
+
+double lockscreen::getVolume()
+{
+    [[AVAudioSession sharedInstance] setActive:true error:0];
+    return [[AVAudioSession sharedInstance] outputVolume];
 }
 #endif
