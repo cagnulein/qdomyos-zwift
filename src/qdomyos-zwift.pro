@@ -102,6 +102,7 @@ SOURCES += \
 	     main.cpp \
 		metric.cpp \
     npecablebike.cpp \
+   pafersbike.cpp \
    peloton.cpp \
    powerzonepack.cpp \
 	proformbike.cpp \
@@ -417,6 +418,7 @@ HEADERS += \
 	material.h \
 	metric.h \
     npecablebike.h \
+   pafersbike.h \
    peloton.h \
    powerzonepack.h \
 	proformbike.h \
@@ -537,5 +539,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.8.107
+VERSION = 2.8.109
 

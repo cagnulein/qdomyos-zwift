@@ -45,6 +45,7 @@
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "npecablebike.h"
+#include "pafersbike.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
 #include "schwinnic4bike.h"
@@ -133,6 +134,7 @@ class bluetooth : public QObject, public SignalHandler {
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
+    pafersbike *pafersBike = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     renphobike *renphoBike = nullptr;
     shuaa5treadmill *shuaA5Treadmill = nullptr;

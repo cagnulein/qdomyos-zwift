@@ -1021,6 +1021,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 renphoBike->deviceDiscovered(b);
                 userTemplateManager->start(renphoBike);
                 innerTemplateManager->start(renphoBike);
+            } else if ((b.name().toUpper().startsWith("PAFERS_")) && !pafersBike && filter) {
+
+                discoveryAgent->stop();
+                pafersBike =
+                    new pafersbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit(deviceConnected(b));
+                connect(pafersBike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
+                // connect(pafersBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(pafersBike, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                pafersBike->deviceDiscovered(b);
+                userTemplateManager->start(pafersBike);
+                innerTemplateManager->start(pafersBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && snode_bike) ||
                         b.name().startsWith(QStringLiteral("TF-"))) && // TF-769DF2
                        !snodeBike &&
@@ -1561,6 +1573,11 @@ void bluetooth::restart() {
         delete renphoBike;
         renphoBike = nullptr;
     }
+    if (pafersBike) {
+
+        delete pafersBike;
+        pafersBike = nullptr;
+    }
     if (fitPlusBike) {
 
         delete fitPlusBike;
@@ -1696,6 +1713,8 @@ bluetoothdevice *bluetooth::device() {
         return horizonGr7Bike;
     } else if (renphoBike) {
         return renphoBike;
+    } else if (pafersBike) {
+        return pafersBike;
     } else if (fitPlusBike) {
         return fitPlusBike;
     } else if (skandikaWiriBike) {
