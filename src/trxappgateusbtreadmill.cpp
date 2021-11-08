@@ -266,6 +266,14 @@ double trxappgateusbtreadmill::GetInclinationFromPacket(const QByteArray &packet
     return data;
 }
 
+void trxappgateusbtreadmill::waitForAPacket() {
+    QEventLoop loop;
+    QTimer timeout;
+    connect(this, &trxappgateusbtreadmill::packetReceived, &loop, &QEventLoop::quit);
+    timeout.singleShot(3000, &loop, SLOT(quit()));
+    loop.exec();
+}
+
 void trxappgateusbtreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape);
     QSettings settings;
@@ -277,26 +285,13 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         const uint8_t initData2[] = {0xf0, 0xa0, 0x32, 0xd3, 0x95};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x32, 0xd3, 0x96};
         const uint8_t initData4[] = {0xf0, 0xa5, 0x32, 0xd3, 0x04, 0x9e};
-        const uint8_t initData5[] = {0xf0, 0xa3, 0x32, 0xd3, 0x02, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x55};
-        const uint8_t initData6[] = {0xf0, 0xa4, 0x32, 0xd3, 0x15, 0x01, 0x01, 0x01,
-                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xb8};
-        const uint8_t initData7[] = {0xf0, 0xa6, 0x32, 0xd3, 0x01, 0x15, 0x01, 0x2a, 0x01, 0x40,
-                                     0x01, 0x55, 0x02, 0x06, 0x01, 0x15, 0x01, 0x2a, 0x01, 0x40};
-        const uint8_t initData7b[] = {0x01, 0x55, 0x02, 0x06, 0x5b};
-        const uint8_t initData8[] = {0xf0, 0xa7, 0x32, 0xd3, 0x01, 0x15, 0x01, 0x2a, 0x01, 0x40,
-                                     0x01, 0x55, 0x02, 0x06, 0x01, 0x15, 0x01, 0x2a, 0x01, 0x40};
-        const uint8_t initData8b[] = {0x01, 0x55, 0x02, 0x06, 0x5c};
-        const uint8_t initData9[] = {0xf0, 0xa8, 0x32, 0xd3, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
-                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01};
-        const uint8_t initData9b[] = {0x01, 0x01, 0x01, 0x01, 0xb1};
-        const uint8_t initData10[] = {0xf0, 0xa9, 0x32, 0xd3, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
-                                      0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01};
-        const uint8_t initData10b[] = {0x02, 0x01, 0x02, 0x01, 0xbc};
-        const uint8_t initData11[] = {0xf0, 0xaa, 0x32, 0xd3, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01,
-                                      0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01, 0x02, 0x01};
-        const uint8_t initData11b[] = {0x02, 0x01, 0x02, 0x01, 0xbd};
-        const uint8_t initData12[] = {0xf0, 0xaf, 0x32, 0xd3, 0x02, 0xa6};
+        const uint8_t initData5[] = {0xf0, 0xa3, 0x32, 0xd3, 0x01, 0x15, 0x01, 0x02, 0x51, 0x01, 0x51, 0x54};
+        const uint8_t initData6[] = {0xf0, 0xa4, 0x32, 0xd3, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa4};
+        const uint8_t initData7[] = {0xf0, 0xaf, 0x32, 0xd3, 0x02, 0xa6};
 
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
@@ -307,30 +302,12 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, false);
-        writeCharacteristic((uint8_t *)initData7b, sizeof(initData7b), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, false);
-        writeCharacteristic((uint8_t *)initData8b, sizeof(initData8b), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData9, sizeof(initData9), QStringLiteral("init"), false, false);
-        writeCharacteristic((uint8_t *)initData9b, sizeof(initData9b), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-        writeCharacteristic((uint8_t *)initData10b, sizeof(initData10b), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-        writeCharacteristic((uint8_t *)initData11b, sizeof(initData11b), QStringLiteral("init"), false, true);
-        QThread::msleep(400);
-        writeCharacteristic((uint8_t *)initData12, sizeof(initData12), QStringLiteral("init"), false, true);
     } else if (toorx30 == false || jtx_fitness_sprint_treadmill) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d};

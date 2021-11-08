@@ -49,6 +49,7 @@ class trxappgateusbtreadmill : public treadmill {
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
+    void waitForAPacket();
     void startDiscover();
     double DistanceCalculated = 0;
 
