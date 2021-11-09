@@ -3,6 +3,7 @@
 #include <QDateTime>
 #include <QMetaEnum>
 #include <QSettings>
+#include <QThread>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -120,13 +121,38 @@ void iconceptbike::rfCommConnected() {
     const uint8_t init2[] = {0x55, 0x0b, 0x01, 0xff, 0x55, 0x18, 0x01, 0xff, 0x55, 0x19,
                              0x01, 0xff, 0x55, 0x1a, 0x01, 0xff, 0x55, 0x1b, 0x01, 0xff};
     const uint8_t init3[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};
+    const uint8_t init4[] = {0x55, 0x01, 0x06, 0x1e, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+    const uint8_t init5[] = {0x55, 0x15, 0x01, 0x00};
+    const uint8_t init6[] = {0x55, 0x11, 0x01, 0x01};
+    const uint8_t init7[] = {0x55, 0x0a, 0x01, 0x01};
+    const uint8_t init8[] = {0x55, 0x07, 0x01, 0xff};
 
     socket->write((char *)init1, sizeof(init1));
     qDebug() << QStringLiteral(" init1 write");
     socket->write((char *)init2, sizeof(init2));
     qDebug() << QStringLiteral(" init2 write");
+    QThread::msleep(2000);
     socket->write((char *)init3, sizeof(init3));
     qDebug() << QStringLiteral(" init3 write");
+    QThread::msleep(2000);
+    socket->write((char *)init3, sizeof(init3));
+    qDebug() << QStringLiteral(" init3 write");
+    QThread::msleep(500);
+    socket->write((char *)init4, sizeof(init4));
+    qDebug() << QStringLiteral(" init4 write");
+    QThread::msleep(600);
+    socket->write((char *)init5, sizeof(init5));
+    qDebug() << QStringLiteral(" init5 write");
+    QThread::msleep(600);
+    socket->write((char *)init6, sizeof(init6));
+    qDebug() << QStringLiteral(" init6 write");
+    QThread::msleep(600);
+    socket->write((char *)init7, sizeof(init7));
+    qDebug() << QStringLiteral(" init7 write");
+    QThread::msleep(600);
+    socket->write((char *)init8, sizeof(init8));
+    qDebug() << QStringLiteral(" init8 write");
+
     initDone = true;
     // requestStart = 1;
     emit connectedAndDiscovered();
