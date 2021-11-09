@@ -281,9 +281,11 @@ void pafersbike::btinit() {
     uint8_t initData1[] = {0x55, 0xbb, 0x01, 0xff};
     uint8_t initData2[] = {0x55, 0x0c, 0x01, 0xff};
     uint8_t initData3[] = {0x55, 0x25, 0x01, 0xff};
+    uint8_t initData4[] = {0x55, 0x0a, 0x01, 0x01};
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
 
     initDone = true;
 
