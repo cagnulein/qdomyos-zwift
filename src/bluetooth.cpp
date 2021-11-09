@@ -963,9 +963,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(activioTreadmill);
             } else if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
                         (b.name().startsWith(QStringLiteral("V-RUN"))) ||
-                        (b.name().startsWith(QStringLiteral("i-Console+"))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
-                        (b.name().startsWith(QStringLiteral("i-Running"))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK"))) ||
                         (b.name().startsWith(QStringLiteral("F63")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter) {

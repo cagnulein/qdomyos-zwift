@@ -487,14 +487,17 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     if (device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
-        device.name().startsWith(QStringLiteral("FS-")) || device.name().startsWith(QStringLiteral("i-Console+")) ||
-        device.name().startsWith(QStringLiteral("i-Running")) || device.name().startsWith(QStringLiteral("F63")) ||
+        device.name().startsWith(QStringLiteral("FS-")) ||
+        device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
+        device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
+        device.name().startsWith(QStringLiteral("F63")) ||
         device.name().toUpper().startsWith(QStringLiteral("REEBOK")) ||
         device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
-        if (device.name().startsWith(QStringLiteral("i-Running")) ||
+        if (device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
             device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
-            device.name().startsWith(QStringLiteral("i-Console+")) || device.name().startsWith(QStringLiteral("F63")) ||
+            device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
+            device.name().startsWith(QStringLiteral("F63")) ||
             device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
             treadmill_type = TYPE::IRUNNING;
         } else if (device.name().toUpper().startsWith(QStringLiteral("REEBOK"))) {
