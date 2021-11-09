@@ -343,19 +343,21 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Inclination = (double)((uint8_t)newValue.at(11));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        QDateTime now = QDateTime::currentDateTime();
+
+        Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
         if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
-            KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
+            KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                       settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                             // kg * 3.5) / 200 ) / 60
 
-        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+        lastRefreshCharacteristicChanged = now;
+
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     } else if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
                newValue.at(1) == 0x02 && newValue.at(2) == 0x03) {
         // stop event from the treadmill
