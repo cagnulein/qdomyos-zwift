@@ -93,7 +93,7 @@ void trxappgateusbtreadmill::update() {
         if (treadmill_type == TYPE::REEBOK) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x32, 0xd3, 0x97};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (toorx30 == false || jtx_fitness_sprint_treadmill) {
+        } else if (treadmill_type == TYPE::DKN || toorx30 == false || jtx_fitness_sprint_treadmill) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0xd3, 0x66};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
@@ -131,7 +131,7 @@ void trxappgateusbtreadmill::update() {
             if (treadmill_type == TYPE::REEBOK) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x32, 0xd3, 0x02, 0x9c};
                 writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            } else if (toorx30 == false) {
+            } else if (treadmill_type == TYPE::DKN || toorx30 == false) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b};
                 writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             } else {
@@ -184,7 +184,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
             readyToStart = true;
             requestStart = 1;
         }
-    } else if (treadmill_type != TYPE::REEBOK) {
+    } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::DKN) {
         if (newValue.at(16) == 0x04 && newValue.at(17) == 0x03 && readyToStart == false) {
             readyToStart = true;
             requestStart = 1;
@@ -280,7 +280,45 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
     bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
     bool jtx_fitness_sprint_treadmill = settings.value(QStringLiteral("jtx_fitness_sprint_treadmill"), false).toBool();
 
-    if (treadmill_type == TYPE::REEBOK) {
+    if (treadmill_type == TYPE::DKN) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0xd3, 0x64};
+        const uint8_t initData3[] = {0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d};
+        const uint8_t initData4[] = {0xf0, 0xa1, 0x01, 0xd3, 0x65};
+        const uint8_t initData5[] = {0xf0, 0xa3, 0x01, 0xd3, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x47, 0xb7};
+        const uint8_t initData6[] = {0xf0, 0xac, 0x01, 0xd3, 0x01, 0x64, 0x64, 0x39};
+        const uint8_t initData7[] = {0xf0, 0xa4, 0x01, 0xd3, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x0b, 0x01, 0x01, 0x7d};
+        const uint8_t initData8[] = {0xf0, 0xaf, 0x01, 0xd3, 0x02, 0x75};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+
+    } else if (treadmill_type == TYPE::REEBOK) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x32, 0xd3, 0x95};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x32, 0xd3, 0x96};
@@ -484,8 +522,12 @@ void trxappgateusbtreadmill::error(QLowEnergyController::Error err) {
 }
 
 void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    QSettings settings;
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
+
+    bool dkn_endurun_treadmill = settings.value(QStringLiteral("dkn_endurun_treadmill"), false).toBool();
+
     if (device.name().startsWith(QStringLiteral("TOORX")) || device.name().startsWith(QStringLiteral("V-RUN")) ||
         device.name().startsWith(QStringLiteral("FS-")) ||
         device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
@@ -494,11 +536,13 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("REEBOK")) ||
         device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
-        if (device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
-            device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
-            device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
-            device.name().startsWith(QStringLiteral("F63")) ||
-            device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
+        if (dkn_endurun_treadmill) {
+            treadmill_type = TYPE::DKN;
+        } else if (device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
+                   device.name().startsWith(QStringLiteral("F63")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
             treadmill_type = TYPE::IRUNNING;
         } else if (device.name().toUpper().startsWith(QStringLiteral("REEBOK"))) {
             treadmill_type = TYPE::REEBOK;
