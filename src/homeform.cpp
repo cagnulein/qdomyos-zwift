@@ -1743,6 +1743,7 @@ void homeform::update() {
                                              'f', 2));
 
 #ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
         if (settings.value(QStringLiteral("volume_change_gears"), false).toBool()) {
             lockscreen h;
             static double volumeLast = -1;
@@ -1761,6 +1762,7 @@ void homeform::update() {
             }
             volumeLast = currentVolume;
         }
+#endif
 #endif
 
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
