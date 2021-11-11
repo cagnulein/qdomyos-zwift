@@ -45,7 +45,7 @@ class proformbike : public bike {
     void *VirtualDevice();
 
   private:
-    const int max_resistance = 16;
+    int max_resistance = 16;
     uint16_t wattsFromResistance(uint8_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

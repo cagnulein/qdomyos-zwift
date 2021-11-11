@@ -330,10 +330,6 @@ void proformbike::update() {
         uint8_t noOpData6_proform_studio[] = {0xff, 0x02, 0x08, 0x7e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-        uint8_t max_resistance = 16;
-        if (proform_studio)
-            max_resistance = 32;
-
         switch (counterPoll) {
         case 0:
             writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
@@ -711,6 +707,8 @@ void proformbike::btinit() {
     QSettings settings;
 
     if (settings.value(QStringLiteral("proform_studio"), false).toBool()) {
+
+        max_resistance = 32;
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
