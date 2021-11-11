@@ -270,13 +270,35 @@ void kingsmithr1protreadmill::characteristicChanged(const QLowEnergyCharacterist
             targetSpeed = speed;
             emit debug(QStringLiteral("ignoring target speed"));
         } else {
-            targetSpeed = t;
+            // if the user changes the speed from the remote, the treadmill doesn't update the target speed
+            // https://github.com/cagnulein/qdomyos-zwift/issues/470#issuecomment-965525224
+            if (speed == t) {
+                targetSpeedMatchesSpeed = true;
+                lastTargetSpeedMatchesSpeed = speed;
+                emit debug(QStringLiteral("target speed matches the current speed"));
+            }
+            if (targetSpeedMatchesSpeed && t != lastTargetSpeedMatchesSpeed) {
+                targetSpeedMatchesSpeed = false;
+                lastTargetSpeedMatchesSpeed = -1;
+                emit debug(QStringLiteral("target speed changes"));
+            }
+
+            if (targetSpeedMatchesSpeed == false) {
+                targetSpeed = t;
+                emit debug(QStringLiteral("using target speed from TM"));
+            } else {
+                emit debug(QStringLiteral("using current speed as target speed"));
+                targetSpeed = speed;
+            }
+
             lastTargetSpeed = -1;
         }
     } else {
         lastStop = 0;
         targetSpeed = 0;
         lastTargetSpeed = GetTargetSpeedFromPacket(value);
+        targetSpeedMatchesSpeed = false;
+        lastTargetSpeedMatchesSpeed = -1;
     }
 
 #ifdef Q_OS_ANDROID
