@@ -889,7 +889,8 @@ void virtualbike::bikeProvider() {
                 writeCharacteristic(serviceFIT, characteristic, value);
             } else if (power) {
 
-                value.append((char)0x10);                                                      // crank data present
+                value.append((char)0x10); // crank data present
+                value.append((char)0x00);
                 value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF));          // watt
                 value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF);     // watt
                 value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF));      // revs count
