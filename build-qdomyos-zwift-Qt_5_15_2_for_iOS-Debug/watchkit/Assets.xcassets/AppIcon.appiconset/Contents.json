@@ -28,6 +28,13 @@
     },
     {
       "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "size" : "33x33",
+      "subtype" : "45mm"
+    },
+    {
+      "idiom" : "watch",
       "role" : "appLauncher",
       "scale" : "2x",
       "size" : "40x40",
@@ -44,8 +51,22 @@
       "idiom" : "watch",
       "role" : "appLauncher",
       "scale" : "2x",
+      "size" : "46x46",
+      "subtype" : "41mm"
+    },
+    {
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
       "size" : "50x50",
       "subtype" : "44mm"
+    },
+    {
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "size" : "51x51",
+      "subtype" : "45mm"
     },
     {
       "idiom" : "watch",
@@ -67,6 +88,13 @@
       "scale" : "2x",
       "size" : "108x108",
       "subtype" : "44mm"
+    },
+    {
+      "idiom" : "watch",
+      "role" : "quickLook",
+      "scale" : "2x",
+      "size" : "117x117",
+      "subtype" : "45mm"
     },
     {
       "idiom" : "watch-marketing",
