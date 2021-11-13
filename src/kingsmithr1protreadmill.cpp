@@ -554,7 +554,7 @@ bool kingsmithr1protreadmill::autoPauseWhenSpeedIsZero() {
 }
 
 bool kingsmithr1protreadmill::autoStartWhenSpeedIsGreaterThenZero() {
-    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == false)
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
         return true;
     else
         return false;
