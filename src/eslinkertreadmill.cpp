@@ -42,12 +42,22 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(
-        gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+    if (treadmill_type == CADENZA_FITNESS_T45)
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+                                                             QByteArray((const char *)&data[1], data_len - 2),
+                                                             QLowEnergyService::WriteWithoutResponse);
+    else
+        gattCommunicationChannelService->writeCharacteristic(
+            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
 
-    if (!disable_log)
-        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                   QStringLiteral(" // ") + info);
+    if (!disable_log) {
+        if (treadmill_type == CADENZA_FITNESS_T45)
+            emit debug(QStringLiteral(" >> ") + QByteArray((const char *)&data[1], data_len - 2).toHex(' ') +
+                       QStringLiteral(" // ") + info);
+        else
+            emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                       QStringLiteral(" // ") + info);
+    }
 
     loop.exec();
 
@@ -182,10 +192,20 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
+    if ((uint8_t)newValue.at(0) != 0xA9) {
+        emit debug(QStringLiteral("CADENZA_FITNESS_T45 protocol"));
+        treadmill_type = CADENZA_FITNESS_T45;
+    }
+
     emit packetReceived();
 
-    if (newValue.length() != 17)
+    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN) ||
+        (newValue.length() != 15 && treadmill_type == CADENZA_FITNESS_T45))
         return;
+
+    // adding this in order to have the same frame structure to the parser
+    if (treadmill_type == CADENZA_FITNESS_T45)
+        value.insert((int)0, 0xa9);
 
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);

@@ -61,6 +61,12 @@ class eslinkertreadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
+    typedef enum TYPE {
+        RHYTHM_FUN = 0,
+        CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
+    } TYPE;
+    volatile TYPE treadmill_type = RHYTHM_FUN;
+
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
 
