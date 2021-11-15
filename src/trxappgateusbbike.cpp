@@ -105,8 +105,8 @@ void trxappgateusbbike::update() {
 
         QSettings settings;
         bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
-        if (toorx30 == false &&
-            (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE || bike_type == TYPE::ICONSOLE_2)) {
+        if (toorx30 == false && (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE ||
+                                 bike_type == TYPE::ICONSOLE_2 || bike_type == TYPE::HERTZ_XR_770)) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -174,25 +174,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08))) {
         return;
     }
-
-    /*
-    if(bike_type == TYPE::IRUNNING)
-    {
-        if(newValue.at(15) == 0x03 && newValue.at(16) == 0x02 && readyToStart == false)
-        {
-            readyToStart = true;
-            requestStart = 1;
-        }
-    }
-    else
-    {
-        if(newValue.at(16) == 0x04 && newValue.at(17) == 0x03 && readyToStart == false)
-        {
-            readyToStart = true;
-            requestStart = 1;
-        }
-    }
-*/
 
     double cadence = GetCadenceFromPacket(newValue);
     double speed = 0.0;
@@ -466,6 +447,26 @@ void trxappgateusbbike::btinit(bool startTape) {
         if (bike_type == TYPE::IRUNNING) {
             QThread::msleep(400);
         }
+    } else if (bike_type == TYPE::HERTZ_XR_770) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
+        const uint8_t initData3[] = {0xf0, 0xa3, 0x01, 0x01, 0x01, 0x96};
+        const uint8_t initData4[] = {0xf0, 0xa4, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa0};
+        const uint8_t initData5[] = {0xf0, 0xa5, 0x01, 0x01, 0x02, 0x99};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
     } else if (bike_type == TYPE::DKN_MOTION || bike_type == TYPE::DKN_MOTION_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
@@ -766,6 +767,7 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool JLL_IC400_bike = settings.value(QStringLiteral("jll_IC400_bike"), false).toBool();
     bool FYTTER_ri08_bike = settings.value(QStringLiteral("fytter_ri08_bike"), false).toBool();
     bool ASVIVA_bike = settings.value(QStringLiteral("asviva_bike"), false).toBool();
+    bool hertz_xr_770 = settings.value(QStringLiteral("hertz_xr_770"), false).toBool();
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     // if(device.name().startsWith("TOORX") || device.name().startsWith("V-RUN") || device.name().startsWith("FS-")
@@ -776,7 +778,12 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         /*else
             bike_type = TYPE::TRXAPPGATE;*/
 
-        if (JLL_IC400_bike) {
+        if (hertz_xr_770) {
+            refresh->start(500ms);
+
+            bike_type = TYPE::HERTZ_XR_770;
+            qDebug() << QStringLiteral("HERTZ_XR_770 bike found");
+        } else if (JLL_IC400_bike) {
             refresh->start(500ms);
 
             bike_type = TYPE::JLL_IC400;

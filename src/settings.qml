@@ -170,6 +170,7 @@ import Qt.labs.settings 1.0
             property bool jll_IC400_bike: false
             property bool fytter_ri08_bike: false
             property bool asviva_bike: false
+            property bool hertz_xr_770: false
 
             property int  m3i_bike_id: 256
             property int  m3i_bike_speed_buffsize: 90
@@ -2985,6 +2986,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.asviva_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: toorxBikeHertzXR770Delegate
+                        text: qsTr("Hertz XR 770 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.hertz_xr_770
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.hertz_xr_770 = checked
                     }
                 }
             }
