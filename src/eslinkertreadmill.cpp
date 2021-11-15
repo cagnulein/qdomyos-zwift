@@ -70,11 +70,10 @@ void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
 
     display[4] = (uint8_t)((Speed.value() * 10));
 
-    /*for(uint8_t i=0; i<sizeof(display)-1; i++)
-    {
-       display[6] += display[i]; // the last byte is a sort of a checksum
-    }*/
-    display[6] = display[4] + 0x08; // the last byte is a sort of a checksum
+    if (display[4] == 0x08)
+        display[6] = 0x00;
+    else
+        display[6] = display[4] + 0x08; // the last byte is a sort of a checksum
 
     writeCharacteristic(display, sizeof(display), QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed),
                         false, false);
