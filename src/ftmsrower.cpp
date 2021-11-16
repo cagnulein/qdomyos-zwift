@@ -275,10 +275,12 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 #endif
     {
         if (Flags.heartRate) {
-
-            Heart = ((double)((newValue.at(index))));
-            // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
-            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            if (index < newValue.length()) {
+                Heart = ((double)((newValue.at(index))));
+                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else
+                emit debug(QStringLiteral("Error on parsing heart"));
         }
     }
 
