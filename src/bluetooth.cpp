@@ -257,10 +257,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QStringLiteral("ftms_accessory_name"), QStringLiteral("Disabled")).toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
-    bool toorx_bike = settings.value(QStringLiteral("toorx_bike"), false).toBool();
+    bool toorx_bike = settings.value(QStringLiteral("toorx_bike"), false).toBool() ||
+                      settings.value(QStringLiteral("jll_IC400_bike"), false).toBool() ||
+                      settings.value(QStringLiteral("fytter_ri08_bike"), false).toBool() ||
+                      settings.value(QStringLiteral("asviva_bike"), false).toBool() ||
+                      settings.value(QStringLiteral("hertz_xr_770"), false).toBool();
     bool snode_bike = settings.value(QStringLiteral("snode_bike"), false).toBool();
     bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool();
-    bool JLL_IC400_bike = settings.value(QStringLiteral("jll_IC400_bike"), false).toBool();
     bool csc_as_bike = settings.value(QStringLiteral("cadence_sensor_as_bike"), false).toBool();
     bool power_as_bike = settings.value(QStringLiteral("power_sensor_as_bike"), false).toBool();
     bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
@@ -969,7 +972,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK"))) ||
                         (b.name().startsWith(QStringLiteral("F63")))) &&
-                       !trxappgateusb && !trxappgateusbBike && !toorx_bike && !JLL_IC400_bike && filter) {
+                       !trxappgateusb && !trxappgateusbBike && !toorx_bike && filter) {
                 discoveryAgent->stop();
                 trxappgateusb = new trxappgateusbtreadmill();
                 emit deviceConnected(b);
@@ -985,7 +988,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                           b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("DKN MOTION"))) &&
-                         (toorx_bike || JLL_IC400_bike))) &&
+                         (toorx_bike))) &&
                        !trxappgateusb && !trxappgateusbBike && filter) {
                 discoveryAgent->stop();
                 trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);
