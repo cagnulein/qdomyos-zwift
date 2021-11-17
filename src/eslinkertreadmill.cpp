@@ -126,9 +126,10 @@ void eslinkertreadmill::update() {
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
         // updating the treadmill console every second
-        if (sec1Update++ >= (1000 / refresh->interval())) {
+        // it seems that stops the communication
+        /*if (sec1Update++ >= (1000 / refresh->interval())) {
             updateDisplay(elapsed.value());
-        }
+        }*/
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
