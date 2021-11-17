@@ -60,7 +60,7 @@ void renphobike::forceResistance(int8_t requestResistance) {
     double cadence = RequestedCadence.value();
     if (cadence <= 0)
         cadence = Cadence.value();
-    forcePower((requestResistance * cadence) / 9.5488);
+    requestPower = (requestResistance * cadence) / 9.5488;
 }
 
 void renphobike::update() {
