@@ -30,6 +30,7 @@
 #include "characteristicnotifier2a63.h"
 #include "characteristicnotifier2ad2.h"
 #include "characteristicwriteprocessor2ad9.h"
+#include "dirconmanager.h"
 
 class virtualbike : public QObject {
 
@@ -67,6 +68,7 @@ class virtualbike : public QObject {
     bool noHeartService = false;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    DirconManager *dirconManager = 0;
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);

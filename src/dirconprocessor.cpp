@@ -46,6 +46,8 @@ bool DirconProcessor::init() {
     bool rv = initServer();
     if (rv)
         initAdvertising();
+    else
+        qDebug() << "Cannot init dircon TCP server at port" << service->serverPort;
     return rv;
 }
 

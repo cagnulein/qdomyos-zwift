@@ -26,6 +26,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
     bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
+
+    if (settings.value("dircon_yes", false).toBool())
+        dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2A63 = new CharacteristicNotifier2A63(Bike, this);
     notif2A37 = new CharacteristicNotifier2A37(Bike, this);
