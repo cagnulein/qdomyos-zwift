@@ -4202,8 +4202,6 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
-                }
-
                     SwitchDelegate {
                         id: androidWakeLockDelegate
                         text: qsTr("Android WakeLock")
