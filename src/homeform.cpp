@@ -34,9 +34,7 @@ using namespace std::chrono_literals;
 #include <QtAndroid>
 #endif
 
-#ifndef IO_UNDER_QT
 #include "secret.h"
-#endif
 
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
