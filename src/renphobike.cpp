@@ -24,7 +24,7 @@ renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, SIGNAL(timeout()), this, SLOT(update()));
-    refresh->start(1000);
+    refresh->start(500);
 }
 
 void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log,
