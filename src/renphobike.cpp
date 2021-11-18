@@ -101,8 +101,8 @@ void renphobike::update() {
             requestResistance = -1;
         }
         if (requestResistance != -1) {
-            if (requestResistance > 40)
-                requestResistance = 40; // TODO, use the bluetooth value
+            if (requestResistance > max_resistance)
+                requestResistance = max_resistance;
             else if (requestResistance == 0)
                 requestResistance = 1;
 
@@ -225,7 +225,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
             2;
         emit resistanceRead(Resistance.value());
-        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value() * 2);
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         index += 2;
         debug("Current Resistance: " + QString::number(Resistance.value()));
     }
