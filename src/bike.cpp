@@ -8,7 +8,11 @@ bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 void bike::changeResistance(int8_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
-        requestResistance = (resistance * m_difficult) + gears();
+        double v = (resistance * m_difficult) + gears();
+        if (!ergModeSupported)
+            requestResistance = v;
+        else
+            requestPower = powerFromResistanceRequest(v);
         emit resistanceChanged(requestResistance);
     }
     RequestedResistance = resistance * m_difficult + gears();
@@ -20,6 +24,16 @@ void bike::changeInclination(double grade, double percentage) {
         requestInclination = percentage;
     }
 }
+
+// originally made for renphobike, but i guess it could be very generic
+uint16_t bike::powerFromResistanceRequest(int8_t requestResistance) {
+    // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
+    double cadence = RequestedCadence.value();
+    if (cadence <= 0)
+        cadence = Cadence.value();
+    return (requestResistance * cadence) / 9.5488;
+}
+
 void bike::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void bike::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
 void bike::changePower(int32_t power) {
@@ -36,7 +50,8 @@ void bike::changePower(int32_t power) {
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
                     QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
-    if (force_resistance /*&& erg_mode*/ && (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
+    if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
         changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
 }
 

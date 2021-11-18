@@ -14,6 +14,9 @@
 #include "keepawakehelper.h"
 
 renphobike::renphobike(bool noWriteResistance, bool noHeartService) {
+
+    ergModeSupported = true; // IMPORTANT, only for this bike
+
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -56,11 +59,7 @@ void renphobike::forcePower(int16_t requestPower) {
 }
 
 void renphobike::forceResistance(int8_t requestResistance) {
-    // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
-    double cadence = RequestedCadence.value();
-    if (cadence <= 0)
-        cadence = Cadence.value();
-    requestPower = (requestResistance * cadence) / 9.5488;
+    requestPower = powerFromResistanceRequest(requestResistance);
 }
 
 void renphobike::update() {

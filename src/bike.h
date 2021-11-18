@@ -23,6 +23,7 @@ class bike : public bluetoothdevice {
     virtual uint16_t watts();
     virtual int pelotonToBikeResistance(int pelotonResistance);
     virtual uint8_t resistanceFromPowerRequest(uint16_t power);
+    virtual uint16_t powerFromResistanceRequest(int8_t requestResistance);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
@@ -55,6 +56,9 @@ class bike : public bluetoothdevice {
     int8_t requestResistance = -1;
     double requestInclination = -1;
     int16_t requestPower = -1;
+
+    bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power
+                                   // request there is no need to translate in resistance levels
 
     int8_t m_gears = 0;
     int8_t lastRawRequestedResistanceValue = -1;
