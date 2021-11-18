@@ -21,6 +21,10 @@ src/debug-*
 *.swo
 *.swp
 
+build-qdomyos-zwift-Android_Qt_5_15_2_Clang_Multi_Abi-Debug/*
+**/node_modules/*
+*.pro.user
+
 template-examples/youtube-viewer/node_modules/*
 template-examples/youtube-viewer/*.json
 template-examples/youtube-viewer/.eslintrc.js

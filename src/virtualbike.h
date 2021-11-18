@@ -26,6 +26,10 @@
 #include "ios/lockscreen.h"
 #endif
 #include "bike.h"
+#include "characteristicnotifier2a37.h"
+#include "characteristicnotifier2a63.h"
+#include "characteristicnotifier2ad2.h"
+#include "characteristicwriteprocessor2ad9.h"
 
 class virtualbike : public QObject {
 
@@ -51,6 +55,10 @@ class virtualbike : public QObject {
     QLowEnergyServiceData serviceEchelon;
     QTimer bikeTimer;
     bluetoothdevice *Bike;
+    CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
+    CharacteristicNotifier2AD2 *notif2AD2 = 0;
+    CharacteristicNotifier2A63 *notif2A63 = 0;
+    CharacteristicNotifier2A37 *notif2A37 = 0;
 
     uint16_t lastWheelTime = 0;
     uint32_t wheelRevs = 0;
@@ -62,9 +70,6 @@ class virtualbike : public QObject {
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
-
-    void slopeChanged(int16_t slope);
-    void powerChanged(uint16_t power);
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

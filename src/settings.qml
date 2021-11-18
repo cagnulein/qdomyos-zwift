@@ -241,6 +241,10 @@ import Qt.labs.settings 1.0
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
             property bool applewatch_fakedevice: false
+            property bool dircon_yes: false
+            property int dircon_server_base_port: 4810
+            property string dircon_server_base_name: "DIRCON"
+            property string dircon_server_base_sn: "DIRCONSN"
         }
 
         ColumnLayout {
@@ -4118,6 +4122,87 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
+                    AccordionCheckElement {
+                        id: dirconAccordion
+                        title: qsTr("Enable Whaoo direct connect")
+                        linkedBoolSetting: "dircon_yes"
+                        settings: settings
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDirconServerPort
+                                    text: qsTr("Server Port:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: dirconServerPortTextField
+                                    text: settings.dircon_server_base_port
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.dircon_server_base_port = text
+                                }
+                                Button {
+                                    id: okDirconServerPort
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.dircon_server_base_port = dirconServerPortTextField.text
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDirconServerName
+                                    text: qsTr("Server Name:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: dirconServerNameTextField
+                                    text: settings.dircon_server_base_name
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhNoPredictiveText
+                                    onAccepted: settings.dircon_server_base_name = text
+                                }
+                                Button {
+                                    id: okDirconServerName
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.dircon_server_base_name = dirconServerNameTextField.text
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelDirconServerSN
+                                    text: qsTr("Server SN:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: dirconServerSNTextField
+                                    text: settings.dircon_server_base_sn
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhNoPredictiveText
+                                    onAccepted: settings.dircon_server_base_sn = text
+                                }
+                                Button {
+                                    id: okDirconServerSN
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.dircon_server_base_sn = dirconServerSNTextField.text
+                                }
+                            }
+                        }
+                    }
+                }
 
                     SwitchDelegate {
                         id: androidWakeLockDelegate

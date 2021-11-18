@@ -34,7 +34,7 @@ macx: CONFIG += static
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD QZEROCONF_STATIC
 
 
 # You can also make your code fail to compile if it uses deprecated APIs.
@@ -43,14 +43,22 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 android: include(../android_openssl/openssl.pri)
+include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
     activiotreadmill.cpp \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+    characteristicnotifier2a37.cpp \
+    characteristicnotifier2a63.cpp \
+    characteristicnotifier2ad2.cpp \
+    characteristicwriteprocessor2ad9.cpp \
    chronobike.cpp \
    cscbike.cpp \
+    dirconmanager.cpp \
+    dirconpacket.cpp \
+    dirconprocessor.cpp \
 	 domyoselliptical.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
@@ -169,8 +177,17 @@ HEADERS += \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+    characteristicnotifier.h \
+    characteristicnotifier2a37.h \
+    characteristicnotifier2a63.h \
+    characteristicnotifier2ad2.h \
+    characteristicwriteprocessor.h \
+    characteristicwriteprocessor2ad9.h \
    chronobike.h \
    cscbike.h \
+    dirconmanager.h \
+    dirconpacket.h \
+    dirconprocessor.h \
 	 domyoselliptical.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \
