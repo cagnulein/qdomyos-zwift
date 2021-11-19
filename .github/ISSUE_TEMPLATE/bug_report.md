@@ -32,5 +32,10 @@ If applicable, add screenshots to help explain your problem.
  - OS: [e.g. iOS8.1]
  - Version [e.g. 22]
 
+**Append a debug log**
+
+ Follow this guide https://github.com/cagnulein/qdomyos-zwift/wiki/How-do-i-get-the-debug-log-in-case-something-doesn't-work%3F
+  
+  
 **Additional context**
 Add any other context about the problem here.
