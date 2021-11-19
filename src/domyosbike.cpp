@@ -191,7 +191,7 @@ void domyosbike::update() {
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &domyosbike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &domyosbike::changeInclination);
             }
         }
         firstStateChanged = 1;

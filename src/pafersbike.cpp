@@ -349,7 +349,7 @@ void pafersbike::stateChanged(QLowEnergyService::ServiceState state) {
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&pafersbike::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &pafersbike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &pafersbike::changeInclination);
             }
         }
         firstStateChanged = 1;

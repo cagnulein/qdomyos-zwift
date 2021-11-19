@@ -23,6 +23,7 @@ void bike::changeInclination(double grade, double percentage) {
     if (autoResistanceEnable) {
         requestInclination = percentage;
     }
+    emit inclinationChanged(grade, percentage);
 }
 
 // originally made for renphobike, but i guess it could be very generic

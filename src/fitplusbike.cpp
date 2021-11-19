@@ -335,7 +335,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&fitplusbike::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &fitplusbike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &fitplusbike::changeInclination);
             }
         }
         firstStateChanged = 1;

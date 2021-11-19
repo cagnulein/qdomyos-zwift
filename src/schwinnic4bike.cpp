@@ -424,7 +424,7 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
 
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::inclinationChanged);
+            connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::changeInclination);
         }
     }
     firstStateChanged = 1;

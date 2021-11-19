@@ -445,7 +445,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
             virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&horizongr7bike::debug);
-            connect(virtualBike, &virtualbike::changeInclination, this, &horizongr7bike::inclinationChanged);
+            connect(virtualBike, &virtualbike::changeInclination, this, &horizongr7bike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                     &horizongr7bike::ftmsCharacteristicChanged);
         }

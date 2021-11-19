@@ -84,7 +84,7 @@ void iconceptbike::update() {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualBike = new virtualbike(this, true);
-                connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
             }
         }
         // ********************************************************************************************************

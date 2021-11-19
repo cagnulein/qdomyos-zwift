@@ -283,7 +283,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-                connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::changeInclination);
                 // connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
             }
         }

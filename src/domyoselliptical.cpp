@@ -185,7 +185,7 @@ void domyoselliptical::update() {
                     virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyoselliptical::changeInclinationRequested);
-                    connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::inclinationChanged);
+                    connect(virtualBike, &virtualbike::changeInclination, this, &domyoselliptical::changeInclination);
                 }
                 firstVirtual = 1;
             }

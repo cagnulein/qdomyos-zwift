@@ -382,7 +382,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&flywheelbike::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &flywheelbike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &flywheelbike::changeInclination);
             }
         }
         firstStateChanged = 1;
@@ -433,7 +433,7 @@ void flywheelbike::error(QLowEnergyController::Error err) {
 void flywheelbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    //if (device.name().startsWith(QStringLiteral("Flywheel")))
+    // if (device.name().startsWith(QStringLiteral("Flywheel")))
     {
         bluetoothDevice = device;
 

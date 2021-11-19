@@ -901,7 +901,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
                 virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&proformbike::debug);
-                connect(virtualBike, &virtualbike::changeInclination, this, &proformbike::inclinationChanged);
+                connect(virtualBike, &virtualbike::changeInclination, this, &proformbike::changeInclination);
             }
         }
         firstStateChanged = 1;
