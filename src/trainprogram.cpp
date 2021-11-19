@@ -44,7 +44,7 @@ void trainprogram::scheduler() {
                 emit changeSpeedAndInclination(rows.at(0).speed, rows.at(0).inclination);
             } else {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(rows.at(0).inclination);
-                emit changeInclination(rows.at(0).inclination);
+                emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
         } else {
             if (rows.at(0).resistance != -1) {
@@ -123,7 +123,7 @@ void trainprogram::scheduler() {
                 }
                 qDebug() << QStringLiteral("trainprogram change inclination ") +
                                 QString::number(rows.at(currentStep).inclination);
-                emit changeInclination(rows.at(currentStep).inclination);
+                emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
             } else {
                 if (rows.at(currentStep).resistance != -1) {
                     qDebug() << QStringLiteral("trainprogram change resistance ") +

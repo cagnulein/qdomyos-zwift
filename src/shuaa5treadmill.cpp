@@ -455,10 +455,9 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void shuaa5treadmill::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void shuaa5treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

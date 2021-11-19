@@ -99,10 +99,9 @@ bool kingsmithr2treadmill::changeFanSpeed(uint8_t speed) {
 }
 
 void kingsmithr2treadmill::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void kingsmithr2treadmill::update() {

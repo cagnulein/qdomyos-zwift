@@ -101,10 +101,9 @@ bool activiotreadmill::changeFanSpeed(uint8_t speed) {
 }
 
 void activiotreadmill::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void activiotreadmill::update() {

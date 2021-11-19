@@ -85,7 +85,7 @@ class bluetoothdevice : public QObject {
     virtual void speedSensor(double speed);
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
-    virtual void changeInclination(double inclination);
+    virtual void changeInclination(double grade, double percentage);
     virtual void changeGeoPosition(QGeoCoordinate p);
     virtual void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 

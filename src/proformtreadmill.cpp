@@ -255,10 +255,9 @@ void proformtreadmill::update() {
 }
 
 void proformtreadmill::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void proformtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {

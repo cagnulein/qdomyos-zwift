@@ -25,7 +25,7 @@ class elliptical : public bluetoothdevice {
 
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
-    virtual void changeInclination(double inclination);
+    virtual void changeInclination(double grade, double inclination);
 
   signals:
     void bikeStarted();

@@ -31,7 +31,7 @@ double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
 void bluetoothdevice::changeResistance(int8_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
-void bluetoothdevice::changeInclination(double inclination) {}
+void bluetoothdevice::changeInclination(double grade, double percentage) {}
 
 void bluetoothdevice::offsetElapsedTime(int offset) { elapsed += offset; }
 

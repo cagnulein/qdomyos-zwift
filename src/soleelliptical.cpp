@@ -95,10 +95,9 @@ void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uin
 }
 
 void soleelliptical::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void soleelliptical::update() {

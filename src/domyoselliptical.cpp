@@ -249,10 +249,9 @@ void domyoselliptical::update() {
 }
 
 void domyoselliptical::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void domyoselliptical::serviceDiscovered(const QBluetoothUuid &gatt) {

@@ -263,7 +263,7 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue &msgContent, Te
             }
         } else {
             double resd;
-            ((treadmill *)device)->changeInclination(resd = resVal.toDouble());
+            ((treadmill *)device)->changeInclination(resVal.toDouble(), resd = resVal.toDouble());
             outObj[QStringLiteral("value")] = resd;
         }
     }

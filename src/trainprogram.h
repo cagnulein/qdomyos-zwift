@@ -67,7 +67,7 @@ class trainprogram : public QObject {
     void stop();
     void changeSpeed(double speed);
     bool changeFanSpeed(uint8_t speed);
-    void changeInclination(double inclination);
+    void changeInclination(double grade, double inclination);
     void changeResistance(int8_t resistance);
     void changeRequestedPelotonResistance(int8_t resistance);
     void changeCadence(int16_t cadence);

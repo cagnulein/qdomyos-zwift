@@ -29,7 +29,7 @@ class treadmill : public bluetoothdevice {
   public slots:
     virtual bool changeFanSpeed(uint8_t speed);
     virtual void changeSpeed(double speed);
-    virtual void changeInclination(double inclination);
+    virtual void changeInclination(double grade, double percentage);
     virtual void changeSpeedAndInclination(double speed, double inclination);
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);

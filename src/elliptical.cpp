@@ -42,7 +42,8 @@ void elliptical::changeResistance(int8_t resistance) {
     requestResistance = resistance;
     RequestedResistance = resistance;
 }
-void elliptical::changeInclination(double inclination) {
+void elliptical::changeInclination(double grade, double inclination) {
+    Q_UNUSED(grade);
     if (autoResistanceEnable) {
         requestInclination = inclination;
     }

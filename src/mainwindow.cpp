@@ -538,8 +538,8 @@ void MainWindow::on_speedPlus_clicked() {
 void MainWindow::on_inclinationMinus_clicked() {
     if (bluetoothManager->device()) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-            ((treadmill *)bluetoothManager->device())
-                ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() - 0.5);
+            double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() - 0.5;
+            ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
         }
     }
 }
@@ -547,8 +547,8 @@ void MainWindow::on_inclinationMinus_clicked() {
 void MainWindow::on_inclinationPlus_clicked() {
     if (bluetoothManager->device()) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-            ((treadmill *)bluetoothManager->device())
-                ->changeInclination(((treadmill *)bluetoothManager->device())->currentInclination().value() + 0.5);
+            double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() + 0.5;
+            ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
         }
     }
 }

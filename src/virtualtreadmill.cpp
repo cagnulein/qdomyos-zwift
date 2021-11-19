@@ -242,10 +242,10 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 requestIncline = 0;
 
             if (treadMill->deviceType() == bluetoothdevice::TREADMILL)
-                ((treadmill *)treadMill)->changeInclination(requestIncline);
+                ((treadmill *)treadMill)->changeInclination(requestIncline, requestIncline);
             // Resistance as incline on Sole E95s Elliptical #419
             else if (treadMill->deviceType() == bluetoothdevice::ELLIPTICAL)
-                ((elliptical *)treadMill)->changeInclination(requestIncline);
+                ((elliptical *)treadMill)->changeInclination(requestIncline, requestIncline);
             emit debug("new requested incline " + QString::number(requestIncline));
         } else if ((char)newValue.at(0) == 0x07) // Start request
         {

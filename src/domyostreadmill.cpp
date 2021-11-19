@@ -219,10 +219,9 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed) {
 }
 
 void domyostreadmill::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
     if (percentage < 0)
         percentage = 0;
-    changeInclination(percentage);
+    changeInclination(grade, percentage);
 }
 
 void domyostreadmill::update() {
@@ -446,13 +445,13 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit debug(QStringLiteral("increase inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeInclination(currentInclination().value() + 0.5);
+            changeInclination(currentInclination().value() + 0.5, currentInclination().value() + 0.5);
         }
     } else if (value.at(22) == 0x0d) {
         emit debug(QStringLiteral("decrease inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeInclination(currentInclination().value() - 0.5);
+            changeInclination(currentInclination().value() - 0.5, currentInclination().value() - 0.5);
         }
     } else if (value.at(22) == 0x11) {
         emit debug(QStringLiteral("22km/h speed button pressed!"));
@@ -482,25 +481,25 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit debug(QStringLiteral("15% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeInclination(15.0);
+            changeInclination(15.0, 15.0);
         }
     } else if (value.at(22) == 0x14) {
         emit debug(QStringLiteral("10% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeInclination(10.0);
+            changeInclination(10.0, 10.0);
         }
     } else if (value.at(22) == 0x13) {
         emit debug(QStringLiteral("5% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeInclination(5.0);
+            changeInclination(5.0, 5.0);
         }
     } else if (value.at(22) == 0x12) {
         emit debug(QStringLiteral("0% inclination button on console pressed!"));
         if (domyos_treadmill_buttons) {
 
-            changeInclination(0.0);
+            changeInclination(0.0, 0.0);
         }
     }
 
