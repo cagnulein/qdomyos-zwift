@@ -149,6 +149,8 @@ import Qt.labs.settings 1.0
             property bool proform_tdf_jonseed_watt: false
             property bool proform_studio: false
 
+            property double horizon_gr7_cadence_multiplier: 1.0
+
             property int  fitshow_user_id: 0x006E13AA
 
             property bool inspire_peloton_formula: false
@@ -750,6 +752,441 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance = checked
+                        }
+                    }
+                }
+                AccordionElement {
+                    id: horizonBikeAccordion
+                    title: qsTr("Horizon Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelHorizonGr7CadenceMultiplier
+                            text: qsTr("GR7 Cadence Multiplier:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: horizonGr7CadenceMultiplierTextField
+                            text: settings.horizon_gr7_cadence_multiplier
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.horizon_gr7_cadence_multiplier = text
+                        }
+                        Button {
+                            id: okhorizonGr7CadenceMultiplierButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.horizon_gr7_cadence_multiplier = horizonGr7CadenceMultiplierTextField.text
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: echelonBikeOptionsAccordion
+                    title: qsTr("Echelon Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    //width: 640
+                    //anchors.top: acc1.bottom
+                    //anchors.topMargin: 10
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelEchelonWattTable
+                                text: qsTr("Watt Profile:")
+                                Layout.fillWidth: true
+                            }
+                            ComboBox {
+                                id: echelonWattTableTextField
+                                model: [ "Echelon", "mgarcea" ]
+                                displayText: settings.echelon_watttable
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    console.log("combomodel activated" + echelonWattTableTextField.currentIndex)
+                                    displayText = echelonWattTableTextField.currentValue
+                                 }
+
+                            }
+                            Button {
+                                id: okEchelonWattTable
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.echelon_watttable = echelonWattTableTextField.displayText
+                            }
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: inspireBikeAccordion
+                    title: qsTr("Inspire Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                    SwitchDelegate {
+                        id: inspirePelotonFormulaDelegate
+                        text: qsTr("Advanced Formula (15/3/2021)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.inspire_peloton_formula
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.inspire_peloton_formula = checked
+                    }
+                    SwitchDelegate {
+                        id: inspirePelotonFormula2Delegate
+                        text: qsTr("Advanced Formula (14/7/2021)")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.inspire_peloton_formula2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.inspire_peloton_formula2 = checked
+                    }
+                    }
+                }
+
+                AccordionElement {
+                    id: hammerBikeAccordion
+                    title: qsTr("Hammer Racer Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: hammerBikeDelegate
+                        text: qsTr("Enable support")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.hammer_racer_s
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.hammer_racer_s = checked
+                    }
+                }
+                AccordionElement {
+                    id: yesoulBikeAccordion
+                    title: qsTr("Yesoul Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: yesoulBikeDelegate
+                        text: qsTr("Yesoul New Peloton Formula")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.yesoul_peloton_formula
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.yesoul_peloton_formula = checked
+                    }
+                }
+
+                AccordionElement {
+                    id: snodeBikeAccordion
+                    title: qsTr("Snode Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: snodeBikeDelegate
+                        text: qsTr("Snode Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.snode_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.snode_bike = checked
+                    }
+                }
+                AccordionElement {
+                    id: fitplusBikeAccordion
+                    title: qsTr("Fitplus Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: fitplusBikeDelegate
+                        text: qsTr("Fit Plus Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fitplus_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fitplus_bike = checked
+                    }
+                }
+                AccordionElement {
+                    id: flywheelBikeAccordion
+                    title: qsTr("Flywheel Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelflywheelBikeFilter
+                                text: qsTr("Samples Filter:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: flywheelBikeFilterTextField
+                                text: settings.flywheel_filter
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.flywheel_filter = text
+                            }
+                            Button {
+                                id: okflywheelBikeFilterButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
+                            }
+                        }
+                        SwitchDelegate {
+                            id: lifeFitnessIC8Delegate
+                            text: qsTr("Life Fitness IC8")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.flywheel_life_fitness_ic8
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.flywheel_life_fitness_ic8 = checked
+                        }
+                    }
+                }
+                AccordionElement {
+                    id: domyosBikeAccordion
+                    title: qsTr("Domyos Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelDomyosBikeCadenceFilter
+                            text: qsTr("Cadence Filter:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: domyosBikeCadenceFilterTextField
+                            text: settings.domyos_bike_cadence_filter
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.domyos_bike_cadence_filter = text
+                        }
+                        Button {
+                            id: okDomyosBikeCadenceFilter
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text
+                        }
+                    }
+                }
+                AccordionElement {
+                    id: proformBikeAccordion
+                    title: qsTr("Proform Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelproformBikeWheelRatio
+                            text: qsTr("Wheel Ratio:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: proformBikeWheelRatioTextField
+                            text: settings.proform_wheel_ratio
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.proform_wheel_ratio = text
+                        }
+                        Button {
+                            id: okproformBikeWheelRatioButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text
+                        }
+                    }
+                    SwitchDelegate {
+                        id: tourDeFranceCLCdelegate
+                        text: qsTr("Tour de France CLC")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_tour_de_france_clc
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_tour_de_france_clc = checked
+                    }
+                    SwitchDelegate {
+                        id: proformStudiodelegate
+                        text: qsTr("Proform Studio Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_studio
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_studio = checked
+                    }
+                    SwitchDelegate {
+                        id: proformTdfJonseedWattdelegate
+                        text: qsTr("TDF CBC Jonseed Watt table")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_tdf_jonseed_watt
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_tdf_jonseed_watt = checked
+                    }
+                }
+
+                AccordionElement {
+                    id: m3iBikeAccordion
+                    title: qsTr("M3i Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    //width: 640
+                    //anchors.top: acc1.bottom
+                    //anchors.topMargin: 10
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: m3iBikeQtSearchDelegate
+                            text: qsTr("Use QT search on Android / iOS")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.m3i_bike_qt_search
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.m3i_bike_qt_search = checked
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelm3iBikeId
+                                text: qsTr("Bike ID:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: m3iBikeIdTextField
+                                text: settings.m3i_bike_id
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.m3i_bike_id = text
+                            }
+                            Button {
+                                id: okm3iBikeIdButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.m3i_bike_id = m3iBikeIdTextField.text
+                            }
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelm3iBikeSpeedBuffsize
+                                text: qsTr("Speed Buffer Size:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: m3iBikeSpeedBuffsizeTextField
+                                text: settings.m3i_bike_speed_buffsize
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.m3i_bike_speed_buffsize = text
+                            }
+                            Button {
+                                id: okm3iBikeSpeedBuffsizeButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text
+                            }
+                        }
+
+                        SwitchDelegate {
+                            id: m3iBikeKcalDelegate
+                            text: qsTr("Use KCal from the Bike")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.m3i_bike_kcal
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.m3i_bike_kcal = checked
                         }
                     }
                 }
@@ -2748,107 +3185,6 @@ import Qt.labs.settings 1.0
             }
 
             AccordionElement {
-                id: echelonBikeOptionsAccordion
-                title: qsTr("Echelon Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                //width: 640
-                //anchors.top: acc1.bottom
-                //anchors.topMargin: 10
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelEchelonWattTable
-                            text: qsTr("Watt Profile:")
-                            Layout.fillWidth: true
-                        }
-                        ComboBox {
-                            id: echelonWattTableTextField
-                            model: [ "Echelon", "mgarcea" ]
-                            displayText: settings.echelon_watttable
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onActivated: {
-                                console.log("combomodel activated" + echelonWattTableTextField.currentIndex)
-                                displayText = echelonWattTableTextField.currentValue
-                             }
-
-                        }
-                        Button {
-                            id: okEchelonWattTable
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.echelon_watttable = echelonWattTableTextField.displayText
-                        }
-                    }
-                }
-            }
-
-            AccordionElement {
-                id: inspireBikeAccordion
-                title: qsTr("Inspire Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                SwitchDelegate {
-                    id: inspirePelotonFormulaDelegate
-                    text: qsTr("Advanced Formula (15/3/2021)")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.inspire_peloton_formula
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.inspire_peloton_formula = checked
-                }
-                SwitchDelegate {
-                    id: inspirePelotonFormula2Delegate
-                    text: qsTr("Advanced Formula (14/7/2021)")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.inspire_peloton_formula2
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.inspire_peloton_formula2 = checked
-                }
-                }
-            }
-
-            AccordionElement {
-                id: hammerBikeAccordion
-                title: qsTr("Hammer Racer Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: SwitchDelegate {
-                    id: hammerBikeDelegate
-                    text: qsTr("Enable support")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.hammer_racer_s
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.hammer_racer_s = checked
-                }
-            }
-
-            AccordionElement {
                 id: toorxTreadmillAccordion
                 title: qsTr("Toorx/iConsole Options")
                 indicatRectColor: Material.color(Material.Grey)
@@ -3004,147 +3340,6 @@ import Qt.labs.settings 1.0
                 }
             }
             AccordionElement {
-                id: yesoulBikeAccordion
-                title: qsTr("Yesoul Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: SwitchDelegate {
-                    id: yesoulBikeDelegate
-                    text: qsTr("Yesoul New Peloton Formula")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.yesoul_peloton_formula
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.yesoul_peloton_formula = checked
-                }
-            }
-
-            AccordionElement {
-                id: snodeBikeAccordion
-                title: qsTr("Snode Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: SwitchDelegate {
-                    id: snodeBikeDelegate
-                    text: qsTr("Snode Bike")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.snode_bike
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.snode_bike = checked
-                }
-            }
-            AccordionElement {
-                id: fitplusBikeAccordion
-                title: qsTr("Fitplus Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: SwitchDelegate {
-                    id: fitplusBikeDelegate
-                    text: qsTr("Fit Plus Bike")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.fitplus_bike
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.fitplus_bike = checked
-                }
-            }
-            AccordionElement {
-                id: flywheelBikeAccordion
-                title: qsTr("Flywheel Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelflywheelBikeFilter
-                            text: qsTr("Samples Filter:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: flywheelBikeFilterTextField
-                            text: settings.flywheel_filter
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.flywheel_filter = text
-                        }
-                        Button {
-                            id: okflywheelBikeFilterButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.flywheel_filter = flywheelBikeFilterTextField.text
-                        }
-                    }
-                    SwitchDelegate {
-                        id: lifeFitnessIC8Delegate
-                        text: qsTr("Life Fitness IC8")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.flywheel_life_fitness_ic8
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.flywheel_life_fitness_ic8 = checked
-                    }
-                }
-            }
-            AccordionElement {
-                id: domyosBikeAccordion
-                title: qsTr("Domyos Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: RowLayout {
-                    spacing: 10
-                    Label {
-                        id: labelDomyosBikeCadenceFilter
-                        text: qsTr("Cadence Filter:")
-                        Layout.fillWidth: true
-                    }
-                    TextField {
-                        id: domyosBikeCadenceFilterTextField
-                        text: settings.domyos_bike_cadence_filter
-                        horizontalAlignment: Text.AlignRight
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
-                        onAccepted: settings.domyos_bike_cadence_filter = text
-                    }
-                    Button {
-                        id: okDomyosBikeCadenceFilter
-                        text: "OK"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text
-                    }
-                }
-            }
-            AccordionElement {
                 id: domyosEllipticalAccordion
                 title: qsTr("Domyos Elliptical Options")
                 indicatRectColor: Material.color(Material.Grey)
@@ -3174,169 +3369,7 @@ import Qt.labs.settings 1.0
                     }
                 }
             }
-            AccordionElement {
-                id: proformBikeAccordion
-                title: qsTr("Proform Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: RowLayout {
-                    spacing: 10
-                    Label {
-                        id: labelproformBikeWheelRatio
-                        text: qsTr("Wheel Ratio:")
-                        Layout.fillWidth: true
-                    }
-                    TextField {
-                        id: proformBikeWheelRatioTextField
-                        text: settings.proform_wheel_ratio
-                        horizontalAlignment: Text.AlignRight
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhFormattedNumbersOnly
-                        onAccepted: settings.proform_wheel_ratio = text
-                    }
-                    Button {
-                        id: okproformBikeWheelRatioButton
-                        text: "OK"
-                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.proform_wheel_ratio = proformBikeWheelRatioTextField.text
-                    }
-                }
-                SwitchDelegate {
-                    id: tourDeFranceCLCdelegate
-                    text: qsTr("Tour de France CLC")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.proform_tour_de_france_clc
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.proform_tour_de_france_clc = checked
-                }
-                SwitchDelegate {
-                    id: proformStudiodelegate
-                    text: qsTr("Proform Studio Bike")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.proform_studio
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.proform_studio = checked
-                }
-                SwitchDelegate {
-                    id: proformTdfJonseedWattdelegate
-                    text: qsTr("TDF CBC Jonseed Watt table")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.proform_tdf_jonseed_watt
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.proform_tdf_jonseed_watt = checked
-                }
-            }
 
-            AccordionElement {
-                id: m3iBikeAccordion
-                title: qsTr("M3i Bike Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                //width: 640
-                //anchors.top: acc1.bottom
-                //anchors.topMargin: 10
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    SwitchDelegate {
-                        id: m3iBikeQtSearchDelegate
-                        text: qsTr("Use QT search on Android / iOS")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.m3i_bike_qt_search
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.m3i_bike_qt_search = checked
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelm3iBikeId
-                            text: qsTr("Bike ID:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: m3iBikeIdTextField
-                            text: settings.m3i_bike_id
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.m3i_bike_id = text
-                        }
-                        Button {
-                            id: okm3iBikeIdButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.m3i_bike_id = m3iBikeIdTextField.text
-                        }
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelm3iBikeSpeedBuffsize
-                            text: qsTr("Speed Buffer Size:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: m3iBikeSpeedBuffsizeTextField
-                            text: settings.m3i_bike_speed_buffsize
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.m3i_bike_speed_buffsize = text
-                        }
-                        Button {
-                            id: okm3iBikeSpeedBuffsizeButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.m3i_bike_speed_buffsize = m3iBikeSpeedBuffsizeTextField.text
-                        }
-                    }
-
-                    SwitchDelegate {
-                        id: m3iBikeKcalDelegate
-                        text: qsTr("Use KCal from the Bike")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.m3i_bike_kcal
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.m3i_bike_kcal = checked
-                    }
-                }
-            }
             AccordionElement {
                 id: advancedSettingsAccordion
                 title: qsTr("Advanced Settings")

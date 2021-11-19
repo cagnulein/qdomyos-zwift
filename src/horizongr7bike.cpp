@@ -1,5 +1,5 @@
-#include "ftmsbike.h"
 #include "horizongr7bike.h"
+#include "ftmsbike.h"
 #include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -18,7 +18,7 @@
 using namespace std::chrono_literals;
 
 horizongr7bike::horizongr7bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                   double bikeResistanceGain) {
+                               double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -32,7 +32,7 @@ horizongr7bike::horizongr7bike(bool noWriteResistance, bool noHeartService, uint
 }
 
 void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                   bool wait_for_response) {
+                                         bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -193,8 +193,9 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
             // this bike sent a cadence 1/10 of the real one
             Cadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                (uint16_t)((uint8_t)newValue.at(index)))) /
-                      2.0) * 10.0;
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       2.0) *
+                      settings.value(QStringLiteral("horizon_gr7_cadence_multiplier"), 1.0).toDouble();
         }
         index += 2;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -204,7 +205,8 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         double avgCadence;
         avgCadence =
             (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-            2.0) * 10.0;
+             2.0) *
+            settings.value(QStringLiteral("horizon_gr7_cadence_multiplier"), 1.0).toDouble();
         index += 2;
         emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
     }
@@ -444,14 +446,16 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&horizongr7bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &horizongr7bike::inclinationChanged);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &horizongr7bike::ftmsCharacteristicChanged);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
+                    &horizongr7bike::ftmsCharacteristicChanged);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
 }
 
-void horizongr7bike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void horizongr7bike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                               const QByteArray &newValue) {
     QByteArray b = newValue;
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
