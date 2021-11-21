@@ -902,7 +902,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(eslinkerTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) &&
-                         flywheel_life_fitness_ic8 == true)) &&
+                         flywheel_life_fitness_ic8 == true) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MCF-"))) &&
                        !flywheelBike && filter) {
 
                 discoveryAgent->stop();
