@@ -29,6 +29,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
     if (settings.value("dircon_yes", false).toBool())
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
+    if (!settings.value("virtual_device_bluetooth", true).toBool())
+        return;
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2A63 = new CharacteristicNotifier2A63(Bike, this);
     notif2A37 = new CharacteristicNotifier2A37(Bike, this);
@@ -429,9 +431,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bikeTimer.start(1s);
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
-    QObject::connect(leController, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                                       &QLowEnergyController::error),
-                     this, &virtualbike::error);
+    QObject::connect(
+        leController,
+        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+        &virtualbike::error);
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
