@@ -1905,7 +1905,23 @@ void homeform::update() {
                 }
             }
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+            if (bluetoothManager->device()->currentSpeed().value()) {
+                pace = 10000 / (((rower *)bluetoothManager->device())->currentPace().second() +
+                                (((rower *)bluetoothManager->device())->currentPace().minute() * 60));
+                if (pace < 0) {
+                    pace = 0;
+                }
+            } else {
 
+                pace = 0;
+            }
+            this->pace->setValue(
+                ((rower *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+            this->pace->setSecondLine(
+                QStringLiteral("AVG: ") +
+                ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
+                QStringLiteral(" MAX: ") +
+                ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(
                 QString::number(bluetoothManager->device()->odometer() * 1000.0 * unit_conversion, 'f', 0));
             cadence = ((rower *)bluetoothManager->device())->currentCadence().value();

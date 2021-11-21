@@ -113,11 +113,12 @@ void rower::setLap() {
 // min/500m
 QTime rower::currentPace() {
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
-    double unit_conversion = 1.0;
-    if (miles) {
+    //bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    const double unit_conversion = 1.0;
+    // rowers are alwasy in meters!
+    /*if (miles) {
         unit_conversion = 0.621371;
-    }
+    }*/
     if (Speed.value() == 0) {
         return QTime(0, 0, 0, 0);
     } else {
