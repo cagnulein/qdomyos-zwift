@@ -27,8 +27,13 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
     bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
 
-    if (settings.value("dircon_yes", false).toBool())
+    if (settings.value("dircon_yes", false).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
+        connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
+                SIGNAL(changeInclination(double, double)));
+        connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+                SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+    }
     if (!settings.value("virtual_device_bluetooth", true).toBool())
         return;
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
