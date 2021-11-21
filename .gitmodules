@@ -4,6 +4,3 @@
 [submodule "src/smtpclient"]
 	path = src/smtpclient
 	url = https://github.com/bluetiger9/SmtpClient-for-Qt.git
-[submodule "QtZeroConf"]
-	path = QtZeroConf
-	url = https://github.com/jbagg/QtZeroConf.git
