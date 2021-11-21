@@ -38,6 +38,25 @@ void DirconProcessor::initAdvertising() {
             connect(zeroConf, SIGNAL(servicePublished()), this, SLOT(advOK()));
             connect(zeroConf, SIGNAL(error(QZeroConf::error_t)), this, SLOT(advError(QZeroConf::error_t)));
         }*/
+    if (!mdnsServer) {
+        qDebug() << "Dircon Adv init for" << service->uuid;
+        mdnsServer = new QMdnsEngine::Server(this);
+        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, this);
+        mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
+        QMdnsEngine::Service mdnsService;
+        mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
+        mdnsService.setName(service->serverName.toUtf8());
+        mdnsService.addAttribute(QByteArrayLiteral("mac-address"), mac.toUtf8());
+        mdnsService.addAttribute(QByteArrayLiteral("serial-number"), service->serialN.toUtf8());
+        mdnsService.addAttribute(
+            QByteArrayLiteral("ble-service-uuids"),
+            QString(QStringLiteral(DP_BASE_UUID))
+                .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0')))
+                .toUtf8());
+        mdnsService.setPort(service->serverPort);
+        mdnsProvider->update(mdnsService);
+        qDebug() << "Dircon Adv init for" << service->uuid << " end";
+    }
 }
 
 void DirconProcessor::advOK() {
@@ -126,9 +145,8 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
             if (cfound) {
                 if (cc->type & DPKT_CHAR_PROP_FLAG_WRITE) {
                     int res;
-                    if (cc->writeP &&
-                        (res = cc->writeP->writeProcess(cc->uuid, pkt.additional_data, out.additional_data)) !=
-                            CP_INVALID) {
+                    if (cc->writeP && (res = cc->writeP->writeProcess(cc->uuid, pkt.additional_data,
+                                                                      out.additional_data)) != CP_INVALID) {
                         out.uuid = pkt.uuid;
                         out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
                     } else
@@ -186,13 +204,15 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
 void DirconProcessor::tcpDataAvailable() {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
     DirconProcessorClient *client = clientsMap.value(socket);
+    QByteArray data = socket->readAll();
+    qDebug() << "Data available for uuid " << service->uuid << ":" << data.toHex();
     if (client) {
-        QByteArray data = socket->readAll();
         int buflimit, rembuf;
         client->buffer.append(data);
         while (1) {
             DirconPacket pkt;
             buflimit = pkt.parse(client->buffer, client->seq);
+            qDebug() << "Pkt for uuid" << service->uuid << "parsed rv=" << buflimit << " ->" << pkt.toString();
             if (buflimit > 0) {
                 rembuf = buflimit;
                 if (pkt.isRequest)
@@ -208,6 +228,7 @@ void DirconProcessor::tcpDataAvailable() {
                 client->buffer = client->buffer.mid(rembuf);
             if (buflimit > 0) {
                 DirconPacket resp = processPacket(client, pkt);
+                qDebug() << "Sending resp for uuid" << service->uuid << ":" << resp.toString();
                 if (resp.Identifier != DPKT_MSGID_ERROR) {
                     QByteArray byteout = resp.encode(pkt.SequenceNumber);
                     if (byteout.size())

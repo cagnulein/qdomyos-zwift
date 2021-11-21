@@ -7,6 +7,10 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include "qmdnsengine/server.h"
+#include "qmdnsengine/provider.h"
+#include "qmdnsengine/hostname.h"
+#include "qmdnsengine/service.h"
 
 class DirconProcessorCharacteristic : public QObject {
   public:
@@ -59,6 +63,9 @@ class DirconProcessor : public QObject {
     DirconProcessorService *service;
     QTcpServer *server = 0;
     QString mac;
+    QMdnsEngine::Server *mdnsServer = 0;
+    QMdnsEngine::Provider *mdnsProvider = 0;
+    QMdnsEngine::Hostname *mdnsHostname = 0;
     QHash<QTcpSocket *, DirconProcessorClient *> clientsMap;
     bool initServer();
     void initAdvertising();

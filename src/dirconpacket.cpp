@@ -2,6 +2,18 @@
 
 DirconPacket::DirconPacket() {}
 
+QString DirconPacket::toString() const {
+    return QString(QStringLiteral("vers=%1 Id=%2 sn=%3 resp=%4 len=%5 req?=%8 uuid=%6 dat=%7"))
+        .arg(MessageVersion)
+        .arg(Identifier)
+        .arg(SequenceNumber)
+        .arg(ResponseCode)
+        .arg(Length)
+        .arg(uuid)
+        .arg(additional_data.toHex().constData())
+        .arg(isRequest);
+}
+
 int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
     if (buf.size() >= DPKT_MESSAGE_HEADER_LENGTH) {
         this->MessageVersion = ((quint8)buf.at(0));
