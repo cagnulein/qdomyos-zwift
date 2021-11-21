@@ -29,7 +29,7 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
 macx: CONFIG += static
-INCLUDEPATH += qmdnsengine
+INCLUDEPATH += qmdnsengine/src/include
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -47,21 +47,21 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
-    qmdnsengine/abstractserver.cpp \
-    qmdnsengine/bitmap.cpp \
-    qmdnsengine/browser.cpp \
-    qmdnsengine/cache.cpp \
-    qmdnsengine/dns.cpp \
-    qmdnsengine/hostname.cpp \
-    qmdnsengine/mdns.cpp \
-    qmdnsengine/message.cpp \
-    qmdnsengine/prober.cpp \
-    qmdnsengine/provider.cpp \
-    qmdnsengine/query.cpp \
-    qmdnsengine/record.cpp \
-    qmdnsengine/resolver.cpp \
-    qmdnsengine/server.cpp \
-    qmdnsengine/service.cpp \
+    qmdnsengine/src/src/abstractserver.cpp \
+    qmdnsengine/src/src/bitmap.cpp \
+    qmdnsengine/src/src/browser.cpp \
+    qmdnsengine/src/src/cache.cpp \
+    qmdnsengine/src/src/dns.cpp \
+    qmdnsengine/src/src/hostname.cpp \
+    qmdnsengine/src/src/mdns.cpp \
+    qmdnsengine/src/src/message.cpp \
+    qmdnsengine/src/src/prober.cpp \
+    qmdnsengine/src/src/provider.cpp \
+    qmdnsengine/src/src/query.cpp \
+    qmdnsengine/src/src/record.cpp \
+    qmdnsengine/src/src/resolver.cpp \
+    qmdnsengine/src/src/server.cpp \
+    qmdnsengine/src/src/service.cpp \
     activiotreadmill.cpp \
    bike.cpp \
 	     bluetooth.cpp \
@@ -189,34 +189,34 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
-    qmdnsengine/qmdnsengine/abstractserver.h \
-    qmdnsengine/qmdnsengine/bitmap.h \
-    qmdnsengine/qmdnsengine/browser.h \
-    qmdnsengine/qmdnsengine/cache.h \
-    qmdnsengine/qmdnsengine/dns.h \
-    qmdnsengine/qmdnsengine/hostname.h \
-    qmdnsengine/qmdnsengine/mdns.h \
-    qmdnsengine/qmdnsengine/message.h \
-    qmdnsengine/qmdnsengine/prober.h \
-    qmdnsengine/qmdnsengine/provider.h \
-    qmdnsengine/qmdnsengine/query.h \
-    qmdnsengine/qmdnsengine/record.h \
-    qmdnsengine/qmdnsengine/resolver.h \
-    qmdnsengine/qmdnsengine/server.h \
-    qmdnsengine/qmdnsengine/service.h \
-    qmdnsengine/bitmap_p.h \
-    qmdnsengine/browser_p.h \
-    qmdnsengine/cache_p.h \
-    qmdnsengine/hostname_p.h \
-    qmdnsengine/message_p.h \
-    qmdnsengine/prober_p.h \
-    qmdnsengine/provider_p.h \
-    qmdnsengine/qmdnsengine_export.h \
-    qmdnsengine/query_p.h \
-    qmdnsengine/record_p.h \
-    qmdnsengine/resolver_p.h \
-    qmdnsengine/server_p.h \
-    qmdnsengine/service_p.h \
+    qmdnsengine/src/include/qmdnsengine/abstractserver.h \
+    qmdnsengine/src/include/qmdnsengine/bitmap.h \
+    qmdnsengine/src/include/qmdnsengine/browser.h \
+    qmdnsengine/src/include/qmdnsengine/cache.h \
+    qmdnsengine/src/include/qmdnsengine/dns.h \
+    qmdnsengine/src/include/qmdnsengine/hostname.h \
+    qmdnsengine/src/include/qmdnsengine/mdns.h \
+    qmdnsengine/src/include/qmdnsengine/message.h \
+    qmdnsengine/src/include/qmdnsengine/prober.h \
+    qmdnsengine/src/include/qmdnsengine/provider.h \
+    qmdnsengine/src/include/qmdnsengine/query.h \
+    qmdnsengine/src/include/qmdnsengine/record.h \
+    qmdnsengine/src/include/qmdnsengine/resolver.h \
+    qmdnsengine/src/include/qmdnsengine/server.h \
+    qmdnsengine/src/include/qmdnsengine/service.h \
+    qmdnsengine/src/src/bitmap_p.h \
+    qmdnsengine/src/src/browser_p.h \
+    qmdnsengine/src/src/cache_p.h \
+    qmdnsengine/src/src/hostname_p.h \
+    qmdnsengine/src/src/message_p.h \
+    qmdnsengine/src/src/prober_p.h \
+    qmdnsengine/src/src/provider_p.h \
+    qmdnsengine/src/src/qmdnsengine_export.h \
+    qmdnsengine/src/src/query_p.h \
+    qmdnsengine/src/src/record_p.h \
+    qmdnsengine/src/src/resolver_p.h \
+    qmdnsengine/src/src/server_p.h \
+    qmdnsengine/src/src/service_p.h \
     activiotreadmill.h \
    bike.h \
 	bluetooth.h \
@@ -487,6 +487,7 @@ HEADERS += \
 	proformtreadmill.h \
     qdebugfixup.h \
 	qfit.h \
+    qmdnsengine_export.h \
    renphobike.h \
    rower.h \
 	schwinnic4bike.h \
