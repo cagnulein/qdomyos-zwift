@@ -35,7 +35,7 @@ INCLUDEPATH += qmdnsengine
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD QZEROCONF_STATIC
+DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 
 
 # You can also make your code fail to compile if it uses deprecated APIs.
