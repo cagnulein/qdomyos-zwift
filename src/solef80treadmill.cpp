@@ -327,8 +327,16 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
 
-    if (characteristic.uuid() == _gattNotifyCharId)
+    if (characteristic.uuid() == _gattNotifyCharId) {
         emit packetReceived();
+        // when treadmill is in the inclination mode and it's in pause it doesn't send at all frames
+        // so when you resume it, there is a huge time difference and a weird odometer will result
+        if(paused) {
+            qDebug() << "solef80treadmill inclination mode paused on, resetting timer...";
+            Speed = 0;
+            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();;
+        }
+    }
 
     if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 18) {
 
@@ -339,27 +347,22 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         QDateTime now = QDateTime::currentDateTime();
 
-        // this treadmill in this mode, send speed and inclination with values even if's paused/stopped
-        if (!paused) {
-            Speed = ((double)((uint8_t)newValue.at(10)) / 10.0) * miles;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        Speed = ((double)((uint8_t)newValue.at(10)) / 10.0) * miles;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
-            Inclination = (double)((uint8_t)newValue.at(11));
-            emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+        Inclination = (double)((uint8_t)newValue.at(11));
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-            Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
+        Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 
-            if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
-                KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                           settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                          200.0) /
-                         (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                        now)))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                 // kg * 3.5) / 200 ) / 60
-            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-        } else {
-            Speed = 0;
-        }
+        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+            KCal += ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                       settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                    now)))); //(( (0.048* Output in watts +1.19) * body weight in
+                                             // kg * 3.5) / 200 ) / 60
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         lastRefreshCharacteristicChanged = now;
 
