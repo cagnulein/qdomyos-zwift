@@ -59,11 +59,10 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                              ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0));
                 if (this->Length == 16)
                     this->isRequest = this->checkIsRequest(last_seq_number);
-                else {
+                else
                     this->additional_data =
                         buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, rembuf - (DPKT_MESSAGE_HEADER_LENGTH + 16));
-                    return rembuf;
-                }
+                return rembuf;
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_WRITE_CHARACTERISTIC) {
@@ -83,8 +82,8 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 if (this->Length == 17) {
                     this->isRequest = true;
                     this->additional_data = buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, 1);
-                    return rembuf;
                 }
+                return rembuf;
             } else
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION) {
@@ -119,6 +118,7 @@ DirconPacket &DirconPacket::operator=(const DirconPacket &cp) {
     uuids = QList<quint16>(cp.uuids);
     additional_data = cp.additional_data;
     isRequest = cp.isRequest;
+    return *this;
 }
 
 QByteArray DirconPacket::encode(int last_seq_number) {

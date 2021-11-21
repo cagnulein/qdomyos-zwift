@@ -19,6 +19,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     DirconProcessor *processor;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services;
+    qDebug() << "Building Dircom Manager";
     QString server_base_name =
         settings.value(QStringLiteral("dircon_server_base_name"), QStringLiteral("DIRCON")).toString();
     QString server_base_sn =
@@ -35,6 +36,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     QObject::connect(&bikeTimer, &QTimer::timeout, this, &DirconManager::bikeProvider);
     QString mac = getMacAddress();
     foreach (service, services) {
+        qDebug() << "Initializing dircon for" << service->uuid;
         processors.append(processor = new DirconProcessor(service, mac, this));
         if (!processor->init()) {
             qDebug() << "Error initializing" << service->name;

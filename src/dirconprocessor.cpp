@@ -3,33 +3,41 @@
 
 DirconProcessor::DirconProcessor(DirconProcessorService *my_service, const QString &my_mac, QObject *parent)
     : QObject(parent), service(my_service), mac(my_mac) {
+    qDebug() << "In the constructor of dircon processor for" << my_service->uuid;
     my_service->setParent(this);
 }
 
 DirconProcessor::~DirconProcessor() {}
 
 bool DirconProcessor::initServer() {
+    qDebug() << "Initializing dircon tcp server for" << service->uuid;
     if (!server) {
         server = new QTcpServer(this);
         connect(server, SIGNAL(newConnection()), this, SLOT(tcpNewConnection()));
+        qDebug() << "Dircon TCP Server built" << service->uuid;
     }
     if (!server->isListening()) {
+        qDebug() << "Dircon TCP Server trying to listen" << service->serverPort;
         return server->listen(QHostAddress::Any, service->serverPort);
     } else
         return true;
 }
 
 void DirconProcessor::initAdvertising() {
-    zeroConf.addServiceTxtRecord(
-        "ble-service-uuids",
-        QString(QStringLiteral(DP_BASE_UUID))
-            .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))));
-    zeroConf.addServiceTxtRecord("mac-address", mac);
-    zeroConf.addServiceTxtRecord("serial-number", service->serialN);
-    zeroConf.startServicePublish(service->serverName.toUtf8().constData(), "_wahoo-fitness-tnp._tcp", "local",
-                                 service->serverPort);
-    connect(&zeroConf, SIGNAL(servicePublished()), this, SLOT(advOK()));
-    connect(&zeroConf, SIGNAL(error(QZeroConf::error_t)), this, SLOT(advError(QZeroConf::error_t)));
+    /*    if (!zeroConf) {
+            qDebug() << "Dircon Adv init for" << service->uuid;
+            zeroConf = new QZeroConf(this);
+            zeroConf->addServiceTxtRecord(
+                "ble-service-uuids",
+                QString(QStringLiteral(DP_BASE_UUID))
+                    .replace("u", QString(QStringLiteral("%1")).arg(service->uuid, 4, 16, QLatin1Char('0'))));
+            zeroConf->addServiceTxtRecord("mac-address", mac);
+            zeroConf->addServiceTxtRecord("serial-number", service->serialN);
+            zeroConf->startServicePublish(service->serverName.toUtf8().constData(), "_wahoo-fitness-tnp._tcp", "local",
+                                          service->serverPort);
+            connect(zeroConf, SIGNAL(servicePublished()), this, SLOT(advOK()));
+            connect(zeroConf, SIGNAL(error(QZeroConf::error_t)), this, SLOT(advError(QZeroConf::error_t)));
+        }*/
 }
 
 void DirconProcessor::advOK() {
@@ -37,13 +45,15 @@ void DirconProcessor::advOK() {
              << " sn=" << service->serialN;
 }
 
-void DirconProcessor::advError(QZeroConf::error_t err) {
+/*void DirconProcessor::advError(QZeroConf::error_t err) {
     qDebug() << "Service Published ERROR (" << err << ") uuid=" << service->uuid << " name=" << service->serverName
              << " sn=" << service->serialN;
-}
+}*/
 
 bool DirconProcessor::init() {
+    qDebug() << "Dircon Processor init for" << service->uuid;
     bool rv = initServer();
+    qDebug() << "Dircon TCP Server RV" << rv;
     if (rv)
         initAdvertising();
     else
@@ -53,6 +63,8 @@ bool DirconProcessor::init() {
 
 void DirconProcessor::tcpNewConnection() {
     QTcpSocket *socket = server->nextPendingConnection();
+    qDebug() << "New connection from" << socket->peerAddress().toString() << ":" << socket->peerPort()
+             << " uuid = " << service->uuid;
     connect(socket, SIGNAL(disconnected()), this, SLOT(tcpDisconnected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(tcpDataAvailable()));
     DirconProcessorClient *client = new DirconProcessorClient(socket);
@@ -61,6 +73,8 @@ void DirconProcessor::tcpNewConnection() {
 
 void DirconProcessor::tcpDisconnected() {
     QTcpSocket *socket = qobject_cast<QTcpSocket *>(sender());
+    qDebug() << "Disconnection from" << socket->peerAddress().toString() << ":" << socket->peerPort()
+             << " uuid = " << service->uuid;
     clientsMap.remove(socket);
     socket->deleteLater();
 }
@@ -69,7 +83,7 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
     DirconPacket out;
     if (pkt.isRequest) {
         bool cfound = false;
-        DirconProcessorCharacteristic cc;
+        DirconProcessorCharacteristic *cc;
         out.isRequest = false;
         out.Identifier = pkt.Identifier;
         if (pkt.Identifier == DPKT_MSGID_DISCOVER_SERVICES) {
@@ -79,60 +93,60 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
             if (pkt.uuid == service->uuid) {
                 out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
                 out.uuid = pkt.uuid;
-                foreach (const DirconProcessorCharacteristic &cc, service->chars) {
-                    out.uuids.append(cc.uuid);
-                    out.additional_data.append(cc.type);
+                foreach (cc, service->chars) {
+                    out.uuids.append(cc->uuid);
+                    out.additional_data.append(cc->type);
                 }
             } else
                 out.ResponseCode = DPKT_RESPCODE_SERVICE_NOT_FOUND;
         } else if (pkt.Identifier == DPKT_MSGID_READ_CHARACTERISTIC) {
             foreach (cc, service->chars) {
-                if (cc.uuid == pkt.uuid) {
+                if (cc->uuid == pkt.uuid) {
                     cfound = true;
                     break;
                 }
             }
             if (cfound) {
-                if (cc.type & DPKT_CHAR_PROP_FLAG_READ) {
+                if (cc->type & DPKT_CHAR_PROP_FLAG_READ) {
                     out.uuid = pkt.uuid;
                     out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
-                    out.additional_data.append(cc.read_values);
-                    emit onCharacteristicRead(cc.uuid);
+                    out.additional_data.append(cc->read_values);
+                    emit onCharacteristicRead(cc->uuid);
                 } else
                     out.ResponseCode = DPKT_RESPCODE_CHARACTERISTIC_OPERATION_NOT_SUPPORTED;
             } else
                 out.ResponseCode = DPKT_RESPCODE_CHARACTERISTIC_NOT_FOUND;
         } else if (pkt.Identifier == DPKT_MSGID_WRITE_CHARACTERISTIC) {
             foreach (cc, service->chars) {
-                if (cc.uuid == pkt.uuid) {
+                if (cc->uuid == pkt.uuid) {
                     cfound = true;
                     break;
                 }
             }
             if (cfound) {
-                if (cc.type & DPKT_CHAR_PROP_FLAG_WRITE) {
+                if (cc->type & DPKT_CHAR_PROP_FLAG_WRITE) {
                     int res;
-                    if (cc.writeP &&
-                        (res = cc.writeP->writeProcess(cc.uuid, pkt.additional_data, out.additional_data)) !=
+                    if (cc->writeP &&
+                        (res = cc->writeP->writeProcess(cc->uuid, pkt.additional_data, out.additional_data)) !=
                             CP_INVALID) {
                         out.uuid = pkt.uuid;
                         out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
                     } else
                         out.Identifier = DPKT_MSGID_ERROR;
-                    emit onCharacteristicWrite(cc.uuid, pkt.additional_data);
+                    emit onCharacteristicWrite(cc->uuid, pkt.additional_data);
                 } else
                     out.ResponseCode = DPKT_RESPCODE_CHARACTERISTIC_OPERATION_NOT_SUPPORTED;
             } else
                 out.ResponseCode = DPKT_RESPCODE_CHARACTERISTIC_NOT_FOUND;
         } else if (pkt.Identifier == DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS) {
             foreach (cc, service->chars) {
-                if (cc.uuid == pkt.uuid) {
+                if (cc->uuid == pkt.uuid) {
                     cfound = true;
                     break;
                 }
             }
             if (cfound) {
-                if (cc.type & DPKT_CHAR_PROP_FLAG_NOTIFY) {
+                if (cc->type & DPKT_CHAR_PROP_FLAG_NOTIFY) {
                     int idx;
                     char notif = pkt.additional_data.at(0);
                     out.uuid = pkt.uuid;
@@ -142,7 +156,7 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
                     else if (idx < 0 && notif)
                         client->char_notify.append(pkt.uuid);
                     out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
-                    emit onCharacteristicNotificationSwitch(cc.uuid, notif);
+                    emit onCharacteristicNotificationSwitch(cc->uuid, notif);
                 } else
                     out.ResponseCode = DPKT_RESPCODE_CHARACTERISTIC_OPERATION_NOT_SUPPORTED;
             } else

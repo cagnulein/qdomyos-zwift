@@ -29,6 +29,7 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
 macx: CONFIG += static
+INCLUDEPATH += qmdnsengine
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -43,9 +44,24 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD QZEROCONF_STATIC
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 android: include(../android_openssl/openssl.pri)
-include(../qtzeroconf/qtzeroconf.pri)
+# include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    qmdnsengine/abstractserver.cpp \
+    qmdnsengine/bitmap.cpp \
+    qmdnsengine/browser.cpp \
+    qmdnsengine/cache.cpp \
+    qmdnsengine/dns.cpp \
+    qmdnsengine/hostname.cpp \
+    qmdnsengine/mdns.cpp \
+    qmdnsengine/message.cpp \
+    qmdnsengine/prober.cpp \
+    qmdnsengine/provider.cpp \
+    qmdnsengine/query.cpp \
+    qmdnsengine/record.cpp \
+    qmdnsengine/resolver.cpp \
+    qmdnsengine/server.cpp \
+    qmdnsengine/service.cpp \
     activiotreadmill.cpp \
    bike.cpp \
 	     bluetooth.cpp \
@@ -173,6 +189,34 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    qmdnsengine/qmdnsengine/abstractserver.h \
+    qmdnsengine/qmdnsengine/bitmap.h \
+    qmdnsengine/qmdnsengine/browser.h \
+    qmdnsengine/qmdnsengine/cache.h \
+    qmdnsengine/qmdnsengine/dns.h \
+    qmdnsengine/qmdnsengine/hostname.h \
+    qmdnsengine/qmdnsengine/mdns.h \
+    qmdnsengine/qmdnsengine/message.h \
+    qmdnsengine/qmdnsengine/prober.h \
+    qmdnsengine/qmdnsengine/provider.h \
+    qmdnsengine/qmdnsengine/query.h \
+    qmdnsengine/qmdnsengine/record.h \
+    qmdnsengine/qmdnsengine/resolver.h \
+    qmdnsengine/qmdnsengine/server.h \
+    qmdnsengine/qmdnsengine/service.h \
+    qmdnsengine/bitmap_p.h \
+    qmdnsengine/browser_p.h \
+    qmdnsengine/cache_p.h \
+    qmdnsengine/hostname_p.h \
+    qmdnsengine/message_p.h \
+    qmdnsengine/prober_p.h \
+    qmdnsengine/provider_p.h \
+    qmdnsengine/qmdnsengine_export.h \
+    qmdnsengine/query_p.h \
+    qmdnsengine/record_p.h \
+    qmdnsengine/resolver_p.h \
+    qmdnsengine/server_p.h \
+    qmdnsengine/service_p.h \
     activiotreadmill.h \
    bike.h \
 	bluetooth.h \

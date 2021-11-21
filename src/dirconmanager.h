@@ -41,14 +41,16 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
 
 #define DM_CHAR_INIT_OP(SDESC, UUID, TYPE, READV, WRITEP, P1, P2, P3)                                                  \
     if (P1.size() <= DM_SERV_I_##SDESC) {                                                                              \
-        P2 =                                                                                                           \
-            new DirconProcessorService(QStringLiteral(#SDESC), server_base_name + QString().number(DM_SERV_I_##SDESC), \
-                                       server_base_port + DM_SERV_I_##SDESC,                                           \
-                                       server_base_sn + QString().number(DM_SERV_I_##SDESC), DM_SERV_U_##SDESC, this); \
+        P2 = new DirconProcessorService(                                                                               \
+            QStringLiteral(#SDESC),                                                                                    \
+            server_base_name + QString(QStringLiteral("%1")).arg(DM_SERV_U_##SDESC, 4, 16, QLatin1Char('0')),          \
+            server_base_port + DM_SERV_I_##SDESC,                                                                      \
+            server_base_sn + QString(QStringLiteral("%1")).arg(DM_SERV_U_##SDESC, 4, 16, QLatin1Char('0')),            \
+            DM_SERV_U_##SDESC, this);                                                                                  \
         P1.append(P2);                                                                                                 \
     } else                                                                                                             \
         P2 = P1.at(DM_SERV_I_##SDESC);                                                                                 \
-    P2->chars.append(DirconProcessorCharacteristic(UUID, TYPE, QByteArrayLiteral(READV), WRITEP()));
+    P2->chars.append(new DirconProcessorCharacteristic(UUID, TYPE, QByteArrayLiteral(READV), WRITEP(), P2));
 
 class DirconManager : public QObject {
     Q_OBJECT

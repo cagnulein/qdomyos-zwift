@@ -7,7 +7,6 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include <qzeroconf.h>
 
 class DirconProcessorCharacteristic : public QObject {
   public:
@@ -15,10 +14,8 @@ class DirconProcessorCharacteristic : public QObject {
     DirconProcessorCharacteristic(quint16 my_uuid, quint8 my_type, const QByteArray &data,
                                   CharacteristicWriteProcessor *w, QObject *parent = nullptr)
         : QObject(parent), read_values(data), uuid(my_uuid), type(my_type), writeP(w) {}
-    DirconProcessorCharacteristic(const DirconProcessorCharacteristic &cp, QObject *parent = nullptr)
-        : QObject(parent) {
-        this->operator=(cp);
-    }
+    DirconProcessorCharacteristic(const DirconProcessorCharacteristic &cp) { this->operator=(cp); }
+    ~DirconProcessorCharacteristic() {}
     DirconProcessorCharacteristic &operator=(const DirconProcessorCharacteristic &cp) {
         read_values = cp.read_values;
         uuid = cp.uuid;
@@ -42,7 +39,7 @@ class DirconProcessorService : public QObject {
     QString serverName;
     QString name;
     quint16 uuid;
-    QList<DirconProcessorCharacteristic> chars;
+    QList<DirconProcessorCharacteristic *> chars;
 };
 
 #define DP_BASE_UUID "0000u-0000-1000-8000-00805F9B34FB"
@@ -61,7 +58,6 @@ class DirconProcessor : public QObject {
     Q_OBJECT
     DirconProcessorService *service;
     QTcpServer *server = 0;
-    QZeroConf zeroConf;
     QString mac;
     QHash<QTcpSocket *, DirconProcessorClient *> clientsMap;
     bool initServer();
@@ -78,7 +74,7 @@ class DirconProcessor : public QObject {
     void tcpDisconnected();
     void tcpNewConnection();
     void advOK();
-    void advError(QZeroConf::error_t err);
+    // void advError(QZeroConf::error_t err);
   signals:
     void onCharacteristicRead(quint16 uuid);
     void onCharacteristicWrite(quint16 uuid, QByteArray data);
