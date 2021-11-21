@@ -1,5 +1,0 @@
-#ifndef QMDNSENGINE_EXPORT_H
-#define QMDNSENGINE_EXPORT_H
-#define QMDNSENGINE_EXPORT
-#include <QtGlobal>
-#endif // QMDNSENGINE_EXPORT_H
