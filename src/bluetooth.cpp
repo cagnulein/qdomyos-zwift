@@ -639,7 +639,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(horizonTreadmill);
                 innerTemplateManager->start(horizonTreadmill);
             } else if ((b.name().toUpper().startsWith("TACX NEO 2") ||
-                        (b.name().toUpper().startsWith("TACX SMART BIKE"))) && !tacxneo2Bike && filter) {
+                        (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
+                       !tacxneo2Bike && filter) {
                 discoveryAgent->stop();
                 tacxneo2Bike = new tacxneo2(noWriteResistance, noHeartService);
                 // stateFileRead();
@@ -887,7 +888,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (b.name().toUpper().startsWith(QStringLiteral("ESLINKER")) && !eslinkerTreadmill && filter) {
 
                 discoveryAgent->stop();
-                eslinkerTreadmill = new eslinkertreadmill(noWriteResistance, noHeartService);
+                eslinkerTreadmill = new eslinkertreadmill(this->pollDeviceTime, noConsole, noHeartService);
                 // stateFileRead();
                 emit deviceConnected(b);
                 connect(eslinkerTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
@@ -902,8 +903,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(eslinkerTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) &&
-                         flywheel_life_fitness_ic8 == true) ||
-                        b.name().toUpper().startsWith(QStringLiteral("MCF-"))) &&
+                         flywheel_life_fitness_ic8 == true)) &&
                        !flywheelBike && filter) {
 
                 discoveryAgent->stop();
@@ -920,6 +920,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 flywheelBike->deviceDiscovered(b);
                 userTemplateManager->start(flywheelBike);
                 innerTemplateManager->start(flywheelBike);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("MCF-"))) && !mcfBike && filter) {
+
+                discoveryAgent->stop();
+                mcfBike = new mcfbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(mcfBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(mcfBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(mcfBike, &mcfbike::debug, this, &bluetooth::debug);
+                // connect(mcfBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(mcfBike, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                mcfBike->deviceDiscovered(b);
+                userTemplateManager->start(mcfBike);
+                innerTemplateManager->start(mcfBike);
             } else if ((b.name().startsWith(QStringLiteral("TRX ROUTE KEY"))) && !toorx && filter) {
 
                 discoveryAgent->stop();
@@ -1539,6 +1554,11 @@ void bluetooth::restart() {
         delete flywheelBike;
         flywheelBike = nullptr;
     }
+    if (mcfBike) {
+
+        delete mcfBike;
+        mcfBike = nullptr;
+    }
     if (schwinnIC4Bike) {
 
         delete schwinnIC4Bike;
@@ -1701,6 +1721,8 @@ bluetoothdevice *bluetooth::device() {
         return eslinkerTreadmill;
     } else if (flywheelBike) {
         return flywheelBike;
+    } else if (mcfBike) {
+        return mcfBike;
     } else if (schwinnIC4Bike) {
         return schwinnIC4Bike;
     } else if (sportsTechBike) {

@@ -101,6 +101,7 @@ SOURCES += \
    kingsmithr1protreadmill.cpp \
    kingsmithr2treadmill.cpp \
 	     main.cpp \
+   mcfbike.cpp \
 		metric.cpp \
     npecablebike.cpp \
    pafersbike.cpp \
@@ -417,6 +418,7 @@ HEADERS += \
 	macos/lockscreen.h \
         ios/M3iIOS-Interface.h \
 	material.h \
+   mcfbike.h \
 	metric.h \
     npecablebike.h \
    pafersbike.h \

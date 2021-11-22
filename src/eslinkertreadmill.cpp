@@ -121,8 +121,6 @@ void eslinkertreadmill::update() {
         }
         // ********************************************************************************************************
 
-        emit debug(QStringLiteral("Domyos Treadmill RSSI ") + QString::number(bluetoothDevice.rssi()));
-
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
         // updating the treadmill console every second
