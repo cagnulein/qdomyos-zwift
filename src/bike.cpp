@@ -21,7 +21,7 @@ void bike::changeResistance(int8_t resistance) {
 void bike::changeInclination(double grade, double percentage) {
     qDebug() << QStringLiteral("bike::changeInclination") << autoResistanceEnable << grade << percentage;
     if (autoResistanceEnable) {
-        requestInclination = percentage;
+        requestInclination = grade;
     }
     emit inclinationChanged(grade, percentage);
 }
