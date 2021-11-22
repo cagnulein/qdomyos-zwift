@@ -66,14 +66,8 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
-    uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x00, 0x00, 0x00};
-
-    display[4] = (uint8_t)((Speed.value() * 10));
-
-    if (display[4] == 0x08)
-        display[6] = 0x00;
-    else
-        display[6] = display[4] + 0x08; // the last byte is a sort of a checksum
+    // trying to force a fixed value to keep the connection on
+    uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x23, 0x00, 0x2b};
 
     writeCharacteristic(display, sizeof(display), QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed),
                         false, false);
@@ -125,9 +119,9 @@ void eslinkertreadmill::update() {
 
         // updating the treadmill console every second
         // it seems that stops the communication
-        /*if (sec1Update++ >= (1000 / refresh->interval())) {
+        if (sec1Update++ >= (1000 / refresh->interval())) {
             updateDisplay(elapsed.value());
-        }*/
+        }
 
         // byte 3 - 4 = elapsed time
         // byte 17    = inclination
