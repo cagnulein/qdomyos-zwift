@@ -211,7 +211,6 @@ HEADERS += \
     qmdnsengine/src/src/message_p.h \
     qmdnsengine/src/src/prober_p.h \
     qmdnsengine/src/src/provider_p.h \
-    qmdnsengine/src/src/qmdnsengine_export.h \
     qmdnsengine/src/src/query_p.h \
     qmdnsengine/src/src/record_p.h \
     qmdnsengine/src/src/resolver_p.h \

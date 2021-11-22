@@ -41,7 +41,8 @@ void DirconProcessor::initAdvertising() {
     if (!mdnsServer) {
         qDebug() << "Dircon Adv init for" << service->uuid;
         mdnsServer = new QMdnsEngine::Server(this);
-        mdnsHostname = new QMdnsEngine::Hostname(mdnsServer, this);
+        mdnsHostname =
+            new QMdnsEngine::Hostname(mdnsServer, service->serverName.toUtf8() + QByteArrayLiteral("H"), this);
         mdnsProvider = new QMdnsEngine::Provider(mdnsServer, mdnsHostname, this);
         QMdnsEngine::Service mdnsService;
         mdnsService.setType("_wahoo-fitness-tnp._tcp.local.");
@@ -145,8 +146,9 @@ DirconPacket DirconProcessor::processPacket(DirconProcessorClient *client, const
             if (cfound) {
                 if (cc->type & DPKT_CHAR_PROP_FLAG_WRITE) {
                     int res;
-                    if (cc->writeP && (res = cc->writeP->writeProcess(cc->uuid, pkt.additional_data,
-                                                                      out.additional_data)) != CP_INVALID) {
+                    if (cc->writeP &&
+                        (res = cc->writeP->writeProcess(cc->uuid, pkt.additional_data, out.additional_data)) !=
+                            CP_INVALID) {
                         out.uuid = pkt.uuid;
                         out.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
                     } else
