@@ -204,6 +204,7 @@ import Qt.labs.settings 1.0
             property real watt_offset: 0
             property real watt_gain: 1
             property bool power_avg_5s: false
+            property bool instant_power_on_pause: false
 
             property real speed_offset: 0
             property real speed_gain: 1
@@ -3571,6 +3572,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.power_avg_5s = checked
+                    }
+
+                    SwitchDelegate {
+                        id: instantPowerOnPause
+                        text: qsTr("Instant Power on Pause")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.instant_power_on_pause
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.instant_power_on_pause = checked
                     }
                 }
             }

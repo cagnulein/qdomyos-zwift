@@ -145,6 +145,12 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             m_watt = 0;
             WattKg = 0;
         }
+    } else if (paused && settings.value(QStringLiteral("instant_power_on_pause"), false).toBool()) {
+        // useful for FTP test
+        if (watt_calc) {
+            m_watt = watts;
+            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+        }
     } else if (m_watt.value() > 0) {
 
         m_watt = 0;
