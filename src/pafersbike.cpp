@@ -203,7 +203,7 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(4));
+        Cadence = ((uint8_t)newValue.at(7));
     }
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = ((uint8_t)newValue.at(3));
