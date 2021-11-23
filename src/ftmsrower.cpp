@@ -177,8 +177,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 3;
 
         // eredited by echelon rower, probably we need to change this
-        Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        if (!Flags.instantPace) {
+            Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
     }
 
@@ -210,6 +212,10 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
+
+        Speed = instantPace /
+                30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
     if (Flags.avgPace) {

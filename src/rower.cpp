@@ -122,7 +122,7 @@ QTime rower::currentPace() {
     if (Speed.value() == 0) {
         return QTime(0, 0, 0, 0);
     } else {
-        double speed = Speed.value() * unit_conversion * 4.0; // *4.0 for the concept rower,
+        double speed = Speed.value() * unit_conversion * 2.0; //*2 in order to change from min/km to min/500m
         return QTime(0, (int)(1.0 / (speed / 60.0)),
                      (((double)(1.0 / (speed / 60.0)) - ((double)((int)(1.0 / (speed / 60.0))))) * 60.0), 0);
     }
