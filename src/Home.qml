@@ -89,7 +89,7 @@ HomeForm{
         anchors.topMargin: (!window.lockTiles ? rootItem.topBarHeight + 30 : 0)
         id: gridView
         objectName: "gridview"
-        onMovementEnded: { headerToolbar.visible = (contentY == 0); }
+        onMovementEnded: { headerToolbar.visible = (contentY == 0) || window.lockTiles; }
         Screen.orientationUpdateMask:  Qt.LandscapeOrientation | Qt.PortraitOrientation
         Screen.onPrimaryOrientationChanged:{
             if(OS_VERSION === "Android")

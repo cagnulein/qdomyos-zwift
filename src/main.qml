@@ -433,8 +433,12 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: qsTr("by Roberto Viola")
+                text: qsTr("Credits")
                 width: parent.width
+                onClicked: {
+                    stackView.push("Credits.qml")
+                    drawer.close()
+                }
             }
             ItemDelegate {
                 text: "version 2.8.119"
