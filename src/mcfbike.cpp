@@ -88,7 +88,7 @@ void mcfbike::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         // sending poll every 2 seconds
         if (sec1Update++ >= (2000 / refresh->interval())) {
@@ -189,9 +189,7 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     switch (newValue.at(1)) {
     case 0xe5:
-        break;
-    case 0xe6:
-        Resistance = newValue.at(8);
+        Resistance = newValue.at(13);
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
@@ -200,18 +198,20 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
-            Cadence = ((uint8_t)newValue.at(18));
+            Cadence = ((uint8_t)newValue.at(15));
         }
         qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
 
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-            Speed = 0.37497622 * ((double)Cadence.value());
+            Speed = (((uint16_t)newValue.at(11) << 8) | (uint16_t)((uint8_t)newValue.at(12)));
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value());
         }
 
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+        m_watt = (((uint16_t)newValue.at(9) << 8) | (uint16_t)((uint8_t)newValue.at(10)));
 
         if (watts())
             KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
@@ -229,7 +229,8 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
         qDebug() << QStringLiteral("Current Distance: ") + QString::number(Distance.value());
-
+        break;
+    case 0xe6:
         break;
     case 0xe7:
         break;
