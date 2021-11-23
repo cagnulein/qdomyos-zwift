@@ -710,12 +710,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         // f0 b0 01 01 a2
         else if (((uint8_t)newValue.at(1)) == 0xB0) {
 
-            // f0 d2 01 18 db
+            // f0 d0 01 01 c2
             reply.append(0xf0);
-            reply.append(0xd2);
+            reply.append(0xd0);
             reply.append(0x01);
-            reply.append(0x18);
-            reply.append(0xdb);
+            reply.append(0x01);
+            reply.append(0xc2);
             writeCharacteristic(service, characteristic2, reply);
         } else if (((uint8_t)newValue.at(1)) == 0xA0) {
 
