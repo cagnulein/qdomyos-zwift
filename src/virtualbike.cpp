@@ -712,7 +712,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
             // f0 d2 01 18 db
             reply.append(0xf0);
-            reply.append(0xd0);
+            reply.append(0xd2);
             reply.append(0x01);
             reply.append(0x18);
             reply.append(0xdb);
