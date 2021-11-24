@@ -66,6 +66,10 @@ DataObject::DataObject(const QString &name, const QString &icon, const QString &
     emit minusNameChanged(minusName()); // NOTE: clazy-incorrecrt-emit
 }
 
+void DataObject::setName(const QString &v) {
+    m_name = v;
+    emit nameChanged(m_name);
+}
 void DataObject::setValue(const QString &v) {
     m_value = v;
     emit valueChanged(m_value);
@@ -1016,6 +1020,7 @@ void homeform::sortTiles() {
             if (settings.value(QStringLiteral("tile_pace_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_pace_order"), 0).toInt() == i) {
                 pace->setGridId(i);
+                pace->setName("Pace (m/500m)");
                 dataList.append(pace);
             }
 
@@ -1915,8 +1920,7 @@ void homeform::update() {
 
                 pace = 0;
             }
-            this->pace->setValue(
-                ((rower *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
+            this->pace->setValue(((rower *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
             this->pace->setSecondLine(
                 QStringLiteral("AVG: ") +
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +

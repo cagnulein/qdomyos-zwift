@@ -21,7 +21,7 @@ class DataObject : public QObject {
 
     Q_OBJECT
 
-    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QString name READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString icon READ icon NOTIFY iconChanged)
     Q_PROPERTY(int gridId READ gridId NOTIFY gridIdChanged WRITE setGridId)
     Q_PROPERTY(QString value READ value WRITE setValue NOTIFY valueChanged)
@@ -38,6 +38,7 @@ class DataObject : public QObject {
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
                int valueFontSize, int labelFontSize, const QString &valueFontColor = QStringLiteral("white"),
                const QString &secondLine = QLatin1String(""), const int gridId = 0);
+    void setName(const QString &value);
     void setValue(const QString &value);
     void setSecondLine(const QString &value);
     void setValueFontSize(int value);

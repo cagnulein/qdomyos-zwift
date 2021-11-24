@@ -187,9 +187,9 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     if (newValue.length() != 20)
         return;
 
-    switch (newValue.at(1)) {
+    switch ((uint8_t)newValue.at(1)) {
     case 0xe5:
-        Resistance = newValue.at(13);
+        Resistance = (uint8_t)newValue.at(13);
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
