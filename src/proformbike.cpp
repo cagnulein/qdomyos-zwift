@@ -382,9 +382,12 @@ void proformbike::update() {
                 innerWriteResistance();
             }
             if (requestInclination != -1 && proform_studio) {
-                if (requestInclination != currentInclination().value()) {
-                    emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
-                    forceIncline(requestInclination);
+                // only 0.5 steps ara avaiable
+                double inc = qRound(requestInclination * 2.0) / 2.0;
+                if (inc != currentInclination().value()) {
+                    emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination) +
+                               " rounded " + QString::number(inc));
+                    forceIncline(inc);
                 }
                 requestInclination = -1;
             }
