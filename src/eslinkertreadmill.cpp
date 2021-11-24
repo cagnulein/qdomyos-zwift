@@ -42,21 +42,12 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    if (treadmill_type == CADENZA_FITNESS_T45)
-        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                             QByteArray((const char *)&data[1], data_len - 2),
-                                                             QLowEnergyService::WriteWithoutResponse);
-    else
-        gattCommunicationChannelService->writeCharacteristic(
-            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+    gattCommunicationChannelService->writeCharacteristic(
+        gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
 
     if (!disable_log) {
-        if (treadmill_type == CADENZA_FITNESS_T45)
-            emit debug(QStringLiteral(" >> ") + QByteArray((const char *)&data[1], data_len - 2).toHex(' ') +
-                       QStringLiteral(" // ") + info);
-        else
-            emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
-                       QStringLiteral(" // ") + info);
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
     }
 
     loop.exec();
@@ -66,11 +57,19 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
 }
 
 void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
-    // trying to force a fixed value to keep the connection on
-    uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x23, 0x00, 0x2b};
+    if (treadmill_type == RHYTHM_FUN) {
+        // trying to force a fixed value to keep the connection on
+        uint8_t display[] = {0xa9, 0xa0, 0x03, 0x02, 0x23, 0x00, 0x2b};
 
-    writeCharacteristic(display, sizeof(display), QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed),
-                        false, false);
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
+    } else {
+        uint8_t display[] = {0x01, 0x01, 0x00};
+        display[2] = currentSpeed().value();
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
+    }
 }
 
 /*
@@ -291,22 +290,30 @@ void eslinkertreadmill::btinit(bool startTape) {
     uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
     uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
+    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
+    uint8_t initData3_CADENZA[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
+
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+    if (treadmill_type == RHYTHM_FUN) {
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
+    } else {
+        writeCharacteristic(initData2_CADENZA, sizeof(initData2_CADENZA), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3_CADENZA, sizeof(initData3_CADENZA), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
