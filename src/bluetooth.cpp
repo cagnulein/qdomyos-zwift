@@ -727,7 +727,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(smartrowRower, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(smartrowRower, SIGNAL(disconnected()), this, SLOT(restart()));
-                // connect(smartrowRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(smartrowRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 // connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 // connect(smartrowRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 smartrowRower->deviceDiscovered(b);
@@ -743,7 +743,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 emit deviceConnected(b);
                 connect(ftmsRower, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
                 // connect(ftmsRower, SIGNAL(disconnected()), this, SLOT(restart()));
-                // connect(ftmsRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                connect(ftmsRower, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 // connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 // connect(ftmsRower, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
                 ftmsRower->deviceDiscovered(b);
