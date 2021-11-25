@@ -60,6 +60,9 @@ class virtualbike : public QObject {
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
 
+    bool echelonInitDone = false;
+    void echelonWriteResistance();
+
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
 

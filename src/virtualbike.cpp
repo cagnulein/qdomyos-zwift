@@ -717,10 +717,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append(0xc2);
             writeCharacteristic(service, characteristic2, reply);
+            echelonWriteResistance();
         } else if (((uint8_t)newValue.at(1)) == 0xA0) {
 
             reply = newValue;
             writeCharacteristic(service, characteristic, reply);
+            echelonInitDone = true;
         }
     }
 }
@@ -961,63 +963,47 @@ void virtualbike::bikeProvider() {
 
     } else {
 
-        // TODO: set it do dynamic
-        // f0 d1 09 00 00 00 00 00 01 00 5f 00 2a
-        value.append(0xf0);
-        value.append(0xd1);
-        value.append(0x09);
-        value.append((char)0x00);                                            // elapsed
-        value.append((char)0x00);                                            // elapsed
-        value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 24)); // distance
-        value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 16)); // distance
-        value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 8));  // distance
-        value.append((uint8_t)(Bike->odometer() * 100));                     // distance
-        value.append((char)0x00);
-        value.append(Bike->currentCadence().value());
-        value.append((uint8_t)Bike->currentHeart().value());
+        if (echelonInitDone) {
+            // TODO: set it do dynamic
+            // f0 d1 09 00 00 00 00 00 01 00 5f 00 2a
+            value.append(0xf0);
+            value.append(0xd1);
+            value.append(0x09);
+            value.append((char)0x00);                                            // elapsed
+            value.append((char)0x00);                                            // elapsed
+            value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 24)); // distance
+            value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 16)); // distance
+            value.append((uint8_t)(((uint32_t)(Bike->odometer() * 100)) >> 8));  // distance
+            value.append((uint8_t)(Bike->odometer() * 100));                     // distance
+            value.append((char)0x00);
+            value.append(Bike->currentCadence().value());
+            value.append((uint8_t)Bike->currentHeart().value());
 
-        uint8_t sum = 0;
-        for (uint8_t i = 0; i < value.length(); i++) {
+            uint8_t sum = 0;
+            for (uint8_t i = 0; i < value.length(); i++) {
 
-            sum += value[i]; // the last byte is a sort of a checksum
+                sum += value[i]; // the last byte is a sort of a checksum
+            }
+            value.append(sum);
+
+            if (!service) {
+                qDebug() << QStringLiteral("service not available");
+
+                return;
+            }
+
+            QLowEnergyCharacteristic characteristic =
+                service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+            Q_ASSERT(characteristic.isValid());
+            if (leController->state() != QLowEnergyController::ConnectedState) {
+                qDebug() << QStringLiteral("virtual bike not connected");
+
+                return;
+            }
+            writeCharacteristic(service, characteristic, value);
+
+            echelonWriteResistance();
         }
-        value.append(sum);
-
-        if (!service) {
-            qDebug() << QStringLiteral("service not available");
-
-            return;
-        }
-
-        QLowEnergyCharacteristic characteristic =
-            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
-        Q_ASSERT(characteristic.isValid());
-        if (leController->state() != QLowEnergyController::ConnectedState) {
-            qDebug() << QStringLiteral("virtual bike not connected");
-
-            return;
-        }
-        writeCharacteristic(service, characteristic, value);
-
-        // resistance change notification
-        // f0 d2 01 0b ce
-        QByteArray resistance;
-        static uint8_t oldresistance = 255;
-        resistance.append(0xf0);
-        resistance.append(0xd2);
-        resistance.append(0x01);
-        resistance.append(Bike->currentResistance().value());
-
-        sum = 0;
-        for (uint8_t i = 0; i < resistance.length(); i++) {
-
-            sum += resistance[i]; // the last byte is a sort of a checksum
-        }
-        resistance.append(sum);
-        if (oldresistance != ((uint8_t)Bike->currentResistance().value())) {
-            writeCharacteristic(service, characteristic, resistance);
-        }
-        oldresistance = ((uint8_t)Bike->currentResistance().value());
     }
     // characteristic
     //        = service->characteristic((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
@@ -1064,6 +1050,38 @@ void virtualbike::bikeProvider() {
         }
         writeCharacteristic(serviceHR, characteristicHR, valueHR);
     }
+}
+
+void virtualbike::echelonWriteResistance() {
+
+    // resistance change notification
+    // f0 d2 01 0b ce
+    QByteArray resistance;
+    static uint8_t oldresistance = 255;
+    resistance.append(0xf0);
+    resistance.append(0xd2);
+    resistance.append(0x01);
+    resistance.append(Bike->currentResistance().value());
+
+    uint8_t sum = 0;
+    for (uint8_t i = 0; i < resistance.length(); i++) {
+
+        sum += resistance[i]; // the last byte is a sort of a checksum
+    }
+    resistance.append(sum);
+    if (oldresistance != ((uint8_t)Bike->currentResistance().value())) {
+        QLowEnergyCharacteristic characteristic =
+            service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
+        Q_ASSERT(characteristic.isValid());
+        if (leController->state() != QLowEnergyController::ConnectedState) {
+            qDebug() << QStringLiteral("virtual bike not connected");
+
+            return;
+        }
+
+        writeCharacteristic(service, characteristic, resistance);
+    }
+    oldresistance = ((uint8_t)Bike->currentResistance().value());
 }
 
 bool virtualbike::connected() {
