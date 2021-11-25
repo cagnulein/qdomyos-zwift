@@ -331,10 +331,11 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit packetReceived();
         // when treadmill is in the inclination mode and it's in pause it doesn't send at all frames
         // so when you resume it, there is a huge time difference and a weird odometer will result
-        if(paused) {
+        if (paused) {
             qDebug() << "solef80treadmill inclination mode paused on, resetting timer...";
             Speed = 0;
-            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();;
+            lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+            ;
         }
     }
 
@@ -699,6 +700,9 @@ void solef80treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if (device.name().toUpper().startsWith(QStringLiteral("F63")))
+            treadmill_type = F63;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &solef80treadmill::serviceDiscovered);

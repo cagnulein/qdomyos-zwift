@@ -76,13 +76,15 @@ class solef80treadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    enum _REQUEST_STATE {
-        IDLE = 0,
-        UP = 1,
-        DOWN = 2
-    };
+    enum _REQUEST_STATE { IDLE = 0, UP = 1, DOWN = 2 };
     _REQUEST_STATE requestSpeedState = IDLE;
     _REQUEST_STATE requestInclinationState = IDLE;
+
+    typedef enum TYPE {
+        F80 = 0,
+        F63 = 1,
+    } TYPE;
+    volatile TYPE treadmill_type = F80;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
