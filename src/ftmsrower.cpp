@@ -176,11 +176,13 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
         index += 3;
 
-        // eredited by echelon rower, probably we need to change this
+        /*
+         * the concept 2 sends the pace in 2 frames, so this condition will create a bugus speed
         if (!Flags.instantPace) {
+            // eredited by echelon rower, probably we need to change this
             Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        }
+        }*/
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
     }
 
@@ -213,7 +215,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         index += 2;
         emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
 
-        Speed = instantPace /
+        Speed = (60.0 / instantPace) *
                 30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
