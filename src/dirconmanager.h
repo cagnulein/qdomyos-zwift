@@ -44,8 +44,7 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
         P2 = new DirconProcessorService(                                                                               \
             QStringLiteral(#SDESC),                                                                                    \
             server_base_name + QString(QStringLiteral("%1")).arg(DM_SERV_U_##SDESC, 4, 16, QLatin1Char('0')),          \
-            server_base_port + DM_SERV_I_##SDESC,                                                                      \
-            server_base_sn + QString(QStringLiteral("%1")).arg(DM_SERV_U_##SDESC, 4, 16, QLatin1Char('0')),            \
+            server_base_port + DM_SERV_I_##SDESC, QString(QStringLiteral("%1")).arg(DM_SERV_U_##SDESC),                \
             DM_SERV_U_##SDESC, this);                                                                                  \
         P1.append(P2);                                                                                                 \
     } else                                                                                                             \

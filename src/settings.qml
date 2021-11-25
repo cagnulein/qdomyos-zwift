@@ -245,7 +245,6 @@ import Qt.labs.settings 1.0
             property bool dircon_yes: false
             property int dircon_server_base_port: 4810
             property string dircon_server_base_name: "DIRCON"
-            property string dircon_server_base_sn: "DIRCONSN"
         }
 
         ColumnLayout {
@@ -4126,30 +4125,6 @@ import Qt.labs.settings 1.0
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: settings.dircon_server_base_name = dirconServerNameTextField.text
-                                        }
-                                    }
-
-                                    RowLayout {
-                                        spacing: 10
-                                        Label {
-                                            id: labelDirconServerSN
-                                            text: qsTr("Server SN:")
-                                            Layout.fillWidth: true
-                                        }
-                                        TextField {
-                                            id: dirconServerSNTextField
-                                            text: settings.dircon_server_base_sn
-                                            horizontalAlignment: Text.AlignRight
-                                            Layout.fillHeight: false
-                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            inputMethodHints: Qt.ImhNoPredictiveText
-                                            onAccepted: settings.dircon_server_base_sn = text
-                                        }
-                                        Button {
-                                            id: okDirconServerSN
-                                            text: "OK"
-                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.dircon_server_base_sn = dirconServerSNTextField.text
                                         }
                                     }
                                 }
