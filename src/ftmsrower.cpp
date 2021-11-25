@@ -133,7 +133,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    qDebug() << QStringLiteral(" << ") << characteristic.uuid() << " " << newValue.toHex(' ');
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD1)) {
         return;
