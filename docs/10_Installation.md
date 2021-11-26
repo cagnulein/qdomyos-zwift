@@ -104,9 +104,10 @@ This operation takes a moment to complete.
 
 `git clone https://github.com/cagnulein/qdomyos-zwift.git`  
 `cd qdomyos-zwift`  
-`git submodule update --init src/smtpclient/`
-`cd src`  
-`qmake`  
+`git submodule update --init src/smtpclient/`  
+`git submodule update --init src/qmdnsengine/`  
+`cd src`    
+`qmake`    
 `make`  
 
 Please note :
