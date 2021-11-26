@@ -163,10 +163,8 @@ uint16_t mcfbike::wattsFromResistance(double resistance) {
     return ((10.39 + 1.45 * (resistance - 1.0)) * (exp(0.028 * (currentCadence().value()))));
 }
 
-// TO CHANGE
 double mcfbike::bikeResistanceToPeloton(double resistance) {
-    // 0,0097x3 - 0,4972x2 + 10,126x - 37,08
-    double p = ((pow(resistance, 3) * 0.0097) - (0.4972 * pow(resistance, 2)) + (10.126 * resistance) - 37.08);
+    double p = resistance * (100.0 / max_resistance);
     if (p < 0) {
         p = 0;
     }
