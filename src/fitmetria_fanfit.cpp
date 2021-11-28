@@ -43,6 +43,12 @@ void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     QEventLoop loop;
     QTimer timeout;
 
+    if(gattCommunicationChannelService == nullptr || gattWriteCharacteristic.isValid() == false) {
+        qDebug() << QStringLiteral("fitmetria_fanfit trying to change the fan speed before the connection is estabilished");
+        return;
+    }
+
+
     // if there are some crash here, maybe it's better to use 2 separate event for the characteristicChanged.
     // one for the resistance changed event (spontaneous), and one for the other ones.
     if (wait_for_response) {
