@@ -182,6 +182,8 @@
 		876ED21925C3E9000065F3DC /* moc_ftmsbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */; };
 		876ED21A25C3E9010065F3DC /* moc_material.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876ED21825C3E9000065F3DC /* moc_material.cpp */; };
 		876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 307B2F8E9A717B514EA118E0 /* qquicklayoutsplugin */; };
+		876F9B5F275385C9006AE6FA /* fitmetria_fanfit.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876F9B5D275385C8006AE6FA /* fitmetria_fanfit.cpp */; };
+		876F9B61275385D8006AE6FA /* moc_fitmetria_fanfit.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876F9B60275385D8006AE6FA /* moc_fitmetria_fanfit.cpp */; };
 		8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */; };
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
 		877A7609269D8E9F0024DD2C /* WebKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 877A7608269D8E9F0024DD2C /* WebKit.framework */; };
@@ -707,6 +709,9 @@
 		876ED21425C3E8DE0065F3DC /* schwinnic4bike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = schwinnic4bike.cpp; path = ../src/schwinnic4bike.cpp; sourceTree = "<group>"; };
 		876ED21725C3E9000065F3DC /* moc_ftmsbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_ftmsbike.cpp; sourceTree = "<group>"; };
 		876ED21825C3E9000065F3DC /* moc_material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_material.cpp; sourceTree = "<group>"; };
+		876F9B5D275385C8006AE6FA /* fitmetria_fanfit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitmetria_fanfit.cpp; path = ../src/fitmetria_fanfit.cpp; sourceTree = "<group>"; };
+		876F9B5E275385C9006AE6FA /* fitmetria_fanfit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitmetria_fanfit.h; path = ../src/fitmetria_fanfit.h; sourceTree = "<group>"; };
+		876F9B60275385D8006AE6FA /* moc_fitmetria_fanfit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitmetria_fanfit.cpp; sourceTree = "<group>"; };
 		8772A0E425E43AD90080718C /* trxappgateusbbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = trxappgateusbbike.h; path = ../src/trxappgateusbbike.h; sourceTree = "<group>"; };
 		8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trxappgateusbbike.cpp; path = ../src/trxappgateusbbike.cpp; sourceTree = "<group>"; };
 		8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_trxappgateusbbike.cpp; sourceTree = "<group>"; };
@@ -1193,6 +1198,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				876F9B60275385D8006AE6FA /* moc_fitmetria_fanfit.cpp */,
 				873F0230274BE47D002D0349 /* moc_mcfbike.cpp */,
 				8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */,
 				8732C1802735346E006DF424 /* moc_iconceptbike.cpp */,
@@ -1283,6 +1289,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				876F9B5D275385C8006AE6FA /* fitmetria_fanfit.cpp */,
+				876F9B5E275385C9006AE6FA /* fitmetria_fanfit.h */,
 				873F022D274BE471002D0349 /* mcfbike.cpp */,
 				873F022E274BE471002D0349 /* mcfbike.h */,
 				8703BAE9273C67A90058E206 /* pafersbike.cpp */,
@@ -2173,6 +2181,7 @@
 				8718CBA2263063BD004BF4EE /* soleelliptical.cpp in Compile Sources */,
 				871B9FD2265E6A8800DB41F4 /* powerzonepack.cpp in Compile Sources */,
 				876ED21525C3E8DE0065F3DC /* ftmsbike.cpp in Compile Sources */,
+				876F9B61275385D8006AE6FA /* moc_fitmetria_fanfit.cpp in Compile Sources */,
 				87318AAD2683799100770F13 /* echelonstride.cpp in Compile Sources */,
 				87C5F0C326285E5F0067A1B5 /* mimeinlinefile.cpp in Compile Sources */,
 				87DAE16A26E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp in Compile Sources */,
@@ -2253,6 +2262,7 @@
 				0F974CB18B3E792B42270F19 /* FitDecode.mm in Compile Sources */,
 				87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */,
 				87B617EC25F25FED0094A1CB /* screencapture.cpp in Compile Sources */,
+				876F9B5F275385C9006AE6FA /* fitmetria_fanfit.cpp in Compile Sources */,
 				FB2566376FE0FB17ED3DE94D /* FitDeveloperField.mm in Compile Sources */,
 				43FA2D5EA73D9C89F1A333B6 /* FitEncode.mm in Compile Sources */,
 				3FF025D99EBD71B7E6DCA033 /* FitField.mm in Compile Sources */,
