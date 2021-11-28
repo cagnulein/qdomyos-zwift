@@ -91,7 +91,9 @@ metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
-    Q_UNUSED(speed);
+    // this is useful when there is a fitmetria fanfit in order to set the current
+    // value to the last requested
+    FanSpeed = speed;
     emit fanSpeedChanged(speed);
     return false;
 }
