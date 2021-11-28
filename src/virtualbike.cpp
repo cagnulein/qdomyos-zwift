@@ -39,6 +39,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     notif2AD2 = new CharacteristicNotifier2AD2(Bike, this);
     notif2A63 = new CharacteristicNotifier2A63(Bike, this);
     notif2A37 = new CharacteristicNotifier2A37(Bike, this);
+    notif2A5B = new CharacteristicNotifier2A5B(Bike, this);
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, this);
     connect(writeP2AD9, SIGNAL(changeInclination(grade, perc)), this, SIGNAL(changeInclination(grade, perc)));
     Q_UNUSED(noWriteResistance)
@@ -436,10 +437,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bikeTimer.start(1s);
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
-    QObject::connect(
-        leController,
-        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
-        &virtualbike::error);
+    QObject::connect(leController, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
+                                       &QLowEnergyController::error),
+                     this, &virtualbike::error);
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -735,13 +735,10 @@ void virtualbike::bikeProvider() {
     bool cadence = settings.value(QStringLiteral("bike_cadence_sensor"), false).toBool();
     bool battery = settings.value(QStringLiteral("battery_service"), false).toBool();
     bool power = settings.value(QStringLiteral("bike_power_sensor"), false).toBool();
-    bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
     bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
     bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
-
-    uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -831,47 +828,24 @@ void virtualbike::bikeProvider() {
                     writeCharacteristic(service, characteristic, value);
                 }
             } else {
-                if (!bike_wheel_revs) {
+                if (notif2A5B->notify(value) == CN_OK) {
 
-                    value.append((char)0x02); // crank data present
-                } else {
+                    if (!service) {
+                        qDebug() << QStringLiteral("service not available");
 
-                    value.append((char)0x03); // crank and wheel data present
-
-                    if (Bike->currentSpeed().value()) {
-
-                        const double wheelCircumference = 2000.0; // millimeters
-                        wheelRevs++;
-                        lastWheelTime +=
-                            (uint16_t)(1024.0 / ((Bike->currentSpeed().value() / 3.6) / (wheelCircumference / 1000.0)));
+                        return;
                     }
-                    value.append((char)((wheelRevs & 0xFF)));        // wheel count
-                    value.append((char)((wheelRevs >> 8) & 0xFF));   // wheel count
-                    value.append((char)((wheelRevs >> 16) & 0xFF));  // wheel count
-                    value.append((char)((wheelRevs >> 24) & 0xFF));  // wheel count
-                    value.append((char)(lastWheelTime & 0xff));      // eventtime
-                    value.append((char)(lastWheelTime >> 8) & 0xFF); // eventtime
+
+                    QLowEnergyCharacteristic characteristic =
+                        service->characteristic(QBluetoothUuid::CharacteristicType::CSCMeasurement);
+                    Q_ASSERT(characteristic.isValid());
+                    if (leController->state() != QLowEnergyController::ConnectedState) {
+                        qDebug() << QStringLiteral("virtual bike not connected");
+
+                        return;
+                    }
+                    writeCharacteristic(service, characteristic, value);
                 }
-                value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF));      // revs count
-                value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
-                value.append((char)(Bike->lastCrankEventTime() & 0xff));                       // eventtime
-                value.append((char)(Bike->lastCrankEventTime() >> 8) & 0xFF);                  // eventtime
-
-                if (!service) {
-                    qDebug() << QStringLiteral("service not available");
-
-                    return;
-                }
-
-                QLowEnergyCharacteristic characteristic =
-                    service->characteristic(QBluetoothUuid::CharacteristicType::CSCMeasurement);
-                Q_ASSERT(characteristic.isValid());
-                if (leController->state() != QLowEnergyController::ConnectedState) {
-                    qDebug() << QStringLiteral("virtual bike not connected");
-
-                    return;
-                }
-                writeCharacteristic(service, characteristic, value);
             }
         }
     } else if (ifit) {

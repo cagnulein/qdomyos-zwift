@@ -3,14 +3,14 @@
 
 #include "characteristicwriteprocessor.h"
 #include "dirconpacket.h"
+#include "qmdnsengine/hostname.h"
+#include "qmdnsengine/provider.h"
+#include "qmdnsengine/server.h"
+#include "qmdnsengine/service.h"
 #include <QHash>
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
-#include "qmdnsengine/server.h"
-#include "qmdnsengine/provider.h"
-#include "qmdnsengine/hostname.h"
-#include "qmdnsengine/service.h"
 
 class DirconProcessorCharacteristic : public QObject {
   public:
@@ -35,14 +35,11 @@ class DirconProcessorCharacteristic : public QObject {
 
 class DirconProcessorService : public QObject {
   public:
-    DirconProcessorService(const QString &name, const QString &serv_name, quint16 serv_port, const QString &serv_sn,
-                           quint16 my_uuid, QObject *parent = nullptr)
-        : QObject(parent), serverPort(serv_port), serialN(serv_sn), serverName(serv_name), name(name), uuid(my_uuid) {}
-    quint16 serverPort;
-    QString serialN;
-    QString serverName;
+    DirconProcessorService(const QString &name, quint16 my_uuid, int my_machine_id, QObject *parent = nullptr)
+        : QObject(parent), name(name), uuid(my_uuid), machine_id(my_machine_id) {}
     QString name;
     quint16 uuid;
+    int machine_id;
     QList<DirconProcessorCharacteristic *> chars;
 };
 
@@ -60,9 +57,12 @@ class DirconProcessorClient : public QObject {
 
 class DirconProcessor : public QObject {
     Q_OBJECT
-    DirconProcessorService *service;
+    QList<DirconProcessorService *> services;
     QTcpServer *server = 0;
     QString mac;
+    quint16 serverPort;
+    QString serialN;
+    QString serverName;
     QMdnsEngine::Server *mdnsServer = 0;
     QMdnsEngine::Provider *mdnsProvider = 0;
     QMdnsEngine::Hostname *mdnsHostname = 0;
@@ -73,15 +73,14 @@ class DirconProcessor : public QObject {
 
   public:
     ~DirconProcessor();
-    explicit DirconProcessor(DirconProcessorService *service, const QString &mac, QObject *parent = nullptr);
+    explicit DirconProcessor(const QList<DirconProcessorService *> &services, const QString &serv_name,
+                             quint16 serv_port, const QString &serv_sn, const QString &mac, QObject *parent = nullptr);
     bool sendCharacteristicNotification(quint16 uuid, const QByteArray &data);
     bool init();
   private slots:
     void tcpDataAvailable();
     void tcpDisconnected();
     void tcpNewConnection();
-    void advOK();
-    // void advError(QZeroConf::error_t err);
   signals:
     void onCharacteristicRead(quint16 uuid);
     void onCharacteristicWrite(quint16 uuid, QByteArray data);

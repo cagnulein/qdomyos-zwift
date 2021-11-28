@@ -244,7 +244,6 @@ import Qt.labs.settings 1.0
             property bool applewatch_fakedevice: false
             property bool dircon_yes: false
             property int dircon_server_base_port: 4810
-            property string dircon_server_base_name: "DIRCON"
         }
 
         ColumnLayout {
@@ -4101,30 +4100,6 @@ import Qt.labs.settings 1.0
                                             text: "OK"
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onClicked: settings.dircon_server_base_port = dirconServerPortTextField.text
-                                        }
-                                    }
-
-                                    RowLayout {
-                                        spacing: 10
-                                        Label {
-                                            id: labelDirconServerName
-                                            text: qsTr("Server Name:")
-                                            Layout.fillWidth: true
-                                        }
-                                        TextField {
-                                            id: dirconServerNameTextField
-                                            text: settings.dircon_server_base_name
-                                            horizontalAlignment: Text.AlignRight
-                                            Layout.fillHeight: false
-                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            inputMethodHints: Qt.ImhNoPredictiveText
-                                            onAccepted: settings.dircon_server_base_name = text
-                                        }
-                                        Button {
-                                            id: okDirconServerName
-                                            text: "OK"
-                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                            onClicked: settings.dircon_server_base_name = dirconServerNameTextField.text
                                         }
                                     }
                                 }

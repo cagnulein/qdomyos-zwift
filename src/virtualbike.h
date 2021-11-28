@@ -26,10 +26,6 @@
 #include "ios/lockscreen.h"
 #endif
 #include "bike.h"
-#include "characteristicnotifier2a37.h"
-#include "characteristicnotifier2a63.h"
-#include "characteristicnotifier2ad2.h"
-#include "characteristicwriteprocessor2ad9.h"
 #include "dirconmanager.h"
 
 class virtualbike : public QObject {
@@ -60,9 +56,8 @@ class virtualbike : public QObject {
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
     CharacteristicNotifier2A63 *notif2A63 = 0;
     CharacteristicNotifier2A37 *notif2A37 = 0;
+    CharacteristicNotifier2A5B *notif2A5B = 0;
 
-    uint16_t lastWheelTime = 0;
-    uint32_t wheelRevs = 0;
     qint64 lastFTMSFrameReceived = 0;
 
     bool noHeartService = false;

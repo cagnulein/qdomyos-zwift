@@ -47,6 +47,7 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    characteristicnotifier2a5b.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
     qmdnsengine/src/src/bitmap.cpp \
     qmdnsengine/src/src/browser.cpp \
@@ -189,6 +190,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    characteristicnotifier2a5b.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
     qmdnsengine/src/include/qmdnsengine/bitmap.h \
     qmdnsengine/src/include/qmdnsengine/browser.h \
