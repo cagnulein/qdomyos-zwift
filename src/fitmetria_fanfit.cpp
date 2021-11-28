@@ -127,18 +127,11 @@ void fitmetria_fanfit::characteristicWritten(const QLowEnergyCharacteristic &cha
 void fitmetria_fanfit::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    auto services_list = m_control->services();
-    for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        qDebug() << QStringLiteral("fitmetria_fanfit services ") << s.toString();
-        if (s == QBluetoothUuid::HeartRate) {
-            QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("5b3c6a8f-4d54-400e-82db-b7b083d3c5c3"));
-            gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-            connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
-                    &fitmetria_fanfit::stateChanged);
-            gattCommunicationChannelService->discoverDetails();
-            return;
-        }
-    }
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("5b3c6a8f-4d54-400e-82db-b7b083d3c5c3"));
+    gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+            &fitmetria_fanfit::stateChanged);
+    gattCommunicationChannelService->discoverDetails();
 }
 
 void fitmetria_fanfit::errorService(QLowEnergyService::ServiceError err) {
@@ -155,11 +148,8 @@ void fitmetria_fanfit::error(QLowEnergyController::Error err) {
 
 void fitmetria_fanfit::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QSettings settings;
-    // QString fitmetria_fanfitName = settings.value(QStringLiteral("heart_rate_belt_name"),
-    // QStringLiteral("Disabled")).toString();//NOTE: clazy-unsed-non-trivial-variable
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    // if(device.name().startsWith(fitmetria_fanfitName))
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
