@@ -111,6 +111,7 @@ class bluetoothdevice : public QObject {
     int8_t requestStop = -1;
     int8_t requestIncreaseFan = -1;
     int8_t requestDecreaseFan = -1;
+    double requestFanSpeed = -1;
     double m_difficult = 1.0;
     metric m_jouls;
     double elevationAcc = 0;

@@ -11,16 +11,11 @@ void treadmill::changeInclination(double grade, double inclination) {
         requestInclination = inclination;
     }
 }
-bool treadmill::changeFanSpeed(uint8_t speed) {
-    requestFanSpeed = speed;
-    return true;
-}
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
     requestSpeed = speed;
     requestInclination = inclination;
 }
 metric treadmill::currentInclination() { return Inclination; }
-uint8_t treadmill::fanSpeed() { return FanSpeed; };
 bool treadmill::connected() { return false; }
 bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }
 

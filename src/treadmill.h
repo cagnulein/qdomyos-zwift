@@ -9,7 +9,6 @@ class treadmill : public bluetoothdevice {
   public:
     treadmill();
     void update_metrics(bool watt_calc, const double watts);
-    virtual uint8_t fanSpeed();
     virtual bool connected();
     virtual metric currentInclination();
     virtual double requestedSpeed();
@@ -27,7 +26,6 @@ class treadmill : public bluetoothdevice {
     virtual bool autoStartWhenSpeedIsGreaterThenZero();
 
   public slots:
-    virtual bool changeFanSpeed(uint8_t speed);
     virtual void changeSpeed(double speed);
     virtual void changeInclination(double grade, double percentage);
     virtual void changeSpeedAndInclination(double speed, double inclination);
@@ -40,8 +38,7 @@ class treadmill : public bluetoothdevice {
 
   protected:
     volatile double requestSpeed = -1;
-    double targetSpeed = -1;
-    double requestFanSpeed = -1;
+    double targetSpeed = -1;    
     double requestInclination = -1;
     double lastSpeed = 0.0;
     double lastInclination = 0;
