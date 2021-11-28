@@ -33,7 +33,6 @@ class trxappgateusbtreadmill : public treadmill {
   public:
     trxappgateusbtreadmill();
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
 
     void *VirtualTreadMill();
     void *VirtualDevice();

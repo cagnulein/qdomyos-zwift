@@ -30,6 +30,7 @@
 #include "eliterizer.h"
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
+#include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
 
 #include "fitshowtreadmill.h"
@@ -149,6 +150,7 @@ class bluetooth : public QObject, public SignalHandler {
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     fakebike *fakeBike = nullptr;
+    QList<fitmetria_fanfit*> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;
@@ -169,6 +171,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool cscSensorAvaiable();
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
+    bool fitmetria_fanfit_isconnected(QString name);
 
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);

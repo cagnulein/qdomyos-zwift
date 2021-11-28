@@ -92,6 +92,7 @@ uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     Q_UNUSED(speed);
+    emit fanSpeedChanged(speed);
     return false;
 }
 bool bluetoothdevice::connected() { return false; }

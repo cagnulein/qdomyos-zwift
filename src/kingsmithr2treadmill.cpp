@@ -89,15 +89,6 @@ void kingsmithr2treadmill::forceSpeedOrIncline(double requestSpeed, double reque
                         true);
 }
 
-bool kingsmithr2treadmill::sendChangeFanSpeed(uint8_t speed) { return false; }
-
-bool kingsmithr2treadmill::changeFanSpeed(uint8_t speed) {
-
-    requestFanSpeed = speed;
-
-    return false;
-}
-
 void kingsmithr2treadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
@@ -204,18 +195,18 @@ void kingsmithr2treadmill::update() {
         if (requestFanSpeed != -1) {
             emit debug(QStringLiteral("changing fan speed..."));
 
-            sendChangeFanSpeed(requestFanSpeed);
+            //sendChangeFanSpeed(requestFanSpeed);
             requestFanSpeed = -1;
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
 
-            sendChangeFanSpeed(FanSpeed + 1);
+            //sendChangeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
             emit debug(QStringLiteral("decreasing fan speed..."));
 
-            sendChangeFanSpeed(FanSpeed - 1);
+            //sendChangeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
     }

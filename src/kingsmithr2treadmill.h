@@ -43,7 +43,6 @@ class kingsmithr2treadmill : public treadmill {
     kingsmithr2treadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                          double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -54,7 +53,6 @@ class kingsmithr2treadmill : public treadmill {
     const QByteArray ENCRYPT_TABLE =
         QStringLiteral("SaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KZ3=").toUtf8();
 
-    bool sendChangeFanSpeed(uint8_t speed);
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);

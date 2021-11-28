@@ -54,11 +54,6 @@ void trxappgateusbtreadmill::forceSpeedOrIncline(double requestSpeed, double req
     Q_UNUSED(requestIncline);
 }
 
-bool trxappgateusbtreadmill::changeFanSpeed(uint8_t speed) {
-    Q_UNUSED(speed);
-    return false;
-}
-
 void trxappgateusbtreadmill::update() {
     QSettings settings;
     bool jtx_fitness_sprint_treadmill = settings.value(QStringLiteral("jtx_fitness_sprint_treadmill"), false).toBool();
@@ -149,11 +144,11 @@ void trxappgateusbtreadmill::update() {
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
-            changeFanSpeed(FanSpeed + 1);
+            //changeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
             emit debug(QStringLiteral("decreasing fan speed..."));
-            changeFanSpeed(FanSpeed - 1);
+            //changeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
     }

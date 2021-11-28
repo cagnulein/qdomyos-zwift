@@ -135,6 +135,10 @@ void bluetooth::finished() {
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
 
+    // since i can have multiple fanfit i can't wait more because i don't have the full list of the fanfit
+    // devices connected to QZ
+    // bool fitmetriaFanfitEnabled = settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool();
+
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
         (!eliteRizerFound && !eliteRizerAvaiable())) {
@@ -1160,6 +1164,7 @@ void bluetooth::connectedAndDiscovered() {
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
     QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
+    bool fitmetriaFanfitEnabled = settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool();
 
     // only at the first very connection, setting the user default resistance
     if (device() && firstConnected &&
@@ -1240,6 +1245,23 @@ void bluetooth::connectedAndDiscovered() {
                 emit ftmsAccessoryConnected(ftmsAccessory);
                 ftmsAccessory->deviceDiscovered(b);
                 break;
+            }
+        }
+
+        if(fitmetriaFanfitEnabled) {
+            for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+                if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b.name())) {
+                    fitmetria_fanfit* f = new fitmetria_fanfit();
+
+                    connect(f, &fitmetria_fanfit::debug, this, &bluetooth::debug);
+
+                    connect(this->device(), SIGNAL(fanSpeedChanged(uint8_t)), f,
+                            SLOT(fanSpeedRequest(uint8_t)));
+
+                    f->deviceDiscovered(b);
+                    fitmetriaFanfit.append(f);
+                    break;
+                }
             }
         }
 
@@ -1625,6 +1647,14 @@ void bluetooth::restart() {
         delete ftmsAccessory;
         ftmsAccessory = nullptr;
     }
+    if (fitmetriaFanfit.length()) {
+
+        foreach(fitmetria_fanfit* f, fitmetriaFanfit) {
+            delete f;
+            f = nullptr;
+        }
+        fitmetriaFanfit.clear();
+    }
     if (cadenceSensor) {
 
         // heartRateBelt->disconnectBluetooth(); // to test
@@ -1850,6 +1880,14 @@ void bluetooth::inclinationChanged(double grade, double inclination) {
     Q_UNUSED(grade);
     Q_UNUSED(inclination);
     stateFileUpdate();
+}
+
+bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
+    foreach(fitmetria_fanfit* f, fitmetriaFanfit) {
+        if(!name.compare(f->bluetoothDevice.name()))
+            return true;
+    }
+    return false;
 }
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))

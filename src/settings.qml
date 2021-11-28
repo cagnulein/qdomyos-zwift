@@ -229,6 +229,9 @@ import Qt.labs.settings 1.0
             property string ftms_accessory_name: "Disabled"
             property real ss2k_shift_step: 900
 
+            property bool fitmetria_fanfit_enable: false
+            property string fitmetria_fanfit_mode: "Heart"
+
             property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
             property bool bluetooth_30m_hangs: false
@@ -3855,6 +3858,60 @@ import Qt.labs.settings 1.0
                     }
                 }
             }
+
+            AccordionElement {
+                id: fitmetriaFanFitOptionsAccordion
+                title: qsTr("Fitmetria Fanfit™ Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    SwitchDelegate {
+                        id: fitmetriaFanFitDelegate
+                        text: qsTr("Enable")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fitmetria_fanfit_enable
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fitmetria_fanfit_enable = checked
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFitmetriaFanFitMode
+                            text: qsTr("Mode:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: fitmetriaFanFitModeTextField
+                            model: [ "Heart", "Power", "Wind", "Always ON" ]
+                            displayText: settings.fitmetria_fanfit_mode
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + fitmetriaFanFitModeTextField.currentIndex)
+                                displayText = fitmetriaFanFitModeTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okFitmetriaFanFitModeTextField
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText
+                        }
+                    }
+                }
+            }
+
 
             AccordionElement {
                 id: powerFromHeartRateAccordion

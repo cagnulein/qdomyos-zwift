@@ -70,14 +70,6 @@ void echelonstride::updateDisplay(uint16_t elapsed) {}
 
 void echelonstride::forceSpeedOrIncline(double requestSpeed, double requestIncline) {}
 
-bool echelonstride::sendChangeFanSpeed(uint8_t speed) { return false; }
-
-bool echelonstride::changeFanSpeed(uint8_t speed) {
-    requestFanSpeed = speed;
-
-    return true;
-}
-
 void echelonstride::sendPoll() {
     uint8_t noOpData[] = {0xf0, 0xa0, 0x01, 0x00, 0x00};
 
@@ -171,16 +163,16 @@ void echelonstride::update() {
             }
             if (requestFanSpeed != -1) {
                 emit debug(QStringLiteral("changing fan speed..."));
-                sendChangeFanSpeed(requestFanSpeed);
+                //sendChangeFanSpeed(requestFanSpeed);
                 requestFanSpeed = -1;
             }
             if (requestIncreaseFan != -1) {
                 emit debug(QStringLiteral("increasing fan speed..."));
-                sendChangeFanSpeed(FanSpeed + 1);
+                //sendChangeFanSpeed(FanSpeed + 1);
                 requestIncreaseFan = -1;
             } else if (requestDecreaseFan != -1) {
                 emit debug(QStringLiteral("decreasing fan speed..."));
-                sendChangeFanSpeed(FanSpeed - 1);
+                //sendChangeFanSpeed(FanSpeed - 1);
                 requestDecreaseFan = -1;
             }
         }

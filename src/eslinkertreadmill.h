@@ -39,7 +39,6 @@ class eslinkertreadmill : public treadmill {
     void *VirtualDevice();
 
   private:
-    bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);

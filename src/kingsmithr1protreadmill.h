@@ -42,7 +42,6 @@ class kingsmithr1protreadmill : public treadmill {
     kingsmithr1protreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                             double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -54,7 +53,6 @@ class kingsmithr1protreadmill : public treadmill {
     typedef enum K1_VERSION { CLASSIC = 0, RE = 1 } K1_VERSION;
     K1_VERSION version = CLASSIC;
 
-    bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetTargetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);

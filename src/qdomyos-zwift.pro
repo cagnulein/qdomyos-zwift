@@ -60,6 +60,7 @@ SOURCES += \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
     fakebike.cpp \
+    fitmetria_fanfit.cpp \
    fitplusbike.cpp \
 	fitshowtreadmill.cpp \
 	fit-sdk/fit.cpp \
@@ -181,6 +182,7 @@ HEADERS += \
 	 elliptical.h \
    eslinkertreadmill.h \
     fakebike.h \
+    fitmetria_fanfit.h \
    fitplusbike.h \
     ftmsrower.h \
    homefitnessbuddy.h \
@@ -542,5 +544,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.8.124
+VERSION = 2.8.125
 

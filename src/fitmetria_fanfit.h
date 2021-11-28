@@ -1,5 +1,6 @@
-#ifndef SPIRITTREADMILL_H
-#define SPIRITTREADMILL_H
+#ifndef FITMETRIA_FANFIT_H
+#define FITMETRIA_FANFIT_H
+
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -25,48 +26,21 @@
 #include <QObject>
 #include <QTime>
 
-#include "treadmill.h"
-#include "virtualtreadmill.h"
+#include "bluetoothdevice.h"
 
-class spirittreadmill : public treadmill {
+class fitmetria_fanfit : public bluetoothdevice {
     Q_OBJECT
   public:
-    spirittreadmill();
+    fitmetria_fanfit();
     bool connected();
 
-    void *VirtualTreadMill();
-    void *VirtualDevice();
-
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
-    uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
-    void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response);
-    void startDiscover();
-
-    QTimer *refresh;
-    virtualtreadmill *virtualTreadMill = nullptr;
-
-    uint8_t firstVirtualTreadmill = 0;
-    bool firstCharChanged = true;
-    QTime lastTimeCharChanged;
-    uint8_t sec1update = 0;
-    QByteArray lastPacket;
-    uint8_t counterPoll = 0;
-
     QLowEnergyService *gattCommunicationChannelService = nullptr;
+    //QLowEnergyCharacteristic gattNotifyCharacteristic;
     QLowEnergyCharacteristic gattWriteCharacteristic;
-    QLowEnergyCharacteristic gattNotifyCharacteristic;
 
-    bool initDone = false;
-    bool initRequest = false;
-    bool readyToStart = false;
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
 
   signals:
     void disconnected();
@@ -75,6 +49,8 @@ class spirittreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void disconnectBluetooth();
+    void fanSpeedRequest(uint8_t value);
 
   private slots:
 
@@ -90,5 +66,4 @@ class spirittreadmill : public treadmill {
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
 };
-
-#endif // SPIRITTREADMILL_H
+#endif // FITMETRIA_FANFIT_H

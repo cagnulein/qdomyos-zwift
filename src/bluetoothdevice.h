@@ -95,6 +95,7 @@ class bluetoothdevice : public QObject {
     void cadenceChanged(uint8_t cadence);
     void powerChanged(uint16_t power);
     void inclinationChanged(double grade, double percentage);
+    void fanSpeedChanged(uint8_t speed);
 
   protected:
     QLowEnergyController *m_control = nullptr;

@@ -91,15 +91,6 @@ void activiotreadmill::forceIncline(double requestIncline) {
                         QStringLiteral("forceIncline incline=") + QString::number(requestIncline), false, false);
 }
 
-bool activiotreadmill::sendChangeFanSpeed(uint8_t speed) { return false; }
-
-bool activiotreadmill::changeFanSpeed(uint8_t speed) {
-
-    requestFanSpeed = speed;
-
-    return true;
-}
-
 void activiotreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;

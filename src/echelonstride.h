@@ -39,13 +39,11 @@ class echelonstride : public treadmill {
     echelonstride(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected() override;
-    bool changeFanSpeed(uint8_t speed) override;
 
     void *VirtualTreadMill();
     void *VirtualDevice() override;
 
   private:
-    bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);

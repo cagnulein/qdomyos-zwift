@@ -42,14 +42,12 @@ class activiotreadmill : public treadmill {
     activiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                      double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
     double minStepInclination();
 
     void *VirtualTreadMill();
     void *VirtualDevice();
 
   private:
-    bool sendChangeFanSpeed(uint8_t speed);
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);

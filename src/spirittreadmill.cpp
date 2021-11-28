@@ -60,11 +60,6 @@ void spirittreadmill::forceSpeedOrIncline(double requestSpeed, double requestInc
     }
 }
 
-bool spirittreadmill::changeFanSpeed(uint8_t speed) {
-    Q_UNUSED(speed);
-    return false;
-}
-
 void spirittreadmill::update() {
     // qDebug() << treadmill.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
