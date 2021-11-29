@@ -468,6 +468,8 @@ class homeform : public QObject {
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
 
+    int16_t fanOverride = 0;
+
     void update();
     void backup();
     bool getDevice();

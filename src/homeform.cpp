@@ -1386,9 +1386,15 @@ void homeform::Plus(const QString &name) {
             }
         }
     } else if (name.contains(QStringLiteral("fan"))) {
-
+        QSettings settings;
         if (bluetoothManager->device()) {
-            bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
+            if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool() &&
+                settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+                    .toString()
+                    .compare(QStringLiteral("Manual"))) {
+                fanOverride++;
+            } else
+                bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
         }
     } else if (name.contains(QStringLiteral("peloton_offset"))) {
 
@@ -1487,7 +1493,14 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("fan"))) {
 
         if (bluetoothManager->device()) {
-            bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
+            QSettings settings;
+            if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool() &&
+                settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+                    .toString()
+                    .compare(QStringLiteral("Manual"))) {
+                fanOverride--;
+            } else
+                bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
         }
     } else if (name.contains(QStringLiteral("peloton_offset"))) {
 
@@ -2442,7 +2455,7 @@ void homeform::update() {
                 const uint8_t min = 80;
                 uint8_t v =
                     ((bluetoothManager->device()->currentHeart().value() - min) * 100.0) / (double)(maxHeartRate - min);
-                bluetoothManager->device()->changeFanSpeed(v);
+                bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
             // Power Mode
             else if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
@@ -2452,7 +2465,7 @@ void homeform::update() {
                 const double percOverFtp = 1.20;
                 const double min = 50;
                 uint8_t v = ((watts - min) * 100.0) / (double)((ftpSetting - min) * percOverFtp);
-                bluetoothManager->device()->changeFanSpeed(v); // scaling to 11 values
+                bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
             // Wind mode
             else if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
@@ -2460,7 +2473,7 @@ void homeform::update() {
                           .compare(QStringLiteral("Wind"))) {
                 // Todo
                 qDebug() << QStringLiteral("fitmetria_fanfit wind mode");
-                // bluetoothManager->device()->changeFanSpeed((ftpZone - 1) * 1.5); // scaling to 11 values
+                // bluetoothManager->device()->changeFanSpeed((ftpZone - 1) * 1.5);
             }
         }
 
@@ -2906,8 +2919,8 @@ void homeform::replyDataReceived(const QByteArray &v) {
     }
     manager = new QNetworkAccessManager(this);
     // connect(manager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> & )), this,
-    // SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & ))); connect(manager, SIGNAL(finished(QNetworkReply*)),
-    // this, SLOT(networkRequestFinished(QNetworkReply*)));
+    // SLOT(onSslErrors(QNetworkReply*, const QList<QSslError> & ))); connect(manager,
+    // SIGNAL(finished(QNetworkReply*)), this, SLOT(networkRequestFinished(QNetworkReply*)));
     manager->post(request, data);
 }
 

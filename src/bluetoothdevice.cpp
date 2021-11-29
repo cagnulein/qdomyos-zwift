@@ -92,9 +92,9 @@ uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     // managing underflow
-    if (speed == 255 && FanSpeed == 0) {
+    if (speed > 230 && FanSpeed < 10) {
         speed = 0;
-    } else if (speed == 0 && FanSpeed == 255) {
+    } else if (speed < 10 && FanSpeed > 230) {
         // managing overflow
         speed = 255;
     }
