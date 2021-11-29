@@ -93,9 +93,9 @@ void proformtreadmill::update() {
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
-        update_metrics(true, watts());
-
         QSettings settings;
+        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+
         bool nordictrack10 = settings.value("nordictrack_10_treadmill", false).toBool();
         // bool proform_treadmill_995i = settings.value("proform_treadmill_995i", false).toBool();
 
@@ -700,14 +700,6 @@ bool proformtreadmill::connected() {
 void *proformtreadmill::VirtualTreadmill() { return virtualTreadmill; }
 
 void *proformtreadmill::VirtualDevice() { return VirtualTreadmill(); }
-
-uint16_t proformtreadmill::watts() {
-    if (currentSpeed().value() == 0) {
-        return 0;
-    }
-
-    return m_watts;
-}
 
 void proformtreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

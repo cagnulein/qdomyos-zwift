@@ -51,7 +51,6 @@ class proformtreadmill : public treadmill {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
     void forceIncline(double incline);
     void forceSpeed(double speed);
 
