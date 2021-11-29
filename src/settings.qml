@@ -3861,7 +3861,7 @@ import Qt.labs.settings 1.0
 
             AccordionElement {
                 id: fitmetriaFanFitOptionsAccordion
-                title: qsTr("Fitmetria Fanfit™ Options")
+                title: qsTr("Fitmetria Fitfan™ Options")
                 indicatRectColor: Material.color(Material.Grey)
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
@@ -3892,7 +3892,7 @@ import Qt.labs.settings 1.0
                         }
                         ComboBox {
                             id: fitmetriaFanFitModeTextField
-                            model: [ "Heart", "Power", "Wind", "Always ON" ]
+                            model: [ "Heart", "Power", "Manual" ]
                             displayText: settings.fitmetria_fanfit_mode
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter

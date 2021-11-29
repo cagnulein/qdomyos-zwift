@@ -2424,29 +2424,43 @@ void homeform::update() {
             }
         }
 
-        if(settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {
-            if(!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart")).toString().compare(QStringLiteral("Always ON"))) {
-              // do nothing here, the user change the fan value with the tile
-            }
-            else if(paused || stopped) {
+        if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {
+            if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+                     .toString()
+                     .compare(QStringLiteral("Manual"))) {
+                // do nothing here, the user change the fan value with the tile
+            } else if (paused || stopped) {
                 qDebug() << QStringLiteral("fitmetria_fanfit paused or stopped mode");
                 bluetoothManager->device()->changeFanSpeed(0);
             }
             // Heart Mode
-            else if(!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart")).toString().compare(QStringLiteral("Heart"))) {
-                qDebug() << QStringLiteral("fitmetria_fanfit heart mode") << currentHRZone;
-                bluetoothManager->device()->changeFanSpeed((currentHRZone - 1) * 2.2); // scaling to 11 values
+            else if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+                          .toString()
+                          .compare(QStringLiteral("Heart"))) {
+                qDebug() << QStringLiteral("fitmetria_fanfit heart mode")
+                         << bluetoothManager->device()->currentHeart().value();
+                const uint8_t min = 80;
+                uint8_t v =
+                    ((bluetoothManager->device()->currentHeart().value() - min) * 100.0) / (double)(maxHeartRate - min);
+                bluetoothManager->device()->changeFanSpeed(v);
             }
             // Power Mode
-            else if(!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart")).toString().compare(QStringLiteral("Power"))) {
-                qDebug() << QStringLiteral("fitmetria_fanfit power mode") << ftpZone;
-                bluetoothManager->device()->changeFanSpeed((ftpZone - 1) * 1.5); // scaling to 11 values
+            else if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+                          .toString()
+                          .compare(QStringLiteral("Power"))) {
+                qDebug() << QStringLiteral("fitmetria_fanfit power mode") << watts;
+                const double percOverFtp = 1.20;
+                const double min = 50;
+                uint8_t v = ((watts - min) * 100.0) / (double)((ftpSetting - min) * percOverFtp);
+                bluetoothManager->device()->changeFanSpeed(v); // scaling to 11 values
             }
             // Wind mode
-            else if(!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart")).toString().compare(QStringLiteral("Wind"))) {
+            else if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
+                          .toString()
+                          .compare(QStringLiteral("Wind"))) {
                 // Todo
                 qDebug() << QStringLiteral("fitmetria_fanfit wind mode");
-                //bluetoothManager->device()->changeFanSpeed((ftpZone - 1) * 1.5); // scaling to 11 values
+                // bluetoothManager->device()->changeFanSpeed((ftpZone - 1) * 1.5); // scaling to 11 values
             }
         }
 
@@ -3183,7 +3197,7 @@ void homeform::sendMail() {
         if (bluetoothManager->heartRateDevice()) {
             textMessage +=
                 QStringLiteral("\nHR Device: ") + bluetoothManager->heartRateDevice()->bluetoothDevice.name();
-        }        
+        }
     }
 
     text.setText(textMessage);

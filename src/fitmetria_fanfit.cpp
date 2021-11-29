@@ -25,7 +25,8 @@ void fitmetria_fanfit::disconnectBluetooth() {
     }
 }
 
-void fitmetria_fanfit::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void fitmetria_fanfit::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     emit packetReceived();
@@ -34,20 +35,22 @@ void fitmetria_fanfit::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void fitmetria_fanfit::fanSpeedRequest(uint8_t speed) {
-    QString s = QString::number(((uint16_t)speed) * 100);
-    writeCharacteristic((uint8_t*)s.toLocal8Bit().data(), s.length(), QStringLiteral("forcing fan ") + s, false, true);
+    if (speed > 102)
+        speed = 102;
+    QString s = QString::number(((uint16_t)speed) * 10);
+    writeCharacteristic((uint8_t *)s.toLocal8Bit().data(), s.length(), QStringLiteral("forcing fan ") + s, false, true);
 }
 
 void fitmetria_fanfit::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                              bool wait_for_response) {
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
-    if(gattCommunicationChannelService == nullptr || gattWriteCharacteristic.isValid() == false) {
-        qDebug() << QStringLiteral("fitmetria_fanfit trying to change the fan speed before the connection is estabilished");
+    if (gattCommunicationChannelService == nullptr || gattWriteCharacteristic.isValid() == false) {
+        qDebug() << QStringLiteral(
+            "fitmetria_fanfit trying to change the fan speed before the connection is estabilished");
         return;
     }
-
 
     // if there are some crash here, maybe it's better to use 2 separate event for the characteristicChanged.
     // one for the resistance changed event (spontaneous), and one for the other ones.
@@ -125,7 +128,8 @@ void fitmetria_fanfit::descriptorWritten(const QLowEnergyDescriptor &descriptor,
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 }
 
-void fitmetria_fanfit::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void fitmetria_fanfit::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
@@ -135,8 +139,7 @@ void fitmetria_fanfit::serviceScanDone(void) {
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("5b3c6a8f-4d54-400e-82db-b7b083d3c5c3"));
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
-            &fitmetria_fanfit::stateChanged);
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &fitmetria_fanfit::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
