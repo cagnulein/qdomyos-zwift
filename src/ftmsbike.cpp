@@ -54,7 +54,7 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 
 void ftmsbike::forceResistance(int8_t requestResistance) {
 
-    // if the FTMS is connected, the ftmsChaarcteristicChanged event will do all the stuff because it's a FTMS bike
+    // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a FTMS bike
     if (virtualBike->connected())
         return;
 
