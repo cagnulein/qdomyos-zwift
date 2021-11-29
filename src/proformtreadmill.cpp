@@ -272,6 +272,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     bool nordictrack10 = settings.value("nordictrack_10_treadmill", false).toBool();
+    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -295,11 +296,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Inclination =
             (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
-        if (watts())
+        if (watts(weight))
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
-                   3.5) /
-                  200.0) /
+                ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
@@ -333,7 +332,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
 
         if (m_control->error() != QLowEnergyController::NoError) {
             qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
