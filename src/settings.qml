@@ -231,6 +231,8 @@ import Qt.labs.settings 1.0
 
             property bool fitmetria_fanfit_enable: false
             property string fitmetria_fanfit_mode: "Heart"
+            property real fitmetria_fanfit_min: 0
+            property real fitmetria_fanfit_max: 100
 
             property bool virtualbike_forceresistance: true
             property bool bluetooth_relaxed: false
@@ -3907,6 +3909,52 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.fitmetria_fanfit_mode = fitmetriaFanFitModeTextField.displayText
+                        }                        
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFitmetriaFanFitMin
+                            text: qsTr("Min. value (0-100):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: fitmetriaFanFitMinTextField
+                            text: settings.fitmetria_fanfit_min
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.fitmetria_fanfit_min = text
+                        }
+                        Button {
+                            id: okFitmetriaFanFitMin
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.fitmetria_fanfit_min = fitmetriaFanFitMinTextField.text
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelFitmetriaFanFitMax
+                            text: qsTr("Max value (0-100):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: fitmetriaFanFitMaxTextField
+                            text: settings.fitmetria_fanfit_max
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.fitmetria_fanfit_max = text
+                        }
+                        Button {
+                            id: okFitmetriaFanFitMax
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.fitmetria_fanfit_max = fitmetriaFanFitMaxTextField.text
                         }
                     }
                 }

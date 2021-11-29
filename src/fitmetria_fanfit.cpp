@@ -35,8 +35,14 @@ void fitmetria_fanfit::characteristicChanged(const QLowEnergyCharacteristic &cha
 }
 
 void fitmetria_fanfit::fanSpeedRequest(uint8_t speed) {
+    QSettings settings;
     if (speed > 102)
         speed = 102;
+    if (speed > settings.value(QStringLiteral("fitmetria_fanfit_max"), 100).toDouble())
+        speed = settings.value(QStringLiteral("fitmetria_fanfit_max"), 100).toDouble();
+    else if (speed < settings.value(QStringLiteral("fitmetria_fanfit_min"), 0).toDouble())
+        speed = settings.value(QStringLiteral("fitmetria_fanfit_min"), 0).toDouble();
+
     QString s = QString::number(((uint16_t)speed) * 10);
     writeCharacteristic((uint8_t *)s.toLocal8Bit().data(), s.length(), QStringLiteral("forcing fan ") + s, false, true);
 }
