@@ -1272,6 +1272,9 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     if (settings.value(QStringLiteral("pause_on_start"), false).toBool() &&
         bluetoothManager->device()->deviceType() != bluetoothdevice::TREADMILL) {
         Start();
+    } else if (settings.value(QStringLiteral("pause_on_start_treadmill"), false).toBool() &&
+               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        Start_inner(false); // because if you sent the start command to a treadmill it could start the tape
     }
 
     sortTiles();

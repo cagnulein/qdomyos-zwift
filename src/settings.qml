@@ -33,6 +33,7 @@ import Qt.labs.settings 1.0
             property string user_nickname: ""
             property bool miles_unit: false
             property bool pause_on_start: false
+            property bool pause_on_start_treadmill: false
             property bool continuous_moving: false
             property bool bike_cadence_sensor: false
             property bool run_cadence_sensor: false
@@ -3023,6 +3024,21 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.virtual_device_force_bike = checked
                     }
+                }
+
+                SwitchDelegate {
+                    id: pauseOnStartTreadmillDelegate
+                    text: qsTr("Pause when App Starts")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.pause_on_start_treadmill
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.pause_on_start_treadmill = checked
                 }
 
                 AccordionElement {
