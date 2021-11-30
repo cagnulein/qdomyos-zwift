@@ -4149,7 +4149,7 @@ import Qt.labs.settings 1.0
                         accordionContent: ColumnLayout {
                             AccordionCheckElement {
                                 id: virtualBeviceBluetoothAccordion
-                                title: qsTr("Bluetooth")
+                                title: qsTr("Virtual Device Bluetooth")
                                 linkedBoolSetting: "virtual_device_bluetooth"
                                 settings: settings
                                 accordionContent: ColumnLayout {
