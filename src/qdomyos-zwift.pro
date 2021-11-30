@@ -29,6 +29,7 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
 macx: CONFIG += static
+INCLUDEPATH += qmdnsengine/src/include
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -43,14 +44,38 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 android: include(../android_openssl/openssl.pri)
+# include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+    characteristicnotifier2a5b.cpp \
+    qmdnsengine/src/src/abstractserver.cpp \
+    qmdnsengine/src/src/bitmap.cpp \
+    qmdnsengine/src/src/browser.cpp \
+    qmdnsengine/src/src/cache.cpp \
+    qmdnsengine/src/src/dns.cpp \
+    qmdnsengine/src/src/hostname.cpp \
+    qmdnsengine/src/src/mdns.cpp \
+    qmdnsengine/src/src/message.cpp \
+    qmdnsengine/src/src/prober.cpp \
+    qmdnsengine/src/src/provider.cpp \
+    qmdnsengine/src/src/query.cpp \
+    qmdnsengine/src/src/record.cpp \
+    qmdnsengine/src/src/resolver.cpp \
+    qmdnsengine/src/src/server.cpp \
+    qmdnsengine/src/src/service.cpp \
     activiotreadmill.cpp \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+    characteristicnotifier2a37.cpp \
+    characteristicnotifier2a63.cpp \
+    characteristicnotifier2ad2.cpp \
+    characteristicwriteprocessor2ad9.cpp \
    chronobike.cpp \
    cscbike.cpp \
+    dirconmanager.cpp \
+    dirconpacket.cpp \
+    dirconprocessor.cpp \
 	 domyoselliptical.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
@@ -167,12 +192,49 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+    characteristicnotifier2a5b.h \
+    qmdnsengine/src/include/qmdnsengine/abstractserver.h \
+    qmdnsengine/src/include/qmdnsengine/bitmap.h \
+    qmdnsengine/src/include/qmdnsengine/browser.h \
+    qmdnsengine/src/include/qmdnsengine/cache.h \
+    qmdnsengine/src/include/qmdnsengine/dns.h \
+    qmdnsengine/src/include/qmdnsengine/hostname.h \
+    qmdnsengine/src/include/qmdnsengine/mdns.h \
+    qmdnsengine/src/include/qmdnsengine/message.h \
+    qmdnsengine/src/include/qmdnsengine/prober.h \
+    qmdnsengine/src/include/qmdnsengine/provider.h \
+    qmdnsengine/src/include/qmdnsengine/query.h \
+    qmdnsengine/src/include/qmdnsengine/record.h \
+    qmdnsengine/src/include/qmdnsengine/resolver.h \
+    qmdnsengine/src/include/qmdnsengine/server.h \
+    qmdnsengine/src/include/qmdnsengine/service.h \
+    qmdnsengine/src/src/bitmap_p.h \
+    qmdnsengine/src/src/browser_p.h \
+    qmdnsengine/src/src/cache_p.h \
+    qmdnsengine/src/src/hostname_p.h \
+    qmdnsengine/src/src/message_p.h \
+    qmdnsengine/src/src/prober_p.h \
+    qmdnsengine/src/src/provider_p.h \
+    qmdnsengine/src/src/query_p.h \
+    qmdnsengine/src/src/record_p.h \
+    qmdnsengine/src/src/resolver_p.h \
+    qmdnsengine/src/src/server_p.h \
+    qmdnsengine/src/src/service_p.h \
     activiotreadmill.h \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+    characteristicnotifier.h \
+    characteristicnotifier2a37.h \
+    characteristicnotifier2a63.h \
+    characteristicnotifier2ad2.h \
+    characteristicwriteprocessor.h \
+    characteristicwriteprocessor2ad9.h \
    chronobike.h \
    cscbike.h \
+    dirconmanager.h \
+    dirconpacket.h \
+    dirconprocessor.h \
 	 domyoselliptical.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \
@@ -430,6 +492,7 @@ HEADERS += \
 	proformtreadmill.h \
     qdebugfixup.h \
 	qfit.h \
+    qmdnsengine_export.h \
    renphobike.h \
    rower.h \
 	schwinnic4bike.h \

@@ -67,5 +67,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+        <key>NSLocalNetworkUsageDescription</key>
+        <string>This app will need access to the local network for Discovery services (Wahoo Fitness Direct Connect).</string>
+        <key>NSBonjourServices</key>
+        <array>
+               <string>_wahoo-fitness-tnp._tcp</string>
+        </array>
 </dict>
 </plist>
