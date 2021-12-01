@@ -1395,7 +1395,9 @@ void homeform::Plus(const QString &name) {
                 settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
                     .toString()
                     .compare(QStringLiteral("Manual"))) {
-                fanOverride++;
+                fanOverride += 10;
+            } else if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {
+                bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 10);
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
         }
@@ -1501,7 +1503,9 @@ void homeform::Minus(const QString &name) {
                 settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
                     .toString()
                     .compare(QStringLiteral("Manual"))) {
-                fanOverride--;
+                fanOverride -= 10;
+            } else if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {
+                bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 10);
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
         }

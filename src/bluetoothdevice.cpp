@@ -92,11 +92,11 @@ uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     // managing underflow
-    if (speed > 230 && FanSpeed < 10) {
+    if (speed > 230 && FanSpeed < 20) {
         speed = 0;
-    } else if (speed < 10 && FanSpeed > 230) {
+    } else if (speed < 20 && FanSpeed > 230) {
         // managing overflow
-        speed = 255;
+        speed = 100;
     }
     // this is useful when there is a fitmetria fanfit in order to set the current
     // value to the last requested
