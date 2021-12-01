@@ -144,11 +144,11 @@ void trxappgateusbtreadmill::update() {
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
-            //changeFanSpeed(FanSpeed + 1);
+            // changeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
             emit debug(QStringLiteral("decreasing fan speed..."));
-            //changeFanSpeed(FanSpeed - 1);
+            // changeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
     }
@@ -190,6 +190,11 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     double incline = GetInclinationFromPacket(newValue);
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
+
+    if (treadmill_type == TYPE::DKN && newValue.at(15) == 0x01) {
+        emit debug(QStringLiteral("forcing speed to 0 when the treadmill is idle"));
+        speed = 0;
+    }
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
