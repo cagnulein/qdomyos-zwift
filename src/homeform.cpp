@@ -2471,7 +2471,7 @@ void homeform::update() {
                 qDebug() << QStringLiteral("fitmetria_fanfit power mode") << watts;
                 const double percOverFtp = 1.20;
                 const double min = 50;
-                uint8_t v = ((watts - min) * 100.0) / (double)((ftpSetting - min) * percOverFtp);
+                uint8_t v = ((watts - min) * 100.0) / (double)(((ftpSetting * percOverFtp) - min));
                 bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
             // Wind mode
