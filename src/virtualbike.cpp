@@ -722,7 +722,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
             reply = newValue;
             writeCharacteristic(service, characteristic, reply);
-            echelonInitDone = true;
+            if (newValue.length() == 5)
+                echelonInitDone = true;
         }
     }
 }
