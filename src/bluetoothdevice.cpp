@@ -86,7 +86,7 @@ QTime bluetoothdevice::maxPace() {
 }
 
 double bluetoothdevice::odometer() { return Distance.value(); }
-double bluetoothdevice::calories() { return KCal.value(); }
+metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void *bluetoothdevice::VirtualDevice() { return nullptr; }
@@ -109,7 +109,7 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     return false;
 }
 bool bluetoothdevice::connected() { return false; }
-double bluetoothdevice::elevationGain() { return elevationAcc; }
+metric bluetoothdevice::elevationGain() { return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {
@@ -270,10 +270,10 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
         return 0;
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
 
-        return elevationGain();
+        return elevationGain().value();
     } else if (!setting.compare(QStringLiteral("Calories"))) {
 
-        return calories();
+        return calories().value();
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
 
         return odometer();

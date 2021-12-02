@@ -1734,9 +1734,13 @@ void homeform::update() {
             QString::number((bluetoothManager->device())->currentSpeed().max() * unit_conversion, 'f', 1));
         heart->setValue(QString::number(bluetoothManager->device()->currentHeart().value(), 'f', 0));
 
-        calories->setValue(QString::number(bluetoothManager->device()->calories(), 'f', 0));
+        calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
+        calories->setSecondLine(QString::number(bluetoothManager->device()->calories().rate1s() * 60.0, 'f', 1) +
+                                " /min");
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
+        calories->setSecondLine(QString::number(bluetoothManager->device()->jouls().rate1s() / 1000.0 * 60.0, 'f', 1) +
+                                " /min");
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString(QStringLiteral("h:mm:ss")));
         moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));
         if (trainProgram) {
@@ -1815,7 +1819,11 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((treadmill *)bluetoothManager->device())->elevationGain(), 'f', 1));
+            elevation->setValue(
+                QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
+            elevation->setSecondLine(
+                QString::number(((treadmill *)bluetoothManager->device())->elevationGain().rate1s() * 60.0, 'f', 1) +
+                " /min");
 
             // for Stryd and similar
             cadence = ((treadmill *)bluetoothManager->device())->currentCadence().value();
@@ -2036,7 +2044,8 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().average(), 'f', 1) +
                 QStringLiteral(" MAX: ") +
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
-            elevation->setValue(QString::number(((elliptical *)bluetoothManager->device())->elevationGain(), 'f', 1));
+            elevation->setValue(
+                QString::number(((elliptical *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
         }
         watt->setSecondLine(
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
@@ -2488,7 +2497,8 @@ void homeform::update() {
             SessionLine s(bluetoothManager->device()->currentSpeed().value(), inclination,
                           bluetoothManager->device()->odometer(), watts, resistance, peloton_resistance,
                           (uint8_t)bluetoothManager->device()->currentHeart().value(), pace, cadence,
-                          bluetoothManager->device()->calories(), bluetoothManager->device()->elevationGain(),
+                          bluetoothManager->device()->calories().value(),
+                          bluetoothManager->device()->elevationGain().value(),
                           bluetoothManager->device()->elapsedTime().second() +
                               (bluetoothManager->device()->elapsedTime().minute() * 60) +
                               (bluetoothManager->device()->elapsedTime().hour() * 3600),
@@ -3138,7 +3148,7 @@ void homeform::sendMail() {
                    QString::number(bluetoothManager->device()->currentSpeed().max() * unit_conversion, 'f', 1) +
                    QStringLiteral("\n");
     textMessage += QStringLiteral("Calories burned: ") +
-                   QString::number(bluetoothManager->device()->calories(), 'f', 0) + QStringLiteral("\n");
+                   QString::number(bluetoothManager->device()->calories().value(), 'f', 0) + QStringLiteral("\n");
     textMessage += QStringLiteral("Distance: ") +
                    QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) +
                    QStringLiteral("\n");

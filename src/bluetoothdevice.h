@@ -37,7 +37,7 @@ class bluetoothdevice : public QObject {
     virtual QTime averagePace();
     virtual QTime maxPace();
     virtual double odometer();
-    virtual double calories();
+    virtual metric calories();
     metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
@@ -54,7 +54,7 @@ class bluetoothdevice : public QObject {
     uint16_t watts(double weight);
     metric wattsMetric();
     virtual bool changeFanSpeed(uint8_t speed);
-    virtual double elevationGain();
+    virtual metric elevationGain();
     virtual void clearStats();
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnectBluetooth();
@@ -114,7 +114,7 @@ class bluetoothdevice : public QObject {
     double requestFanSpeed = -1;
     double m_difficult = 1.0;
     metric m_jouls;
-    double elevationAcc = 0;
+    metric elevationAcc;
     metric m_watt;
     metric WattKg;
     metric WeightLoss;

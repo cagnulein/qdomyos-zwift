@@ -169,10 +169,10 @@ uint8_t bike::metrics_override_heartrate() {
         return qRound(Cadence.value());
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
 
-        return qRound(elevationGain());
+        return qRound(elevationGain().value());
     } else if (!setting.compare(QStringLiteral("Calories"))) {
 
-        return qRound(calories());
+        return qRound(calories().value());
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
 
         return qRound(odometer());

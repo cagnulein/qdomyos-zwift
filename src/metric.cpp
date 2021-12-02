@@ -38,6 +38,20 @@ void metric::setValue(double v) {
             v += settings.value(QStringLiteral("speed_offset"), 0.0).toDouble();
         }
     }
+
+    QDateTime now = QDateTime::currentDateTime();
+    if (v != m_value) {
+        if (m_last5.count() > 1) {
+            double diff = v - m_value;
+            double diffFromLastValue = qAbs(now.msecsTo(m_lastChanged));
+            if (diffFromLastValue > 0)
+                m_rateAtSec = diff * (1000.0 / diffFromLastValue);
+            else
+                m_rateAtSec = 0;
+        }
+        m_lastChanged = now;
+    }
+
     m_value = v;
 
     if (paused) {
@@ -50,7 +64,8 @@ void metric::setValue(double v) {
         m_totValue += value();
         m_lapTotValue += value();
         m_last5.append(value());
-        if(m_last5.count() > 5)
+
+        if (m_last5.count() > 5)
             m_last5.removeAt(0);
 
         if (value() < m_min) {
@@ -81,20 +96,20 @@ void metric::clear(bool accumulator) {
     m_min = 999999999;
     m_last5.clear();
     clearLap(accumulator);
-    #ifdef TEST
+#ifdef TEST
     random_value_uint8 = 0;
     random_value_uint32 = 0;
-    #endif
+#endif
 }
 
 double metric::value() {
 #ifdef TEST
-    if(m_type != METRIC_ELAPSED) {
+    if (m_type != METRIC_ELAPSED) {
         return (double)(rand() % 256);
     } else {
         return (double)(random_value_uint32++);
     }
-        
+
 #endif
     return m_value - m_offset;
 }
@@ -117,9 +132,8 @@ double metric::lapAverage() {
     }
 }
 
-double metric::average5s()
-{
-    if(m_last5.count() == 0)
+double metric::average5s() {
+    if (m_last5.count() == 0)
         return 0;
     else {
         double sum = 0;
@@ -131,7 +145,7 @@ double metric::average5s()
             c++;
         }
 
-        if(c>0)
+        if (c > 0)
             return (sum / c);
         else
             return 0;

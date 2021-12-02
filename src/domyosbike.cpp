@@ -116,8 +116,8 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
         display[16] = ((uint8_t)(currentCadence().value() * multiplier));
     }
 
-    display[19] = ((((uint16_t)calories()) * multiplier) >> 8) & 0xFF;
-    display[20] = (((uint16_t)calories()) * multiplier) & 0xFF;
+    display[19] = ((((uint16_t)calories().value()) * multiplier) >> 8) & 0xFF;
+    display[20] = (((uint16_t)calories().value()) * multiplier) & 0xFF;
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
         display[26] += display[i]; // the last byte is a sort of a checksum
