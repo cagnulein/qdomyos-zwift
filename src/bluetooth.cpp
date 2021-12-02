@@ -659,8 +659,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(tacxneo2Bike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral(">CABLE")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("MD")) && b.name().length() == 7) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) &&
-                         flywheel_life_fitness_ic8 == false)) &&
+                        // BIKE 1, BIKE 2, BIKE 3...
+                        (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && flywheel_life_fitness_ic8 == false &&
+                         b.name().length() == 6)) &&
                        !npeCableBike && filter) {
                 discoveryAgent->stop();
                 npeCableBike = new npecablebike(noWriteResistance, noHeartService);
@@ -906,8 +907,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(eslinkerTreadmill);
                 innerTemplateManager->start(eslinkerTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
-                        (b.name().toUpper().startsWith(QStringLiteral("BIKE 1")) &&
-                         flywheel_life_fitness_ic8 == true)) &&
+                        // BIKE 1, BIKE 2, BIKE 3...
+                        (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && flywheel_life_fitness_ic8 == true &&
+                         b.name().length() == 6)) &&
                        !flywheelBike && filter) {
 
                 discoveryAgent->stop();
@@ -1248,15 +1250,14 @@ void bluetooth::connectedAndDiscovered() {
             }
         }
 
-        if(fitmetriaFanfitEnabled) {
+        if (fitmetriaFanfitEnabled) {
             for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
                 if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b.name())) {
-                    fitmetria_fanfit* f = new fitmetria_fanfit();
+                    fitmetria_fanfit *f = new fitmetria_fanfit();
 
                     connect(f, &fitmetria_fanfit::debug, this, &bluetooth::debug);
 
-                    connect(this->device(), SIGNAL(fanSpeedChanged(uint8_t)), f,
-                            SLOT(fanSpeedRequest(uint8_t)));
+                    connect(this->device(), SIGNAL(fanSpeedChanged(uint8_t)), f, SLOT(fanSpeedRequest(uint8_t)));
 
                     f->deviceDiscovered(b);
                     fitmetriaFanfit.append(f);
@@ -1649,7 +1650,7 @@ void bluetooth::restart() {
     }
     if (fitmetriaFanfit.length()) {
 
-        foreach(fitmetria_fanfit* f, fitmetriaFanfit) {
+        foreach (fitmetria_fanfit *f, fitmetriaFanfit) {
             delete f;
             f = nullptr;
         }
@@ -1883,8 +1884,8 @@ void bluetooth::inclinationChanged(double grade, double inclination) {
 }
 
 bool bluetooth::fitmetria_fanfit_isconnected(QString name) {
-    foreach(fitmetria_fanfit* f, fitmetriaFanfit) {
-        if(!name.compare(f->bluetoothDevice.name()))
+    foreach (fitmetria_fanfit *f, fitmetriaFanfit) {
+        if (!name.compare(f->bluetoothDevice.name()))
             return true;
     }
     return false;
