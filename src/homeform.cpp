@@ -1725,7 +1725,6 @@ void homeform::update() {
         }
 
         emit signalChanged(signal());
-
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine(
             QStringLiteral("AVG: ") +
@@ -1739,8 +1738,8 @@ void homeform::update() {
                                 " /min");
         fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
-        calories->setSecondLine(QString::number(bluetoothManager->device()->jouls().rate1s() / 1000.0 * 60.0, 'f', 1) +
-                                " /min");
+        jouls->setSecondLine(QString::number(bluetoothManager->device()->jouls().rate1s() / 1000.0 * 60.0, 'f', 1) +
+                             " /min");
         elapsed->setValue(bluetoothManager->device()->elapsedTime().toString(QStringLiteral("h:mm:ss")));
         moving_time->setValue(bluetoothManager->device()->movingTime().toString(QStringLiteral("h:mm:ss")));
         if (trainProgram) {
