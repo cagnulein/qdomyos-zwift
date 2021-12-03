@@ -39,6 +39,8 @@
 #include "ios/lockscreen.h"
 #endif
 
+#include "garmin_connect.h"
+
 bool logs = true;
 bool noWriteResistance = false;
 bool noHeartService = true;
@@ -213,7 +215,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -288,6 +290,9 @@ int main(int argc, char *argv[]) {
     app->setOrganizationName(QStringLiteral("Roberto Viola"));
     app->setOrganizationDomain(QStringLiteral("robertoviola.cloud"));
     app->setApplicationName(QStringLiteral("qDomyos-Zwift"));
+
+    garmin_connect *a = new garmin_connect();
+    return 0;
 
     QSettings settings;
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
