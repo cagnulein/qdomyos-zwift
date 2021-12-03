@@ -203,10 +203,7 @@ class homeform : public QObject {
                     // Customize chart background
                     QLinearGradient backgroundGradient;
                     QSettings settings;
-                    double maxHeartRate = 220.0 - settings.value(QStringLiteral("age"), 35).toDouble();
-                    if (maxHeartRate == 0) {
-                        maxHeartRate = 190.0;
-                    }
+                    double maxHeartRate = heartRateMax();
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
@@ -471,6 +468,7 @@ class homeform : public QObject {
     int16_t fanOverride = 0;
 
     void update();
+    double heartRateMax();
     void backup();
     bool getDevice();
     bool getLap();

@@ -943,7 +943,7 @@ function process_arr(arr) {
 
 function dochart_init() {
     onSettingsOK = true;
-    keys_arr = ['ftp', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4']
+    keys_arr = ['ftp', 'age', 'heart_rate_zone1', 'heart_rate_zone2', 'heart_rate_zone3', 'heart_rate_zone4', 'heart_max_override_enable', 'heart_max_override_value']
     let el = new MainWSQueueElement({
             msg: 'getsettings',
             content: {
@@ -951,6 +951,8 @@ function dochart_init() {
             }
         }, function(msg) {
             if (msg.msg === 'R_getsettings') {
+                var heart_max_override_enable = false;
+                var heart_max_override_value = 195;
                 for (let key of keys_arr) {
                     if (msg.content[key] === undefined)
                         return null;
@@ -965,6 +967,10 @@ function dochart_init() {
                     } else if (key === 'age') {
                         age = msg.content[key];
                         maxHeartRate = 220 - age;
+                    } else if (key === 'heart_max_override_enable') {
+                        heart_max_override_enable = msg.content[key];
+                    } else if (key === 'heart_max_override_value') {
+                        heart_max_override_value = msg.content[key];
                     } else if (key === 'heart_rate_zone1') {
                         heartZones[0] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     } else if (key === 'heart_rate_zone2') {
@@ -975,6 +981,8 @@ function dochart_init() {
                         heartZones[3] = Math.round(maxHeartRate * (msg.content[key] / 100));
                     }
                 }
+                if(heart_max_override_enable)
+                    maxHeartRate = heart_max_override_value;
                 return msg.content;
             }
             return null;
