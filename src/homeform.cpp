@@ -2214,10 +2214,7 @@ void homeform::update() {
         }
 
         QString Z;
-        double maxHeartRate = 220.0 - settings.value(QStringLiteral("age"), 35).toDouble();
-        if (maxHeartRate == 0) {
-            maxHeartRate = 190.0;
-        }
+        double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
 
         if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) {
@@ -3358,4 +3355,16 @@ void homeform::loadSettings(const QUrl &filename) {
             settings.setValue(s, settings2Load.value(s));
         }
     }
+}
+
+double homeform::heartRateMax() {
+    QSettings settings;
+    double maxHeartRate = 220.0 - settings.value(QStringLiteral("age"), 35).toDouble();
+
+    if (settings.value(QStringLiteral("heart_max_override_enable"), false).toBool())
+        maxHeartRate = settings.value(QStringLiteral("heart_max_override_value"), 195).toDouble();
+    if (maxHeartRate == 0) {
+        maxHeartRate = 190.0;
+    }
+    return maxHeartRate;
 }

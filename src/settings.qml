@@ -130,6 +130,8 @@ import Qt.labs.settings 1.0
             property real heart_rate_zone2: 80.0
             property real heart_rate_zone3: 90.0
             property real heart_rate_zone4: 100.0
+            property bool heart_max_override_enable: false
+            property real heart_max_override_value: 195.0
 
             property real peloton_gain: 1.0
             property real peloton_offset: 0
@@ -420,105 +422,6 @@ import Qt.labs.settings 1.0
                         }
                     }
 
-                    AccordionElement {
-                        id: heartRateOptionsAccordion
-                        title: qsTr("Heart Rate Options")
-                        indicatRectColor: Material.color(Material.Grey)
-                        textColor: Material.color(Material.Grey)
-                        color: Material.backgroundColor
-                        accordionContent: ColumnLayout {
-                            spacing: 10
-                            SwitchDelegate {
-                                id: switchDelegate
-                                text: qsTr("Heart Rate service outside FTMS")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.bike_heartrate_service
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: settings.bike_heartrate_service = checked
-                            }
-                            SwitchDelegate {
-                                id: switchBultinDelegate
-                                text: qsTr("Disable HRM from Machinery")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.heart_ignore_builtin
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: settings.heart_ignore_builtin = checked
-                            }
-                            SwitchDelegate {
-                                id: switchBultinKcalDelegate
-                                text: qsTr("Disable KCal from Machinery")
-                                spacing: 0
-                                bottomPadding: 0
-                                topPadding: 0
-                                rightPadding: 0
-                                leftPadding: 0
-                                clip: false
-                                checked: settings.kcal_ignore_builtin
-                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                                Layout.fillWidth: true
-                                onClicked: settings.kcal_ignore_builtin = checked
-                            }
-                            RowLayout {
-                                spacing: 10
-                                Label {
-                                    id: labelHeartRateBelt
-                                    text: qsTr("Heart Belt Name:")
-                                    Layout.fillWidth: true
-                                }
-                                ComboBox {
-                                    id: heartBeltNameTextField
-                                    model: rootItem.bluetoothDevices
-                                    displayText: settings.heart_rate_belt_name
-                                    Layout.fillHeight: false
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onActivated: {
-                                        console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
-                                        displayText = heartBeltNameTextField.currentValue
-                                     }
-
-                                }
-                                Button {
-                                    id: okHeartBeltNameButton
-                                    text: "OK"
-                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                    onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
-                                }
-                            }
-
-                            Label {
-                                id: appleWatchLabel
-                                text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
-                                font.bold: true
-                                font.italic: true
-                                font.pixelSize: 8
-                                textFormat: Text.PlainText
-                                wrapMode: Text.WordWrap
-                                verticalAlignment: Text.AlignVCenter
-                                color: Material.color(Material.Red)
-                            }
-
-                            Button {
-                                id: refreshHeartBeltNameButton
-                                text: "Refresh Devices List"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: refresh_bluetooth_devices_clicked();
-                            }
-                        }
-                    }
-
-
                     SwitchDelegate {
                         id: unitDelegate
                         text: qsTr("Use Miles unit in UI")
@@ -577,6 +480,259 @@ import Qt.labs.settings 1.0
                 verticalAlignment: Text.AlignVCenter
                 color: Material.color(Material.Red)
             }*/
+
+            AccordionElement {
+                id: heartRateOptionsAccordion
+                title: qsTr("Heart Rate Options")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: ColumnLayout {
+                    spacing: 10
+                    SwitchDelegate {
+                        id: switchDelegate
+                        text: qsTr("Heart Rate service outside FTMS")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.bike_heartrate_service
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.bike_heartrate_service = checked
+                    }
+                    SwitchDelegate {
+                        id: switchBultinDelegate
+                        text: qsTr("Disable HRM from Machinery")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.heart_ignore_builtin
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.heart_ignore_builtin = checked
+                    }
+                    SwitchDelegate {
+                        id: switchBultinKcalDelegate
+                        text: qsTr("Disable KCal from Machinery")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.kcal_ignore_builtin
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.kcal_ignore_builtin = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelHeartRateBelt
+                            text: qsTr("Heart Belt Name:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: heartBeltNameTextField
+                            model: rootItem.bluetoothDevices
+                            displayText: settings.heart_rate_belt_name
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
+                                displayText = heartBeltNameTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okHeartBeltNameButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.heart_rate_belt_name = heartBeltNameTextField.displayText;
+                        }
+                    }
+
+                    Label {
+                        id: appleWatchLabel
+                        text: qsTr("Apple Watch users: leave it disabled! Just open the app on your watch")
+                        font.bold: true
+                        font.italic: true
+                        font.pixelSize: 8
+                        textFormat: Text.PlainText
+                        wrapMode: Text.WordWrap
+                        verticalAlignment: Text.AlignVCenter
+                        color: Material.color(Material.Red)
+                    }
+
+                    Button {
+                        id: refreshHeartBeltNameButton
+                        text: "Refresh Devices List"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: refresh_bluetooth_devices_clicked();
+                    }
+
+                    AccordionElement {
+                        id: heartRateZoneAccordion
+                        title: qsTr("Heart Rate Zone Options")
+                        indicatRectColor: Material.color(Material.Grey)
+                        textColor: Material.color(Material.Yellow)
+                        color: Material.backgroundColor
+                        accordionContent: ColumnLayout {
+                            spacing: 0
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelheartRateZone1Ratio
+                                    text: qsTr("Zone 1 %:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: heartRateZone1TextField
+                                    text: settings.heart_rate_zone1
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.heart_rate_zone1 = text
+                                }
+                                Button {
+                                    id: okHeartRateZone1Button
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.heart_rate_zone1 = heartRateZone1TextField.text
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelheartRateZone2Ratio
+                                    text: qsTr("Zone 2 %:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: heartRateZone2TextField
+                                    text: settings.heart_rate_zone2
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.heart_rate_zone2 = text
+                                }
+                                Button {
+                                    id: okHeartRateZone2Button
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.heart_rate_zone2 = heartRateZone2TextField.text
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelheartRateZone3Ratio
+                                    text: qsTr("Zone 3 %:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: heartRateZone3TextField
+                                    text: settings.heart_rate_zone3
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.heart_rate_zone3 = text
+                                }
+                                Button {
+                                    id: okHeartRateZone3Button
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.heart_rate_zone3 = heartRateZone3TextField.text
+                                }
+                            }
+
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelheartRateZone4Ratio
+                                    text: qsTr("Zone 4 %:")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: heartRateZone4TextField
+                                    text: settings.heart_rate_zone4
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    onAccepted: settings.heart_rate_zone4 = text
+                                }
+                                Button {
+                                    id: okHeartRateZone4Button
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.heart_rate_zone4 = heartRateZone4TextField.text
+                                }
+                            }
+
+                            AccordionElement {
+                                id: heartRatemaxOverrideAccordion
+                                title: qsTr("Heart Rate Max Override")
+                                indicatRectColor: Material.color(Material.Grey)
+                                textColor: Material.color(Material.Red)
+                                color: Material.backgroundColor
+                                accordionContent: ColumnLayout {
+                                    spacing: 10
+                                    SwitchDelegate {
+                                        id: heartRateMaxOverrideDelegate
+                                        text: qsTr("Override Heart Rate Max Calc.")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.heart_max_override_enable
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.heart_max_override_enable = checked
+                                    }
+
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelHeartRateMaxOverrideValue
+                                            text: qsTr("Max Heart Rate")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: heartRateMaxOverrideValueTextField
+                                            text: settings.heart_max_override_value
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.heart_max_override_value = text
+                                        }
+                                        Button {
+                                            id: okHeartRateMaxOverrideValue
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.heart_max_override_value = heartRateMaxOverrideValueTextField.text
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             AccordionElement {
                 id: bikeOptionsAccordion
@@ -2350,111 +2506,6 @@ import Qt.labs.settings 1.0
                 }
             }
 
-            AccordionElement {
-                id: heartRateZoneAccordion
-                title: qsTr("Heart Rate Zone Options")
-                indicatRectColor: Material.color(Material.Grey)
-                textColor: Material.color(Material.Grey)
-                color: Material.backgroundColor
-                accordionContent: ColumnLayout {
-                    spacing: 0
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelheartRateZone1Ratio
-                            text: qsTr("Zone 1 %:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: heartRateZone1TextField
-                            text: settings.heart_rate_zone1
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.heart_rate_zone1 = text
-                        }
-                        Button {
-                            id: okHeartRateZone1Button
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.heart_rate_zone1 = heartRateZone1TextField.text
-                        }
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelheartRateZone2Ratio
-                            text: qsTr("Zone 2 %:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: heartRateZone2TextField
-                            text: settings.heart_rate_zone2
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.heart_rate_zone2 = text
-                        }
-                        Button {
-                            id: okHeartRateZone2Button
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.heart_rate_zone2 = heartRateZone2TextField.text
-                        }
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelheartRateZone3Ratio
-                            text: qsTr("Zone 3 %:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: heartRateZone3TextField
-                            text: settings.heart_rate_zone3
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.heart_rate_zone3 = text
-                        }
-                        Button {
-                            id: okHeartRateZone3Button
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.heart_rate_zone3 = heartRateZone3TextField.text
-                        }
-                    }
-
-                    RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelheartRateZone4Ratio
-                            text: qsTr("Zone 4 %:")
-                            Layout.fillWidth: true
-                        }
-                        TextField {
-                            id: heartRateZone4TextField
-                            text: settings.heart_rate_zone4
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            onAccepted: settings.heart_rate_zone4 = text
-                        }
-                        Button {
-                            id: okHeartRateZone4Button
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.heart_rate_zone4 = heartRateZone4TextField.text
-                        }
-                    }
-                }
-            }
             AccordionElement {
                 id: pelotonAccordion
                 title: qsTr("Peloton Options") + "\uD83E\uDD47"
