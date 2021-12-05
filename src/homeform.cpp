@@ -1829,6 +1829,7 @@ void homeform::update() {
 
             // for Stryd and similar
             cadence = ((treadmill *)bluetoothManager->device())->currentCadence().value();
+            this->cadence->setValue(QString::number(cadence));
             this->cadence->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
