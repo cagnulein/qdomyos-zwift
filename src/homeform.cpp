@@ -1736,7 +1736,10 @@ void homeform::update() {
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
         calories->setSecondLine(QString::number(bluetoothManager->device()->calories().rate1s() * 60.0, 'f', 1) +
                                 " /min");
-        fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
+        if(!settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool())
+            fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
+        else
+            fan->setValue(QString::number(qRound(((double)bluetoothManager->device()->fanSpeed()) / 10.0) * 10.0));
         jouls->setValue(QString::number(bluetoothManager->device()->jouls().value() / 1000.0, 'f', 1));
         jouls->setSecondLine(QString::number(bluetoothManager->device()->jouls().rate1s() / 1000.0 * 60.0, 'f', 1) +
                              " /min");
@@ -1826,6 +1829,7 @@ void homeform::update() {
 
             // for Stryd and similar
             cadence = ((treadmill *)bluetoothManager->device())->currentCadence().value();
+            this->cadence->setValue(QString::number(cadence));
             this->cadence->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((treadmill *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
@@ -2465,8 +2469,9 @@ void homeform::update() {
                 qDebug() << QStringLiteral("fitmetria_fanfit heart mode")
                          << bluetoothManager->device()->currentHeart().value();
                 const uint8_t min = 80;
-                uint8_t v =
-                    ((bluetoothManager->device()->currentHeart().value() - min) * 100.0) / (double)(maxHeartRate - min);
+                uint8_t v = 0;
+                if(bluetoothManager->device()->currentHeart().value() > min && maxHeartRate > min)
+                    v = ((bluetoothManager->device()->currentHeart().value() - min) * 100.0) / (double)(maxHeartRate - min);
                 bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
             // Power Mode
@@ -2476,7 +2481,10 @@ void homeform::update() {
                 qDebug() << QStringLiteral("fitmetria_fanfit power mode") << watts;
                 const double percOverFtp = 1.20;
                 const double min = 50;
-                uint8_t v = ((watts - min) * 100.0) / (double)(((ftpSetting * percOverFtp) - min));
+                uint8_t v = 0;
+                double a = (double)(((ftpSetting * percOverFtp) - min));
+                if(watts >= min && a > 0)
+                    v = ((watts - min) * 100.0) / a;
                 bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
             // Wind mode
