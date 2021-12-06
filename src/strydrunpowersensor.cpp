@@ -138,8 +138,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
                        3.5) /
                       200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(QDateTime::currentDateTime()))));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        lastRefreshPowerChanged = QDateTime::currentDateTime();
 
     } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
@@ -156,12 +157,13 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         Cadence = cadence;
         emit cadenceChanged(cadence);
         emit speedChanged(speed);
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        Distance +=
+            ((Speed.value() / 3600000.0) * ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
+        lastRefreshCadenceChanged = QDateTime::currentDateTime();
     }
 
     if (!noVirtualDevice) {
@@ -184,8 +186,6 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
         }
     }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS
