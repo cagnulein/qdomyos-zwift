@@ -191,11 +191,6 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     double kcal = GetKcalFromPacket(newValue);
     double distance = GetDistanceFromPacket(newValue);
 
-    if (treadmill_type == TYPE::DKN && newValue.at(15) == 0x01) {
-        emit debug(QStringLiteral("forcing speed to 0 when the treadmill is idle"));
-        speed = 0;
-    }
-
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
