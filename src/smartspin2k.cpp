@@ -56,7 +56,6 @@ void smartspin2k::lowInit(int8_t resistance) {
 
 void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
 
-    static bool first = true;
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
     if (startupResistance == -1) {
         startupResistance = resistance;
@@ -320,6 +319,7 @@ void smartspin2k::controllerStateChanged(QLowEnergyController::ControllerState s
         qDebug() << QStringLiteral("trying to connect back again...");
 
         initDone = false;
+        first = true;
         m_control->connectToDevice();
     }
 }

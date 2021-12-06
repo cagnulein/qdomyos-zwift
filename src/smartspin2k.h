@@ -68,6 +68,7 @@ class smartspin2k : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool first = true;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
