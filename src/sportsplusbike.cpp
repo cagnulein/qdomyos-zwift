@@ -96,11 +96,12 @@ void sportsplusbike::update() {
         if (requestResistance < 0) {
             requestResistance = 0;
         }
-        if (requestResistance > 23) {
-            requestResistance = 23;
+        if (requestResistance > 24) {
+            requestResistance = 24;
         }
-        // noOpData[4] = requestResistance;
-        // noOpData[10] += requestResistance;
+        noOpData[2] = requestResistance;
+        noOpData[4] = (0x21 + requestResistance);
+        Resistance = requestResistance;
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
     }
 }
@@ -338,6 +339,7 @@ void sportsplusbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        requestResistance = 1;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &sportsplusbike::serviceDiscovered);
         connect(m_control, &QLowEnergyController::discoveryFinished, this, &sportsplusbike::serviceScanDone);
