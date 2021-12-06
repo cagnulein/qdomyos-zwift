@@ -63,6 +63,7 @@
 #include "solef80treadmill.h"
 
 #include "spirittreadmill.h"
+#include "sportsplusbike.h"
 #include "sportstechbike.h"
 #include "stagesbike.h"
 
@@ -117,6 +118,7 @@ class bluetooth : public QObject, public SignalHandler {
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
+    sportsplusbike *sportsPlusBike = nullptr;
     inspirebike *inspireBike = nullptr;
     snodebike *snodeBike = nullptr;
     eslinkertreadmill *eslinkerTreadmill = nullptr;
@@ -150,7 +152,7 @@ class bluetooth : public QObject, public SignalHandler {
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     fakebike *fakeBike = nullptr;
-    QList<fitmetria_fanfit*> fitmetriaFanfit;
+    QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
 
     bool testResistance = false;

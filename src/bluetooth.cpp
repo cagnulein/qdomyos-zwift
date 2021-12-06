@@ -842,6 +842,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsTechBike->deviceDiscovered(b);
                 userTemplateManager->start(sportsTechBike);
                 innerTemplateManager->start(sportsTechBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) && !sportsPlusBike && filter) {
+
+                discoveryAgent->stop();
+                sportsPlusBike = new sportsplusbike(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(sportsPlusBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(sportsPlusBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(sportsPlusBike, &sportsplusbike::debug, this, &bluetooth::debug);
+                // connect(sportsPlusBike, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(sportsPlusBike, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                sportsPlusBike->deviceDiscovered(b);
+                userTemplateManager->start(sportsPlusBike);
+                innerTemplateManager->start(sportsPlusBike);
             } else if (b.name().startsWith(QStringLiteral("YESOUL")) && !yesoulBike && filter) {
 
                 discoveryAgent->stop();
@@ -1591,6 +1607,11 @@ void bluetooth::restart() {
         delete sportsTechBike;
         sportsTechBike = nullptr;
     }
+    if (sportsPlusBike) {
+
+        delete sportsPlusBike;
+        sportsPlusBike = nullptr;
+    }
     if (inspireBike) {
 
         delete inspireBike;
@@ -1757,6 +1778,8 @@ bluetoothdevice *bluetooth::device() {
         return schwinnIC4Bike;
     } else if (sportsTechBike) {
         return sportsTechBike;
+    } else if (sportsPlusBike) {
+        return sportsPlusBike;
     } else if (inspireBike) {
         return inspireBike;
     } else if (chronoBike) {

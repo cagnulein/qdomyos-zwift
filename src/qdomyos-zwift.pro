@@ -137,6 +137,7 @@ SOURCES += \
    soleelliptical.cpp \
    solef80treadmill.cpp \
    spirittreadmill.cpp \
+   sportsplusbike.cpp \
    sportstechbike.cpp \
    strydrunpowersensor.cpp \
    tacxneo2.cpp \
@@ -458,6 +459,7 @@ HEADERS += \
    soleelliptical.h \
    solef80treadmill.h \
    spirittreadmill.h \
+   sportsplusbike.h \
    sportstechbike.h \
    strydrunpowersensor.h \
    tacxneo2.h \
