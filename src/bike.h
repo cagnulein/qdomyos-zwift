@@ -15,7 +15,6 @@ class bike : public bluetoothdevice {
     metric lastRequestedCadence();
     metric lastRequestedPower();
     virtual metric currentResistance();
-    virtual metric currentCadence();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();

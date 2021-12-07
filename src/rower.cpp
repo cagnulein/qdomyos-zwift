@@ -23,7 +23,6 @@ metric rower::lastRequestedPelotonResistance() { return RequestedPelotonResistan
 metric rower::lastRequestedCadence() { return RequestedCadence; }
 metric rower::lastRequestedPower() { return RequestedPower; }
 metric rower::currentResistance() { return Resistance; }
-metric rower::currentCadence() { return Cadence; }
 metric rower::currentStrokesCount() { return StrokesCount; }
 metric rower::currentStrokesLength() { return StrokesLength; }
 uint8_t rower::fanSpeed() { return FanSpeed; }

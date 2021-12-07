@@ -1736,7 +1736,7 @@ void homeform::update() {
         calories->setValue(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
         calories->setSecondLine(QString::number(bluetoothManager->device()->calories().rate1s() * 60.0, 'f', 1) +
                                 " /min");
-        if(!settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool())
+        if (!settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool())
             fan->setValue(QString::number(bluetoothManager->device()->fanSpeed()));
         else
             fan->setValue(QString::number(qRound(((double)bluetoothManager->device()->fanSpeed()) / 10.0) * 10.0));
@@ -1770,6 +1770,14 @@ void homeform::update() {
         weightLoss->setValue(QString::number(miles ? bluetoothManager->device()->weightLoss() * 35.274
                                                    : bluetoothManager->device()->weightLoss(),
                                              'f', 2));
+
+        cadence = bluetoothManager->device()->currentCadence().value();
+        this->cadence->setValue(QString::number(cadence));
+        this->cadence->setSecondLine(
+            QStringLiteral("AVG: ") +
+            QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
+            QStringLiteral(" MAX: ") +
+            QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -1827,15 +1835,6 @@ void homeform::update() {
                 QString::number(((treadmill *)bluetoothManager->device())->elevationGain().rate1s() * 60.0, 'f', 1) +
                 " /min");
 
-            // for Stryd and similar
-            cadence = ((treadmill *)bluetoothManager->device())->currentCadence().value();
-            this->cadence->setValue(QString::number(cadence));
-            this->cadence->setSecondLine(
-                QStringLiteral("AVG: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
-                QString::number(((treadmill *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
-
             if (bluetoothManager->device()->currentSpeed().value() < 9) {
                 speed->setValueFontColor(QStringLiteral("white"));
                 this->pace->setValueFontColor(QStringLiteral("white"));
@@ -1885,7 +1884,6 @@ void homeform::update() {
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             }
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
-            cadence = ((bike *)bluetoothManager->device())->currentCadence().value();
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((bike *)bluetoothManager->device())->pelotonResistance().value();
             this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
@@ -1898,14 +1896,8 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((bike *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
-            this->cadence->setValue(QString::number(cadence));
             this->gears->setValue(QString::number(((bike *)bluetoothManager->device())->gears()));
 
-            this->cadence->setSecondLine(
-                QStringLiteral("AVG: ") +
-                QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
-                QString::number(((bike *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
             this->resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((bike *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
@@ -1959,7 +1951,6 @@ void homeform::update() {
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(
                 QString::number(bluetoothManager->device()->odometer() * 1000.0 * unit_conversion, 'f', 0));
-            cadence = ((rower *)bluetoothManager->device())->currentCadence().value();
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((rower *)bluetoothManager->device())->pelotonResistance().value();
             totalStrokes = ((rower *)bluetoothManager->device())->currentStrokesCount().value();
@@ -1981,13 +1972,7 @@ void homeform::update() {
             this->target_power->setValue(
                 QString::number(((rower *)bluetoothManager->device())->lastRequestedPower().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance, 'f', 0));
-            this->cadence->setValue(QString::number(cadence));
 
-            this->cadence->setSecondLine(
-                QStringLiteral("AVG: ") +
-                QString::number(((rower *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
-                QStringLiteral(" MAX: ") +
-                QString::number(((rower *)bluetoothManager->device())->currentCadence().max(), 'f', 0));
             this->resistance->setSecondLine(
                 QStringLiteral("AVG: ") +
                 QString::number(((rower *)bluetoothManager->device())->currentResistance().average(), 'f', 0) +
@@ -2034,12 +2019,10 @@ void homeform::update() {
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
 
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
-            cadence = ((elliptical *)bluetoothManager->device())->currentCadence().value();
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
             // this->peloton_resistance->setValue(QString::number(((elliptical*)bluetoothManager->device())->pelotonResistance(),
             // 'f', 0));
             this->resistance->setValue(QString::number(resistance));
-            this->cadence->setValue(QString::number(cadence));
             inclination = ((elliptical *)bluetoothManager->device())->currentInclination().value();
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
@@ -2470,8 +2453,9 @@ void homeform::update() {
                          << bluetoothManager->device()->currentHeart().value();
                 const uint8_t min = 80;
                 uint8_t v = 0;
-                if(bluetoothManager->device()->currentHeart().value() > min && maxHeartRate > min)
-                    v = ((bluetoothManager->device()->currentHeart().value() - min) * 100.0) / (double)(maxHeartRate - min);
+                if (bluetoothManager->device()->currentHeart().value() > min && maxHeartRate > min)
+                    v = ((bluetoothManager->device()->currentHeart().value() - min) * 100.0) /
+                        (double)(maxHeartRate - min);
                 bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
             // Power Mode
@@ -2483,7 +2467,7 @@ void homeform::update() {
                 const double min = 50;
                 uint8_t v = 0;
                 double a = (double)(((ftpSetting * percOverFtp) - min));
-                if(watts >= min && a > 0)
+                if (watts >= min && a > 0)
                     v = ((watts - min) * 100.0) / a;
                 bluetoothManager->device()->changeFanSpeed(v + fanOverride);
             }
@@ -3217,6 +3201,16 @@ void homeform::sendMail() {
         textMessage +=
             QStringLiteral("Average Strokes Length: ") +
             QString::number(((rower *)bluetoothManager->device())->currentStrokesLength().average(), 'f', 1) + "\n";
+    } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        // for stryd and similars
+        if (bluetoothManager->device()->currentCadence().average() > 0) {
+            textMessage += QStringLiteral("Average Cadence: ") +
+                           QString::number((bluetoothManager->device())->currentCadence().average(), 'f', 0) +
+                           QStringLiteral("\n");
+            textMessage += QStringLiteral("Max Cadence: ") +
+                           QString::number((bluetoothManager->device())->currentCadence().max(), 'f', 0) +
+                           QStringLiteral("\n");
+        }
     }
     textMessage += QStringLiteral("\n\nQZ version: ") + QApplication::applicationVersion();
 #ifdef Q_OS_ANDROID

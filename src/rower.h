@@ -15,7 +15,6 @@ class rower : public bike {
     metric lastRequestedCadence();
     metric lastRequestedPower();
     virtual metric currentResistance();
-    virtual metric currentCadence();
     virtual metric currentStrokesCount();
     virtual metric currentStrokesLength();
     virtual QTime currentPace();

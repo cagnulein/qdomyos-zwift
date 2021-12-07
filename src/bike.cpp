@@ -72,7 +72,6 @@ metric bike::lastRequestedPelotonResistance() { return RequestedPelotonResistanc
 metric bike::lastRequestedCadence() { return RequestedCadence; }
 metric bike::lastRequestedPower() { return RequestedPower; }
 metric bike::currentResistance() { return Resistance; }
-metric bike::currentCadence() { return Cadence; }
 uint8_t bike::fanSpeed() { return FanSpeed; }
 bool bike::connected() { return false; }
 uint16_t bike::watts() { return 0; }
