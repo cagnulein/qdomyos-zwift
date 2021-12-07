@@ -39,7 +39,6 @@ class sportsplusbike : public bike {
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
-    double GetResistanceFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
@@ -51,7 +50,6 @@ class sportsplusbike : public bike {
     void startDiscover();
     uint16_t watts();
     double GetWattFromPacket(const QByteArray &packet);
-    double GetCadenceFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;

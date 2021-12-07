@@ -159,7 +159,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(11));
+            // Heart = ((uint8_t)newValue.at(11));
         }
     }
     FanSpeed = 0;
@@ -206,24 +206,6 @@ double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
 double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data = ((double)(convertedData));
-    return data;
-}
-
-double sportsplusbike::GetCadenceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(17);
-    double data = (convertedData);
-    if (data < 0) {
-        return 0;
-    }
-    return data;
-}
-
-double sportsplusbike::GetResistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(15);
-    double data = (convertedData);
-    if (data < 0) {
-        return 0;
-    }
     return data;
 }
 
