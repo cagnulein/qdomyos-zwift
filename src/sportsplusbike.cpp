@@ -101,7 +101,6 @@ void sportsplusbike::update() {
         }
         noOpData[2] = requestResistance;
         noOpData[4] = (0x21 + requestResistance);
-        Resistance = requestResistance;
         writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
     }
 }
