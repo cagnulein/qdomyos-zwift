@@ -453,6 +453,7 @@ class homeform : public QObject {
     DataObject *remaningTimeTrainingProgramCurrentRow;
     DataObject *mets;
     DataObject *targetMets;
+    DataObject *steeringAngle;
 
     QTimer *timer;
     QTimer *backupTimer;

@@ -57,6 +57,7 @@ SOURCES += \
    echelonrower.cpp \
    echelonstride.cpp \
    eliterizer.cpp \
+   elitesterzosmart.cpp \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
     fakebike.cpp \
@@ -180,6 +181,7 @@ HEADERS += \
    echelonrower.h \
    echelonstride.h \
    eliterizer.h \
+   elitesterzosmart.h \
 	 elliptical.h \
    eslinkertreadmill.h \
     fakebike.h \

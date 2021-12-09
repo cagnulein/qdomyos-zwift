@@ -1,4 +1,4 @@
-#include "eliterizer.h"
+#include "elitesterzosmart.h"
 #include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -17,30 +17,19 @@
 
 using namespace std::chrono_literals;
 
-eliterizer::eliterizer(bool noWriteResistance, bool noHeartService) {
+elitesterzosmart::elitesterzosmart(bool noWriteResistance, bool noHeartService) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     initDone = false;
-    connect(refresh, &QTimer::timeout, this, &eliterizer::update);
+    connect(refresh, &QTimer::timeout, this, &elitesterzosmart::update);
     refresh->start(200ms);
 }
 
-void eliterizer::autoResistanceChanged(bool value) { Q_UNUSED(value); }
-
-void eliterizer::changeInclinationRequested(double grade, double percentage) {
-    Q_UNUSED(grade);
-    uint8_t incline[] = {0x0a, 0x00, 0x00};
-    incline[1] = ((int16_t)(percentage * 10.0)) & 0xff;
-    incline[2] = (((int16_t)(percentage * 10.0)) >> 8) & 0xff;
-    writeCharacteristic(incline, sizeof(incline),
-                        QStringLiteral("changeInclinationRequested ") + QString::number(percentage), false, true);
-}
-
-void eliterizer::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                     bool wait_for_response) {
+void elitesterzosmart::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                           bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -64,7 +53,7 @@ void eliterizer::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
     loop.exec();
 }
 
-void eliterizer::update() {
+void elitesterzosmart::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -90,11 +79,12 @@ void eliterizer::update() {
     }
 }
 
-void eliterizer::serviceDiscovered(const QBluetoothUuid &gatt) {
+void elitesterzosmart::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void eliterizer::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void elitesterzosmart::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
 
     Q_UNUSED(characteristic);
 
@@ -102,35 +92,17 @@ void eliterizer::characteristicChanged(const QLowEnergyCharacteristic &character
 
     lastPacket = newValue;
 
-    if (newValue.length() >= 3) {
-        uint8_t response = newValue.at(2);
-        switch (response) {
-        case 0:
-            qDebug() << "Wrong parameters command";
-            break;
-        case 1:
-            qDebug() << "Out of range";
-            break;
-        case 2:
-            qDebug() << "Success";
-            break;
-        case 3:
-            qDebug() << "Wrong";
-            break;
-        case 4:
-            qDebug() << "Fail";
-            break;
-        case 5:
-            qDebug() << "Command not accessible";
-            break;
-        }
+    if (newValue.length() >= 4) {
+        const float *ptrFloat = reinterpret_cast<const float *>(newValue.constData());
+        emit debug(QStringLiteral("Steering Angle: ") + *ptrFloat + "°");
+        m_steeringAngle = *ptrFloat;
     }
 }
 
-void eliterizer::stateChanged(QLowEnergyService::ServiceState state) {
+void elitesterzosmart::stateChanged(QLowEnergyService::ServiceState state) {
 
-    QBluetoothUuid _gattWriteCharacteristicId((QString) "347B0020–7635–408B–8918–8FF3949CE592");
-    QBluetoothUuid _gattNotify1CharacteristicId((QString) "347B0021–7635–408B–8918–8FF3949CE592");
+    QBluetoothUuid _gattWriteCharacteristicId((QString) "347B0030–7635–408B–8918–8FF3949CE592");
+    QBluetoothUuid _gattNotify1CharacteristicId((QString) "347B0031–7635–408B–8918–8FF3949CE592");
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -165,28 +137,29 @@ void eliterizer::stateChanged(QLowEnergyService::ServiceState state) {
     }
 }
 
-void eliterizer::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void elitesterzosmart::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void eliterizer::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void elitesterzosmart::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
 
-void eliterizer::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void elitesterzosmart::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
 
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void eliterizer::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void elitesterzosmart::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
-void eliterizer::serviceScanDone(void) {
+void elitesterzosmart::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     QBluetoothUuid _gattCommunicationChannelServiceId((QString) "347B0001–7635–408B–8918–8FF3949CE592");
@@ -197,33 +170,33 @@ void eliterizer::serviceScanDone(void) {
     gattCommunicationChannelService->discoverDetails();
 }
 
-void eliterizer::errorService(QLowEnergyService::ServiceError err) {
+void elitesterzosmart::errorService(QLowEnergyService::ServiceError err) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("eliterizer::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("elitesterzosmart::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void eliterizer::error(QLowEnergyController::Error err) {
+void elitesterzosmart::error(QLowEnergyController::Error err) {
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("eliterizer::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("elitesterzosmart::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void eliterizer::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+void elitesterzosmart::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &eliterizer::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &eliterizer::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &elitesterzosmart::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &elitesterzosmart::serviceScanDone);
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &eliterizer::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &eliterizer::controllerStateChanged);
+                this, &elitesterzosmart::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &elitesterzosmart::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -250,7 +223,7 @@ void eliterizer::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
-bool eliterizer::connected() {
+bool elitesterzosmart::connected() {
     if (!m_control) {
 
         return false;
@@ -258,11 +231,11 @@ bool eliterizer::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *eliterizer::VirtualBike() { return virtualBike; }
+void *elitesterzosmart::VirtualBike() { return virtualBike; }
 
-void *eliterizer::VirtualDevice() { return VirtualBike(); }
+void *elitesterzosmart::VirtualDevice() { return VirtualBike(); }
 
-uint16_t eliterizer::watts() {
+uint16_t elitesterzosmart::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
@@ -270,7 +243,7 @@ uint16_t eliterizer::watts() {
     return m_watt.value();
 }
 
-void eliterizer::controllerStateChanged(QLowEnergyController::ControllerState state) {
+void elitesterzosmart::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");

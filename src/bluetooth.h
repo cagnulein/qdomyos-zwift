@@ -28,6 +28,7 @@
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
 #include "eliterizer.h"
+#include "elitesterzosmart.h"
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
 #include "fitmetria_fanfit.h"
@@ -151,6 +152,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerBike = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
+    elitesterzosmart *eliteSterzoSmart = nullptr;
     fakebike *fakeBike = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
@@ -173,6 +175,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool cscSensorAvaiable();
     bool powerSensorAvaiable();
     bool eliteRizerAvaiable();
+    bool eliteSterzoSmartAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
   signals:

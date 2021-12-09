@@ -126,10 +126,13 @@ void bluetooth::finished() {
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
     QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
+    QString eliteSterzoSmartName =
+        settings.value(QStringLiteral("elite_sterzo_smart_name"), QStringLiteral("Disabled")).toString();
     bool cscFound = cscName.startsWith(QStringLiteral("Disabled")) && !csc_as_bike;
     bool powerSensorFound =
         powerSensorName.startsWith(QStringLiteral("Disabled")) && !power_as_bike && !power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
+    bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
     bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
@@ -141,7 +144,7 @@ void bluetooth::finished() {
 
     if ((!heartRateBeltFound && !heartRateBeltAvaiable()) || (!ftmsAccessoryFound && !ftmsAccessoryAvaiable()) ||
         (!cscFound && !cscSensorAvaiable()) || (!powerSensorFound && !powerSensorAvaiable()) ||
-        (!eliteRizerFound && !eliteRizerAvaiable())) {
+        (!eliteRizerFound && !eliteRizerAvaiable()) || (!eliteSterzoSmartFound && !eliteSterzoSmartAvaiable())) {
 
         // force heartRateBelt off
         forceHeartBeltOffForTimeout = true;
@@ -237,6 +240,21 @@ bool bluetooth::eliteRizerAvaiable() {
     return false;
 }
 
+bool bluetooth::eliteSterzoSmartAvaiable() {
+
+    QSettings settings;
+    QString eliteSterzoSmartName =
+        settings.value(QStringLiteral("elite_sterzo_smart_name"), QStringLiteral("Disabled")).toString();
+
+    Q_FOREACH (QBluetoothDeviceInfo b, devices) {
+        if (!eliteSterzoSmartName.compare(b.name())) {
+
+            return true;
+        }
+    }
+    return false;
+}
+
 bool bluetooth::heartRateBeltAvaiable() {
 
     QSettings settings;
@@ -278,9 +296,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
     QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
+    QString eliteSterzoSmartName =
+        settings.value(QStringLiteral("elite_sterzo_smart_name"), QStringLiteral("Disabled")).toString();
     bool powerSensorFound =
         powerSensorName.startsWith(QStringLiteral("Disabled")) || power_as_bike || power_as_treadmill;
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
+    bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     bool fake_bike = settings.value(QStringLiteral("applewatch_fakedevice"), false).toBool();
 
     if (!heartRateBeltFound) {
@@ -302,6 +323,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (!eliteRizerFound) {
 
         eliteRizerFound = eliteRizerAvaiable();
+    }
+    if (!eliteSterzoSmartFound) {
+
+        eliteSterzoSmartFound = eliteSterzoSmartAvaiable();
     }
 
     bool found = false;
@@ -328,7 +353,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (onlyDiscover)
         return;
 
-    if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound) ||
+    if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
+         eliteSterzoSmartFound) ||
         forceHeartBeltOffForTimeout) {
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
 
@@ -1182,6 +1208,8 @@ void bluetooth::connectedAndDiscovered() {
     QString powerSensorName =
         settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled")).toString();
     QString eliteRizerName = settings.value(QStringLiteral("elite_rizer_name"), QStringLiteral("Disabled")).toString();
+    QString eliteSterzoSmartName =
+        settings.value(QStringLiteral("elite_sterzo_smart_name"), QStringLiteral("Disabled")).toString();
     bool fitmetriaFanfitEnabled = settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool();
 
     // only at the first very connection, setting the user default resistance
@@ -1358,6 +1386,28 @@ void bluetooth::connectedAndDiscovered() {
             connect(eliteRizer, &eliterizer::debug, this, &bluetooth::debug);
             connect(this->device(), &bluetoothdevice::inclinationChanged, eliteRizer, &eliterizer::inclinationChanged);
             eliteRizer->deviceDiscovered(b);
+            break;
+        }
+    }
+
+    for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
+        if (((b.name().startsWith(eliteSterzoSmartName))) && !eliteSterzoSmart &&
+            !eliteSterzoSmartName.startsWith(QStringLiteral("Disabled")) && this->device() &&
+            this->device()->deviceType() == bluetoothdevice::BIKE) {
+            settings.setValue(QStringLiteral("elite_sterzo_smart_lastdevice_name"), b.name());
+
+#ifndef Q_OS_IOS
+            settings.setValue(QStringLiteral("elite_sterzo_smart_address"), b.address().toString());
+#else
+            settings.setValue("elite_sterzo_smart_address", b.deviceUuid().toString());
+#endif
+            eliteSterzoSmart = new elitesterzosmart(false, false);
+            // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
+
+            connect(eliteSterzoSmart, &elitesterzosmart::debug, this, &bluetooth::debug);
+            connect(eliteSterzoSmart, &eliterizer::steeringAngleChanged, (bike *)this->device(),
+                    &bike::changeSteeringAngle);
+            eliteSterzoSmart->deviceDiscovered(b);
             break;
         }
     }
@@ -1700,6 +1750,12 @@ void bluetooth::restart() {
         // heartRateBelt->disconnectBluetooth(); // to test
         delete eliteRizer;
         eliteRizer = nullptr;
+    }
+    if (eliteSterzoSmart) {
+
+        // heartRateBelt->disconnectBluetooth(); // to test
+        delete eliteSterzoSmart;
+        eliteSterzoSmart = nullptr;
     }
     discoveryAgent->start();
 }

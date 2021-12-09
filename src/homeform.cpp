@@ -192,6 +192,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                           QStringLiteral("mets"), 48, labelFontSize);
     targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"),
                                 QStringLiteral("0"), false, QStringLiteral("targetmets"), 48, labelFontSize);
+    steeringAngle = new DataObject(QStringLiteral("Steering"), QStringLiteral("icons/icons/cadence.png"),
+                                   QStringLiteral("0"), false, QStringLiteral("steeringangle"), 48, labelFontSize);
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
@@ -518,8 +520,8 @@ void homeform::trainProgramSignals() {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(34);
-    for (int i = 0; i < 33; i++) {
+    r.reserve(35);
+    for (int i = 0; i < 34; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -863,6 +865,12 @@ void homeform::sortTiles() {
                     inclination->setGridId(i);
                     dataList.append(inclination);
                 }
+            }
+            if (settings.value(QStringLiteral("tile_steering_angle_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_steering_angle_order"), 30).toInt() == i) {
+
+                steeringAngle->setGridId(i);
+                dataList.append(steeringAngle);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -1932,6 +1940,10 @@ void homeform::update() {
                     this->target_cadence->setSecondLine(QLatin1String(""));
                 }
             }
+
+            this->steeringAngle->setValue(
+                QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
+
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             if (bluetoothManager->device()->currentSpeed().value()) {
                 pace = 10000 / (((rower *)bluetoothManager->device())->currentPace().second() +

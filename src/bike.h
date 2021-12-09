@@ -31,6 +31,7 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate();
     void setGears(int8_t d);
     int8_t gears();
+    metric currentSteeringAngle() { return m_steeringAngle; }
 
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
@@ -40,11 +41,13 @@ class bike : public bluetoothdevice {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void changeInclination(double grade, double percentage);
+    virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
 
   Q_SIGNALS:
     void bikeStarted();
     void resistanceChanged(int8_t resistance);
     void resistanceRead(int8_t resistance);
+    void steeringAngleChanged(double angle);
 
   protected:
     metric RequestedResistance;
@@ -65,6 +68,8 @@ class bike : public bluetoothdevice {
     double CrankRevs = 0;
 
     metric m_pelotonResistance;
+
+    metric m_steeringAngle;
 };
 
 #endif // BIKE_H
