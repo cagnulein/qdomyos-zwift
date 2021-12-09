@@ -296,6 +296,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.ui_zoom = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okUiZoomButton
@@ -320,6 +321,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.weight = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okWeightButton
@@ -344,6 +346,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.age = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okAgeButton
@@ -368,6 +371,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ftp = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFTPButton
@@ -391,6 +395,7 @@ import Qt.labs.settings 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.user_nickname = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okNicknameButton
@@ -414,6 +419,7 @@ import Qt.labs.settings 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.user_email = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okEmailButton
@@ -601,6 +607,7 @@ import Qt.labs.settings 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone1 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone1Button
@@ -625,6 +632,7 @@ import Qt.labs.settings 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone2 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone2Button
@@ -649,6 +657,7 @@ import Qt.labs.settings 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone3 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone3Button
@@ -673,6 +682,7 @@ import Qt.labs.settings 1.0
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     inputMethodHints: Qt.ImhFormattedNumbersOnly
                                     onAccepted: settings.heart_rate_zone4 = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                 }
                                 Button {
                                     id: okHeartRateZone4Button
@@ -720,6 +730,7 @@ import Qt.labs.settings 1.0
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             inputMethodHints: Qt.ImhDigitsOnly
                                             onAccepted: settings.heart_max_override_value = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                         }
                                         Button {
                                             id: okHeartRateMaxOverrideValue
@@ -789,6 +800,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.bike_resistance_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeResistanceOffsetButton
@@ -813,6 +825,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_gain_f = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeResistanceGainButton
@@ -837,6 +850,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_filter = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okzwiftErgFilterButton
@@ -861,6 +875,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_erg_filter_down = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okzwiftErgDownFilterButton
@@ -885,6 +900,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_start = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okBikeResistanceStartButton
@@ -940,6 +956,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.horizon_gr7_cadence_multiplier = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okhorizonGr7CadenceMultiplierButton
@@ -1137,6 +1154,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.flywheel_filter = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okflywheelBikeFilterButton
@@ -1182,6 +1200,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.domyos_bike_cadence_filter = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okDomyosBikeCadenceFilter
@@ -1226,6 +1245,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.proform_wheel_ratio = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okproformBikeWheelRatioButton
@@ -1319,6 +1339,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.m3i_bike_id = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okm3iBikeIdButton
@@ -1343,6 +1364,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.m3i_bike_speed_buffsize = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okm3iBikeSpeedBuffsizeButton
@@ -2544,6 +2566,7 @@ import Qt.labs.settings 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.peloton_username = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPelotonUsernameButton
@@ -2569,6 +2592,7 @@ import Qt.labs.settings 1.0
                             inputMethodHints: Qt.ImhHiddenText
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.peloton_password = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPelotonPasswordButton
@@ -2619,6 +2643,7 @@ import Qt.labs.settings 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.pzp_username = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPZPUsernameButton
@@ -2644,6 +2669,7 @@ import Qt.labs.settings 1.0
                             inputMethodHints: Qt.ImhHiddenText
                             echoMode: TextInput.PasswordEchoOnEdit
                             onAccepted: settings.pzp_password = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPZPPasswordButton
@@ -2668,6 +2694,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPelotonGainButton
@@ -2692,6 +2719,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPelotonOffsetButton
@@ -2888,6 +2916,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.trainprogram_total = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomDuration
@@ -2912,6 +2941,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.trainprogram_period_seconds = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomPeriod
@@ -2936,6 +2966,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_min = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomSpeedMin
@@ -2960,6 +2991,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_max = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomSpeedMax
@@ -2984,6 +3016,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_min = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomInclineMin
@@ -3008,6 +3041,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_max = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomInclineMax
@@ -3032,6 +3066,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.trainprogram_resistance_min = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomResistanceMin
@@ -3056,6 +3091,7 @@ import Qt.labs.settings 1.0
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.trainprogram_resistance_max = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
                             Button {
                                 id: okTrainProgramRandomResistanceMax
@@ -3261,6 +3297,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.fitshow_user_id = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okfitshowTreadmillUserIdButton
@@ -3448,6 +3485,7 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         inputMethodHints: Qt.ImhDigitsOnly
                         onAccepted: settings.domyos_elliptical_speed_ratio = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
                         id: okDomyosEllipticalRatioButton
@@ -3518,6 +3556,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.watt_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okwattOffsetButton
@@ -3542,6 +3581,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.watt_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okWattGainButton
@@ -3566,6 +3606,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.speed_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okspeedOffsetButton
@@ -3590,6 +3631,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.speed_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okSpeedGainButton
@@ -3622,6 +3664,7 @@ import Qt.labs.settings 1.0
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onAccepted: settings.strava_suffix = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okStravaSuffixButton
@@ -3748,6 +3791,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.cadence_sensor_speed_ratio = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okCadenceSpeedRatio
@@ -3932,6 +3976,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.ss2k_shift_step = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okSS2kShiftStep
@@ -4008,6 +4053,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.fitmetria_fanfit_min = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFitmetriaFanFitMin
@@ -4031,6 +4077,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
                             onAccepted: settings.fitmetria_fanfit_max = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okFitmetriaFanFitMax
@@ -4066,6 +4113,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.power_hr_pwr1 = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPowerFromHeartPWR1
@@ -4090,6 +4138,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.power_hr_hr1 = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPowerFromHeartHR1
@@ -4114,6 +4163,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.power_hr_pwr2 = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPowerFromHeartPWR2
@@ -4138,6 +4188,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.power_hr_hr2 = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okPowerFromHeartHR2
