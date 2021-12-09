@@ -11,6 +11,8 @@ $ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: 
 $ sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
+$ git submodule update --init src/smtpclient/
+$ git submodule update --init src/qmdnsengine/
 $ cd src
 $ qmake
 $ make -j4
