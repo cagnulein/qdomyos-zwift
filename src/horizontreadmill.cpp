@@ -44,7 +44,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
     QEventLoop loop;
     QTimer timeout;
 
-    if (!gattCustomService) {
+    if (!service) {
         qDebug() << "no gattCustomService available";
         return;
     }
@@ -53,8 +53,7 @@ void horizontreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnerg
         connect(this, &horizontreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(3000, &loop, SLOT(quit()));
     } else {
-        connect(gattCustomService, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop,
-                SLOT(quit()));
+        connect(service, SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 

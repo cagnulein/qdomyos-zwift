@@ -143,6 +143,7 @@ SOURCES += \
    strydrunpowersensor.cpp \
    tacxneo2.cpp \
     tcpclientinfosender.cpp \
+   technogymmyruntreadmill.cpp \
     templateinfosender.cpp \
     templateinfosenderbuilder.cpp \
    stagesbike.cpp \
@@ -466,6 +467,7 @@ HEADERS += \
    strydrunpowersensor.h \
    tacxneo2.h \
     tcpclientinfosender.h \
+   technogymmyruntreadmill.h \
     templateinfosender.h \
     templateinfosenderbuilder.h \
    stagesbike.h \
@@ -548,5 +550,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.8.138
+VERSION = 2.8.139
 

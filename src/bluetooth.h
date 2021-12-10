@@ -70,6 +70,7 @@
 
 #include "renphobike.h"
 #include "tacxneo2.h"
+#include "technogymmyruntreadmill.h"
 
 #include "echelonstride.h"
 
@@ -116,6 +117,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformbike *proformBike = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
+    technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
