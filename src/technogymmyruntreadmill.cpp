@@ -133,7 +133,6 @@ void technogymmyruntreadmill::update() {
     }
 }
 
-// example frame: 55aa320003050400532c00150000
 void technogymmyruntreadmill::forceSpeed(double requestSpeed) {
     if (gattCommunicationChannelService) {
         // for the Tecnogym Myrun
@@ -145,15 +144,14 @@ void technogymmyruntreadmill::forceSpeed(double requestSpeed) {
                             "start simulation", false, true);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
-        writeS[1] = ((uint16_t)requestSpeed * 100) & 0xFF;
-        writeS[2] = ((uint16_t)requestSpeed * 100) >> 8;
+        writeS[1] = (uint16_t)(requestSpeed * 100) & 0xFF;
+        writeS[2] = (uint16_t)(requestSpeed * 100) >> 8;
 
         writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, true);
     }
 }
 
-// example frame: 55aa3800030603005d0b0a0000
 void technogymmyruntreadmill::forceIncline(double requestIncline) {
     if (gattCommunicationChannelService) {
         // for the Tecnogym Myrun
@@ -165,8 +163,8 @@ void technogymmyruntreadmill::forceIncline(double requestIncline) {
                             "start simulation", false, true);
 
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
-        writeS[1] = ((int16_t)requestIncline * 10) & 0xFF;
-        writeS[2] = ((int16_t)requestIncline * 10) >> 8;
+        writeS[1] = (int16_t)(requestIncline * 10) & 0xFF;
+        writeS[2] = (int16_t)(requestIncline * 10) >> 8;
 
         writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceIncline"), false, true);
@@ -186,6 +184,9 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+
+    // it should linked to the indicate frame
+    emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
@@ -379,6 +380,13 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
 
     gattCommunicationChannelService->writeDescriptor(
         gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+    QByteArray indicate;
+    indicate.append((char)0x02);
+    indicate.append((char)0x00);
+
+    gattCommunicationChannelService->writeDescriptor(
+        gattWriteCharControlPointId.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), indicate);
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
             &technogymmyruntreadmill::characteristicChanged);
