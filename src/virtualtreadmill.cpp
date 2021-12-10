@@ -249,11 +249,11 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             emit debug("new requested incline " + QString::number(requestIncline));
         } else if ((char)newValue.at(0) == 0x07) // Start request
         {
-            treadMill->start();
+            //treadMill->start();
             emit debug(QStringLiteral("request to start"));
         } else if ((char)newValue.at(0) == 0x08) // Stop request
         {
-            treadMill->stop();
+            //treadMill->stop();
             emit debug(QStringLiteral("request to stop"));
         } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
         {
