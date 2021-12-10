@@ -109,6 +109,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
 
     QSettings settings;
     bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
+    bool domyos_treadmill_display_invert = settings.value(QStringLiteral("domyos_treadmill_display_invert"), false).toBool();
 
     if (elapsed > 5999) // 99:59
     {
@@ -121,20 +122,26 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
     }
 
     if (distance) {
-        if (odometer() < 10.0) {
+        if(!domyos_treadmill_display_invert) {
+            if (odometer() < 10.0) {
 
-            display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
-            display[8] = (uint8_t)(odometer() * 100) & 0xFF;
-            display[9] = 0x02; // decimal position
-        } else if (odometer() < 100.0) {
+                display[7] = ((uint8_t)((uint16_t)(odometer() * 100) >> 8)) & 0xFF;
+                display[8] = (uint8_t)(odometer() * 100) & 0xFF;
+                display[9] = 0x02; // decimal position
+            } else if (odometer() < 100.0) {
 
-            display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
-            display[8] = (uint8_t)(odometer() * 10) & 0xFF;
-            display[9] = 0x01; // decimal position
+                display[7] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
+                display[8] = (uint8_t)(odometer() * 10) & 0xFF;
+                display[9] = 0x01; // decimal position
+            } else {
+
+                display[7] = ((uint8_t)(odometer()) >> 8) & 0xFF;
+                display[8] = (uint8_t)(odometer()) & 0xFF;
+                display[9] = 0x00; // decimal position
+            }
         } else {
-
-            display[7] = ((uint8_t)(odometer()) >> 8) & 0xFF;
-            display[8] = (uint8_t)(odometer()) & 0xFF;
+            display[7] = ((uint8_t)(calories().value()) >> 8) & 0xFF;
+            display[8] = (uint8_t)(calories().value()) & 0xFF;
             display[9] = 0x00; // decimal position
         }
     } else {
@@ -150,8 +157,13 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
 
     display[20] = (uint8_t)(currentSpeed().value() * 10.0);
 
-    display[23] = ((uint8_t)(calories().value()) >> 8) & 0xFF;
-    display[24] = (uint8_t)(calories().value()) & 0xFF;
+    if(!domyos_treadmill_display_invert) {
+        display[23] = ((uint8_t)(calories().value()) >> 8) & 0xFF;
+        display[24] = (uint8_t)(calories().value()) & 0xFF;
+    } else {
+        display[23] = ((uint8_t)(odometer()) >> 8) & 0xFF;
+        display[24] = (uint8_t)(odometer()) & 0xFF;
+    }
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
 

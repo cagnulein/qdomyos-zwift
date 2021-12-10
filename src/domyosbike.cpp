@@ -77,21 +77,15 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
     }
 
     QSettings settings;
-    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
-    bool domyos_bike_display_invert = settings.value(QStringLiteral("domyos_bike_display_invert"), true).toBool();
+    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();    
 
     // if(bike_type == CHANG_YOW)
     if (distance) {
         uint8_t display2[] = {0xf0, 0xcd, 0x01, 0x00, 0x00, 0x01, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                               0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00};
 
-        if (!domyos_bike_display_invert) {
-            display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
-            display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
-        } else {
-            display2[3] = ((((uint16_t)calories().value()) * multiplier) >> 8) & 0xFF;
-            display2[4] = (((uint16_t)calories().value()) * multiplier) & 0xFF;
-        }
+        display2[3] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
+        display2[4] = (((uint16_t)(odometer() * 10))) & 0xFF;
 
         for (uint8_t i = 0; i < sizeof(display2) - 1; i++) {
             display2[26] += display2[i]; // the last byte is a sort of a checksum
@@ -122,13 +116,8 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
         display[16] = ((uint8_t)(currentCadence().value() * multiplier));
     }
 
-    if (!domyos_bike_display_invert) {
-        display[19] = ((((uint16_t)calories().value()) * multiplier) >> 8) & 0xFF;
-        display[20] = (((uint16_t)calories().value()) * multiplier) & 0xFF;
-    } else {
-        display[19] = ((((uint16_t)(odometer() * 10))) >> 8) & 0xFF;
-        display[20] = (((uint16_t)(odometer() * 10))) & 0xFF;
-    }
+    display[19] = ((((uint16_t)calories().value()) * multiplier) >> 8) & 0xFF;
+    display[20] = (((uint16_t)calories().value()) * multiplier) & 0xFF;
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
         display[26] += display[i]; // the last byte is a sort of a checksum

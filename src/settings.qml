@@ -142,9 +142,9 @@ import Qt.labs.settings 1.0
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
+            property bool domyos_treadmill_display_invert: false
 
-            property real domyos_bike_cadence_filter: 0.0
-            property bool domyos_bike_display_invert: true
+            property real domyos_bike_cadence_filter: 0.0            
 
             property real domyos_elliptical_speed_ratio: 1.0
 
@@ -1321,20 +1321,6 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text
                         }
-                    }
-                    SwitchDelegate {
-                        id: domyosBikeDisplayInvertdelegate
-                        text: qsTr("Fix Distance on Display")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.domyos_bike_display_invert
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.domyos_bike_display_invert = checked
                     }
                 }
                 AccordionElement {
@@ -3364,6 +3350,21 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.domyos_treadmill_distance_display = checked
+                        }
+
+                        SwitchDelegate {
+                            id: domyosTreadmillDisplayInvertdelegate
+                            text: qsTr("Fix Distance on Display")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.domyos_treadmill_display_invert
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.domyos_treadmill_display_invert = checked
                         }
                     }
                 }
