@@ -161,8 +161,8 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
         display[23] = ((uint8_t)(calories().value()) >> 8) & 0xFF;
         display[24] = (uint8_t)(calories().value()) & 0xFF;
     } else {
-        display[23] = ((uint8_t)(odometer()) >> 8) & 0xFF;
-        display[24] = (uint8_t)(odometer()) & 0xFF;
+        display[23] = ((uint8_t)(odometer() * 10) >> 8) & 0xFF;
+        display[24] = (uint8_t)(odometer() * 10) & 0xFF;
     }
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
