@@ -185,8 +185,8 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    // it should linked to the indicate frame
-    emit packetReceived();
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD9))
+        emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
