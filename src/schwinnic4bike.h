@@ -40,6 +40,7 @@ class schwinnic4bike : public bike {
   public:
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
     int pelotonToBikeResistance(int pelotonResistance);
+    uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
 
     void *VirtualBike();
@@ -48,6 +49,7 @@ class schwinnic4bike : public bike {
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    uint16_t wattsFromResistance(double resistance);
     void startDiscover();
     uint16_t watts();
 
@@ -67,6 +69,8 @@ class schwinnic4bike : public bike {
 
     bool noWriteResistance = false;
     bool noHeartService = false;
+
+    const uint8_t max_resistance = 100;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

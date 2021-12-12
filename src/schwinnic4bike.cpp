@@ -298,6 +298,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
+    // if ee change this, also change the wattsFromResistance function. We can create a standard function in order to have all
+    // the costants in one place (I WANT MORE TIME!!!)
     double ac = 0.01243107769;
     double bc = 1.145964912;
     double cc = -23.50977444;
@@ -557,3 +559,49 @@ int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
         return pelotonResistance;
     }
 }
+
+uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
+    QSettings settings;
+
+    double ac = 0.01243107769;
+    double bc = 1.145964912;
+    double cc = -23.50977444;
+
+    double ar = 0.1469553975;
+    double br = -5.841344538;
+    double cr = 97.62165482;
+
+    for(uint16_t i=1; i<2000; i+=5) {
+        double res =
+            (((sqrt(pow(br, 2.0) -
+                    4.0 * ar *
+                        (cr - ((double)i * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+               br) /
+              (2.0 * ar)) *
+             settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+
+        if(!isnan(res) && res == resistance) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    for (int i = 1; i < max_resistance; i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << power;
+            return i;
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return max_resistance;
+}
+
