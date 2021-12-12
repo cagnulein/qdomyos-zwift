@@ -347,6 +347,14 @@ int main(int argc, char *argv[]) {
     return 0;
 #endif
 
+    settings.setValue("log_debug", true);
+    settings.setValue("virtual_device_ifit",true);
+    virtualbike V(new bike(), noWriteResistance,
+                  noHeartService); // FIXED: clang-analyzer-cplusplus.NewDeleteLeaks - potential leak
+
+    Q_UNUSED(V)
+    return app->exec();
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     if (!forceQml) {
         if (onlyVirtualBike) {

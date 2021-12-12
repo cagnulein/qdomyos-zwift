@@ -584,6 +584,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
             writeCharacteristic(service, characteristic, reply4);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(5)) == 0x81  && ((uint8_t)newValue.at(6)) == 0xb3) {
+            reply1 = QByteArray::fromHex("fe0233040205070502021083260200b400000040");
+            reply2 = QByteArray::fromHex("00120104022f072f020200000000000000000000");
+            reply3 = QByteArray::fromHex("0112000001010000000001000000000000000000");
+            reply4 = QByteArray::fromHex("ff0f0000002c010000b40000000000001e000000");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+            writeCharacteristic(service, characteristic, reply3);
+            writeCharacteristic(service, characteristic, reply4);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x84) {
             reply1 = QByteArray::fromHex("fe022003002ae8030024f400f401000001020000");
             reply2 = QByteArray::fromHex("00120104021c071c8402539600302e312e303631");
@@ -605,6 +614,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((((uint8_t)newValue.at(8)) == 0x39) || ((uint8_t)newValue.at(8)) == 0xfd)) {
+            reply1 = QByteArray::fromHex("fe021c03002c010000b40000000000001e000000");
+            reply2 = QByteArray::fromHex("001201040218071802020000ffffffffffffffff");
+            reply3 = QByteArray::fromHex("ff0a0000000000000000001bffffffffffffffff");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+            writeCharacteristic(service, characteristic, reply3);
         } else if (newValue.length() > 9 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00 &&
                    ((uint8_t)newValue.at(9)) == 0xd1) {
             reply1 = QByteArray::fromHex("fe020a025a313130313737af31373131302d4e4e");
@@ -620,6 +636,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x3d) {
             reply1 = QByteArray::fromHex("fe0209020205070502021000000000b400000003");
             reply2 = QByteArray::fromHex("ff0901040205070502021000000000b400000003");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0e && ((uint8_t)newValue.at(2)) == 0x2a) {
+            reply1 = QByteArray::fromHex("fe02090202060706900208a7ffffffffffffffff");
+            reply2 = QByteArray::fromHex("ff09010402050705020210a7ffffffffffffffff");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
@@ -653,6 +674,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
             writeCharacteristic(service, characteristic, reply4);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF) {
+            qDebug() << "YOU HAVE TO MANAGE ME!";
         }
     }
 
