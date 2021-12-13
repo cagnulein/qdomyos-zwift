@@ -584,7 +584,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
             writeCharacteristic(service, characteristic, reply4);
-        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(5)) == 0x81  && ((uint8_t)newValue.at(6)) == 0xb3) {
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(5)) == 0x81 &&
+                   ((uint8_t)newValue.at(6)) == 0xb3) {
             reply1 = QByteArray::fromHex("fe0233040205070502021083260200b400000040");
             reply2 = QByteArray::fromHex("00120104022f072f020200000000000000000000");
             reply3 = QByteArray::fromHex("0112000001010000000001000000000000000000");
@@ -614,7 +615,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
-        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((((uint8_t)newValue.at(8)) == 0x39) || ((uint8_t)newValue.at(8)) == 0xfd)) {
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF &&
+                   ((((uint8_t)newValue.at(8)) == 0x39) || ((uint8_t)newValue.at(8)) == 0xfd)) {
             reply1 = QByteArray::fromHex("fe021c03002c010000b40000000000001e000000");
             reply2 = QByteArray::fromHex("001201040218071802020000ffffffffffffffff");
             reply3 = QByteArray::fromHex("ff0a0000000000000000001bffffffffffffffff");
@@ -638,9 +640,17 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply2 = QByteArray::fromHex("ff0901040205070502021000000000b400000003");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
-        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0e && ((uint8_t)newValue.at(2)) == 0x2a) {
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0e &&
+                   ((uint8_t)newValue.at(2)) == 0x2a) {
             reply1 = QByteArray::fromHex("fe02090202060706900208a7ffffffffffffffff");
             reply2 = QByteArray::fromHex("ff09010402050705020210a7ffffffffffffffff");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+        } // ff0d0204020907
+        else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0d &&
+                 ((uint8_t)newValue.at(2)) == 0x02) {
+            reply1 = QByteArray::fromHex("fe0209020000302a00000075ffffffffffffffff");
+            reply2 = QByteArray::fromHex("ff0901040205070502021075ffffffffffffffff");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
