@@ -5,7 +5,7 @@ import QtGraphicalEffects 1.12
 
 Page {
 
-    title: qsTr("qDomyos-Zwift")
+    title: qsTr("QZ Fitness")
     id: page
 
     property alias start: start
