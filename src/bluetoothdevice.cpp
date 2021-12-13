@@ -152,8 +152,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             if (watt_calc) {
                 m_watt = watts;
-                WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
             }
+            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
         } else if (m_watt.value() > 0) {
 
             m_watt = 0;
@@ -163,8 +163,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         // useful for FTP test
         if (watt_calc) {
             m_watt = watts;
-            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
         }
+        WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
     } else if (m_watt.value() > 0) {
 
         m_watt = 0;
