@@ -148,6 +148,8 @@ import Qt.labs.settings 1.0
 
             property real domyos_elliptical_speed_ratio: 1.0
 
+            property bool eslinker_cadenza: true
+
             property string echelon_watttable: "Echelon"
 
             property real proform_wheel_ratio: 0.33
@@ -3450,6 +3452,31 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: eslinkerTreadmillAccordion
+                    title: qsTr("ESLinker Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: eslinkerTreadmillCadenzaDelegate
+                            text: qsTr("Cadenza Treadmill (Bodytone)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.eslinker_cadenza
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.eslinker_cadenza = checked
                         }
                     }
                 }

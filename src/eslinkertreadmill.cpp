@@ -64,30 +64,28 @@ void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
     } else {
-        uint8_t display[] = {0x01, 0x01, 0x00};
-        display[2] = currentSpeed().value();
-
-        writeCharacteristic(display, sizeof(display),
-                            QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
     }
 }
 
-/*
-void eslinkertreadmill::forceSpeed(double requestSpeed)
-{
-   uint8_t writeIncline[] = { 0xa9, 0x01, 0x01, 0x00, 0x00 };
+void eslinkertreadmill::forceIncline(double requestIncline) {
+    if (treadmill_type == CADENZA_FITNESS_T45) {
+        uint8_t display[] = {0x04, 0x01, 0x00};
+        display[2] = requestIncline;
 
-   writeIncline[3] = ((uint8_t)(requestSpeed*10));
-
-   for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
-   {
-      writeIncline[4] += writeIncline[i]; // the last byte is a sort of a checksum
-   }
-
-   writeCharacteristic(writeIncline, sizeof(writeIncline), "forceSpeed speed=" + QString::number(requestSpeed), false,
-false);
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestIncline), false, false);
+    }
 }
-*/
+
+void eslinkertreadmill::forceSpeed(double requestSpeed) {
+    if (treadmill_type == CADENZA_FITNESS_T45) {
+        uint8_t display[] = {0x01, 0x01, 0x00};
+        display[2] = requestSpeed * 10;
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
+    }
+}
 
 void eslinkertreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -133,7 +131,7 @@ void eslinkertreadmill::update() {
                         //                        inc = requestInclination;
                         requestInclination = -1;
                     }
-                    // forceSpeedOrIncline(requestSpeed, inc);
+                    forceSpeed(requestSpeed);
                 }
                 requestSpeed = -1;
             }
@@ -146,7 +144,7 @@ void eslinkertreadmill::update() {
                         // speed = requestSpeed;
                         requestSpeed = -1;
                     }
-                    // forceSpeedOrIncline(speed, requestInclination);
+                    forceIncline(requestInclination);
                 }
                 requestInclination = -1;
             }
@@ -182,11 +180,6 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
-
-    if ((uint8_t)newValue.at(0) != 0xA9) {
-        emit debug(QStringLiteral("CADENZA_FITNESS_T45 protocol"));
-        treadmill_type = CADENZA_FITNESS_T45;
-    }
 
     emit packetReceived();
 
@@ -290,12 +283,11 @@ void eslinkertreadmill::btinit(bool startTape) {
     uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
     uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
-    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
-    uint8_t initData3_CADENZA[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
+    uint8_t initData2_CADENZA[] = {0x09, 0x01, 0x03};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     if (treadmill_type == RHYTHM_FUN) {
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
@@ -312,7 +304,6 @@ void eslinkertreadmill::btinit(bool startTape) {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
     } else {
         writeCharacteristic(initData2_CADENZA, sizeof(initData2_CADENZA), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData3_CADENZA, sizeof(initData3_CADENZA), QStringLiteral("init"), false, true);
     }
 
     initDone = true;
@@ -418,6 +409,13 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             searchStopped = false;
             emit disconnected();
         });
+
+        QSettings settings;
+        bool eslinker_cadenza = settings.value(QStringLiteral("eslinker_cadenza"), true).toBool();
+        if (eslinker_cadenza)
+            treadmill_type = CADENZA_FITNESS_T45;
+        else
+            treadmill_type = RHYTHM_FUN;
 
         // Connect
         m_control->connectToDevice();
