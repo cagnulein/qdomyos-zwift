@@ -38,6 +38,7 @@ class peloton : public QObject {
     QString current_workout_id = QLatin1String("");
     QString current_workout_name = QLatin1String("");
     QString current_workout_status = QLatin1String("");
+    QString current_workout_type = QLatin1String("");
     QString current_instructor_id = QLatin1String("");
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");

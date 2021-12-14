@@ -380,6 +380,19 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
 
     stravaPelotonActivityName = name;
     stravaPelotonInstructorName = instructor;
+    if (pelotonHandler) {
+        if (pelotonHandler->current_workout_type.toLower().startsWith("meditation") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("cardio") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("circuit") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("strength") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
+            pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
+            stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
+        else
+            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+    } else {
+        stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+    }
     emit workoutNameChanged(workoutName());
     emit instructorNameChanged(instructorName());
 
@@ -414,7 +427,8 @@ void homeform::backup() {
         QString filename = path + QString::number(index) + backupFitFileName;
         QFile::remove(filename);
         qfit::save(filename, Session, dev->deviceType(),
-                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE);
+                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
+                   stravaPelotonWorkoutType);
 
         index++;
         if (index > 1) {
@@ -1557,6 +1571,7 @@ void homeform::Start_inner(bool send_event_to_device) {
 
             stravaPelotonActivityName = QLatin1String("");
             stravaPelotonInstructorName = QLatin1String("");
+            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
             emit workoutNameChanged(workoutName());
             emit instructorNameChanged(instructorName());
             emit workoutEventStateChanged(bluetoothdevice::STARTED);
@@ -2577,7 +2592,8 @@ void homeform::fit_save_clicked() {
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral(".fit");
         qfit::save(filename, Session, dev->deviceType(),
-                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE);
+                   qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
+                   stravaPelotonWorkoutType);
         lastFitFileSaved = filename;
 
         QSettings settings;

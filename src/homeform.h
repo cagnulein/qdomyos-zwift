@@ -3,6 +3,7 @@
 
 #include "bluetooth.h"
 
+#include "fit_profile.hpp"
 #include "peloton.h"
 #include "screencapture.h"
 #include "sessionline.h"
@@ -412,6 +413,7 @@ class homeform : public QObject {
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
+    FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
 
     QString lastFitFileSaved = QLatin1String("");
