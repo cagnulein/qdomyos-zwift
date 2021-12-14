@@ -37,6 +37,7 @@ class inspirebike : public bike {
     Q_OBJECT
   public:
     inspirebike(bool noWriteResistance, bool noHeartService);
+    uint8_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();

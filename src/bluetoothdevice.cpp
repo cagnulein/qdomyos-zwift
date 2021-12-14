@@ -252,6 +252,8 @@ QStringList bluetoothdevice::metrics() {
     return r;
 }
 
+uint8_t bluetoothdevice::maxResistance() { return 100; }
+
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;

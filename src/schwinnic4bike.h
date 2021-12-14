@@ -41,6 +41,7 @@ class schwinnic4bike : public bike {
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
     int pelotonToBikeResistance(int pelotonResistance);
     uint8_t resistanceFromPowerRequest(uint16_t power);
+    uint8_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();

@@ -298,8 +298,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    // if ee change this, also change the wattsFromResistance function. We can create a standard function in order to have all
-    // the costants in one place (I WANT MORE TIME!!!)
+    // if ee change this, also change the wattsFromResistance function. We can create a standard function in order to
+    // have all the costants in one place (I WANT MORE TIME!!!)
     double ac = 0.01243107769;
     double bc = 1.145964912;
     double cc = -23.50977444;
@@ -571,7 +571,7 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
     double br = -5.841344538;
     double cr = 97.62165482;
 
-    for(uint16_t i=1; i<2000; i+=5) {
+    for (uint16_t i = 1; i < 2000; i += 5) {
         double res =
             (((sqrt(pow(br, 2.0) -
                     4.0 * ar *
@@ -581,7 +581,7 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
              settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
             settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
 
-        if(!isnan(res) && res == resistance) {
+        if (!isnan(res) && res >= resistance) {
             return i;
         }
     }
@@ -604,4 +604,3 @@ uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
     else
         return max_resistance;
 }
-

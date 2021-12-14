@@ -17,9 +17,10 @@
 
 using namespace std::chrono_literals;
 
-smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService) {
+smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
+    this->max_resistance = max_resistance;
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -131,9 +132,8 @@ void smartspin2k::update() {
         }
 
         if (requestResistance != -1) {
-            // TODO the max resistance should be inherited from the parent
-            if (requestResistance > 32) {
-                requestResistance = 32;
+            if (requestResistance > max_resistance) {
+                requestResistance = max_resistance;
             } // TODO, use the bluetooth value
             else if (requestResistance == 0) {
                 requestResistance = 1;

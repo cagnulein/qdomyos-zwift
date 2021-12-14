@@ -41,6 +41,7 @@ class renphobike : public bike {
     int pelotonToBikeResistance(int pelotonResistance);
     // uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
+    uint8_t maxResistance() { return max_resistance; }
 
     void *VirtualBike();
     void *VirtualDevice();

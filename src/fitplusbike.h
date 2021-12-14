@@ -37,6 +37,7 @@ class fitplusbike : public bike {
     Q_OBJECT
   public:
     fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    uint8_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();

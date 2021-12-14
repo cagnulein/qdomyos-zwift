@@ -40,7 +40,7 @@ class smartspin2k : public bike {
 
     Q_OBJECT
   public:
-    smartspin2k(bool noWriteResistance, bool noHeartService);
+    smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance);
     bool connected();
 
     void *VirtualBike();
@@ -74,6 +74,8 @@ class smartspin2k : public bike {
     bool noHeartService = false;
 
     int8_t startupResistance = -1;
+
+    uint8_t max_resistance;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

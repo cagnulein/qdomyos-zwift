@@ -75,6 +75,7 @@ class bluetoothdevice : public QObject {
     virtual BLUETOOTH_TYPE deviceType();
     static QStringList metrics();
     virtual uint8_t metrics_override_heartrate();
+    virtual uint8_t maxResistance();
 
   public Q_SLOTS:
     virtual void start();
