@@ -149,27 +149,31 @@ void eslinkertreadmill::update() {
                 }
                 requestInclination = -1;
             }
-            if (requestStart != -1) {
-                emit debug(QStringLiteral("starting..."));
-                if (lastSpeed == 0.0) {
-                    lastSpeed = 0.5;
-                }
-                btinit(true);
-                requestStart = -1;
-                emit tapeStarted();
-            }
-            if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping..."));
-                // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
-                requestStop = -1;
-            }
         } else {
             // we need always to send values
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                forceSpeed(requestSpeed);
-            } else {
-                forceSpeed(requestInclination);
+            if (requestSpeed != -1 && requestInclination != -1) {
+                if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                    forceSpeed(requestSpeed);
+                } else {
+                    forceIncline(requestInclination);
+                }
             }
+        }
+
+        if (requestStart != -1) {
+            emit debug(QStringLiteral("starting..."));
+            if (lastSpeed == 0.0) {
+                lastSpeed = 0.5;
+            }
+            if (treadmill_type == TYPE::RHYTHM_FUN)
+                btinit(true);
+            requestStart = -1;
+            emit tapeStarted();
+        }
+        if (requestStop != -1) {
+            emit debug(QStringLiteral("stopping..."));
+            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
+            requestStop = -1;
         }
     }
 }
@@ -195,7 +199,11 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
             newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
             uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
-
+            if (requestSpeed == -1) {
+                requestSpeed = 0;
+                requestInclination = 0;
+                qDebug() << QStringLiteral("we can start send force commands");
+            }
             writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, false);
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1 && newValue.at(2) == -1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
