@@ -662,8 +662,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
         } // ff0e...
         else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0e) {
-            reply1 = QByteArray::fromHex("fe02090202060706900208a70000000049000000");
-            reply2 = QByteArray::fromHex("ff09010402050705020210a70000000049000000");
+            reply1 = QByteArray::fromHex("fe02090202060706900208a7ffffffffffffffff");
+            reply2 = QByteArray::fromHex("ff09010402050705020210a7ffffffffffffffff");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
