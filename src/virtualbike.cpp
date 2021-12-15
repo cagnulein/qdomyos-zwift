@@ -673,18 +673,19 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QByteArray reply;
         if (((uint8_t)newValue.at(1)) == 0xA1) {
 
-            // f0a106000700290104cc
+            // f0 a1 06 01 0b 00 33 06 03 df
             reply.append(0xf0);
             reply.append(0xa1);
             reply.append(0x06);
+            reply.append((char)0x01);
+            reply.append(0x0b);
             reply.append((char)0x00);
-            reply.append(0x07);
-            reply.append((char)0x00);
-            reply.append(0x29);
-            reply.append(0x01);
-            reply.append(0x04);
-            reply.append(0xcc);
+            reply.append(0x33);
+            reply.append(0x06);
+            reply.append(0x03);
+            reply.append(0xdf);
             writeCharacteristic(service, characteristic, reply);
+            echelonInitDone = true;
         } else if (((uint8_t)newValue.at(1)) == 0xA3) {
 
             // f0 a3 02 20 01 b6
@@ -722,8 +723,6 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
             reply = newValue;
             writeCharacteristic(service, characteristic, reply);
-            if (newValue.length() == 5)
-                echelonInitDone = true;
         }
     }
 }
