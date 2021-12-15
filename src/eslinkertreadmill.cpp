@@ -26,7 +26,7 @@ eslinkertreadmill::eslinkertreadmill(uint32_t pollDeviceTime, bool noConsole, bo
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &eslinkertreadmill::update);
-    refresh->start(pollDeviceTime);
+    refresh->start(500ms);
 }
 
 void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -76,7 +76,8 @@ void eslinkertreadmill::forceIncline(double requestIncline) {
         display[2] = requestIncline;
 
         writeCharacteristic(display, sizeof(display),
-                            QStringLiteral("forceSpeed speed=") + QString::number(requestIncline), false, false);
+                            QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false,
+                            false);
     }
 }
 
@@ -96,6 +97,10 @@ void eslinkertreadmill::update() {
         return;
     }
 
+    qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
+             << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone << treadmill_type
+             << requestSpeed << requestInclination;
+
     if (initRequest) {
         initRequest = false;
         btinit((lastSpeed > 0 ? true : false));
@@ -104,7 +109,7 @@ void eslinkertreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
+        if (!firstInit && !virtualTreadMill) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
@@ -186,8 +191,8 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                                               const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
-    // QString heartRateBeltName = settings.value(QStringLiteral("heart_rate_belt_name"), //Unused variable
-    // QStringLiteral("Disabled")).toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -199,7 +204,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
             newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
             uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
-            if (requestSpeed == -1) {
+            if (requestSpeed == -1 || requestInclination == -1) {
                 requestSpeed = 0;
                 requestInclination = 0;
                 qDebug() << QStringLiteral("we can start send force commands");
@@ -211,7 +216,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             writeCharacteristic(display, sizeof(display), QStringLiteral("var1"), false, false);
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
-            if (requestSpeed == -1) {
+            if (requestSpeed == -1 || requestInclination == -1) {
                 requestSpeed = 0;
                 requestInclination = 0;
                 qDebug() << QStringLiteral("we can start send force commands");
@@ -226,11 +231,23 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             display[4] = (uint8_t)(newValue.at(4) ^ 66);
             writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, false);
         } else if (newValue.length() == 4 && newValue.at(0) == 8 && newValue.at(1) == 2) {
-            if (requestSpeed == -1) {
+            if (requestSpeed == -1 || requestInclination == -1) {
                 qDebug() << QStringLiteral("we can start send force commands");
                 requestSpeed = 0;
                 requestInclination = 0;
             }
+        } else if (newValue.length() == 3 && newValue.at(0) == 2 && newValue.at(1) == 1) {
+            uint8_t heart = newValue.at(2);
+#ifdef Q_OS_ANDROID
+            if (settings.value("ant_heart", false).toBool())
+                Heart = (uint8_t)KeepAwakeHelper::heart();
+            else
+#endif
+            {
+                if (heartRateBeltName.startsWith("Disabled"))
+                    Heart = heart;
+            }
+            emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
         }
     }
 
@@ -260,7 +277,6 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
@@ -442,7 +458,6 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));
-                    searchStopped = false;
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
@@ -453,7 +468,6 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("LowEnergy controller disconnected"));
-            searchStopped = false;
             emit disconnected();
         });
 
@@ -489,5 +503,3 @@ bool eslinkertreadmill::connected() {
 void *eslinkertreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *eslinkertreadmill::VirtualDevice() { return VirtualTreadMill(); }
-
-void eslinkertreadmill::searchingStop() { searchStopped = true; }

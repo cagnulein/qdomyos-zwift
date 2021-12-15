@@ -53,7 +53,6 @@ class eslinkertreadmill : public treadmill {
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
-    bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QByteArray lastPacket;
@@ -84,7 +83,6 @@ class eslinkertreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
 
