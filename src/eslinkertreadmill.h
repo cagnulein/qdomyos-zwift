@@ -50,7 +50,6 @@ class eslinkertreadmill : public treadmill {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    volatile bool incompletePackets = false;
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;

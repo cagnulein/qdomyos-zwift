@@ -38,8 +38,8 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         connect(this, &eslinkertreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        // connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop,
+        // &QEventLoop::quit); timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(
@@ -50,10 +50,13 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
                    QStringLiteral(" // ") + info);
     }
 
-    loop.exec();
+    // packets sent from the characChanged event, i don't want to block everything
+    if (!wait_for_response) {
+        loop.exec();
 
-    if (timeout.isActive() == false)
-        emit debug(QStringLiteral(" exit for timeout"));
+        if (timeout.isActive() == false)
+            emit debug(QStringLiteral(" exit for timeout"));
+    }
 }
 
 void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
@@ -120,9 +123,7 @@ void eslinkertreadmill::update() {
             updateDisplay(elapsed.value());
         }
 
-        // byte 3 - 4 = elapsed time
-        // byte 17    = inclination
-        if (incompletePackets == false) {
+        if (treadmill_type == TYPE::RHYTHM_FUN) {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -162,6 +163,13 @@ void eslinkertreadmill::update() {
                 // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
                 requestStop = -1;
             }
+        } else {
+            // we need always to send values
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                forceSpeed(requestSpeed);
+            } else {
+                forceSpeed(requestInclination);
+            }
         }
     }
 }
@@ -183,13 +191,44 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit packetReceived();
 
+    if (treadmill_type == CADENZA_FITNESS_T45) {
+        if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
+            newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
+            uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
+
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, false);
+        } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1 && newValue.at(2) == -1) {
+            uint8_t display[] = {0x08, 0x01, 0x01};
+
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var1"), false, false);
+        } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1) {
+            uint8_t display[] = {0x08, 0x01, 0x01};
+            if (requestSpeed == -1) {
+                requestSpeed = 0;
+                requestInclination = 0;
+                qDebug() << QStringLiteral("we can start send force commands");
+            }
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var1"), false, false);
+        } else if (newValue.length() == 5 && newValue.at(0) == 8 && newValue.at(1) == 3 &&
+                   (uint8_t)newValue.at(3) == (uint8_t)(newValue.at(2) ^ 245) &&
+                   (uint8_t)newValue.at(4) == (uint8_t)(newValue.at(2) ^ 222)) {
+            uint8_t display[] = {0x08, 0x03, 0x00, 0x00, 0x00};
+            display[2] = newValue.at(4);
+            display[3] = (uint8_t)(newValue.at(4) ^ 245);
+            display[4] = (uint8_t)(newValue.at(4) ^ 66);
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, false);
+        } else if (newValue.length() == 4 && newValue.at(0) == 8 && newValue.at(1) == 2) {
+            if (requestSpeed == -1) {
+                qDebug() << QStringLiteral("we can start send force commands");
+                requestSpeed = 0;
+                requestInclination = 0;
+            }
+        }
+    }
+
     if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN) ||
         (newValue.length() != 15 && treadmill_type == CADENZA_FITNESS_T45))
         return;
-
-    // adding this in order to have the same frame structure to the parser
-    if (treadmill_type == CADENZA_FITNESS_T45)
-        value.insert((int)0, 0xa9);
 
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
@@ -283,7 +322,7 @@ void eslinkertreadmill::btinit(bool startTape) {
     uint8_t initData11[] = {0xa9, 0x01, 0x01, 0x08, 0xa1};
     uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
-    uint8_t initData2_CADENZA[] = {0x09, 0x01, 0x03};
+    uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
 
     if (treadmill_type == RHYTHM_FUN) {
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
@@ -412,9 +451,9 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
         QSettings settings;
         bool eslinker_cadenza = settings.value(QStringLiteral("eslinker_cadenza"), true).toBool();
-        if (eslinker_cadenza)
+        if (eslinker_cadenza) {
             treadmill_type = CADENZA_FITNESS_T45;
-        else
+        } else
             treadmill_type = RHYTHM_FUN;
 
         // Connect
