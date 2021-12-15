@@ -51,7 +51,7 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     }
 
     // packets sent from the characChanged event, i don't want to block everything
-    if (!wait_for_response) {
+    if (wait_for_response) {
         loop.exec();
 
         if (timeout.isActive() == false)
