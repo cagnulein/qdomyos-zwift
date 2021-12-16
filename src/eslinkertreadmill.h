@@ -34,6 +34,7 @@ class eslinkertreadmill : public treadmill {
     eslinkertreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
+    double minStepInclination();
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -58,6 +59,7 @@ class eslinkertreadmill : public treadmill {
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+    uint8_t requestHandshake = 0;
 
     typedef enum TYPE {
         RHYTHM_FUN = 0,

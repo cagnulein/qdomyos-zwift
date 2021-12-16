@@ -81,6 +81,8 @@ void eslinkertreadmill::forceIncline(double requestIncline) {
     }
 }
 
+double eslinkertreadmill::minStepInclination() { return 1.0; }
+
 void eslinkertreadmill::forceSpeed(double requestSpeed) {
     if (treadmill_type == CADENZA_FITNESS_T45) {
         uint8_t display[] = {0x01, 0x01, 0x00};
@@ -155,12 +157,23 @@ void eslinkertreadmill::update() {
                 requestInclination = -1;
             }
         } else {
-            // we need always to send values
-            if (requestSpeed != -1 && requestInclination != -1) {
-                if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                    forceSpeed(requestSpeed);
-                } else {
-                    forceIncline(requestInclination);
+            if (requestHandshake) {
+                requestHandshake--;
+                if (!requestHandshake) {
+                    uint8_t display[] = {0x08, 0x03, 0x00, 0x00, 0x00};
+                    display[2] = 0;
+                    display[3] = (uint8_t)(display[2] ^ 245);
+                    display[4] = (uint8_t)(display[2] ^ 66);
+                    writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, false);
+                }
+            } else {
+                // we need always to send values
+                if (requestSpeed != -1 && requestInclination != -1) {
+                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                        forceSpeed(requestSpeed);
+                    } else {
+                        forceIncline(requestInclination);
+                    }
                 }
             }
         }
@@ -210,6 +223,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                 qDebug() << QStringLiteral("we can start send force commands");
             }
             writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, false);
+            requestHandshake = (1000 / refresh->interval());
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1 && newValue.at(2) == -1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
 
