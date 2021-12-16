@@ -150,6 +150,7 @@ SOURCES += \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
    trxappgateusbbike.cpp \
+   virtualrower.cpp \
 		yesoulbike.cpp \
 		  trainprogram.cpp \
 		trxappgateusbtreadmill.cpp \
@@ -479,6 +480,7 @@ HEADERS += \
    trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
 	 virtualbike.h \
+   virtualrower.h \
 	virtualtreadmill.h \
 	 domyosbike.h \
         yesoulbike.h \

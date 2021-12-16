@@ -217,6 +217,8 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(11));
+        StrokesCount += (Cadence.value()) *
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 600000;
     }
     Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
     if (watts())
@@ -261,7 +263,8 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 #ifndef IO_UNDER_QT
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+    bool virtual_device_rower = settings.value("virtual_device_rower", false).toBool();
+    if (ios_peloton_workaround && cadence && !virtual_device_rower && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
     }
@@ -353,8 +356,8 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
                 &echelonrower::descriptorWritten);
 
-        // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        // ******************************************* virtual bike/rower init *************************************
+        if (!firstStateChanged && !virtualBike && !virtualRower
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -363,11 +366,12 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
         ) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_rower = settings.value("virtual_device_rower", false).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value("bike_cadence_sensor", false).toBool();
             bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-            if (ios_peloton_workaround && cadence) {
+            if (ios_peloton_workaround && cadence && !virtual_device_rower) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
                 h->virtualbike_ios();
@@ -375,10 +379,16 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
                 if (virtual_device_enabled) {
-                qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
-                // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
+                if (!virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                  bikeResistanceGain);
+                    // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
+                } else {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                }
             }
         }
         firstStateChanged = 1;
@@ -472,7 +482,12 @@ bool echelonrower::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *echelonrower::VirtualBike() { return virtualBike; }
+void *echelonrower::VirtualBike() {
+    if (virtualBike)
+        return virtualBike;
+    else
+        return virtualRower;
+}
 
 void *echelonrower::VirtualDevice() { return VirtualBike(); }
 

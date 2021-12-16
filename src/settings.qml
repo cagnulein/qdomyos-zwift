@@ -256,6 +256,7 @@ import Qt.labs.settings 1.0
             property bool virtual_device_onlyheart: false
             property bool virtual_device_echelon: false
             property bool virtual_device_ifit: false
+            property bool virtual_device_rower: false
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
             property bool applewatch_fakedevice: false
@@ -4484,6 +4485,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.virtual_device_ifit = checked
+                    }
+
+                    SwitchDelegate {
+                        id: virtualDeviceRowerDelegate
+                        text: qsTr("Virtual Rower")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtual_device_rower
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.virtual_device_rower = checked
                     }
 
                     SwitchDelegate {
