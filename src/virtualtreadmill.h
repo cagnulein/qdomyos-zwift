@@ -32,10 +32,12 @@ class virtualtreadmill : public QObject {
 
   private:
     QLowEnergyController *leController = nullptr;
-    QLowEnergyService *service = nullptr;
+    QLowEnergyService *serviceFTMS = nullptr;
+    QLowEnergyService *serviceRSC = nullptr;
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyAdvertisingData advertisingData;
-    QLowEnergyServiceData serviceData;
+    QLowEnergyServiceData serviceDataFTMS;
+    QLowEnergyServiceData serviceDataRSC;
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
