@@ -19,18 +19,6 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     Q_UNUSED(noWriteResistance)
 
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
-
-        qDebug() << "ios_zwift_workaround activated!";
-        h = new lockscreen();
-        h->virtualrower_zwift_ios();
-    } else
-
-#endif
-#endif
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
