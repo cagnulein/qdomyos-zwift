@@ -178,10 +178,12 @@ void eslinkertreadmill::update() {
             } else {
                 // we need always to send values
                 if (requestSpeed != -1 && requestInclination != -1) {
-                    if (requestSpeed >= 0 && requestSpeed <= 22 && !toggleRequestSpeed) {
+                    if (requestSpeed >= 0 && requestSpeed <= 20 && !toggleRequestSpeed) {
                         forceSpeed(requestSpeed);
+                        Speed = requestSpeed;
                     } else {
                         forceIncline(requestInclination);
+                        Inclination = requestInclination;
                     }
                     toggleRequestSpeed = !toggleRequestSpeed;
                 }
