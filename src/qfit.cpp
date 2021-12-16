@@ -125,7 +125,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
     lapMesg.SetTotalElapsedTime(0);
     lapMesg.SetTotalTimerTime(0);
-    if (type == bluetoothdevice::TREADMILL) {
+    if (overrideSport != FIT_SPORT_INVALID) {
+
+        lapMesg.SetSport(FIT_SPORT_GENERIC);
+    } else if (type == bluetoothdevice::TREADMILL) {
 
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else if (type == bluetoothdevice::ELLIPTICAL) {
