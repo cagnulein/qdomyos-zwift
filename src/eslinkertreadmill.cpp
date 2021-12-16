@@ -76,8 +76,7 @@ void eslinkertreadmill::forceIncline(double requestIncline) {
         display[2] = requestIncline * 10;
 
         writeCharacteristic(display, sizeof(display),
-                            QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false,
-                            false);
+                            QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false, true);
     }
 }
 
@@ -89,7 +88,7 @@ void eslinkertreadmill::forceSpeed(double requestSpeed) {
         display[2] = requestSpeed * 10;
 
         writeCharacteristic(display, sizeof(display),
-                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
     }
 }
 
@@ -157,6 +156,16 @@ void eslinkertreadmill::update() {
                 requestInclination = -1;
             }
         } else {
+            if (requestVar2) {
+                uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
+                writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, true);
+                requestHandshake = (1000 / refresh->interval());
+                uint8_t display1[] = {0x09, 0x01, 0x01};
+                writeCharacteristic(display1, sizeof(display1), QStringLiteral("speedslope"), false, true);
+                uint8_t display2[] = {0x09, 0x01, 0x02};
+                writeCharacteristic(display2, sizeof(display2), QStringLiteral("speedslope2"), false, true);
+                requestVar2 = false;
+            }
             if (requestHandshake) {
                 requestHandshake--;
                 if (!requestHandshake) {
@@ -164,16 +173,17 @@ void eslinkertreadmill::update() {
                     display[2] = 0;
                     display[3] = (uint8_t)(display[2] ^ 245);
                     display[4] = (uint8_t)(display[2] ^ 66);
-                    writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, false);
+                    writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, true);
                 }
             } else {
                 // we need always to send values
                 if (requestSpeed != -1 && requestInclination != -1) {
-                    if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                    if (requestSpeed >= 0 && requestSpeed <= 22 && !toggleRequestSpeed) {
                         forceSpeed(requestSpeed);
                     } else {
                         forceIncline(requestInclination);
                     }
+                    toggleRequestSpeed = !toggleRequestSpeed;
                 }
             }
         }
@@ -216,18 +226,12 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (treadmill_type == CADENZA_FITNESS_T45) {
         if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
             newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
-            uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
             if (requestSpeed == -1 || requestInclination == -1) {
                 requestSpeed = 0;
                 requestInclination = 0;
                 qDebug() << QStringLiteral("we can start send force commands");
             }
-            writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, false);
-            requestHandshake = (1000 / refresh->interval());
-            uint8_t display1[] = {0x09, 0x01, 0x01};
-            writeCharacteristic(display1, sizeof(display1), QStringLiteral("speedslope"), false, false);
-            uint8_t display2[] = {0x09, 0x01, 0x02};
-            writeCharacteristic(display2, sizeof(display2), QStringLiteral("speedslope2"), false, false);
+            requestVar2 = true;
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1 && newValue.at(2) == -1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
 

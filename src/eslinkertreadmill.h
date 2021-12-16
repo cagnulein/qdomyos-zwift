@@ -60,6 +60,8 @@ class eslinkertreadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
     uint8_t requestHandshake = 0;
+    bool requestVar2 = false;
+    bool toggleRequestSpeed = false;
 
     typedef enum TYPE {
         RHYTHM_FUN = 0,
