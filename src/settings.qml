@@ -231,6 +231,7 @@ import Qt.labs.settings 1.0
             property string power_sensor_name: "Disabled"
             property bool power_sensor_as_bike: false
             property bool power_sensor_as_treadmill: false
+            property bool powr_sensor_running_cadence_double: false
 
             property string elite_rizer_name: "Disabled"
             property string elite_sterzo_smart_name: "Disabled"
@@ -4034,6 +4035,21 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.power_sensor_as_treadmill = checked
                             }
+                            SwitchDelegate {
+                                id: powerSensorRunCadenceDoubleDelegate
+                                text: qsTr("Doubling Cadence for Run")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.powr_sensor_running_cadence_double
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                Layout.fillWidth: true
+                                onClicked: settings.powr_sensor_running_cadence_double = checked
+                            }
+
                             RowLayout {
                                 spacing: 10
                                 Label {

@@ -147,6 +147,10 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
         bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
+        bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+        double cadence_multiplier = 1.0;
+        if (double_cadence)
+            cadence_multiplier = 2.0;
 
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
@@ -154,7 +158,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         double cadence = (uint8_t)newValue.at(3);
 
         Speed = speed;
-        Cadence = cadence;
+        Cadence = cadence * cadence_multiplier;
         emit cadenceChanged(cadence);
         emit speedChanged(speed);
         Distance +=
