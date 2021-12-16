@@ -73,7 +73,7 @@ void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
 void eslinkertreadmill::forceIncline(double requestIncline) {
     if (treadmill_type == CADENZA_FITNESS_T45) {
         uint8_t display[] = {0x04, 0x01, 0x00};
-        display[2] = requestIncline;
+        display[2] = requestIncline * 10;
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false,
@@ -224,6 +224,10 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             }
             writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, false);
             requestHandshake = (1000 / refresh->interval());
+            uint8_t display1[] = {0x09, 0x01, 0x01};
+            writeCharacteristic(display1, sizeof(display1), QStringLiteral("speedslope"), false, false);
+            uint8_t display2[] = {0x09, 0x01, 0x02};
+            writeCharacteristic(display2, sizeof(display2), QStringLiteral("speedslope2"), false, false);
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1 && newValue.at(2) == -1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
 
