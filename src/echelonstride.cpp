@@ -160,50 +160,46 @@ void echelonstride::update() {
             sendPoll();
         }
 
-        // byte 3 - 4 = elapsed time
-        // byte 17    = inclination
-        if (incompletePackets == false) {
-            if (requestSpeed != -1) {
-                if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                    forceSpeed(requestSpeed);
-                }
-                requestSpeed = -1;
+        if (requestSpeed != -1) {
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                forceSpeed(requestSpeed);
             }
-            if (requestInclination != -1) {
-                if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                    requestInclination <= 15) {
-                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                    forceIncline(requestInclination);
-                }
-                requestInclination = -1;
+            requestSpeed = -1;
+        }
+        if (requestInclination != -1) {
+            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                requestInclination <= 15) {
+                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                forceIncline(requestInclination);
             }
-            if (requestStart != -1) {
-                emit debug(QStringLiteral("starting..."));
-                if (lastSpeed == 0.0) {
-                    lastSpeed = 0.5;
-                }
-                requestStart = -1;
-                emit tapeStarted();
+            requestInclination = -1;
+        }
+        if (requestStart != -1) {
+            emit debug(QStringLiteral("starting..."));
+            if (lastSpeed == 0.0) {
+                lastSpeed = 0.5;
             }
-            if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping..."));
-                requestStop = -1;
-            }
-            if (requestFanSpeed != -1) {
-                emit debug(QStringLiteral("changing fan speed..."));
-                // sendChangeFanSpeed(requestFanSpeed);
-                requestFanSpeed = -1;
-            }
-            if (requestIncreaseFan != -1) {
-                emit debug(QStringLiteral("increasing fan speed..."));
-                // sendChangeFanSpeed(FanSpeed + 1);
-                requestIncreaseFan = -1;
-            } else if (requestDecreaseFan != -1) {
-                emit debug(QStringLiteral("decreasing fan speed..."));
-                // sendChangeFanSpeed(FanSpeed - 1);
-                requestDecreaseFan = -1;
-            }
+            requestStart = -1;
+            emit tapeStarted();
+        }
+        if (requestStop != -1) {
+            emit debug(QStringLiteral("stopping..."));
+            requestStop = -1;
+        }
+        if (requestFanSpeed != -1) {
+            emit debug(QStringLiteral("changing fan speed..."));
+            // sendChangeFanSpeed(requestFanSpeed);
+            requestFanSpeed = -1;
+        }
+        if (requestIncreaseFan != -1) {
+            emit debug(QStringLiteral("increasing fan speed..."));
+            // sendChangeFanSpeed(FanSpeed + 1);
+            requestIncreaseFan = -1;
+        } else if (requestDecreaseFan != -1) {
+            emit debug(QStringLiteral("decreasing fan speed..."));
+            // sendChangeFanSpeed(FanSpeed - 1);
+            requestDecreaseFan = -1;
         }
     }
 }
