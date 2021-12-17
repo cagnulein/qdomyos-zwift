@@ -35,6 +35,8 @@ class eslinkertreadmill : public treadmill {
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     double minStepInclination();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -68,6 +70,9 @@ class eslinkertreadmill : public treadmill {
         CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;

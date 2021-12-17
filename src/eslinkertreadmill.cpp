@@ -179,9 +179,14 @@ void eslinkertreadmill::update() {
                 // we need always to send values
                 if (requestSpeed != -1 && requestInclination != -1) {
                     if (requestSpeed >= 0 && requestSpeed <= 20 && !toggleRequestSpeed) {
+                        lastStart = 0;
                         forceSpeed(requestSpeed);
                         Speed = requestSpeed;
+                        if (requestSpeed == 0)
+                            lastStop = 0;
                     } else {
+                        if (requestInclination > 18)
+                            requestInclination = 18;
                         forceIncline(requestInclination);
                         Inclination = requestInclination;
                     }
@@ -244,6 +249,29 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             if (requestSpeed <= 0)
                 requestSpeed = 1;
             qDebug() << QStringLiteral("Start received!");
+            lastStart = QDateTime::currentMSecsSinceEpoch();
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 2) {
+            requestSpeed = 0;
+            qDebug() << QStringLiteral("Stop received!");
+            lastStop = QDateTime::currentMSecsSinceEpoch();
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 5) {
+            requestInclination += 1;
+            qDebug() << QStringLiteral("Elevation UP received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 6) {
+            if (requestInclination >= 1)
+                requestInclination -= 1;
+            else
+                requestInclination = 0;
+            qDebug() << QStringLiteral("Elevation DOWN received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 3) {
+            requestSpeed += 0.5;
+            qDebug() << QStringLiteral("Speed UP received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 4) {
+            if (requestSpeed >= 0.5)
+                requestSpeed -= 0.5;
+            else
+                requestSpeed = 0;
+            qDebug() << QStringLiteral("Speed DOWN received!");
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
             if (requestSpeed == -1 || requestInclination == -1) {
@@ -533,3 +561,17 @@ bool eslinkertreadmill::connected() {
 void *eslinkertreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *eslinkertreadmill::VirtualDevice() { return VirtualTreadMill(); }
+
+bool eslinkertreadmill::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
+
+bool eslinkertreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
+}
