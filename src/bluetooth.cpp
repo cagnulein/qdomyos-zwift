@@ -813,9 +813,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(echelonStride, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(echelonRower, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
-                // SIGNAL(debug(QString)), this, SLOT(debug(QString))); connect(echelonRower,
-                // SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double))); connect(echelonRower,
-                // SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                connect(echelonStride, &echelonstride::debug, this, &bluetooth::debug);
+                connect(echelonStride, &echelonstride::speedChanged, this, &bluetooth::speedChanged);
+                connect(echelonStride, &echelonstride::inclinationChanged, this, &bluetooth::inclinationChanged);
                 echelonStride->deviceDiscovered(b);
                 userTemplateManager->start(echelonStride);
                 innerTemplateManager->start(echelonStride);

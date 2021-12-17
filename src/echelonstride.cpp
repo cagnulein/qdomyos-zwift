@@ -68,7 +68,30 @@ void echelonstride::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
 
 void echelonstride::updateDisplay(uint16_t elapsed) {}
 
-void echelonstride::forceSpeedOrIncline(double requestSpeed, double requestIncline) {}
+void echelonstride::forceSpeed(double requestSpeed) {
+    uint8_t noOpData[] = {0xf0, 0xb2, 0x01, 0x00, 0x00, 0x00};
+
+    noOpData[3] = (uint8_t)(((uint16_t)(requestSpeed * 1000.0)) >> 8);
+    noOpData[4] = ((uint8_t)(requestSpeed * 1000.0));
+
+    for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+        noOpData[5] += noOpData[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("force speed"), false, true);
+}
+
+void echelonstride::forceIncline(double requestIncline) {
+    uint8_t noOpData[] = {0xf0, 0xb1, 0x01, 0x00, 0x00};
+
+    noOpData[3] = requestIncline;
+
+    for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+        noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("force incline"), false, true);
+}
 
 void echelonstride::sendPoll() {
     uint8_t noOpData[] = {0xf0, 0xa0, 0x01, 0x00, 0x00};
@@ -87,6 +110,12 @@ void echelonstride::sendPoll() {
     }
 }
 
+void echelonstride::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
+}
+
 void echelonstride::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -102,12 +131,22 @@ void echelonstride::update() {
                gattNotify2Characteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        if (!firstInit && !virtualTreadMill && !virtualBike) {
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
+                    connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                            &echelonstride::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &echelonstride::changeInclinationRequested);
+                }
                 firstInit = 1;
             }
         }
@@ -127,12 +166,7 @@ void echelonstride::update() {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                    double inc = Inclination.value();
-                    if (requestInclination != -1) {
-                        inc = requestInclination;
-                        requestInclination = -1;
-                    }
-                    forceSpeedOrIncline(requestSpeed, inc);
+                    forceSpeed(requestSpeed);
                 }
                 requestSpeed = -1;
             }
@@ -140,12 +174,7 @@ void echelonstride::update() {
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                    double speed = currentSpeed().value();
-                    if (requestSpeed != -1) {
-                        speed = requestSpeed;
-                        requestSpeed = -1;
-                    }
-                    forceSpeedOrIncline(speed, requestInclination);
+                    forceIncline(requestInclination);
                 }
                 requestInclination = -1;
             }
@@ -163,16 +192,16 @@ void echelonstride::update() {
             }
             if (requestFanSpeed != -1) {
                 emit debug(QStringLiteral("changing fan speed..."));
-                //sendChangeFanSpeed(requestFanSpeed);
+                // sendChangeFanSpeed(requestFanSpeed);
                 requestFanSpeed = -1;
             }
             if (requestIncreaseFan != -1) {
                 emit debug(QStringLiteral("increasing fan speed..."));
-                //sendChangeFanSpeed(FanSpeed + 1);
+                // sendChangeFanSpeed(FanSpeed + 1);
                 requestIncreaseFan = -1;
             } else if (requestDecreaseFan != -1) {
                 emit debug(QStringLiteral("decreasing fan speed..."));
-                //sendChangeFanSpeed(FanSpeed - 1);
+                // sendChangeFanSpeed(FanSpeed - 1);
                 requestDecreaseFan = -1;
             }
         }
