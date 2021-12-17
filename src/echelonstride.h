@@ -92,7 +92,6 @@ class echelonstride : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
 

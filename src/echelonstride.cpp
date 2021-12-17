@@ -405,7 +405,6 @@ void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));
-                    searchStopped = false;
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
@@ -416,7 +415,6 @@ void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("LowEnergy controller disconnected"));
-            searchStopped = false;
             emit disconnected();
         });
 
@@ -445,5 +443,3 @@ bool echelonstride::connected() {
 void *echelonstride::VirtualTreadMill() { return virtualTreadMill; }
 
 void *echelonstride::VirtualDevice() { return VirtualTreadMill(); }
-
-void echelonstride::searchingStop() { searchStopped = true; }
