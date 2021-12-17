@@ -73,7 +73,7 @@ void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
 void eslinkertreadmill::forceIncline(double requestIncline) {
     if (treadmill_type == CADENZA_FITNESS_T45) {
         uint8_t display[] = {0x04, 0x01, 0x00};
-        display[2] = requestIncline * 10;
+        display[2] = requestIncline;
 
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false, true);
@@ -197,10 +197,12 @@ void eslinkertreadmill::update() {
             }
             if (treadmill_type == TYPE::RHYTHM_FUN)
                 btinit(true);
+            requestSpeed = 1.0;
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
+            requestSpeed = 0;
             emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
             requestStop = -1;
@@ -238,6 +240,10 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             uint8_t display[] = {0x08, 0x01, 0x01};
 
             writeCharacteristic(display, sizeof(display), QStringLiteral("var1"), false, false);
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 1) {
+            if (requestSpeed <= 0)
+                requestSpeed = 1;
+            qDebug() << QStringLiteral("Start received!");
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
             if (requestSpeed == -1 || requestInclination == -1) {
