@@ -309,55 +309,65 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         }
     }
 
-    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN) ||
-        (newValue.length() != 15 && treadmill_type == CADENZA_FITNESS_T45))
+    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN))
         return;
 
-    double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
-    double kcal = GetKcalFromPacket(value);
-    // double distance = GetDistanceFromPacket(value);
+    if (treadmill_type == RHYTHM_FUN) {
+        double speed = GetSpeedFromPacket(value);
+        double incline = GetInclinationFromPacket(value);
+        double kcal = GetKcalFromPacket(value);
+        // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        /*if(heartRateBeltName.startsWith("Disabled"))
+        {
+            /*if(heartRateBeltName.startsWith("Disabled"))
             Heart = value.at(18);*/
+        }
+        emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+        // debug("Current Distance: " + QString::number(distance));
+
+        if (Speed.value() != speed) {
+            emit speedChanged(speed);
+        }
+        Speed = speed;
+        if (Inclination.value() != incline) {
+            emit inclinationChanged(0.0, incline);
+        }
+        Inclination = incline;
+
+        KCal = kcal;
+        // Distance = distance;
+
+        if (speed > 0) {
+            lastSpeed = speed;
+            lastInclination = incline;
+        }
     }
 
     if (!firstCharacteristicChanged) {
-        Distance +=
-            ((speed / 3600.0) / (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
+
+        Distance += ((Speed.value() / 3600.0) /
+                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
-    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-    // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
-
-    if (Speed.value() != speed) {
-        emit speedChanged(speed);
-    }
-    Speed = speed;
-    if (Inclination.value() != incline) {
-        emit inclinationChanged(0.0, incline);
-    }
-    Inclination = incline;
-
-    KCal = kcal;
-    // Distance = distance;
-
-    if (speed > 0) {
-        lastSpeed = speed;
-        lastInclination = incline;
     }
 
     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
