@@ -2878,20 +2878,6 @@ import Qt.labs.settings 1.0
                         onClicked: settings.bike_cadence_sensor = checked
                     }
 
-                    SwitchDelegate {
-                        id: runCadenceSensorDelegate
-                        text: qsTr("Run Cadence Sensor (Peloton compatibility)")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.run_cadence_sensor
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.run_cadence_sensor = checked
-                    }
                     /*
                     RowLayout {
                         spacing: 10
@@ -4530,6 +4516,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.bike_power_sensor = checked
+                    }
+
+                    SwitchDelegate {
+                        id: runCadenceSensorDelegate
+                        text: qsTr("Run Cadence Sensor")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.run_cadence_sensor
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.run_cadence_sensor = checked
                     }
 
                     AccordionElement {
