@@ -88,6 +88,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -155,17 +156,19 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
-        double cadence = (uint8_t)newValue.at(3);
+        double cadence = (uint8_t)newValue.at(3)  * cadence_multiplier;
 
-        Speed = speed;
-        Cadence = cadence * cadence_multiplier;
+        Cadence = cadence;
         emit cadenceChanged(cadence);
-        emit speedChanged(speed);
-        Distance +=
-            ((Speed.value() / 3600000.0) * ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
-        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+        if(power_as_treadmill) {
+            Speed = speed;
 
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
+            emit speedChanged(speed);
+            Distance +=
+                ((Speed.value() / 3600000.0) * ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
+        }
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
         lastRefreshCadenceChanged = QDateTime::currentDateTime();
     }
