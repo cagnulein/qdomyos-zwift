@@ -552,6 +552,14 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     FanSpeed = value.at(23);
 
     if (!firstCharacteristicChanged) {
+        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
         Distance += ((speed / (double)3600.0) /
                      ((double)1000.0 / (double)(lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         lastTimeCharacteristicChanged = QDateTime::currentDateTime();
@@ -560,7 +568,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+    emit debug(QStringLiteral("Current KCal from the machine: ") + QString::number(kcal));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
@@ -578,8 +587,6 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         emit inclinationChanged(0, incline);
     }
     Inclination = incline;
-
-    KCal = kcal;
 
     if (speed > 0) {
 
