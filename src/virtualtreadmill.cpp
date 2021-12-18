@@ -13,8 +13,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     this->noHeartService =
         noHeartService; // is also used for sending cadence (since on android > 9 we can have only 1 service)
 
-    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
-
     //! [Advertising Data]
     advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
     advertisingData.setIncludePowerLevel(true);
@@ -58,7 +56,6 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     charData.addDescriptor(clientConfig);*/
 
         QLowEnergyCharacteristicData charData2;
-        QLowEnergyCharacteristicData charData3;
         if (ftmsTreadmillEnable()) {
             charData2.setUuid((QBluetoothUuid::CharacteristicType)0x2ACD); // TreadmillDataCharacteristicUuid
             charData2.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
@@ -67,13 +64,15 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             descriptor.append((char)0x00);
             const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
             charData2.addDescriptor(clientConfig2);
-
-            charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
-            charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-            const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                          QByteArray(2, 0));
-            charData3.addDescriptor(cpClientConfig);
         }
+
+        QLowEnergyCharacteristicData charData3;
+        charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
+        charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+        const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                      QByteArray(2, 0));
+        charData3.addDescriptor(cpClientConfig);
+
 
         QLowEnergyCharacteristicData charDataFIT5;
         charDataFIT5.setUuid((QBluetoothUuid::CharacteristicType)0x2ADA); // Fitness Machine status
@@ -124,10 +123,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDataFTMS.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceDataFTMS.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); // FitnessMachineServiceUuid
         serviceDataFTMS.addCharacteristic(charData);
-        if (ftmsTreadmillEnable()) {
+        if (ftmsTreadmillEnable())
             serviceDataFTMS.addCharacteristic(charData2);
-            serviceDataFTMS.addCharacteristic(charData3);
-        }
+        serviceDataFTMS.addCharacteristic(charData3);
         serviceDataFTMS.addCharacteristic(charDataFIT5);
         serviceDataFTMS.addCharacteristic(charDataFIT6);
         serviceDataFTMS.addCharacteristic(charDataFIT7);
@@ -337,7 +335,6 @@ void virtualtreadmill::reconnect() {
 
 void virtualtreadmill::treadmillProvider() {
     QSettings settings;
-    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
 
     if (leController->state() != QLowEnergyController::ConnectedState) {
         emit debug(QStringLiteral("virtualtreadmill connection error"));
