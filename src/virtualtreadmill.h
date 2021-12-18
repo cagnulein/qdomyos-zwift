@@ -46,6 +46,10 @@ class virtualtreadmill : public QObject {
 
     void slopeChanged(int16_t iresistance);
 
+    bool ftmsServiceEnable();
+    bool ftmsTreadmillEnable();
+    bool RSCEnable();
+
   signals:
     void debug(QString string);
     void changeInclination(double grade, double percentage);

@@ -20,11 +20,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     advertisingData.setIncludePowerLevel(true);
     advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
     QList<QBluetoothUuid> services;
-    if (!cadence) {
+
+    if (ftmsServiceEnable()) {
         services << ((QBluetoothUuid::ServiceClassUuid)0x1826); // FitnessMachineServiceUuid
     }
 
-    if (cadence || noHeartService == false) {
+    if (RSCEnable()) {
         services << (QBluetoothUuid::ServiceClassUuid::RunningSpeedAndCadence);
     }
 
@@ -38,7 +39,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     //! [Advertising Data]
 
     //! [Service Data]
-    if (!cadence) {
+    if (ftmsServiceEnable()) {
         QLowEnergyCharacteristicData charData;
         charData.setUuid((QBluetoothUuid::CharacteristicType)0x2ACC); // FitnessMachineFeatureCharacteristicUuid
         QByteArray value;
@@ -57,20 +58,22 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     charData.addDescriptor(clientConfig);*/
 
         QLowEnergyCharacteristicData charData2;
-        charData2.setUuid((QBluetoothUuid::CharacteristicType)0x2ACD); // TreadmillDataCharacteristicUuid
-        charData2.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
-        QByteArray descriptor;
-        descriptor.append((char)0x01);
-        descriptor.append((char)0x00);
-        const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
-        charData2.addDescriptor(clientConfig2);
-
         QLowEnergyCharacteristicData charData3;
-        charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
-        charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
-        const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                      QByteArray(2, 0));
-        charData3.addDescriptor(cpClientConfig);
+        if (ftmsTreadmillEnable()) {
+            charData2.setUuid((QBluetoothUuid::CharacteristicType)0x2ACD); // TreadmillDataCharacteristicUuid
+            charData2.setProperties(QLowEnergyCharacteristic::Notify | QLowEnergyCharacteristic::Read);
+            QByteArray descriptor;
+            descriptor.append((char)0x01);
+            descriptor.append((char)0x00);
+            const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+            charData2.addDescriptor(clientConfig2);
+
+            charData3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
+            charData3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+            const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                          QByteArray(2, 0));
+            charData3.addDescriptor(cpClientConfig);
+        }
 
         QLowEnergyCharacteristicData charDataFIT5;
         charDataFIT5.setUuid((QBluetoothUuid::CharacteristicType)0x2ADA); // Fitness Machine status
@@ -121,15 +124,17 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
         serviceDataFTMS.setType(QLowEnergyServiceData::ServiceTypePrimary);
         serviceDataFTMS.setUuid((QBluetoothUuid::ServiceClassUuid)0x1826); // FitnessMachineServiceUuid
         serviceDataFTMS.addCharacteristic(charData);
-        serviceDataFTMS.addCharacteristic(charData2);
-        serviceDataFTMS.addCharacteristic(charData3);
+        if (ftmsTreadmillEnable()) {
+            serviceDataFTMS.addCharacteristic(charData2);
+            serviceDataFTMS.addCharacteristic(charData3);
+        }
         serviceDataFTMS.addCharacteristic(charDataFIT5);
         serviceDataFTMS.addCharacteristic(charDataFIT6);
         serviceDataFTMS.addCharacteristic(charDataFIT7);
         serviceDataFTMS.addCharacteristic(charDataFIT2);
     }
 
-    if (cadence || noHeartService == false) {
+    if (RSCEnable()) {
         QLowEnergyCharacteristicData charData;
         charData.setUuid(QBluetoothUuid::CharacteristicType::RSCFeature);
         charData.setProperties(QLowEnergyCharacteristic::Read);
@@ -190,9 +195,9 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     //! [Start Advertising]
     leController = QLowEnergyController::createPeripheral();
     Q_ASSERT(leController);
-    if (!cadence)
+    if (ftmsServiceEnable())
         serviceFTMS = leController->addService(serviceDataFTMS);
-    if (cadence || noHeartService == false)
+    if (RSCEnable())
         serviceRSC = leController->addService(serviceDataRSC);
     if (noHeartService == false) {
         serviceHR = leController->addService(serviceDataHR);
@@ -313,9 +318,9 @@ void virtualtreadmill::reconnect() {
     }
 
     qDebug() << QStringLiteral("virtualtreadmill reconnect ") << treadMill->connected();
-    if (!cadence)
+    if (ftmsServiceEnable())
         serviceFTMS = leController->addService(serviceDataFTMS);
-    if (cadence || noHeartService == false)
+    if (RSCEnable())
         serviceRSC = leController->addService(serviceDataRSC);
 
     if (noHeartService == false) {
@@ -347,58 +352,60 @@ void virtualtreadmill::treadmillProvider() {
 
     QByteArray value;
 
-    if (!cadence) {
-        value.append(0x08);       // Inclination avaiable
-        value.append((char)0x01); // heart rate avaiable
-
+    if (ftmsServiceEnable()) {
         uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
-        char a = (normalizeSpeed >> 8) & 0XFF;
-        char b = normalizeSpeed & 0XFF;
-        QByteArray speedBytes;
-        speedBytes.append(b);
-        speedBytes.append(a);
-        uint16_t normalizeIncline = 0;
-        if (treadMill->deviceType() == bluetoothdevice::TREADMILL)
-            normalizeIncline = (uint32_t)qRound(((treadmill *)treadMill)->currentInclination().value() * 10);
-        a = (normalizeIncline >> 8) & 0XFF;
-        b = normalizeIncline & 0XFF;
-        QByteArray inclineBytes;
-        inclineBytes.append(b);
-        inclineBytes.append(a);
-        double ramp = 0;
-        if (treadMill->deviceType() == bluetoothdevice::TREADMILL)
-            ramp = qRadiansToDegrees(qAtan(((treadmill *)treadMill)->currentInclination().value() / 100));
-        int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
-        a = (normalizeRamp >> 8) & 0XFF;
-        b = normalizeRamp & 0XFF;
-        QByteArray rampBytes;
-        rampBytes.append(b);
-        rampBytes.append(a);
+        if(ftmsTreadmillEnable()) {
+            value.append(0x08);       // Inclination avaiable
+            value.append((char)0x01); // heart rate avaiable
 
-        value.append(speedBytes); // Actual value.
+            char a = (normalizeSpeed >> 8) & 0XFF;
+            char b = normalizeSpeed & 0XFF;
+            QByteArray speedBytes;
+            speedBytes.append(b);
+            speedBytes.append(a);
+            uint16_t normalizeIncline = 0;
+            if (treadMill->deviceType() == bluetoothdevice::TREADMILL)
+                normalizeIncline = (uint32_t)qRound(((treadmill *)treadMill)->currentInclination().value() * 10);
+            a = (normalizeIncline >> 8) & 0XFF;
+            b = normalizeIncline & 0XFF;
+            QByteArray inclineBytes;
+            inclineBytes.append(b);
+            inclineBytes.append(a);
+            double ramp = 0;
+            if (treadMill->deviceType() == bluetoothdevice::TREADMILL)
+                ramp = qRadiansToDegrees(qAtan(((treadmill *)treadMill)->currentInclination().value() / 100));
+            int16_t normalizeRamp = (int32_t)qRound(ramp * 10);
+            a = (normalizeRamp >> 8) & 0XFF;
+            b = normalizeRamp & 0XFF;
+            QByteArray rampBytes;
+            rampBytes.append(b);
+            rampBytes.append(a);
 
-        value.append(inclineBytes); // incline
+            value.append(speedBytes); // Actual value.
 
-        value.append(rampBytes); // ramp angle
+            value.append(inclineBytes); // incline
 
-        value.append(treadMill->currentHeart().value()); // current heart rate
+            value.append(rampBytes); // ramp angle
 
-        if (!serviceFTMS) {
-            qDebug() << QStringLiteral("service not available");
-            return;
-        }
+            value.append(treadMill->currentHeart().value()); // current heart rate
 
-        QLowEnergyCharacteristic characteristic =
-            serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); // TreadmillDataCharacteristicUuid
-        Q_ASSERT(characteristic.isValid());
-        if (leController->state() != QLowEnergyController::ConnectedState) {
-            emit debug(QStringLiteral("virtualtreadmill connection error"));
-            return;
-        }
-        try {
-            serviceFTMS->writeCharacteristic(characteristic, value); // Potentially causes notification.
-        } catch (...) {
-            emit debug(QStringLiteral("virtualtreadmill error!"));
+            if (!serviceFTMS) {
+                qDebug() << QStringLiteral("service not available");
+                return;
+            }
+
+            QLowEnergyCharacteristic characteristic =
+                serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2ACD); // TreadmillDataCharacteristicUuid
+            Q_ASSERT(characteristic.isValid());
+            if (leController->state() != QLowEnergyController::ConnectedState) {
+                emit debug(QStringLiteral("virtualtreadmill connection error"));
+                return;
+            }
+            try {
+                serviceFTMS->writeCharacteristic(characteristic, value); // Potentially causes notification.
+            } catch (...) {
+                emit debug(QStringLiteral("virtualtreadmill error!"));
+            }
         }
 
         // indoor bike data in order to exploit a zwift bug for treadmill incline values
@@ -433,7 +440,7 @@ void virtualtreadmill::treadmillProvider() {
 
         QLowEnergyCharacteristic characteristicBike =
             serviceFTMS->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
-        Q_ASSERT(characteristic.isValid());
+        Q_ASSERT(characteristicBike.isValid());
         if (leController->state() != QLowEnergyController::ConnectedState) {
             qDebug() << QStringLiteral("virtual bike not connected");
 
@@ -449,7 +456,7 @@ void virtualtreadmill::treadmillProvider() {
             emit debug(QStringLiteral("virtualtreadmill error!"));
         }
     }
-    if (cadence || noHeartService == false) {
+    if (RSCEnable()) {
         if (!serviceRSC) {
             qDebug() << QStringLiteral("service not available");
             return;
@@ -509,4 +516,39 @@ bool virtualtreadmill::connected() {
         return false;
     }
     return leController->state() == QLowEnergyController::ConnectedState;
+}
+
+// Setup           |  FTMS Service | FTMS Treadmill Data | FTMS Bike | RSC | Heart
+// -------------------------------------------------------------------------------
+// iOS FTMS        |      X        |          X          |     X     |     |   X
+// iOS RSC         |      X        |                     |     X     |  X  |   X
+// Android<10 FTMS |      X        |          X          |     X     |     |   X
+// Android<10 RSC  |      X        |                     |     X     |  X  |   X
+// Android>9 FTMS  |      X        |          X          |     X     |     |
+// Android>9 RSC   |               |                     |           |  X  |
+
+bool virtualtreadmill::ftmsServiceEnable() {
+    QSettings settings;
+    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    if(!cadence)
+        return true;
+    if (noHeartService == false)
+        return true;
+    return false;
+}
+
+bool virtualtreadmill::ftmsTreadmillEnable() {
+    QSettings settings;
+    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    if(!cadence)
+        return true;
+    return false;
+}
+
+bool virtualtreadmill::RSCEnable() {
+    QSettings settings;
+    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
+    if(cadence)
+        return true;
+    return false;
 }
