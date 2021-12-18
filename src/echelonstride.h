@@ -44,6 +44,9 @@ class echelonstride : public treadmill {
     void *VirtualTreadMill();
     void *VirtualDevice() override;
 
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
+
   private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
@@ -66,6 +69,9 @@ class echelonstride : public treadmill {
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;

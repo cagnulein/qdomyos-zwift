@@ -69,7 +69,7 @@ void echelonstride::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
 void echelonstride::updateDisplay(uint16_t elapsed) {}
 
 void echelonstride::forceSpeed(double requestSpeed) {
-    uint8_t noOpData[] = {0xf0, 0xb2, 0x01, 0x00, 0x00, 0x00};
+    uint8_t noOpData[] = {0xf0, 0xb2, 0x02, 0x00, 0x00, 0x00};
 
     noOpData[3] = (uint8_t)(((uint16_t)(requestSpeed * 1000.0)) >> 8);
     noOpData[4] = ((uint8_t)(requestSpeed * 1000.0));
@@ -180,12 +180,18 @@ void echelonstride::update() {
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
+            uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
+            writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
+            lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+            uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x00, 0xa1};
+            writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("stop"), false, true);
             requestStop = -1;
+            lastStop = QDateTime::currentMSecsSinceEpoch();
         }
         if (requestFanSpeed != -1) {
             emit debug(QStringLiteral("changing fan speed..."));
@@ -224,19 +230,25 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
         // this line on iOS sometimes gives strange overflow values
         // uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
         qDebug() << "speed1" << newValue.at(3);
-        uint16_t convertedData = newValue.at(3);
+        uint16_t convertedData = (uint8_t)newValue.at(3);
         qDebug() << "speed2" << convertedData;
         convertedData = convertedData << 8;
         qDebug() << "speed3" << convertedData;
         convertedData = convertedData & 0xFF00;
         qDebug() << "speed4" << convertedData;
-        convertedData = convertedData + newValue.at(4);
+        convertedData = convertedData + (uint8_t)newValue.at(4);
         qDebug() << "speed5" << convertedData;
         Speed = ((double)convertedData) / 1000.0;
+
+        if(Speed.value() > 0)
+            lastStart = 0;
+        else
+            lastStop = 0;
+
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Inclination = newValue.at(3);
+        Inclination = (uint8_t)newValue.at(3);
         qDebug() << QStringLiteral("Current Inclination: ") + QString::number(Inclination.value());
         return;
     }
@@ -293,8 +305,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
 void echelonstride::btinit() {
     uint8_t initData1[] = {0xf0, 0xa1, 0x00, 0x91};
-    uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};
-    uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
+    uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};    
     // uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
 
     // useless i guess
@@ -308,8 +319,7 @@ void echelonstride::btinit() {
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);    
 
     initDone = true;
 }
@@ -439,3 +449,18 @@ bool echelonstride::connected() {
 void *echelonstride::VirtualTreadMill() { return virtualTreadMill; }
 
 void *echelonstride::VirtualDevice() { return VirtualTreadMill(); }
+
+bool echelonstride::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
+
+bool echelonstride::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
+}
+
