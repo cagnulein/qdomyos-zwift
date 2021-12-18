@@ -804,7 +804,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsRower->deviceDiscovered(b);
                 userTemplateManager->start(ftmsRower);
                 innerTemplateManager->start(ftmsRower);
-            } else if (b.name().startsWith(QLatin1String("ECH-STRIDE")) && !echelonStride && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) || b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) && !echelonStride && filter) {
 
                 discoveryAgent->stop();
                 echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
