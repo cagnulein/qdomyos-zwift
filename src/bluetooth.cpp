@@ -973,6 +973,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 eslinkerTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(eslinkerTreadmill);
                 innerTemplateManager->start(eslinkerTreadmill);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T216")) && !bowflexTreadmill && filter) {
+
+                discoveryAgent->stop();
+                bowflexTreadmill = new bowflextreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(bowflexTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(bowflexTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(bowflexTreadmill, &bowflextreadmill::debug, this, &bluetooth::debug);
+                // connect(bowflexTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(bowflexTreadmill, SIGNAL(inclinationChanged(double)), this,
+                // SLOT(inclinationChanged(double)));
+                bowflexTreadmill->deviceDiscovered(b);
+                userTemplateManager->start(bowflexTreadmill);
+                innerTemplateManager->start(bowflexTreadmill);
             } else if ((b.name().startsWith(QStringLiteral("Flywheel")) ||
                         // BIKE 1, BIKE 2, BIKE 3...
                         (b.name().toUpper().startsWith(QStringLiteral("BIKE")) && flywheel_life_fitness_ic8 == true &&
@@ -1667,6 +1683,11 @@ void bluetooth::restart() {
         delete eslinkerTreadmill;
         eslinkerTreadmill = nullptr;
     }
+    if (bowflexTreadmill) {
+
+        delete bowflexTreadmill;
+        bowflexTreadmill = nullptr;
+    }
     if (flywheelBike) {
 
         delete flywheelBike;
@@ -1858,6 +1879,8 @@ bluetoothdevice *bluetooth::device() {
         return proformTreadmill;
     } else if (eslinkerTreadmill) {
         return eslinkerTreadmill;
+    } else if (bowflexTreadmill) {
+        return bowflexTreadmill;
     } else if (flywheelBike) {
         return flywheelBike;
     } else if (mcfBike) {

@@ -49,6 +49,7 @@ SOURCES += \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+    bowflextreadmill.cpp \
    chronobike.cpp \
    cscbike.cpp \
 	 domyoselliptical.cpp \
@@ -175,6 +176,7 @@ HEADERS += \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+    bowflextreadmill.h \
    chronobike.h \
    cscbike.h \
 	 domyoselliptical.h \
@@ -552,5 +554,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.9.8
+VERSION = 2.9.9
 

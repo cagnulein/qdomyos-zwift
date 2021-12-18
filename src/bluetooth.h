@@ -18,6 +18,7 @@
 #include <QtCore/qloggingcategory.h>
 
 #include "activiotreadmill.h"
+#include "bowflextreadmill.h"
 #include "bluetoothdevice.h"
 #include "chronobike.h"
 #include "cscbike.h"
@@ -101,6 +102,7 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    bowflextreadmill *bowflexTreadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
