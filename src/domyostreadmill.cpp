@@ -140,7 +140,7 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
                 display[9] = 0x00; // decimal position
             }
         } else {
-            display[7] = ((uint8_t)(calories().value()) >> 8) & 0xFF;
+            display[7] = ((uint16_t)(calories().value()) >> 8) & 0xFF;
             display[8] = (uint8_t)(calories().value()) & 0xFF;
             display[9] = 0x00; // decimal position
         }
