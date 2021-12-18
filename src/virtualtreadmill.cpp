@@ -456,7 +456,7 @@ void virtualtreadmill::treadmillProvider() {
         }
 
         value.append(0x02); // total distance
-        uint16_t speed = treadMill->currentSpeed().value() / 3.6;
+        uint16_t speed = (treadMill->currentSpeed().value() / 3.6) * 256;
         uint32_t distance = treadMill->odometer() * 1000.0;
         value.append((char)((speed & 0xFF)));
         value.append((char)((speed >> 8) & 0xFF));
