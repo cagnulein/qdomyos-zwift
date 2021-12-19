@@ -42,6 +42,7 @@ class echelonstride : public treadmill {
     bool connected() override;
 
     void *VirtualTreadMill();
+    double minStepInclination() override;
     void *VirtualDevice() override;
 
     bool autoPauseWhenSpeedIsZero() override;
