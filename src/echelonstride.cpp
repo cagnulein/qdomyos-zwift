@@ -272,6 +272,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
+    if((uint8_t)newValue.at(1) == 0xD1 && newValue.length() > 11)
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -279,19 +280,26 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+
+            uint8_t heart = ((uint8_t)newValue.at(11));
+            if (heart == 0) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
+                Heart = appleWatchHeartRate;
+                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
 #endif
 #endif
+            } else {
+                Heart = heart;
+            }
         }
     }
 
+    qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Watt: ") +
                     QString::number(watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
