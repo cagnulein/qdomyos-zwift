@@ -45,7 +45,6 @@ class rower : public bike {
     void resistanceRead(int8_t resistance);
 
   protected:
-    metric Cadence;
     metric Resistance;
     metric RequestedResistance;
     metric RequestedPelotonResistance;
