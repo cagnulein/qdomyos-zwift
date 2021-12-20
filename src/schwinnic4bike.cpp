@@ -546,18 +546,13 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
-    QSettings settings;
-    if (settings.value(QStringLiteral("schwinn_bike_resistance"), false).toBool()) {
-        if (pelotonResistance > 54)
-            return pelotonResistance;
-        if (pelotonResistance < 26)
-            return pelotonResistance / 5;
-
-        // y = 0,04x2 - 1,32x + 11,8
-        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
-    } else {
+    if (pelotonResistance > 54)
         return pelotonResistance;
-    }
+    if (pelotonResistance < 26)
+        return pelotonResistance / 5;
+
+    // y = 0,04x2 - 1,32x + 11,8
+    return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
 }
 
 uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
@@ -592,14 +587,14 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
 uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    if(Cadence.value() == 0)
+    if (Cadence.value() == 0)
         return 1;
 
     for (int i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
-            return i;
+            return pelotonToBikeResistance(i);
         }
     }
     if (power < wattsFromResistance(1))
