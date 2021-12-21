@@ -18,6 +18,8 @@ HomeForm{
     Settings {
         id: settings
         property real ui_zoom: 100.0
+        property bool theme_tile_icon_enabled: true
+        property string theme_tile_background_color
     }
 
     MessageDialog {
@@ -142,7 +144,7 @@ HomeForm{
                 radius: 3
                 border.width: 1
                 border.color: "purple"
-                color: Material.backgroundColor
+                color: settings.theme_tile_background_color
                 id: rect
             }
 
@@ -166,6 +168,7 @@ HomeForm{
                 width: 48 * settings.ui_zoom / 100
                 height: 48 * settings.ui_zoom / 100
                 source: icon
+                visible: settings.theme_tile_icon_enabled
             }
             Text {
                 objectName: "value"
