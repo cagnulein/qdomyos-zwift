@@ -72,12 +72,14 @@ void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
 
 void domyosbike::updateDisplay(uint16_t elapsed) {
     uint16_t multiplier = 1;
-    if (bike_type == TELINK) {
-        multiplier = 10;
-    }
 
     QSettings settings;
-    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();    
+    bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
+    bool domyos_bike_display_calories = settings.value(QStringLiteral("domyos_bike_display_calories"), true).toBool();
+
+    if (domyos_bike_display_calories) {
+        multiplier = 10;
+    }
 
     // if(bike_type == CHANG_YOW)
     if (distance) {

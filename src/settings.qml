@@ -145,6 +145,7 @@ import Qt.labs.settings 1.0
             property bool domyos_treadmill_display_invert: false
 
             property real domyos_bike_cadence_filter: 0.0            
+            property bool domyos_bike_display_calories: true
 
             property real domyos_elliptical_speed_ratio: 1.0
 
@@ -1325,6 +1326,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.domyos_bike_cadence_filter = domyosBikeCadenceFilterTextField.text
                         }
+                    }
+                    SwitchDelegate {
+                        id: domyosBikeCaloriesDisplayDelegate
+                        text: qsTr("Fix Calories/Km to Console")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.domyos_bike_display_calories
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.domyos_bike_display_calories = checked
                     }
                 }
                 AccordionElement {
