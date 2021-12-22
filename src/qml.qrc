@@ -44,5 +44,7 @@
         <file>Wizard_10_Welcome.qml</file>
         <file>Wizard_20_MachineryType.qml</file>
         <file>Wizard_999_Finish.qml</file>
+        <file>Wizard_900_HeartRate.qml</file>
+        <file>Wizard_11_Age.qml</file>
     </qresource>
 </RCC>

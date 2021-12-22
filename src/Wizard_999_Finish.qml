@@ -29,6 +29,8 @@ Page {
     }
 
     Button {
+        anchors.leftMargin: 20
+        anchors.bottomMargin: 20
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         text: "Skip"
@@ -36,9 +38,13 @@ Page {
     }
 
     Button {
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 20
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         text: "Finish"
-        onClicked: stackView.clear();
+        onClicked:  stackView.pop(stackView.find(function(item) {
+            return item.objectName === "home";
+        }));
     }
 }

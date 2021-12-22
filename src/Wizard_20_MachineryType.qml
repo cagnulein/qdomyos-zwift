@@ -29,7 +29,7 @@ Page {
         horizontalAlignment: Text.AlignHCenter
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: welcome.bottom
-        text: "Which Fitness Machine do you have\ndo you use most?"
+        text: "Which Fitness Machine do you have\ndo you use the most?"
         font.pointSize: 18
     }
 
@@ -56,20 +56,34 @@ Page {
     }
 
     Button {
+        anchors.leftMargin: 20
+        anchors.bottomMargin: 20
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        text: "Skip"
+        text: "Back"
         onClicked: stackView.pop();
     }
 
     Button {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 20
+        text: "Skip"
+        onClicked:  stackView.pop(stackView.find(function(item) {
+            return item.objectName === "home";
+        }));
+    }
+
+    Button {
         id: next
+        anchors.rightMargin: 20
+        anchors.bottomMargin: 20
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         text: "Next"
         onClicked: {
             if(bike.checked == false) {
-                stackView.push("Wizard_999_Finish.qml")
+                stackView.push("Wizard_900_HeartRate.qml")
             }
         }
     }

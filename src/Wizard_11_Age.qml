@@ -7,6 +7,10 @@ import Qt.labs.settings 1.0
 import Qt.labs.platform 1.1
 
 Page {
+    Settings{
+        property string wizard_machinery_type: "bike"
+    }
+
     background: Material.color
 
     Label {
@@ -15,17 +19,28 @@ Page {
         topPadding: 20
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        text: "Welcome to QZ Fitness!"
+        text: "Age"
         font.pointSize: 30
     }
 
     Label {
+        id: question
         topPadding: 20
         horizontalAlignment: Text.AlignHCenter
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: welcome.bottom
-        text: "I will help you in the\nsetup process of the app\n\nI just need to answer some\nquestions.\n\nDon't worry! You will be able to change them\nin the settings!"
+        text: "Simple question: how old are you?"
         font.pointSize: 18
+    }
+
+    TextField {
+        anchors.top: question.bottom
+        id: ageTextField
+        text: settings.age
+        horizontalAlignment: Text.AlignHCenter
+        inputMethodHints: Qt.ImhFormattedNumbersOnly
+        onTextChanged: settings.age = ageTextField.text
+        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
     }
 
     Button {
@@ -33,16 +48,29 @@ Page {
         anchors.bottomMargin: 20
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        text: "Skip"
+        text: "Back"
         onClicked: stackView.pop();
     }
 
     Button {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 20
+        text: "Skip"
+        onClicked:  stackView.pop(stackView.find(function(item) {
+            return item.objectName === "home";
+        }));
+    }
+
+    Button {
+        id: next
         anchors.rightMargin: 20
         anchors.bottomMargin: 20
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         text: "Next"
-        onClicked: stackView.push("Wizard_11_Age.qml");
+        onClicked: {
+            stackView.push("Wizard_20_MachineryType.qml")
+        }
     }
 }
