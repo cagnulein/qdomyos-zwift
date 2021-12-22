@@ -76,7 +76,7 @@ HomeForm{
     }
     lap.onClicked: { lap_clicked(); popupLap.open(); popupLapAutoClose.running = true; }
 
-    Component.onCompleted: { console.log("completed"); }
+    Component.onCompleted: { stackView.push("Wizard_10_Welcome.qml") }
 
     GridView {
         anchors.horizontalCenter: parent.horizontalCenter

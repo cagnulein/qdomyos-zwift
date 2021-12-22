@@ -41,5 +41,8 @@
         <file>inner_templates/chartjs/ajax-loader.gif</file>
         <file>Classifica.qml</file>
         <file>Credits.qml</file>
+        <file>Wizard_10_Welcome.qml</file>
+        <file>Wizard_20_MachineryType.qml</file>
+        <file>Wizard_999_Finish.qml</file>
     </qresource>
 </RCC>
