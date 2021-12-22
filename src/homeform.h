@@ -34,6 +34,7 @@ class DataObject : public QObject {
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
+    Q_PROPERTY(QString identificator READ identificator)
 
   public:
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
@@ -59,6 +60,7 @@ class DataObject : public QObject {
     bool visibleItem() { return m_visible; }
     QString plusName() { return m_id + QStringLiteral("_plus"); }
     QString minusName() { return m_id + QStringLiteral("_minus"); }
+    QString identificator() { return m_id; }
 
     QString m_id;
     QString m_name;
@@ -263,6 +265,15 @@ class homeform : public QObject {
             axisY->setShadesPen(Qt::NoPen);
             axisY->setShadesBrush(QBrush(QColor(0x99, 0xcc, 0xcc, 0x55)));
         }
+    }
+
+    Q_INVOKABLE bool autoInclinationEnabled() {
+        QSettings settings;
+        bool virtual_bike = settings.value("virtual_device_force_bike", false).toBool();
+        return bluetoothManager && bluetoothManager->device() &&
+               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
+               bluetoothManager->device()->VirtualDevice() &&
+               ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
     }
 
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);

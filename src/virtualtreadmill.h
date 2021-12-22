@@ -29,6 +29,7 @@ class virtualtreadmill : public QObject {
   public:
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
     bool connected();
+    bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -43,6 +44,8 @@ class virtualtreadmill : public QObject {
     bluetoothdevice *treadMill;
 
     bool noHeartService = false;
+
+    bool m_autoInclinationEnabled = false;
 
     void slopeChanged(int16_t iresistance);
 

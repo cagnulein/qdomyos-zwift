@@ -157,6 +157,12 @@ HomeForm{
                 source: rect
             }
 
+            Timer {
+                id: toggleIconTimer
+                interval: 500; running: true; repeat: true
+                onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = true; }
+            }
+
             Image {
                 id: myIcon
                 x: 5
