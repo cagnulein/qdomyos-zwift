@@ -103,15 +103,29 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value() * multiplier) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+    if (currentSpeed().value() < 10.0) {
+
+        display[7] = ((uint8_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x00; // decimal position
+    } else if (currentSpeed().value() < 100.0) {
+
+        display[7] = ((uint8_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x01; // decimal position
+    } else {
+
+        display[7] = ((uint8_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x02; // decimal position
+    }
 
     display[12] = (uint8_t)currentHeart().value();
 
     // display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     // display[14] = (((uint8_t)calories())) & 0xFF;
 
-    if (bike_type == TELINK) {
+    if (domyos_bike_display_calories) {
         display[15] = ((((uint16_t)currentCadence().value()) * multiplier) >> 8) & 0xFF;
         display[16] = (((uint16_t)currentCadence().value()) * multiplier) & 0xFF;
     } else {
