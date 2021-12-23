@@ -804,7 +804,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsRower->deviceDiscovered(b);
                 userTemplateManager->start(ftmsRower);
                 innerTemplateManager->start(ftmsRower);
-            } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) || b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) && !echelonStride && filter) {
+            } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
+                        b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) &&
+                       !echelonStride && filter) {
 
                 discoveryAgent->stop();
                 echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
@@ -1076,6 +1078,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("I-RUNNING"))) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) ||
                         (b.name().toUpper().startsWith(QStringLiteral("REEBOK")))) &&
                        !trxappgateusb && !trxappgateusbBike && !toorx_bike && filter) {
                 discoveryAgent->stop();
