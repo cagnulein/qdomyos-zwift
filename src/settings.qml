@@ -23,6 +23,7 @@ import Qt.labs.settings 1.0
             property bool zwift_erg: false
             property real zwift_erg_filter: 10.0
             property real zwift_erg_filter_down: 10.0
+            property bool zwift_negative_inclination_x2: false
 
             property bool speed_power_based: false
             property int bike_resistance_start: 1
@@ -902,6 +903,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.zwift_erg = checked
+                    }
+                    SwitchDelegate {
+                        id: zwiftNegativeIncliantionX2Delegate
+                        text: qsTr("Double Negative Inclination")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.zwift_negative_inclination_x2
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.zwift_negative_inclination_x2 = checked
                     }
                     RowLayout {
                         spacing: 10
