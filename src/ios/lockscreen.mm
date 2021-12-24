@@ -97,6 +97,12 @@ void lockscreen::virtualtreadmill_zwift_ios()
     _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] init];
 }
 
+void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
+{
+    if(_virtualtreadmill_zwift != nil)
+        [_virtualtreadmill_zwift updateHeartRateWithHeartRate:heartRate];
+}
+
 double lockscreen::virtualtreadmill_getCurrentSlope()
 {
     if(_virtualtreadmill_zwift != nil)

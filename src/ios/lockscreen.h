@@ -22,6 +22,7 @@ class lockscreen {
     
     // virtualtreadmill
     void virtualtreadmill_zwift_ios();
+    void virtualtreadmill_setHeartRate(unsigned char heartRate);
     double virtualtreadmill_getCurrentSlope();
     double virtualtreadmill_getPowerRequested();
     bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
