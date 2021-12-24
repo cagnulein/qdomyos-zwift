@@ -143,7 +143,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                 QStringLiteral("0"), true, QStringLiteral("resistance"), 48, labelFontSize);
     peloton_resistance =
         new DataObject(QStringLiteral("Peloton R(%)"), QStringLiteral("icons/icons/resistance.png"),
-                       QStringLiteral("0"), false, QStringLiteral("peloton_resistance"), 48, labelFontSize);
+                       QStringLiteral("0"), true, QStringLiteral("peloton_resistance"), 48, labelFontSize);
     target_resistance =
         new DataObject(QStringLiteral("Target R(%)"), QStringLiteral("icons/icons/resistance.png"), QStringLiteral("0"),
                        true, QStringLiteral("target_resistance"), 48, labelFontSize);
@@ -1397,7 +1397,7 @@ void homeform::Plus(const QString &name) {
                 }
             }
         }
-    } else if (name.contains(QStringLiteral("resistance"))) {
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
@@ -1504,7 +1504,7 @@ void homeform::Minus(const QString &name) {
                 }
             }
         }
-    } else if (name.contains(QStringLiteral("resistance"))) {
+    } else if (name.contains(QStringLiteral("resistance")) || name.contains(QStringLiteral("peloton_resistance"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 ((bike *)bluetoothManager->device())
