@@ -54,6 +54,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
   private var supported_resistance_level_rangeCharacteristic: CBMutableCharacteristic!
   private var FitnessMachineControlPointCharacteristic: CBMutableCharacteristic!
   private var indoorbikeCharacteristic: CBMutableCharacteristic!
+  private var treadmilldataCharacteristic: CBMutableCharacteristic!
   private var FitnessMachinestatusCharacteristic: CBMutableCharacteristic!
   private var TrainingStatusCharacteristic: CBMutableCharacteristic!
     public var CurrentSlope: Double! = 0
@@ -63,8 +64,14 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
     
-    public var serviceToggle: Bool = false
+    public var serviceToggle: UInt8 = 0
 
+  private var rscService: CBMutableService!
+  private var rscFeatureCharacteristic: CBMutableCharacteristic!
+  private var rscSensorLocationCharacteristic: CBMutableCharacteristic!
+  private var rscMeasurementCharacteristic: CBMutableCharacteristic!
+  private var rscControlPointCharacteristic: CBMutableCharacteristic!
+    
   public var connected: Bool = false
 
   private var notificationTimer: Timer! = nil
@@ -121,6 +128,13 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                              properties: indoorbikeProperties,
                                                          value: nil,
                                                          permissions: indoorbikePermissions)
+
+        let treadmilldataProperties: CBCharacteristicProperties = [.notify, .read]
+          let treadmilldataPermissions: CBAttributePermissions = [.readable]
+          self.treadmilldataCharacteristic = CBMutableCharacteristic(type: treadmilldataUuid,
+                                               properties: treadmilldataProperties,
+                                                           value: nil,
+                                                           permissions: treadmilldataPermissions)
         
         let FitnessMachinestatusProperties: CBCharacteristicProperties = [.notify]
         let FitnessMachinestatusPermissions: CBAttributePermissions = [.readable]
@@ -144,6 +158,40 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                TrainingStatusCharacteristic ]
         
         self.peripheralManager.add(FitnessMachineService)
+        
+        self.rscService = CBMutableService(type: RSCServiceUuid, primary: true)
+        
+        let rscFeatureProperties: CBCharacteristicProperties = [.read]
+        let rscFeaturePermissions: CBAttributePermissions = [.readable]
+        self.rscFeatureCharacteristic = CBMutableCharacteristic(type: RSCFeatureUuid,
+                                                              properties: rscFeatureProperties,
+                                                              value: Data (bytes: [0x02, 0x00]),
+                                                              permissions: rscFeaturePermissions)
+
+        let rscSensorLocationProperties: CBCharacteristicProperties = [.read]
+        let rscSensorLocationPermissions: CBAttributePermissions = [.readable]
+        self.rscSensorLocationCharacteristic = CBMutableCharacteristic(type: RSCSensorLocationUuid,
+                                                              properties: rscSensorLocationProperties,
+                                                              value: Data (bytes: [0x01]),
+                                                              permissions: rscSensorLocationPermissions)
+
+        let rscMeasurementProperties: CBCharacteristicProperties = [.notify, .read]
+        let rscMeasurementPermissions: CBAttributePermissions = [.readable]
+        self.rscMeasurementCharacteristic = CBMutableCharacteristic(type: RSCMeasurementUuid,
+                                                              properties: rscMeasurementProperties,
+                                                              value: nil,
+                                                              permissions: rscMeasurementPermissions)
+
+        let rscControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
+        let rscControlPointPermissions: CBAttributePermissions = [.writeable]
+        self.rscControlPointCharacteristic = CBMutableCharacteristic(type: RSCControlPointUuid,
+                                                              properties: rscControlPointProperties,
+                                                              value: nil,
+                                                              permissions: rscControlPointPermissions)
+        
+        rscService.characteristics = [rscFeatureCharacteristic, rscSensorLocationCharacteristic,
+                                      rscMeasurementCharacteristic, rscControlPointCharacteristic ]
+        self.peripheralManager.add(rscService)
 
     default:
       print("Peripheral manager is down")
@@ -214,7 +262,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
 
   func startSendingDataToSubscribers() {
     if self.notificationTimer == nil {
-        self.notificationTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
+        self.notificationTimer = Timer.scheduledTimer(timeInterval: 0.3, target: self, selector: #selector(self.updateSubscribers), userInfo: nil, repeats: true)
         }
   }
 
@@ -240,23 +288,61 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
       let indoorBikeData = Data(bytes: &indoorBike, count: 12)
       return indoorBikeData
     }
-  
+
+    func calculateTreadmillData() -> Data {
+        let flags0:UInt8 = 0x08
+        let flags1:UInt8 = 0x01
+      
+        var treadmillData: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
+                                      // TODO: add the incline from C++
+                                      0x00, 0x00, 0x00, 0x00,
+                                      self.heartRate, 0x00]
+      let treadmillDataData = Data(bytes: &treadmillData, count: 10)
+      return treadmillDataData
+    }
+
+    func calculateRSCMeasurement() -> Data {
+        let flags0:UInt8 = 0x00
+        let speed:UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
+      
+        var rscMeasurement: [UInt8] = [flags0, (UInt8)(speed & 0xFF), (UInt8)((speed >> 8) & 0xFF),
+                                       UInt8(self.CurrentCadence)]
+      let rscMeasurementData = Data(bytes: &rscMeasurement, count: 3)
+      return rscMeasurementData
+    }
+    
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
     let indoorBikeData = self.calculateIndoorBike()
+    let treadmillData = self.calculateTreadmillData()
+    let rscMeasurementData = self.calculateRSCMeasurement()
     
-    if(self.serviceToggle == true)
+    if(self.serviceToggle == 0)
     {
         let ok = self.peripheralManager.updateValue(heartRateData, for: self.heartRateCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
-            self.serviceToggle = !self.serviceToggle
+            self.serviceToggle = 1;
+        }
+    }
+    else if(self.serviceToggle == 1)
+    {
+        let ok = self.peripheralManager.updateValue(treadmillData, for: self.treadmilldataCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 2;
+        }
+    }
+    else if(self.serviceToggle == 2)
+    {
+        let ok = self.peripheralManager.updateValue(rscMeasurementData, for: self.rscMeasurementCharacteristic, onSubscribedCentrals: nil)
+        if(ok) {
+            self.serviceToggle = 3;
         }
     }
     else
     {
         let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
-            self.serviceToggle = !self.serviceToggle
+            self.serviceToggle = 0;
         }
     }
   }
