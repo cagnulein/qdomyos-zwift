@@ -385,6 +385,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 fakeBike = new fakebike(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
                 connect(fakeBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(fakeBike, &fakebike::inclinationChanged, this, &bluetooth::inclinationChanged);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
                 // #358
@@ -1428,7 +1429,9 @@ void bluetooth::connectedAndDiscovered() {
             // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
             connect(eliteRizer, &eliterizer::debug, this, &bluetooth::debug);
-            connect(this->device(), &bluetoothdevice::inclinationChanged, eliteRizer, &eliterizer::inclinationChanged);
+            connect(eliteRizer, &eliterizer::steeringAngleChanged, (bike *)this->device(),
+                    &bike::changeSteeringAngle);
+            connect(this->device(), &bluetoothdevice::inclinationChanged, eliteRizer, &eliterizer::changeInclinationRequested);
             eliteRizer->deviceDiscovered(b);
             break;
         }

@@ -58,6 +58,8 @@ void fakebike::update() {
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            connect(virtualBike, &virtualbike::changeInclination, this,
+                    &fakebike::changeInclinationRequested);
         }
     }
     if(!firstStateChanged) emit connectedAndDiscovered();
@@ -95,6 +97,12 @@ void fakebike::update() {
     #endif
     #endif
     }
+}
+
+void fakebike::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
 }
 
 bool fakebike::connected() {

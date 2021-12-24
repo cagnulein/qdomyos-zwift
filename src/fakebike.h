@@ -72,6 +72,7 @@ class fakebike : public bike {
     void debug(QString string);
 
   private slots:
+    void changeInclinationRequested(double grade, double percentage);
     void update();
 };
 #endif // FAKEBIKE_H

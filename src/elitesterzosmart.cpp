@@ -171,7 +171,7 @@ void elitesterzosmart::characteristicRead(const QLowEnergyCharacteristic &charac
 void elitesterzosmart::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    QBluetoothUuid _gattCommunicationChannelServiceId((QString) "347b0001-7635-408b-8918-8ff3949ce592");
+    QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("347b0001-7635-408b-8918-8ff3949ce592"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
