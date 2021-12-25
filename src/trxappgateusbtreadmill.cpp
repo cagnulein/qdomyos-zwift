@@ -88,7 +88,7 @@ void trxappgateusbtreadmill::update() {
         if (treadmill_type == TYPE::REEBOK) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x32, 0xd3, 0x97};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (treadmill_type == TYPE::DKN || toorx30 == false || jtx_fitness_sprint_treadmill) {
+        } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false || jtx_fitness_sprint_treadmill) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0xd3, 0x66};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
@@ -126,7 +126,7 @@ void trxappgateusbtreadmill::update() {
             if (treadmill_type == TYPE::REEBOK) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x32, 0xd3, 0x02, 0x9c};
                 writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
-            } else if (treadmill_type == TYPE::DKN || toorx30 == false) {
+            } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false) {
                 const uint8_t startTape[] = {0xf0, 0xa5, 0x01, 0xd3, 0x02, 0x6b};
                 writeCharacteristic((uint8_t *)startTape, sizeof(startTape), QStringLiteral("startTape"), false, true);
             } else {
@@ -179,7 +179,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
             readyToStart = true;
             requestStart = 1;
         }
-    } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::DKN) {
+    } else if (treadmill_type != TYPE::REEBOK && treadmill_type != TYPE::DKN && treadmill_type != TYPE::DKN_2) {
         if (newValue.at(16) == 0x04 && newValue.at(17) == 0x03 && readyToStart == false) {
             readyToStart = true;
             requestStart = 1;
@@ -275,7 +275,7 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
     bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
     bool jtx_fitness_sprint_treadmill = settings.value(QStringLiteral("jtx_fitness_sprint_treadmill"), false).toBool();
 
-    if (treadmill_type == TYPE::DKN) {
+    if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x02, 0x02, 0x94};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x01, 0xd3, 0x64};
         const uint8_t initData3[] = {0xf0, 0xa5, 0x01, 0xd3, 0x04, 0x6d};
@@ -424,17 +424,21 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
         QString uuidWrite = QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb");
         QString uuidNotify = QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb");
+        QString uuidNotify2 = QStringLiteral("49535343-ACA3-481C-91EC-D85E28A60318");
 
-        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK) {
+        if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
         }
 
         QBluetoothUuid _gattWriteCharacteristicId((QString)uuidWrite);
         QBluetoothUuid _gattNotifyCharacteristicId((QString)uuidNotify);
+        QBluetoothUuid _gattNotify2CharacteristicId((QString)uuidNotify2);
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
+        if(treadmill_type == TYPE::DKN_2)
+            gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
 
@@ -467,6 +471,10 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+
+        if(treadmill_type == TYPE::DKN_2 && gattNotify2Characteristic.isValid())
+            gattCommunicationChannelService->writeDescriptor(
+                gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 
@@ -487,7 +495,7 @@ void trxappgateusbtreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     QString uuid = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
-    if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK) {
+    if (treadmill_type == TYPE::IRUNNING || treadmill_type == TYPE::REEBOK || treadmill_type == TYPE::DKN_2) {
         uuid = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
     }
 
@@ -534,6 +542,8 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (dkn_endurun_treadmill) {
             treadmill_type = TYPE::DKN;
+        } else if(device.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) {
+            treadmill_type = TYPE::DKN_2;
         } else if (device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
                    device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
                    device.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||

@@ -64,12 +64,13 @@ class trxappgateusbtreadmill : public treadmill {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
 
-    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3 } TYPE;
+    typedef enum TYPE { TRXAPPGATE = 0, IRUNNING = 1, REEBOK = 2, DKN = 3, DKN_2 = 4 } TYPE;
     TYPE treadmill_type = TRXAPPGATE;
 
   signals:
