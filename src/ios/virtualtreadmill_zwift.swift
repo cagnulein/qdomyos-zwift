@@ -154,6 +154,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                                                supported_resistance_level_rangeCharacteristic,
                                                FitnessMachineControlPointCharacteristic,
                                                indoorbikeCharacteristic,
+                                               treadmilldataCharacteristic,
                                                FitnessMachinestatusCharacteristic,
                                                TrainingStatusCharacteristic ]
         
@@ -205,7 +206,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     }
     
     let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
-                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid]] as [String : Any]
+                              CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
   }
@@ -296,7 +297,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         var treadmillData: [UInt8] = [flags0, flags1, (UInt8)(self.NormalizeSpeed & 0xFF), (UInt8)((self.NormalizeSpeed >> 8) & 0xFF),
                                       // TODO: add the incline from C++
                                       0x00, 0x00, 0x00, 0x00,
-                                      self.heartRate, 0x00]
+                                      self.heartRate]
       let treadmillDataData = Data(bytes: &treadmillData, count: 10)
       return treadmillDataData
     }

@@ -20,7 +20,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        h->virtualtreadmill_zwift_ios();
     } else
 #endif
 #endif
@@ -224,13 +224,13 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         leController->startAdvertising(pars, advertisingData, advertisingData);
         //! [Start Advertising]
-
-        //! [Provide Heartbeat]
-        QObject::connect(&treadmillTimer, &QTimer::timeout, this, &virtualtreadmill::treadmillProvider);
-        treadmillTimer.start(1s);
+        
         //! [Provide Heartbeat]
         QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualtreadmill::reconnect);
     }
+    //! [Provide Heartbeat]
+    QObject::connect(&treadmillTimer, &QTimer::timeout, this, &virtualtreadmill::treadmillProvider);
+    treadmillTimer.start(1s);
 }
 
 void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -367,8 +367,6 @@ void virtualtreadmill::treadmillProvider() {
         return;
     }
 #endif
-#else
-    Q_UNUSED(erg_mode);
 #endif
     
     if (leController->state() != QLowEnergyController::ConnectedState) {
