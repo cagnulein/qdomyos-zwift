@@ -8,6 +8,8 @@ class lockscreen {
     long heartRate();
     void setKcal(double kcal);
     void setDistance(double distance);
+
+    // virtualbike
     void virtualbike_ios();
     void virtualbike_setHeartRate(unsigned char heartRate);
     void virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime);
@@ -17,6 +19,16 @@ class lockscreen {
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt);
+    
+    // virtualtreadmill
+    void virtualtreadmill_zwift_ios();
+    void virtualtreadmill_setHeartRate(unsigned char heartRate);
+    double virtualtreadmill_getCurrentSlope();
+    double virtualtreadmill_getPowerRequested();
+    bool virtualtreadmill_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
+                                unsigned short currentCadence, unsigned short currentWatt);
+    
+    // volume
     double getVolume();
 };
 

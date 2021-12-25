@@ -9,11 +9,13 @@
 
 @class virtualbike_ios_swift;
 @class virtualbike_zwift;
+@class virtualtreadmill_zwift;
 @class healthkit;
 
 static healthkit* h = 0;
 static virtualbike_ios_swift* _virtualbike = nil;
 static virtualbike_zwift* _virtualbike_zwift = nil;
+static virtualtreadmill_zwift* _virtualtreadmill_zwift = nil;
 
 void lockscreen::setTimerDisabled() {
      [[UIApplication sharedApplication] setIdleTimerDisabled: YES];
@@ -88,6 +90,46 @@ bool lockscreen::virtualbike_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResi
         return [_virtualbike_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt];
     return 0;
 }
+
+// virtual treadmill
+void lockscreen::virtualtreadmill_zwift_ios()
+{
+    _virtualtreadmill_zwift = [[virtualtreadmill_zwift alloc] init];
+}
+
+void lockscreen::virtualtreadmill_setHeartRate(unsigned char heartRate)
+{
+    if(_virtualtreadmill_zwift != nil)
+        [_virtualtreadmill_zwift updateHeartRateWithHeartRate:heartRate];
+}
+
+double lockscreen::virtualtreadmill_getCurrentSlope()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift readCurrentSlope];
+    }
+    return 0;
+}
+
+double lockscreen::virtualtreadmill_getPowerRequested()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift readPowerRequested];
+    }
+    return 0;
+}
+
+bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 currentResistance, UInt16 currentCadence, UInt16 currentWatt)
+{
+    if(_virtualtreadmill_zwift != nil)
+        return [_virtualtreadmill_zwift updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt];
+    return 0;
+}
+
+
+// getVolume
 
 double lockscreen::getVolume()
 {
