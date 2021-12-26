@@ -312,11 +312,15 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void virtualtreadmill::slopeChanged(int16_t iresistance) {
 
     QSettings settings;
+    double offset = settings.value(QStringLiteral("zwift_inclination_offset"), 0.0).toDouble();
+    double gain = settings.value(QStringLiteral("zwift_inclination_gain"), 1.0).toDouble();
+
     qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance);
     double resistance = ((double)iresistance * 1.5) / 100.0;
     qDebug() << QStringLiteral("calculated erg grade ") + QString::number(resistance);
 
-    emit changeInclination(iresistance / 100.0, qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0);
+    emit changeInclination(((iresistance / 100.0) * gain) + offset,
+                           ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
 
     if (treadMill && treadMill->autoResistance())
         m_autoInclinationEnabled = true;

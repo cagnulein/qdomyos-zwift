@@ -24,6 +24,8 @@ import Qt.labs.settings 1.0
             property real zwift_erg_filter: 10.0
             property real zwift_erg_filter_down: 10.0
             property bool zwift_negative_inclination_x2: false
+            property real zwift_inclination_offset: 0
+            property real zwift_inclination_gain: 1.0
 
             property bool speed_power_based: false
             property int bike_resistance_start: 1
@@ -3292,6 +3294,56 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.pause_on_start_treadmill = checked
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillInclinationOffset
+                        text: qsTr("Zwift Inclination Offset:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationOffsetTextField
+                        text: settings.zwift_inclination_offset
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.zwift_inclination_offset = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTreadmillInclinationOffsetButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillInclinationGain
+                        text: qsTr("Zwift Inclination Gain:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationGainTextField
+                        text: settings.zwift_inclination_gain
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                        onAccepted: settings.zwift_inclination_gain = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTreadmillInclinationGainButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.zwift_inclination_gain = treadmillInclinationGainTextField.text
+                    }
                 }
 
                 AccordionElement {
