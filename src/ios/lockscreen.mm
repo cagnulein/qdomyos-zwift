@@ -112,6 +112,15 @@ double lockscreen::virtualtreadmill_getCurrentSlope()
     return 0;
 }
 
+uint64_t lockscreen::virtualtreadmill_lastChangeCurrentSlope()
+{
+    if(_virtualtreadmill_zwift != nil)
+    {
+        return [_virtualtreadmill_zwift lastChangeCurrentSlope];
+    }
+    return 0;
+}
+
 double lockscreen::virtualtreadmill_getPowerRequested()
 {
     if(_virtualtreadmill_zwift != nil)

@@ -26,6 +26,11 @@ let treadmilldataUuid = CBUUID(string: "0x2ACD");
         return peripheralManager.CurrentSlope;
     }
 
+    @objc public func lastChangeCurrentSlope() -> UInt64
+    {
+        return peripheralManager.lastCurrentSlope;
+    }
+    
     @objc public func readPowerRequested() -> Double
     {
         return peripheralManager.PowerRequested;
@@ -63,6 +68,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
+    public var lastCurrentSlope: UInt64! = 0;
     
     public var serviceToggle: UInt8 = 0
 
@@ -228,6 +234,8 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
           {
                    var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
                      self.CurrentSlope = (Double)((Int16)(requests.first!.value![3]) + high);
+                
+                self.lastCurrentSlope = UInt64(Date().timeIntervalSince1970)
           }
             else if(requests.first!.value?.first == 0x05)
           {

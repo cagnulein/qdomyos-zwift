@@ -46,6 +46,8 @@ class virtualtreadmill : public QObject {
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
+    
+    uint64_t lastSlopeChanged = 0;
 
     bool noHeartService = false;
 

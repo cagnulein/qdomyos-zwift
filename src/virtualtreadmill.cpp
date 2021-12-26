@@ -281,6 +281,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             emit debug(QStringLiteral("request to stop"));
         } else if ((char)newValue.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
         {
+            lastSlopeChanged = QDateTime::currentSecsSinceEpoch();
             qDebug() << QStringLiteral("indoor bike simulation parameters");
             int16_t iresistance = (((uint8_t)newValue.at(3)) + (newValue.at(4) << 8));
             slopeChanged(iresistance);
@@ -351,8 +352,12 @@ void virtualtreadmill::reconnect() {
 }
 
 void virtualtreadmill::treadmillProvider() {
+    const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
     uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
+    
+    if((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
+        m_autoInclinationEnabled = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -362,7 +367,9 @@ void virtualtreadmill::treadmillProvider() {
                                       (uint16_t)((treadmill *)treadMill)->currentCadence().value() * 2,
                                       (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
-            slopeChanged(h->virtualtreadmill_getCurrentSlope());
+            lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
+            if((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
+                slopeChanged(h->virtualtreadmill_getCurrentSlope());
         }
         return;
     }
