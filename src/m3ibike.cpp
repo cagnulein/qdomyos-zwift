@@ -113,7 +113,7 @@ double KeiserM3iDeviceSimulator::calcSpeed(keiser_m3i_out_t *f, bool pause) {
     } else {
         int acc_time = realtime - this->old_timeRms;
         double acc = realdist - this->old_dist;
-        if (!pause && (acc > 1e-6 || acc_time > 0)) {
+        if (!pause && acc > 0 && (acc > 1e-6 || acc_time > 0)) {
             double rem = 0.0;
             int rem_time = 0;
             if (this->dist_buff_size == this->buffSize) {
@@ -620,7 +620,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 && !h
 #endif
-            ) {
+                ) {
                 bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
@@ -644,7 +644,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #else
                                 2500
 #endif
-                );
+                                );
                 m_jouls = 0;
             }
             emit connectedAndDiscovered();

@@ -22,6 +22,7 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+#include "dirconmanager.h"
 #include "treadmill.h"
 
 class virtualtreadmill : public QObject {
@@ -39,6 +40,12 @@ class virtualtreadmill : public QObject {
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
+    CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
+    CharacteristicNotifier2AD2 *notif2AD2 = 0;
+    CharacteristicNotifier2A53 *notif2A53 = 0;
+    CharacteristicNotifier2ACD *notif2ACD = 0;
+    CharacteristicNotifier2A37 *notif2A37 = 0;
+    DirconManager *dirconManager = 0;
 
     bool noHeartService = false;
 
