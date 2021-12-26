@@ -124,6 +124,8 @@ import Qt.labs.settings 1.0
             property int  tile_gears_order: 26
             property bool tile_remainingtimetrainprogramrow_enabled: false
             property int  tile_remainingtimetrainprogramrow_order: 27
+            property bool tile_nextrowstrainprogram_enabled: false
+            property int  tile_nextrowstrainprogram_order: 31
             property bool tile_mets_enabled: false
             property int  tile_mets_order: 28
             property bool tile_targetmets_enabled: false
@@ -2486,6 +2488,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_remainingtimetrainprogramrow_order = remainingTimeTrainingProgramRowOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: nextRowsTrainingProgramRowEnabledAccordion
+                        title: qsTr("Next Rows")
+                        linkedBoolSetting: "tile_nextrowstrainprogram_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelnextRowsTrainingProgramOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: nextRowsTrainingProgramOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_nextrowstrainprogram_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = nextRowsTrainingProgramOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oknextRowsTrainingProgramOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_nextrowstrainprogram_order = nextRowsTrainingProgramOrderTextField.displayText
                             }
                         }
                     }

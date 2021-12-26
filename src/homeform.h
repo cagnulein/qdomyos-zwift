@@ -464,6 +464,7 @@ class homeform : public QObject {
     DataObject *wattKg;
     DataObject *gears;
     DataObject *remaningTimeTrainingProgramCurrentRow;
+    DataObject *nextRows;
     DataObject *mets;
     DataObject *targetMets;
     DataObject *steeringAngle;

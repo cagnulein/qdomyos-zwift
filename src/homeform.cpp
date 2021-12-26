@@ -188,6 +188,11 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     remaningTimeTrainingProgramCurrentRow = new DataObject(
         QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), false,
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
+
+    nextRows = new DataObject(
+        QStringLiteral("Next Rows"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("N/A"), false,
+        QStringLiteral("nextrows"), valueElapsedFontSize, labelFontSize);
+
     mets = new DataObject(QStringLiteral("METS"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("mets"), 48, labelFontSize);
     targetMets = new DataObject(QStringLiteral("Target METS"), QStringLiteral("icons/icons/watt.png"),
@@ -534,8 +539,8 @@ void homeform::trainProgramSignals() {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(35);
-    for (int i = 0; i < 34; i++) {
+    r.reserve(36);
+    for (int i = 0; i < 35; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -678,6 +683,14 @@ void homeform::sortTiles() {
                 remaningTimeTrainingProgramCurrentRow->setGridId(i);
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
             }
+
+            if (settings.value(QStringLiteral("tile_nextrowstrainprogram_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_nextrowtrainprogram_order"), 31).toInt() == i) {
+
+                nextRows->setGridId(i);
+                dataList.append(nextRows);
+            }
+
             if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
 
@@ -860,6 +873,14 @@ void homeform::sortTiles() {
                 remaningTimeTrainingProgramCurrentRow->setGridId(i);
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
             }
+
+            if (settings.value(QStringLiteral("tile_nextrowstrainprogram_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_nextrowtrainprogram_order"), 31).toInt() == i) {
+
+                nextRows->setGridId(i);
+                dataList.append(nextRows);
+            }
+
             if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
                 mets->setGridId(i);
@@ -1057,6 +1078,14 @@ void homeform::sortTiles() {
                 remaningTimeTrainingProgramCurrentRow->setGridId(i);
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
             }
+
+            if (settings.value(QStringLiteral("tile_nextrowstrainprogram_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_nextrowtrainprogram_order"), 31).toInt() == i) {
+
+                nextRows->setGridId(i);
+                dataList.append(nextRows);
+            }
+
             if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
                 mets->setGridId(i);
@@ -1207,6 +1236,14 @@ void homeform::sortTiles() {
                 remaningTimeTrainingProgramCurrentRow->setGridId(i);
                 dataList.append(remaningTimeTrainingProgramCurrentRow);
             }
+
+            if (settings.value(QStringLiteral("tile_nextrowstrainprogram_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_nextrowtrainprogram_order"), 31).toInt() == i) {
+
+                nextRows->setGridId(i);
+                dataList.append(nextRows);
+            }
+
             if (settings.value(QStringLiteral("tile_mets_enabled"), false).toBool() &&
                 settings.value(QStringLiteral("tile_mets_order"), 28).toInt() == i) {
                 mets->setGridId(i);
@@ -1773,6 +1810,64 @@ void homeform::update() {
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
+            trainrow next = trainProgram->getRowFromCurrent(1);
+            trainrow next_1 = trainProgram->getRowFromCurrent(2);
+            if(next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0) {
+                if(next.requested_peloton_resistance)
+                    nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance) + QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
+                else if(next.resistance)
+                    nextRows->setValue(QStringLiteral("R") + QString::number(next.resistance) + QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
+                else if(next.power) {
+                    double ftpPerc = (next.power / ftpSetting) * 100.0;
+                    uint8_t ftpZone = 1;
+                    if (ftpPerc < 56) {
+                        ftpZone = 1;
+                    } else if (ftpPerc < 76) {
+                        ftpZone = 2;
+                    } else if (ftpPerc < 91) {
+                        ftpZone = 3;
+                    } else if (ftpPerc < 106) {
+                        ftpZone = 4;
+                    } else if (ftpPerc < 121) {
+                        ftpZone = 5;
+                    } else if (ftpPerc < 151) {
+                        ftpZone = 6;
+                    } else {
+                        ftpZone = 7;
+                    }
+                    nextRows->setValue(QStringLiteral("Z") + QString::number(ftpZone) + QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
+                    if(next_1.duration.second() != 0 || next_1.duration.minute() != 0 || next_1.duration.hour() != 0) {
+                        if(next_1.requested_peloton_resistance)
+                            nextRows->setSecondLine(QStringLiteral("PR") + QString::number(next_1.requested_peloton_resistance) + QStringLiteral(" ") + next_1.duration.toString(QStringLiteral("mm:ss")));
+                        else if(next_1.resistance)
+                            nextRows->setSecondLine(QStringLiteral("R") + QString::number(next_1.resistance) + QStringLiteral(" ") + next_1.duration.toString(QStringLiteral("mm:ss")));
+                        else if(next_1.power) {
+                            double ftpPerc = (next_1.power / ftpSetting) * 100.0;
+                            uint8_t ftpZone = 1;
+                            if (ftpPerc < 56) {
+                                ftpZone = 1;
+                            } else if (ftpPerc < 76) {
+                                ftpZone = 2;
+                            } else if (ftpPerc < 91) {
+                                ftpZone = 3;
+                            } else if (ftpPerc < 106) {
+                                ftpZone = 4;
+                            } else if (ftpPerc < 121) {
+                                ftpZone = 5;
+                            } else if (ftpPerc < 151) {
+                                ftpZone = 6;
+                            } else {
+                                ftpZone = 7;
+                            }
+                            nextRows->setSecondLine(QStringLiteral("Z") + QString::number(ftpZone) + QStringLiteral(" ") + next_1.duration.toString(QStringLiteral("mm:ss")));
+                        }
+                    } else {
+                        nextRows->setSecondLine(QStringLiteral("N/A"));
+                    }
+                }
+            } else {
+                nextRows->setValue(QStringLiteral("N/A"));
+            }
         }
         mets->setValue(QString::number(bluetoothManager->device()->currentMETS().value(), 'f', 1));
         mets->setSecondLine(

@@ -47,6 +47,7 @@ class trainprogram : public QObject {
     QTime duration();
     double totalDistance();
     trainrow currentRow();
+    trainrow getRowFromCurrent(uint32_t offset);
     void increaseElapsedTime(uint32_t i);
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }

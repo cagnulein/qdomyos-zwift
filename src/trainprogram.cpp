@@ -403,6 +403,13 @@ trainrow trainprogram::currentRow() {
     return trainrow();
 }
 
+trainrow trainprogram::getRowFromCurrent(uint32_t offset) {
+    if (started && !rows.isEmpty() && (currentStep + offset) < (uint32_t)rows.length()) {
+        return rows.at(currentStep + offset);
+    }
+    return trainrow();
+}
+
 double trainprogram::currentTargetMets() {
     if (currentRow().mets)
         return currentRow().mets;
