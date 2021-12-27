@@ -115,6 +115,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
                 slopeChanged(iresistance);
             }
+            reply.append((quint8)FTMS_RESPONSE_CODE);
+            reply.append((quint8)data.at(0));
+            reply.append((quint8)FTMS_SUCCESS);
         }
         return CP_OK;
     } else
