@@ -27,6 +27,12 @@ class DirconProcessorCharacteristic : public QObject {
         writeP = cp.writeP;
         return *this;
     }
+    operator QString() const {
+        return QString(QStringLiteral("uuid=%1 read=%2 type=%3"))
+            .arg(uuid, 4, 16, QLatin1Char('0'))
+            .arg(QString(read_values.toHex()))
+            .arg(type);
+    }
     QByteArray read_values;
     quint16 uuid;
     quint8 type;
@@ -40,6 +46,15 @@ class DirconProcessorService : public QObject {
     QString name;
     quint16 uuid;
     int machine_id;
+    operator QString() const {
+        QString charsprint = QString();
+        foreach (DirconProcessorCharacteristic *c, chars) { charsprint += *c + QStringLiteral(","); }
+        return QString(QStringLiteral("servname=%1 uuid=%2 machine=%3 [%4]"))
+            .arg(name)
+            .arg(uuid, 4, 16, QLatin1Char('0'))
+            .arg(machine_id)
+            .arg(charsprint);
+    }
     QList<DirconProcessorCharacteristic *> chars;
 };
 

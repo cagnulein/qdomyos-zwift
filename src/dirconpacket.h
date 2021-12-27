@@ -46,7 +46,7 @@ class DirconPacket {
     DirconPacket &operator=(const DirconPacket &cp);
     QByteArray encode(int last_seq_number);
     int parse(const QByteArray &buf, int last_seq_number);
-    QString toString() const;
+    operator QString() const;
 
   private:
     quint8 uuid_bytes[16] = {0x00, 0x00, 0x18, 0x26, 0x00, 0x00, 0x10, 0x00,

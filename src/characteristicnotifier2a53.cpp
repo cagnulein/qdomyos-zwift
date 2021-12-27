@@ -8,8 +8,8 @@ int CharacteristicNotifier2A53::notify(QByteArray &value) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
         value.append(0x02); // total distance
-        uint16_t speed = Bike->currentSpeed().value() / 3.6;
-        uint32_t distance = Bike->odometer() * 1000.0;
+        uint16_t speed = Bike->currentSpeed().value() / 3.6 * 256;
+        uint32_t distance = Bike->odometer() * 10000.0;
         value.append((char)((speed & 0xFF)));
         value.append((char)((speed >> 8) & 0xFF));
         value.append((char)(90)); // cadence, i don't have any sensor to measure it

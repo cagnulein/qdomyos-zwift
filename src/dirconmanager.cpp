@@ -10,14 +10,14 @@
     OP(FITNESS_MACHINE_TREADMILL, 0x1826, WAHOO_TREADMILL, P1, P2, P3)                                                 \
     OP(CYCLING_POWER, 0x1818, WAHOO_KICKR, P1, P2, P3)                                                                 \
     OP(CYCLING_SPEED_AND_CADENCE, 0x1816, WAHOO_KICKR, P1, P2, P3)                                                     \
-    OP(RUNNING_SPEED_AND_CADENCE, 0x1816, WAHOO_TREADMILL, P1, P2, P3)                                                 \
+    OP(RUNNING_SPEED_AND_CADENCE, 0x1814, WAHOO_TREADMILL, P1, P2, P3)                                                 \
     OP(HEART_RATE, 0x180D, WAHOO_BLUEHR, P1, P2, P3)
 
 #define DM_MACHINE_OP(OP, P1, P2, P3)                                                                                  \
     OP(WAHOO_KICKR, "Wahoo KICKR $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                        \
     OP(WAHOO_BLUEHR, "Wahoo HRM", DM_MACHINE_TYPE_BIKE | DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                        \
-    OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)                               \
-    OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)
+    OP(WAHOO_RPM_SPEED, "Wahoo SPEED $uuid_hex$", DM_MACHINE_TYPE_BIKE, P1, P2, P3)                                    \
+    OP(WAHOO_TREADMILL, "Wahoo TREAD $uuid_hex$", DM_MACHINE_TYPE_TREADMILL, P1, P2, P3)
 
 #define DP_PROCESS_WRITE_2AD9() writeP2AD9
 #define DP_PROCESS_WRITE_2AD9T() writeP2AD9
@@ -49,13 +49,6 @@
        P3)                                                                                                             \
     OP(FITNESS_MACHINE_TREADMILL, 0x2AD2, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \
-    OP(RUNNING_SPEED_AND_CADENCE, 0x2A54, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x02\x00"), DP_PROCESS_WRITE_NULL, P1, P2,  \
-       P3)                                                                                                             \
-    OP(RUNNING_SPEED_AND_CADENCE, 0x2A5D, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x01"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
-    OP(RUNNING_SPEED_AND_CADENCE, 0x2A55, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2A55T, P1, P2,    \
-       P3)                                                                                                             \
-    OP(RUNNING_SPEED_AND_CADENCE, 0x2A53, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
-       P3)                                                                                                             \
     OP(CYCLING_POWER, 0x2A65, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x08\x00\x00\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
     OP(CYCLING_POWER, 0x2A5D, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x0d"), DP_PROCESS_WRITE_NULL, P1, P2, P3)              \
     OP(CYCLING_POWER, 0x2A63, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)            \
@@ -65,6 +58,13 @@
     OP(CYCLING_SPEED_AND_CADENCE, 0x2A5B, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
        P3)                                                                                                             \
     OP(CYCLING_SPEED_AND_CADENCE, 0x2A55, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2A55, P1, P2, P3) \
+    OP(RUNNING_SPEED_AND_CADENCE, 0x2A54, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x02\x00"), DP_PROCESS_WRITE_NULL, P1, P2,  \
+       P3)                                                                                                             \
+    OP(RUNNING_SPEED_AND_CADENCE, 0x2A5D, DPKT_CHAR_PROP_FLAG_READ, DM_BT("\x01"), DP_PROCESS_WRITE_NULL, P1, P2, P3)  \
+    OP(RUNNING_SPEED_AND_CADENCE, 0x2A55, DPKT_CHAR_PROP_FLAG_WRITE, DM_BT("\x00"), DP_PROCESS_WRITE_2A55T, P1, P2,    \
+       P3)                                                                                                             \
+    OP(RUNNING_SPEED_AND_CADENCE, 0x2A53, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2,    \
+       P3)                                                                                                             \
     OP(HEART_RATE, 0x2A37, DPKT_CHAR_PROP_FLAG_NOTIFY, DM_BT("\x00"), DP_PROCESS_WRITE_NULL, P1, P2, P3)
 
 #define DM_MACHINE_ENUM_OP(DESC, NAME, TYPE, P1, P2, P3) DM_MACHINE_##DESC,
@@ -106,7 +106,9 @@ enum { DM_SERV_OP(DM_SERV_ENUMI_OP, 0, 0, 0) DM_SERV_I_NUM };
                                  QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC, 4, 10, QLatin1Char('0'))),       \
                 server_base_port + DM_MACHINE_##DESC, QString(QStringLiteral("%1")).arg(DM_MACHINE_##DESC), mac,       \
                 this);                                                                                                 \
-            qDebug() << "Initializing dircon for" << QString(QStringLiteral(NAME));                                    \
+            QString servdesc;                                                                                          \
+            foreach (DirconProcessorService *s, P2) { servdesc += *s + QStringLiteral(","); }                          \
+            qDebug() << "Initializing dircon for" << QString(QStringLiteral(NAME)) << "with serv" << servdesc;         \
             processors.append(processor);                                                                              \
             if (!processor->init()) {                                                                                  \
                 qDebug() << "Error initializing" << QString(QStringLiteral(NAME));                                     \
@@ -140,7 +142,9 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     QSettings settings;
     DirconProcessorService *service;
     QList<DirconProcessorService *> services, proc_services;
-    uint8_t type = Bike->deviceType() == bluetoothdevice::TREADMILL ? DM_MACHINE_TYPE_TREADMILL : DM_MACHINE_TYPE_BIKE;
+    bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
+    uint8_t type = dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL ? DM_MACHINE_TYPE_TREADMILL
+                                                                                         : DM_MACHINE_TYPE_BIKE;
     qDebug() << "Building Dircom Manager";
     uint16_t server_base_port = settings.value(QStringLiteral("dircon_server_base_port"), 4810).toUInt();
     bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();

@@ -198,7 +198,7 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     DirconPacket pkt;
     QTcpSocket *socket;
     DirconProcessorClient *client;
-    bool rv = true;
+    bool rv = true, rvs;
     pkt.additional_data = data;
     pkt.Identifier = DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION;
     pkt.ResponseCode = DPKT_RESPCODE_SUCCESS_REQUEST;
@@ -207,10 +207,12 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
         client = i.value();
         if (client->char_notify.indexOf(uuid) >= 0) {
             socket = i.key();
-            qDebug() << "Sending to" << socket->peerAddress().toString() << ":" << socket->peerPort()
-                     << " notification for uuid = " << serverName;
-            if (socket->write(pkt.encode(0)) < 0)
+            rvs = socket->write(pkt.encode(0)) < 0;
+            if (rvs)
                 rv = false;
+            qDebug() << serverName << "sending to" << socket->peerAddress().toString() << ":" << socket->peerPort()
+                     << " notification for uuid = " << QString(QStringLiteral("%1")).arg(uuid, 4, 16, QLatin1Char('0'))
+                     << "rv=" << (!rvs);
         }
     }
     return rv;
@@ -227,7 +229,7 @@ void DirconProcessor::tcpDataAvailable() {
         while (1) {
             DirconPacket pkt;
             buflimit = pkt.parse(client->buffer, client->seq);
-            qDebug() << "Pkt for uuid" << serverName << "parsed rv=" << buflimit << " ->" << pkt.toString();
+            qDebug() << "Pkt for uuid" << serverName << "parsed rv=" << buflimit << " ->" << pkt;
             if (buflimit > 0) {
                 rembuf = buflimit;
                 if (pkt.isRequest)
@@ -243,7 +245,7 @@ void DirconProcessor::tcpDataAvailable() {
                 client->buffer = client->buffer.mid(rembuf);
             if (buflimit > 0) {
                 DirconPacket resp = processPacket(client, pkt);
-                qDebug() << "Sending resp for uuid" << serverName << ":" << resp.toString();
+                qDebug() << "Sending resp for uuid" << serverName << ":" << resp;
                 if (resp.Identifier != DPKT_MSGID_ERROR) {
                     QByteArray byteout = resp.encode(pkt.SequenceNumber);
                     if (byteout.size())
