@@ -17,6 +17,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     QSettings settings;
     bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
     bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
+    bool technogym_myrun_treadmill_experimental = settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
 
     QLoggingCategory::setFilterRules(QStringLiteral("qt.bluetooth* = true"));
     filterDevice = deviceName;
@@ -95,7 +96,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
 #endif
 
-        if (!trx_route_key && !bh_spada_2)
+        if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental)
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         else
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
@@ -137,6 +138,7 @@ void bluetooth::finished() {
     bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
+    bool technogym_myrun_treadmill_experimental = settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
 
     // since i can have multiple fanfit i can't wait more because i don't have the full list of the fanfit
     // devices connected to QZ
@@ -150,7 +152,7 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
-    if (!trx_route_key && !bh_spada_2) {
+    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental) {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     } else {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
@@ -671,28 +673,54 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(horizonTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) && !technogymmyrunTreadmill && filter) {
                 discoveryAgent->stop();
-                technogymmyrunTreadmill = new technogymmyruntreadmill(noWriteResistance, noHeartService);
-#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
-                stateFileRead();
-#endif
-                emit deviceConnected(b);
-                connect(technogymmyrunTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
-                        &bluetooth::connectedAndDiscovered);
-                // connect(technogymmyrunTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(technogymmyrunTreadmill, &technogymmyruntreadmill::debug, this, &bluetooth::debug);
-                // NOTE: Commented due to #358
-                // connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
-                // NOTE: Commented due to #358
-                // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
-                // SLOT(inclinationChanged(double)));
-                technogymmyrunTreadmill->deviceDiscovered(b);
-                // NOTE: Commented due to #358
-                // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
-                if (!discoveryAgent->isActive()) {
-                    emit searchingStop();
+                bool technogym_myrun_treadmill_experimental = settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
+                if(technogym_myrun_treadmill_experimental) {
+                    technogymmyrunTreadmill = new technogymmyruntreadmill(noWriteResistance, noHeartService);
+    #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                    stateFileRead();
+    #endif
+                    emit deviceConnected(b);
+                    connect(technogymmyrunTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                            &bluetooth::connectedAndDiscovered);
+                    // connect(technogymmyrunTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(technogymmyrunTreadmill, &technogymmyruntreadmill::debug, this, &bluetooth::debug);
+                    // NOTE: Commented due to #358
+                    // connect(horizonTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                    // NOTE: Commented due to #358
+                    // connect(horizonTreadmill, SIGNAL(inclinationChanged(double)), this,
+                    // SLOT(inclinationChanged(double)));
+                    technogymmyrunTreadmill->deviceDiscovered(b);
+                    // NOTE: Commented due to #358
+                    // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+                    if (!discoveryAgent->isActive()) {
+                        emit searchingStop();
+                    }
+                    userTemplateManager->start(technogymmyrunTreadmill);
+                    innerTemplateManager->start(technogymmyrunTreadmill);
+                } else {
+                    technogymmyrunrfcommTreadmill = new technogymmyruntreadmillrfcomm();
+    #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+                    stateFileRead();
+    #endif
+                    emit deviceConnected(b);
+                    connect(technogymmyrunrfcommTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                            &bluetooth::connectedAndDiscovered);
+                    // connect(technogymmyrunrfcommTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
+                    connect(technogymmyrunrfcommTreadmill, &technogymmyruntreadmillrfcomm::debug, this, &bluetooth::debug);
+                    // NOTE: Commented due to #358
+                    // connect(technogymmyrunrfcommTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                    // NOTE: Commented due to #358
+                    // connect(technogymmyrunrfcommTreadmill, SIGNAL(inclinationChanged(double)), this,
+                    // SLOT(inclinationChanged(double)));
+                    technogymmyrunrfcommTreadmill->deviceDiscovered(b);
+                    // NOTE: Commented due to #358
+                    // connect(this, SIGNAL(searchingStop()), horizonTreadmill, SLOT(searchingStop()));
+                    if (!discoveryAgent->isActive()) {
+                        emit searchingStop();
+                    }
+                    userTemplateManager->start(technogymmyrunrfcommTreadmill);
+                    innerTemplateManager->start(technogymmyrunrfcommTreadmill);
                 }
-                userTemplateManager->start(technogymmyrunTreadmill);
-                innerTemplateManager->start(technogymmyrunTreadmill);
             } else if ((b.name().toUpper().startsWith("TACX NEO 2") ||
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                        !tacxneo2Bike && filter) {
@@ -1543,6 +1571,11 @@ void bluetooth::restart() {
         delete technogymmyrunTreadmill;
         technogymmyrunTreadmill = nullptr;
     }
+    if (technogymmyrunrfcommTreadmill) {
+
+        delete technogymmyrunrfcommTreadmill;
+        technogymmyrunrfcommTreadmill = nullptr;
+    }
     if (soleF80) {
 
         delete soleF80;
@@ -1859,6 +1892,8 @@ bluetoothdevice *bluetooth::device() {
         return horizonTreadmill;
     } else if (technogymmyrunTreadmill) {
         return technogymmyrunTreadmill;
+    } else if (technogymmyrunrfcommTreadmill) {
+        return technogymmyrunrfcommTreadmill;
     } else if (soleF80) {
         return soleF80;
     } else if (kingsmithR2Treadmill) {

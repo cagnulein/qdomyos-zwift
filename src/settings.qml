@@ -205,6 +205,8 @@ import Qt.labs.settings 1.0
 
             property bool schwinn_bike_resistance: false
 
+            property bool technogym_myrun_treadmill_experimental: false
+
             property bool trainprogram_random: false
             property int trainprogram_total: 60
             property real trainprogram_period_seconds: 60
@@ -3524,6 +3526,31 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_f65 = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: technogymTreadmillAccordion
+                    title: qsTr("Technogym Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: myrunDelegate
+                            text: qsTr("MyRun Experimental")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.technogym_myrun_treadmill_experimental
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.technogym_myrun_treadmill_experimental = checked
                         }
                     }
                 }

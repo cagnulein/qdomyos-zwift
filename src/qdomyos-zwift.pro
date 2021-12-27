@@ -145,6 +145,7 @@ SOURCES += \
    tacxneo2.cpp \
     tcpclientinfosender.cpp \
    technogymmyruntreadmill.cpp \
+    technogymmyruntreadmillrfcomm.cpp \
     templateinfosender.cpp \
     templateinfosenderbuilder.cpp \
    stagesbike.cpp \
@@ -471,6 +472,7 @@ HEADERS += \
    tacxneo2.h \
     tcpclientinfosender.h \
    technogymmyruntreadmill.h \
+    technogymmyruntreadmillrfcomm.h \
     templateinfosender.h \
     templateinfosenderbuilder.h \
    stagesbike.h \
