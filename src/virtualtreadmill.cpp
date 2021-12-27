@@ -324,6 +324,7 @@ void virtualtreadmill::treadmillProvider() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
+        uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
         // really connected to a device
         if (h->virtualtreadmill_updateFTMS(normalizeSpeed, 0,
                                            (uint16_t)((treadmill *)treadMill)->currentCadence().value() * 2,
