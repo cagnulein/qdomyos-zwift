@@ -17,6 +17,10 @@
 #else
 #include <QtGui/qguiapplication.h>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 #include <QtCore/qlist.h>
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qscopedpointer.h>
@@ -30,16 +34,20 @@ class virtualtreadmill : public QObject {
   public:
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
     bool connected();
+    bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
 
   private:
     QLowEnergyController *leController = nullptr;
-    QLowEnergyService *service = nullptr;
+    QLowEnergyService *serviceFTMS = nullptr;
+    QLowEnergyService *serviceRSC = nullptr;
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyAdvertisingData advertisingData;
-    QLowEnergyServiceData serviceData;
+    QLowEnergyServiceData serviceDataFTMS;
+    QLowEnergyServiceData serviceDataRSC;
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
+
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
     CharacteristicNotifier2A53 *notif2A53 = 0;
@@ -47,9 +55,19 @@ class virtualtreadmill : public QObject {
     CharacteristicNotifier2A37 *notif2A37 = 0;
     DirconManager *dirconManager = 0;
 
+    uint64_t lastSlopeChanged = 0;
+
     bool noHeartService = false;
 
-    void slopeChanged(int16_t iresistance);
+    bool m_autoInclinationEnabled = false;
+
+    bool ftmsServiceEnable();
+    bool ftmsTreadmillEnable();
+    bool RSCEnable();
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   signals:
     void debug(QString string);
@@ -59,6 +77,7 @@ class virtualtreadmill : public QObject {
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void treadmillProvider();
     void reconnect();
+    void slopeChanged();
 };
 
 #endif // VIRTUALTREADMILL_H

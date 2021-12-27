@@ -9,15 +9,16 @@ class CharacteristicWriteProcessor2AD9 : public CharacteristicWriteProcessor {
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
     bluetoothdevice *Bike;
+    void changeSlope(int16_t slope);
+    void changePower(uint16_t power);
 
   public:
-    void slopeChanged(int16_t slope);
-    void powerChanged(uint16_t power);
     explicit CharacteristicWriteProcessor2AD9(double bikeResistanceGain, uint8_t bikeResistanceOffset,
                                               bluetoothdevice *bike, QObject *parent = nullptr);
     virtual int writeProcess(quint16 uuid, const QByteArray &data, QByteArray &out);
   signals:
     void changeInclination(double grade, double percentage);
+    void slopeChanged();
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 

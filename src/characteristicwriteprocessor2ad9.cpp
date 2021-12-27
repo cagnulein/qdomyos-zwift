@@ -42,7 +42,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_SUCCESS);
 
                 int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
-                slopeChanged(iresistance);
+                changeSlope(iresistance);
             } else if (cmd == FTMS_SET_TARGET_POWER) // erg mode
 
             {
@@ -52,7 +52,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 reply.append((quint8)FTMS_SUCCESS);
 
                 uint16_t power = (((uint8_t)data.at(1)) + (data.at(2) << 8));
-                powerChanged(power);
+                changePower(power);
             } else if (cmd == FTMS_START_RESUME) {
                 qDebug() << QStringLiteral("start simulation!");
 
@@ -103,17 +103,17 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
                 qDebug() << "new requested incline " + QString::number(requestIncline);
             } else if ((char)data.at(0) == 0x07) // Start request
             {
-                Bike->start();
+                // Bike->start();
                 qDebug() << QStringLiteral("request to start");
             } else if ((char)data.at(0) == 0x08) // Stop request
             {
-                Bike->stop();
+                // Bike->stop();
                 qDebug() << QStringLiteral("request to stop");
             } else if ((char)data.at(0) == FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS) // simulation parameter
             {
                 qDebug() << QStringLiteral("indoor bike simulation parameters");
                 int16_t iresistance = (((uint8_t)data.at(3)) + (data.at(4) << 8));
-                slopeChanged(iresistance);
+                changeSlope(iresistance);
             }
             reply.append((quint8)FTMS_RESPONSE_CODE);
             reply.append((quint8)data.at(0));
@@ -124,9 +124,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
         return CP_INVALID;
 }
 
-void CharacteristicWriteProcessor2AD9::powerChanged(uint16_t power) { Bike->changePower(power); }
+void CharacteristicWriteProcessor2AD9::changePower(uint16_t power) { Bike->changePower(power); }
 
-void CharacteristicWriteProcessor2AD9::slopeChanged(int16_t iresistance) {
+void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance) {
     bluetoothdevice::BLUETOOTH_TYPE dt = Bike->deviceType();
     if (dt == bluetoothdevice::BIKE) {
         QSettings settings;
@@ -146,10 +146,16 @@ void CharacteristicWriteProcessor2AD9::slopeChanged(int16_t iresistance) {
                                    1); // resistance start from 1
         }
     } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {
+        QSettings settings;
+        double offset = settings.value(QStringLiteral("zwift_inclination_offset"), 0.0).toDouble();
+        double gain = settings.value(QStringLiteral("zwift_inclination_gain"), 1.0).toDouble();
+
         qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance);
         double resistance = ((double)iresistance * 1.5) / 100.0;
         qDebug() << QStringLiteral("calculated erg grade ") + QString::number(resistance);
 
-        emit changeInclination(iresistance / 100.0, qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0);
+        emit changeInclination(((iresistance / 100.0) * gain) + offset,
+                               ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
     }
+    emit slopeChanged();
 }
