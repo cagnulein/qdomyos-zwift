@@ -751,9 +751,9 @@ void virtualbike::bikeProvider() {
                                       (uint16_t)Bike->wattsMetric().value())) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
             if (!erg_mode)
-                writeP2AD9->slopeChanged(h->virtualbike_getCurrentSlope());
+                writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope());
             else
-                writeP2AD9->powerChanged(h->virtualbike_getPowerRequested());
+                writeP2AD9->changePower(h->virtualbike_getPowerRequested());
         }
         return;
     }
