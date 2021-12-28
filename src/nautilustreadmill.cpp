@@ -259,7 +259,14 @@ void nautilustreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b"));
         QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("6be8f580-9803-11e3-ab03-0002a5d5c51b"));
 
-        qDebug() << gattCommunicationChannelService->characteristics();
+        auto characteristics_list = gattCommunicationChannelService->characteristics();
+        for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+            qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+            auto descriptors_list = c.descriptors();
+            for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+            }
+        }
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
