@@ -96,11 +96,15 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
 #endif
 
+#ifndef Q_OS_IOS
         if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental)
+#endif
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+#ifndef Q_OS_IOS
         else
             discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                                   QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+#endif
     }
 }
 
@@ -152,12 +156,16 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
+#ifndef Q_OS_IOS
     if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental) {
+#endif
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+#ifndef Q_OS_IOS
     } else {
         discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
                               QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
     }
+#endif
 }
 
 void bluetooth::canceled() {
@@ -674,7 +682,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) && !technogymmyrunTreadmill && filter) {
                 discoveryAgent->stop();
                 bool technogym_myrun_treadmill_experimental = settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
-                if(technogym_myrun_treadmill_experimental) {
+#ifndef Q_OS_IOS
+                if(technogym_myrun_treadmill_experimental)
+#endif
+                {
                     technogymmyrunTreadmill = new technogymmyruntreadmill(noWriteResistance, noHeartService);
     #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                     stateFileRead();
@@ -697,7 +708,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     }
                     userTemplateManager->start(technogymmyrunTreadmill);
                     innerTemplateManager->start(technogymmyrunTreadmill);
-                } else {
+                }
+#ifndef Q_OS_IOS
+                else {
                     technogymmyrunrfcommTreadmill = new technogymmyruntreadmillrfcomm();
     #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
                     stateFileRead();
@@ -721,6 +734,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     userTemplateManager->start(technogymmyrunrfcommTreadmill);
                     innerTemplateManager->start(technogymmyrunrfcommTreadmill);
                 }
+#endif
             } else if ((b.name().toUpper().startsWith("TACX NEO 2") ||
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                        !tacxneo2Bike && filter) {
@@ -1587,11 +1601,13 @@ void bluetooth::restart() {
         delete technogymmyrunTreadmill;
         technogymmyrunTreadmill = nullptr;
     }
+#ifndef Q_OS_IOS
     if (technogymmyrunrfcommTreadmill) {
 
         delete technogymmyrunrfcommTreadmill;
         technogymmyrunrfcommTreadmill = nullptr;
     }
+#endif
     if (soleF80) {
 
         delete soleF80;
@@ -1913,8 +1929,10 @@ bluetoothdevice *bluetooth::device() {
         return horizonTreadmill;
     } else if (technogymmyrunTreadmill) {
         return technogymmyrunTreadmill;
+#ifndef Q_OS_IOS
     } else if (technogymmyrunrfcommTreadmill) {
         return technogymmyrunrfcommTreadmill;
+#endif
     } else if (soleF80) {
         return soleF80;
     } else if (kingsmithR2Treadmill) {

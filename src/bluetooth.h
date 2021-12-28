@@ -123,7 +123,9 @@ class bluetooth : public QObject, public SignalHandler {
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
+#ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
+#endif
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
