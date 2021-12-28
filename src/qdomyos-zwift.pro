@@ -106,6 +106,7 @@ SOURCES += \
 	     main.cpp \
    mcfbike.cpp \
 		metric.cpp \
+    nautilustreadmill.cpp \
     npecablebike.cpp \
    pafersbike.cpp \
    peloton.cpp \
@@ -430,6 +431,7 @@ HEADERS += \
 	material.h \
    mcfbike.h \
 	metric.h \
+    nautilustreadmill.h \
     npecablebike.h \
    pafersbike.h \
    peloton.h \
@@ -556,5 +558,5 @@ ios {
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
 }
 
-VERSION = 2.9.16
+VERSION = 2.9.17
 

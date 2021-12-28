@@ -44,6 +44,7 @@
 #include "horizontreadmill.h"
 #include "iconceptbike.h"
 #include "inspirebike.h"
+#include "nautilustreadmill.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
@@ -113,6 +114,7 @@ class bluetooth : public QObject, public SignalHandler {
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
+    nautilustreadmill *nautilusTreadmill = nullptr;
     trxappgateusbbike *trxappgateusbBike = nullptr;
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
