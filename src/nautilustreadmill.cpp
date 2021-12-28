@@ -235,12 +235,6 @@ double nautilustreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     return data;
 }
 
-double nautilustreadmill::GetDistanceFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
-    double data = ((double)convertedData) / 10.0f;
-    return data;
-}
-
 double nautilustreadmill::GetInclinationFromPacket(const QByteArray &packet) {
     uint16_t convertedData = packet.at(16);
     double data = convertedData;
