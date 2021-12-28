@@ -171,7 +171,7 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
-    double kcal = GetKcalFromPacket(value);
+    // double kcal = GetKcalFromPacket(value);
     // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
@@ -185,7 +185,6 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
     emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     // debug("Current Distance: " + QString::number(distance));
 
     if (Speed.value() != speed) {
@@ -197,7 +196,7 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
     Inclination = incline;
 
-    KCal = kcal;
+    //KCal = kcal;
     // Distance = distance;
 
     if (speed > 0) {
@@ -219,6 +218,7 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
+    emit debug(QStringLiteral("Current KCal Calculated: ") + QString::number(KCal.value()));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -230,14 +230,9 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 }
 
 double nautilustreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint8_t convertedData = (uint8_t)packet.at(14);
+    uint8_t convertedData = (uint8_t)packet.at(11);
     double data = (double)convertedData / 10.0f;
     return data;
-}
-
-double nautilustreadmill::GetKcalFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
-    return (double)convertedData;
 }
 
 double nautilustreadmill::GetDistanceFromPacket(const QByteArray &packet) {
@@ -247,7 +242,7 @@ double nautilustreadmill::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double nautilustreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(11);
+    uint16_t convertedData = packet.at(16);
     double data = convertedData;
 
     return data;

@@ -44,8 +44,6 @@ class nautilustreadmill : public treadmill {
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
-    double GetDistanceFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
