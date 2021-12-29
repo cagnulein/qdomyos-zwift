@@ -114,6 +114,10 @@ import Qt.labs.settings 1.0
             property int  tile_target_power_order: 20
             property bool tile_target_zone_enabled: false
             property int  tile_target_zone_order: 24
+            property bool tile_target_speed_enabled: false
+            property int  tile_target_speed_order: 27
+            property bool tile_target_incline_enabled: false
+            property int  tile_target_incline_order: 28
             property bool tile_strokes_count_enabled: false
             property int  tile_strokes_count_order: 22
             property bool tile_strokes_length_enabled: false
@@ -2397,7 +2401,68 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
-
+                    AccordionCheckElement {
+                        id: targetSpeedEnabledAccordion
+                        title: qsTr("Target Speed")
+                        linkedBoolSetting: "tile_target_speed_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltargetspeedOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_speedOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_speed_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_speedOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_speedOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_speed_order = target_speedOrderTextField.displayText
+                            }
+                        }
+                    }
+                    AccordionCheckElement {
+                        id: targetInclineEnabledAccordion
+                        title: qsTr("Target Incline")
+                        linkedBoolSetting: "tile_target_incline_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labeltarget_inclineOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: target_inclineOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_target_incline_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = target_inclineOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: oktarget_inclineOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_target_incline_order = target_inclineOrderTextField.displayText
+                            }
+                        }
+                    }
                     AccordionCheckElement {
                         id: wattKgEnabledAccordion
                         title: qsTr("Watt/Kg")

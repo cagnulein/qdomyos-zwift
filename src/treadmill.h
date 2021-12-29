@@ -9,6 +9,8 @@ class treadmill : public bluetoothdevice {
   public:
     treadmill();
     void update_metrics(bool watt_calc, const double watts);
+    metric lastRequestedSpeed() {return RequestedSpeed;}
+    metric lastRequestedInclination() {return RequestedInclination;}
     virtual bool connected();
     virtual metric currentInclination();
     virtual double requestedSpeed();
@@ -42,6 +44,8 @@ class treadmill : public bluetoothdevice {
     double requestInclination = -1;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    metric RequestedSpeed;
+    metric RequestedInclination;
 };
 
 #endif // TREADMILL_H

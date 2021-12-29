@@ -456,6 +456,8 @@ class homeform : public QObject {
     DataObject *target_cadence;
     DataObject *target_power;
     DataObject *target_zone;
+    DataObject *target_speed;
+    DataObject *target_incline;
     DataObject *ftp;
     DataObject *lapElapsed;
     DataObject *weightLoss;

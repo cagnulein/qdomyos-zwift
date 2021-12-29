@@ -156,6 +156,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                   QStringLiteral("0"), false, QStringLiteral("target_power"), 48, labelFontSize);
     target_zone = new DataObject(QStringLiteral("T.Zone"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("1"),
                                  false, QStringLiteral("target_zone"), 48, labelFontSize);
+    target_speed = new DataObject(QStringLiteral("T.Speed (") + unit + QStringLiteral("/h)"),
+                           QStringLiteral("icons/icons/speed.png"), QStringLiteral("0.0"), false,
+                           QStringLiteral("target_speed"), 48, labelFontSize);
+    target_incline = new DataObject(QStringLiteral("T.Incline (%)"), QStringLiteral("icons/icons/inclination.png"),
+                                 QStringLiteral("0.0"), false, QStringLiteral("target_inclination"), 48, labelFontSize);
+
     watt = new DataObject(QStringLiteral("Watt"), QStringLiteral("icons/icons/watt.png"), QStringLiteral("0"), false,
                           QStringLiteral("watt"), 48, labelFontSize);
     weightLoss = new DataObject(QStringLiteral("Weight Loss(") + weightLossUnit + QStringLiteral(")"),
@@ -539,8 +545,8 @@ void homeform::trainProgramSignals() {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(36);
-    for (int i = 0; i < 35; i++) {
+    r.reserve(38);
+    for (int i = 0; i < 37; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -848,6 +854,18 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_target_zone_order"), 24).toInt() == i) {
                 target_zone->setGridId(i);
                 dataList.append(target_zone);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_speed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_speed_order"), 28).toInt() == i) {
+                target_speed->setGridId(i);
+                dataList.append(target_speed);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_incline_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_incline_order"), 29).toInt() == i) {
+                target_incline->setGridId(i);
+                dataList.append(target_incline);
             }
 
             if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
@@ -1975,6 +1993,11 @@ void homeform::update() {
                 speed->setValueFontColor(QStringLiteral("red"));
                 this->pace->setValueFontColor(QStringLiteral("red"));
             }
+
+            this->target_speed->setValue(
+                QString::number(((treadmill *)bluetoothManager->device())->lastRequestedSpeed().value(), 'f', 1));
+            this->target_incline->setValue(
+                QString::number(((treadmill *)bluetoothManager->device())->lastRequestedInclination().value(), 'f', 1));
 
             // originally born for #470. When the treadmill reaches the 0 speed it enters in the pause mode
             // so this logic should care about sync the treadmill state to the UI state
