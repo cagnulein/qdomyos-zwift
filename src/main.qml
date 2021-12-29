@@ -441,7 +441,7 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: "version " + Qt.application.version
+                text: "version 2.9.21"
                 width: parent.width
             }
 				FileDialog {
