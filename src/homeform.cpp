@@ -709,6 +709,19 @@ void homeform::sortTiles() {
                 targetMets->setGridId(i);
                 dataList.append(targetMets);
             }
+
+            if (settings.value(QStringLiteral("tile_target_speed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_speed_order"), 28).toInt() == i) {
+                target_speed->setGridId(i);
+                dataList.append(target_speed);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_incline_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_incline_order"), 29).toInt() == i) {
+                target_incline->setGridId(i);
+                dataList.append(target_incline);
+            }
+
             if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_cadence_order"), 30).toInt() == i) {
                 cadence->setGridId(i);
@@ -854,18 +867,6 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_target_zone_order"), 24).toInt() == i) {
                 target_zone->setGridId(i);
                 dataList.append(target_zone);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_speed_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_speed_order"), 28).toInt() == i) {
-                target_speed->setGridId(i);
-                dataList.append(target_speed);
-            }
-
-            if (settings.value(QStringLiteral("tile_target_incline_enabled"), false).toBool() &&
-                settings.value(QStringLiteral("tile_target_incline_order"), 29).toInt() == i) {
-                target_incline->setGridId(i);
-                dataList.append(target_incline);
             }
 
             if (settings.value(QStringLiteral("tile_lapelapsed_enabled"), false).toBool() &&
