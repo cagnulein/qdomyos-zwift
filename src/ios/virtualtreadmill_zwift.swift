@@ -315,7 +315,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
         let speed:UInt16 = UInt16(((Double(self.NormalizeSpeed) / 100.0) / 3.6) * 256.0)
       
         var rscMeasurement: [UInt8] = [flags0, (UInt8)(speed & 0xFF), (UInt8)((speed >> 8) & 0xFF),
-                                       UInt8(self.CurrentCadence)]
+                                       (UInt8)(self.CurrentCadence & 0xFF)]
       let rscMeasurementData = Data(bytes: &rscMeasurement, count: 4)
       return rscMeasurementData
     }
