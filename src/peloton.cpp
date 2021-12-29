@@ -253,6 +253,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
     QJsonObject json = performance.object();
     QJsonObject target_performance_metrics = json[QStringLiteral("target_performance_metrics")].toObject();
+    QJsonObject target_metrics_performance_data = json[QStringLiteral("target_metrics_performance_data")].toObject();
     QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
     trainrows.clear();
     if (!target_performance_metrics.isEmpty()) {
@@ -297,6 +298,44 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 trainrows.append(r);
             else
                 trainrows.last().duration = trainrows.last().duration.addSecs(peloton_workout_second_resolution);
+        }
+    } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        double miles = 1;
+        QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
+        QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
+        if(!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
+            miles = 1.60934;
+        trainrows.reserve(target_metrics.count() + 1);
+        for (int i = 0; i < target_metrics.count(); i++) {
+            QJsonObject metrics = target_metrics.at(i).toObject();
+            QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
+            QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
+            if(metrics_ar.count() > 1 && !offset.isEmpty()) {
+                QJsonObject speed = metrics_ar.at(0).toObject();
+                double speed_lower = speed[QStringLiteral("lower")].toDouble();
+                double speed_upper = speed[QStringLiteral("upper")].toDouble();
+                QJsonObject inc = metrics_ar.at(1).toObject();
+                double inc_lower = inc[QStringLiteral("lower")].toDouble();
+                double inc_upper = inc[QStringLiteral("upper")].toDouble();
+                int offset_start = offset[QStringLiteral("start")].toInt();
+                int offset_end = offset[QStringLiteral("end")].toInt();
+                trainrow r;
+                r.duration = QTime(0, 0, 0, 0);
+                r.duration = r.duration.addSecs(offset_end - offset_start);
+                if(!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                    r.speed = speed_lower * miles;
+                    r.inclination = inc_lower;
+                } else if(!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                    r.speed = speed_upper * miles;
+                    r.inclination = inc_upper;
+                } else {
+                    r.speed = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
+                    r.inclination = ((inc_upper - inc_lower) / 2.0) + inc_lower;
+                }
+                trainrows.append(r);
+                qDebug() << i << r.duration << r.speed << r.inclination;
+            }
         }
     } else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
         trainrows.reserve(segment_list.count() + 1);
