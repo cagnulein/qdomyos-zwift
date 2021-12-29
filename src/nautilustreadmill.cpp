@@ -234,8 +234,9 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 }
 
 double nautilustreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint8_t convertedData = (uint8_t)packet.at(3);
-    double data = (double)convertedData / 10.0f;
+    uint16_t convertedData = (uint16_t)((uint8_t)packet.at(3)) + (uint16_t)((((uint8_t)packet.at(4)) << 8) & 0xFF00);
+    const double miles = 1.60934;
+    double data = (((double)convertedData) * miles) / 100.0f;
     return data;
 }
 
