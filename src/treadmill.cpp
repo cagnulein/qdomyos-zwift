@@ -4,10 +4,10 @@
 
 treadmill::treadmill() {}
 
-void treadmill::changeSpeed(double speed) { lastRequestedSpeed = speed; requestSpeed = speed; }
+void treadmill::changeSpeed(double speed) { RequestedSpeed = speed; requestSpeed = speed; }
 void treadmill::changeInclination(double grade, double inclination) {
     Q_UNUSED(grade);
-    lastRequestedInclination = inclination;
+    RequestedInclination = inclination;
     if (autoResistanceEnable) {
         requestInclination = inclination;
     }
