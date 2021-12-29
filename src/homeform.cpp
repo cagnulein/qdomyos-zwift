@@ -2184,6 +2184,7 @@ void homeform::update() {
                 ftpZone = 1.9999;
             }
             ftp->setValueFontColor(QStringLiteral("white"));
+            watt->setValueFontColor(QStringLiteral("white"));
         } else if (ftpPerc < 76) {
 
             ftpMinW = QString::number((ftpSetting * 0.55) + 1, 'f', 0);
@@ -2194,6 +2195,7 @@ void homeform::update() {
                 ftpZone = 2.9999;
             }
             ftp->setValueFontColor(QStringLiteral("limegreen"));
+            watt->setValueFontColor(QStringLiteral("limegreen"));
         } else if (ftpPerc < 91) {
 
             ftpMinW = QString::number((ftpSetting * 0.75) + 1, 'f', 0);
@@ -2204,6 +2206,7 @@ void homeform::update() {
                 ftpZone = 3.9999;
             }
             ftp->setValueFontColor(QStringLiteral("gold"));
+            watt->setValueFontColor(QStringLiteral("gold"));
         } else if (ftpPerc < 106) {
 
             ftpMinW = QString::number((ftpSetting * 0.90) + 1, 'f', 0);
@@ -2214,6 +2217,7 @@ void homeform::update() {
                 ftpZone = 4.9999;
             }
             ftp->setValueFontColor(QStringLiteral("orange"));
+            watt->setValueFontColor(QStringLiteral("orange"));
         } else if (ftpPerc < 121) {
 
             ftpMinW = QString::number((ftpSetting * 1.05) + 1, 'f', 0);
@@ -2224,6 +2228,7 @@ void homeform::update() {
                 ftpZone = 5.9999;
             }
             ftp->setValueFontColor(QStringLiteral("darkorange"));
+            watt->setValueFontColor(QStringLiteral("darkorange"));
         } else if (ftpPerc < 151) {
 
             ftpMinW = QString::number((ftpSetting * 1.20) + 1, 'f', 0);
@@ -2234,6 +2239,7 @@ void homeform::update() {
                 ftpZone = 6.9999;
             }
             ftp->setValueFontColor(QStringLiteral("orangered"));
+            watt->setValueFontColor(QStringLiteral("orangered"));
         } else {
 
             ftpMinW = QString::number((ftpSetting * 1.50) + 1, 'f', 0);
@@ -2241,6 +2247,7 @@ void homeform::update() {
             ftpZone = 7;
 
             ftp->setValueFontColor(QStringLiteral("red"));
+            watt->setValueFontColor(QStringLiteral("red"));
         }
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
