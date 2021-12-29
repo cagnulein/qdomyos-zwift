@@ -173,77 +173,74 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit packetReceived();
 
-    if ((newValue.length() != 20))
-        return;
+    if (newValue.length() == 12) {
+        double speed = GetSpeedFromPacket(value);
+        double incline = GetInclinationFromPacket(value);
 
-    double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
-    // double kcal = GetKcalFromPacket(value);
-    // double distance = GetDistanceFromPacket(value);
+    #ifdef Q_OS_ANDROID
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+    #endif
+        {
+            /*if(heartRateBeltName.startsWith("Disabled"))
+            Heart = value.at(18);*/
+        }
+        emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+        // debug("Current Distance: " + QString::number(distance));
 
-#ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
-#endif
-    {
-        /*if(heartRateBeltName.startsWith("Disabled"))
-        Heart = value.at(18);*/
+        if (Speed.value() != speed) {
+            emit speedChanged(speed);
+        }
+        Speed = speed;
+        if (Inclination.value() != incline) {
+            emit inclinationChanged(0.0, incline);
+        }
+        Inclination = incline;
+        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+
+        //KCal = kcal;
+        // Distance = distance;
+
+        if (!firstCharacteristicChanged) {
+            if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+                KCal +=
+                    ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                       settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                      200.0) /
+                     (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                      // kg * 3.5) / 200 ) / 60
+
+            Distance += ((Speed.value() / 3600.0) /
+                         (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        }
+
+        emit debug(QStringLiteral("Current KCal Calculated: ") + QString::number(KCal.value()));
+        emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
+
+        if (m_control->error() != QLowEnergyController::NoError) {
+            qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+        }
+
+        lastTimeCharacteristicChanged = QDateTime::currentDateTime();
+        firstCharacteristicChanged = false;
+
+        if (Speed.value() > 0) {
+            lastSpeed = Speed.value();
+            lastInclination = Inclination.value();
+        }
     }
-    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-    // debug("Current Distance: " + QString::number(distance));
-
-    if (Speed.value() != speed) {
-        emit speedChanged(speed);
-    }
-    Speed = speed;
-    if (Inclination.value() != incline) {
-        emit inclinationChanged(0.0, incline);
-    }
-    Inclination = incline;
-
-    //KCal = kcal;
-    // Distance = distance;
-
-    if (speed > 0) {
-        lastSpeed = speed;
-        lastInclination = incline;
-    }
-
-    if (!firstCharacteristicChanged) {
-        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
-            KCal +=
-                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
-                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
-                  200.0) /
-                 (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
-                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                  // kg * 3.5) / 200 ) / 60
-
-        Distance += ((Speed.value() / 3600.0) /
-                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
-    }
-
-    emit debug(QStringLiteral("Current KCal Calculated: ") + QString::number(KCal.value()));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
-
-    if (m_control->error() != QLowEnergyController::NoError) {
-        qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
-
-    lastTimeCharacteristicChanged = QDateTime::currentDateTime();
-    firstCharacteristicChanged = false;
 }
 
 double nautilustreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint8_t convertedData = (uint8_t)packet.at(11);
+    uint8_t convertedData = (uint8_t)packet.at(3);
     double data = (double)convertedData / 10.0f;
     return data;
 }
 
 double nautilustreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(16);
+    uint16_t convertedData = packet.at(6);
     double data = convertedData;
 
     return data;

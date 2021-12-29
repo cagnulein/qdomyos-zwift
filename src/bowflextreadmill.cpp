@@ -10,8 +10,17 @@
 
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
                                      double forceInitSpeed, double forceInitInclination) {
+
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
+
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -43,7 +52,7 @@ void bowflextreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     }
 
     gattCommunicationChannelService->writeCharacteristic(
-        gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+        gattWriteCharacteristic, QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
