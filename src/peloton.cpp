@@ -302,6 +302,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
+        bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if(!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
@@ -321,6 +322,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
                 trainrow r;
+                r.forcespeed = treadmill_force_speed;
                 r.duration = QTime(0, 0, 0, 0);
                 r.duration = r.duration.addSecs(offset_end - offset_start);
                 if(!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {

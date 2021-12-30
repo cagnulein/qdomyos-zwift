@@ -3040,6 +3040,21 @@ import Qt.labs.settings 1.0
                         }
                     }*/
 
+                    SwitchDelegate {
+                        id: treadmillForceSpeedDelegate
+                        text: qsTr("Treadmill Speed Forcing")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.treadmill_force_speed
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.treadmill_force_speed = checked
+                    }
+
                     RowLayout {
                         spacing: 10
                         Label {
@@ -3396,21 +3411,6 @@ import Qt.labs.settings 1.0
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.pause_on_start_treadmill = checked
-                }
-
-                SwitchDelegate {
-                    id: treadmillForceSpeedDelegate
-                    text: qsTr("Allow Speed Forcing")
-                    spacing: 0
-                    bottomPadding: 0
-                    topPadding: 0
-                    rightPadding: 0
-                    leftPadding: 0
-                    clip: false
-                    checked: settings.treadmill_force_speed
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                    Layout.fillWidth: true
-                    onClicked: settings.treadmill_force_speed = checked
                 }
 
                 RowLayout {

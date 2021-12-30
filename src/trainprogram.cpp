@@ -25,8 +25,7 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
 
 void trainprogram::scheduler() {
 
-    QSettings settings;
-    bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
+    QSettings settings;    
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QStringLiteral("continuous_moving"), false).toBool()) ||
@@ -40,7 +39,7 @@ void trainprogram::scheduler() {
     // entry point
     if (ticks == 1 && currentStep == 0) {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-            if (rows.at(0).forcespeed && rows.at(0).speed && treadmill_force_speed) {
+            if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
                 emit changeSpeedAndInclination(rows.at(0).speed, rows.at(0).inclination);
             } else {
@@ -117,7 +116,7 @@ void trainprogram::scheduler() {
 
             currentStep = calculatedLine;
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed && treadmill_force_speed) {
+                if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
                     qDebug() << QStringLiteral("trainprogram change speed ") +
                                     QString::number(rows.at(currentStep).speed);
                     emit changeSpeedAndInclination(rows.at(currentStep).speed, rows.at(currentStep).inclination);
