@@ -1832,11 +1832,11 @@ void homeform::update() {
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
             if(next.duration.second() != 0 || next.duration.minute() != 0 || next.duration.hour() != 0) {
-                if(next.requested_peloton_resistance)
+                if(next.requested_peloton_resistance != -1)
                     nextRows->setValue(QStringLiteral("PR") + QString::number(next.requested_peloton_resistance) + QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
-                else if(next.resistance)
+                else if(next.resistance != -1)
                     nextRows->setValue(QStringLiteral("R") + QString::number(next.resistance) + QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
-                else if(next.power) {
+                else if(next.power != -1) {
                     double ftpPerc = (next.power / ftpSetting) * 100.0;
                     uint8_t ftpZone = 1;
                     if (ftpPerc < 56) {
@@ -1856,11 +1856,11 @@ void homeform::update() {
                     }
                     nextRows->setValue(QStringLiteral("Z") + QString::number(ftpZone) + QStringLiteral(" ") + next.duration.toString(QStringLiteral("mm:ss")));
                     if(next_1.duration.second() != 0 || next_1.duration.minute() != 0 || next_1.duration.hour() != 0) {
-                        if(next_1.requested_peloton_resistance)
+                        if(next_1.requested_peloton_resistance != -1)
                             nextRows->setSecondLine(QStringLiteral("PR") + QString::number(next_1.requested_peloton_resistance) + QStringLiteral(" ") + next_1.duration.toString(QStringLiteral("mm:ss")));
-                        else if(next_1.resistance)
+                        else if(next_1.resistance != -1)
                             nextRows->setSecondLine(QStringLiteral("R") + QString::number(next_1.resistance) + QStringLiteral(" ") + next_1.duration.toString(QStringLiteral("mm:ss")));
-                        else if(next_1.power) {
+                        else if(next_1.power != -1) {
                             double ftpPerc = (next_1.power / ftpSetting) * 100.0;
                             uint8_t ftpZone = 1;
                             if (ftpPerc < 56) {
