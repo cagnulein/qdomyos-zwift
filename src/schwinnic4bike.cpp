@@ -57,6 +57,8 @@ data_len));
 }*/
 
 void schwinnic4bike::update() {
+    qDebug() << gattNotify1Characteristic.isValid();
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -66,13 +68,7 @@ void schwinnic4bike::update() {
     if (initRequest) {
 
         initRequest = false;
-    } else if (bluetoothDevice.isValid() //&&
-
-               // m_control->state() == QLowEnergyController::DiscoveredState //&&
-               // gattCommunicationChannelService &&
-               // gattWriteCharacteristic.isValid() &&
-               // gattNotify1Characteristic.isValid() &&
-               /*initDone*/) {
+    } else if (gattNotify1Characteristic.isValid()) {
 
         update_metrics(false, watts());
 
