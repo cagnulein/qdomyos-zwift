@@ -1060,6 +1060,11 @@ void virtualbike::bikeProvider() {
 
 void virtualbike::echelonWriteResistance() {
 
+    QSettings settings;
+    double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
+    double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+    double CurrentResistance = (Bike->currentResistance().value() * bikeResistanceGain) + bikeResistanceOffset;
+
     // resistance change notification
     // f0 d2 01 0b ce
     QByteArray resistance;
@@ -1067,7 +1072,7 @@ void virtualbike::echelonWriteResistance() {
     resistance.append(0xf0);
     resistance.append(0xd2);
     resistance.append(0x01);
-    resistance.append(Bike->currentResistance().value());
+    resistance.append(CurrentResistance);
 
     uint8_t sum = 0;
     for (uint8_t i = 0; i < resistance.length(); i++) {
@@ -1087,7 +1092,7 @@ void virtualbike::echelonWriteResistance() {
 
         writeCharacteristic(service, characteristic, resistance);
     }
-    oldresistance = ((uint8_t)Bike->currentResistance().value());
+    oldresistance = ((uint8_t)CurrentResistance);
 }
 
 bool virtualbike::connected() {
