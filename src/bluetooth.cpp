@@ -1151,6 +1151,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(trxappgateusb);
                 innerTemplateManager->start(trxappgateusb);
             } else if ((((b.name().startsWith(QStringLiteral("TOORX")) ||
+                          b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||

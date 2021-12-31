@@ -806,7 +806,8 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::SKANDIKAWIRY;
             qDebug() << QStringLiteral("SKANDIKAWIRY bike found");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
+                   device.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+"))) {
 
             bike_type = TYPE::ICONSOLE;
             qDebug() << QStringLiteral("ICONSOLE bike found");
