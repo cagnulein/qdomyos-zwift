@@ -822,8 +822,10 @@ void virtualbike::bikeProvider() {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
             if (!erg_mode)
                 slopeChanged(h->virtualbike_getCurrentSlope());
-            else
+            else {
+                qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
                 powerChanged(h->virtualbike_getPowerRequested());
+            }
         }
         return;
     }
@@ -857,6 +859,13 @@ void virtualbike::bikeProvider() {
     }
 
     QByteArray value;
+
+    // zwift with the last update, seems to sending power request only when it actually wants to change it
+    // so i need to keep this on to the bike
+    if(lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() > (lastFTMSFrameReceived + 2000) && erg_mode) {
+        qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
+        powerChanged(((bike*)Bike)->lastRequestedPower().value());
+    }
 
     if (!echelon && !ifit) {
         if (!heart_only) {
