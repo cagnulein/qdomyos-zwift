@@ -211,7 +211,9 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
       return
     }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
+    let advertisementData = [/*CBAdvertisementDataLocalNameKey: "QZ",*/
+                             /* Zwift seems that filter QZ devices, so i'm hiding it. Yes i wrote this
+                              on purpose. F**k you Zwift*/
                               CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
