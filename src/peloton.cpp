@@ -307,7 +307,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if(!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
             miles = 1.60934;
-        trainrows.reserve(target_metrics.count() + 1);
+        trainrows.reserve(target_metrics.count() + 2);
         for (int i = 0; i < target_metrics.count(); i++) {
             QJsonObject metrics = target_metrics.at(i).toObject();
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
@@ -321,6 +321,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 double inc_upper = inc[QStringLiteral("upper")].toDouble();
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
+                if(i == 0 && offset_start > 0) {
+                    trainrow r;
+                    r.forcespeed = false;
+                    r.duration = QTime(0, 0, 0, 0);
+                    r.duration = r.duration.addSecs(offset_start);
+                    trainrows.append(r);
+                    qDebug() << i << r.duration << r.speed << r.inclination;
+                }
                 trainrow r;
                 r.forcespeed = treadmill_force_speed;
                 r.duration = QTime(0, 0, 0, 0);
