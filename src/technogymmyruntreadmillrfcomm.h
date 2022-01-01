@@ -54,6 +54,7 @@ class technogymmyruntreadmillrfcomm : public treadmill {
 
     QTimer *refresh;
     bool initDone = false;
+    bool found = false;
 
     void waitForAPacket();
 
