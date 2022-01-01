@@ -179,13 +179,14 @@ void technogymmyruntreadmillrfcomm::readSocket() {
 
     while (socket->bytesAvailable()) {
         QByteArray line = socket->readAll();
-        qDebug() << QStringLiteral(" << ") + line;
+        qDebug() << QStringLiteral(" << ") << line.size() << line;
 
-        if (line.length() > 70) {
+        if (line.length() > 60) {
             QStringList values = QString(line).split(QStringLiteral(","));
             Speed = values.at(2).toDouble();
             Inclination = values.at(3).toDouble();
 
+            qDebug() << values;
             emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
             emit debug(QStringLiteral("Current incline: ") + QString::number(Inclination.value()));
         }
