@@ -114,6 +114,10 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x02, 0x01, 0x95};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::CASALL) {
+
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x3b, 0x01, 0xce};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::CHANGYOW) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
@@ -581,6 +585,40 @@ void trxappgateusbbike::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
+    } else if (bike_type == TYPE::CASALL) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x00, 0x00, 0x90};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x3b, 0x01, 0xcc};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x3b, 0x01, 0xcd};
+        const uint8_t initData4[] = {0xf0, 0xa5, 0x3b, 0x01, 0x03, 0xd4};
+        const uint8_t initData5[] = {0xf0, 0xa2, 0x3b, 0x01, 0xce};
+        const uint8_t initData6[] = {0xf0, 0xa3, 0x3b, 0x01, 0x01, 0xd0};
+        const uint8_t initData7[] = {0xf0, 0xa4, 0x3b, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xda};
+        const uint8_t initData8[] = {0xf0, 0xa5, 0x3b, 0x01, 0x02, 0xd3};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
     } else {
 
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
@@ -806,8 +844,11 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::SKANDIKAWIRY;
             qDebug() << QStringLiteral("SKANDIKAWIRY bike found");
-        } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
-                   device.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+"))) {
+
+            bike_type = TYPE::CASALL;
+            qDebug() << QStringLiteral("CASALL bike found");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+"))) {
 
             bike_type = TYPE::ICONSOLE;
             qDebug() << QStringLiteral("ICONSOLE bike found");
