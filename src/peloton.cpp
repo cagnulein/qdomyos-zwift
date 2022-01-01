@@ -321,14 +321,15 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 double inc_upper = inc[QStringLiteral("upper")].toDouble();
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
-                if(i == 0 && offset_start > 0) {
+                // keeping the same bike behaviour
+                /*if(i == 0 && offset_start > 0) {
                     trainrow r;
                     r.forcespeed = false;
                     r.duration = QTime(0, 0, 0, 0);
                     r.duration = r.duration.addSecs(offset_start);
                     trainrows.append(r);
                     qDebug() << i << r.duration << r.speed << r.inclination;
-                }
+                }*/
                 trainrow r;
                 r.forcespeed = treadmill_force_speed;
                 r.duration = QTime(0, 0, 0, 0);
