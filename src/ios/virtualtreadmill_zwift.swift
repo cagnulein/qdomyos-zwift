@@ -211,9 +211,7 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
       return
     }
     
-    let advertisementData = [CBAdvertisementDataLocalNameKey: "WAHOO KICKR 691F",
-                             /* Zwift seems that filter QZ devices, so i'm hiding it. Yes i wrote this
-                              on purpose. F**k you Zwift*/
+    let advertisementData = [CBAdvertisementDataLocalNameKey: "QZ",
                               CBAdvertisementDataServiceUUIDsKey: [heartRateServiceUUID, FitnessMachineServiceUuid, RSCServiceUuid]] as [String : Any]
     peripheralManager.startAdvertising(advertisementData)
     print("Successfully added service")
@@ -244,9 +242,15 @@ class BLEPeripheralManagerTreadmillZwift: NSObject, CBPeripheralManagerDelegate 
                 var high : UInt16 = (((UInt16)(requests.first!.value![2])) << 8);
                 self.PowerRequested = (Double)((UInt16)(requests.first!.value![1]) + high);
           }
-      self.connected = true;
+          self.connected = true;
           self.peripheralManager.respond(to: requests.first!, withResult: .success)
           print("Responded successfully to a read request")
+           
+          let funcCode: UInt8 = requests.first!.value![0]
+          var response: [UInt8] = [0x80, funcCode , 0x01]
+          let responseData = Data(bytes: &response, count: 3)
+            
+          self.peripheralManager.updateValue(responseData, for: self.FitnessMachineControlPointCharacteristic, onSubscribedCentrals: nil)
       }
     }
     
