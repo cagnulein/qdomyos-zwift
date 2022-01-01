@@ -42,7 +42,7 @@ void trainprogram::scheduler() {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
                 emit changeSpeedAndInclination(rows.at(0).speed, rows.at(0).inclination);
-            } else {
+            } else if(rows.at(0).inclination != -200) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(rows.at(0).inclination);
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
@@ -120,10 +120,11 @@ void trainprogram::scheduler() {
                     qDebug() << QStringLiteral("trainprogram change speed ") +
                                     QString::number(rows.at(currentStep).speed);
                     emit changeSpeedAndInclination(rows.at(currentStep).speed, rows.at(currentStep).inclination);
-                }
-                qDebug() << QStringLiteral("trainprogram change inclination ") +
+                } else if(rows.at(currentStep).inclination != -200) {
+                    qDebug() << QStringLiteral("trainprogram change inclination ") +
                                 QString::number(rows.at(currentStep).inclination);
-                emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
+                    emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
+                }
             } else {
                 if (rows.at(currentStep).resistance != -1) {
                     qDebug() << QStringLiteral("trainprogram change resistance ") +

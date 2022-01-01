@@ -4,7 +4,11 @@
 
 treadmill::treadmill() {}
 
-void treadmill::changeSpeed(double speed) { RequestedSpeed = speed; requestSpeed = speed; }
+void treadmill::changeSpeed(double speed) {
+    RequestedSpeed = speed;
+    if (autoResistanceEnable)
+        requestSpeed = speed;
+}
 void treadmill::changeInclination(double grade, double inclination) {
     Q_UNUSED(grade);
     RequestedInclination = inclination;
@@ -13,8 +17,8 @@ void treadmill::changeInclination(double grade, double inclination) {
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
-    requestSpeed = speed;
-    requestInclination = inclination;
+    changeSpeed(speed);
+    changeInclination(inclination, inclination);
 }
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
