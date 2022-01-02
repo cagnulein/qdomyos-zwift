@@ -105,18 +105,18 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
 
     if (currentSpeed().value() < 10.0) {
 
-        display[7] = ((uint8_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
-        display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
         display[9] = 0x02; // decimal position
     } else if (currentSpeed().value() < 100.0) {
 
-        display[7] = ((uint8_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
-        display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
         display[9] = 0x01; // decimal position
     } else {
 
-        display[7] = ((uint8_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
-        display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
         display[9] = 0x00; // decimal position
     }
 
