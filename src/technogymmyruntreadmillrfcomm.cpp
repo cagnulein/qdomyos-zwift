@@ -100,9 +100,11 @@ void technogymmyruntreadmillrfcomm::update() {
         } else if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
-                QString force = QStringLiteral("!DEV,032,") + QString::number(requestInclination) + QStringLiteral("#").toLocal8Bit();
+                static uint8_t code = 25;
+                QString force = QStringLiteral("!DEV,0") + QString::number(code) + QStringLiteral(",") + QString::number(requestInclination) + QStringLiteral("#").toLocal8Bit();
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination)  + " " + force);
                 socket->write(force.toLocal8Bit());
+                code++;
             }
             requestInclination = -1;
         } else if (requestStart != -1) {
