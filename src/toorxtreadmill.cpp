@@ -75,6 +75,7 @@ void toorxtreadmill::serviceDiscovered(const QBluetoothServiceInfo &service) {
 void toorxtreadmill::update() {
     static int8_t start_phase = -1;
     QSettings settings;
+    bool toorx_65s_evo = settings.value(QStringLiteral("toorx_65s_evo"), false).toBool();
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
@@ -116,56 +117,137 @@ void toorxtreadmill::update() {
             emit tapeStarted();
         } else if (start_phase != -1) {
             requestStart = -1;
-            switch (start_phase) {
-            case 0: {
-                const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
-                socket->write((char *)start0, sizeof(start0));
-                start_phase++;
-                break;
-            }
-            case 1: {
-                const uint8_t start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
-                socket->write((char *)start, sizeof(start));
-                start_phase++;
-                break;
-            }
-            case 2: {
-                const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
-                socket->write((char *)start1, sizeof(start1));
-                start_phase++;
-                break;
-            }
-            case 3: {
-                const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
-                socket->write((char *)start2, sizeof(start2));
-                start_phase++;
-                break;
-            }
-            case 4: {
-                const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
-                socket->write((char *)start3, sizeof(start3));
-                start_phase++;
-                break;
-            }
-            case 5: {
-                const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
-                socket->write((char *)start4, sizeof(start4));
-                start_phase++;
-                break;
-            }
-            case 6:
-            case 7: {
-                const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
-                socket->write((char *)start5, sizeof(start5));
-                start_phase++;
-                break;
-            }
-            case 8: {
-                const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
-                socket->write((char *)start6, sizeof(start6));
-                start_phase = -1;
-                break;
-            }
+            if(toorx_65s_evo) {
+                switch (start_phase) {
+                    case 0: {
+                        const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
+                        socket->write((char *)start0, sizeof(start0));
+                        start_phase++;
+                        break;
+                    }
+                    case 1: {
+                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x1f, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 2: {
+                        const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 3: {
+                        const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 4: {
+                        const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 5: {
+                        const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+                        socket->write((char *)start2, sizeof(start2));
+                        start_phase++;
+                        break;
+                    }
+                    case 6: {
+                        const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
+                        socket->write((char *)start3, sizeof(start3));
+                        start_phase++;
+                        break;
+                    }
+                    case 7: {
+                        const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 8: {
+                        const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
+                        socket->write((char *)start4, sizeof(start4));
+                        start_phase++;
+                        break;
+                    }
+                    case 9:
+                    case 10:
+                    case 11:
+                    case 12: {
+                        const uint8_t start1[] = {0x55, 0x17, 0x01, 0x00};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 13:
+                    case 14: {
+                        const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
+                        socket->write((char *)start5, sizeof(start5));
+                        start_phase++;
+                        break;
+                    }
+                    case 15: {
+                        const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
+                        socket->write((char *)start6, sizeof(start6));
+                        start_phase = -1;
+                        break;
+                    }
+                }
+            } else {
+                switch (start_phase) {
+                    case 0: {
+                        const uint8_t start0[] = {0x55, 0x0a, 0x01, 0x02};
+                        socket->write((char *)start0, sizeof(start0));
+                        start_phase++;
+                        break;
+                    }
+                    case 1: {
+                        const uint8_t start[] = {0x55, 0x01, 0x06, 0x1d, 0x00, 0x3c, 0x00, 0xaa, 0x00};
+                        socket->write((char *)start, sizeof(start));
+                        start_phase++;
+                        break;
+                    }
+                    case 2: {
+                        const uint8_t start1[] = {0x55, 0x15, 0x01, 0x00};
+                        socket->write((char *)start1, sizeof(start1));
+                        start_phase++;
+                        break;
+                    }
+                    case 3: {
+                        const char start2[] = {0x55, 0x0f, 0x02, 0x01, 0x00};
+                        socket->write((char *)start2, sizeof(start2));
+                        start_phase++;
+                        break;
+                    }
+                    case 4: {
+                        const uint8_t start3[] = {0x55, 0x11, 0x01, 0x01};
+                        socket->write((char *)start3, sizeof(start3));
+                        start_phase++;
+                        break;
+                    }
+                    case 5: {
+                        const uint8_t start4[] = {0x55, 0x08, 0x01, 0x01};
+                        socket->write((char *)start4, sizeof(start4));
+                        start_phase++;
+                        break;
+                    }
+                    case 6:
+                    case 7: {
+                        const uint8_t start5[] = {0x55, 0x0a, 0x01, 0x01};
+                        socket->write((char *)start5, sizeof(start5));
+                        start_phase++;
+                        break;
+                    }
+                    case 8: {
+                        const uint8_t start6[] = {0x55, 0x07, 0x01, 0xff};
+                        socket->write((char *)start6, sizeof(start6));
+                        start_phase = -1;
+                        break;
+                    }
+                }
             }
             qDebug() << " start phase " << start_phase;
         } else {

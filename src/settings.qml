@@ -183,6 +183,7 @@ import Qt.labs.settings 1.0
             //property bool proform_treadmill_995i: false
 
             property bool toorx_3_0: false
+            property bool toorx_65s_evo: false
             property bool jtx_fitness_sprint_treadmill: false
             property bool dkn_endurun_treadmill: false
             property bool trx_route_key: false
@@ -3715,6 +3716,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.trx_route_key = checked
+                    }
+                    SwitchDelegate {
+                        id: trxsevoDelegate
+                        text: qsTr("TRX 65s EVO")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_65s_evo
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.toorx_65s_evo = checked
                     }
 
                     SwitchDelegate {
