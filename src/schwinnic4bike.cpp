@@ -542,13 +542,19 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
 }
 
 int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
-    if (pelotonResistance > 54)
-        return pelotonResistance;
-    if (pelotonResistance < 26)
-        return pelotonResistance / 5;
+    QSettings settings;
+    bool schwinn_bike_resistance_v2 = settings.value(QStringLiteral("schwinn_bike_resistance_v2"), false).toBool();
+    if (!schwinn_bike_resistance_v2) {
+        if (pelotonResistance > 54)
+            return pelotonResistance;
+        if (pelotonResistance < 26)
+            return pelotonResistance / 5;
 
-    // y = 0,04x2 - 1,32x + 11,8
-    return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+        // y = 0,04x2 - 1,32x + 11,8
+        return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
+    } else {
+        return (((double)pelotonResistance - 20.0) * 1.25);
+    }
 }
 
 uint16_t schwinnic4bike::wattsFromResistance(double resistance) {

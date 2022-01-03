@@ -210,6 +210,7 @@ import Qt.labs.settings 1.0
             property bool sole_treadmill_f65: false
 
             property bool schwinn_bike_resistance: false
+            property bool schwinn_bike_resistance_v2: value
 
             property bool technogym_myrun_treadmill_experimental: false
 
@@ -1077,6 +1078,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance = checked
+                        }
+                        SwitchDelegate {
+                            id: schwinnBikeResistanceV2Delegate
+                            text: qsTr("Resistance Alternative Calc.")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.schwinn_bike_resistance_v2
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.schwinn_bike_resistance_v2 = checked
                         }
                     }
                 }
