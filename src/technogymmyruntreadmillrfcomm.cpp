@@ -100,7 +100,7 @@ void technogymmyruntreadmillrfcomm::update() {
         // ********************************************************************************************************
 
         if (requestSpeed != -1) {
-            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 20) {
                 QString force =
                     QStringLiteral("!DEV,024,") + QString::number(requestSpeed) + QStringLiteral(",1.8#").toLocal8Bit();
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed) + " " + force);
@@ -109,7 +109,7 @@ void technogymmyruntreadmillrfcomm::update() {
             requestSpeed = -1;
         } else if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                requestInclination <= 15) {
+                requestInclination <= 12) {
                 QString force = QStringLiteral("!DEV,025,") + QString::number(requestInclination) +
                                 QStringLiteral("#").toLocal8Bit();
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination) + " " + force);
