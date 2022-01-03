@@ -44,6 +44,7 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
     void update();
+    void changeInclinationRequested(double grade, double percentage);
 
   private:
     QBluetoothServiceDiscoveryAgent *discoveryAgent;

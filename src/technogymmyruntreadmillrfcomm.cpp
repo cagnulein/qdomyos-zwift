@@ -19,7 +19,7 @@ technogymmyruntreadmillrfcomm::technogymmyruntreadmillrfcomm() {
 void technogymmyruntreadmillrfcomm::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    //if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY")))
+    // if (device.name().startsWith(QStringLiteral("TRX ROUTE KEY")))
     {
         bluetoothDevice = device;
 
@@ -58,7 +58,8 @@ void technogymmyruntreadmillrfcomm::serviceDiscovered(const QBluetoothServiceInf
             socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
 
             connect(socket, &QBluetoothSocket::readyRead, this, &technogymmyruntreadmillrfcomm::readSocket);
-            connect(socket, &QBluetoothSocket::connected, this, QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
+            connect(socket, &QBluetoothSocket::connected, this,
+                    QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
             connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::disconnected);
             connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
                     &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
@@ -74,6 +75,12 @@ void technogymmyruntreadmillrfcomm::serviceDiscovered(const QBluetoothServiceInf
     }
 }
 
+void technogymmyruntreadmillrfcomm::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
+}
+
 void technogymmyruntreadmillrfcomm::update() {
     QSettings settings;
 
@@ -86,13 +93,16 @@ void technogymmyruntreadmillrfcomm::update() {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, true);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &technogymmyruntreadmillrfcomm::debug);
+                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                        &technogymmyruntreadmillrfcomm::changeInclinationRequested);
             }
         }
         // ********************************************************************************************************
 
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                QString force = QStringLiteral("!DEV,024,") + QString::number(requestSpeed) + QStringLiteral(",1.8#").toLocal8Bit();
+                QString force =
+                    QStringLiteral("!DEV,024,") + QString::number(requestSpeed) + QStringLiteral(",1.8#").toLocal8Bit();
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed) + " " + force);
                 socket->write(force.toLocal8Bit());
             }
@@ -100,11 +110,10 @@ void technogymmyruntreadmillrfcomm::update() {
         } else if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
-                static uint8_t code = 25;
-                QString force = QStringLiteral("!DEV,0") + QString::number(code) + QStringLiteral(",") + QString::number(requestInclination) + QStringLiteral("#").toLocal8Bit();
-                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination)  + " " + force);
+                QString force = QStringLiteral("!DEV,025,") + QString::number(requestInclination) +
+                                QStringLiteral("#").toLocal8Bit();
+                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination) + " " + force);
                 socket->write(force.toLocal8Bit());
-                code++;
             }
             requestInclination = -1;
         } else if (requestStart != -1) {
