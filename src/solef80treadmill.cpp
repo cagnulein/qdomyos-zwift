@@ -84,7 +84,7 @@ void solef80treadmill::btinit() {
     uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
-    uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
+    uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
     uint8_t initData05[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
     uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
@@ -96,18 +96,22 @@ void solef80treadmill::btinit() {
         writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         waitForAPacket();
 
-        if (f65)
+        if (f65) {
+            waitForAPacket();
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
+        }
 
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
         writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
 
-        writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
+        if (!f65)
+            writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
 
         if (f65) {
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
+            writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
             writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
 
@@ -118,6 +122,10 @@ void solef80treadmill::btinit() {
             writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
 
             writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+            writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, true);
             writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
         }
 
@@ -134,7 +142,7 @@ void solef80treadmill::waitForAPacket() {
     QEventLoop loop;
     QTimer timeout;
     connect(this, &solef80treadmill::packetReceived, &loop, &QEventLoop::quit);
-    timeout.singleShot(3000, &loop, SLOT(quit()));
+    timeout.singleShot(500, &loop, SLOT(quit()));
     loop.exec();
 }
 
@@ -209,7 +217,8 @@ void solef80treadmill::update() {
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
-                writeCharacteristic(start2, sizeof(start2), QStringLiteral("start"), false, true);
+                if (!f65)
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start"), false, true);
             }
             requestStart = -1;
             emit tapeStarted();
