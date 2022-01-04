@@ -363,6 +363,13 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << "connected!";
 
+            // zwift doesn't write the client configuration on services different from these ones
+            if (s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1826) &&
+                s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1816)) {
+                qDebug() << QStringLiteral("skipping service") << s->serviceUuid();
+                continue;
+            }
+
             foreach (QLowEnergyCharacteristic c, s->characteristics()) {
                 qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
                 foreach (QLowEnergyDescriptor d, c.descriptors())
