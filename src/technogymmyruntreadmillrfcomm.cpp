@@ -27,11 +27,35 @@ void technogymmyruntreadmillrfcomm::deviceDiscovered(const QBluetoothDeviceInfo 
         discoveryAgent = new QBluetoothServiceDiscoveryAgent(this);
         connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::serviceDiscovered, this,
                 &technogymmyruntreadmillrfcomm::serviceDiscovered);
+        connect(discoveryAgent, &QBluetoothServiceDiscoveryAgent::canceled, this,
+                &technogymmyruntreadmillrfcomm::serviceCanceled);
 
         // Start a discovery
         qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::deviceDiscovered");
         discoveryAgent->start(QBluetoothServiceDiscoveryAgent::FullDiscovery);
         return;
+    }
+}
+
+void technogymmyruntreadmillrfcomm::serviceCanceled(void) {
+    qDebug() << QStringLiteral("technogymmyruntreadmillrfcomm::serviceCanceled") << socket;
+    if (!socket) {
+        socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
+
+        connect(socket, &QBluetoothSocket::readyRead, this, &technogymmyruntreadmillrfcomm::readSocket);
+        connect(socket, &QBluetoothSocket::connected, this,
+                QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
+        connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::disconnected);
+        connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
+                &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
+
+#ifdef Q_OS_ANDROID
+        socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
+#endif
+
+        emit debug(QStringLiteral("Create socket"));
+        socket->connectToService(serialPortService);
+        emit debug(QStringLiteral("ConnectToService done"));
     }
 }
 
@@ -55,22 +79,6 @@ void technogymmyruntreadmillrfcomm::serviceDiscovered(const QBluetoothServiceInf
             discoveryAgent->stop();
 
             serialPortService = service;
-            socket = new QBluetoothSocket(QBluetoothServiceInfo::RfcommProtocol);
-
-            connect(socket, &QBluetoothSocket::readyRead, this, &technogymmyruntreadmillrfcomm::readSocket);
-            connect(socket, &QBluetoothSocket::connected, this,
-                    QOverload<>::of(&technogymmyruntreadmillrfcomm::rfCommConnected));
-            connect(socket, &QBluetoothSocket::disconnected, this, &technogymmyruntreadmillrfcomm::disconnected);
-            connect(socket, QOverload<QBluetoothSocket::SocketError>::of(&QBluetoothSocket::error), this,
-                    &technogymmyruntreadmillrfcomm::onSocketErrorOccurred);
-
-#ifdef Q_OS_ANDROID
-            socket->setPreferredSecurityFlags(QBluetooth::NoSecurity);
-#endif
-
-            emit debug(QStringLiteral("Create socket"));
-            socket->connectToService(serialPortService);
-            emit debug(QStringLiteral("ConnectToService done"));
         }
     }
 }

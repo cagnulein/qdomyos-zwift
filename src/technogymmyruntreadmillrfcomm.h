@@ -39,6 +39,7 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
 
   private slots:
+    void serviceCanceled(void);
     void serviceDiscovered(const QBluetoothServiceInfo &service);
     void readSocket();
     void rfCommConnected();
@@ -55,7 +56,7 @@ class technogymmyruntreadmillrfcomm : public treadmill {
 
     QTimer *refresh;
     bool initDone = false;
-    bool found = false;
+    volatile bool found = false;
 
     void waitForAPacket();
 
