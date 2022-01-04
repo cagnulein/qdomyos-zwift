@@ -41,6 +41,7 @@ class technogymmyruntreadmillrfcomm : public treadmill {
   private slots:
     void serviceCanceled(void);
     void serviceDiscovered(const QBluetoothServiceInfo &service);
+    void serviceFinished();
     void readSocket();
     void rfCommConnected();
     void onSocketErrorOccurred(QBluetoothSocket::SocketError);
