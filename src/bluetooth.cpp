@@ -1111,7 +1111,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 iConceptBike->deviceDiscovered(b);
                 userTemplateManager->start(iConceptBike);
                 innerTemplateManager->start(iConceptBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("XT485")) && !spiritTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("XT485")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("XT900"))) && !spiritTreadmill && filter) {
 
                 discoveryAgent->stop();
                 spiritTreadmill = new spirittreadmill();
