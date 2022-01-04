@@ -42,6 +42,7 @@ class bike : public bluetoothdevice {
     virtual void powerSensor(uint16_t power);
     virtual void changeInclination(double grade, double percentage);
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
+    virtual void resistanceFromFTMSAccessory(int8_t res) { Q_UNUSED(res); }
 
   Q_SIGNALS:
     void bikeStarted();

@@ -73,6 +73,8 @@ class schwinnic4bike : public bike {
 
     const uint8_t max_resistance = 100;
 
+    metric ResistanceFromFTMSAccessory;
+
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
 #endif
@@ -83,6 +85,7 @@ class schwinnic4bike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void resistanceFromFTMSAccessory(int8_t res);
 
   private slots:
 

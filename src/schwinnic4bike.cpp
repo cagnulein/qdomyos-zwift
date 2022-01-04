@@ -80,8 +80,8 @@ void schwinnic4bike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15)
-                requestResistance = 15;
+            if (requestResistance > max_resistance)
+                requestResistance = max_resistance;
             else if (requestResistance == 0) {
                 requestResistance = 1;
             }
@@ -586,6 +586,11 @@ uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
     return 0;
 }
 
+void schwinnic4bike::resistanceFromFTMSAccessory(int8_t res) {
+    ResistanceFromFTMSAccessory = res;
+    qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
+}
+
 uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
@@ -594,9 +599,25 @@ uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
 
     for (int i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            uint8_t res = pelotonToBikeResistance(i);
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
-                     << wattsFromResistance(i + 1) << power;
-            return pelotonToBikeResistance(i);
+                     << wattsFromResistance(i + 1) << QStringLiteral("power=") << power << QStringLiteral("res=")
+                     << res;
+            // if the SS2K didn't send resistance at all or
+            // only if the resistance requested is higher because the current wattage is lower than the target
+            // only if the resistance requested is lower because the current wattage is higher than the target
+            // the main issue about schwinn is that the formula to get the wattage from the resistance is not so good
+            // so we need to put some constraint in the ERG mode
+            if (ResistanceFromFTMSAccessory.value() == 0 ||
+                ((power > m_watt.value() && res > (uint8_t)ResistanceFromFTMSAccessory.value()) ||
+                 ((power < m_watt.value() && res < (uint8_t)ResistanceFromFTMSAccessory.value())))) {
+                return res;
+            } else {
+                if (power > m_watt.value())
+                    return ResistanceFromFTMSAccessory.value() + 1;
+                else
+                    return ResistanceFromFTMSAccessory.value() - 1;
+            }
         }
     }
     if (power < wattsFromResistance(1))
