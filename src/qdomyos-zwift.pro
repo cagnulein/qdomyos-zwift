@@ -558,7 +558,7 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
-    DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT(A)=
+    DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\(A\)=
 }
 
 VERSION = 2.9.32
