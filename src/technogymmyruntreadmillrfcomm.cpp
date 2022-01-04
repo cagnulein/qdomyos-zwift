@@ -74,11 +74,10 @@ void technogymmyruntreadmillrfcomm::serviceDiscovered(const QBluetoothServiceInf
 
         if (service.serviceName().startsWith(QStringLiteral("SerialPort")) ||
             service.serviceName().startsWith(QStringLiteral("Serial Port"))) {
+            serialPortService = service;
             found = true;
             emit debug(QStringLiteral("Serial port service found"));
-            discoveryAgent->stop();
-
-            serialPortService = service;
+            discoveryAgent->stop();            
         }
     }
 }
