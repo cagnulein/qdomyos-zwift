@@ -18,8 +18,8 @@
 #include <QtCore/qloggingcategory.h>
 
 #include "activiotreadmill.h"
-#include "bowflextreadmill.h"
 #include "bluetoothdevice.h"
+#include "bowflextreadmill.h"
 #include "chronobike.h"
 #include "cscbike.h"
 #include "domyosbike.h"
@@ -44,13 +44,14 @@
 #include "horizontreadmill.h"
 #include "iconceptbike.h"
 #include "inspirebike.h"
-#include "nautilustreadmill.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
+#include "nautilustreadmill.h"
 #include "npecablebike.h"
 #include "pafersbike.h"
+#include "paferstreadmill.h"
 #include "proformbike.h"
 #include "proformtreadmill.h"
 #include "schwinnic4bike.h"
@@ -151,6 +152,7 @@ class bluetooth : public QObject, public SignalHandler {
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
     pafersbike *pafersBike = nullptr;
+    paferstreadmill *pafersTreadmill = nullptr;
     tacxneo2 *tacxneo2Bike = nullptr;
     renphobike *renphoBike = nullptr;
     shuaa5treadmill *shuaA5Treadmill = nullptr;

@@ -604,8 +604,8 @@ uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
                      << wattsFromResistance(i + 1) << QStringLiteral("power=") << power << QStringLiteral("res=")
                      << res;
             // if the SS2K didn't send resistance at all or
-            // only if the resistance requested is higher because the current wattage is lower than the target
-            // only if the resistance requested is lower because the current wattage is higher than the target
+            // only if the resistance requested is higher and the current wattage is lower than the target
+            // only if the resistance requested is lower and the current wattage is higher than the target
             // the main issue about schwinn is that the formula to get the wattage from the resistance is not so good
             // so we need to put some constraint in the ERG mode
             if (ResistanceFromFTMSAccessory.value() == 0 ||

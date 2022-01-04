@@ -177,6 +177,8 @@ import Qt.labs.settings 1.0
 
             property bool hammer_racer_s: false
 
+            property bool pafers_treadmill: false
+
             property bool yesoul_peloton_formula: false
 
             property bool nordictrack_10_treadmill: true
@@ -3516,6 +3518,31 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_995i = checked
                         }*/
+                    }
+                }
+
+                AccordionElement {
+                    id: pafersTreadmillAccordion
+                    title: qsTr("Pafers Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: pafersTreadmillDelegate
+                            text: qsTr("Pafers Treadmill")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.pafers_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.pafers_treadmill = checked
+                        }
                     }
                 }
 

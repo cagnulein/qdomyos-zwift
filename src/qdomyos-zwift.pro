@@ -109,6 +109,7 @@ SOURCES += \
     nautilustreadmill.cpp \
     npecablebike.cpp \
    pafersbike.cpp \
+   paferstreadmill.cpp \
    peloton.cpp \
    powerzonepack.cpp \
 	proformbike.cpp \
@@ -434,6 +435,7 @@ HEADERS += \
     nautilustreadmill.h \
     npecablebike.h \
    pafersbike.h \
+   paferstreadmill.h \
    peloton.h \
    powerzonepack.h \
 	proformbike.h \
@@ -559,5 +561,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT(A)=
 }
 
-VERSION = 2.9.30
+VERSION = 2.9.31
 
