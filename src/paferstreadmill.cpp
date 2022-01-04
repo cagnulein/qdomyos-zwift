@@ -172,6 +172,8 @@ void paferstreadmill::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+            uint8_t stop[] = {0x55, 0x0a, 0x01, 0x02};
+            writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
             requestStop = -1;
         }
