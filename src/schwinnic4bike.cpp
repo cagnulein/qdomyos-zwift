@@ -553,7 +553,10 @@ int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
         // y = 0,04x2 - 1,32x + 11,8
         return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
     } else {
-        return (((double)pelotonResistance - 20.0) * 1.25);
+        if(pelotonResistance > 20)
+            return (((double)pelotonResistance - 20.0) * 1.25);
+        else
+            return 1;
     }
 }
 
