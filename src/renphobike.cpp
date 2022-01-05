@@ -85,13 +85,14 @@ void renphobike::update() {
         update_metrics(true, watts());
 
         // zwift send this every 5 seconds
+        /*
         if (sec1Update++ == (5000 / refresh->interval())) {
             sec1Update = 0;
             uint8_t write[] = {FTMS_REQUEST_CONTROL};
             writeCharacteristic(write, sizeof(write), "requestControl", false, true);
             write[0] = {FTMS_START_RESUME};
             writeCharacteristic(write, sizeof(write), "start simulation", false, true);
-        }
+        }*/
 
         if (requestPower != -1) {
             debug("writing power request " + QString::number(requestPower));
