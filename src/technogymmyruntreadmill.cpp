@@ -83,6 +83,28 @@ void technogymmyruntreadmill::update() {
         QSettings settings;
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
+        bool technogym_myrun_treadmill_experimental =
+            settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
+
+        if(technogym_myrun_treadmill_experimental)
+        // trying to understand how iOS rfcomm works
+        {
+            for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+                    qDebug() << s->serviceUuid() << QStringLiteral("checking");
+
+                auto characteristics_list = s->characteristics();
+                for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                    qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
+                    if ((c.properties() & QLowEnergyCharacteristic::Write) == QLowEnergyCharacteristic::Write ||
+                         (c.properties() & QLowEnergyCharacteristic::Write) == QLowEnergyCharacteristic::WriteNoResponse ||
+                         (c.properties() & QLowEnergyCharacteristic::Write) == QLowEnergyCharacteristic::WriteSigned) {
+                        uint8_t fwver[] = { '@', 'F', 'W', 'V', 'E', 'R', '#' };
+                        writeCharacteristic(s, c, fwver, sizeof(fwver), "fwver");
+                    }
+                }
+            }
+        }
+
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
 
@@ -134,6 +156,7 @@ void technogymmyruntreadmill::update() {
 }
 
 void technogymmyruntreadmill::forceSpeed(double requestSpeed) {
+    /*
     if (gattCommunicationChannelService) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
@@ -149,10 +172,11 @@ void technogymmyruntreadmill::forceSpeed(double requestSpeed) {
 
         writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, true);
-    }
+    }*/
 }
 
 void technogymmyruntreadmill::forceIncline(double requestIncline) {
+    /*
     if (gattCommunicationChannelService) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
@@ -168,7 +192,7 @@ void technogymmyruntreadmill::forceIncline(double requestIncline) {
 
         writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceIncline"), false, true);
-    }
+    }*/
 }
 
 void technogymmyruntreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -359,37 +383,84 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
 }
 
 void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state) {
-    QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
-    QBluetoothUuid _gattNotify1CharacteristicId((quint16)0x2ACD);
-    if (state != QLowEnergyService::ServiceDiscovered) {
-        return;
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
+        if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
+            qDebug() << QStringLiteral("not all services discovered");
+            return;
+        }
     }
 
-    gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
-    gattWriteCharControlPointId = gattCommunicationChannelService->characteristic(_gattWriteCharControlPointId);
+    qDebug() << QStringLiteral("all services discovered!");
 
-    qDebug() << state;
+    for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
+        if (s->state() == QLowEnergyService::ServiceDiscovered) {
+            // establish hook into notifications
+            connect(s, &QLowEnergyService::characteristicChanged, this, &technogymmyruntreadmill::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicWritten, this, &technogymmyruntreadmill::characteristicWritten);
+            connect(s, &QLowEnergyService::characteristicRead, this, &technogymmyruntreadmill::characteristicRead);
+            connect(
+                s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
+                this, &technogymmyruntreadmill::errorService);
+            connect(s, &QLowEnergyService::descriptorWritten, this, &technogymmyruntreadmill::descriptorWritten);
+            connect(s, &QLowEnergyService::descriptorRead, this, &technogymmyruntreadmill::descriptorRead);
 
-    QByteArray descriptor;
-    descriptor.append((char)0x01);
-    descriptor.append((char)0x00);
+            qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
-    // i need to remove read request from QT framework in order to get Schwinn compatibility
-    // QSharedPointer<QLowEnergyServicePrivate> qzService = gattCommunicationChannelService->d_ptr;
-    // m_control->d_ptr->writeDescriptor(qzService, 0x30, 0x31, descriptor);
+            auto characteristics_list = s->characteristics();
+            for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
+                auto descriptors_list = c.descriptors();
+                for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
+                    qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
+                }
 
-    gattCommunicationChannelService->writeDescriptor(
-        gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x01);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
 
-    QByteArray indicate;
-    indicate.append((char)0x02);
-    indicate.append((char)0x00);
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("notification subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Indicate) ==
+                           QLowEnergyCharacteristic::Indicate) {
+                    QByteArray descriptor;
+                    descriptor.append((char)0x02);
+                    descriptor.append((char)0x00);
+                    if (c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).isValid()) {
+                        s->writeDescriptor(c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+                    } else {
+                        qDebug() << QStringLiteral("ClientCharacteristicConfiguration") << c.uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).uuid()
+                                 << c.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration).handle()
+                                 << QStringLiteral(" is not valid");
+                    }
 
-    gattCommunicationChannelService->writeDescriptor(
-        gattWriteCharControlPointId.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), indicate);
+                    qDebug() << s->serviceUuid() << c.uuid() << QStringLiteral("indication subscribed!");
+                } else if ((c.properties() & QLowEnergyCharacteristic::Read) == QLowEnergyCharacteristic::Read) {
+                    // s->readCharacteristic(c);
+                    // qDebug() << s->serviceUuid() << c.uuid() << "reading!";
+                }
 
-    connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-            &technogymmyruntreadmill::characteristicChanged);
+                QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
+                    qDebug() << QStringLiteral("FTMS service and Control Point found");
+                    gattWriteCharControlPointId = c;
+                    gattFTMSService = s;
+                }
+            }
+        }
+    }
 
     initRequest = false;
     emit connectedAndDiscovered();
@@ -456,10 +527,13 @@ void technogymmyruntreadmill::characteristicRead(const QLowEnergyCharacteristic 
 void technogymmyruntreadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
-    gattCommunicationChannelService = m_control->createServiceObject(QBluetoothUuid((quint16)0x1826));
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
-            &technogymmyruntreadmill::stateChanged);
-    gattCommunicationChannelService->discoverDetails();
+    auto services_list = m_control->services();
+    for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        gattCommunicationChannelService.append(m_control->createServiceObject(s));
+        connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
+                &technogymmyruntreadmill::stateChanged);
+        gattCommunicationChannelService.constLast()->discoverDetails();
+    }
 }
 
 void technogymmyruntreadmill::errorService(QLowEnergyService::ServiceError err) {

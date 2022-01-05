@@ -58,9 +58,10 @@ class technogymmyruntreadmill : public treadmill {
     virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
 
-    QLowEnergyService *gattCommunicationChannelService;
+    QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyService *gattFTMSService;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
