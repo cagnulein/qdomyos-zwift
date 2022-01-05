@@ -92,6 +92,7 @@ SOURCES += \
 	flywheelbike.cpp \
 	ftmsbike.cpp \
     ftmsrower.cpp \
+    gpiotreadmill.cpp \
 	     gpx.cpp \
 		heartratebelt.cpp \
    homefitnessbuddy.cpp \
@@ -195,6 +196,7 @@ HEADERS += \
     fitmetria_fanfit.h \
    fitplusbike.h \
     ftmsrower.h \
+    gpiotreadmill.h \
    homefitnessbuddy.h \
     horizongr7bike.h \
    iconceptbike.h \
