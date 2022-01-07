@@ -1071,8 +1071,8 @@ void virtualbike::bikeProvider() {
 void virtualbike::echelonWriteResistance() {
 
     QSettings settings;
-    double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
-    double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+    double bikeResistanceOffset = settings.value(QStringLiteral("echelon_resistance_offset"), 0).toInt();
+    double bikeResistanceGain = settings.value(QStringLiteral("echelon_resistance_gain"), 1).toDouble();
     double CurrentResistance = (Bike->currentResistance().value() * bikeResistanceGain) + bikeResistanceOffset;
 
     // resistance change notification

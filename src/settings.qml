@@ -26,6 +26,8 @@ import Qt.labs.settings 1.0
             property bool zwift_negative_inclination_x2: false
             property real zwift_inclination_offset: 0
             property real zwift_inclination_gain: 1.0
+            property real echelon_resistance_offset: 0
+            property real echelon_resistance_gain: 1.0
 
             property bool speed_power_based: false
             property int bike_resistance_start: 1
@@ -1164,6 +1166,54 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.echelon_watttable = echelonWattTableTextField.displayText
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelEchelonResistanceGain
+                                text: qsTr("Resistance Gain:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: echelonResistanceGainTextField
+                                text: settings.echelon_resistance_gain
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.echelon_resistance_gain = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okechelonResistanceGainButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.echelon_resistance_gain = echelonResistanceGainTextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelEchelonResistanceOffset
+                                text: qsTr("Resistance Offset:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: echelonResistanceOffsetTextField
+                                text: settings.echelon_resistance_offset
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.echelon_resistance_offset = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okechelonResistanceOffsetButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text
                             }
                         }
                     }
