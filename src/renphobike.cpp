@@ -84,21 +84,13 @@ void renphobike::update() {
                /*initDone*/) {
         update_metrics(true, watts());
 
-        // zwift send this every 5 seconds
-        /*
-        if (sec1Update++ == (5000 / refresh->interval())) {
-            sec1Update = 0;
-            uint8_t write[] = {FTMS_REQUEST_CONTROL};
-            writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-            write[0] = {FTMS_START_RESUME};
-            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
-        }*/
-
         if (requestPower != -1) {
             debug("writing power request " + QString::number(requestPower));
-            if (autoResistanceEnable)
+            // if zwift is connected, QZ routes the ftms packets directly to the bike.
+            // if peloton is connected, the power request is handled by QZ
+            if (virtualBike && !virtualBike->ftmsDeviceConnected())
                 forcePower(requestPower);
-            // requestPower = -1;   // power should be always sent as zwift does
+            requestPower = -1;
             requestResistance = -1;
         }
         if (requestResistance != -1) {
@@ -444,10 +436,20 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&renphobike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &renphobike::changeInclination);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &renphobike::ftmsCharacteristicChanged);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QByteArray b = newValue;
+    if (gattWriteCharControlPointId.isValid()) {
+        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+    }
 }
 
 void renphobike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
