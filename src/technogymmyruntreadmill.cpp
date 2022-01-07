@@ -354,6 +354,27 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
         if (Flags.forceBelt) {
             // todo
         }
+
+        lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+    } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
+        uint8_t flags = (uint8_t)newValue.at(0);
+        bool InstantaneousStrideLengthPresent = (flags & 0x01);
+        bool TotalDistancePresent = (flags & 0x02) ? true : false;
+        bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
+        bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+        double cadence_multiplier = 1.0;
+        if (double_cadence)
+            cadence_multiplier = 2.0;
+
+        // Unit is in m/s with a resolution of 1/256
+        uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
+        double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
+        double cadence = (uint8_t)newValue.at(3)  * cadence_multiplier;
+
+        Cadence = cadence;
+        emit cadenceChanged(cadence);
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
@@ -373,9 +394,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
 
             Heart = heart;
         }
-    }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    }    
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
