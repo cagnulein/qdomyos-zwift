@@ -648,10 +648,18 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &solef80treadmill::debug);
+            connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                    &solef80treadmill::changeInclinationRequested);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void solef80treadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
 }
 
 void solef80treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
