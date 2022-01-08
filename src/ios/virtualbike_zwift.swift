@@ -40,6 +40,12 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 
         return peripheralManager.connected;
     }
+    
+    @objc public func getLastFTMSMessage() -> Data? {
+        peripheralManager.LastFTMSMessageReceivedAndPassed = peripheralManager.LastFTMSMessageReceived
+        peripheralManager.LastFTMSMessageReceived?.removeAll()
+        return peripheralManager.LastFTMSMessageReceivedAndPassed
+    }
 }
 
 class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
@@ -62,6 +68,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     public var CurrentCadence: UInt16! = 0
     public var CurrentResistance: UInt8! = 0
     public var CurrentWatt: UInt16! = 0
+    
+    public var LastFTMSMessageReceived: Data?
+    public var LastFTMSMessageReceivedAndPassed: Data?
     
     public var serviceToggle: Bool = false
 
@@ -175,6 +184,9 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
+            if(LastFTMSMessageReceived?.count == 0) {
+                LastFTMSMessageReceived = requests.first!.value
+            }
             if(requests.first!.value?.first == 0x11)
           {
 			       var high : Int16 = ((Int16)(requests.first!.value![4])) << 8;
