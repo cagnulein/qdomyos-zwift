@@ -60,6 +60,7 @@ void fakebike::update() {
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this,
                     &fakebike::changeInclinationRequested);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
         }
     }
     if(!firstStateChanged) emit connectedAndDiscovered();
@@ -97,6 +98,11 @@ void fakebike::update() {
     #endif
     #endif
     }
+}
+
+void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QByteArray b = newValue;    
+    qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 }
 
 void fakebike::changeInclinationRequested(double grade, double percentage) {

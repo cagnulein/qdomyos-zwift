@@ -826,11 +826,11 @@ void virtualbike::bikeProvider() {
                 qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
                 powerChanged(h->virtualbike_getPowerRequested());
             }
-            NSData* ret = h->virtualbike_getLastFTMSMessage();
-            QByteArray retA = QByteArray::fromNSData(ret);
-            if(retA.length() > 0) {
+            uint8_t ftms_message[255];
+            int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
+            if(ret > 0) {
                 lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
-                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), QByteArray::fromNSData(ret));
+                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), QByteArray::fromRawData((char*)ftms_message, ret));
             }
         }
         return;

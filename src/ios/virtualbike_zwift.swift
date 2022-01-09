@@ -184,7 +184,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
         if requests.first!.characteristic == self.FitnessMachineControlPointCharacteristic {
-            if(LastFTMSMessageReceived?.count == 0) {
+            if(LastFTMSMessageReceived == nil || LastFTMSMessageReceived?.count == 0) {
                 LastFTMSMessageReceived = requests.first!.value
             }
             if(requests.first!.value?.first == 0x11)

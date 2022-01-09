@@ -137,9 +137,14 @@ bool lockscreen::virtualtreadmill_updateFTMS(UInt16 normalizeSpeed, UInt8 curren
     return 0;
 }
 
-NSData* lockscreen::virtualbike_getLastFTMSMessage() {
-    if(_virtualbike_zwift != nil) {
-        return [_virtualbike_zwift getLastFTMSMessage];
+int lockscreen::virtualbike_getLastFTMSMessage(unsigned char* message) {
+    if(message) {
+        if(_virtualbike_zwift != nil) {
+            NSData* data = [_virtualbike_zwift getLastFTMSMessage];
+            [data getBytes:message length:data.length];
+            return (int)data.length;
+        }
+        return 0;
     }
     return 0;
 }

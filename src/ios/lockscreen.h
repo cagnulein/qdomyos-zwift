@@ -19,7 +19,7 @@ class lockscreen {
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
                                 unsigned short currentCadence, unsigned short currentWatt);
-    NSData* virtualbike_getLastFTMSMessage();
+    int virtualbike_getLastFTMSMessage(unsigned char* message);
     
     // virtualtreadmill
     void virtualtreadmill_zwift_ios();
