@@ -453,6 +453,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(powerTreadmill);
                 innerTemplateManager->start(powerTreadmill);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW")) &&
+                       !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosRower && filter) {
+                discoveryAgent->stop();
+                domyosRower = new domyosrower(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
+                                              bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(domyosRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(domyosBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(domyosRower, &domyosrower::debug, this, &bluetooth::debug);
+                domyosRower->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, domyosRower, &domyosrower::searchingStop);
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(domyosRower);
+                innerTemplateManager->start(domyosRower);
             } else if (b.name().startsWith(QStringLiteral("Domyos-Bike")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBridge")) && !domyosBike && filter) {
                 discoveryAgent->stop();
@@ -1659,6 +1676,11 @@ void bluetooth::restart() {
         delete domyosBike;
         domyosBike = nullptr;
     }
+    if (domyosRower) {
+
+        delete domyosRower;
+        domyosRower = nullptr;
+    }
     if (domyosElliptical) {
 
         delete domyosElliptical;
@@ -1924,6 +1946,8 @@ bluetoothdevice *bluetooth::device() {
         return domyos;
     } else if (domyosBike) {
         return domyosBike;
+    } else if (domyosRower) {
+        return domyosRower;
     } else if (fitshowTreadmill) {
         return fitshowTreadmill;
     } else if (domyosElliptical) {

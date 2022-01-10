@@ -53,6 +53,7 @@ SOURCES += \
    chronobike.cpp \
    cscbike.cpp \
 	 domyoselliptical.cpp \
+   domyosrower.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
    echelonrower.cpp \
@@ -183,6 +184,7 @@ HEADERS += \
    chronobike.h \
    cscbike.h \
 	 domyoselliptical.h \
+   domyosrower.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \
    echelonrower.h \
@@ -561,5 +563,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.9.36
+VERSION = 2.9.37
 

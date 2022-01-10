@@ -24,6 +24,7 @@
 #include "cscbike.h"
 #include "domyosbike.h"
 #include "domyoselliptical.h"
+#include "domyosrower.h"
 #include "domyostreadmill.h"
 
 #include "echelonconnectsport.h"
@@ -109,6 +110,7 @@ class bluetooth : public QObject, public SignalHandler {
     fitshowtreadmill *fitshowTreadmill = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
+    domyosrower *domyosRower = nullptr;
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
     iconceptbike *iConceptBike = nullptr;
