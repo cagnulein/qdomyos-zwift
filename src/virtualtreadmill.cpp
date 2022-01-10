@@ -74,7 +74,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
                 QByteArray descriptor;
                 descriptor.append((char)0x01);
                 descriptor.append((char)0x00);
-                const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor);
+                const QLowEnergyDescriptorData clientConfig2(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                             descriptor);
                 charData2.addDescriptor(clientConfig2);
             }
 
@@ -91,7 +92,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QByteArray descriptor5;
             descriptor5.append((char)0x01);
             descriptor5.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor5);
+            const QLowEnergyDescriptorData clientConfig5(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                         descriptor5);
             charDataFIT5.addDescriptor(clientConfig5);
 
             QLowEnergyCharacteristicData charDataFIT6;
@@ -104,7 +106,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QByteArray descriptor6;
             descriptor6.append((char)0x01);
             descriptor6.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor6);
+            const QLowEnergyDescriptorData clientConfig6(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                         descriptor6);
             charDataFIT6.addDescriptor(clientConfig6);
             charDataFIT6.setProperties(QLowEnergyCharacteristic::Read);
 
@@ -115,7 +118,8 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
             QByteArray descriptor7;
             descriptor7.append((char)0x01);
             descriptor7.append((char)0x00);
-            const QLowEnergyDescriptorData clientConfig7(QBluetoothUuid::ClientCharacteristicConfiguration, descriptor7);
+            const QLowEnergyDescriptorData clientConfig7(QBluetoothUuid::ClientCharacteristicConfiguration,
+                                                         descriptor7);
             charDataFIT7.addDescriptor(clientConfig7);
 
             QLowEnergyCharacteristicData charDataFIT2;
@@ -224,7 +228,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
         leController->startAdvertising(pars, advertisingData, advertisingData);
         //! [Start Advertising]
-        
+
         //! [Provide Heartbeat]
         QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualtreadmill::reconnect);
     }
@@ -359,27 +363,31 @@ void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
     uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
-    
-    if((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
+    bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+    double cadence_multiplier = 2.0;
+    if (double_cadence)
+        cadence_multiplier = 1.0;
+
+    if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
         m_autoInclinationEnabled = false;
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
         // really connected to a device
-        if (h->virtualtreadmill_updateFTMS(normalizeSpeed, 0,
-                                      (uint16_t)((treadmill *)treadMill)->currentCadence().value() * 2,
-                                      (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
+        if (h->virtualtreadmill_updateFTMS(
+                normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
+                (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
-            if((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
+            if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)
                 slopeChanged(h->virtualtreadmill_getCurrentSlope());
         }
         return;
     }
 #endif
 #endif
-    
+
     if (leController->state() != QLowEnergyController::ConnectedState) {
         emit debug(QStringLiteral("virtualtreadmill connection error"));
         return;
@@ -460,8 +468,8 @@ void virtualtreadmill::treadmillProvider() {
         if (treadMill->deviceType() == bluetoothdevice::ELLIPTICAL)
             cadence = ((elliptical *)treadMill)->currentCadence().value();
 
-        valueBike.append((char)((uint16_t)(cadence * 2) & 0xFF));        // cadence
-        valueBike.append((char)(((uint16_t)(cadence * 2) >> 8) & 0xFF)); // cadence
+        valueBike.append((char)((uint16_t)(cadence * cadence_multiplier) & 0xFF));        // cadence
+        valueBike.append((char)(((uint16_t)(cadence * cadence_multiplier) >> 8) & 0xFF)); // cadence
 
         valueBike.append((char)(0)); // resistance
         valueBike.append((char)(0)); // resistance
