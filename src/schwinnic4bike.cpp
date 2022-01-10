@@ -553,7 +553,7 @@ int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
         // y = 0,04x2 - 1,32x + 11,8
         return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
     } else {
-        if(pelotonResistance > 20)
+        if (pelotonResistance > 20)
             return (((double)pelotonResistance - 20.0) * 1.25);
         else
             return 1;
@@ -594,8 +594,9 @@ void schwinnic4bike::resistanceFromFTMSAccessory(int8_t res) {
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
 }
 
+/*
 uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value() << power;
 
     if (Cadence.value() == 0)
         return 1;
@@ -628,3 +629,4 @@ uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
     else
         return 1;
 }
+*/

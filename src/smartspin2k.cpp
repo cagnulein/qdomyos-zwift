@@ -17,10 +17,11 @@
 
 using namespace std::chrono_literals;
 
-smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance) {
+smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->max_resistance = max_resistance;
+    this->parentDevice = parentDevice;
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
@@ -53,6 +54,14 @@ void smartspin2k::lowInit(int8_t resistance) {
     forceResistance(resistance);
     QThread::sleep(2);
     writeCharacteristic(disable_syncmode, sizeof(disable_syncmode), "BLE_syncMode disabling", false, true);
+
+    uint8_t simulate_watt[] = {0x02, 0x0E, 0x01};
+    uint8_t simulate_cad[] = {0x02, 0x0F, 0x01};
+    uint8_t simulate_hr[] = {0x02, 0x0D, 0x01};
+
+    writeCharacteristic(simulate_watt, sizeof(simulate_watt), "simulate_watt", false, true);
+    writeCharacteristic(simulate_cad, sizeof(simulate_cad), "simulate_cad", false, true);
+    writeCharacteristic(simulate_hr, sizeof(simulate_hr), "simulate_hr", false, true);
 }
 
 void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
@@ -128,7 +137,48 @@ void smartspin2k::update() {
         if (sec1Update++ == (500 / refresh->interval())) {
 
             sec1Update = 0;
-            // updateDisplay(elapsed);
+
+            if (parentDevice) {
+                // watt sync
+                uint8_t watt[] = {0x02, 0x03, 0x00, 0x00};
+                watt[2] = (uint8_t)((uint16_t)(parentDevice->wattsMetric().value()) & 0xFF);
+                watt[3] = (uint8_t)((uint16_t)(parentDevice->wattsMetric().value()) >> 8);
+
+                writeCharacteristic(watt, sizeof(watt),
+                                    QStringLiteral("watt sync ") +
+                                        QString::number(parentDevice->wattsMetric().value()));
+
+                // cadence sync
+                uint8_t cadence[] = {0x02, 0x05, 0x00, 0x00};
+                cadence[2] = (uint8_t)((uint16_t)(parentDevice->currentCadence().value()) & 0xFF);
+                cadence[3] = (uint8_t)((uint16_t)(parentDevice->currentCadence().value()) >> 8);
+
+                writeCharacteristic(cadence, sizeof(cadence),
+                                    QStringLiteral("cadence sync ") +
+                                        QString::number(parentDevice->currentCadence().value()));
+
+                // hr sync
+                uint8_t heart[] = {0x02, 0x04, 0x00, 0x00};
+                heart[2] = (uint8_t)((uint16_t)(parentDevice->currentHeart().value()) & 0xFF);
+                heart[3] = (uint8_t)((uint16_t)(parentDevice->currentHeart().value()) >> 8);
+
+                writeCharacteristic(heart, sizeof(heart),
+                                    QStringLiteral("heart sync ") +
+                                        QString::number(parentDevice->currentHeart().value()));
+            }
+        }
+
+        if (parentDevice && parentDevice->ergManagedBySS2K() && parentDevice->lastRequestedPower().value() != 0) {
+            uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
+
+            write[1] = ((uint16_t)parentDevice->lastRequestedPower().value()) & 0xFF;
+            write[2] = ((uint16_t)parentDevice->lastRequestedPower().value()) >> 8;
+
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("forcePower to SS2K ") +
+                                    QString::number(parentDevice->lastRequestedPower().value()));
+
+            requestResistance = -1;
         }
 
         if (requestResistance != -1) {

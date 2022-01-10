@@ -1423,7 +1423,7 @@ void bluetooth::connectedAndDiscovered() {
 #else
                 settings.setValue("ftms_accessory_address", b.deviceUuid().toString());
 #endif
-                ftmsAccessory = new smartspin2k(false, false, this->device()->maxResistance());
+                ftmsAccessory = new smartspin2k(false, false, this->device()->maxResistance(), (bike *)this->device());
                 // connect(heartRateBelt, SIGNAL(disconnected()), this, SLOT(restart()));
 
                 connect(ftmsAccessory, &smartspin2k::debug, this, &bluetooth::debug);
