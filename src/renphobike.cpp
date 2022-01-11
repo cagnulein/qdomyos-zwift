@@ -444,11 +444,12 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    QByteArray b = newValue;
+    lastFTMSPacketReceived = QByteArray(newValue);
     if (gattWriteCharControlPointId.isValid()) {
-        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ')
+                 << lastFTMSPacketReceived.toHex(' ');
 
-        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);
     }
 }
 

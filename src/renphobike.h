@@ -67,6 +67,7 @@ class renphobike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    QByteArray lastFTMSPacketReceived;
 
     bool initDone = false;
     bool initRequest = false;
