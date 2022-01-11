@@ -49,6 +49,8 @@ class smartspin2k : public bike {
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                                 bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
@@ -59,7 +61,9 @@ class smartspin2k : public bike {
     virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService;
+    QLowEnergyService *gattCommunicationChannelServiceFTMS;
     QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattWriteCharControlPointId;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -100,6 +104,7 @@ class smartspin2k : public bike {
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
+    void stateChangedFTMS(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);

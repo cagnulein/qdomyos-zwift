@@ -104,6 +104,37 @@ void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     loop.exec();
 }
 
+void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                          bool wait_for_response) {
+    QEventLoop loop;
+    QTimer timeout;
+
+    if (!gattWriteCharControlPointId.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharControlPointId is not valid");
+        return;
+    }
+
+    if (wait_for_response) {
+        connect(gattCommunicationChannelServiceFTMS,
+                SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
+    } else {
+        connect(gattCommunicationChannelServiceFTMS,
+                SIGNAL(characteristicWritten(QLowEnergyCharacteristic, QByteArray)), &loop, SLOT(quit()));
+        timeout.singleShot(300, &loop, SLOT(quit()));
+    }
+
+    gattCommunicationChannelServiceFTMS->writeCharacteristic(gattWriteCharControlPointId,
+                                                             QByteArray((const char *)data, data_len));
+
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
+
+    loop.exec();
+}
+
 void smartspin2k::forceResistance(int8_t requestResistance) {
 
     uint8_t write[] = {0x02, 0x17, 0x00, 0x00};
@@ -174,9 +205,9 @@ void smartspin2k::update() {
             write[1] = ((uint16_t)parentDevice->lastRequestedPower().value()) & 0xFF;
             write[2] = ((uint16_t)parentDevice->lastRequestedPower().value()) >> 8;
 
-            writeCharacteristic(write, sizeof(write),
-                                QStringLiteral("forcePower to SS2K ") +
-                                    QString::number(parentDevice->lastRequestedPower().value()));
+            writeCharacteristicFTMS(write, sizeof(write),
+                                    QStringLiteral("forcePower to SS2K ") +
+                                        QString::number(parentDevice->lastRequestedPower().value()));
 
             requestResistance = -1;
         }
@@ -218,6 +249,34 @@ void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characte
         Resistance = (int16_t)(((uint16_t)newValue.at(2)) + ((((uint16_t)newValue.at(3)) << 8) & 0xFF00));
         emit resistanceRead(Resistance.value());
         qDebug() << "Resistance received from SS2k:" << Resistance.value();
+    }
+}
+
+void smartspin2k::stateChangedFTMS(QLowEnergyService::ServiceState state) {
+
+    QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+
+    QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
+    emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
+
+    if (state == QLowEnergyService::ServiceDiscovered) {
+        // qDebug() << gattCommunicationChannelService->characteristics();
+
+        gattWriteCharControlPointId = gattCommunicationChannelServiceFTMS->characteristic(_gattWriteCharControlPointId);
+        Q_ASSERT(gattWriteCharControlPointId.isValid());
+
+        // establish hook into notifications
+        connect(gattCommunicationChannelServiceFTMS,
+                SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+                SLOT(characteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+        connect(gattCommunicationChannelServiceFTMS,
+                SIGNAL(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)), this,
+                SLOT(characteristicWritten(const QLowEnergyCharacteristic, const QByteArray)));
+        connect(gattCommunicationChannelServiceFTMS, SIGNAL(error(QLowEnergyService::ServiceError)), this,
+                SLOT(errorService(QLowEnergyService::ServiceError)));
+        connect(gattCommunicationChannelServiceFTMS,
+                SIGNAL(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)), this,
+                SLOT(descriptorWritten(const QLowEnergyDescriptor, const QByteArray)));
     }
 }
 
@@ -289,6 +348,13 @@ void smartspin2k::serviceScanDone(void) {
     connect(gattCommunicationChannelService, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
             SLOT(stateChanged(QLowEnergyService::ServiceState)));
     gattCommunicationChannelService->discoverDetails();
+
+    QBluetoothUuid _gattCommunicationChannelServiceFTMSId((quint16)0x1826);
+
+    gattCommunicationChannelServiceFTMS = m_control->createServiceObject(_gattCommunicationChannelServiceFTMSId);
+    connect(gattCommunicationChannelServiceFTMS, SIGNAL(stateChanged(QLowEnergyService::ServiceState)), this,
+            SLOT(stateChangedFTMS(QLowEnergyService::ServiceState)));
+    gattCommunicationChannelServiceFTMS->discoverDetails();
 }
 
 void smartspin2k::errorService(QLowEnergyService::ServiceError err) {
