@@ -139,6 +139,8 @@ import Qt.labs.settings 1.0
             property int  tile_targetmets_order: 29
             property bool tile_steering_angle_enabled: false
             property int  tile_steering_angle_order: 30
+            property bool tile_pid_hr_enabled: false
+            property int  tile_pid_hr_order: 31
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -2846,6 +2848,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_steering_angle_order = steeringAngleOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: targetPIDHrAccordion
+                        title: qsTr("PID HR Zone")
+                        linkedBoolSetting: "tile_pid_hr_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelPIDHROrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pidHROrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_pid_hr_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pidHROrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpidHROrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_pid_hr_order = pidHROrderTextField.displayText
                             }
                         }
                     }
