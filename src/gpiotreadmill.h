@@ -40,7 +40,7 @@ class gpiotreadmill : public treadmill {
     Q_OBJECT
   public:
     gpiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                    double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+                  double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     bool changeFanSpeed(uint8_t speed);
 
@@ -63,6 +63,19 @@ class gpiotreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+
+    const uint8_t OUTPUT_SPEED_UP = 6;
+    const uint8_t OUTPUT_SPEED_DOWN = 26;
+    const uint8_t OUTPUT_INCLINE_UP = 4;
+    const uint8_t OUTPUT_INCLINE_DOWN = 22;
+    const uint8_t OUTPUT_START = 23;
+    const uint8_t OUTPUT_STOP = 25;
+
+    const uint16_t GPIO_KEEP_MS = 200;
+    const uint16_t GPIO_REBOUND_MS = 200;
+
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

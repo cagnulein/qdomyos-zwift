@@ -2,6 +2,8 @@ QT += bluetooth widgets xml positioning quick networkauth websockets
 
 QT+= charts
 
+LIBS += -lwiringPi
+
 unix:android: QT += androidextras gui-private
 qtHaveModule(httpserver) {
     QT += httpserver

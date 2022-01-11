@@ -64,6 +64,7 @@ bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
+bool gpiotreadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
@@ -124,6 +125,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-gpiotreadmill"))
+            gpiotreadmill = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -216,7 +219,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -326,7 +329,8 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("service_changed"), service_changed);
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
-		settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
+        settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
+        settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
     }
 #endif
 
