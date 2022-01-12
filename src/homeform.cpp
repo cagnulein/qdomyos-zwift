@@ -1551,7 +1551,7 @@ void homeform::Minus(const QString &name) {
                 if (requestedspeed != -1)
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
-                int rest = (minStepSpeed * 10).0 - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
+                int rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
                 if (rest == 5 || rest == 0)
                     speed = speed - minStepSpeed;
                 else
