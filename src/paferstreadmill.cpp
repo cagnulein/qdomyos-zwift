@@ -72,14 +72,13 @@ void paferstreadmill::updateDisplay(uint16_t elapsed) {
     Q_UNUSED(elapsed);
     uint8_t noOpData[] = {0x55, 0x0d, 0x0a, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
-    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"));
 }
 
 void paferstreadmill::forceIncline(double requestIncline) {
     uint8_t incline[] = {0x55, 0x11, 0x01, 0x06};
     incline[3] = (uint8_t)requestIncline;
-    writeCharacteristic(incline, sizeof(incline), QStringLiteral("forceIncline ") + QString::number(requestIncline),
-                        false, true);
+    writeCharacteristic(incline, sizeof(incline), QStringLiteral("forceIncline ") + QString::number(requestIncline));
 }
 
 double paferstreadmill::minStepInclination() { return 1.0; }
@@ -88,8 +87,7 @@ double paferstreadmill::minStepSpeed() { return 1.0; }
 void paferstreadmill::forceSpeed(double requestSpeed) {
     uint8_t speed[] = {0x55, 0x0f, 0x02, 0x08, 0x00};
     speed[3] = (uint8_t)requestSpeed;
-    writeCharacteristic(speed, sizeof(speed), QStringLiteral("forceSpeed ") + QString::number(requestSpeed), false,
-                        true);
+    writeCharacteristic(speed, sizeof(speed), QStringLiteral("forceSpeed ") + QString::number(requestSpeed));
 }
 
 void paferstreadmill::changeInclinationRequested(double grade, double percentage) {
@@ -129,29 +127,24 @@ void paferstreadmill::update() {
 
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
 
-        // updating the treadmill console every second
-        // it seems that stops the communication
-        if (sec1Update++ >= (400 / refresh->interval())) {
-            updateDisplay(elapsed.value());
-        }
-
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 forceSpeed(requestSpeed);
+                QThread::msleep(400);
+                forceIncline(Inclination.value());
             }
             requestSpeed = -1;
-        }
-        if (requestInclination != -1) {
+        } else if (requestInclination != -1) {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                forceSpeed(Speed.value());
+                QThread::msleep(400);
                 forceIncline(requestInclination);
             }
             requestInclination = -1;
-        }
-
-        if (requestStart != -1) {
+        } else if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             uint8_t start[] = {0x55, 0x0a, 0x01, 0x01};
             writeCharacteristic(start, sizeof(start), "start", false, true);
@@ -160,13 +153,15 @@ void paferstreadmill::update() {
             }
             requestStart = -1;
             emit tapeStarted();
-        }
-        if (requestStop != -1) {
+        } else if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
             uint8_t stop[] = {0x55, 0x0a, 0x01, 0x02};
             writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
             requestStop = -1;
+        } else if (sec1Update++ >= (400 / refresh->interval())) {
+            updateDisplay(elapsed.value());
+            sec1Update = 0;
         }
     }
 }
