@@ -45,10 +45,10 @@ void paferstreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
 
     if (wait_for_response) {
         connect(this, &paferstreadmill::packetReceived, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     } else {
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        timeout.singleShot(400ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
@@ -83,6 +83,7 @@ void paferstreadmill::forceIncline(double requestIncline) {
 }
 
 double paferstreadmill::minStepInclination() { return 1.0; }
+double paferstreadmill::minStepSpeed() { return 1.0; }
 
 void paferstreadmill::forceSpeed(double requestSpeed) {
     uint8_t speed[] = {0x55, 0x0f, 0x02, 0x08, 0x00};
@@ -137,11 +138,6 @@ void paferstreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                // double inc = Inclination.value(); // NOTE: clang-analyzer-deadcode.DeadStores
-                if (requestInclination != -1) {
-                    //                        inc = requestInclination;
-                    requestInclination = -1;
-                }
                 forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
@@ -150,11 +146,6 @@ void paferstreadmill::update() {
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                // double speed = currentSpeed().value(); // NOTE: clang-analyzer-deadcode.DeadStores
-                if (requestSpeed != -1) {
-                    // speed = requestSpeed;
-                    requestSpeed = -1;
-                }
                 forceIncline(requestInclination);
             }
             requestInclination = -1;
