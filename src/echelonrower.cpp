@@ -211,16 +211,16 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     /*if ((uint8_t)(newValue.at(0)) != 0xf0 && (uint8_t)(newValue.at(1)) != 0xd1)
         return;*/
 
-    double distance = GetDistanceFromPacket(newValue);
+    // double distance = GetDistanceFromPacket(newValue);
 
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(11));
+        Cadence = ((uint8_t)newValue.at(11)) / 2.0;
         StrokesCount += (Cadence.value()) *
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 600000;
     }
-    Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
+    Speed = (0.37497622 * ((double)Cadence.value()));
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
@@ -228,9 +228,8 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
-    // Distance += ((Speed.value() / 3600000.0) *
-    // ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-    Distance = distance;
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -275,7 +274,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
-    qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
+    // qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());

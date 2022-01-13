@@ -35,6 +35,7 @@ class paferstreadmill : public treadmill {
                     double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
     double minStepInclination();
+    double minStepSpeed();
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
 
