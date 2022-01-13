@@ -853,6 +853,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 smartrowRower->deviceDiscovered(b);
                 userTemplateManager->start(smartrowRower);
                 innerTemplateManager->start(smartrowRower);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
+                         b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
+                       !concept2Skierg && filter) {
+                discoveryAgent->stop();
+                concept2Skierg = new concept2skierg(noWriteResistance, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(concept2Skierg, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(concept2Skierg, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(concept2Skierg, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
+                // connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
+                // connect(concept2Skierg, SIGNAL(inclinationChanged(double)), this, SLOT(inclinationChanged(double)));
+                concept2Skierg->deviceDiscovered(b);
+                userTemplateManager->start(concept2Skierg);
+                innerTemplateManager->start(concept2Skierg);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
                          b.name().toUpper().contains(QStringLiteral("ROW")))) &&
@@ -1778,6 +1793,11 @@ void bluetooth::restart() {
         delete ftmsRower;
         ftmsRower = nullptr;
     }
+    if (concept2Skierg) {
+
+        delete concept2Skierg;
+        concept2Skierg = nullptr;
+    }
     if (smartrowRower) {
 
         delete smartrowRower;
@@ -2005,6 +2025,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonStride;
     } else if (ftmsRower) {
         return ftmsRower;
+    } else if (concept2Skierg) {
+        return concept2Skierg;
     } else if (smartrowRower) {
         return smartrowRower;
     } else if (yesoulBike) {

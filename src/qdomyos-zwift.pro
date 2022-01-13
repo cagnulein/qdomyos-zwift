@@ -51,6 +51,7 @@ SOURCES += \
 		bluetoothdevice.cpp \
     bowflextreadmill.cpp \
    chronobike.cpp \
+    concept2skierg.cpp \
    cscbike.cpp \
 	 domyoselliptical.cpp \
    domyosrower.cpp \
@@ -182,6 +183,7 @@ HEADERS += \
 	bluetoothdevice.h \
     bowflextreadmill.h \
    chronobike.h \
+    concept2skierg.h \
    cscbike.h \
 	 domyoselliptical.h \
    domyosrower.h \
@@ -563,5 +565,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.9.41
+VERSION = 2.9.42
 

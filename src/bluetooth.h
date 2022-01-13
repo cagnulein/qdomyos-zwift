@@ -21,6 +21,7 @@
 #include "bluetoothdevice.h"
 #include "bowflextreadmill.h"
 #include "chronobike.h"
+#include "concept2skierg.h"
 #include "cscbike.h"
 #include "domyosbike.h"
 #include "domyoselliptical.h"
@@ -108,6 +109,7 @@ class bluetooth : public QObject, public SignalHandler {
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     bowflextreadmill *bowflexTreadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
+    concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
     domyosrower *domyosRower = nullptr;
