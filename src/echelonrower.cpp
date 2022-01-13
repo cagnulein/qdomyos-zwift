@@ -216,11 +216,11 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(11)) / 2.0;
+        Cadence = ((uint8_t)newValue.at(11));
         StrokesCount += (Cadence.value()) *
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 600000;
     }
-    Speed = (0.37497622 * ((double)Cadence.value()));
+    Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
