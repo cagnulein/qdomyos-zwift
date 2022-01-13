@@ -86,7 +86,7 @@ void gpiotreadmill::update() {
 
     QSettings settings;
     // ******************************************* virtual treadmill init *************************************
-    if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
+    if (!firstInit && !virtualTreadMill && !virtualBike) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
         if (virtual_device_enabled) {
