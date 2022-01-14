@@ -88,7 +88,7 @@ void renphobike::update() {
             debug("writing power request " + QString::number(requestPower));
             // if zwift is connected, QZ routes the ftms packets directly to the bike.
             // if peloton is connected, the power request is handled by QZ
-            if (virtualBike && !virtualBike->ftmsDeviceConnected())
+            if (virtualBike && !virtualBike->ftmsDeviceConnected() && requestPower != 0)
                 forcePower(requestPower);
             requestPower = -1;
             requestResistance = -1;
