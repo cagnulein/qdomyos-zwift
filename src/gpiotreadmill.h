@@ -88,7 +88,6 @@ class gpiotreadmill : public treadmill {
     void packetReceived();
 
   public slots:
-    void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void searchingStop();
 
   private slots:
