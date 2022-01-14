@@ -31,7 +31,7 @@ concept2skierg::concept2skierg(bool noWriteResistance, bool noHeartService) {
 }
 
 void concept2skierg::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                    bool wait_for_response) {
+                                         bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -137,12 +137,15 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     lastPacket = newValue;
 
-    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) && newValue.length() >= 19) {
+    if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060031-43e5-11e4-916c-0800200c9a66")) &&
+        newValue.length() >= 19) {
 
-        uint32_t elapsed_centsec = ((((uint32_t)newValue.at(2)) << 16) | ((uint32_t)((uint16_t)newValue.at(1)) << 8) | (uint32_t)((uint8_t)newValue.at(0)));
-        uint32_t distance_dm = ((((uint32_t)newValue.at(5)) << 16) | ((uint32_t)((uint16_t)newValue.at(4)) << 8) | (uint32_t)((uint8_t)newValue.at(3)));
+        uint32_t elapsed_centsec = ((((uint32_t)newValue.at(2)) << 16) | ((uint32_t)((uint16_t)newValue.at(1)) << 8) |
+                                    (uint32_t)((uint8_t)newValue.at(0)));
+        uint32_t distance_dm = ((((uint32_t)newValue.at(5)) << 16) | ((uint32_t)((uint16_t)newValue.at(4)) << 8) |
+                                (uint32_t)((uint8_t)newValue.at(3)));
 
-        Distance = distance_dm / 10.0;
+        Distance = distance_dm / 10000.0;
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
         uint8_t workout_type = newValue.at(6);
@@ -150,12 +153,18 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
         uint8_t workout_state = newValue.at(8);
         uint8_t rowing_state = newValue.at(9);
         uint8_t stroke_state = newValue.at(10);
-        uint32_t total_work_distance = ((((uint32_t)newValue.at(13)) << 16) | ((uint32_t)((uint16_t)newValue.at(12)) << 8) | (uint32_t)((uint8_t)newValue.at(11)));
-        uint32_t workout_duration = ((((uint32_t)newValue.at(16)) << 16) | ((uint32_t)((uint16_t)newValue.at(15)) << 8) | (uint32_t)((uint8_t)newValue.at(14)));
+        uint32_t total_work_distance =
+            ((((uint32_t)newValue.at(13)) << 16) | ((uint32_t)((uint16_t)newValue.at(12)) << 8) |
+             (uint32_t)((uint8_t)newValue.at(11)));
+        uint32_t workout_duration =
+            ((((uint32_t)newValue.at(16)) << 16) | ((uint32_t)((uint16_t)newValue.at(15)) << 8) |
+             (uint32_t)((uint8_t)newValue.at(14)));
         uint8_t workout_duration_type = newValue.at(17);
         uint8_t drag_factor = newValue.at(18);
-    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) && newValue.length() >= 17) {
-        uint32_t elapsed_centsec = ((((uint32_t)newValue.at(2)) << 16) | ((uint32_t)((uint16_t)newValue.at(1)) << 8) | (uint32_t)((uint8_t)newValue.at(0)));
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060032-43e5-11e4-916c-0800200c9a66")) &&
+               newValue.length() >= 17) {
+        uint32_t elapsed_centsec = ((((uint32_t)newValue.at(2)) << 16) | ((uint32_t)((uint16_t)newValue.at(1)) << 8) |
+                                    (uint32_t)((uint8_t)newValue.at(0)));
         // 0.001 m/s
         uint16_t speed_ms = (((uint16_t)((uint16_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)));
         Speed = speed_ms * 0.0036;
@@ -171,15 +180,15 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         uint8_t heart_rate = newValue.at(6);
 
-    #ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
         if (settings.value("ant_heart", false).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
-    #endif
+#endif
         {
-            if(heart_rate != 0xFF)
+            if (heart_rate != 0xFF)
                 Heart = heart_rate;
-                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
         }
 
         // 0.01 sec
@@ -187,11 +196,13 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
         // 0.01 sec
         uint16_t average_pace = (((uint16_t)((uint16_t)newValue.at(10)) << 8) | (uint16_t)((uint8_t)newValue.at(9)));
         uint16_t rest_distance = (((uint16_t)((uint16_t)newValue.at(12)) << 8) | (uint16_t)((uint8_t)newValue.at(11)));
-        uint32_t rest_time = ((((uint32_t)newValue.at(15)) << 16) | ((uint32_t)((uint16_t)newValue.at(14)) << 8) | (uint32_t)((uint8_t)newValue.at(13)));
+        uint32_t rest_time = ((((uint32_t)newValue.at(15)) << 16) | ((uint32_t)((uint16_t)newValue.at(14)) << 8) |
+                              (uint32_t)((uint8_t)newValue.at(13)));
         uint8_t erg_machine_type = newValue.at(16);
-    }
-    else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) && newValue.length() >= 20) {
-        uint32_t elapsed_centsec = ((((uint32_t)newValue.at(2)) << 16) | ((uint32_t)((uint16_t)newValue.at(1)) << 8) | (uint32_t)((uint8_t)newValue.at(0)));
+    } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("ce060033-43e5-11e4-916c-0800200c9a66")) &&
+               newValue.length() >= 20) {
+        uint32_t elapsed_centsec = ((((uint32_t)newValue.at(2)) << 16) | ((uint32_t)((uint16_t)newValue.at(1)) << 8) |
+                                    (uint32_t)((uint8_t)newValue.at(0)));
         uint8_t interval_count = newValue.at(3);
         uint16_t average_power = (((uint16_t)((uint16_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
         uint16_t total_calories = (((uint16_t)((uint16_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6)));
@@ -356,7 +367,7 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
 
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &concept2skierg::debug);
-            //connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+            // connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
             //        &domyostreadmill::changeInclinationRequested);
         }
     }
