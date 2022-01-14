@@ -60,8 +60,10 @@ class technogymmyruntreadmill : public treadmill {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyCharacteristic gattNotify1Characteristic;
     QLowEnergyService *gattFTMSService;
+    QLowEnergyService *gattCustomService;
+    QLowEnergyCharacteristic gattWriteCustomCharacteristic;
+    QLowEnergyCharacteristic gattNotifyCustomCharacteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;

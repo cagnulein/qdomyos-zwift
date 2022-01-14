@@ -60,7 +60,57 @@ void technogymmyruntreadmill::waitForAPacket() {
     loop.exec();
 }
 
-void technogymmyruntreadmill::btinit() { initDone = true; }
+void technogymmyruntreadmill::btinit() {
+    // enable pace
+    uint8_t init1[] = {0x40, 0x45, 0x4e, 0x41, 0x42, 0x4c, 0x45, 0x5f, 0x50, 0x41, 0x43, 0x45, 0x23};
+    if (gattCustomService) {
+        for (uint i = 0; i < sizeof(init1); i++)
+            writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init1[i], 1, QStringLiteral("init1"),
+                                false, false);
+    }
+
+    // ssi units
+    uint8_t init2[] = {0x40, 0x53, 0x53, 0x49, 0x55, 0x4e, 0x49, 0x54, 0x53, 0x23};
+    if (gattCustomService) {
+        for (uint i = 0; i < sizeof(init2); i++)
+            writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init2[i], 1, QStringLiteral("init2"),
+                                false, false);
+    }
+
+    // rjks en 1
+    uint8_t init3[] = {0x40, 0x52, 0x4a, 0x53, 0x4b, 0x5f, 0x45, 0x4e, 0x20, 0x31, 0x23};
+    if (gattCustomService) {
+        for (uint i = 0; i < sizeof(init3); i++)
+            writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init3[i], 1, QStringLiteral("init3"),
+                                false, false);
+    }
+
+    // ljks en 1
+    uint8_t init4[] = {0x40, 0x4c, 0x4a, 0x53, 0x4b, 0x5f, 0x45, 0x4e, 0x20, 0x31, 0x23};
+    if (gattCustomService) {
+        for (uint i = 0; i < sizeof(init4); i++)
+            writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init4[i], 1, QStringLiteral("init4"),
+                                false, false);
+    }
+
+    if (gattFTMSService) {
+        uint8_t writeS[] = {FTMS_START_RESUME};
+
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                            QStringLiteral("start"), false, true);
+    }
+
+    // set date (maybe useless?)
+    uint8_t init5[] = {0x40, 0x53, 0x45, 0x54, 0x44, 0x41, 0x54, 0x45, 0x20, 0x31, 0x33, 0x20, 0x30, 0x31, 0x20,
+                       0x32, 0x30, 0x32, 0x32, 0x20, 0x31, 0x39, 0x20, 0x33, 0x31, 0x20, 0x34, 0x35, 0x23};
+    if (gattCustomService) {
+        for (uint i = 0; i < sizeof(init5); i++)
+            writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init5[i], 1, QStringLiteral("init5"),
+                                false, false);
+    }
+
+    initDone = true;
+}
 
 void technogymmyruntreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -82,28 +132,6 @@ void technogymmyruntreadmill::update() {
 
         QSettings settings;
         update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
-
-        bool technogym_myrun_treadmill_experimental =
-            settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
-
-        if(technogym_myrun_treadmill_experimental)
-        // trying to understand how iOS rfcomm works
-        {
-            for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
-                    qDebug() << s->serviceUuid() << QStringLiteral("checking");
-
-                auto characteristics_list = s->characteristics();
-                for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                    qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle() << c.properties();
-                    if ((c.properties() & QLowEnergyCharacteristic::Write) == QLowEnergyCharacteristic::Write ||
-                         (c.properties() & QLowEnergyCharacteristic::Write) == QLowEnergyCharacteristic::WriteNoResponse ||
-                         (c.properties() & QLowEnergyCharacteristic::Write) == QLowEnergyCharacteristic::WriteSigned) {
-                        uint8_t fwver[] = { '@', 'F', 'W', 'V', 'E', 'R', '#' };
-                        writeCharacteristic(s, c, fwver, sizeof(fwver), "fwver");
-                    }
-                }
-            }
-        }
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -139,6 +167,13 @@ void technogymmyruntreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
+            if (gattFTMSService) {
+                uint8_t writeS[] = {FTMS_STOP_PAUSE, 0x01};
+
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                    QStringLiteral("stop"), false, true);
+            }
+
             requestStop = -1;
         }
         if (requestIncreaseFan != -1) {
@@ -156,43 +191,25 @@ void technogymmyruntreadmill::update() {
 }
 
 void technogymmyruntreadmill::forceSpeed(double requestSpeed) {
-    /*
-    if (gattCommunicationChannelService) {
-        // for the Tecnogym Myrun
-        uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, write, sizeof(write),
-                            "requestControl", false, true);
-        write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, write, sizeof(write),
-                            "start simulation", false, true);
-
+    if (gattFTMSService) {
         uint8_t writeS[] = {FTMS_SET_TARGET_SPEED, 0x00, 0x00};
         writeS[1] = (uint16_t)(requestSpeed * 100) & 0xFF;
         writeS[2] = (uint16_t)(requestSpeed * 100) >> 8;
 
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceSpeed"), false, true);
-    }*/
+    }
 }
 
 void technogymmyruntreadmill::forceIncline(double requestIncline) {
-    /*
-    if (gattCommunicationChannelService) {
-        // for the Tecnogym Myrun
-        uint8_t write[] = {FTMS_REQUEST_CONTROL};
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, write, sizeof(write),
-                            "requestControl", false, true);
-        write[0] = {FTMS_START_RESUME};
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, write, sizeof(write),
-                            "start simulation", false, true);
-
+    if (gattFTMSService) {
         uint8_t writeS[] = {FTMS_SET_TARGET_INCLINATION, 0x00, 0x00};
         writeS[1] = (int16_t)(requestIncline * 10) & 0xFF;
         writeS[2] = (int16_t)(requestIncline * 10) >> 8;
 
-        writeCharacteristic(gattCommunicationChannelService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("forceIncline"), false, true);
-    }*/
+    }
 }
 
 void technogymmyruntreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
@@ -370,7 +387,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
-        double cadence = (uint8_t)newValue.at(3)  * cadence_multiplier;
+        double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
 
         Cadence = cadence;
         emit cadenceChanged(cadence);
@@ -394,7 +411,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
 
             Heart = heart;
         }
-    }    
+    }
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
@@ -418,8 +435,10 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
             // establish hook into notifications
-            connect(s, &QLowEnergyService::characteristicChanged, this, &technogymmyruntreadmill::characteristicChanged);
-            connect(s, &QLowEnergyService::characteristicWritten, this, &technogymmyruntreadmill::characteristicWritten);
+            connect(s, &QLowEnergyService::characteristicChanged, this,
+                    &technogymmyruntreadmill::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicWritten, this,
+                    &technogymmyruntreadmill::characteristicWritten);
             connect(s, &QLowEnergyService::characteristicRead, this, &technogymmyruntreadmill::characteristicRead);
             connect(
                 s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
@@ -476,6 +495,13 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
+                }
+
+                QBluetoothUuid _gattWriteCustomChar(QStringLiteral("df1eb8e4-1753-4bb9-a6a6-e018040af0a3"));
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCustomChar) {
+                    qDebug() << QStringLiteral("Custom service found");
+                    gattWriteCustomCharacteristic = c;
+                    gattCustomService = s;
                 }
             }
         }
