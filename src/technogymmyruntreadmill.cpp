@@ -100,6 +100,13 @@ void technogymmyruntreadmill::btinit() {
                             QStringLiteral("start"), false, true);
     }
 
+    if (gattWeightService) {
+        uint8_t writeS[] = {0x30, 0x43};
+
+        writeCharacteristic(gattWeightService, gattWriteCharWeight, writeS, sizeof(writeS), QStringLiteral("weigth"),
+                            false, true);
+    }
+
     // set date (maybe useless?)
     uint8_t init5[] = {0x40, 0x53, 0x45, 0x54, 0x44, 0x41, 0x54, 0x45, 0x20, 0x31, 0x33, 0x20, 0x30, 0x31, 0x20,
                        0x32, 0x30, 0x32, 0x32, 0x20, 0x31, 0x39, 0x20, 0x33, 0x31, 0x20, 0x34, 0x35, 0x23};
@@ -502,6 +509,13 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
                     qDebug() << QStringLiteral("Custom service found");
                     gattWriteCustomCharacteristic = c;
                     gattCustomService = s;
+                }
+
+                QBluetoothUuid _gattWriteWeigthChar(QStringLiteral("00002a98-0000-1000-8000-00805f9b34fb"));
+                if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteWeigthChar) {
+                    qDebug() << QStringLiteral("Weight service found");
+                    gattWriteCharWeight = c;
+                    gattWeightService = s;
                 }
             }
         }
