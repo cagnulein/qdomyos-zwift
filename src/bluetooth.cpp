@@ -673,7 +673,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("T318_")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
@@ -854,13 +854,14 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(smartrowRower);
                 innerTemplateManager->start(smartrowRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
-                         b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
+                        b.name().toUpper().endsWith(QStringLiteral("SKI"))) &&
                        !concept2Skierg && filter) {
                 discoveryAgent->stop();
                 concept2Skierg = new concept2skierg(noWriteResistance, noHeartService);
                 // stateFileRead();
                 emit deviceConnected(b);
-                connect(concept2Skierg, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(concept2Skierg, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
                 // connect(concept2Skierg, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(concept2Skierg, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 // connect(v, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
@@ -936,7 +937,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(echelonConnectSport);
                 innerTemplateManager->start(echelonConnectSport);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("IC BIKE")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("C7-")) ||
+                        (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
                         b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
                        !schwinnIC4Bike && filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
