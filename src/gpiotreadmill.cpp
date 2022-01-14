@@ -59,11 +59,11 @@ void gpiotreadmill::changeInclinationRequested(double grade, double percentage) 
 void gpiotreadmill::forceSpeed(double requestSpeed) {
     if (requestSpeed > Speed.value()) {
         digitalWrite(OUTPUT_SPEED_UP, 1);
-        QThread::sleep(GPIO_KEEP_MS);
+        QThread::msleep(GPIO_KEEP_MS);
         digitalWrite(OUTPUT_SPEED_UP, 0);
     } else {
         digitalWrite(OUTPUT_SPEED_DOWN, 1);
-        QThread::sleep(GPIO_KEEP_MS);
+        QThread::msleep(GPIO_KEEP_MS);
         digitalWrite(OUTPUT_SPEED_DOWN, 0);
     }
     Speed = requestSpeed;
@@ -72,11 +72,11 @@ void gpiotreadmill::forceSpeed(double requestSpeed) {
 void gpiotreadmill::forceIncline(double requestIncline) {
     if (requestIncline > Inclination.value()) {
         digitalWrite(OUTPUT_INCLINE_UP, 1);
-        QThread::sleep(GPIO_KEEP_MS);
+        QThread::msleep(GPIO_KEEP_MS);
         digitalWrite(OUTPUT_INCLINE_UP, 0);
     } else {
         digitalWrite(OUTPUT_INCLINE_DOWN, 1);
-        QThread::sleep(GPIO_KEEP_MS);
+        QThread::msleep(GPIO_KEEP_MS);
         digitalWrite(OUTPUT_INCLINE_DOWN, 0);
     }
     Inclination = requestIncline;
@@ -197,7 +197,7 @@ void gpiotreadmill::update() {
                 lastSpeed = 0.5;
             }
             digitalWrite(OUTPUT_START, 1);
-            QThread::sleep(GPIO_KEEP_MS);
+            QThread::msleep(GPIO_KEEP_MS);
             digitalWrite(OUTPUT_START, 0);
             requestStart = -1;
             emit tapeStarted();
@@ -205,7 +205,7 @@ void gpiotreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
             digitalWrite(OUTPUT_STOP, 1);
-            QThread::sleep(GPIO_KEEP_MS);
+            QThread::msleep(GPIO_KEEP_MS);
             digitalWrite(OUTPUT_STOP, 0);
             requestStop = -1;
         }
