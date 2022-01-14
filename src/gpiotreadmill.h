@@ -42,7 +42,6 @@ class gpiotreadmill : public treadmill {
     gpiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                   double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
-    bool changeFanSpeed(uint8_t speed);
 
     void *VirtualTreadMill();
     void *VirtualDevice();
