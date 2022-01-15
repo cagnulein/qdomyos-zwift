@@ -61,12 +61,12 @@ void technogymmyruntreadmill::waitForAPacket() {
 }
 
 void technogymmyruntreadmill::btinit() {
-    // enable pace
-    uint8_t init1[] = {0x40, 0x45, 0x4e, 0x41, 0x42, 0x4c, 0x45, 0x5f, 0x50, 0x41, 0x43, 0x45, 0x23};
+    // disable pace
+    uint8_t init1[] = {0x40, 0x44, 0x49, 0x53, 0x41, 0x42, 0x4c, 0x45, 0x5f, 0x50, 0x41, 0x43, 0x45, 0x23};
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init1); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init1[i], 1, QStringLiteral("init1"),
-                                false, false, QLowEnergyService::WriteWithoutResponse);
+                                false, false);
     }
 
     // ssi units
@@ -74,7 +74,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init2); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init2[i], 1, QStringLiteral("init2"),
-                                false, false, QLowEnergyService::WriteWithoutResponse);
+                                false, false);
     }
 
     // rjks en 1
@@ -82,7 +82,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init3); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init3[i], 1, QStringLiteral("init3"),
-                                false, false, QLowEnergyService::WriteWithoutResponse);
+                                false, false);
     }
 
     // ljks en 1
@@ -90,7 +90,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init4); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init4[i], 1, QStringLiteral("init4"),
-                                false, false, QLowEnergyService::WriteWithoutResponse);
+                                false, false);
     }
 
     if (gattFTMSService) {
@@ -113,7 +113,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init5); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init5[i], 1, QStringLiteral("init5"),
-                                false, false, QLowEnergyService::WriteWithoutResponse);
+                                false, false);
     }
 
     initDone = true;
