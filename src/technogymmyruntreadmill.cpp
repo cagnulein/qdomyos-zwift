@@ -61,6 +61,14 @@ void technogymmyruntreadmill::waitForAPacket() {
 }
 
 void technogymmyruntreadmill::btinit() {
+
+    if (gattFTMSService) {
+        uint8_t writeS[] = {0x00, 0x93, 0xf0, 0x51, 0xe8, 0x1b, 0x42, 0x92, 0x8e};
+
+        writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                            QStringLiteral("start"), false, true);
+    }
+
     // disable pace
     uint8_t init1[] = {0x40, 0x44, 0x49, 0x53, 0x41, 0x42, 0x4c, 0x45, 0x5f, 0x50, 0x41, 0x43, 0x45, 0x23};
     if (gattCustomService) {
