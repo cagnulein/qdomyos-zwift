@@ -32,7 +32,7 @@ technogymmyruntreadmill::technogymmyruntreadmill(bool noWriteResistance, bool no
 
 void technogymmyruntreadmill::writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic,
                                                   uint8_t *data, uint8_t data_len, QString info, bool disable_log,
-                                                  bool wait_for_response) {
+                                                  bool wait_for_response, QLowEnergyService::WriteMode writeMode) {
     QEventLoop loop;
     QTimer timeout;
 
@@ -44,7 +44,7 @@ void technogymmyruntreadmill::writeCharacteristic(QLowEnergyService *service, QL
         timeout.singleShot(3000, &loop, SLOT(quit()));
     }
 
-    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len));
+    service->writeCharacteristic(characteristic, QByteArray((const char *)data, data_len), writeMode);
 
     if (!disable_log)
         qDebug() << " >> " << QByteArray((const char *)data, data_len).toHex(' ') << " // " << info;
@@ -66,7 +66,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init1); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init1[i], 1, QStringLiteral("init1"),
-                                false, false);
+                                false, false, QLowEnergyService::WriteWithoutResponse);
     }
 
     // ssi units
@@ -74,7 +74,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init2); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init2[i], 1, QStringLiteral("init2"),
-                                false, false);
+                                false, false, QLowEnergyService::WriteWithoutResponse);
     }
 
     // rjks en 1
@@ -82,7 +82,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init3); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init3[i], 1, QStringLiteral("init3"),
-                                false, false);
+                                false, false, QLowEnergyService::WriteWithoutResponse);
     }
 
     // ljks en 1
@@ -90,14 +90,14 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init4); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init4[i], 1, QStringLiteral("init4"),
-                                false, false);
+                                false, false, QLowEnergyService::WriteWithoutResponse);
     }
 
     if (gattFTMSService) {
         uint8_t writeS[] = {FTMS_START_RESUME};
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
-                            QStringLiteral("start"), false, true);
+                            QStringLiteral("start"), false, false);
     }
 
     if (gattWeightService) {
@@ -113,7 +113,7 @@ void technogymmyruntreadmill::btinit() {
     if (gattCustomService) {
         for (uint i = 0; i < sizeof(init5); i++)
             writeCharacteristic(gattCustomService, gattWriteCustomCharacteristic, &init5[i], 1, QStringLiteral("init5"),
-                                false, false);
+                                false, false, QLowEnergyService::WriteWithoutResponse);
     }
 
     initDone = true;
@@ -237,7 +237,7 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
         emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
-               " " + newValue.toHex(' '));
+               " " + newValue.toHex(' ') + newValue);
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;

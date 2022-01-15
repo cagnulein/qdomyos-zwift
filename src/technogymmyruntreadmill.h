@@ -49,7 +49,8 @@ class technogymmyruntreadmill : public treadmill {
 
   private:
     void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
-                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
+                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false,
+                             QLowEnergyService::WriteMode writeMode = QLowEnergyService::WriteWithResponse);
     void waitForAPacket();
     void startDiscover();
     void btinit();
