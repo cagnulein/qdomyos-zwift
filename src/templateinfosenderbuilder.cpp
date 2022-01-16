@@ -508,6 +508,7 @@ void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
     device->stop();
     device->setPaused(true);
     device->clearStats();
+    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
     QJsonObject main;
     main[QStringLiteral("msg")] = QStringLiteral("R_stop");
     QJsonDocument out(main);
