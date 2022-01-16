@@ -195,6 +195,7 @@ import Qt.labs.settings 1.0
             property bool trx_route_key: false
             property bool bh_spada_2: false
             property bool toorx_bike: false
+            property bool toorx_ftms: false
             property bool jll_IC400_bike: false
             property bool fytter_ri08_bike: false
             property bool asviva_bike: false
@@ -207,6 +208,7 @@ import Qt.labs.settings 1.0
 
             property bool snode_bike: false
             property bool fitplus_bike: false
+            property bool virtufit_etappe: false
 
             property int flywheel_filter: 2
             property bool flywheel_life_fitness_ic8: false
@@ -1343,6 +1345,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.fitplus_bike = checked
+                    }
+                    accordionContent: SwitchDelegate {
+                        id: virtufitEtappeBikeDelegate
+                        text: qsTr("Virtufit Etappe 2.0 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtufit_etappe
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.virtufit_etappe = checked
                     }
                 }
                 AccordionElement {
@@ -3932,6 +3948,22 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.toorx_bike = checked
                     }
+
+                    SwitchDelegate {
+                        id: toorxFTMSBikeDelegate
+                        text: qsTr("Toorx FTMS Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_ftms
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.toorx_ftms = checked
+                    }
+
                     SwitchDelegate {
                         id: toorxBikeJLLIC400Delegate
                         text: qsTr("JLL IC400 Bike")

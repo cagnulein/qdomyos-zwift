@@ -291,11 +291,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         settings.value(QStringLiteral("ftms_accessory_name"), QStringLiteral("Disabled")).toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
-    bool toorx_bike = settings.value(QStringLiteral("toorx_bike"), false).toBool() ||
+    bool toorx_ftms = settings.value(QStringLiteral("toorx_ftms"), false).toBool();
+    bool toorx_bike = (settings.value(QStringLiteral("toorx_bike"), false).toBool() ||
                       settings.value(QStringLiteral("jll_IC400_bike"), false).toBool() ||
                       settings.value(QStringLiteral("fytter_ri08_bike"), false).toBool() ||
                       settings.value(QStringLiteral("asviva_bike"), false).toBool() ||
-                      settings.value(QStringLiteral("hertz_xr_770"), false).toBool();
+                      settings.value(QStringLiteral("hertz_xr_770"), false).toBool()) && !toorx_ftms;
     bool snode_bike = settings.value(QStringLiteral("snode_bike"), false).toBool();
     bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool();
     bool csc_as_bike = settings.value(QStringLiteral("cadence_sensor_as_bike"), false).toBool();
@@ -1238,7 +1239,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 skandikaWiriBike->deviceDiscovered(b);
                 userTemplateManager->start(skandikaWiriBike);
                 innerTemplateManager->start(skandikaWiriBike);
-            } else if ((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) && !renphoBike && !snodeBike &&
+            } else if (((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) ||
+                        ((b.name().startsWith(QStringLiteral("TOORX"))) && toorx_ftms)) && !renphoBike && !snodeBike &&
                        !fitPlusBike && filter) {
 
                 discoveryAgent->stop();
