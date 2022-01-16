@@ -701,7 +701,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(horizonTreadmill);
                 innerTemplateManager->start(horizonTreadmill);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) && !technogymmyrunTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TREADMILL ")))
+                       && !technogymmyrunTreadmill && filter) {
                 discoveryAgent->stop();
                 bool technogym_myrun_treadmill_experimental =
                     settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();

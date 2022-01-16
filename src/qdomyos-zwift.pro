@@ -565,5 +565,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.9.47
+VERSION = 2.9.48
 
