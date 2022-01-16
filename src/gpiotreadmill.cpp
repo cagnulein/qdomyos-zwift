@@ -8,8 +8,27 @@
 #include <QMetaEnum>
 #include <QSettings>
 #include <chrono>
+#define Q_OS_RASPI 1
+#ifdef Q_OS_RASPI
 #include <wiringPi.h>
+#else
+#define OUTPUT 1
+void digitalWrite(int pin, int state) {
 
+    //printf("switch pin %d to %d\n", pin, state);
+    qDebug() << QStringLiteral("switch pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
+}
+
+void pinMode(int pin, int state) {
+
+    //printf("init pin %d with %d\n", pin, state);
+    qDebug() << QStringLiteral("init pin ") + QString::number(pin) + QStringLiteral(" to ") + QString::number(state);
+}
+
+int wiringPiSetup() {
+        return 0;
+}
+#endif
 using namespace std::chrono_literals;
 
 gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
@@ -38,10 +57,12 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
 
     if (forceInitSpeed > 0) {
         lastSpeed = forceInitSpeed;
+        gpio_currentSpeed = forceInitSpeed;
     }
 
     if (forceInitInclination > 0) {
         lastInclination = forceInitInclination;
+        gpio_currentInclination = forceInitInclination;
     }
 
     refresh = new QTimer(this);
@@ -57,27 +78,53 @@ void gpiotreadmill::changeInclinationRequested(double grade, double percentage) 
 }
 
 void gpiotreadmill::forceSpeed(double requestSpeed) {
+    printf("request set speed to ...  %f\n", requestSpeed);
     if (requestSpeed > Speed.value()) {
-        digitalWrite(OUTPUT_SPEED_UP, 1);
-        QThread::msleep(GPIO_KEEP_MS);
-        digitalWrite(OUTPUT_SPEED_UP, 0);
+        while (requestSpeed > gpio_currentSpeed) {
+            debug("increasing speed to ... " +  QString::number(Speed.value()));
+            printf("increasing speed from %f to ... %f\n", requestSpeed, gpio_currentSpeed);
+            digitalWrite(OUTPUT_SPEED_UP, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            digitalWrite(OUTPUT_SPEED_UP, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            gpio_currentSpeed += SPEED_STEP;
+        }
     } else {
-        digitalWrite(OUTPUT_SPEED_DOWN, 1);
-        QThread::msleep(GPIO_KEEP_MS);
-        digitalWrite(OUTPUT_SPEED_DOWN, 0);
+        while (requestSpeed < gpio_currentSpeed) {
+            debug("decreasing speed to ... " +  QString::number(Speed.value()));
+            printf("decreasing speed from %f to ... %f\n", requestSpeed, gpio_currentSpeed);
+            digitalWrite(OUTPUT_SPEED_DOWN, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            digitalWrite(OUTPUT_SPEED_DOWN, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            gpio_currentSpeed -= SPEED_STEP;
+        }
     }
     Speed = requestSpeed;
 }
 
 void gpiotreadmill::forceIncline(double requestIncline) {
+    printf("request set Incline to ...  %f\n", requestIncline);
     if (requestIncline > Inclination.value()) {
-        digitalWrite(OUTPUT_INCLINE_UP, 1);
-        QThread::msleep(GPIO_KEEP_MS);
-        digitalWrite(OUTPUT_INCLINE_UP, 0);
+        while (requestIncline > gpio_currentInclination) {
+            debug("increasing incline to ... " +  QString::number(Speed.value()));
+            printf("increasing incline from %f to ... %f\n", requestIncline, gpio_currentInclination);
+            digitalWrite(OUTPUT_INCLINE_UP, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            digitalWrite(OUTPUT_INCLINE_UP, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            gpio_currentInclination += INCLINATION_STEP;
+        }
     } else {
-        digitalWrite(OUTPUT_INCLINE_DOWN, 1);
-        QThread::msleep(GPIO_KEEP_MS);
-        digitalWrite(OUTPUT_INCLINE_DOWN, 0);
+        while (requestIncline > gpio_currentInclination) {
+            debug("decreasing incline to ... " +  QString::number(Speed.value()));
+            printf("decreasing incline from %f to ... %f\n", requestIncline, gpio_currentInclination);
+            digitalWrite(OUTPUT_INCLINE_DOWN, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            digitalWrite(OUTPUT_INCLINE_DOWN, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            gpio_currentInclination -= INCLINATION_STEP;
+        }
     }
     Inclination = requestIncline;
 }

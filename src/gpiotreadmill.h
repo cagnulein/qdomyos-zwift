@@ -40,7 +40,7 @@ class gpiotreadmill : public treadmill {
     Q_OBJECT
   public:
     gpiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
-                  double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
+                  double forceInitSpeed = 1.0, double forceInitInclination = 0.0);
     bool connected();
 
     void *VirtualTreadMill();
@@ -62,6 +62,9 @@ class gpiotreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
+    
+    double gpio_currentSpeed = 0.0;
+    double gpio_currentInclination = 0.0;
 
     const uint8_t OUTPUT_SPEED_UP = 6;
     const uint8_t OUTPUT_SPEED_DOWN = 26;
@@ -72,6 +75,9 @@ class gpiotreadmill : public treadmill {
 
     const uint16_t GPIO_KEEP_MS = 200;
     const uint16_t GPIO_REBOUND_MS = 200;
+    
+    const double SPEED_STEP = 0.1;
+    const double INCLINATION_STEP = 1.0;
 
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
