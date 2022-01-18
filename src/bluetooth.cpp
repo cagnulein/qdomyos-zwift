@@ -293,10 +293,11 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool ftmsAccessoryFound = ftmsAccessoryName.startsWith(QStringLiteral("Disabled"));
     bool toorx_ftms = settings.value(QStringLiteral("toorx_ftms"), false).toBool();
     bool toorx_bike = (settings.value(QStringLiteral("toorx_bike"), false).toBool() ||
-                      settings.value(QStringLiteral("jll_IC400_bike"), false).toBool() ||
-                      settings.value(QStringLiteral("fytter_ri08_bike"), false).toBool() ||
-                      settings.value(QStringLiteral("asviva_bike"), false).toBool() ||
-                      settings.value(QStringLiteral("hertz_xr_770"), false).toBool()) && !toorx_ftms;
+                       settings.value(QStringLiteral("jll_IC400_bike"), false).toBool() ||
+                       settings.value(QStringLiteral("fytter_ri08_bike"), false).toBool() ||
+                       settings.value(QStringLiteral("asviva_bike"), false).toBool() ||
+                       settings.value(QStringLiteral("hertz_xr_770"), false).toBool()) &&
+                      !toorx_ftms;
     bool snode_bike = settings.value(QStringLiteral("snode_bike"), false).toBool();
     bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool();
     bool csc_as_bike = settings.value(QStringLiteral("cadence_sensor_as_bike"), false).toBool();
@@ -702,8 +703,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(horizonTreadmill);
                 innerTemplateManager->start(horizonTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("TREADMILL ")))
-                       && !technogymmyrunTreadmill && filter) {
+                        b.name().toUpper().startsWith(QStringLiteral("TREADMILL "))) &&
+                       !technogymmyrunTreadmill && filter) {
                 discoveryAgent->stop();
                 bool technogym_myrun_treadmill_experimental =
                     settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
@@ -1242,8 +1243,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(skandikaWiriBike);
                 innerTemplateManager->start(skandikaWiriBike);
             } else if (((b.name().toUpper().startsWith("RQ") && b.name().length() == 5) ||
-                        ((b.name().startsWith(QStringLiteral("TOORX"))) && toorx_ftms)) && !renphoBike && !snodeBike &&
-                       !fitPlusBike && filter) {
+                        ((b.name().startsWith(QStringLiteral("TOORX"))) && toorx_ftms)) &&
+                       !renphoBike && !snodeBike && !fitPlusBike && filter) {
 
                 discoveryAgent->stop();
                 renphoBike = new renphobike(noWriteResistance, noHeartService);
@@ -1296,7 +1297,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(fitPlusBike);
                 innerTemplateManager->start(fitPlusBike);
             } else if (((b.name().startsWith(QStringLiteral("FS-")) && !snode_bike && !fitplus_bike && !ftmsBike) ||
-                        (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14)) &&
+                        (b.name().startsWith(QStringLiteral("SW")) && b.name().length() == 14) ||
+                        (b.name().startsWith(QStringLiteral("BF70")))) &&
                        !fitshowTreadmill && filter) {
                 discoveryAgent->stop();
                 fitshowTreadmill = new fitshowtreadmill(this->pollDeviceTime, noConsole, noHeartService);
