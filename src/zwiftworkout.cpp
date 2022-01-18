@@ -13,10 +13,20 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
     QSettings settings;
     QList<trainrow> list;
     QXmlStreamReader stream(input);
+    double thresholdSecPerKm = 0;
+    QString sportType = "";
     while (!stream.atEnd()) {
         stream.readNext();
+        QString name = stream.name().toString();
+        QString text = stream.text().toString();
         QXmlStreamAttributes atts = stream.attributes();
-        if (!atts.isEmpty()) {
+        if (name.toLower().contains(QStringLiteral("thresholdsecperkm")) && thresholdSecPerKm == 0) {
+            stream.readNext();
+            thresholdSecPerKm = stream.text().toDouble();
+        } else if (name.toLower().contains(QStringLiteral("sporttype")) && sportType.length() == 0) {
+            stream.readNext();
+            sportType = stream.text().toString();
+        } else if (!atts.isEmpty()) {
             if (stream.name().contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
                 uint32_t OnDuration = 1;
@@ -91,16 +101,25 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
             } else if (stream.name().contains(QStringLiteral("SteadyState"))) {
                 uint32_t Duration = 1;
                 double Power = 1;
+                double Speed = 0;
+                trainrow row;
+
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
                 if (atts.hasAttribute(QStringLiteral("Power"))) {
-                    Power = atts.value(QStringLiteral("Power")).toDouble();
+                    if (sportType.toLower().contains(QStringLiteral("run")) && thresholdSecPerKm != 0 &&
+                        Duration != 1) {
+                        row.forcespeed = 1;
+                        row.speed =
+                            (60.0 / (thresholdSecPerKm / atts.value(QStringLiteral("Power")).toDouble())) * 60.0;
+                    } else {
+                        Power = atts.value(QStringLiteral("Power")).toDouble();
+                    }
                 }
 
-                trainrow row;
-                row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
                 row.power = Power * settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
                 list.append(row);
             }
         }
