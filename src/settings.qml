@@ -1332,7 +1332,8 @@ import Qt.labs.settings 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent:
+                    SwitchDelegate {
                         id: fitplusBikeDelegate
                         text: qsTr("Fit Plus Bike")
                         spacing: 0
@@ -1346,7 +1347,7 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.fitplus_bike = checked
                     }
-                    accordionContent: SwitchDelegate {
+                    SwitchDelegate {
                         id: virtufitEtappeBikeDelegate
                         text: qsTr("Virtufit Etappe 2.0 Bike")
                         spacing: 0
