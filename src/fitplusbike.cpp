@@ -73,26 +73,77 @@ void fitplusbike::forceResistance(int8_t requestResistance) {
     QSettings settings;
     bool virtufit_etappe = settings.value(QStringLiteral("virtufit_etappe"), false).toBool();
     if (virtufit_etappe) {
-        if (requestResistance == 11) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x11, 0x07, 0x57, 0x03};
+        if (requestResistance == 1) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 2) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x02, 0xf9, 0xba, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 3) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x03, 0xfa, 0xb8, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 4) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x04, 0xfb, 0xbe, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 5) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x05, 0xfc, 0xb8, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 6) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x06, 0xfd, 0xba, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 7) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x07, 0xfe, 0xb8, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 8) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x08, 0xff, 0xb6, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 9) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x09, 0x00, 0x48, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 10) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0a, 0x00, 0x4b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 11) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0b, 0x01, 0x4b, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 12) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x12, 0x08, 0x5b, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0c, 0x03, 0x4e, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 13) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x13, 0x09, 0x5b, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0d, 0x03, 0x4f, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 14) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x14, 0x0a, 0x5f, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0e, 0x05, 0x4a, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 15) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x15, 0x0b, 0x5f, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x0f, 0x05, 0x4b, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 16) {
-            uint8_t res[] = {0x02, 0x44, 0x05, 0x16, 0x0c, 0x5b, 0x03};
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x10, 0x06, 0x57, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         } else if (requestResistance == 17) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x11, 0x07, 0x57, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 18) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x12, 0x08, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 19) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x13, 0x09, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 20) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x14, 0x0a, 0x5f, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 21) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x15, 0x0b, 0x5f, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 22) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x16, 0x0c, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 23) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x17, 0x0d, 0x5b, 0x03};
+            writeCharacteristic(res, sizeof(res), "force resistance", false, true);
+        } else if (requestResistance == 24) {
+            uint8_t res[] = {0x02, 0x44, 0x05, 0x18, 0x0e, 0x57, 0x03};
             writeCharacteristic(res, sizeof(res), "force resistance", false, true);
         }
     }
@@ -210,6 +261,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         if (newValue.length() == 15) {
             Resistance = newValue.at(5);
+            m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
             if (!settings.value(QStringLiteral("speed_power_based"), false).toBool())
                 Speed = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 100.0;
             else
@@ -219,9 +271,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 Cadence = ((uint8_t)newValue.at(6));
-        }
-
-        if (newValue.length() == 13) {
+        } else if (newValue.length() == 13) {
             m_watt = newValue.at(11);
             return;
         }
