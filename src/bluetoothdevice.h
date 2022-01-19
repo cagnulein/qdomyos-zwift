@@ -68,6 +68,12 @@ class bluetoothdevice : public QObject {
     double weightLoss() { return WeightLoss.value(); }
     metric wattKg() { return WattKg; }
     metric currentMETS() { return METS; }
+    metric currentHeartZone() {return HeartZone;}
+    metric currentPowerZone() {return PowerZone;}
+
+    // in the future these 2 should be calculated inside the update_metrics()
+    void setHeartZone(double hz) {HeartZone = hz;}
+    void setPowerZone(double pz) {PowerZone = pz;}
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
@@ -124,6 +130,8 @@ class bluetoothdevice : public QObject {
     metric METS;
     QGeoCoordinate coordinate;
     metric Inclination;
+    metric HeartZone;
+    metric PowerZone;
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
     bool paused = false;

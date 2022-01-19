@@ -1467,7 +1467,7 @@ void bluetooth::connectedAndDiscovered() {
         if (fitmetriaFanfitEnabled) {
             for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
                 if (((b.name().startsWith("FITFAN-"))) && !fitmetria_fanfit_isconnected(b.name())) {
-                    fitmetria_fanfit *f = new fitmetria_fanfit();
+                    fitmetria_fanfit *f = new fitmetria_fanfit(this->device());
 
                     connect(f, &fitmetria_fanfit::debug, this, &bluetooth::debug);
 
