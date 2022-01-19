@@ -299,7 +299,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QStringLiteral("hertz_xr_770"), false).toBool()) &&
                       !toorx_ftms;
     bool snode_bike = settings.value(QStringLiteral("snode_bike"), false).toBool();
-    bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool();
+    bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool() || settings.value(QStringLiteral("virtufit_etappe"), false).toBool();
     bool csc_as_bike = settings.value(QStringLiteral("cadence_sensor_as_bike"), false).toBool();
     bool power_as_bike = settings.value(QStringLiteral("power_sensor_as_bike"), false).toBool();
     bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
