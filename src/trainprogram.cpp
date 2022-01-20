@@ -477,15 +477,25 @@ QTime trainprogram::currentRowRemainingTime() {
     if (rows.length() == 0)
         return QTime(0, 0, 0);
 
-    for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
+    if (currentStep < rows.length() && rows.at(currentStep).distance > 0 && bluetoothManager &&
+        bluetoothManager->device()) {
+        double speed = bluetoothManager->device()->currentSpeed().value();
+        double distance = rows.at(currentStep).distance;
+        distance -= currentStepDistance;
+        int seconds = (distance / speed) * 3600.0;
+        int hours = seconds / 3600;
+        return QTime(hours, (seconds / 60) - (hours * 60), seconds % 60);
+    } else {
+        for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
 
-        uint32_t currentLine = calculateTimeForRow(calculatedLine);
-        calculatedElapsedTime += currentLine;
+            uint32_t currentLine = calculateTimeForRow(calculatedLine);
+            calculatedElapsedTime += currentLine;
 
-        if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
-            int seconds = calculatedElapsedTime - ticks;
-            int hours = seconds / 3600;
-            return QTime(hours, (seconds / 60) - (hours * 60), seconds % 60);
+            if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
+                int seconds = calculatedElapsedTime - ticks;
+                int hours = seconds / 3600;
+                return QTime(hours, (seconds / 60) - (hours * 60), seconds % 60);
+            }
         }
     }
     return QTime(0, 0, 0);
