@@ -953,6 +953,7 @@ void homeform::sortTiles() {
             if (settings.value(QStringLiteral("tile_cadence_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_cadence_order"), 0).toInt() == i) {
                 cadence->setGridId(i);
+                cadence->setName("Stroke Rate");
                 dataList.append(cadence);
             }
 
