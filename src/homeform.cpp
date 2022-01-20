@@ -989,6 +989,7 @@ void homeform::sortTiles() {
             if (settings.value(QStringLiteral("tile_odometer_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_odometer_order"), 0).toInt() == i) {
                 odometer->setGridId(i);
+                odometer->setName("Odometer (m)");
                 dataList.append(odometer);
             }
 
@@ -2261,7 +2262,7 @@ void homeform::update() {
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
             QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
-        double ftpPerc = 0;        
+        double ftpPerc = 0;
         QString ftpMinW = QStringLiteral("0");
         QString ftpMaxW = QStringLiteral("0");
         double requestedPerc = 0;
@@ -2433,7 +2434,7 @@ void homeform::update() {
         double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
 
-        if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) {            
+        if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) {
             currentHRZone = 1;
             currentHRZone += (percHeartRate / settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble());
             if (currentHRZone >= 2) { // double precision could cause unwanted approximation
@@ -2442,21 +2443,27 @@ void homeform::update() {
             heart->setValueFontColor(QStringLiteral("lightsteelblue"));
         } else if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()) {
             currentHRZone = 2;
-            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) / (settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble() - settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()));
+            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) /
+                              (settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble() -
+                               settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()));
             if (currentHRZone >= 3) { // double precision could cause unwanted approximation
                 currentHRZone = 2.9999;
             }
             heart->setValueFontColor(QStringLiteral("green"));
         } else if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()) {
             currentHRZone = 3;
-            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()) / (settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble() - settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()));
+            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()) /
+                              (settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble() -
+                               settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()));
             if (currentHRZone >= 4) { // double precision could cause unwanted approximation
                 currentHRZone = 3.9999;
             }
             heart->setValueFontColor(QStringLiteral("yellow"));
         } else if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble()) {
             currentHRZone = 4;
-            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()) / (settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble() - settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()));
+            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()) /
+                              (settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble() -
+                               settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()));
             if (currentHRZone >= 5) { // double precision could cause unwanted approximation
                 currentHRZone = 4.9999;
             }
@@ -2471,7 +2478,6 @@ void homeform::update() {
                              QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) +
                              QStringLiteral(" MAX: ") +
                              QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
-
 
         /*
                 if(trainProgram)
@@ -2677,7 +2683,7 @@ void homeform::update() {
             }
         }
 
-        if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {            
+        if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {
             if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
                      .toString()
                      .compare(QStringLiteral("Manual"))) {
