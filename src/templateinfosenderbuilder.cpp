@@ -476,6 +476,45 @@ void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
+    if (!device->isPaused()) {
+        device->clearStats();
+        device->start();
+        emit workoutEventStateChanged(bluetoothdevice::STARTED);
+    } else {
+        device->start();
+        device->setPaused(false);
+        emit workoutEventStateChanged(bluetoothdevice::RESUMED);
+    }
+    QJsonObject main;
+    main[QStringLiteral("msg")] = QStringLiteral("R_start");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
+    if (!device->isPaused()) {
+        device->stop();
+        device->setPaused(true);
+        emit workoutEventStateChanged(bluetoothdevice::PAUSED);
+    }
+    QJsonObject main;
+    main[QStringLiteral("msg")] = QStringLiteral("R_pause");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
+    device->stop();
+    device->setPaused(true);
+    device->clearStats();
+    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
+    QJsonObject main;
+    main[QStringLiteral("msg")] = QStringLiteral("R_stop");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString fileName;
     QJsonArray rows;
@@ -627,6 +666,18 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
+                    return;
+                } 
+                if (msg == QStringLiteral("start")) {
+                    onStart(sender);
+                    return;
+                }
+                if (msg == QStringLiteral("pause")) {
+                    onPause(sender);
+                    return;
+                }
+                if (msg == QStringLiteral("stop")) {
+                    onStop(sender);
                     return;
                 }
             }
