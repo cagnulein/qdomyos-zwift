@@ -9,6 +9,7 @@
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
+    double distance = -1;
     double speed = -1;
     double fanspeed = -1;
     double inclination = -200;
@@ -78,11 +79,14 @@ class trainprogram : public QObject {
 
   private:
     uint32_t calculateTimeForRow(int32_t row);
+    double calculateDistanceForRow(int32_t row);
     bluetooth *bluetoothManager;
     bool started = false;
     int32_t ticks = 0;
     uint16_t currentStep = 0;
     int32_t offset = 0;
+    double lastOdometer = 0;
+    double currentStepDistance = 0;
     QTimer timer;
 };
 

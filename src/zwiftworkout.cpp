@@ -14,7 +14,8 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
     QList<trainrow> list;
     QXmlStreamReader stream(input);
     double thresholdSecPerKm = 0;
-    QString sportType = "";
+    QString sportType = QStringLiteral("");
+    QString durationType = QStringLiteral("");
     while (!stream.atEnd()) {
         stream.readNext();
         QString name = stream.name().toString();
@@ -26,6 +27,9 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
         } else if (name.toLower().contains(QStringLiteral("sporttype")) && sportType.length() == 0) {
             stream.readNext();
             sportType = stream.text().toString();
+        } else if (name.toLower().contains(QStringLiteral("durationtype")) && durationType.length() == 0) {
+            stream.readNext();
+            durationType = stream.text().toString();
         } else if (!atts.isEmpty()) {
             if (stream.name().contains(QStringLiteral("IntervalsT"))) {
                 uint32_t repeat = 1;
