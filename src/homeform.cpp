@@ -1829,7 +1829,8 @@ QString homeform::signal() {
 void homeform::update() {
 
     QSettings settings;
-    uint8_t currentHRZone = 1;
+    double currentHRZone = 1;
+    double ftpZone = 1;
 
     if ((paused || stopped) && settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
 
@@ -2260,8 +2261,7 @@ void homeform::update() {
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
             QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
-        double ftpPerc = 0;
-        double ftpZone = 1;
+        double ftpPerc = 0;        
         QString ftpMinW = QStringLiteral("0");
         QString ftpMaxW = QStringLiteral("0");
         double requestedPerc = 0;
@@ -2350,9 +2350,11 @@ void homeform::update() {
             ftp->setValueFontColor(QStringLiteral("red"));
             watt->setValueFontColor(QStringLiteral("red"));
         }
+        bluetoothManager->device()->setPowerZone(ftpZone);
         ftp->setValue(QStringLiteral("Z") + QString::number(ftpZone, 'f', 1));
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
+
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             if (requestedPerc < 56) {
 
@@ -2431,36 +2433,45 @@ void homeform::update() {
         double maxHeartRate = heartRateMax();
         double percHeartRate = (bluetoothManager->device()->currentHeart().value() * 100) / maxHeartRate;
 
-        if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) {
-            Z = QStringLiteral("Z1");
-
+        if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) {            
             currentHRZone = 1;
+            currentHRZone += (percHeartRate / settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble());
+            if (currentHRZone >= 2) { // double precision could cause unwanted approximation
+                currentHRZone = 1.9999;
+            }
             heart->setValueFontColor(QStringLiteral("lightsteelblue"));
         } else if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()) {
-            Z = QStringLiteral("Z2");
-
             currentHRZone = 2;
+            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()) / (settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble() - settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble()));
+            if (currentHRZone >= 3) { // double precision could cause unwanted approximation
+                currentHRZone = 2.9999;
+            }
             heart->setValueFontColor(QStringLiteral("green"));
         } else if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()) {
-            Z = QStringLiteral("Z3");
-
             currentHRZone = 3;
+            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()) / (settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble() - settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble()));
+            if (currentHRZone >= 4) { // double precision could cause unwanted approximation
+                currentHRZone = 3.9999;
+            }
             heart->setValueFontColor(QStringLiteral("yellow"));
         } else if (percHeartRate < settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble()) {
-            Z = QStringLiteral("Z4");
-
             currentHRZone = 4;
+            currentHRZone += ((percHeartRate - settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()) / (settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble() - settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble()));
+            if (currentHRZone >= 5) { // double precision could cause unwanted approximation
+                currentHRZone = 4.9999;
+            }
             heart->setValueFontColor(QStringLiteral("orange"));
         } else {
-            Z = QStringLiteral("Z5");
-
             currentHRZone = 5;
             heart->setValueFontColor(QStringLiteral("red"));
         }
+        bluetoothManager->device()->setHeartZone(currentHRZone);
+        Z = QStringLiteral("Z") + QString::number(currentHRZone, 'f', 1);
         heart->setSecondLine(Z + QStringLiteral(" AVG: ") +
                              QString::number((bluetoothManager->device())->currentHeart().average(), 'f', 0) +
                              QStringLiteral(" MAX: ") +
                              QString::number((bluetoothManager->device())->currentHeart().max(), 'f', 0));
+
 
         /*
                 if(trainProgram)
@@ -2666,7 +2677,7 @@ void homeform::update() {
             }
         }
 
-        if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {
+        if (settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool()) {            
             if (!settings.value(QStringLiteral("fitmetria_fanfit_mode"), QStringLiteral("Heart"))
                      .toString()
                      .compare(QStringLiteral("Manual"))) {
