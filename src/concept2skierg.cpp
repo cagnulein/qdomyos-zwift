@@ -174,7 +174,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
         Cadence = stroke_rate;
 
         StrokesCount += (Cadence.value()) *
-                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 600000;
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
 
         emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
 
