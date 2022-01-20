@@ -101,12 +101,13 @@ void technogymmyruntreadmill::btinit() {
                                 false, false);
     }
 
+    /*
     if (gattFTMSService) {
         uint8_t writeS[] = {FTMS_START_RESUME};
 
         writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
                             QStringLiteral("start"), false, false);
-    }
+    }*/
 
     if (gattWeightService) {
         uint8_t writeS[] = {0x30, 0x43};
@@ -125,6 +126,13 @@ void technogymmyruntreadmill::btinit() {
     }
 
     initDone = true;
+}
+
+bool technogymmyruntreadmill::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
 }
 
 void technogymmyruntreadmill::update() {
@@ -175,6 +183,13 @@ void technogymmyruntreadmill::update() {
             if (lastSpeed == 0.0) {
 
                 lastSpeed = 0.5;
+            }
+            lastStart = QDateTime::currentMSecsSinceEpoch();
+            if (gattFTMSService) {
+                uint8_t writeS[] = {FTMS_START_RESUME};
+
+                writeCharacteristic(gattFTMSService, gattWriteCharControlPointId, writeS, sizeof(writeS),
+                                    QStringLiteral("start"), false, false);
             }
             requestStart = -1;
             emit tapeStarted();
@@ -283,6 +298,10 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
             Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
+
+            if (Speed.value() > 0)
+                lastStart = 0;
+
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         }
