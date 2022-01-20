@@ -19,13 +19,26 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
 
-    return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
-            (rows.at(row).duration.hour() * 3600));
+    if (rows.at(row).distance == -1)
+        return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
+                (rows.at(row).duration.hour() * 3600));
+    else
+        return 0;
+}
+
+double trainprogram::calculateDistanceForRow(int32_t row) {
+    if (row >= rows.length())
+        return 0;
+
+    if (rows.at(row).distance == -1)
+        return 0;
+    else
+        return rows.at(row).distance;
 }
 
 void trainprogram::scheduler() {
 
-    QSettings settings;    
+    QSettings settings;
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
          !settings.value(QStringLiteral("continuous_moving"), false).toBool()) ||
@@ -38,11 +51,12 @@ void trainprogram::scheduler() {
 
     // entry point
     if (ticks == 1 && currentStep == 0) {
+        currentStepDistance = 0;
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
                 emit changeSpeedAndInclination(rows.at(0).speed, rows.at(0).inclination);
-            } else if(rows.at(0).inclination != -200) {
+            } else if (rows.at(0).inclination != -200) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(rows.at(0).inclination);
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
@@ -111,18 +125,30 @@ void trainprogram::scheduler() {
         }
     }
 
-    if (calculatedLine != currentStep) {
-        if (calculateTimeForRow(calculatedLine)) {
+    currentStepDistance += (bluetoothManager->device()->odometer() - lastOdometer);
+    lastOdometer = bluetoothManager->device()->odometer();
+    bool distanceStep = (rows.at(currentStep).distance > 0);
+    bool distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
+    qDebug() << QStringLiteral("currentStepDistance") << currentStepDistance << QStringLiteral("distanceStep")
+             << distanceStep << QStringLiteral("distanceEvaluation") << distanceEvaluation;
 
-            currentStep = calculatedLine;
+    if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
+        if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
+
+            if (!distanceStep)
+                currentStep = calculatedLine;
+            else
+                currentStep++;
+
+            currentStepDistance = 0;
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
                     qDebug() << QStringLiteral("trainprogram change speed ") +
                                     QString::number(rows.at(currentStep).speed);
                     emit changeSpeedAndInclination(rows.at(currentStep).speed, rows.at(currentStep).inclination);
-                } else if(rows.at(currentStep).inclination != -200) {
+                } else if (rows.at(currentStep).inclination != -200) {
                     qDebug() << QStringLiteral("trainprogram change inclination ") +
-                                QString::number(rows.at(currentStep).inclination);
+                                    QString::number(rows.at(currentStep).inclination);
                     emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
                 }
             } else {
@@ -227,6 +253,9 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
         for (const trainrow &row : qAsConst(rows)) {
             stream.writeStartElement(QStringLiteral("row"));
             stream.writeAttribute(QStringLiteral("duration"), row.duration.toString());
+            if (row.distance >= 0) {
+                stream.writeAttribute(QStringLiteral("distance"), QString::number(row.distance));
+            }
             if (row.speed >= 0) {
                 stream.writeAttribute(QStringLiteral("speed"), QString::number(row.speed));
             }
@@ -325,6 +354,9 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
         if (!atts.isEmpty()) {
             row.duration =
                 QTime::fromString(atts.value(QStringLiteral("duration")).toString(), QStringLiteral("hh:mm:ss"));
+            if (atts.hasAttribute(QStringLiteral("distance"))) {
+                row.distance = atts.value(QStringLiteral("distance")).toDouble();
+            }
             if (atts.hasAttribute(QStringLiteral("speed"))) {
                 row.speed = atts.value(QStringLiteral("speed")).toDouble();
             }
