@@ -221,6 +221,9 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
     Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
+    StrokesLength =
+        ((Speed.value() / 60.0) * 1000.0) /
+        Cadence.value(); // this is just to fill the tile, but it's quite useless since the machinery doesn't report it
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
