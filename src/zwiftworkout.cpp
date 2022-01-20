@@ -94,7 +94,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                 if (!durationAsDistance(sportType, durationType))
                     row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
                 else
-                    row.distance = Duration / 1000;
+                    row.distance = ((double)Duration) / 1000.0;
                 list.append(row);
             } else if (stream.name().contains(QStringLiteral("Ramp")) ||
                        stream.name().contains(QStringLiteral("Cooldown"))) {
