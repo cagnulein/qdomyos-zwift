@@ -678,8 +678,9 @@ void fitshowtreadmill::error(QLowEnergyController::Error err) {
 void fitshowtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("FS-")) ||
-        (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14)) {
+    /*if (device.name().startsWith(QStringLiteral("FS-")) ||
+        (device.name().startsWith(QStringLiteral("SW")) && device.name().length() == 14))*/
+    {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &fitshowtreadmill::serviceDiscovered);
