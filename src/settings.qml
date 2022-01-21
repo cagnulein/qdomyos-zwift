@@ -216,6 +216,7 @@ import Qt.labs.settings 1.0
             property bool sole_treadmill_inclination: false
             property bool sole_treadmill_miles: true
             property bool sole_treadmill_f65: false
+            property bool sole_treadmill_f63: false
 
             property bool schwinn_bike_resistance: false
             property bool schwinn_bike_resistance_v2: value
@@ -3737,6 +3738,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_miles = checked
+                        }
+                        SwitchDelegate {
+                            id: soleF63Delegate
+                            text: qsTr("Sole F63")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_f63
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_f63 = checked
                         }
                         SwitchDelegate {
                             id: soleF65Delegate
