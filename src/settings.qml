@@ -171,6 +171,7 @@ import Qt.labs.settings 1.0
             property bool proform_tour_de_france_clc: false
             property bool proform_tdf_jonseed_watt: false
             property bool proform_studio: false
+            property bool proform_tdf_10: false
 
             property double horizon_gr7_cadence_multiplier: 1.0
 
@@ -1514,6 +1515,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_studio = checked
+                    }
+                    SwitchDelegate {
+                        id: proformTDF10odelegate
+                        text: qsTr("Proform TDF 1.0")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_tdf_10
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_tdf_10 = checked
                     }
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
