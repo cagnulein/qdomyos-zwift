@@ -49,6 +49,9 @@ void proformtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 
 void proformtreadmill::forceIncline(double incline) {
 
+    QSettings settings;
+    bool nordictrack_t65s_treadmill = settings.value("nordictrack_t65s_treadmill", false).toBool();
+
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
                        0x02, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -56,8 +59,12 @@ void proformtreadmill::forceIncline(double incline) {
     write[12] = ((uint16_t)(incline * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(incline * 100) & 0xFF);
 
-    for (uint8_t i = 0; i < 7; i++) {
-        write[14] += write[i + 6];
+    if (!nordictrack_t65s_treadmill) {
+        for (uint8_t i = 0; i < 7; i++) {
+            write[14] += write[i + 6];
+        }
+    } else {
+        write[14] = write[11] + 0x12;
     }
 
     writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceIncline"));
@@ -66,6 +73,9 @@ void proformtreadmill::forceIncline(double incline) {
 
 void proformtreadmill::forceSpeed(double speed) {
 
+    QSettings settings;
+    bool nordictrack_t65s_treadmill = settings.value("nordictrack_t65s_treadmill", false).toBool();
+
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
                        0x01, 0xbc, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -73,8 +83,12 @@ void proformtreadmill::forceSpeed(double speed) {
     write[12] = ((uint16_t)(speed * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(speed * 100) & 0xFF);
 
-    for (uint8_t i = 0; i < 7; i++) {
-        write[14] += write[i + 6];
+    if (!nordictrack_t65s_treadmill) {
+        for (uint8_t i = 0; i < 7; i++) {
+            write[14] += write[i + 6];
+        }
+    } else {
+        write[14] = write[11] + 0x12;
     }
 
     writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("forceSpeed"));

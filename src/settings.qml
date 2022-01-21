@@ -186,6 +186,7 @@ import Qt.labs.settings 1.0
             property bool yesoul_peloton_formula: false
 
             property bool nordictrack_10_treadmill: true
+            property bool nordictrack_t65s_treadmill: false
             //property bool proform_treadmill_995i: false
 
             property bool toorx_3_0: false
@@ -3604,6 +3605,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_10_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            id: nordictrackT65SDelegate
+                            text: qsTr("Nordictrack T6.5S")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_t65s_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_t65s_treadmill = checked
                         }
                         /*
                         SwitchDelegate {
