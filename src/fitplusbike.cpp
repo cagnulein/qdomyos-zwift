@@ -262,17 +262,20 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (newValue.length() == 15) {
             Resistance = newValue.at(5);
             m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
-            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool())
-                Speed = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 100.0;
-            else
-                Speed = metric::calculateSpeedFromPower(m_watt.value());
 
             if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 Cadence = ((uint8_t)newValue.at(6));
+            m_watt = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 10.0;
+
+            /*if (!settings.value(QStringLiteral("speed_power_based"), false).toBool())
+                Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
+            else*/
+            Speed = metric::calculateSpeedFromPower(m_watt.value());
+
         } else if (newValue.length() == 13) {
-            m_watt = newValue.at(11);
+
             return;
         }
 
