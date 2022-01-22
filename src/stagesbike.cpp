@@ -235,9 +235,9 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
         if (settings.value("ant_heart", false).toBool()) {
             Heart = (uint8_t)KeepAwakeHelper::heart();
             debug("Current Heart: " + QString::number(Heart.value()));
-        }
+        } else
 #endif
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && Heart.value() == 0) {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             lockscreen h;
