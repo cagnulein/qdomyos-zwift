@@ -491,6 +491,11 @@ uint16_t stagesbike::watts() {
     return m_watt.value();
 }
 
+void stagesbike::resistanceFromFTMSAccessory(int8_t res) {
+    Resistance = res;
+    qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
+}
+
 void stagesbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {

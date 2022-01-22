@@ -80,6 +80,7 @@ class stagesbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
+    void resistanceFromFTMSAccessory(int8_t res);
 
   private slots:
 
