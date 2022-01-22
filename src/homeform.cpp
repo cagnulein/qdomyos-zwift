@@ -563,6 +563,7 @@ void homeform::sortTiles() {
 
     QSettings settings;
     bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
 
     if (!bluetoothManager || !bluetoothManager->device())
         return;
@@ -922,7 +923,7 @@ void homeform::sortTiles() {
             // the proform studio is the only bike managed with an inclination properties.
             // In order to don't break the tiles layout to all the bikes users, i enable this
             // only if this bike is selected
-            if (proform_studio) {
+            if (proform_studio || proform_tdf_10) {
                 if (settings.value(QStringLiteral("tile_inclination_enabled"), true).toBool() &&
                     settings.value(QStringLiteral("tile_inclination_order"), 29).toInt() == i) {
                     inclination->setGridId(i);
@@ -2095,8 +2096,9 @@ void homeform::update() {
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
             bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+            bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
 
-            if (proform_studio) {
+            if (proform_studio || proform_tdf_10) {
                 inclination = ((bike *)bluetoothManager->device())->currentInclination().value();
                 this->inclination->setValue(QString::number(inclination, 'f', 1));
                 this->inclination->setSecondLine(
