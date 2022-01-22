@@ -38,6 +38,7 @@ class stagesbike : public bike {
   public:
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected();
+    uint8_t maxResistance() { return 100; }
 
     void *VirtualBike();
     void *VirtualDevice();

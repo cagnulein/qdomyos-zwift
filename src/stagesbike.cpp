@@ -62,6 +62,9 @@ void stagesbike::update() {
     }
 
     if (initRequest) {
+        // required to the SS2K only one time
+        Resistance = 0;
+        emit resistanceRead(Resistance.value());
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -78,8 +81,8 @@ void stagesbike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15) {
-                requestResistance = 15;
+            if (requestResistance > 100) {
+                requestResistance = 100;
             } else if (requestResistance == 0) {
                 requestResistance = 1;
             }
@@ -213,7 +216,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
             // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
             // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
             // QString::number(Resistance.value()));
-            emit resistanceRead(Resistance.value());
+            //emit resistanceRead(Resistance.value());
 
             if (watts())
                 KCal +=
