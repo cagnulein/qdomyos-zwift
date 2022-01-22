@@ -146,6 +146,7 @@ void paferstreadmill::update() {
             requestInclination = -1;
         } else if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
+            lastStart = QDateTime::currentMSecsSinceEpoch();
             uint8_t start[] = {0x55, 0x0a, 0x01, 0x01};
             writeCharacteristic(start, sizeof(start), "start", false, true);
             if (lastSpeed == 0.0) {
@@ -213,6 +214,7 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if (speed > 0) {
         lastSpeed = speed;
         lastInclination = incline;
+        lastStart = 0;
     }
 
     if (!firstCharacteristicChanged) {
