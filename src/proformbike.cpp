@@ -773,7 +773,7 @@ void proformbike::btinit() {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
         QThread::msleep(400);
     } else if (settings.value(QStringLiteral("proform_tdf_10"), false).toBool()) {
-        max_resistance = 32;
+        max_resistance = 26;
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
