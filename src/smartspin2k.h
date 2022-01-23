@@ -78,6 +78,8 @@ class smartspin2k : public bike {
     bool noHeartService = false;
 
     int8_t startupResistance = -1;
+    int8_t lastResistance;
+    int8_t lastRequestResistance;
 
     uint8_t max_resistance;
 
@@ -90,6 +92,8 @@ class smartspin2k : public bike {
   signals:
     void disconnected();
     void debug(QString string);
+    void gearUp();
+    void gearDown();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

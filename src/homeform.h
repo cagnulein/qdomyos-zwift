@@ -532,6 +532,8 @@ class homeform : public QObject {
     void setActivityDescription(QString newdesc);
     void chartSaved(QString fileName);
     void sortTilesTimeout();
+    void gearUp();
+    void gearDown();
 
   signals:
 

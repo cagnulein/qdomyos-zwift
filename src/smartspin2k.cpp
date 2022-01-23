@@ -137,6 +137,8 @@ void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const
 
 void smartspin2k::forceResistance(int8_t requestResistance) {
 
+    lastRequestResistance = requestResistance;
+
     uint8_t write[] = {0x02, 0x17, 0x00, 0x00};
     write[2] = (uint8_t)(requestResistance & 0xFF);
     write[3] = (uint8_t)(requestResistance >> 8);
@@ -247,6 +249,22 @@ void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     if (newValue.length() >= 4 && newValue.at(1) == 0x17) {
         Resistance = (int16_t)(((uint16_t)newValue.at(2)) + ((((uint16_t)newValue.at(3)) << 8) & 0xFF00));
+        if(parentDevice &&
+                (!parentDevice->ergManagedBySS2K() || parentDevice->lastRequestedPower().value() == 0) &&
+                lastRequestResistance == -1) {
+            if(Resistance.value() > (double)lastResistance) {
+                qDebug() << QStringLiteral("SS2K Gear Up!");
+                emit gearUp();
+            } else if(Resistance.value() < (double)lastResistance) {
+                qDebug() << QStringLiteral("SS2K Gear Down!");
+                emit gearDown();
+            }
+        }
+        lastResistance = Resistance.value();
+
+        // target point matched
+        if(lastRequestResistance == Resistance.value())
+            lastRequestResistance = -1;
         emit resistanceRead(Resistance.value());
         qDebug() << "Resistance received from SS2k:" << Resistance.value();
     }
