@@ -43,6 +43,7 @@ class peloton : public QObject {
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");
     QDateTime current_original_air_time;
+    int current_pedaling_duration = 0;
 
     void setTestMode(bool test);
 

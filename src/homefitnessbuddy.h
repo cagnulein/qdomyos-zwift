@@ -23,14 +23,14 @@ class homefitnessbuddy : public QObject {
 
   public:
     homefitnessbuddy(bluetooth *bl, QObject *parent);
-    void searchWorkout(QDate date, const QString &coach);
+    void searchWorkout(QDate date, const QString &coach, int pedaling_duration);
     QList<trainrow> trainrows;
 
   private:
     const int peloton_workout_second_resolution = 10;
 
     QNetworkAccessManager *mgr = nullptr;
-    bluetooth *bluetoothManager = nullptr;    
+    bluetooth *bluetoothManager = nullptr;
 
     QJsonArray lessons;
 

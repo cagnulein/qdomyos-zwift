@@ -227,8 +227,10 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
     current_ride_id = ride[QStringLiteral("id")].toString();
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
+    current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toString().toInt();
     qint64 time = ride[QStringLiteral("original_air_time")].toInt();
     qDebug() << QStringLiteral("original_air_time") << time;
+    qDebug() << QStringLiteral("current_pedaling_duration") << current_pedaling_duration;
 
     current_original_air_time = QDateTime::fromSecsSinceEpoch(time);
 
@@ -305,14 +307,14 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
-        if(!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
+        if (!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))
             miles = 1.60934;
         trainrows.reserve(target_metrics.count() + 2);
         for (int i = 0; i < target_metrics.count(); i++) {
             QJsonObject metrics = target_metrics.at(i).toObject();
             QJsonArray metrics_ar = metrics[QStringLiteral("metrics")].toArray();
             QJsonObject offset = metrics[QStringLiteral("offsets")].toObject();
-            if(metrics_ar.count() > 1 && !offset.isEmpty()) {
+            if (metrics_ar.count() > 1 && !offset.isEmpty()) {
                 QJsonObject speed = metrics_ar.at(0).toObject();
                 double speed_lower = speed[QStringLiteral("lower")].toDouble();
                 double speed_upper = speed[QStringLiteral("upper")].toDouble();
@@ -334,10 +336,10 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.forcespeed = treadmill_force_speed;
                 r.duration = QTime(0, 0, 0, 0);
                 r.duration = r.duration.addSecs(offset_end - offset_start);
-                if(!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
+                if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
                     r.speed = speed_lower * miles;
                     r.inclination = inc_lower;
-                } else if(!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
+                } else if (!difficulty.toUpper().compare(QStringLiteral("UPPER"))) {
                     r.speed = speed_upper * miles;
                     r.inclination = inc_upper;
                 } else {
@@ -375,7 +377,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
 
         if (!PZP->searchWorkout(current_ride_id)) {
             current_api = homefitnessbuddy_api;
-            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name);
+            HFB->searchWorkout(current_original_air_time.date(), current_instructor_name, current_pedaling_duration);
         } else {
             current_api = powerzonepack_api;
         }

@@ -216,7 +216,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -326,7 +326,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("service_changed"), service_changed);
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
-		settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
+        settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
     }
 #endif
 
@@ -383,7 +383,7 @@ int main(int argc, char *argv[]) {
             homefitnessbuddy *h = new homefitnessbuddy(0, 0);
             QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
                 if (ok) {
-                    h->searchWorkout(QDate(2021, 5, 19), "Christine D'Ercole");
+                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700);
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);
