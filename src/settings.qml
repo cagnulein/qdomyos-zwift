@@ -158,6 +158,7 @@ import Qt.labs.settings 1.0
             property int pace_10km: 320
             property int pace_halfmarathon: 340
             property int pace_marathon: 360
+            property string pace_default: "Half Marathon"
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
@@ -292,6 +293,14 @@ import Qt.labs.settings 1.0
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
             property bool applewatch_fakedevice: false
+        }
+
+        function paddingZeros(text, limit) {
+          if (text.length < limit) {
+            return paddingZeros("0" + text, limit);
+          } else {
+            return text;
+          }
         }
 
         ColumnLayout {
@@ -3307,7 +3316,7 @@ import Qt.labs.settings 1.0
                     }
                 }
 
-                /*
+
                 RowLayout {
                     spacing: 10
                     Label {
@@ -3317,7 +3326,7 @@ import Qt.labs.settings 1.0
                     }
                     TextField {
                         id: trainProgramPace1mileTextField
-                        text: text = (settings.pace_1mile / 60).toFixed(0) + ":" + (settings.pace_1mile % 60)
+                        text: ((settings.pace_1mile / 60).toFixed(0) + ":" + paddingZeros((settings.pace_1mile % 60).toString(), 2))
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3328,9 +3337,128 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace1Mile
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { var pace = new Date("1/1/1 " + trainProgramPace1mileTextField.text); settings.pace_1mile = (pace.getHours() * 60 + pace.getMinutes()); trainProgramPace1mileTextField.text = "1/1/1 " + trainProgramPace1mileTextField.text }
+                        onClicked: { settings.pace_1mile = ((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[1]));}
                     }
-                }*/
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPace5km
+                        text: qsTr("5 km pace (min/km):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPace5kmTextField
+                        text: ((settings.pace_5km / 60).toFixed(0) + ":" + paddingZeros((settings.pace_5km % 60).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPace5km
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pace_5km = ((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[1]));}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPace10km
+                        text: qsTr("10 km pace (min/km):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPace10kmTextField
+                        text: ((settings.pace_10km / 60).toFixed(0) + ":" + paddingZeros((settings.pace_10km % 60).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPace10KM
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pace_10km = ((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[1]));}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPaceHalfMarathon
+                        text: qsTr("Half Marathon pace (min/km):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPaceHalfMarathonTextField
+                        text: ((settings.pace_halfmarathon / 60).toFixed(0) + ":" + paddingZeros((settings.pace_halfmarathon % 60).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPaceHalfMarathon
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pace_halfmarathon = ((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]));}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPaceMarathon
+                        text: qsTr("Marathon pace (min/km):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPaceMarathonTextField
+                        text: ((settings.pace_marathon / 60).toFixed(0) + ":" + paddingZeros((settings.pace_marathon % 60).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPaceMarathon
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pace_marathon = ((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]));}
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillPaceDefault
+                        text: qsTr("Default Pace:")
+                        Layout.fillWidth: true
+                    }
+                    ComboBox {
+                        id: treadmillPaceDefaultTextField
+                        model: [ "1 mile", "5 km", "10 km","Half Marathon","Marathon", ]
+                        displayText: settings.pace_default
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            console.log("combomodel activated" + treadmillPaceDefaultTextField.currentIndex)
+                            displayText = treadmillPaceDefaultTextField.currentValue
+                         }
+
+                    }
+                    Button {
+                        id: okTreadmillPaceDefault
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.pace_default = treadmillPaceDefaultTextField.displayText
+                    }
+                }
 
                 AccordionCheckElement {
                     id: trainingProgramRandomAccordion

@@ -129,17 +129,67 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                 uint32_t Duration = 1;
                 double Power = 1;
                 double Speed = 0;
+                double Pace = -1;
                 trainrow row;
 
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
                     Duration = atts.value(QStringLiteral("Duration")).toUInt();
                 }
+                if (atts.hasAttribute(QStringLiteral("pace"))) {
+                    Pace = atts.value(QStringLiteral("pace")).toUInt();
+                }
                 if (atts.hasAttribute(QStringLiteral("Power"))) {
-                    if (sportType.toLower().contains(QStringLiteral("run")) && thresholdSecPerKm != 0 &&
-                        Duration != 1) {
-                        row.forcespeed = 1;
-                        row.speed =
-                            (60.0 / (thresholdSecPerKm / atts.value(QStringLiteral("Power")).toDouble())) * 60.0;
+                    if (sportType.toLower().contains(QStringLiteral("run")) && Duration != 1) {
+                        if (thresholdSecPerKm != 0) {
+                            row.forcespeed = 1;
+                            row.speed =
+                                (60.0 / (thresholdSecPerKm / atts.value(QStringLiteral("Power")).toDouble())) * 60.0;
+                        } else {
+                            QSettings settings;
+                            double speed;
+                            QString pace_default =
+                                settings.value(QStringLiteral("pace_default"), QStringLiteral("Half Marathon"))
+                                    .toString();
+                            if (Pace == 0) {
+                                speed = settings.value(QStringLiteral("pace_1mile"), QStringLiteral("Half Marathon"))
+                                            .toInt();
+                            } else if (Pace == 1) {
+                                speed =
+                                    settings.value(QStringLiteral("pace_5km"), QStringLiteral("Half Marathon")).toInt();
+                            } else if (Pace == 2) {
+                                speed = settings.value(QStringLiteral("pace_10km"), QStringLiteral("Half Marathon"))
+                                            .toInt();
+                            } else if (Pace == 3) {
+                                speed =
+                                    settings.value(QStringLiteral("pace_halfmarathon"), QStringLiteral("Half Marathon"))
+                                        .toInt();
+                            } else if (Pace == 4) {
+                                speed = settings.value(QStringLiteral("pace_marathon"), QStringLiteral("Half Marathon"))
+                                            .toInt();
+                            } else {
+                                if (!pace_default.compare(QStringLiteral("1 mile")))
+                                    speed =
+                                        settings.value(QStringLiteral("pace_1mile"), QStringLiteral("Half Marathon"))
+                                            .toInt();
+                                else if (!pace_default.compare(QStringLiteral("5 km")))
+                                    speed = settings.value(QStringLiteral("pace_5km"), QStringLiteral("Half Marathon"))
+                                                .toInt();
+                                else if (!pace_default.compare(QStringLiteral("10 km")))
+                                    speed = settings.value(QStringLiteral("pace_10km"), QStringLiteral("Half Marathon"))
+                                                .toInt();
+                                else if (!pace_default.compare(QStringLiteral("Half Marathon")))
+                                    speed =
+                                        settings
+                                            .value(QStringLiteral("pace_halfmarathon"), QStringLiteral("Half Marathon"))
+                                            .toInt();
+                                else
+                                    speed =
+                                        settings.value(QStringLiteral("pace_marathon"), QStringLiteral("Half Marathon"))
+                                            .toInt();
+                            }
+                            row.forcespeed = 1;
+                            row.speed = (60.0 / speed) * 60.0;
+                        }
                     } else {
                         Power = atts.value(QStringLiteral("Power")).toDouble();
                     }
