@@ -153,6 +153,11 @@ import Qt.labs.settings 1.0
             property real peloton_offset: 0
 
             property string treadmill_pid_heart_zone: "Disabled"
+            property int pace_1mile: 250
+            property int pace_5km: 300
+            property int pace_10km: 320
+            property int pace_halfmarathon: 340
+            property int pace_marathon: 360
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
@@ -219,6 +224,7 @@ import Qt.labs.settings 1.0
             property bool sole_treadmill_miles: true
             property bool sole_treadmill_f65: false
             property bool sole_treadmill_f63: false
+            property bool sole_treadmill_tt8: false
 
             property bool schwinn_bike_resistance: false
             property bool schwinn_bike_resistance_v2: value
@@ -3300,6 +3306,32 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                /*
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPace1mile
+                        text: qsTr("1 mile pace (min/km):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPace1mileTextField
+                        text: text = (settings.pace_1mile / 60).toFixed(0) + ":" + (settings.pace_1mile % 60)
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPace1Mile
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { var pace = new Date("1/1/1 " + trainProgramPace1mileTextField.text); settings.pace_1mile = (pace.getHours() * 60 + pace.getMinutes()); trainProgramPace1mileTextField.text = "1/1/1 " + trainProgramPace1mileTextField.text }
+                    }
+                }*/
+
                 AccordionCheckElement {
                     id: trainingProgramRandomAccordion
                     title: qsTr("Training Program Random Options")
@@ -3796,6 +3828,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_f65 = checked
+                        }
+                        SwitchDelegate {
+                            id: soleTT8Delegate
+                            text: qsTr("Sole TT8")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_tt8
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_tt8 = checked
                         }
                     }
                 }
