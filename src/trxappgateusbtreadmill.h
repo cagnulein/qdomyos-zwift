@@ -43,7 +43,8 @@ class trxappgateusbtreadmill : public treadmill {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
