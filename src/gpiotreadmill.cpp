@@ -109,6 +109,17 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     refresh->start(pollDeviceTime);
 }
 
+gpiotreadmill::~gpiotreadmill() {
+    speedThread->requestInterruption();
+    speedThread->quit();
+    speedThread->wait();
+    delete speedThread;
+    inclineThread->requestInterruption();
+    inclineThread->quit();
+    inclineThread->wait();
+    delete inclineThread;
+}
+
 void gpiotreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;

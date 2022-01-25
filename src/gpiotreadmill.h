@@ -60,6 +60,7 @@ class gpiotreadmill : public treadmill {
   public:
     gpiotreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                   double forceInitSpeed = 1.0, double forceInitInclination = 0.0);
+    ~gpiotreadmill();
     bool connected();
 
     void *VirtualTreadMill();
