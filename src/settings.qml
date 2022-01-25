@@ -3360,7 +3360,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace5km
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pace_5km = ((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[1]));}
+                        onClicked: { settings.pace_5km = ((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[1]));}
                     }
                 }
                 RowLayout {
