@@ -392,6 +392,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
+    bool f63 = settings.value(QStringLiteral("sole_treadmill_f63"), false).toBool();
+    bool tt8 = settings.value(QStringLiteral("sole_treadmill_tt8"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
@@ -436,8 +439,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         lastRefreshCharacteristicChanged = now;
 
-    } else if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
-               newValue.at(1) == 0x02 && newValue.at(2) == 0x03) {
+    } else if ((characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
+                newValue.at(1) == 0x02 && newValue.at(2) == 0x03) &&
+               !f63) {
         // stop event from the treadmill
         qDebug() << "stop/pause event detected from the treadmill";
         initRequest = true;
