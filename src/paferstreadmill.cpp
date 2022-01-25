@@ -213,7 +213,11 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     if (speed > 0) {
         lastSpeed = speed;
-        lastInclination = incline;
+        lastInclination = incline;        
+    }
+
+    // this treadmill has a bug that always send 1km/h even if the tape is stopped
+    if(speed > 1.0) {
         lastStart = 0;
     }
 
@@ -244,7 +248,9 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 double paferstreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint8_t convertedData = (uint8_t)packet.at(9);
-    double data = (double)convertedData;
+    uint8_t convertedDataDecimal = (uint8_t)packet.at(10);
+    double dataDecimal = ((double)convertedDataDecimal) / 100.0;
+    double data = (double)convertedData + dataDecimal;
     return data;
 }
 
