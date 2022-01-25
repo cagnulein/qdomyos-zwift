@@ -26,6 +26,7 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <QThread>
 
 #include "treadmill.h"
 #include "virtualbike.h"
@@ -34,6 +35,24 @@
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
+
+class gpioWorkerThread : public QThread
+{
+    public:
+        explicit gpioWorkerThread(QObject *parent = nullptr, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0);
+        void run();
+        void setRequestValue(double request);
+    private:
+        QString name;
+        double requestValue;
+        double currentValue;
+        uint8_t pinUp;
+        uint8_t pinDown;
+        double step;
+        const uint16_t GPIO_KEEP_MS = 200;
+        const uint16_t GPIO_REBOUND_MS = 200;
+};
+
 
 class gpiotreadmill : public treadmill {
 
@@ -62,25 +81,24 @@ class gpiotreadmill : public treadmill {
 
     bool initDone = false;
     bool initRequest = false;
-    
-    double gpio_currentSpeed = 0.0;
-    double gpio_currentInclination = 0.0;
 
-    const uint8_t OUTPUT_SPEED_UP = 6;
-    const uint8_t OUTPUT_SPEED_DOWN = 26;
-    const uint8_t OUTPUT_INCLINE_UP = 4;
-    const uint8_t OUTPUT_INCLINE_DOWN = 22;
+    const uint8_t OUTPUT_SPEED_UP = 0;
+    const uint8_t OUTPUT_SPEED_DOWN = 1;
+    const uint8_t OUTPUT_INCLINE_UP = 2;
+    const uint8_t OUTPUT_INCLINE_DOWN = 3;
     const uint8_t OUTPUT_START = 23;
     const uint8_t OUTPUT_STOP = 25;
 
     const uint16_t GPIO_KEEP_MS = 200;
-    const uint16_t GPIO_REBOUND_MS = 200;
+    //const uint16_t GPIO_REBOUND_MS = 200;
     
     const double SPEED_STEP = 0.1;
-    const double INCLINATION_STEP = 1.0;
+    const double INCLINATION_STEP = 0.5;
 
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
+    gpioWorkerThread* speedThread;
+    gpioWorkerThread* inclineThread;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
