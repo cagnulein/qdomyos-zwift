@@ -463,6 +463,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
     bool echelon = settings.value(QStringLiteral("virtual_device_echelon"), false).toBool();
     bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
+
+    double normalizeWattage = Bike->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
     //    double erg_filter_upper =
     //        settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble(); //
     //        NOTE:clang-analyzer-deadcode.DeadStores
@@ -635,8 +640,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply4 = QByteArray::fromHex("ff0fd702002c013300b4000000000000a1000067");
 
             reply2[11] = Bike->currentResistance().value();
-            reply2[12] = ((uint16_t)Bike->wattsMetric().value()) & 0xFF;
-            reply2[13] = (((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF;
+            reply2[12] = ((uint16_t)normalizeWattage) & 0xFF;
+            reply2[13] = (((uint16_t)normalizeWattage) >> 8) & 0xFF;
             reply2[18] = Bike->currentCadence().value();
 
             writeCharacteristic(service, characteristic, reply1);
@@ -651,8 +656,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply4 = QByteArray::fromHex("ff0f000000bac00100000000002e0000aa0d000d");
 
             reply2[11] = Bike->currentResistance().value();
-            reply2[12] = ((uint16_t)Bike->wattsMetric().value()) & 0xFF;
-            reply2[13] = (((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF;
+            reply2[12] = ((uint16_t)normalizeWattage) & 0xFF;
+            reply2[13] = (((uint16_t)normalizeWattage) >> 8) & 0xFF;
             reply2[18] = Bike->currentCadence().value();
 
             writeCharacteristic(service, characteristic, reply1);
@@ -810,6 +815,10 @@ void virtualbike::bikeProvider() {
     bool ifit = settings.value(QStringLiteral("virtual_device_ifit"), false).toBool();
     bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
 
+    double normalizeWattage = Bike->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
     uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
 
 #ifdef Q_OS_IOS
@@ -817,8 +826,7 @@ void virtualbike::bikeProvider() {
     if (h) {
         // really connected to a device
         if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
-                                      (uint16_t)Bike->currentCadence().value() * 2,
-                                      (uint16_t)Bike->wattsMetric().value())) {
+                                      (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage)) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
             if (!erg_mode)
                 slopeChanged(h->virtualbike_getCurrentSlope());
@@ -828,9 +836,10 @@ void virtualbike::bikeProvider() {
             }
             uint8_t ftms_message[255];
             int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
-            if(ret > 0) {
+            if (ret > 0) {
                 lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
-                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(), QByteArray::fromRawData((char*)ftms_message, ret));
+                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
+                                               QByteArray::fromRawData((char *)ftms_message, ret));
             }
         }
         return;
@@ -866,12 +875,14 @@ void virtualbike::bikeProvider() {
 
     QByteArray value;
 
-    qDebug() << QStringLiteral("bikeProvider") << lastFTMSFrameReceived << (qint64)(lastFTMSFrameReceived + ((qint64)2000)) << erg_mode;
+    qDebug() << QStringLiteral("bikeProvider") << lastFTMSFrameReceived
+             << (qint64)(lastFTMSFrameReceived + ((qint64)2000)) << erg_mode;
     // zwift with the last update, seems to sending power request only when it actually wants to change it
     // so i need to keep this on to the bike
-    if(lastFTMSFrameReceived > 0 && (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
+    if (lastFTMSFrameReceived > 0 &&
+        (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
-        powerChanged(((bike*)Bike)->lastRequestedPower().value());
+        powerChanged(((bike *)Bike)->lastRequestedPower().value());
     }
 
     if (!echelon && !ifit) {
@@ -890,8 +901,8 @@ void virtualbike::bikeProvider() {
                 value.append((char)Bike->currentResistance().value()); // resistance
                 value.append((char)(0));                               // resistance
 
-                value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF));      // watts
-                value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF); // watts
+                value.append((char)(((uint16_t)normalizeWattage) & 0xFF));      // watts
+                value.append((char)(((uint16_t)normalizeWattage) >> 8) & 0xFF); // watts
 
                 value.append(char(Bike->currentHeart().value())); // Actual value.
                 value.append((char)0);                            // Bkool FTMS protocol HRM offset 1280 fix
@@ -915,8 +926,8 @@ void virtualbike::bikeProvider() {
 
                 value.append((char)0x20); // crank data present
                 value.append((char)0x00);
-                value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF));          // watt
-                value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF);     // watt
+                value.append((char)(((uint16_t)normalizeWattage) & 0xFF));                     // watt
+                value.append((char)(((uint16_t)normalizeWattage) >> 8) & 0xFF);                // watt
                 value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) & 0xFF));      // revs count
                 value.append((char)(((uint16_t)Bike->currentCrankRevolutions()) >> 8) & 0xFF); // revs count
                 value.append((char)(Bike->lastCrankEventTime() & 0xff));                       // eventtime
