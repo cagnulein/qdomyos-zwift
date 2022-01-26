@@ -592,7 +592,8 @@ void trxappgateusbbike::btinit(bool startTape) {
         const uint8_t initData4[] = {0xf0, 0xa5, 0x3b, 0x01, 0x03, 0xd4};
         const uint8_t initData5[] = {0xf0, 0xa2, 0x3b, 0x01, 0xce};
         const uint8_t initData6[] = {0xf0, 0xa3, 0x3b, 0x01, 0x01, 0xd0};
-        const uint8_t initData7[] = {0xf0, 0xa4, 0x3b, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xda};
+        const uint8_t initData7[] = {0xf0, 0xa4, 0x3b, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xda};
         const uint8_t initData8[] = {0xf0, 0xa5, 0x3b, 0x01, 0x02, 0xd3};
 
         writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
@@ -676,7 +677,10 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
         if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW) {
-            Q_ASSERT(gattNotify2Characteristic.isValid());
+            if (!gattNotify2Characteristic.isValid()) {
+                bike_type = TYPE::ICONSOLE;
+                qDebug() << QStringLiteral("ICONSOLE bike found - overrided due to characteristics");
+            }
         }
 
         // establish hook into notifications
