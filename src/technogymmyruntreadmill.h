@@ -44,6 +44,7 @@ class technogymmyruntreadmill : public treadmill {
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
     void *VirtualTreadmill();
     void *VirtualDevice();
@@ -76,6 +77,7 @@ class technogymmyruntreadmill : public treadmill {
     double lastSpeed = 0.0;
     double lastInclination = 0;
     int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     bool initDone = false;
     bool initRequest = false;

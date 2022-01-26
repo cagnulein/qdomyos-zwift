@@ -204,6 +204,8 @@ void technogymmyruntreadmill::update() {
                                     QStringLiteral("stop"), false, true);
             }
 
+            lastStop = QDateTime::currentMSecsSinceEpoch();
+
             requestStop = -1;
         }
         if (requestIncreaseFan != -1) {
@@ -301,6 +303,8 @@ void technogymmyruntreadmill::characteristicChanged(const QLowEnergyCharacterist
 
             if (Speed.value() > 0)
                 lastStart = 0;
+            else
+                lastStop = 0;
 
             index += 2;
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -700,4 +704,11 @@ void technogymmyruntreadmill::controllerStateChanged(QLowEnergyController::Contr
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+bool technogymmyruntreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
 }
