@@ -557,12 +557,12 @@ QStringList homeform::tile_order() {
 
 // these events are coming from the SS2K, so when the auto resistance is off, this event shouldn't be processed
 void homeform::gearUp() {
-    if(autoResistance())
+    if (autoResistance())
         Plus(QStringLiteral("gears"));
 }
 
 void homeform::gearDown() {
-    if(autoResistance())
+    if (autoResistance())
         Minus(QStringLiteral("gears"));
 }
 
@@ -2089,8 +2089,8 @@ void homeform::update() {
                 this->pace->setValueFontColor(QStringLiteral("red"));
             }
 
-            this->target_speed->setValue(
-                QString::number(((treadmill *)bluetoothManager->device())->lastRequestedSpeed().value(), 'f', 1));
+            this->target_speed->setValue(QString::number(
+                ((treadmill *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
             this->target_incline->setValue(
                 QString::number(((treadmill *)bluetoothManager->device())->lastRequestedInclination().value(), 'f', 1));
 
