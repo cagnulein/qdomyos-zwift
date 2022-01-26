@@ -10,6 +10,7 @@ class zwiftworkout {
 
   private:
     static bool durationAsDistance(QString sportType, QString durationType);
+    static double speedFromPace(double Pace);
 };
 
 #endif // ZWIFTWORKOUT_H
