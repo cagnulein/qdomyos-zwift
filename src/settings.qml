@@ -103,6 +103,8 @@ import Qt.labs.settings 1.0
             property int  tile_moving_time_order: 21
             property bool tile_peloton_offset_enabled: false
             property int  tile_peloton_offset_order: 22
+            property bool tile_peloton_difficulty_enabled: false
+            property int  tile_peloton_difficulty_order: 32
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
@@ -2299,6 +2301,39 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
+
+                    /*
+                    AccordionCheckElement {
+                        id: pelotonDifficultyEnabledAccordion
+                        title: qsTr("Peloton Difficulty")
+                        linkedBoolSetting: "tile_peloton_difficulty_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelpelotonDifficultyOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pelotonDifficultyOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_peloton_difficulty_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pelotonDifficultyOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpelotonDifficultyOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText
+                            }
+                        }
+                    }*/
 
                     AccordionCheckElement {
                         id: lapElapsedEnabledAccordion

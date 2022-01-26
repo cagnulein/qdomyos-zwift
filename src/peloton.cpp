@@ -264,11 +264,13 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
         QJsonObject graph_data_resistances = resistances[QStringLiteral("graph_data")].toObject();
         QJsonArray current_resistances = graph_data_resistances[difficulty].toArray();
         QJsonArray lower_resistances = graph_data_resistances[QStringLiteral("lower")].toArray();
+        QJsonArray average_resistances = graph_data_resistances[QStringLiteral("average")].toArray();
         QJsonArray upper_resistances = graph_data_resistances[QStringLiteral("upper")].toArray();
         QJsonObject cadences = target_graph_metrics[0].toObject();
         QJsonObject graph_data_cadences = cadences[QStringLiteral("graph_data")].toObject();
         QJsonArray current_cadences = graph_data_cadences[difficulty].toArray();
         QJsonArray lower_cadences = graph_data_cadences[QStringLiteral("lower")].toArray();
+        QJsonArray average_cadences = graph_data_cadences[QStringLiteral("average")].toArray();
         QJsonArray upper_cadences = graph_data_cadences[QStringLiteral("upper")].toArray();
 
         trainrows.reserve(current_resistances.count() + 1);
@@ -282,12 +284,16 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
                 r.upper_resistance =
                     ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
+                r.average_resistance =
+                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(average_resistances.at(i).toInt());
             }
             r.requested_peloton_resistance = current_resistances.at(i).toInt();
             r.lower_requested_peloton_resistance = lower_resistances.at(i).toInt();
+            r.average_requested_peloton_resistance = average_resistances.at(i).toInt();
             r.upper_requested_peloton_resistance = upper_resistances.at(i).toInt();
             r.cadence = current_cadences.at(i).toInt();
             r.lower_cadence = lower_cadences.at(i).toInt();
+            r.average_cadence = average_cadences.at(i).toInt();
             r.upper_cadence = upper_cadences.at(i).toInt();
 
             // in order to have compact rows in the training program to have an Reamining Time tile set correctly
@@ -318,11 +324,13 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 QJsonObject speed = metrics_ar.at(0).toObject();
                 double speed_lower = speed[QStringLiteral("lower")].toDouble();
                 double speed_upper = speed[QStringLiteral("upper")].toDouble();
+                double speed_average = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                 QJsonObject inc = metrics_ar.at(1).toObject();
                 double inc_lower = inc[QStringLiteral("lower")].toDouble();
                 double inc_upper = inc[QStringLiteral("upper")].toDouble();
                 int offset_start = offset[QStringLiteral("start")].toInt();
                 int offset_end = offset[QStringLiteral("end")].toInt();
+                double inc_average = ((inc_upper - inc_lower) / 2.0) + inc_lower;
                 // keeping the same bike behaviour
                 /*if(i == 0 && offset_start > 0) {
                     trainrow r;
@@ -346,6 +354,12 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     r.speed = (((speed_upper - speed_lower) / 2.0) + speed_lower) * miles;
                     r.inclination = ((inc_upper - inc_lower) / 2.0) + inc_lower;
                 }
+                r.lower_speed = speed_lower * miles;
+                r.average_speed = speed_average * miles;
+                r.upper_speed = speed_upper * miles;
+                r.lower_inclination = inc_lower;
+                r.average_inclination = inc_average;
+                r.upper_inclination = inc_upper;
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
             }
