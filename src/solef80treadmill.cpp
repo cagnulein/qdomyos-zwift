@@ -87,8 +87,13 @@ void solef80treadmill::btinit() {
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
     uint8_t initData03_f63[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03b_f63[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03c_f63[] = {0x5b, 0x02, 0x03, 0x00, 0x5d};
+    uint8_t initData03d_f63[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
+    uint8_t initData03e_f63[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03f_f63[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03_tt8[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData04_f63[] = {0x5b, 0x06, 0x07, 0x00, 0x23, 0x00, 0x42, 0x59, 0x5d};
+    uint8_t initData04_f63[] = {0x5b, 0x06, 0x07, 0x00, 0x23, 0x00, 0x84, 0x40, 0x5d};
     uint8_t initData04_tt8[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
     uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
     uint8_t initData05_f63[] = {0x5b, 0x03, 0x08, 0x30, 0x07, 0x5d};
@@ -147,9 +152,33 @@ void solef80treadmill::btinit() {
             writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
             writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
             writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData03b_f63, sizeof(initData03b_f63), QStringLiteral("init3b_f63"), false, true);
+
+            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
+            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
+            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
+
             writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, false);
 
-            writeCharacteristic(initData04_f63, sizeof(initData04_f63), QStringLiteral("init4_f63"), false, true);
+            writeCharacteristic(initData03d_f63, sizeof(initData03d_f63), QStringLiteral("init3d_f63"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData03e_f63, sizeof(initData03e_f63), QStringLiteral("init3e_f63"), false, false);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
+            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
             writeCharacteristic(initData04_f63, sizeof(initData04_f63), QStringLiteral("init4_f63"), false, true);
 
             writeCharacteristic(initData05_f63, sizeof(initData05_f63), QStringLiteral("init5_f63"), false, true);
@@ -220,7 +249,7 @@ void solef80treadmill::update() {
     if (initRequest && firstStateChanged) {
         btinit();
         initRequest = false;
-    } else if (bluetoothDevice.isValid() //&&
+    } else if (bluetoothDevice.isValid() && initDone //&&
 
                // m_control->state() == QLowEnergyController::DiscoveredState //&&
                // gattCommunicationChannelService &&
