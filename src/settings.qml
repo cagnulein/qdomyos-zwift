@@ -155,11 +155,11 @@ import Qt.labs.settings 1.0
             property real peloton_offset: 0
 
             property string treadmill_pid_heart_zone: "Disabled"
-            property int pace_1mile: 250
-            property int pace_5km: 300
-            property int pace_10km: 320
-            property int pace_halfmarathon: 340
-            property int pace_marathon: 360
+            property real pacef_1mile: 250
+            property real pacef_5km: 300
+            property real pacef_10km: 320
+            property real pacef_halfmarathon: 340
+            property real pacef_marathon: 360
             property string pace_default: "Half Marathon"
 
             property bool domyos_treadmill_buttons: false
@@ -302,6 +302,21 @@ import Qt.labs.settings 1.0
             return paddingZeros("0" + text, limit);
           } else {
             return text;
+          }
+        }
+
+        function formatLimitDecimals(value, decimals) {
+          const stringValue = value.toString();
+          if(stringValue.includes('e')) {
+              // TODO: remove exponential notation
+              throw 'invald number';
+          } else {
+            const [integerPart, decimalPart] = stringValue.split('.');
+            if(decimalPart) {
+              return +[integerPart, decimalPart.slice(0, decimals)].join('.')
+            } else {
+              return integerPart;
+            }
           }
         }
 
@@ -3356,12 +3371,12 @@ import Qt.labs.settings 1.0
                     spacing: 10
                     Label {
                         id: labelTrainProgramPace1mile
-                        text: qsTr("1 mile pace (min/km):")
+                        text: qsTr("1 mile pace (total time):")
                         Layout.fillWidth: true
                     }
                     TextField {
                         id: trainProgramPace1mileTextField
-                        text: ((settings.pace_1mile / 60).toFixed(0) + ":" + paddingZeros((settings.pace_1mile % 60).toString(), 2))
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_1mile * 1.60934) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_1mile * 1.60934) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(((((settings.pacef_1mile * 1.60934) % 60))).toString(), 2))
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3372,19 +3387,19 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace1Mile
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pace_1mile = ((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[1]));}
+                        onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934;}
                     }
                 }
                 RowLayout {
                     spacing: 10
                     Label {
                         id: labelTrainProgramPace5km
-                        text: qsTr("5 km pace (min/km):")
+                        text: qsTr("5 km pace (total time):")
                         Layout.fillWidth: true
                     }
                     TextField {
                         id: trainProgramPace5kmTextField
-                        text: ((settings.pace_5km / 60).toFixed(0) + ":" + paddingZeros((settings.pace_5km % 60).toString(), 2))
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_5km * 5) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_5km * 5) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(((((settings.pacef_5km * 5) % 60))).toString(), 2))
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3395,19 +3410,19 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace5km
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pace_5km = ((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[1]));}
+                        onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5;}
                     }
                 }
                 RowLayout {
                     spacing: 10
                     Label {
                         id: labelTrainProgramPace10km
-                        text: qsTr("10 km pace (min/km):")
+                        text: qsTr("10 km pace (total time):")
                         Layout.fillWidth: true
                     }
                     TextField {
                         id: trainProgramPace10kmTextField
-                        text: ((settings.pace_10km / 60).toFixed(0) + ":" + paddingZeros((settings.pace_10km % 60).toString(), 2))
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_10km * 10) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_10km * 10) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(((((settings.pacef_10km * 10) % 60))).toString(), 2))
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3418,19 +3433,19 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPace10KM
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pace_10km = ((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[1]));}
+                        onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10;}
                     }
                 }
                 RowLayout {
                     spacing: 10
                     Label {
                         id: labelTrainProgramPaceHalfMarathon
-                        text: qsTr("Half Marathon pace (min/km):")
+                        text: qsTr("Half Marathon pace (total time):")
                         Layout.fillWidth: true
                     }
                     TextField {
                         id: trainProgramPaceHalfMarathonTextField
-                        text: ((settings.pace_halfmarathon / 60).toFixed(0) + ":" + paddingZeros((settings.pace_halfmarathon % 60).toString(), 2))
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_halfmarathon * 21) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_halfmarathon * 21) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(((((settings.pacef_halfmarathon * 21) % 60))).toString(), 2))
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3441,19 +3456,19 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPaceHalfMarathon
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pace_halfmarathon = ((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]));}
+                        onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21;}
                     }
                 }
                 RowLayout {
                     spacing: 10
                     Label {
                         id: labelTrainProgramPaceMarathon
-                        text: qsTr("Marathon pace (min/km):")
+                        text: qsTr("Marathon pace (total time):")
                         Layout.fillWidth: true
                     }
                     TextField {
                         id: trainProgramPaceMarathonTextField
-                        text: ((settings.pace_marathon / 60).toFixed(0) + ":" + paddingZeros((settings.pace_marathon % 60).toString(), 2))
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_marathon * 42) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_marathon * 42) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(((((settings.pacef_marathon * 42) % 60))).toString(), 2))
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -3464,7 +3479,7 @@ import Qt.labs.settings 1.0
                         id: okTrainProgramPaceMarathon
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: { settings.pace_marathon = ((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]));}
+                        onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42;}
                     }
                 }
 
