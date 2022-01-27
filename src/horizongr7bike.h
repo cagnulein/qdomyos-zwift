@@ -36,7 +36,8 @@
 class horizongr7bike : public bike {
     Q_OBJECT
   public:
-    horizongr7bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
+    horizongr7bike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                   double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
@@ -56,6 +57,8 @@ class horizongr7bike : public bike {
     QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyService *gattFTMSService;
 
+    double bikeResistanceToPeloton(double resistance);
+    const int max_resistance = 12;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
