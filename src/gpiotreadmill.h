@@ -27,6 +27,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QThread>
+#include <QSemaphore>
 
 #include "treadmill.h"
 #include "virtualbike.h"
@@ -39,7 +40,7 @@
 class gpioWorkerThread : public QThread
 {
     public:
-        explicit gpioWorkerThread(QObject *parent = nullptr, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0);
+        explicit gpioWorkerThread(QObject *parent, QString name = "", uint8_t pinUp = 0, uint8_t pinDown = 0, double step = 0.0, double currentValue = 0.0, QSemaphore *semaphore = nullptr);
         void run();
         void setRequestValue(double request);
     private:
@@ -49,8 +50,9 @@ class gpioWorkerThread : public QThread
         uint8_t pinUp;
         uint8_t pinDown;
         double step;
-        const uint16_t GPIO_KEEP_MS = 200;
-        const uint16_t GPIO_REBOUND_MS = 200;
+        const uint16_t GPIO_KEEP_MS = 275;
+        const uint16_t GPIO_REBOUND_MS = 175;
+        QSemaphore *semaphore;
 };
 
 
@@ -90,7 +92,7 @@ class gpiotreadmill : public treadmill {
     const uint8_t OUTPUT_START = 23;
     const uint8_t OUTPUT_STOP = 25;
 
-    const uint16_t GPIO_KEEP_MS = 200;
+    const uint16_t GPIO_KEEP_MS = 275;
     //const uint16_t GPIO_REBOUND_MS = 200;
     
     const double SPEED_STEP = 0.1;
@@ -100,6 +102,7 @@ class gpiotreadmill : public treadmill {
     void forceIncline(double requestIncline);
     gpioWorkerThread* speedThread;
     gpioWorkerThread* inclineThread;
+    QSemaphore *semaphore; // my treadmill don't like it if the buttons will be pressed simultanly
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

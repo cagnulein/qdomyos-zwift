@@ -28,13 +28,9 @@ int wiringPiSetup() {
 using namespace std::chrono_literals;
 
 
-gpioWorkerThread::gpioWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue): QThread(parent)
+gpioWorkerThread::gpioWorkerThread(QObject *parent, QString name, uint8_t pinUp, uint8_t pinDown, double step, double currentValue, QSemaphore *semaphore): QThread(parent),
+    name{name}, pinUp{pinUp}, pinDown{pinDown}, step{step}, currentValue{currentValue}, semaphore{semaphore}
 {
-    this->name = name;
-    this->pinUp = pinUp;
-    this->pinDown = pinDown;
-    this->step = step;
-    this->currentValue = currentValue;
     pinMode(pinUp, OUTPUT);
     pinMode(pinDown, OUTPUT);
     digitalWrite(pinUp, 0);
@@ -48,32 +44,36 @@ void gpioWorkerThread::setRequestValue(double request)
 
 void gpioWorkerThread::run() {
     if (requestValue > currentValue) {
-            while (requestValue > currentValue) {
-                qDebug() << QStringLiteral("increasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
-                digitalWrite(pinUp, 1);
-                QThread::msleep(GPIO_KEEP_MS);
-                digitalWrite(pinUp, 0);
-                QThread::msleep(GPIO_KEEP_MS);
-                currentValue += step;
-                if(QThread::currentThread()->isInterruptionRequested()) {
-                    qDebug() << "Interrupting set " + name;
-                    return;
-                }
+        while (requestValue > currentValue) {
+            qDebug() << QStringLiteral("increasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
+            semaphore->acquire();
+            digitalWrite(pinUp, 1);
+            QThread::msleep(GPIO_KEEP_MS);
+            digitalWrite(pinUp, 0);
+            QThread::msleep(GPIO_REBOUND_MS);
+            semaphore->release();
+            currentValue += step;
+            if(QThread::currentThread()->isInterruptionRequested()) {
+                qDebug() << "Interrupting set " + name;
+                return;
             }
-      } else {
+        }
+    } else {
         while (requestValue < currentValue) {
-            qDebug() << QStringLiteral("decreasing ") + name + " from " + QString::number(currentValue) + QStringLiteral(" to ") + QString::number(requestValue);
+            qDebug() << QStringLiteral("decreasing ") + name + " from " + QString::number(currentValue) + " to " + QString::number(requestValue);
+            semaphore->acquire();
             digitalWrite(pinDown, 1);
             QThread::msleep(GPIO_KEEP_MS);
             digitalWrite(pinDown, 0);
-            QThread::msleep(GPIO_KEEP_MS);
+            QThread::msleep(GPIO_REBOUND_MS);
+            semaphore->release();
             currentValue -= step;
             if(QThread::currentThread()->isInterruptionRequested()) {
                 qDebug() << "Interrupting set " + name;
                 return;
             }
         }
-      }
+    }
 }
 
 gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
@@ -100,8 +100,10 @@ gpiotreadmill::gpiotreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHea
     if (forceInitInclination > 0) {
         lastInclination = forceInitInclination;
     }
-    speedThread = new gpioWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed);
-    inclineThread = new gpioWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination);
+
+    semaphore = new QSemaphore(1);
+    speedThread = new gpioWorkerThread(this, "speed", OUTPUT_SPEED_UP, OUTPUT_SPEED_DOWN, SPEED_STEP, forceInitSpeed, semaphore);
+    inclineThread = new gpioWorkerThread(this, "incline", OUTPUT_INCLINE_UP, OUTPUT_INCLINE_DOWN, INCLINATION_STEP, forceInitInclination, semaphore);
 
     refresh = new QTimer(this);
     initDone = false;
@@ -118,6 +120,7 @@ gpiotreadmill::~gpiotreadmill() {
     inclineThread->quit();
     inclineThread->wait();
     delete inclineThread;
+    delete semaphore;
 }
 
 void gpiotreadmill::changeInclinationRequested(double grade, double percentage) {
