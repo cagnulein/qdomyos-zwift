@@ -65,6 +65,7 @@ void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, co
     }
 }
 
+/*
 void nautiluselliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination) {
 
     // TODO do the level down command
@@ -93,6 +94,7 @@ void nautiluselliptical::forceResistanceAndInclination(int8_t requestResistance,
                             false, true);
     }
 }
+*/
 
 void nautiluselliptical::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
@@ -117,7 +119,7 @@ void nautiluselliptical::update() {
         btinit(false);
     } else if (bluetoothDevice.isValid() && m_control->state() == QLowEnergyController::DiscoveredState &&
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
-               gattNotifyCharacteristic.isValid() && initDone) {
+               gattNotify1Characteristic.isValid() && gattNotify2Characteristic.isValid() && initDone) {
 
         update_metrics(true, watts());
 
