@@ -1848,6 +1848,10 @@ void homeform::update() {
     double currentHRZone = 1;
     double ftpZone = 1;
 
+    if (settings.status() != QSettings::NoError) {
+        qDebug() << "!!!!QSETTINGS ERROR!" << settings.status();
+    }
+
     if ((paused || stopped) && settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
 
         emit stopIconChanged(stopIcon());
