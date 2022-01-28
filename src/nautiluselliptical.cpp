@@ -173,7 +173,7 @@ void nautiluselliptical::update() {
                 if (new_res > 15) {
                     new_res = 1;
                 }
-                forceResistanceAndInclination(new_res, currentInclination().value());
+                // forceResistanceAndInclination(new_res, currentInclination().value());
             }
         }
 
@@ -191,7 +191,7 @@ void nautiluselliptical::update() {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
 
-                forceResistanceAndInclination(requestResistance, currentInclination().value());
+                // forceResistanceAndInclination(requestResistance, currentInclination().value());
             }
             requestResistance = -1;
         } else if (requestInclination != -1) {
@@ -204,7 +204,7 @@ void nautiluselliptical::update() {
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
 
-                forceResistanceAndInclination(currentResistance().value(), requestInclination);
+                // forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
             requestInclination = -1;
         }
