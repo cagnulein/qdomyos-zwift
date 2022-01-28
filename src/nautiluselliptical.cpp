@@ -242,37 +242,30 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
 
     lastPacket = newValue;
 
-    if (newValue.length() == 5 && newValue.at(1) == 0x02) {
-
-        Resistance = newValue.at(3) + 1;
-        emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
-        return;
-    }
-
-    if (newValue.length() < 20) {
+    if (newValue.length() != 14) {
         return;
     }
 
     double speed =
         GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
-    double kcal = GetKcalFromPacket(newValue);
+    // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
-    uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
+    // uint16_t watt = (newValue.at(13) << 8) | newValue.at(14);
 
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    m_watt = watt;
+    // m_watt = watt;
 
     // Inclination = newValue.at(21);
-    if (Resistance.value() < 1) {
+    /*if (Resistance.value() < 1) {
         emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
                    QStringLiteral(" putting to default"));
         Resistance = 1;
-    }
+    }*/
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -296,7 +289,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     emit debug(QStringLiteral("Current cadence: ") + QString::number(Cadence.value()));
     emit debug(QStringLiteral("Current inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
     emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
@@ -307,13 +300,12 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     }
 
     Speed = speed;
-    KCal = kcal;
 }
 
 double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
-    double data = (double)convertedData / 100.0f;
+    uint16_t convertedData = (packet.at(1) << 8) | packet.at(0);
+    double data = (double)convertedData / 1000.0f;
     return data;
 }
 
