@@ -108,6 +108,7 @@ SOURCES += \
 	     main.cpp \
    mcfbike.cpp \
 		metric.cpp \
+   nautiluselliptical.cpp \
     nautilustreadmill.cpp \
     npecablebike.cpp \
    pafersbike.cpp \
@@ -436,6 +437,7 @@ HEADERS += \
 	material.h \
    mcfbike.h \
 	metric.h \
+   nautiluselliptical.h \
     nautilustreadmill.h \
     npecablebike.h \
    pafersbike.h \

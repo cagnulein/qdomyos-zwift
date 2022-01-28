@@ -299,7 +299,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                        settings.value(QStringLiteral("hertz_xr_770"), false).toBool()) &&
                       !toorx_ftms;
     bool snode_bike = settings.value(QStringLiteral("snode_bike"), false).toBool();
-    bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool() || settings.value(QStringLiteral("virtufit_etappe"), false).toBool();
+    bool fitplus_bike = settings.value(QStringLiteral("fitplus_bike"), false).toBool() ||
+                        settings.value(QStringLiteral("virtufit_etappe"), false).toBool();
     bool csc_as_bike = settings.value(QStringLiteral("cadence_sensor_as_bike"), false).toBool();
     bool power_as_bike = settings.value(QStringLiteral("power_sensor_as_bike"), false).toBool();
     bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
@@ -505,6 +506,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(domyosElliptical);
                 innerTemplateManager->start(domyosElliptical);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E616"))) && !nautilusElliptical &&
+                       filter) {
+                discoveryAgent->stop();
+                nautilusElliptical = new nautiluselliptical(noWriteResistance, noHeartService, testResistance,
+                                                            bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(nautilusElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(nautilusElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(nautilusElliptical, &nautiluselliptical::debug, this, &bluetooth::debug);
+                nautilusElliptical->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, nautilusElliptical, &nautiluselliptical::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(nautilusElliptical);
+                innerTemplateManager->start(nautilusElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E25")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E35")) ||
@@ -1715,6 +1732,11 @@ void bluetooth::restart() {
         delete soleElliptical;
         soleElliptical = nullptr;
     }
+    if (nautilusElliptical) {
+
+        delete nautilusElliptical;
+        nautilusElliptical = nullptr;
+    }
     if (cscBike) {
 
         delete cscBike;
@@ -1983,6 +2005,8 @@ bluetoothdevice *bluetooth::device() {
         return domyosElliptical;
     } else if (soleElliptical) {
         return soleElliptical;
+    } else if (nautilusElliptical) {
+        return nautilusElliptical;
     } else if (cscBike) {
         return cscBike;
     } else if (powerBike) {
