@@ -55,8 +55,9 @@ void trainprogram::scheduler() {
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             if (rows.at(0).forcespeed && rows.at(0).speed) {
                 qDebug() << QStringLiteral("trainprogram change speed") + QString::number(rows.at(0).speed);
-                emit changeSpeedAndInclination(rows.at(0).speed, rows.at(0).inclination);
-            } else if (rows.at(0).inclination != -200) {
+                emit changeSpeed(rows.at(0).speed);
+            }
+            if (rows.at(0).inclination != -200) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(rows.at(0).inclination);
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
@@ -145,8 +146,9 @@ void trainprogram::scheduler() {
                 if (rows.at(currentStep).forcespeed && rows.at(currentStep).speed) {
                     qDebug() << QStringLiteral("trainprogram change speed ") +
                                     QString::number(rows.at(currentStep).speed);
-                    emit changeSpeedAndInclination(rows.at(currentStep).speed, rows.at(currentStep).inclination);
-                } else if (rows.at(currentStep).inclination != -200) {
+                    emit changeSpeed(rows.at(currentStep).speed);
+                }
+                if (rows.at(currentStep).inclination != -200) {
                     qDebug() << QStringLiteral("trainprogram change inclination ") +
                                     QString::number(rows.at(currentStep).inclination);
                     emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
