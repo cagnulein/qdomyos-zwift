@@ -343,7 +343,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 trainrow r;
                 r.forcespeed = treadmill_force_speed;
                 r.duration = QTime(0, 0, 0, 0);
-                r.duration = r.duration.addSecs(offset_end - offset_start);
+                r.duration = r.duration.addSecs((offset_end - offset_start) + 1);
                 if (!difficulty.toUpper().compare(QStringLiteral("LOWER"))) {
                     r.speed = speed_lower * miles;
                     r.inclination = inc_lower;
