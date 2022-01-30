@@ -15,6 +15,43 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b) {
     timer.start();
 }
 
+QString trainrow::toString() const {
+    QString rv;
+    rv += QStringLiteral("duration = %1").arg(duration.toString());
+    rv += QStringLiteral(" distance = %1").arg(distance);
+    rv += QStringLiteral(" speed = %1").arg(speed);
+    rv += QStringLiteral(" lower_speed = %1").arg(lower_speed);     // used for peloton
+    rv += QStringLiteral(" average_speed = %1").arg(average_speed); // used for peloton
+    rv += QStringLiteral(" upper_speed = %1").arg(upper_speed);     // used for peloton
+    rv += QStringLiteral(" fanspeed = %1").arg(fanspeed);
+    rv += QStringLiteral(" inclination = %1").arg(inclination);
+    rv += QStringLiteral(" lower_inclination = %1").arg(lower_inclination);     // used for peloton
+    rv += QStringLiteral(" average_inclination = %1").arg(average_inclination); // used for peloton
+    rv += QStringLiteral(" upper_inclination = %1").arg(upper_inclination);     // used for peloton
+    rv += QStringLiteral(" resistance = %1").arg(resistance);
+    rv += QStringLiteral(" lower_resistance = %1").arg(lower_resistance);
+    rv += QStringLiteral(" average_resistance = %1").arg(average_resistance); // used for peloton
+    rv += QStringLiteral(" upper_resistance = %1").arg(upper_resistance);
+    rv += QStringLiteral(" requested_peloton_resistance = %1").arg(requested_peloton_resistance);
+    rv += QStringLiteral(" lower_requested_peloton_resistance = %1").arg(lower_requested_peloton_resistance);
+    rv += QStringLiteral(" average_requested_peloton_resistance = %1")
+              .arg(average_requested_peloton_resistance); // used for peloton
+    rv += QStringLiteral(" upper_requested_peloton_resistance = %1").arg(upper_requested_peloton_resistance);
+    rv += QStringLiteral(" cadence = %1").arg(cadence);
+    rv += QStringLiteral(" lower_cadence = %1").arg(lower_cadence);
+    rv += QStringLiteral(" average_cadence = %1").arg(average_cadence); // used for peloton
+    rv += QStringLiteral(" upper_cadence = %1").arg(upper_cadence);
+    rv += QStringLiteral(" forcespeed = %1").arg(forcespeed);
+    rv += QStringLiteral(" loopTimeHR = %1").arg(loopTimeHR);
+    rv += QStringLiteral(" zoneHR = %1").arg(zoneHR);
+    rv += QStringLiteral(" maxSpeed = %1").arg(maxSpeed);
+    rv += QStringLiteral(" power = %1").arg(power);
+    rv += QStringLiteral(" mets = %1").arg(mets);
+    rv += QStringLiteral(" latitude = %1").arg(latitude);
+    rv += QStringLiteral(" longitude = %1").arg(longitude);
+    return rv;
+}
+
 uint32_t trainprogram::calculateTimeForRow(int32_t row) {
     if (row >= rows.length())
         return 0;

@@ -39,6 +39,7 @@ class trainrow {
     int32_t mets = -1;
     double latitude = NAN;
     double longitude = NAN;
+    QString toString() const;
 };
 
 class trainprogram : public QObject {

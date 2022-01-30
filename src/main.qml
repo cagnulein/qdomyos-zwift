@@ -16,6 +16,7 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
@@ -436,12 +437,16 @@ ApplicationWindow {
                 text: qsTr("Credits")
                 width: parent.width
                 onClicked: {
-                    stackView.push("Credits.qml")
+                    stackView.push("WebEngineTest.qml")
                     drawer.close()
+                    stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
+                    stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
+                        stackView.pop();
+                     });
                 }
             }
             ItemDelegate {
-                text: "version 2.10.12"
+                text: "version 2.9.46"
                 width: parent.width
             }
 				FileDialog {

@@ -5,6 +5,7 @@
 #include "material.h"
 #include "qfit.h"
 #include "templateinfosenderbuilder.h"
+#include "zwiftworkout.h"
 
 #include <QAbstractOAuth2>
 #include <QApplication>
@@ -276,6 +277,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
     QObject::connect(stack, SIGNAL(fit_save_clicked()), this, SLOT(fit_save_clicked()));
@@ -2810,6 +2812,12 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 
         trainProgramSignals();
     }
+}
+
+void homeform::trainprogram_zwo_loaded(const QString &s) {
+    qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
+    trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
+    trainProgramSignals();
 }
 
 void homeform::gpx_save_clicked() {
