@@ -112,7 +112,7 @@ Item {
                     let wll = document.querySelector('.workoutlist');
                     let pace = null;
                     if (wll) {
-                        let rexp = /(from +([0-9]+) +to|@) +(?:[0-9]+rpm, +)?([0-9]+)% +(of +(5k|10k|HM|M) +pace|FTP)/; // fine idx = 3, pace idx = 5 inizio idx = 2
+                        let rexp = /(?:from +([0-9]+) +to +|@ +|)(?:[0-9]+rpm, +)?(?:([0-9]+)% +(?:of +(5k|10k|HM|M) +pace|FTP)|No Incline Walk)/; // fine idx = 2, pace idx = 3 inizio idx = 1
                         let tbs = wll.querySelectorAll('.textbar');
                         for (let i = 0; tbs && i<tbs.length; i++) {
                             let txt = tbs[i].innerText;
@@ -133,10 +133,10 @@ Item {
                                     elem.d_re = re;
                                     let ln = re[0].length;
                                     if (txt.length > ln && txt.charAt(ln) == ',' && (o2 = parseDuration(txt.substring(ln + 1))) && o2.durationType && (re2 = rexp.exec(o2.txt))) {
-                                        OffPower = parseInt(re2[3]);
+                                        OffPower = parseInt(re2[2]);
                                         OffDuration = o2.dur;
                                     }
-                                    if (re[2]) {
+                                    if (re[1]) {
                                         if (i == 0) {
                                             elem.type = "Warmup";
                                         }
@@ -147,14 +147,14 @@ Item {
                                             elem.type = "Ramp";
                                         }
                                         elem.Duration = o.dur;
-                                        elem.PowerLow = parseInt(re[2]) / 100.0;
-                                        elem.PowerHigh = parseInt(re[3]) / 100.0;
+                                        elem.PowerLow = parseInt(re[1]) / 100.0;
+                                        elem.PowerHigh = parseInt(re[2]) / 100.0;
                                     }
                                     else if (OffPower >= 0 && OffDuration >= 0) {
                                         elem.type = 'IntervalsT';
                                         if (o.repeat) elem.Repeat = o.repeat; else elem.Repeat = 0;
                                         elem.OnDuration = o.dur;
-                                        elem.OnPower = parseInt(re[3]) / 100.0;
+                                        elem.OnPower = parseInt(re[2]) / 100.0;
                                         elem.OffDuration = OffDuration;
                                         elem.OffPower = OffPower / 100.0;
                                     }
@@ -162,9 +162,10 @@ Item {
                                         elem.type = "SteadyState";
                                         if (o.repeat) elem.Repeat = o.repeat; else elem.Repeat = 0;
                                         elem.Duration = o.dur;
-                                        elem.Power = parseInt(re[3]) / 100.0;
+                                        elem.Power = re[2]?parseInt(re[2]) / 100.0:0.5;
                                     }
-                                    if (re[5]) elem.pace = pace==null?(pace = parsePace(re[5])):pace;
+                                    if (re[3]) pace = parsePace(re[3]);
+                                    if (pace) elem.pace = pace;
                                 }
                                 else if (txt == "free run" || txt == "free ride") {
                                     elem.type = "FreeRide";
