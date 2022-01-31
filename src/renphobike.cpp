@@ -444,6 +444,13 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 }
 
 void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral(
+            "routing FTMS packet to the bike from virtualbike discarded because auto resistance is disabled");
+        return;
+    }
+
     lastFTMSPacketReceived.clear();
     for (int i = 0; i < newValue.length(); i++)
         lastFTMSPacketReceived.append(newValue.at(i));
