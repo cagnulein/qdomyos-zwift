@@ -295,6 +295,10 @@ import Qt.labs.settings 1.0
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
             property bool applewatch_fakedevice: false
+
+            // from version 2.10.15
+            property real zwift_erg_resistance_down: 0.0
+            property real zwift_erg_resistance_up: 999.0
         }
 
         function paddingZeros(text, limit) {
@@ -1071,6 +1075,56 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgResistanceDown
+                            text: qsTr("ERG Min. Resistance:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgResistanceDownTextField
+                            text: settings.zwift_erg_resistance_down
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_resistance_down = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgResistanceDownButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgResistanceUp
+                            text: qsTr("ERG Max. Resistance:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgResistanceUpTextField
+                            text: settings.zwift_erg_resistance_up
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_resistance_up = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgResistanceUpButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text
                         }
                     }
 
