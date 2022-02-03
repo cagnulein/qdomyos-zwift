@@ -799,7 +799,8 @@ void proformtreadmill::error(QLowEnergyController::Error err) {
 
 void proformtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("I_TL"))) {
+    // if (device.name().startsWith(QStringLiteral("I_TL")))
+    {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
