@@ -99,11 +99,15 @@ void renphobike::update() {
             else if (requestResistance == 0)
                 requestResistance = 1;
 
-            if (requestResistance != currentResistance().value()) {
-                debug("writing resistance " + QString::number(requestResistance));
-                forceResistance(requestResistance);
-            }
+            lastRequestResistance = lastRawRequestedResistanceValue;
+            debug("writing resistance " + QString::number(requestResistance));
+            forceResistance(requestResistance);
+
             requestResistance = -1;
+        } else if (lastRequestResistance != -1) {
+            int8_t r = lastRequestResistance * m_difficult + gears();
+            debug("writing resistance for renpho forever " + QString::number(r));
+            forceResistance(r);
         }
         if (requestStart != -1) {
             debug("starting...");
@@ -114,6 +118,7 @@ void renphobike::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
+            lastRequestResistance = -1;
             debug("stopping...");
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;

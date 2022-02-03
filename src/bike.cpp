@@ -9,10 +9,7 @@ void bike::changeResistance(int8_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
-        if (!ergModeSupported)
-            requestResistance = v;
-        else
-            requestPower = powerFromResistanceRequest(v);
+        requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
     RequestedResistance = resistance * m_difficult + gears();
