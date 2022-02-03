@@ -299,6 +299,9 @@ import Qt.labs.settings 1.0
             // from version 2.10.15
             property real zwift_erg_resistance_down: 0.0
             property real zwift_erg_resistance_up: 999.0
+
+            // from version 2.10.16
+            property bool horizon_paragon_x: false
         }
 
         function paddingZeros(text, limit) {
@@ -4159,6 +4162,32 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                AccordionElement {
+                    id: horizonTreadmillAccordion
+                    title: qsTr("Horizon Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: horizonParagonXTreadmillCadenzaDelegate
+                            text: qsTr("Paragon X")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_paragon_x
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_paragon_x = checked
+                        }
+                    }
+                }
+
             }
 
             AccordionElement {

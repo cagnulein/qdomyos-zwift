@@ -74,6 +74,14 @@ void horizontreadmill::waitForAPacket() {
 }
 
 void horizontreadmill::btinit() {
+    QSettings settings;
+    bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
+
+    uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+    uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x42,
+                                    0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t initData03_paragon[] = {0x01, 0x35, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
+
     uint8_t initData01[] = {0x55, 0xaa, 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x00};
 
     uint8_t initData7[] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xed, 0xc2,
@@ -149,570 +157,582 @@ void horizontreadmill::btinit() {
     uint8_t initData6[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
 
     if (gattCustomService) {
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01, sizeof(initData01),
-                            QStringLiteral("init"), false, true);
-        waitForAPacket();
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9, sizeof(initData9),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10, sizeof(initData10),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+        if (horizon_paragon_x) {
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01_paragon,
+                                sizeof(initData01_paragon), QStringLiteral("init"), false, true);
+            waitForAPacket();
+            waitForAPacket();
+            waitForAPacket();
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
+                                sizeof(initData02_paragon), QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
+                                sizeof(initData03_paragon), QStringLiteral("init"), false, true);
+        } else {
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01, sizeof(initData01),
+                                QStringLiteral("init"), false, true);
+            waitForAPacket();
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_1, sizeof(initData7_1),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_1, sizeof(initData9_1),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_1, sizeof(initData10_1),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9, sizeof(initData9),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10, sizeof(initData10),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_2, sizeof(initData7_2),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_2, sizeof(initData9_2),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_2, sizeof(initData10_2),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_1, sizeof(initData7_1),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_1, sizeof(initData9_1),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_1, sizeof(initData10_1),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_3, sizeof(initData7_3),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_3, sizeof(initData9_3),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_3, sizeof(initData10_3),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_2, sizeof(initData7_2),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_2, sizeof(initData9_2),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_2, sizeof(initData10_2),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_4, sizeof(initData7_4),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_4, sizeof(initData9_4),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_4, sizeof(initData10_4),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_3, sizeof(initData7_3),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_3, sizeof(initData9_3),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_3, sizeof(initData10_3),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_5, sizeof(initData7_5),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_5, sizeof(initData9_5),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_5, sizeof(initData10_5),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_4, sizeof(initData7_4),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_4, sizeof(initData9_4),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_4, sizeof(initData10_4),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_6, sizeof(initData7_6),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_6, sizeof(initData9_6),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_6, sizeof(initData10_6),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_5, sizeof(initData7_5),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_5, sizeof(initData9_5),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_5, sizeof(initData10_5),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02, sizeof(initData02),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03, sizeof(initData03),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData04, sizeof(initData04),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData05, sizeof(initData05),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData06, sizeof(initData06),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData2, sizeof(initData2),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData3, sizeof(initData3),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
-                            QStringLiteral("init"), false, true);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData5, sizeof(initData5),
-                            QStringLiteral("init"), false, false);
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData6, sizeof(initData6),
-                            QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7_6, sizeof(initData7_6),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData9_6, sizeof(initData9_6),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData10_6, sizeof(initData10_6),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData11, sizeof(initData11),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData12, sizeof(initData12),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData13, sizeof(initData13),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
+                                QStringLiteral("init"), false, true);
 
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02, sizeof(initData02),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03, sizeof(initData03),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData04, sizeof(initData04),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData05, sizeof(initData05),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData06, sizeof(initData06),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData2, sizeof(initData2),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData3, sizeof(initData3),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
+                                QStringLiteral("init"), false, true);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData5, sizeof(initData5),
+                                QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData6, sizeof(initData6),
+                                QStringLiteral("init"), false, true);
+        }
         messageID = 0x11;
     }
 
