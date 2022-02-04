@@ -37,6 +37,8 @@ class trxappgateusbtreadmill : public treadmill {
     void *VirtualTreadMill();
     void *VirtualDevice();
 
+    double minStepInclination();
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);

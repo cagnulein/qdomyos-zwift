@@ -655,3 +655,5 @@ void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::Contro
         m_control->connectToDevice();
     }
 }
+
+double trxappgateusbtreadmill::minStepInclination() { return 1.0; }
