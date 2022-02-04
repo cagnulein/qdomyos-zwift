@@ -302,6 +302,10 @@ import Qt.labs.settings 1.0
 
             // from version 2.10.16
             property bool horizon_paragon_x: false
+
+            // from version 2.10.18
+            property real treadmill_step_speed: 0.5
+            property real treadmill_step_incline: 0.5
         }
 
         function paddingZeros(text, limit) {
@@ -3865,6 +3869,57 @@ import Qt.labs.settings 1.0
                         onClicked: settings.zwift_inclination_gain = treadmillInclinationGainTextField.text
                     }
                 }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillStepSpeed
+                        text: qsTr("Speed Step:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillSpeedStepTextField
+                        text: (settings.miles_unit?settings.treadmill_step_speed * 0.621371:settings.treadmill_step_speed).toFixed(1)
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_step_speed = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTreadmillSpeedStepButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text)
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillStepInclination
+                        text: qsTr("Inclination Step:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationStepTextField
+                        text: settings.treadmill_step_incline
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_step_incline = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTreadmillInclinationStepButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.treadmill_step_incline = treadmillInclinationStepTextField.text
+                    }
+                }
+
 
                 AccordionElement {
                     id: proformTreadmillAccordion

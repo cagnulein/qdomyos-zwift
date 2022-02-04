@@ -1429,6 +1429,7 @@ void homeform::deviceFound(const QString &name) {
 }
 
 void homeform::Plus(const QString &name) {
+    QSettings settings;
     qDebug() << QStringLiteral("Plus") << name;
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
@@ -1443,6 +1444,10 @@ void homeform::Plus(const QString &name) {
             if (requestedspeed != -1)
                 speed = requestedspeed;
             double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
+            double step = settings.value(QStringLiteral("treadmill_step_speed"), 0.5).toDouble();
+            step = ((double)qRound(step * 10.0)) / 10.0;
+            if (step > minStepSpeed)
+                minStepSpeed = step;
             int rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
             if (rest == 5 || rest == 0)
                 speed = speed + minStepSpeed;
@@ -1455,8 +1460,10 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() +
-                              ((treadmill *)bluetoothManager->device())->minStepInclination();
+                double step = settings.value(QStringLiteral("treadmill_step_incline"), 0.5).toDouble();
+                if (step < ((treadmill *)bluetoothManager->device())->minStepInclination())
+                    step = ((treadmill *)bluetoothManager->device())->minStepInclination();
+                double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() + step;
                 ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() + 0.5;
@@ -1553,6 +1560,7 @@ void homeform::Plus(const QString &name) {
 }
 
 void homeform::Minus(const QString &name) {
+    QSettings settings;
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1567,6 +1575,10 @@ void homeform::Minus(const QString &name) {
                 if (requestedspeed != -1)
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
+                double step = settings.value(QStringLiteral("treadmill_step_speed"), 0.5).toDouble();
+                step = ((double)qRound(step * 10.0)) / 10.0;
+                if (step > minStepSpeed)
+                    minStepSpeed = step;
                 int rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
                 if (rest == 5 || rest == 0)
                     speed = speed - minStepSpeed;
@@ -1580,8 +1592,10 @@ void homeform::Minus(const QString &name) {
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() -
-                              ((treadmill *)bluetoothManager->device())->minStepInclination();
+                double step = settings.value(QStringLiteral("treadmill_step_incline"), 0.5).toDouble();
+                if (step < ((treadmill *)bluetoothManager->device())->minStepInclination())
+                    step = ((treadmill *)bluetoothManager->device())->minStepInclination();
+                double perc = ((treadmill *)bluetoothManager->device())->currentInclination().value() - step;
                 ((treadmill *)bluetoothManager->device())->changeInclination(perc, perc);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 double perc = ((elliptical *)bluetoothManager->device())->currentInclination().value() - 0.5;
