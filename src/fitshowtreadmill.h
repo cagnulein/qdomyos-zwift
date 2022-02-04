@@ -106,9 +106,9 @@ class fitshowtreadmill : public treadmill {
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
-    int MAX_INCLINE = 0;
+    int MAX_INCLINE = 30;
     int COUNTDOWN_VALUE = 0;
-    int MAX_SPEED = 0;
+    int MAX_SPEED = 30;
     int MIN_INCLINE = 0;
     int MIN_SPEED = 0;
     int UNIT = -100;
