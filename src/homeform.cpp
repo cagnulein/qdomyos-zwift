@@ -1561,6 +1561,7 @@ void homeform::Plus(const QString &name) {
 
 void homeform::Minus(const QString &name) {
     QSettings settings;
+    qDebug() << QStringLiteral("Minus") << name;
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
