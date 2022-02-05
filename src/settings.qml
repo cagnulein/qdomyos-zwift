@@ -183,7 +183,8 @@ import Qt.labs.settings 1.0
 
             property double horizon_gr7_cadence_multiplier: 1.0
 
-            property int  fitshow_user_id: 0x006E13AA
+            property int  fitshow_user_id: 0x13AA
+            property bool  fitshow_anyrun: false
 
             property bool inspire_peloton_formula: false
             property bool inspire_peloton_formula2: false
@@ -4055,28 +4056,44 @@ import Qt.labs.settings 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelfitshowTreadmillUserId
-                            text: qsTr("User ID:")
+                    accordionContent: ColumnLayout {
+                        SwitchDelegate {
+                            id: fitshowAnyrunDelegate
+                            text: qsTr("AnyRun")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_anyrun
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
+                            onClicked: settings.fitshow_anyrun = checked
                         }
-                        TextField {
-                            id: fitshowTreadmillUserIdTextField
-                            text: settings.fitshow_user_id
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.fitshow_user_id = text
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
-                        }
-                        Button {
-                            id: okfitshowTreadmillUserIdButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelfitshowTreadmillUserId
+                                text: qsTr("User ID:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: fitshowTreadmillUserIdTextField
+                                text: settings.fitshow_user_id
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.fitshow_user_id = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okfitshowTreadmillUserIdButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                            }
                         }
                     }
                 }

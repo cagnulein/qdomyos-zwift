@@ -31,6 +31,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
 
     refresh = new QTimer(this);
     initDone = false;
+    QSettings settings;
+    anyrun = settings.value(QStringLiteral("fitshow_anyrun"), false).toBool();
     connect(refresh, &QTimer::timeout, this, &fitshowtreadmill::update);
     refresh->start(pollDeviceTime);
 }
@@ -263,8 +265,10 @@ void fitshowtreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 void fitshowtreadmill::sendSportData() {
-    uint8_t writeSport[] = {FITSHOW_SYS_DATA, FITSHOW_DATA_SPORT};
-    scheduleWrite(writeSport, sizeof(writeSport), QStringLiteral("SendSportsData"));
+    if (!anyrun) {
+        uint8_t writeSport[] = {FITSHOW_SYS_DATA, FITSHOW_DATA_SPORT};
+        scheduleWrite(writeSport, sizeof(writeSport), QStringLiteral("SendSportsData"));
+    }
 }
 
 void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -307,6 +311,15 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 if (full_len > 7) {
                     UNIT = full_array[5];
                 }
+            }
+        } else if (par == FITSHOW_INFO_UNKNOWN) {
+            if (full_len >= 9) {
+                MAX_SPEED = full_array[3];
+                MIN_SPEED = full_array[4];
+                MAX_INCLINE = full_array[5];
+                MIN_INCLINE = full_array[6];
+                IS_HRC = (bool)full_array[7];
+                COUNTDOWN_VALUE = full_array[8];
             }
         } else if (par == FITSHOW_INFO_INCLINE) {
             if (full_len < 7) {
@@ -380,7 +393,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
                 double speed = array[2] / 10.0;
                 double incline = array[3];
-                uint16_t seconds_elapsed = array[4] | array[5] << 8;
+                uint16_t seconds_elapsed = anyrun ? array[4] * 60 + array[5] : array[4] | array[5] << 8;
                 double distance = (array[6] | array[7] << 8) / 10.0;
                 double kcal = array[8] | array[9] << 8;
                 uint16_t step_count = array[10] | array[11] << 8;
@@ -535,7 +548,7 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void fitshowtreadmill::btinit(bool startTape) {
     uint8_t initInfos[] = {FITSHOW_INFO_SPEED, FITSHOW_INFO_INCLINE, FITSHOW_INFO_TOTAL, FITSHOW_INFO_DATE};
-    uint8_t initDataStart1[] = {FITSHOW_SYS_INFO, 0};
+    uint8_t initDataStart1[] = {FITSHOW_SYS_INFO, FITSHOW_INFO_UNKNOWN};
 
     QDateTime now = QDateTime::currentDateTime();
     uint8_t initDataStart0[] = {FITSHOW_SYS_INFO,
@@ -560,31 +573,36 @@ void fitshowtreadmill::btinit(bool startTape) {
         0x00 // mode-dependent value (u16le)
     };       // to verify
     QSettings settings;
-    int user_id = settings.value(QStringLiteral("fitshow_user_id"), 0x006E13AA).toInt();
+    int user_id = settings.value(QStringLiteral("fitshow_user_id"), 0x13AA).toInt();
     uint8_t weight = (uint8_t)(settings.value(QStringLiteral("weight"), 75.0).toFloat() + 0.5);
-    uint8_t initUserData[] = {
-        FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_USER, 0, 0, 0, 0, 0,
-    };
+    uint8_t initUserData[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_USER, 0, 0, 0, 0, 0, 0};
     initUserData[2] = (user_id >> 0) & 0xFF;
     initUserData[3] = (user_id >> 8) & 0xFF;
-    initUserData[4] = (user_id >> 16) & 0xFF;
-    initUserData[5] = (user_id >> 24) & 0xFF;
+    initUserData[4] = 110;
+    initUserData[5] = 30; // age
     initUserData[6] = weight;
-    scheduleWrite(initUserData, sizeof(initUserData), QStringLiteral("init_user"));
-    scheduleWrite(initDataStart0, sizeof(initDataStart0), QStringLiteral("init ") + QString::number(initDataStart0[1]));
+    initUserData[7] = 170; // height
+    scheduleWrite(initUserData, sizeof(initUserData) - (!anyrun ? 1 : 0), QStringLiteral("init_user"));
+    if (!anyrun)
+        scheduleWrite(initDataStart0, sizeof(initDataStart0),
+                      QStringLiteral("init ") + QString::number(initDataStart0[1]));
     for (uint8_t i = 0; i < sizeof(initInfos); i++) {
-        initDataStart1[1] = initInfos[i];
+        if (!anyrun)
+            initDataStart1[1] = initInfos[i];
         scheduleWrite(initDataStart1, sizeof(initDataStart1),
                       QStringLiteral("init ") + QString::number(initDataStart1[1]));
+        if (anyrun)
+            break;
     }
-    initUserData[0] = FITSHOW_SYS_DATA;
-    initUserData[1] = FITSHOW_DATA_INFO;
 
     if (startTape) {
         scheduleWrite(startTape1, sizeof(startTape1), QStringLiteral("init_start"));
         forceSpeedOrIncline(lastSpeed, lastInclination);
     }
-    scheduleWrite(initUserData, sizeof(initUserData) - 1, QStringLiteral("check what is going on for given user"));
+
+    // initUserData[0] = FITSHOW_SYS_DATA;
+    // initUserData[1] = FITSHOW_DATA_INFO;
+    // scheduleWrite(initUserData, sizeof(initUserData) - 2, QStringLiteral("check what is going on for given user"));
 
     initDone = true;
 }
