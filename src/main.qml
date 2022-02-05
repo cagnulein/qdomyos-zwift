@@ -387,6 +387,18 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
+                text: qsTr("Whats On Zwift™")
+                width: parent.width
+                onClicked: {
+                    stackView.push("WebEngineTest.qml")
+                    drawer.close()
+                    stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
+                    stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
+                        stackView.pop();
+                     });
+                }
+            }	    
+            ItemDelegate {
                 id: gpx_save
                 text: qsTr("Save GPX")
                 width: parent.width
@@ -437,11 +449,8 @@ ApplicationWindow {
                 text: qsTr("Credits")
                 width: parent.width
                 onClicked: {
-                    stackView.push("WebEngineTest.qml")
+                    stackView.push("Credits.qml")
                     drawer.close()
-                    stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
-                    stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
-                        stackView.pop();
                      });
                 }
             }
