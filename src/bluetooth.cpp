@@ -696,6 +696,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("JFTM")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
                 discoveryAgent->stop();
