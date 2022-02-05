@@ -99,6 +99,7 @@ class fitshowtreadmill : public treadmill {
     QBluetoothUuid serviceId;
     int retrySend = 0;
     bool noHeartService = false;
+    bool anyrun = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
     uint8_t firstInit = 0;
@@ -115,6 +116,7 @@ class fitshowtreadmill : public treadmill {
     int SPORT_ID;
     int USER_ID;
     bool IS_PAUSE = false;
+    bool IS_HRC = false;
     QString DEVICE_ID_NAME;
     int TOTAL = 0;
     QDate FACTORY_DATE;

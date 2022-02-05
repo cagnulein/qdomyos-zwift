@@ -16,6 +16,7 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
@@ -385,6 +386,18 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            ItemDelegate {
+                text: qsTr("Whats On Zwift™")
+                width: parent.width
+                onClicked: {
+                    stackView.push("WebEngineTest.qml")
+                    drawer.close()
+                    stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
+                    stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
+                        stackView.pop();
+                     });
+                }
+            }	    
             ItemDelegate {
                 id: gpx_save
                 text: qsTr("Save GPX")
