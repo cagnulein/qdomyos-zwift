@@ -37,6 +37,8 @@ class trxappgateusbtreadmill : public treadmill {
     void *VirtualTreadMill();
     void *VirtualDevice();
 
+    double minStepInclination();
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(const QByteArray &packet);
@@ -89,6 +91,8 @@ class trxappgateusbtreadmill : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

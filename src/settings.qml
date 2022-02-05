@@ -296,6 +296,17 @@ import Qt.labs.settings 1.0
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
             property bool applewatch_fakedevice: false
+
+            // from version 2.10.15
+            property real zwift_erg_resistance_down: 0.0
+            property real zwift_erg_resistance_up: 999.0
+
+            // from version 2.10.16
+            property bool horizon_paragon_x: false
+
+            // from version 2.10.18
+            property real treadmill_step_speed: 0.5
+            property real treadmill_step_incline: 0.5
         }
 
         function paddingZeros(text, limit) {
@@ -1072,6 +1083,56 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgResistanceDown
+                            text: qsTr("ERG Min. Resistance:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgResistanceDownTextField
+                            text: settings.zwift_erg_resistance_down
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_resistance_down = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgResistanceDownButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgResistanceUp
+                            text: qsTr("ERG Max. Resistance:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgResistanceUpTextField
+                            text: settings.zwift_erg_resistance_up
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_resistance_up = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgResistanceUpButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text
                         }
                     }
 
@@ -3810,6 +3871,57 @@ import Qt.labs.settings 1.0
                     }
                 }
 
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillStepSpeed
+                        text: qsTr("Speed Step:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillSpeedStepTextField
+                        text: (settings.miles_unit?settings.treadmill_step_speed * 0.621371:settings.treadmill_step_speed).toFixed(1)
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_step_speed = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTreadmillSpeedStepButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text)
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillStepInclination
+                        text: qsTr("Inclination Step:")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: treadmillInclinationStepTextField
+                        text: settings.treadmill_step_incline
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_step_incline = text
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTreadmillInclinationStepButton
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.treadmill_step_incline = treadmillInclinationStepTextField.text
+                    }
+                }
+
+
                 AccordionElement {
                     id: proformTreadmillAccordion
                     title: qsTr("Proform/Nordictrack Options")
@@ -4122,6 +4234,32 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                AccordionElement {
+                    id: horizonTreadmillAccordion
+                    title: qsTr("Horizon Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: horizonParagonXTreadmillCadenzaDelegate
+                            text: qsTr("Paragon X")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_paragon_x
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_paragon_x = checked
+                        }
+                    }
+                }
+
             }
 
             AccordionElement {

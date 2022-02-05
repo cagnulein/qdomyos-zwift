@@ -39,7 +39,7 @@ nautiluselliptical::~nautiluselliptical() {
 
 void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                              bool wait_for_response) {
-    QEventLoop loop;
+    /*QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
@@ -62,7 +62,7 @@ void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, co
 
     if (timeout.isActive() == false) {
         emit debug(QStringLiteral(" exit for timeout"));
-    }
+    }*/
 }
 
 /*
@@ -103,9 +103,6 @@ void nautiluselliptical::changeInclinationRequested(double grade, double percent
 }
 
 void nautiluselliptical::update() {
-
-    uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -150,20 +147,6 @@ void nautiluselliptical::update() {
         if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
-        } else {
-            switch (counterPoll) {
-
-            case 0:
-                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-                break;
-            case 1:
-                writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
-                break;
-            }
-            counterPoll++;
-            if (counterPoll > 1) {
-                counterPoll = 0;
-            }
         }
 
         if (testResistance) {
@@ -242,6 +225,24 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
 
     lastPacket = newValue;
 
+    if (newValue.length() == 20) {
+
+#ifdef Q_OS_ANDROID
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
+#endif
+        {
+            uint8_t heart = ((uint8_t)newValue.at(16));
+            if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) && heart != 0) {
+                Heart = heart;
+            }
+        }
+
+        Resistance = newValue.at(18);
+        return;
+    }
+
     if (newValue.length() != 14) {
         return;
     }
@@ -259,24 +260,6 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         Cadence = ((uint8_t)newValue.at(10));
     }
     // m_watt = watt;
-
-    // Inclination = newValue.at(21);
-    /*if (Resistance.value() < 1) {
-        emit debug(QStringLiteral("invalid resistance value ") + QString::number(Resistance.value()) +
-                   QStringLiteral(" putting to default"));
-        Resistance = 1;
-    }*/
-
-#ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
-#endif
-    {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            Heart = ((uint8_t)newValue.at(18));
-        }
-    }
 
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -304,7 +287,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
 
 double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(1) << 8) | packet.at(0);
+    uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
     double data = (double)convertedData / 1000.0f;
     return data;
 }

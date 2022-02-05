@@ -104,6 +104,7 @@ void solef80treadmill::btinit() {
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
+    uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     uint8_t initData07_f63[] = {0x5b, 0x16, 0x24, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
@@ -196,6 +197,26 @@ void solef80treadmill::btinit() {
             writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
 
             writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+
         } else if (f65) {
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
             writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);

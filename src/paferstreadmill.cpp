@@ -160,6 +160,7 @@ void paferstreadmill::update() {
             writeCharacteristic(stop, sizeof(stop), "stop", false, true);
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
             requestStop = -1;
+            lastStop = QDateTime::currentMSecsSinceEpoch();
         } else if (sec1Update++ >= (400 / refresh->interval())) {
             updateDisplay(elapsed.value());
             sec1Update = 0;
@@ -213,12 +214,14 @@ void paferstreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     if (speed > 0) {
         lastSpeed = speed;
-        lastInclination = incline;        
+        lastInclination = incline;
     }
 
     // this treadmill has a bug that always send 1km/h even if the tape is stopped
-    if(speed > 1.0) {
+    if (speed > 1.0) {
         lastStart = 0;
+    } else {
+        lastStop = 0;
     }
 
     if (!firstCharacteristicChanged) {
@@ -251,6 +254,11 @@ double paferstreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint8_t convertedDataDecimal = (uint8_t)packet.at(10);
     double dataDecimal = ((double)convertedDataDecimal) / 100.0;
     double data = (double)convertedData + dataDecimal;
+
+    // this treadmill always sends speed 1 even if the tape is stopped
+    if (data == 1)
+        data = 0;
+
     return data;
 }
 

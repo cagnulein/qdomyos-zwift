@@ -227,7 +227,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_instructor_id = ride[QStringLiteral("instructor_id")].toString();
     current_ride_id = ride[QStringLiteral("id")].toString();
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
-    current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toString().toInt();
+    current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toInt();
     qint64 time = ride[QStringLiteral("original_air_time")].toInt();
     qDebug() << QStringLiteral("original_air_time") << time;
     qDebug() << QStringLiteral("current_pedaling_duration") << current_pedaling_duration;

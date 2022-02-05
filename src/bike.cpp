@@ -9,10 +9,7 @@ void bike::changeResistance(int8_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
-        if (!ergModeSupported)
-            requestResistance = v;
-        else
-            requestPower = powerFromResistanceRequest(v);
+        requestResistance = v;
         emit resistanceChanged(requestResistance);
     }
     RequestedResistance = resistance * m_difficult + gears();
@@ -46,14 +43,25 @@ void bike::changePower(int32_t power) {
     // bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool(); //Not used anywhere in code
     double erg_filter_upper = settings.value(QStringLiteral("zwift_erg_filter"), 0.0).toDouble();
     double erg_filter_lower = settings.value(QStringLiteral("zwift_erg_filter_down"), 0.0).toDouble();
+    double zwift_erg_resistance_up = settings.value(QStringLiteral("zwift_erg_resistance_up"), 999.0).toDouble();
+    double zwift_erg_resistance_down = settings.value(QStringLiteral("zwift_erg_resistance_down"), 0.0).toDouble();
 
     double deltaDown = wattsMetric().value() - ((double)power);
     double deltaUp = ((double)power) - wattsMetric().value();
     qDebug() << QStringLiteral("filter  ") + QString::number(deltaUp) + " " + QString::number(deltaDown) + " " +
                     QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
     if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
-        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower))
-        changeResistance((int8_t)resistanceFromPowerRequest(power)); // resistance start from 1
+        (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
+        int8_t r = (int8_t)resistanceFromPowerRequest(power);
+        if ((double)r > zwift_erg_resistance_up) {
+            qDebug() << "zwift_erg_resistance_up filter enabled!";
+            r = (int8_t)zwift_erg_resistance_up;
+        } else if ((double)r < zwift_erg_resistance_down) {
+            qDebug() << "zwift_erg_resistance_down filter enabled!";
+            r = (int8_t)zwift_erg_resistance_down;
+        }
+        changeResistance(r); // resistance start from 1
+    }
 }
 
 int8_t bike::gears() { return m_gears; }

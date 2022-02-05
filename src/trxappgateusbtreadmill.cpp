@@ -49,9 +49,15 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
 }
 
+void trxappgateusbtreadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
+}
+
 void trxappgateusbtreadmill::forceIncline(double requestIncline) {
     uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
-    write[4] = (requestIncline);
+    write[4] = (requestIncline + 1);
     write[7] = write[4] + 0x38;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
@@ -504,6 +510,8 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, false);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &trxappgateusbtreadmill::debug);
+                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                        &trxappgateusbtreadmill::changeInclinationRequested);
             }
         }
         firstVirtualTreadmill = 1;
@@ -655,3 +663,5 @@ void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::Contro
         m_control->connectToDevice();
     }
 }
+
+double trxappgateusbtreadmill::minStepInclination() { return 1.0; }
