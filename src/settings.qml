@@ -184,7 +184,6 @@ import Qt.labs.settings 1.0
             property double horizon_gr7_cadence_multiplier: 1.0
 
             property int  fitshow_user_id: 0x13AA
-            property bool  fitshow_anyrun: false
 
             property bool inspire_peloton_formula: false
             property bool inspire_peloton_formula2: false
@@ -307,6 +306,9 @@ import Qt.labs.settings 1.0
             // from version 2.10.18
             property real treadmill_step_speed: 0.5
             property real treadmill_step_incline: 0.5
+            
+            // from version 2.10.19
+            property bool  fitshow_anyrun: false            
         }
 
         function paddingZeros(text, limit) {
