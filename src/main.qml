@@ -103,6 +103,15 @@ ApplicationWindow {
          focus: true
          palette.text: "white"
          closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         onClosed: {
+             stackView.push("WebEngineTest.qml")
+             drawer.close()
+             stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
+             stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
+                 stackView.pop();
+              });
+         }
+
          enter: Transition
          {
              NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
@@ -115,7 +124,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
              anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("QZ is not affiliated to Zwift or https://whatsonzwift.com/ website.")
+             text: qsTr("QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
             }
          }
     }
@@ -419,13 +428,7 @@ ApplicationWindow {
                 text: qsTr("Whats On Zwift™")
                 width: parent.width
                 onClicked: {
-                    stackView.push("WebEngineTest.qml")
-                    drawer.close()
                     popupWhatsOnZwiftHelper.open()
-                    stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
-                    stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
-                        stackView.pop();
-                     });
                 }
             }	    
             ItemDelegate {
