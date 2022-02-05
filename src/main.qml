@@ -92,6 +92,35 @@ ApplicationWindow {
     }
 
     Popup {
+        id: popupWhatsOnZwiftHelper
+         parent: Overlay.overlay
+
+       x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 130
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             text: qsTr("QZ is not affiliated to Zwift or https://whatsonzwift.com/ website.")
+            }
+         }
+    }
+
+    Popup {
         id: popupLoadSettings
          parent: Overlay.overlay
 
@@ -392,6 +421,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("WebEngineTest.qml")
                     drawer.close()
+                    popupWhatsOnZwiftHelper.open()
                     stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
                     stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
                         stackView.pop();
