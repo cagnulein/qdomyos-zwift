@@ -451,7 +451,6 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("Credits.qml")
                     drawer.close()
-                     });
                 }
             }
             ItemDelegate {
