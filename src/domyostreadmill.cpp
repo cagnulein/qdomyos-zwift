@@ -522,6 +522,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double incline = GetInclinationFromPacket(value);
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -532,7 +533,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 
             uint8_t heart = ((uint8_t)value.at(18));
-            if (heart == 0) {
+            if (heart == 0 || disable_hr_frommachinery) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
