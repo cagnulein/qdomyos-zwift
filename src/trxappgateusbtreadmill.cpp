@@ -56,6 +56,8 @@ void trxappgateusbtreadmill::changeInclinationRequested(double grade, double per
 }
 
 void trxappgateusbtreadmill::forceIncline(double requestIncline) {
+    if(requestIncline < 0)
+        requestIncline = 0;
     uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
     write[4] = (requestIncline + 1);
     write[7] = write[4] + 0x38;
