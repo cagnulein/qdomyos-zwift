@@ -2832,6 +2832,25 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 void homeform::trainprogram_zwo_loaded(const QString &s) {
     qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
     trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
+    if(trainProgram) {
+        QJsonDocument doc = QJsonDocument::fromJson(s.toUtf8());
+        if (doc.isObject()) {
+            QJsonObject obj = doc.object();
+            if (obj.contains(QStringLiteral("name"))) {
+                stravaPelotonActivityName = obj[QStringLiteral("name")].toString();
+                stravaPelotonInstructorName = QStringLiteral("");
+                emit workoutNameChanged(workoutName());
+                emit instructorNameChanged(instructorName());
+                
+                QSettings settings;
+                if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
+                    return;
+                }
+                m_info = workoutName();
+                emit infoChanged(m_info);
+            }
+        }
+    }
     trainProgramSignals();
 }
 

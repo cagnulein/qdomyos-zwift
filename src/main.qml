@@ -124,7 +124,7 @@ ApplicationWindow {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
              anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
+             text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
             }
          }
     }
@@ -487,7 +487,7 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: "version 2.10.19"
+                text: "version 2.10.20"
                 width: parent.width
             }
 				FileDialog {
