@@ -39,7 +39,7 @@ nautiluselliptical::~nautiluselliptical() {
 
 void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                              bool wait_for_response) {
-    /*QEventLoop loop;
+    QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
@@ -62,7 +62,7 @@ void nautiluselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, co
 
     if (timeout.isActive() == false) {
         emit debug(QStringLiteral(" exit for timeout"));
-    }*/
+    }
 }
 
 /*
