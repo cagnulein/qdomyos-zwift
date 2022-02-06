@@ -12,6 +12,7 @@ import HealthKit
 protocol WorkoutTrackingDelegate: class {
     func didReceiveHealthKitHeartRate(_ heartRate: Double)
     func didReceiveHealthKitStepCounts(_ stepCounts: Double)
+    func didReceiveHealthKitStepCadence(_ stepCadence: Double)
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double)
     func didReceiveHealthKitActiveEnergyBurned(_ activeEnergyBurned: Double)
 }
@@ -27,6 +28,9 @@ class WorkoutTracking: NSObject {
     static let shared = WorkoutTracking()
     public static var distance = Double()
     public static var kcal = Double()
+    public static var cadenceTimeStamp = NSDate().timeIntervalSince1970
+    public static var cadenceLastSteps = Double()
+    public static var cadenceSteps = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
     var workoutSession: HKWorkoutSession!
@@ -79,7 +83,13 @@ extension WorkoutTracking {
                 
                 if let sum = result.sumQuantity() {
                     resultCount = sum.doubleValue(for: HKUnit.count())
+                    let now = NSDate().timeIntervalSince1970
+                    let deltaT = now - WorkoutTracking.cadenceTimeStamp
+                    let deltaC = resultCount - WorkoutTracking.cadenceLastSteps
+                    WorkoutTracking.cadenceLastSteps = resultCount
+                    WorkoutTracking.cadenceTimeStamp = now
                     weakSelf.delegate?.didReceiveHealthKitStepCounts(resultCount)
+                    weakSelf.delegate?.didReceiveHealthKitStepCadence((deltaC / deltaT) * 60)
                 } else {
                     print("Failed to fetch steps rate 2")
                 }

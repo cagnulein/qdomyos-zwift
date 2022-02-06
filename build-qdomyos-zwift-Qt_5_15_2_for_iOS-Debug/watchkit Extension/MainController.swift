@@ -59,6 +59,7 @@ extension MainController {
 }
 
 extension MainController: WorkoutTrackingDelegate {
+    
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double) {
         
     }
@@ -75,7 +76,10 @@ extension MainController: WorkoutTrackingDelegate {
     }
     
     func didReceiveHealthKitStepCounts(_ stepCounts: Double) {
-        stepCountsLabel.setText("\(stepCounts) STEPS")
+        //stepCountsLabel.setText("\(stepCounts) STEPS")
+    }
+    func didReceiveHealthKitStepCadence(_ stepCadence: Double) {
+        stepCountsLabel.setText("\(stepCadence) STEP CAD.")
     }
 }
 
