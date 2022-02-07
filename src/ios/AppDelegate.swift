@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import CoreMotion
+
+var pedometer = CMPedometer()
 
 @objc public class virtualdevice_ios:NSObject {
     let v = BLEPeripheralManager()
@@ -14,11 +17,19 @@ import UIKit
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
-    
+        
     @objc public func request()
     {
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
+        
+        if CMPedometer.isStepCountingAvailable() {
+            pedometer.startUpdates(from: Date()) { pedometerData, error in
+                guard let pedometerData = pedometerData, error == nil else { return }
+                    print("\(pedometerData.numberOfSteps.intValue) STEP CAD.")
+            }
+        }
+
         
         //w.startWatchApp()
     }
@@ -26,6 +37,11 @@ import UIKit
     @objc public func heartRate() -> Int
     {
         return WatchKitConnection.currentHeartRate;
+    }
+
+    @objc public func stepCadence() -> Int
+    {
+        return WatchKitConnection.stepCadence;
     }
     
     @objc public func setDistance(distance: Double) -> Void

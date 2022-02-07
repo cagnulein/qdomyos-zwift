@@ -8,6 +8,7 @@
 
 import WatchKit
 import HealthKit
+import CoreMotion
 
 class MainController: WKInterfaceController {
     @IBOutlet weak var userNameLabel: WKInterfaceLabel!
@@ -15,6 +16,7 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
     static var start: Bool! = false
+    let pedometer = CMPedometer()
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -28,6 +30,15 @@ class MainController: WKInterfaceController {
         super.willActivate()
         print("WILL ACTIVE")
         WorkoutTracking.shared.fetchStepCounts()
+        if CMPedometer.isStepCountingAvailable() {
+            pedometer.startUpdates(from: Date()) { pedometerData, error in
+                guard let pedometerData = pedometerData, error == nil else { return }
+                    self.stepCountsLabel.setText("\(pedometerData.numberOfSteps.intValue) STEP CAD.")
+                WatchKitConnection.stepCadence = pedometerData.numberOfSteps.intValue
+                WatchKitConnection.shared.sendMessage(message: ["stepCadence":
+                    "\(WatchKitConnection.stepCadence)" as AnyObject])
+            }
+        }
     }
     
     override func didDeactivate() {
@@ -73,13 +84,14 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
+        //WorkoutTracking.cadenceSteps = pedometer.
     }
     
     func didReceiveHealthKitStepCounts(_ stepCounts: Double) {
         //stepCountsLabel.setText("\(stepCounts) STEPS")
     }
     func didReceiveHealthKitStepCadence(_ stepCadence: Double) {
-        stepCountsLabel.setText("\(stepCadence) STEP CAD.")
+        
     }
 }
 

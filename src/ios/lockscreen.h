@@ -6,6 +6,7 @@ class lockscreen {
     void setTimerDisabled();
     void request();
     long heartRate();
+    long stepCadence();
     void setKcal(double kcal);
     void setDistance(double distance);
 

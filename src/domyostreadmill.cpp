@@ -523,7 +523,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
     bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
-
+    
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -550,6 +550,20 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
                 Heart = heart;
         }
     }
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+    {
+        lockscreen h;
+        long appleWatchCadence = h.stepCadence();
+        Cadence = appleWatchCadence;
+    }
+#endif
+#endif
+    
     FanSpeed = value.at(23);
 
     if (!firstCharacteristicChanged) {

@@ -32,6 +32,11 @@ long lockscreen::heartRate()
     return [h heartRate];
 }
 
+long lockscreen::stepCadence()
+{
+    return [h stepCadence];
+}
+
 void lockscreen::setKcal(double kcal)
 {
     [h setKcalWithKcal:kcal];

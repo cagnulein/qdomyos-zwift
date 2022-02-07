@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="17506" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Tpn-rd-UUX">
+<document type="com.apple.InterfaceBuilder.WatchKit.Storyboard" version="3.0" toolsVersion="19529" targetRuntime="watchKit" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="Tpn-rd-UUX">
     <device id="watch38"/>
     <dependencies>
         <deployment identifier="watchOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="17500"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBWatchKitPlugin" version="19514"/>
     </dependencies>
     <scenes>
         <!--Main-->
@@ -12,7 +12,7 @@
             <objects>
                 <controller identifier="Main" hidesWhenLoading="NO" id="Tpn-rd-UUX" customClass="MainController" customModule="watchkit_Extension">
                     <items>
-                        <label width="136" alignment="left" text="qdomyos-zwift" textAlignment="center" id="SlU-M7-WGB"/>
+                        <label width="136" alignment="left" text="QZ Fitness" textAlignment="center" id="SlU-M7-WGB"/>
                         <label width="136" alignment="left" text="Heart Rate" id="Nda-m1-XRw"/>
                         <label width="136" alignment="left" text="Step Counts" id="HpA-e9-6YV"/>
                         <button width="1" alignment="left" title="Start" id="vZg-X8-uY5">
