@@ -59,7 +59,12 @@ void renphobike::forcePower(int16_t requestPower) {
 }
 
 void renphobike::forceResistance(int8_t requestResistance) {
-    requestPower = powerFromResistanceRequest(requestResistance);
+    // requestPower = powerFromResistanceRequest(requestResistance);
+    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+
+    write[1] = ((uint16_t)requestResistance);
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
 }
 
 void renphobike::update() {
@@ -85,8 +90,9 @@ void renphobike::update() {
         update_metrics(true, watts());
 
         if (!autoResistanceEnable) {
-            qDebug() << QStringLiteral(
-                "auto resistance disabled");
+            uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("stopping control ") + QString::number(requestPower));
             return;
         } else {
             if (requestPower != -1) {
