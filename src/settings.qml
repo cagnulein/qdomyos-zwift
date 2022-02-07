@@ -309,6 +309,9 @@ import Qt.labs.settings 1.0
             
             // from version 2.10.19
             property bool  fitshow_anyrun: false            
+
+            // from version 2.10.21
+            property bool nordictrack_s30_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -3959,6 +3962,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_t65s_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            id: nordictrackS30Delegate
+                            text: qsTr("Nordictrack S30")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_s30_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_s30_treadmill = checked
                         }
                         /*
                         SwitchDelegate {
