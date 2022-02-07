@@ -966,7 +966,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));)
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
                newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
         Speed =
