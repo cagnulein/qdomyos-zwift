@@ -894,6 +894,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(concept2Skierg);
                 innerTemplateManager->start(concept2Skierg);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("CR 00")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KAYAKPRO")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("WHIPR")) ||
                         (b.name().toUpper().startsWith(QStringLiteral("PM5")) &&
                          b.name().toUpper().contains(QStringLiteral("ROW")))) &&
                        !ftmsRower && filter) {

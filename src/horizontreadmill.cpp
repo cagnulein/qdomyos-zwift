@@ -78,10 +78,6 @@ void horizontreadmill::btinit() {
     bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
-    uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x42,
-                                    0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData03_paragon[] = {0x01, 0x35, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
-
     uint8_t initData01[] = {0x55, 0xaa, 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x00};
 
     uint8_t initData7[] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xed, 0xc2,
@@ -161,13 +157,6 @@ void horizontreadmill::btinit() {
         if (horizon_paragon_x) {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01_paragon,
                                 sizeof(initData01_paragon), QStringLiteral("init"), false, true);
-            waitForAPacket();
-            waitForAPacket();
-            waitForAPacket();
-            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
-                                sizeof(initData02_paragon), QStringLiteral("init"), false, false);
-            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
-                                sizeof(initData03_paragon), QStringLiteral("init"), false, true);
         } else {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01, sizeof(initData01),
                                 QStringLiteral("init"), false, true);
@@ -812,26 +801,43 @@ void horizontreadmill::update() {
 
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
-    if (gattCustomService) {
-        messageID++;
-        uint8_t datas[4];
-        datas[0] = 0;
-        datas[1] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
-        datas[2] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
-        datas[3] = 0;
-        int confirm = GenerateCRC_CCITT(datas, 4);
-        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        write[2] = messageID & 0xff;
-        write[3] = messageID >> 8;
-        write[8] = confirm & 0xff;
-        write[9] = confirm >> 8;
-        write[10] = datas[0];
-        write[11] = datas[1];
-        write[12] = datas[2];
-        write[13] = datas[3];
+    QSettings settings;
+    bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
-                            QStringLiteral("forceSpeed"), false, true);
+    if (gattCustomService) {
+        if (!horizon_paragon_x) {
+            messageID++;
+            uint8_t datas[4];
+            datas[0] = 0;
+            datas[1] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
+            datas[2] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
+            datas[3] = 0;
+            int confirm = GenerateCRC_CCITT(datas, 4);
+            uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            write[2] = messageID & 0xff;
+            write[3] = messageID >> 8;
+            write[8] = confirm & 0xff;
+            write[9] = confirm >> 8;
+            write[10] = datas[0];
+            write[11] = datas[1];
+            write[12] = datas[2];
+            write[13] = datas[3];
+
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                QStringLiteral("forceSpeed"), false, true);
+        } else {
+            uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x42,
+                                            0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData03_paragon[] = {0x01, 0x35, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
+
+            initData03_paragon[1] = (requestSpeed * 10);
+            initData03_paragon[3] = (currentInclination().value() * 10);
+
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
+                                sizeof(initData02_paragon), QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
+                                sizeof(initData03_paragon), QStringLiteral("init"), false, true);
+        }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
@@ -852,24 +858,41 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
 
 // example frame: 55aa3800030603005d0b0a0000
 void horizontreadmill::forceIncline(double requestIncline) {
-    if (gattCustomService) {
-        messageID++;
-        uint8_t datas[3];
-        datas[0] = (uint8_t)(requestIncline * 10) & 0xff;
-        datas[1] = (uint16_t)(requestIncline * 10) >> 8;
-        datas[2] = 0;
-        int confirm = GenerateCRC_CCITT(datas, 3);
-        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-        write[2] = messageID & 0xff;
-        write[3] = messageID >> 8;
-        write[8] = confirm & 0xff;
-        write[9] = confirm >> 8;
-        write[10] = datas[0];
-        write[11] = datas[1];
-        write[12] = datas[2];
+    QSettings settings;
+    bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
 
-        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
-                            QStringLiteral("forceIncline"), false, true);
+    if (gattCustomService) {
+        if (!horizon_paragon_x) {
+            messageID++;
+            uint8_t datas[3];
+            datas[0] = (uint8_t)(requestIncline * 10) & 0xff;
+            datas[1] = (uint16_t)(requestIncline * 10) >> 8;
+            datas[2] = 0;
+            int confirm = GenerateCRC_CCITT(datas, 3);
+            uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            write[2] = messageID & 0xff;
+            write[3] = messageID >> 8;
+            write[8] = confirm & 0xff;
+            write[9] = confirm >> 8;
+            write[10] = datas[0];
+            write[11] = datas[1];
+            write[12] = datas[2];
+
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                QStringLiteral("forceIncline"), false, true);
+        } else {
+            uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x42,
+                                            0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t initData03_paragon[] = {0x01, 0x35, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
+
+            initData03_paragon[1] = (currentSpeed().value() * 10);
+            initData03_paragon[3] = (requestIncline * 10);
+
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
+                                sizeof(initData02_paragon), QStringLiteral("init"), false, false);
+            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
+                                sizeof(initData03_paragon), QStringLiteral("init"), false, true);
+        }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
         uint8_t write[] = {FTMS_REQUEST_CONTROL};
@@ -899,6 +922,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -919,8 +943,32 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 && newValue.at(0) == 0x55 &&
-        newValue.at(5) == 0x12) {
+    if (horizon_paragon_x && characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
+        newValue.at(0) == 0x55 && newValue.at(5) == 0x17) {
+        Speed =
+            (((double)(((uint16_t)((uint8_t)newValue.at(25)) << 8) | (uint16_t)((uint8_t)newValue.at(24)))) / 100.0) *
+            1.60934; // miles/h
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
+        Inclination = (double)((uint8_t)newValue.at(30)) / 10.0;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+
+        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() > 70 &&
+               newValue.at(0) == 0x55 && newValue.at(5) == 0x12) {
         Speed =
             (((double)(((uint16_t)((uint8_t)newValue.at(62)) << 8) | (uint16_t)((uint8_t)newValue.at(61)))) / 1000.0) *
             1.60934; // miles/h
