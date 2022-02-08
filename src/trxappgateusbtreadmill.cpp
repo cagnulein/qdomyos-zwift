@@ -56,7 +56,7 @@ void trxappgateusbtreadmill::changeInclinationRequested(double grade, double per
 }
 
 void trxappgateusbtreadmill::forceIncline(double requestIncline) {
-    if(requestIncline < 0)
+    if (requestIncline < 0)
         requestIncline = 0;
     uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
     write[4] = (requestIncline + 1);
@@ -206,7 +206,20 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#else
             Heart = 0;
+#endif
+#else
+            Heart = 0;
+#endif
         }
     }
     FanSpeed = 0;
