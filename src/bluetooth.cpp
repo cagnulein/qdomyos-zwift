@@ -781,7 +781,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     innerTemplateManager->start(technogymmyrunrfcommTreadmill);
                 }
 #endif
-            } else if ((b.name().toUpper().startsWith("TACX NEO 2") ||
+            } else if ((b.name().toUpper().startsWith("TACX NEO") ||
                         (b.name().toUpper().startsWith("TACX SMART BIKE"))) &&
                        !tacxneo2Bike && filter) {
                 discoveryAgent->stop();
