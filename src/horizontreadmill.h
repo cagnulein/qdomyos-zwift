@@ -67,6 +67,7 @@ class horizontreadmill : public treadmill {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    QByteArray lastPacketComplete;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
