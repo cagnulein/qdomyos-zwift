@@ -928,7 +928,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
+    // bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -952,8 +952,8 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
-    if (horizon_paragon_x && characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
-        lastPacketComplete.length() > 70 && lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && lastPacketComplete.length() > 70 &&
+        lastPacketComplete.at(0) == 0x55 && lastPacketComplete.at(5) == 0x17) {
         Speed = (((double)(((uint16_t)((uint8_t)lastPacketComplete.at(25)) << 8) |
                            (uint16_t)((uint8_t)lastPacketComplete.at(24)))) /
                  100.0) *
