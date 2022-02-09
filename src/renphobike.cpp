@@ -62,9 +62,9 @@ void renphobike::forceResistance(int8_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
 
-    write[1] = ((uint16_t)requestResistance);
+    write[1] = ((uint8_t)(requestResistance * 2));
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
 void renphobike::update() {
