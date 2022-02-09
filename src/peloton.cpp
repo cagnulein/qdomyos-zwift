@@ -246,6 +246,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
 void peloton::performance_onfinish(QNetworkReply *reply) {
 
     QSettings settings;
+    bool power_zone_ride = current_workout_name.toUpper().contains(QStringLiteral("POWER ZONE"));
     QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
     QByteArray payload = reply->readAll(); // JSON
@@ -258,7 +259,12 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QJsonObject target_metrics_performance_data = json[QStringLiteral("target_metrics_performance_data")].toObject();
     QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
     trainrows.clear();
-    if (!target_performance_metrics.isEmpty()) {
+
+    if (power_zone_ride && !target_performance_metrics.isEmpty()) {
+        qDebug() << QStringLiteral("!!Peloton Power Zone Ride Override!!");
+    }
+
+    if (!target_performance_metrics.isEmpty() && !power_zone_ride) {
         QJsonArray target_graph_metrics = target_performance_metrics[QStringLiteral("target_graph_metrics")].toArray();
         QJsonObject resistances = target_graph_metrics[1].toObject();
         QJsonObject graph_data_resistances = resistances[QStringLiteral("graph_data")].toObject();
