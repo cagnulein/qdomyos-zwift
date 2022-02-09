@@ -522,6 +522,21 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(nautilusElliptical);
                 innerTemplateManager->start(nautilusElliptical);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
+                discoveryAgent->stop();
+                bhFitnessElliptical = new bhfitnesselliptical(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                              bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(bhFitnessElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(bhFitnessElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(bhFitnessElliptical, &bhfitnesselliptical::debug, this, &bluetooth::debug);
+                bhFitnessElliptical->deviceDiscovered(b);
+                // connect(this, &bluetooth::searchingStop, bhFitnessElliptical, &bhfitnesselliptical::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(bhFitnessElliptical);
+                innerTemplateManager->start(bhFitnessElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("E95S")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E25")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E35")) ||
@@ -848,7 +863,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("ASSIOMA")) &&
                          powerSensorName.startsWith(QStringLiteral("Disabled")))) &&
                        !stagesBike && !ftmsBike && filter) {
-
                 discoveryAgent->stop();
                 stagesBike = new stagesbike(noWriteResistance, noHeartService, false);
                 // stateFileRead();
@@ -862,7 +876,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(stagesBike);
                 innerTemplateManager->start(stagesBike);
             } else if (b.name().startsWith(QStringLiteral("SMARTROW")) && !smartrowRower && filter) {
-
                 discoveryAgent->stop();
                 smartrowRower =
                     new smartrowrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -914,7 +927,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QLatin1String("ECH-STRIDE")) ||
                         b.name().toUpper().startsWith(QLatin1String("ECH-SD-SPT"))) &&
                        !echelonStride && filter) {
-
                 discoveryAgent->stop();
                 echelonStride = new echelonstride(this->pollDeviceTime, noConsole, noHeartService);
                 // stateFileRead();
@@ -929,7 +941,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(echelonStride);
                 innerTemplateManager->start(echelonStride);
             } else if (b.name().startsWith(QStringLiteral("ECH-ROW")) && !echelonRower && filter) {
-
                 discoveryAgent->stop();
                 echelonRower =
                     new echelonrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -946,7 +957,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(echelonRower);
             } else if (b.name().startsWith(QStringLiteral("ECH")) && !echelonRower && !echelonStride &&
                        !echelonConnectSport && filter) {
-
                 discoveryAgent->stop();
                 echelonConnectSport = new echelonconnectsport(noWriteResistance, noHeartService, bikeResistanceOffset,
                                                               bikeResistanceGain);
@@ -987,7 +997,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(schwinnIC4Bike);
                 innerTemplateManager->start(schwinnIC4Bike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("EW-BK")) && !sportsTechBike && filter) {
-
                 discoveryAgent->stop();
                 sportsTechBike = new sportstechbike(noWriteResistance, noHeartService);
                 // stateFileRead();
@@ -1003,7 +1012,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(sportsTechBike);
                 innerTemplateManager->start(sportsTechBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("CARDIOFIT")) && !sportsPlusBike && filter) {
-
                 discoveryAgent->stop();
                 sportsPlusBike = new sportsplusbike(noWriteResistance, noHeartService);
                 // stateFileRead();
@@ -1019,7 +1027,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(sportsPlusBike);
                 innerTemplateManager->start(sportsPlusBike);
             } else if (b.name().startsWith(QStringLiteral("YESOUL")) && !yesoulBike && filter) {
-
                 discoveryAgent->stop();
                 yesoulBike = new yesoulbike(noWriteResistance, noHeartService);
                 // stateFileRead();
@@ -1035,7 +1042,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(yesoulBike);
             } else if ((b.name().startsWith(QStringLiteral("I_EB")) || b.name().startsWith(QStringLiteral("I_SB"))) &&
                        !proformBike && filter) {
-
                 discoveryAgent->stop();
                 proformBike =
                     new proformbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1726,6 +1732,11 @@ void bluetooth::restart() {
         delete nautilusElliptical;
         nautilusElliptical = nullptr;
     }
+    if (bhFitnessElliptical) {
+
+        delete bhFitnessElliptical;
+        bhFitnessElliptical = nullptr;
+    }
     if (cscBike) {
 
         delete cscBike;
@@ -1996,6 +2007,8 @@ bluetoothdevice *bluetooth::device() {
         return soleElliptical;
     } else if (nautilusElliptical) {
         return nautilusElliptical;
+    } else if (bhFitnessElliptical) {
+        return bhFitnessElliptical;
     } else if (cscBike) {
         return cscBike;
     } else if (powerBike) {
