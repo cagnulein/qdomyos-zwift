@@ -273,6 +273,8 @@ import Qt.labs.settings 1.0
 
             property string ftms_accessory_name: "Disabled"
             property real ss2k_shift_step: 900
+            property real ss2k_calibrated_slope: 0
+            property real ss2k_calibrated_intercept: 0
 
             property bool fitmetria_fanfit_enable: false
             property string fitmetria_fanfit_mode: "Heart"

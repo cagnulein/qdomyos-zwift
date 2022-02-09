@@ -18,6 +18,7 @@
 using namespace std::chrono_literals;
 
 smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice) {
+    QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->max_resistance = max_resistance;
@@ -25,6 +26,18 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t ma
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->slope = settings.value(QStringLiteral("ss2k_calibrated_slope"), 0).toReal();
+    this->intercept = settings.value(QStringLiteral("ss2k_calibrated_intercept"), 0).toReal();
+    if (this->intercept == 0) {
+        this->intercept = settings.value("ss2k_shift_step", 900).toUInt();
+    }
+
+    // test
+    double xSamples[] = {20,30,40,50};
+    double ySamples[] = { 332,323,300,282};
+    calibrateShiftStep(4, xSamples, ySamples);
+    // end test
+    
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &smartspin2k::update);
     refresh->start(200ms);
@@ -37,9 +50,8 @@ void smartspin2k::autoResistanceChanged(bool value) {
     }
 }
 
-void smartspin2k::setShiftStep() {
-    QSettings settings;
-    uint16_t steps = settings.value("ss2k_shift_step", 900).toUInt();
+
+void smartspin2k::setShiftStep(uint16_t steps) {
     uint8_t shiftStep[] = {0x02, 0x08, 0x00, 0x00};
     shiftStep[2] = (uint8_t)(steps & 0xFF);
     shiftStep[3] = (uint8_t)(steps >> 8);
@@ -47,7 +59,6 @@ void smartspin2k::setShiftStep() {
 }
 
 void smartspin2k::lowInit(int8_t resistance) {
-    setShiftStep();
     uint8_t enable_syncmode[] = {0x02, 0x1B, 0x01};
     uint8_t disable_syncmode[] = {0x02, 0x1B, 0x00};
     writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
@@ -135,8 +146,37 @@ void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const
     loop.exec();
 }
 
+void smartspin2k::calibrateShiftStep (int8_t nSamples, double *x, double *y) {
+    QSettings settings;
+    
+    // calculate slope and intercept using least squares regression
+    double xsum = 0, ysum = 0, x2sum=0, xysum=0;
+    
+    for (int8_t i=0; i<nSamples; i++) {
+        xsum += x[i];
+        ysum += y[i];
+        x2sum += x[i] * x[i];
+        xysum += x[i] * y[i];
+    }
+    
+    slope = (nSamples * xysum - xsum*ysum) / (nSamples * x2sum - xsum * xsum);
+    intercept = (x2sum * ysum - xsum * xysum)/(x2sum * nSamples - xsum * xsum);
+     
+    settings.setValue(QStringLiteral("ss2k_calibrated_slope"), slope);
+    settings.setValue(QStringLiteral("ss2k_calibrated_intercept"), intercept);
+    
+    emit debug(QStringLiteral("Calibrating SS2K:  slope=") + QString::number(slope) + QStringLiteral(" intercept=") + QString::number(intercept) );
+}
+
 void smartspin2k::forceResistance(int8_t requestResistance) {
 
+    QSettings settings;
+   
+    // if not calibrated, slope=0 and intercept is the configured shift step
+    uint16_t steps = slope * requestResistance + intercept;
+    
+    setShiftStep(steps);
+    
     lastRequestResistance = requestResistance;
 
     uint8_t write[] = {0x02, 0x17, 0x00, 0x00};
@@ -145,6 +185,7 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
+
 
 void smartspin2k::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
