@@ -286,6 +286,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                      SLOT(refresh_bluetooth_devices_clicked()));
     QObject::connect(home, SIGNAL(lap_clicked()), this, SLOT(Lap()));
     QObject::connect(home, SIGNAL(peloton_start_workout()), this, SLOT(peloton_start_workout()));
+    QObject::connect(home, SIGNAL(peloton_abort_workout()), this, SLOT(peloton_abort_workout()));
     QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
     QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
 
@@ -342,6 +343,12 @@ void homeform::volumeDown() {
         Minus(QStringLiteral("gears"));
 }
 
+void homeform::peloton_abort_workout() {
+    qDebug() << QStringLiteral("peloton_abort_workout!");
+    pelotonAbortedName = pelotonAskedName;
+    pelotonAbortedInstructor = pelotonAskedInstructor;
+}
+
 void homeform::peloton_start_workout() {
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
@@ -370,8 +377,16 @@ void homeform::pelotonLoginState(bool ok) {
 }
 
 void homeform::pelotonWorkoutStarted(const QString &name, const QString &instructor) {
-    Q_UNUSED(name)
-    Q_UNUSED(instructor)
+    pelotonAskedName = name;
+    pelotonAskedInstructor = instructor;
+
+    if (!pelotonAskedName.compare(pelotonAbortedName) && !pelotonAskedInstructor.compare(pelotonAbortedInstructor)) {
+        qDebug() << QStringLiteral("Peloton class aborted before");
+        return;
+    }
+    pelotonAbortedName.clear();
+    pelotonAbortedInstructor.clear();
+
     if (pelotonHandler) {
         switch (pelotonHandler->currentApi()) {
         case peloton::homefitnessbuddy_api:
@@ -2832,7 +2847,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
 void homeform::trainprogram_zwo_loaded(const QString &s) {
     qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
     trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
-    if(trainProgram) {
+    if (trainProgram) {
         QJsonDocument doc = QJsonDocument::fromJson(s.toUtf8());
         if (doc.isObject()) {
             QJsonObject obj = doc.object();
@@ -2841,7 +2856,7 @@ void homeform::trainprogram_zwo_loaded(const QString &s) {
                 stravaPelotonInstructorName = QStringLiteral("");
                 emit workoutNameChanged(workoutName());
                 emit instructorNameChanged(instructorName());
-                
+
                 QSettings settings;
                 if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
                     return;
