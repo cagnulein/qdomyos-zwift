@@ -68,6 +68,9 @@ void tacxneo2::forceInclination(double inclination) {
     // TODO: inclination for bikes need to be managed on virtual bike interface
     // Inclination = inclination;
 
+    // this bike doesn't provide resistance, so i will put at the same value of the inclination #659
+    Resistance = inclination;
+
     inclination += 200;
     inclination = inclination * 100;
     uint8_t inc[] = {0xa4, 0x09, 0x4e, 0x05, 0x33, 0xff, 0xff, 0xff, 0xff, 0xd3, 0x4f, 0xff, 0x00};
@@ -104,14 +107,10 @@ void tacxneo2::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15)
-                requestResistance = 15;
-            else if (requestResistance == 0)
-                requestResistance = 1;
-
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // forceResistance(requestResistance);
+                requestInclination = requestResistance;
             }
             requestResistance = -1;
         }
