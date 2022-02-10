@@ -320,12 +320,14 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+/*
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
     }
+ */
 #endif
 #endif
 
@@ -427,19 +429,8 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     ) {
         QSettings settings;
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-        if (ios_peloton_workaround && cadence) {
-            qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualTreadmill_ios();
-        } else
-#endif
-#endif
-            if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
+        if (virtual_device_enabled) {
+            emit debug(QStringLiteral("creating virtual treadmill interface..."));
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
             // connect(virtualTreadmill,&virtualTreadmill::debug ,this,&bhfitnesselliptical::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
