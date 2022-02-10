@@ -232,7 +232,7 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     qDebug() << QStringLiteral("original_air_time") << time;
     qDebug() << QStringLiteral("current_pedaling_duration") << current_pedaling_duration;
 
-    current_original_air_time = QDateTime::fromSecsSinceEpoch(time);
+    current_original_air_time = QDateTime::fromSecsSinceEpoch(time, Qt::UTC);
 
     if (log_request) {
         qDebug() << QStringLiteral("workout_onfinish") << workout;
