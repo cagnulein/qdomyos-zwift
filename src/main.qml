@@ -91,7 +91,6 @@ ApplicationWindow {
          }
     }
 
-    /*
     Popup {
         id: popupWhatsOnZwiftHelper
          parent: Overlay.overlay
@@ -128,7 +127,7 @@ ApplicationWindow {
              text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
             }
          }
-    }*/
+    }
 
     Popup {
         id: popupLoadSettings
@@ -425,13 +424,15 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            /*
             ItemDelegate {
                 text: qsTr("Whats On Zwift™")
                 width: parent.width
                 onClicked: {
                     popupWhatsOnZwiftHelper.open()
                 }
-            }	    
+            }*/
+
             ItemDelegate {
                 id: gpx_save
                 text: qsTr("Save GPX")
