@@ -864,7 +864,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
             initData02_paragon[12] = datas[2];
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
-                                sizeof(initData02_paragon), QStringLiteral("forceSpeed"), false, true);
+                                sizeof(initData02_paragon), QStringLiteral("forceSpeed"), false, false);
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
