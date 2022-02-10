@@ -55,14 +55,9 @@ void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, c
 
 void bhfitnesselliptical::forceResistance(int8_t requestResistance) {
 
-    // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a FTMS bike
-    if (virtualTreadmill->connected())
-        return;
+    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
+    write[1] = ((uint16_t)requestResistance) & 0xFF;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
@@ -133,6 +128,12 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+
+    if (characteristic.uuid() == QBluetoothUuid::HeartRate && newValue.length() > 1) {
+        Heart = (uint8_t)newValue[1];
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+        return;
+    }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
         return;
