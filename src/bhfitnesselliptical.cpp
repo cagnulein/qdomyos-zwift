@@ -169,9 +169,11 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 
     if (!Flags.moreData) {
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            // this elliptical doesn't send speed so i have to calculate this based on cadence
+            /*
             Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                               (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
+                    100.0;*/
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value());
         }
@@ -195,6 +197,11 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
             Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)newValue.at(index)))) /
                       2.0;
+
+            // this elliptical doesn't send speed so i have to calculate this based on cadence
+            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                Speed = Cadence.value() / 10.0;
+            }
         }
         index += 2;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
