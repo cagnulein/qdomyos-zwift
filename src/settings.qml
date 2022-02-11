@@ -315,6 +315,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.10.23
             property bool nordictrack_fs5i_treadmill: false
+
+            // from version 2.10.26
+            property bool renpho_peloton_conversion_v2: false
         }
 
         function paddingZeros(text, limit) {
@@ -1364,6 +1367,31 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.inspire_peloton_formula2 = checked
                     }
+                    }
+                }
+
+                AccordionElement {
+                    id: renphoBikeAccordion
+                    title: qsTr("Renpho Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: renphoPelotonFormulaDelegate
+                            text: qsTr("New Peloton Formula (11/02/2022)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.renpho_peloton_conversion_v2
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.renpho_peloton_conversion_v2 = checked
+                        }
                     }
                 }
 

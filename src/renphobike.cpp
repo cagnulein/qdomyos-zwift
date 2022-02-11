@@ -593,11 +593,22 @@ uint8_t renphobike::resistanceFromPowerRequest(uint16_t power)
 }*/
 
 double renphobike::bikeResistanceToPeloton(double resistance) {
-    // 0,0069x2 + 0,3538x + 24,207
-    double p = ((0.0069 * pow(resistance, 2)) + (0.3538 * resistance) + 24.207);
-    if (p < 0)
-        p = 0;
-    return p;
+    QSettings settings;
+    bool renpho_peloton_conversion_v2 = settings.value(QStringLiteral("renpho_peloton_conversion_v2"), false).toBool();
+
+    if (!renpho_peloton_conversion_v2) {
+        // 0,0069x2 + 0,3538x + 24,207
+        double p = ((0.0069 * pow(resistance, 2)) + (0.3538 * resistance) + 24.207);
+        if (p < 0)
+            p = 0;
+        return p;
+    } else {
+        // 0,0071x2 + 0,3233x + 24,188
+        double p = ((0.0071 * pow(resistance, 2)) + (0.3233 * resistance) + 24.188);
+        if (p < 0)
+            p = 0;
+        return p;
+    }
 }
 
 bool renphobike::connected() {
