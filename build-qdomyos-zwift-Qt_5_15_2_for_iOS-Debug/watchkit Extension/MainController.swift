@@ -33,8 +33,8 @@ class MainController: WKInterfaceController {
         if CMPedometer.isStepCountingAvailable() {
             pedometer.startUpdates(from: Date()) { pedometerData, error in
                 guard let pedometerData = pedometerData, error == nil else { return }
-					     self.stepCountsLabel.setText("\(pedometerData.currentCadence.intValue) STEP CAD.")
-						WatchKitConnection.stepCadence = pedometerData.currentCadence.intValue
+                self.stepCountsLabel.setText("\(Int(((pedometerData.currentCadence?.doubleValue ?? 0) * 60.0))) STEP CAD.")
+                WatchKitConnection.stepCadence = Int(((pedometerData.currentCadence?.doubleValue ?? 0) * 60.0))
                 WatchKitConnection.shared.sendMessage(message: ["stepCadence":
                     "\(WatchKitConnection.stepCadence)" as AnyObject])
             }
