@@ -294,7 +294,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    // if ee change this, also change the wattsFromResistance function. We can create a standard function in order to
+    // if we change this, also change the wattsFromResistance function. We can create a standard function in order to
     // have all the costants in one place (I WANT MORE TIME!!!)
     double ac = 0.01243107769;
     double bc = 1.145964912;
