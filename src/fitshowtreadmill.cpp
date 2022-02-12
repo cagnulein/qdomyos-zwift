@@ -33,6 +33,7 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     initDone = false;
     QSettings settings;
     anyrun = settings.value(QStringLiteral("fitshow_anyrun"), false).toBool();
+    truetimer = settings.value(QStringLiteral("fitshow_truetimer"), false).toBool();
     connect(refresh, &QTimer::timeout, this, &fitshowtreadmill::update);
     refresh->start(pollDeviceTime);
 }
@@ -394,9 +395,9 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 double speed = array[2] / 10.0;
                 double incline = array[3];
                 uint16_t seconds_elapsed = anyrun ? array[4] * 60 + array[5] : array[4] | array[5] << 8;
-                double distance = (array[6] | array[7] << 8) / 10.0;
-                double kcal = array[8] | array[9] << 8;
-                uint16_t step_count = array[10] | array[11] << 8;
+                double distance = (anyrun ? (array[7] | array[6] << 8) : (array[6] | array[7] << 8)) / 10.0;
+                double kcal = anyrun ? (array[9] | array[8] << 8) : (array[8] | array[9] << 8);
+                uint16_t step_count = anyrun ? (array[11] | array[10] << 8) : (array[10] | array[11] << 8);
                 // final byte b2 = array[13]; Mark_zuli???
                 double heart = array[12];
 
@@ -434,7 +435,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 }
 
                 KCal = kcal;
-                // elapsed = seconds_elapsed;
+                if (truetimer)
+                    elapsed = seconds_elapsed;
                 Distance = distance;
 #ifdef Q_OS_ANDROID
                 if (settings.value("ant_heart", false).toBool())
@@ -539,7 +541,8 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                 emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
                 emit debug(QStringLiteral("Current Distance: ") + QString::number(distance));
                 KCal = kcal;
-                elapsed = seconds_elapsed;
+                if (truetimer)
+                    elapsed = seconds_elapsed;
                 Distance = distance;
             }
         }

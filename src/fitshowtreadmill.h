@@ -100,6 +100,7 @@ class fitshowtreadmill : public treadmill {
     int retrySend = 0;
     bool noHeartService = false;
     bool anyrun = false;
+    bool truetimer = false;
     uint32_t pollDeviceTime = 200;
     bool searchStopped = false;
     uint8_t firstInit = 0;

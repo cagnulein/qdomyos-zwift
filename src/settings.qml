@@ -318,6 +318,8 @@ import Qt.labs.settings 1.0
 
             // from version 2.10.26
             property bool renpho_peloton_conversion_v2: false
+
+            property bool  fitshow_truetimer: false
         }
 
         function paddingZeros(text, limit) {
@@ -4196,6 +4198,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.fitshow_anyrun = checked
+                        }
+                        SwitchDelegate {
+                            id: fitshowTruetimerDelegate
+                            text: qsTr("True timer")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_truetimer
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.fitshow_truetimer = checked
                         }
                         RowLayout {
                             spacing: 10
