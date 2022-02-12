@@ -274,13 +274,13 @@ import Qt.labs.settings 1.0
             property string ftms_accessory_name: "Disabled"
             property real ss2k_shift_step: 900
             property real ss2k_resistance_sample_1: 20
-            property real ss2k_shift_step_sample_1: 332
+            property real ss2k_shift_step_sample_1: 0
             property real ss2k_resistance_sample_2: 30
-            property real ss2k_shift_step_sample_2: 323
+            property real ss2k_shift_step_sample_2: 0
             property real ss2k_resistance_sample_3: 40
-            property real ss2k_shift_step_sample_3: 300
+            property real ss2k_shift_step_sample_3: 0
             property real ss2k_resistance_sample_4: 50
-            property real ss2k_shift_step_sample_4: 282
+            property real ss2k_shift_step_sample_4: 0
 
             property bool fitmetria_fanfit_enable: false
             property string fitmetria_fanfit_mode: "Heart"
