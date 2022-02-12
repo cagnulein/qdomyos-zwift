@@ -273,8 +273,14 @@ import Qt.labs.settings 1.0
 
             property string ftms_accessory_name: "Disabled"
             property real ss2k_shift_step: 900
-            property real ss2k_calibrated_slope: 0
-            property real ss2k_calibrated_intercept: 0
+            property real ss2k_resistance_sample_1: 20
+            property real ss2k_shift_step_sample_1: 332
+            property real ss2k_resistance_sample_2: 30
+            property real ss2k_shift_step_sample_2: 323
+            property real ss2k_resistance_sample_3: 40
+            property real ss2k_shift_step_sample_3: 300
+            property real ss2k_resistance_sample_4: 50
+            property real ss2k_shift_step_sample_4: 282
 
             property bool fitmetria_fanfit_enable: false
             property string fitmetria_fanfit_mode: "Heart"
@@ -5077,6 +5083,204 @@ import Qt.labs.settings 1.0
                                     text: "OK"
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onClicked: settings.ss2k_shift_step = ss2kShiftStepTextField.text
+                                }
+                            }
+                            AccordionElement {
+                                id: ftmsAccessoryAdvancedOptionsAccordion
+                                title: qsTr("Advanced SmartSpin2k Calibration")
+                                indicatRectColor: Material.color(Material.Grey)
+                                textColor: Material.color(Material.Yellow)
+                                color: Material.backgroundColor
+                                accordionContent: ColumnLayout {
+                                    spacing: 10
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample1
+                                            text: qsTr("Resistance Sample 1")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample1TextField
+                                            text: settings.ss2k_resistance_sample_1
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_1 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample1
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample1
+                                            text: qsTr("Shift Step Sample 1")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample1TextField
+                                            text: settings.ss2k_shift_step_sample_1
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_1 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample1
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample2
+                                            text: qsTr("Resistance Sample 2")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample2TextField
+                                            text: settings.ss2k_resistance_sample_2
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_2 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample2
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample2
+                                            text: qsTr("Shift Step Sample 2")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample2TextField
+                                            text: settings.ss2k_shift_step_sample_2
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_2 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample2
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample3
+                                            text: qsTr("Resistance Sample 3")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample3TextField
+                                            text: settings.ss2k_resistance_sample_3
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_3 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample3
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample3
+                                            text: qsTr("Shift Step Sample 3")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample3TextField
+                                            text: settings.ss2k_shift_step_sample_3
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_3 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample3
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample4
+                                            text: qsTr("Resistance Sample 4")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample4TextField
+                                            text: settings.ss2k_resistance_sample_4
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_4 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample4
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample4
+                                            text: qsTr("Shift Step Sample 4")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample4TextField
+                                            text: settings.ss2k_shift_step_sample_4
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_4 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample4
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text
+                                        }
+                                    }
                                 }
                             }
                         }

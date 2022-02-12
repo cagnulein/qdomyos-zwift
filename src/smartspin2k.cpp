@@ -26,17 +26,8 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t ma
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
-    this->slope = settings.value(QStringLiteral("ss2k_calibrated_slope"), 0).toReal();
-    this->intercept = settings.value(QStringLiteral("ss2k_calibrated_intercept"), 0).toReal();
-    if (this->intercept == 0) {
-        this->intercept = settings.value("ss2k_shift_step", 900).toUInt();
-    }
 
-    // test
-    double xSamples[] = {20,30,40,50};
-    double ySamples[] = { 332,323,300,282};
-    calibrateShiftStep(4, xSamples, ySamples);
-    // end test
+    calibrateShiftStep();
     
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &smartspin2k::update);
@@ -146,25 +137,40 @@ void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const
     loop.exec();
 }
 
-void smartspin2k::calibrateShiftStep (int8_t nSamples, double *x, double *y) {
+void smartspin2k::calibrateShiftStep () {
     QSettings settings;
+    double x[max_calibration_samples], y[max_calibration_samples];
+    u_int8_t nSamples = 0;
     
-    // calculate slope and intercept using least squares regression
-    double xsum = 0, ysum = 0, x2sum=0, xysum=0;
-    
-    for (int8_t i=0; i<nSamples; i++) {
-        xsum += x[i];
-        ysum += y[i];
-        x2sum += x[i] * x[i];
-        xysum += x[i] * y[i];
+    for (int i = 0; i < max_calibration_samples; ++i) {
+        x[nSamples] = settings.value(QStringLiteral("ss2k_resistance_sample_") + QString::number(i + 1)).toDouble();
+        y[nSamples] = settings.value(QStringLiteral("ss2k_shiftstep_sample_") + QString::number(i + 1)).toDouble();
+        if (x[nSamples] > 0 && y[nSamples] > 0) {
+            ++nSamples;
+        }
     }
-    
-    slope = (nSamples * xysum - xsum*ysum) / (nSamples * x2sum - xsum * xsum);
-    intercept = (x2sum * ysum - xsum * xysum)/(x2sum * nSamples - xsum * xsum);
-     
-    settings.setValue(QStringLiteral("ss2k_calibrated_slope"), slope);
-    settings.setValue(QStringLiteral("ss2k_calibrated_intercept"), intercept);
-    
+
+    if (nSamples == 0) {
+        slope = 0;
+        intercept =  settings.value("ss2k_shift_step", 900).toUInt();
+        return;
+    } else if (nSamples == 1) {
+        slope = 0;
+        intercept = y[0];
+    } else {
+        // calculate slope and intercept using least squares regression
+        double xsum = 0, ysum = 0, x2sum=0, xysum=0;
+        
+        for (int8_t i=0; i<nSamples; i++) {
+            xsum += x[i];
+            ysum += y[i];
+            x2sum += x[i] * x[i];
+            xysum += x[i] * y[i];
+        }
+        
+        slope = (nSamples * xysum - xsum*ysum) / (nSamples * x2sum - xsum * xsum);
+        intercept = (x2sum * ysum - xsum * xysum)/(x2sum * nSamples - xsum * xsum);
+    }
     emit debug(QStringLiteral("Calibrating SS2K:  slope=") + QString::number(slope) + QStringLiteral(" intercept=") + QString::number(intercept) );
 }
 
