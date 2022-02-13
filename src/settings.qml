@@ -5152,7 +5152,7 @@ import Qt.labs.settings 1.0
                                 id: ftmsAccessoryAdvancedOptionsAccordion
                                 title: qsTr("Advanced SmartSpin2k Calibration")
                                 indicatRectColor: Material.color(Material.Grey)
-                                textColor: Material.color(Material.Yellow)
+                                textColor: Material.color(Material.Blue)
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10

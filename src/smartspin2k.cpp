@@ -28,7 +28,7 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t ma
     this->noHeartService = noHeartService;
 
     calibrateShiftStep();
-    
+
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &smartspin2k::update);
     refresh->start(200ms);
@@ -40,7 +40,6 @@ void smartspin2k::autoResistanceChanged(bool value) {
         lowInit(Resistance.value());
     }
 }
-
 
 void smartspin2k::setShiftStep(uint16_t steps) {
     uint8_t shiftStep[] = {0x02, 0x08, 0x00, 0x00};
@@ -137,11 +136,11 @@ void smartspin2k::writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const
     loop.exec();
 }
 
-void smartspin2k::calibrateShiftStep () {
+void smartspin2k::calibrateShiftStep() {
     QSettings settings;
     double x[max_calibration_samples], y[max_calibration_samples];
-    u_int8_t nSamples = 0;
-    
+    uint8_t nSamples = 0;
+
     for (int i = 0; i < max_calibration_samples; ++i) {
         x[nSamples] = settings.value(QStringLiteral("ss2k_resistance_sample_") + QString::number(i + 1)).toDouble();
         y[nSamples] = settings.value(QStringLiteral("ss2k_shiftstep_sample_") + QString::number(i + 1)).toDouble();
@@ -152,37 +151,38 @@ void smartspin2k::calibrateShiftStep () {
 
     if (nSamples == 0) {
         slope = 0;
-        intercept =  settings.value("ss2k_shift_step", 900).toUInt();
+        intercept = settings.value("ss2k_shift_step", 900).toUInt();
         return;
     } else if (nSamples == 1) {
         slope = 0;
         intercept = y[0];
     } else {
         // calculate slope and intercept using least squares regression
-        double xsum = 0, ysum = 0, x2sum=0, xysum=0;
-        
-        for (int8_t i=0; i<nSamples; i++) {
+        double xsum = 0, ysum = 0, x2sum = 0, xysum = 0;
+
+        for (int8_t i = 0; i < nSamples; i++) {
             xsum += x[i];
             ysum += y[i];
             x2sum += x[i] * x[i];
             xysum += x[i] * y[i];
         }
-        
-        slope = (nSamples * xysum - xsum*ysum) / (nSamples * x2sum - xsum * xsum);
-        intercept = (x2sum * ysum - xsum * xysum)/(x2sum * nSamples - xsum * xsum);
+
+        slope = (nSamples * xysum - xsum * ysum) / (nSamples * x2sum - xsum * xsum);
+        intercept = (x2sum * ysum - xsum * xysum) / (x2sum * nSamples - xsum * xsum);
     }
-    emit debug(QStringLiteral("Calibrating SS2K:  slope=") + QString::number(slope) + QStringLiteral(" intercept=") + QString::number(intercept) );
+    emit debug(QStringLiteral("Calibrating SS2K:  slope=") + QString::number(slope) + QStringLiteral(" intercept=") +
+               QString::number(intercept));
 }
 
 void smartspin2k::forceResistance(int8_t requestResistance) {
 
     QSettings settings;
-   
+
     // if not calibrated, slope=0 and intercept is the configured shift step
     uint16_t steps = slope * requestResistance + intercept;
-    
+
     setShiftStep(steps);
-    
+
     lastRequestResistance = requestResistance;
 
     uint8_t write[] = {0x02, 0x17, 0x00, 0x00};
@@ -191,7 +191,6 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
-
 
 void smartspin2k::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
@@ -296,13 +295,12 @@ void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     if (newValue.length() >= 4 && newValue.at(1) == 0x17) {
         Resistance = (int16_t)(((uint16_t)newValue.at(2)) + ((((uint16_t)newValue.at(3)) << 8) & 0xFF00));
-        if(parentDevice &&
-                (!parentDevice->ergManagedBySS2K() || parentDevice->lastRequestedPower().value() == 0) &&
-                lastRequestResistance == -1) {
-            if(Resistance.value() > (double)lastResistance) {
+        if (parentDevice && (!parentDevice->ergManagedBySS2K() || parentDevice->lastRequestedPower().value() == 0) &&
+            lastRequestResistance == -1) {
+            if (Resistance.value() > (double)lastResistance) {
                 qDebug() << QStringLiteral("SS2K Gear Up!");
                 emit gearUp();
-            } else if(Resistance.value() < (double)lastResistance) {
+            } else if (Resistance.value() < (double)lastResistance) {
                 qDebug() << QStringLiteral("SS2K Gear Down!");
                 emit gearDown();
             }
@@ -310,7 +308,7 @@ void smartspin2k::characteristicChanged(const QLowEnergyCharacteristic &characte
         lastResistance = Resistance.value();
 
         // target point matched
-        if(lastRequestResistance == Resistance.value())
+        if (lastRequestResistance == Resistance.value())
             lastRequestResistance = -1;
         emit resistanceRead(Resistance.value());
         qDebug() << "Resistance received from SS2k:" << Resistance.value();
