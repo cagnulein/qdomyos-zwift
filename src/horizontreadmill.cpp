@@ -848,8 +848,12 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 QStringLiteral("forceSpeed"), false, true);
         } else {
             uint8_t datas[3];
-            datas[0] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
-            datas[1] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
+            bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+            double miles_conversion = 1.0;
+            if (miles)
+                miles_conversion = 0.621371;
+            datas[0] = (uint8_t)(requestSpeed * miles_conversion * 10) & 0xff;
+            datas[1] = (uint16_t)(requestSpeed * miles_conversion * 10) >> 8;
             datas[2] = 0x01;
             uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x03, 0x00,
                                             0x00, 0x00, 0x6f, 0x00, 0x01, 0x0d, 0x0a};
