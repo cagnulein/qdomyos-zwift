@@ -309,7 +309,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
 double soleelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
+    uint16_t convertedData = (packet.at(11) << 8) | ((uint8_t)packet.at(12));
     double data = (double)convertedData / 100.0f;
     return data;
 }
