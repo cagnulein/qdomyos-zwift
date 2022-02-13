@@ -603,8 +603,8 @@ double renphobike::bikeResistanceToPeloton(double resistance) {
             p = 0;
         return p;
     } else {
-        // 0,0071x2 + 0,3233x + 24,188
-        double p = ((0.0071 * pow(resistance, 2)) + (0.3233 * resistance) + 24.188);
+        // y = 0,0283x2 + 0,6748x + 24,518
+        double p = ((0.0283 * pow(resistance, 2)) + (0.6748 * resistance) + 24.518);
         if (p < 0)
             p = 0;
         return p;
