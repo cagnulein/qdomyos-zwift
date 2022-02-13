@@ -18,6 +18,7 @@
 #include <QtCore/qloggingcategory.h>
 
 #include "activiotreadmill.h"
+#include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"
 #include "bowflextreadmill.h"
 #include "chronobike.h"
@@ -108,6 +109,7 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
     concept2skierg *concept2Skierg = nullptr;

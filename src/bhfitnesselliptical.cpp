@@ -1,16 +1,14 @@
-#include "ftmsrower.h"
+#include "bhfitnesselliptical.h"
 #include "ftmsbike.h"
 #include "ios/lockscreen.h"
-#include "virtualbike.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
 #include <QSettings>
-
 #include <QThread>
 #include <math.h>
-
 #ifdef Q_OS_ANDROID
 #include <QLowEnergyConnectionParameters>
 #endif
@@ -19,24 +17,22 @@
 
 using namespace std::chrono_literals;
 
-ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
+bhfitnesselliptical::bhfitnesselliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                                         double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
-    connect(refresh, &QTimer::timeout, this, &ftmsrower::update);
+    connect(refresh, &QTimer::timeout, this, &bhfitnesselliptical::update);
     refresh->start(200ms);
 }
 
-void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                    bool wait_for_response) {
-    if (!gattFTMSService || !gattWriteCharControlPointId.isValid()) {
-        qDebug() << QStringLiteral("gattWriteCharControlPointId or gattFTMSService not valid!!");
-        return;
-    }
-
+void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                              bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -57,39 +53,33 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     loop.exec();
 }
 
-void ftmsrower::forceResistance(int8_t requestResistance) {
+void bhfitnesselliptical::forceResistance(int8_t requestResistance) {
 
-    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
 
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
+    write[1] = ((uint16_t)requestResistance) & 0xFF;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
-void ftmsrower::update() {
+void bhfitnesselliptical::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
-
         emit disconnected();
         return;
     }
 
     if (initRequest) {
-
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
-
                m_control->state() == QLowEnergyController::DiscoveredState //&&
                                                                            // gattCommunicationChannelService &&
                                                                            // gattWriteCharacteristic.isValid() &&
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
-
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
-
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
@@ -104,7 +94,6 @@ void ftmsrower::update() {
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
@@ -119,28 +108,34 @@ void ftmsrower::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
-
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
         }
     }
 }
 
-void ftmsrower::serviceDiscovered(const QBluetoothUuid &gatt) {
+void bhfitnesselliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-
+void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
-    qDebug() << QStringLiteral(" << ") << characteristic.uuid() << " " << newValue.toHex(' ');
+    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
-    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD1)) {
+    if (characteristic.uuid() == QBluetoothUuid::HeartRate && newValue.length() > 1) {
+        Heart = (uint8_t)newValue[1];
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+        return;
+    }
+
+    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
         return;
     }
 
@@ -148,15 +143,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     union flags {
         struct {
-
             uint16_t moreData : 1;
-            uint16_t avgStroke : 1;
+            uint16_t avgSpeed : 1;
+            uint16_t instantCadence : 1;
+            uint16_t avgCadence : 1;
             uint16_t totDistance : 1;
-            uint16_t instantPace : 1;
-            uint16_t avgPace : 1;
+            uint16_t resistanceLvl : 1;
             uint16_t instantPower : 1;
             uint16_t avgPower : 1;
-            uint16_t resistanceLvl : 1;
             uint16_t expEnergy : 1;
             uint16_t heartRate : 1;
             uint16_t metabolic : 1;
@@ -174,29 +168,52 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     index += 2;
 
     if (!Flags.moreData) {
-
-        Cadence = ((uint8_t)newValue.at(index)) / 2;
-        StrokesCount =
-            (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
-
-        index += 3;
-
-        /*
-         * the concept 2 sends the pace in 2 frames, so this condition will create a bugus speed
-        if (!Flags.instantPace) {
-            // eredited by echelon rower, probably we need to change this
-            Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
-            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        }*/
-        emit debug(QStringLiteral("Strokes Count: ") + QString::number(StrokesCount.value()));
+        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            // this elliptical doesn't send speed so i have to calculate this based on cadence
+            /*
+            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                              (uint16_t)((uint8_t)newValue.at(index)))) /
+                    100.0;*/
+        } else {
+            Speed = metric::calculateSpeedFromPower(m_watt.value());
+        }
+        index += 2;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
-    if (Flags.avgStroke) {
+    if (Flags.avgSpeed) {
+        double avgSpeed;
+        avgSpeed =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+            100.0;
+        index += 2;
+        emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+    }
 
-        double avgStroke;
-        avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) / 2.0;
-        index += 1;
-        emit debug(QStringLiteral("Current Average Stroke: ") + QString::number(avgStroke));
+    if (Flags.instantCadence) {
+        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled"))) {
+            Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                (uint16_t)((uint8_t)newValue.at(index)))) /
+                      2.0;
+
+            // this elliptical doesn't send speed so i have to calculate this based on cadence
+            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                Speed = Cadence.value() / 10.0;
+            }
+        }
+        index += 2;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    }
+
+    if (Flags.avgCadence) {
+        double avgCadence;
+        avgCadence =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
+            2.0;
+        index += 2;
+        emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
     }
 
     if (Flags.totDistance) {
@@ -212,37 +229,25 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
-    if (Flags.instantPace) {
-
-        double instantPace;
-        instantPace =
+    if (Flags.resistanceLvl) {
+        Resistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        // emit resistanceRead(Resistance.value());
         index += 2;
-        emit debug(QStringLiteral("Current Pace: ") + QString::number(instantPace));
-
-        Speed = (60.0 / instantPace) *
-                30.0; // translating pace (min/500m) to km/h in order to match the pace function in the rower.cpp
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-    }
-
-    if (Flags.avgPace) {
-
-        double avgPace;
-        avgPace =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        index += 2;
-        emit debug(QStringLiteral("Current Average Pace: ") + QString::number(avgPace));
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
     if (Flags.instantPower) {
-        m_watt =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
+        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+            m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                               (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
     }
 
     if (Flags.avgPower) {
-
         double avgPower;
         avgPower =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
@@ -250,16 +255,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
     }
 
-    if (Flags.resistanceLvl) {
-        Resistance =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        emit resistanceRead(Resistance.value());
-        index += 2;
-        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-    }
-
-    if (Flags.expEnergy) {
-
+    if (Flags.expEnergy && newValue.length() > index + 1) {
         KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
@@ -287,41 +283,36 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     else
 #endif
     {
-        if (Flags.heartRate) {
-            if (index < newValue.length()) {
-                Heart = ((double)((newValue.at(index))));
-                // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
-                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-            } else
-                emit debug(QStringLiteral("Error on parsing heart"));
+        if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+            Heart = ((double)((newValue.at(index))));
+            // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+        } else {
+            Flags.heartRate = false;
         }
     }
 
     if (Flags.metabolic) {
-
         // todo
     }
 
     if (Flags.elapsedTime) {
-
         // todo
     }
 
     if (Flags.remainingTime) {
-
         // todo
     }
 
     if (Cadence.value() > 0) {
-
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-
+    if (heartRateBeltName.startsWith(QStringLiteral("Disabled")) &&
+        (!Flags.heartRate || Heart.value() == 0 || disable_hr_frommachinery)) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         lockscreen h;
@@ -336,13 +327,14 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
+/*
     bool cadence = settings.value("bike_cadence_sensor", false).toBool();
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-
-        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->virtualTreadmill_setHeartRate((uint8_t)metrics_override_heartrate());
     }
+ */
 #endif
 #endif
 
@@ -354,8 +346,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 }
 
-void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
-
+void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
@@ -363,7 +354,6 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
         qDebug() << QStringLiteral("stateChanged") << s->serviceUuid() << s->state();
         if (s->state() != QLowEnergyService::ServiceDiscovered && s->state() != QLowEnergyService::InvalidService) {
             qDebug() << QStringLiteral("not all services discovered");
-
             return;
         }
     }
@@ -372,29 +362,27 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
         if (s->state() == QLowEnergyService::ServiceDiscovered) {
-
             // establish hook into notifications
-            connect(s, &QLowEnergyService::characteristicChanged, this, &ftmsrower::characteristicChanged);
-            connect(s, &QLowEnergyService::characteristicWritten, this, &ftmsrower::characteristicWritten);
-            connect(s, &QLowEnergyService::characteristicRead, this, &ftmsrower::characteristicRead);
+            connect(s, &QLowEnergyService::characteristicChanged, this, &bhfitnesselliptical::characteristicChanged);
+            connect(s, &QLowEnergyService::characteristicWritten, this, &bhfitnesselliptical::characteristicWritten);
+            connect(s, &QLowEnergyService::characteristicRead, this, &bhfitnesselliptical::characteristicRead);
             connect(
                 s, static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &ftmsrower::errorService);
-            connect(s, &QLowEnergyService::descriptorWritten, this, &ftmsrower::descriptorWritten);
-            connect(s, &QLowEnergyService::descriptorRead, this, &ftmsrower::descriptorRead);
+                this, &bhfitnesselliptical::errorService);
+            connect(s, &QLowEnergyService::descriptorWritten, this, &bhfitnesselliptical::descriptorWritten);
+            connect(s, &QLowEnergyService::descriptorRead, this, &bhfitnesselliptical::descriptorRead);
 
             qDebug() << s->serviceUuid() << QStringLiteral("connected!");
 
             auto characteristics_list = s->characteristics();
             for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-                qDebug() << "char uuid" << c.uuid() << QStringLiteral("handle") << c.handle();
+                qDebug() << QStringLiteral("char uuid") << c.uuid() << QStringLiteral("handle") << c.handle();
                 auto descriptors_list = c.descriptors();
                 for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
                     qDebug() << QStringLiteral("descriptor uuid") << d.uuid() << QStringLiteral("handle") << d.handle();
                 }
 
                 if ((c.properties() & QLowEnergyCharacteristic::Notify) == QLowEnergyCharacteristic::Notify) {
-
                     QByteArray descriptor;
                     descriptor.append((char)0x01);
                     descriptor.append((char)0x00);
@@ -431,7 +419,6 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
-
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
                 }
@@ -440,62 +427,61 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !virtualTreadmill
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
 #endif
 #endif
     ) {
-
         QSettings settings;
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-        if (ios_peloton_workaround && cadence) {
-
-            qDebug() << "ios_peloton_workaround activated!";
-            h = new lockscreen();
-            h->virtualbike_ios();
-        } else
-
-#endif
-#endif
-            if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
-
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
+        if (virtual_device_enabled) {
+            emit debug(QStringLiteral("creating virtual treadmill interface..."));
+            virtualTreadmill = new virtualtreadmill(this, noHeartService);
+            // connect(virtualTreadmill,&virtualTreadmill::debug ,this,&bhfitnesselliptical::debug);
+            connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                    &bhfitnesselliptical::changeInclination);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
 }
 
-void ftmsrower::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
-    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
+void bhfitnesselliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                    const QByteArray &newValue) {
+    QByteArray b = newValue;
+    if (gattWriteCharControlPointId.isValid()) {
+        qDebug() << "routing FTMS packet to the bike from virtualTreadmill" << characteristic.uuid()
+                 << newValue.toHex(' ');
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
+    }
+}
+
+void bhfitnesselliptical::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+    emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void ftmsrower::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void bhfitnesselliptical::descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     qDebug() << QStringLiteral("descriptorRead ") << descriptor.name() << descriptor.uuid() << newValue.toHex(' ');
 }
 
-void ftmsrower::characteristicWritten(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-
+void bhfitnesselliptical::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
+                                                const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void ftmsrower::characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void bhfitnesselliptical::characteristicRead(const QLowEnergyCharacteristic &characteristic,
+                                             const QByteArray &newValue) {
     qDebug() << QStringLiteral("characteristicRead ") << characteristic.uuid() << newValue.toHex(' ');
 }
 
-void ftmsrower::serviceScanDone(void) {
+void bhfitnesselliptical::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
 #ifdef Q_OS_ANDROID
@@ -506,42 +492,41 @@ void ftmsrower::serviceScanDone(void) {
     m_control->requestConnectionUpdate(c);
 #endif
 
+    initRequest = false;
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
-                &ftmsrower::stateChanged);
+                &bhfitnesselliptical::stateChanged);
         gattCommunicationChannelService.constLast()->discoverDetails();
     }
 }
 
-void ftmsrower::errorService(QLowEnergyService::ServiceError err) {
-
+void bhfitnesselliptical::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("ftmsrower::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("bhfitnesselliptical::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void ftmsrower::error(QLowEnergyController::Error err) {
-
+void bhfitnesselliptical::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("ftmsrower::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("bhfitnesselliptical::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+void bhfitnesselliptical::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsrower::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &ftmsrower::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bhfitnesselliptical::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &bhfitnesselliptical::serviceScanDone);
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &ftmsrower::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &ftmsrower::controllerStateChanged);
+                this, &bhfitnesselliptical::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &bhfitnesselliptical::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -568,19 +553,18 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
-bool ftmsrower::connected() {
+bool bhfitnesselliptical::connected() {
     if (!m_control) {
-
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *ftmsrower::VirtualBike() { return virtualBike; }
+void *bhfitnesselliptical::VirtualTreadmill() { return virtualTreadmill; }
 
-void *ftmsrower::VirtualDevice() { return VirtualBike(); }
+void *bhfitnesselliptical::VirtualDevice() { return VirtualTreadmill(); }
 
-uint16_t ftmsrower::watts() {
+uint16_t bhfitnesselliptical::watts() {
     if (currentCadence().value() == 0) {
         return 0;
     }
@@ -588,11 +572,10 @@ uint16_t ftmsrower::watts() {
     return m_watt.value();
 }
 
-void ftmsrower::controllerStateChanged(QLowEnergyController::ControllerState state) {
+void bhfitnesselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
-
         initDone = false;
         m_control->connectToDevice();
     }

@@ -426,6 +426,10 @@ class homeform : public QObject {
     QString stravaPelotonInstructorName;
     FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
+    QString pelotonAskedName = QStringLiteral("");
+    QString pelotonAskedInstructor = QStringLiteral("");
+    QString pelotonAbortedName = QStringLiteral("");
+    QString pelotonAbortedInstructor = QStringLiteral("");
 
     QString lastFitFileSaved = QLatin1String("");
 
@@ -529,6 +533,7 @@ class homeform : public QObject {
     void pelotonLoginState(bool ok);
     void pzpLoginState(bool ok);
     void peloton_start_workout();
+    void peloton_abort_workout();
     void smtpError(SmtpClient::SmtpError e);
     void setActivityDescription(QString newdesc);
     void chartSaved(QString fileName);

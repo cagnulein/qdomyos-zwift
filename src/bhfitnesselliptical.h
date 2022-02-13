@@ -1,5 +1,5 @@
-#ifndef FTMSROWER_H
-#define FTMSROWER_H
+#ifndef BHFITNESSELLIPTICAL_H
+#define BHFITNESSELLIPTICAL_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -26,20 +26,21 @@
 #include <QObject>
 #include <QString>
 
-#include "rower.h"
-#include "virtualbike.h"
+#include "elliptical.h"
+#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class ftmsrower : public rower {
+class bhfitnesselliptical : public elliptical {
     Q_OBJECT
   public:
-    ftmsrower(bool noWriteResistance, bool noHeartService);
+    bhfitnesselliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                        double bikeResistanceGain);
     bool connected();
 
-    void *VirtualBike();
+    void *VirtualTreadmill();
     void *VirtualDevice();
 
   private:
@@ -50,7 +51,7 @@ class ftmsrower : public rower {
     void forceResistance(int8_t requestResistance);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
+    virtualtreadmill *virtualTreadmill = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -60,6 +61,8 @@ class ftmsrower : public rower {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -93,6 +96,7 @@ class ftmsrower : public rower {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
-#endif // FTMSROWER_H
+#endif // BHFITNESSELLIPTICAL_H

@@ -46,6 +46,7 @@ android: include(../android_openssl/openssl.pri)
 
 SOURCES += \
     activiotreadmill.cpp \
+   bhfitnesselliptical.cpp \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
@@ -179,6 +180,7 @@ INCLUDEPATH += fit-sdk/
 
 HEADERS += \
     activiotreadmill.h \
+   bhfitnesselliptical.h \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
@@ -567,5 +569,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.10.22
+VERSION = 2.10.26
 

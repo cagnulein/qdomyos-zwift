@@ -37,6 +37,7 @@ class stagesbike : public bike {
     Q_OBJECT
   public:
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
+    int pelotonToBikeResistance(int pelotonResistance);
     bool connected();
     uint8_t maxResistance() { return 100; }
     bool ergManagedBySS2K() { return true; }
@@ -47,6 +48,8 @@ class stagesbike : public bike {
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
+    uint16_t wattsFromResistance(double resistance);
+    metric ResistanceFromFTMSAccessory;
     void startDiscover();
     uint16_t watts();
 

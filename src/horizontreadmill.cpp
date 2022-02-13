@@ -797,6 +797,13 @@ void horizontreadmill::update() {
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
 
+            bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
+            if (horizon_paragon_x) {
+                uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+                writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                    QStringLiteral("stopping"), false, true);
+            }
+
             requestStop = -1;
         }
         if (requestIncreaseFan != -1) {
@@ -840,13 +847,24 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
                                 QStringLiteral("forceSpeed"), false, true);
         } else {
+            uint8_t datas[3];
+            datas[0] = (uint8_t)(requestSpeed * 0.621371 * 10) & 0xff;
+            datas[1] = (uint16_t)(requestSpeed * 0.621371 * 10) >> 8;
+            datas[2] = 0x01;
             uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x05, 0x03, 0x00,
-                                            0xe7, 0x6b, 0x6f, 0x00, 0x01, 0x0d, 0x0a};
+                                            0x00, 0x00, 0x6f, 0x00, 0x01, 0x0d, 0x0a};
 
-            initData02_paragon[10] = (requestSpeed * 10);
+            int confirm = GenerateCRC_CCITT(datas, 3);
+
+            initData02_paragon[8] = confirm & 0xff;
+            initData02_paragon[9] = confirm >> 8;
+
+            initData02_paragon[10] = datas[0];
+            initData02_paragon[11] = datas[1];
+            initData02_paragon[12] = datas[2];
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
-                                sizeof(initData02_paragon), QStringLiteral("forceSpeed"), false, true);
+                                sizeof(initData02_paragon), QStringLiteral("forceSpeed"), false, false);
         }
     } else if (gattFTMSService) {
         // for the Tecnogym Myrun
@@ -894,7 +912,16 @@ void horizontreadmill::forceIncline(double requestIncline) {
             uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x06, 0x02,
                                             0x00, 0x39, 0xcc, 0x4b, 0x00, 0x0d, 0x0a};
 
-            initData02_paragon[10] = (requestIncline * 10);
+            uint8_t datas[2];
+            datas[0] = (uint8_t)(requestIncline * 10) & 0xff;
+            datas[1] = 0;
+
+            int confirm = GenerateCRC_CCITT(datas, 2);
+
+            initData02_paragon[8] = confirm & 0xff;
+            initData02_paragon[9] = confirm >> 8;
+
+            initData02_paragon[10] = datas[0];
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
                                 sizeof(initData02_paragon), QStringLiteral("forceIncline"), false, false);
@@ -1447,6 +1474,7 @@ const int CRC_TABLE[256] = {
     61215, 65342, 53085, 57212, 44955, 49082, 36825, 40952, 28183, 32310, 20053, 24180, 11923, 16050, 3793,  7920,
 };
 
+// https://crccalc.com/
 int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count) {
     if (PU16_Count == 0) {
         return 0;
