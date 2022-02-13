@@ -47,6 +47,7 @@ class smartspin2k : public bike {
     void *VirtualDevice();
 
   private:
+    const int max_calibration_samples = 4;
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -54,7 +55,7 @@ class smartspin2k : public bike {
     void startDiscover();
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
-    void setShiftStep();
+    void setShiftStep(uint16_t);
     void lowInit(int8_t resistance);
 
     QTimer *refresh;
@@ -83,6 +84,9 @@ class smartspin2k : public bike {
 
     uint8_t max_resistance;
 
+    double slope = 0.0;
+    double intercept = 0.0;
+    
     bike *parentDevice = nullptr;
 
 #ifdef Q_OS_IOS
@@ -99,6 +103,7 @@ class smartspin2k : public bike {
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void resistanceReadFromTheBike(int8_t resistance);
     void autoResistanceChanged(bool value);
+    void calibrateShiftStep();
 
   private slots:
 
