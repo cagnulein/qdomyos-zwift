@@ -215,12 +215,14 @@ void fitshowtreadmill::update() {
                 lastSpeed = 0.5;
             }
             btinit(true);
+            lastStart = QDateTime::currentMSecsSinceEpoch();
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
             uint8_t stopTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_STOP}; // to verify
             emit debug(QStringLiteral("stopping..."));
+            lastStop = QDateTime::currentMSecsSinceEpoch();
             scheduleWrite(stopTape, sizeof(stopTape), QStringLiteral("stop tape"));
             requestStop = -1;
         }
@@ -423,6 +425,13 @@ void fitshowtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
                 if (m_control->error() != QLowEnergyController::NoError) {
                     qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
+                }
+
+                if (speed > 0) {
+                    lastStart =
+                        0; // telling to the UI that it could be autostoppable when the speed it will reach again 0
+                } else {
+                    lastStop = 0;
                 }
 
                 if (Speed.value() != speed) {
@@ -758,4 +767,18 @@ void fitshowtreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+bool fitshowtreadmill::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
+
+bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
 }
