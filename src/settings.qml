@@ -330,6 +330,9 @@ import Qt.labs.settings 1.0
             property real ss2k_shift_step_sample_4: 0            
             
             property bool  fitshow_truetimer: false
+
+            // from the version 2.10.28
+            property real elite_rizer_gain: 1.0
         }
 
         function paddingZeros(text, limit) {
@@ -5033,6 +5036,30 @@ import Qt.labs.settings 1.0
                                         text: "Refresh Devices List"
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                         onClicked: refresh_bluetooth_devices_clicked();
+                                    }
+                                }
+                                RowLayout {
+                                    spacing: 10
+                                    Label {
+                                        id: labelEliteRizerGain
+                                        text: qsTr("Difficulty/Gain:")
+                                        Layout.fillWidth: true
+                                    }
+                                    TextField {
+                                        id: eliteRizerGainTextField
+                                        text: settings.elite_rizer_gain
+                                        horizontalAlignment: Text.AlignRight
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                        onAccepted: settings.elite_rizer_gain = text
+                                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    }
+                                    Button {
+                                        id: okEliteRizerGainButton
+                                        text: "OK"
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        onClicked: settings.elite_rizer_gain = eliteRizerGainTextField.text
                                     }
                                 }
                             }
