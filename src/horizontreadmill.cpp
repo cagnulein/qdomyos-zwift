@@ -1224,6 +1224,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     QBluetoothUuid _gattWriteCharCustomService((quint16)0xFFF3);
     QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+    QBluetoothUuid _gattTreadmillDataId((quint16)0x2ACD);
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -1259,6 +1260,9 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
+                    gattFTMSService = s;
+                } else if (c.uuid() == _gattTreadmillDataId && gattFTMSService == nullptr) {
+                    // some treadmills doesn't have the control point so i need anyway to get the FTMS Service at least
                     gattFTMSService = s;
                 }
 
