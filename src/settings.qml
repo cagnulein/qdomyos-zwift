@@ -335,6 +335,7 @@ import Qt.labs.settings 1.0
             property real elite_rizer_gain: 1.0
             property bool tile_ext_incline_enabled: false
             property int  tile_ext_incline_order: 32
+            property bool sole_r92: false
         }
 
         function paddingZeros(text, limit) {
@@ -1225,6 +1226,30 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.schwinn_bike_resistance_v2 = checked
+                        }
+                    }
+                }
+                AccordionElement {
+                    id: soleBikeAccordion
+                    title: qsTr("Sole Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: soleBikeR92Delegate
+                            text: qsTr("Sole R92")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_r92
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_r92 = checked
                         }
                     }
                 }

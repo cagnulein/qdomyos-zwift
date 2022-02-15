@@ -84,10 +84,6 @@ void solebike::forceResistance(int8_t requestResistance) {
 
 void solebike::update() {
 
-    uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
-    uint8_t noOpData2[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
-
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -102,22 +98,46 @@ void solebike::update() {
 
         update_metrics(false, watts());
 
+        QSettings settings;
+        bool sole_r92 = settings.value(QStringLiteral("sole_r92"), false).toBool();
+
         // updating the treadmill console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
         } else {
-            switch (counterPoll) {
+            if (!sole_r92) {
+                uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData2[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
+                switch (counterPoll) {
 
-            case 0:
-                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-                break;
-            case 1:
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
-                break;
-            case 2:
-                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"), false, true);
-                break;
+                case 0:
+                    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                    break;
+                case 1:
+                    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                case 2:
+                    writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"), false, true);
+                    break;
+                }
+            } else {
+                uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData2[] = {0x5b, 0x04, 0x00, 0x14, 0x4f, 0x4b, 0x5d};
+                switch (counterPoll) {
+
+                case 0:
+                    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                    break;
+                case 1:
+                    writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                case 2:
+                    writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"), false, true);
+                    break;
+                }
             }
             counterPoll++;
             if (counterPoll > 2) {
@@ -200,7 +220,7 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         return;
     }
 
-    if (newValue.length() != 22) {
+    if (newValue.length() < 20) {
         return;
     }
 
@@ -311,23 +331,55 @@ double solebike::GetSpeedFromPacket(const QByteArray &packet) {
 }
 
 void solebike::btinit() {
-    uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
-    uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
-    uint8_t initData3[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
-    uint8_t initData4[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
-    uint8_t initData5[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
-    uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
-    uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+    QSettings settings;
+    bool sole_r92 = settings.value(QStringLiteral("sole_r92"), false).toBool();
+
+    if (!sole_r92) {
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+    } else {
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x14, 0x4f, 0x4b, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
+        uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData8[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+        uint8_t initData9[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+        uint8_t initData10[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 
@@ -442,7 +494,8 @@ void solebike::error(QLowEnergyController::Error err) {
 void solebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                     device.address().toString() + ')';
-    if (device.name().startsWith(QStringLiteral("ECH"))) {
+    // if (device.name().startsWith(QStringLiteral("ECH")))
+    {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
