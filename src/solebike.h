@@ -45,6 +45,7 @@ class solebike : public bike {
     void *VirtualDevice();
 
   private:
+    bool r92 = false;
     const int max_resistance = 40;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);

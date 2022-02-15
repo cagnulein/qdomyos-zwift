@@ -1249,7 +1249,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 trxappgateusbBike->deviceDiscovered(b);
                 userTemplateManager->start(trxappgateusbBike);
                 innerTemplateManager->start(trxappgateusbBike);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("LCB")) && !soleBike && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
+                       !soleBike && filter) {
                 discoveryAgent->stop();
                 soleBike = new solebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);

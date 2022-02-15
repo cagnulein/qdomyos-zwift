@@ -98,15 +98,12 @@ void solebike::update() {
 
         update_metrics(false, watts());
 
-        QSettings settings;
-        bool sole_r92 = settings.value(QStringLiteral("sole_r92"), false).toBool();
-
         // updating the treadmill console every second
         if (sec1Update++ == (1000 / refresh->interval())) {
 
             sec1Update = 0;
         } else {
-            if (!sole_r92) {
+            if (!r92) {
                 uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
                 uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
                 uint8_t noOpData2[] = {0x5b, 0x04, 0x00, 0x13, 0x4f, 0x4b, 0x5d};
@@ -332,10 +329,7 @@ double solebike::GetSpeedFromPacket(const QByteArray &packet) {
 
 void solebike::btinit() {
 
-    QSettings settings;
-    bool sole_r92 = settings.value(QStringLiteral("sole_r92"), false).toBool();
-
-    if (!sole_r92) {
+    if (!r92) {
         uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
         uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
         uint8_t initData3[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
@@ -494,7 +488,11 @@ void solebike::error(QLowEnergyController::Error err) {
 void solebike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                     device.address().toString() + ')';
-    // if (device.name().startsWith(QStringLiteral("ECH")))
+    if (device.name().toUpper().startsWith(QStringLiteral("R92"))) {
+        qDebug() << QStringLiteral("R92 found!");
+        r92 = true;
+    }
+
     {
         bluetoothDevice = device;
 
