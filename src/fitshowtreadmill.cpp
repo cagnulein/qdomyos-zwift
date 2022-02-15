@@ -220,10 +220,17 @@ void fitshowtreadmill::update() {
             emit tapeStarted();
         }
         if (requestStop != -1) {
-            uint8_t stopTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_STOP}; // to verify
-            emit debug(QStringLiteral("stopping..."));
-            lastStop = QDateTime::currentMSecsSinceEpoch();
-            scheduleWrite(stopTape, sizeof(stopTape), QStringLiteral("stop tape"));
+            if (paused) {
+                lastStop = QDateTime::currentMSecsSinceEpoch();
+                uint8_t pauseTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_PAUSE}; // to verify
+                emit debug(QStringLiteral("pausing..."));
+                scheduleWrite(pauseTape, sizeof(pauseTape), QStringLiteral("pause tape"));
+            } else {
+                uint8_t stopTape[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_STOP};
+                emit debug(QStringLiteral("stopping..."));
+                lastStop = QDateTime::currentMSecsSinceEpoch();
+                scheduleWrite(stopTape, sizeof(stopTape), QStringLiteral("stop tape"));
+            }
             requestStop = -1;
         }
 
