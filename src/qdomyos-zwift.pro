@@ -117,6 +117,7 @@ SOURCES += \
    peloton.cpp \
    powerzonepack.cpp \
 	proformbike.cpp \
+   proformelliptical.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
    renphobike.cpp \
@@ -448,6 +449,7 @@ HEADERS += \
    peloton.h \
    powerzonepack.h \
 	proformbike.h \
+   proformelliptical.h \
 	proformtreadmill.h \
     qdebugfixup.h \
 	qfit.h \
@@ -571,5 +573,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.10.28
+VERSION = 2.10.29
 

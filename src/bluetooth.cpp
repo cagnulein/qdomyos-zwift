@@ -522,6 +522,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(nautilusElliptical);
                 innerTemplateManager->start(nautilusElliptical);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
+                discoveryAgent->stop();
+                proformElliptical = new proformelliptical(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(proformElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(proformElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformElliptical, &proformelliptical::debug, this, &bluetooth::debug);
+                proformElliptical->deviceDiscovered(b);
+                // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(proformElliptical);
+                innerTemplateManager->start(proformElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
                 discoveryAgent->stop();
                 bhFitnessElliptical = new bhfitnesselliptical(noWriteResistance, noHeartService, bikeResistanceOffset,
@@ -1056,9 +1070,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 proformBike->deviceDiscovered(b);
                 userTemplateManager->start(proformBike);
                 innerTemplateManager->start(proformBike);
-            } else if ((b.name().startsWith(QStringLiteral("I_TL")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("I_FS"))) &&
-                       !proformTreadmill && filter) {
+            } else if ((b.name().startsWith(QStringLiteral("I_TL"))) && !proformTreadmill && filter) {
                 discoveryAgent->stop();
                 proformTreadmill = new proformtreadmill(noWriteResistance, noHeartService);
                 // stateFileRead();
@@ -1866,6 +1878,11 @@ void bluetooth::restart() {
         delete proformTreadmill;
         proformTreadmill = nullptr;
     }
+    if (proformElliptical) {
+
+        delete proformElliptical;
+        proformElliptical = nullptr;
+    }
     if (eslinkerTreadmill) {
 
         delete eslinkerTreadmill;
@@ -2089,6 +2106,8 @@ bluetoothdevice *bluetooth::device() {
         return proformBike;
     } else if (proformTreadmill) {
         return proformTreadmill;
+    } else if (proformElliptical) {
+        return proformElliptical;
     } else if (eslinkerTreadmill) {
         return eslinkerTreadmill;
     } else if (bowflexTreadmill) {

@@ -314,6 +314,8 @@ import Qt.labs.settings 1.0
             property bool nordictrack_s30_treadmill: false
 
             // from version 2.10.23
+            // not used anymore because it's an elliptical not a treadmill. Don't remove this
+            // it will cause corruption in the settings
             property bool nordictrack_fs5i_treadmill: false
 
             // from version 2.10.26
@@ -4007,6 +4009,7 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_s30_treadmill = checked
                         }
+                        /*
                         SwitchDelegate {
                             id: nordictrackFS5IDelegate
                             text: qsTr("Nordictrack FS5i")
@@ -4020,7 +4023,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_fs5i_treadmill = checked
-                        }
+                        }*/
                         /*
                         SwitchDelegate {
                             id: proform995iDelegate
