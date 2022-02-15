@@ -207,7 +207,6 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
 }
-}
 
 void proformelliptical::btinit() {
 
