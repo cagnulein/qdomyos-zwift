@@ -85,6 +85,7 @@ class fitshowtreadmill : public treadmill {
     bool connected();
     bool autoPauseWhenSpeedIsZero();
     bool autoStartWhenSpeedIsGreaterThenZero();
+    double minStepInclination();
 
     void *VirtualTreadMill();
     void *VirtualDevice();

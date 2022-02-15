@@ -789,3 +789,5 @@ bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     else
         return false;
 }
+
+double fitshowtreadmill::minStepInclination() { return 1.0; }
