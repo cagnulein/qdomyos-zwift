@@ -218,6 +218,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                            QStringLiteral("0"), true, QStringLiteral("gears"), 48, labelFontSize);
     pidHR = new DataObject(QStringLiteral("PID Heart"), QStringLiteral("icons/icons/heart_red.png"),
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
+    extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
+                                QStringLiteral("0.0"), true, QStringLiteral("external_inclination"), 48, labelFontSize);
 
     if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
 
@@ -566,7 +568,7 @@ QStringList homeform::tile_order() {
 
     QStringList r;
     r.reserve(39);
-    for (int i = 0; i < 38; i++) {
+    for (int i = 0; i < 39; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -971,6 +973,12 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_pid_hr_order"), 31).toInt() == i) {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
+            }
+
+            if (settings.value(QStringLiteral("tile_ext_incline_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_ext_incline_order"), 32).toInt() == i) {
+                extIncline->setGridId(i);
+                dataList.append(extIncline);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
@@ -1491,6 +1499,10 @@ void homeform::Plus(const QString &name) {
                                         ((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
         }
+    } else if (name.contains(QStringLiteral("external_inclination"))) {
+        double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+        elite_rizer_gain = elite_rizer_gain + 0.1;
+        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
@@ -1624,6 +1636,11 @@ void homeform::Minus(const QString &name) {
                                         ((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
             }
         }
+    } else if (name.contains(QStringLiteral("external_inclination"))) {
+        double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+        if (elite_rizer_gain)
+            elite_rizer_gain = elite_rizer_gain - 0.1;
+        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
@@ -2156,6 +2173,11 @@ void homeform::update() {
                     QStringLiteral(" MAX: ") +
                     QString::number(((bike *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             }
+            if (bluetoothManager->externalInclination())
+                extIncline->setValue(
+                    QString::number(bluetoothManager->externalInclination()->currentInclination().value(), 'f', 1));
+            double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+            extIncline->setSecondLine(QStringLiteral("Gain: ") + QString::number(elite_rizer_gain, 'f', 1));
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((bike *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((bike *)bluetoothManager->device())->pelotonResistance().value();

@@ -98,6 +98,7 @@ class bluetooth : public QObject, public SignalHandler {
                        bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~bluetooth();
     bluetoothdevice *device();
+    bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;

@@ -333,6 +333,8 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.28
             property real elite_rizer_gain: 1.0
+            property bool tile_ext_incline_enabled: false
+            property int  tile_ext_incline_order: 32
         }
 
         function paddingZeros(text, limit) {
@@ -3092,6 +3094,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_pid_hr_order = pidHROrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: extInclineAccordion
+                        title: qsTr("External Incline")
+                        linkedBoolSetting: "tile_ext_incline_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelExtInclineOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: extInclineOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_ext_incline_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = extInclineOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okextInclineOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_ext_incline_order = extInclineOrderTextField.displayText
                             }
                         }
                     }
