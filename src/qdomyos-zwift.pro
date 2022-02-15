@@ -142,6 +142,7 @@ SOURCES += \
     smtpclient/src/quotedprintable.cpp \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
+   solebike.cpp \
    soleelliptical.cpp \
    solef80treadmill.cpp \
    spirittreadmill.cpp \
@@ -475,6 +476,7 @@ HEADERS += \
     smtpclient/src/smtpclient.h \
     smtpclient/src/smtpexports.h \
    snodebike.h \
+   solebike.h \
    soleelliptical.h \
    solef80treadmill.h \
    spirittreadmill.h \

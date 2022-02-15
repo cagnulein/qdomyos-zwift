@@ -67,6 +67,7 @@
 #include "strydrunpowersensor.h"
 
 #include "shuaa5treadmill.h"
+#include "solebike.h"
 #include "soleelliptical.h"
 #include "solef80treadmill.h"
 
@@ -149,6 +150,7 @@ class bluetooth : public QObject, public SignalHandler {
     mcfbike *mcfBike = nullptr;
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
+    solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
     chronobike *chronoBike = nullptr;

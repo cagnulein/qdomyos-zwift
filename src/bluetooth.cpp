@@ -1249,6 +1249,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 trxappgateusbBike->deviceDiscovered(b);
                 userTemplateManager->start(trxappgateusbBike);
                 innerTemplateManager->start(trxappgateusbBike);
+            } else if (b.name().toUpper().startsWith(QStringLiteral("LCB")) && !soleBike && filter) {
+                discoveryAgent->stop();
+                soleBike = new solebike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(soleBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(soleBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(soleBike, &solebike::debug, this, &bluetooth::debug);
+                soleBike->deviceDiscovered(b);
+                userTemplateManager->start(soleBike);
+                innerTemplateManager->start(soleBike);
             } else if (b.name().toUpper().startsWith(QStringLiteral("BFCP")) && !skandikaWiriBike && filter) {
                 discoveryAgent->stop();
                 skandikaWiriBike =
@@ -1804,6 +1814,11 @@ void bluetooth::restart() {
         delete trxappgateusbBike;
         trxappgateusbBike = nullptr;
     }
+    if (soleBike) {
+
+        delete soleBike;
+        soleBike = nullptr;
+    }
     if (echelonConnectSport) {
 
         delete echelonConnectSport;
@@ -2036,6 +2051,8 @@ bluetoothdevice *bluetooth::device() {
         return trxappgateusb;
     } else if (trxappgateusbBike) {
         return trxappgateusbBike;
+    } else if (soleBike) {
+        return soleBike;
     } else if (horizonTreadmill) {
         return horizonTreadmill;
     } else if (technogymmyrunTreadmill) {
