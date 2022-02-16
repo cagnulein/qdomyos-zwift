@@ -94,7 +94,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     } else {
 
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_CYCLING);
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
