@@ -1116,21 +1116,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 pafersTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(pafersTreadmill);
                 innerTemplateManager->start(pafersTreadmill);
-            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T216")) && !bowflexTreadmill && filter) {
+            } else if (b.name().toUpper().startsWith(QStringLiteral("BOWFLEX T216")) && !bowflexT216Treadmill &&
+                       filter) {
                 discoveryAgent->stop();
-                bowflexTreadmill = new bowflextreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                bowflexT216Treadmill = new bowflext216treadmill(this->pollDeviceTime, noConsole, noHeartService);
                 // stateFileRead();
                 emit deviceConnected(b);
-                connect(bowflexTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                connect(bowflexT216Treadmill, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(bowflexTreadmill, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(bowflexTreadmill, &bowflextreadmill::debug, this, &bluetooth::debug);
+                connect(bowflexT216Treadmill, &bowflext216treadmill::debug, this, &bluetooth::debug);
                 // connect(bowflexTreadmill, SIGNAL(speedChanged(double)), this, SLOT(speedChanged(double)));
                 // connect(bowflexTreadmill, SIGNAL(inclinationChanged(double)), this,
                 // SLOT(inclinationChanged(double)));
-                bowflexTreadmill->deviceDiscovered(b);
-                userTemplateManager->start(bowflexTreadmill);
-                innerTemplateManager->start(bowflexTreadmill);
+                bowflexT216Treadmill->deviceDiscovered(b);
+                userTemplateManager->start(bowflexT216Treadmill);
+                innerTemplateManager->start(bowflexT216Treadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("NAUTILUS T")) && !nautilusTreadmill && filter) {
                 discoveryAgent->stop();
                 nautilusTreadmill = new nautilustreadmill(this->pollDeviceTime, noConsole, noHeartService);
@@ -1893,6 +1894,11 @@ void bluetooth::restart() {
         delete bowflexTreadmill;
         bowflexTreadmill = nullptr;
     }
+    if (bowflexT216Treadmill) {
+
+        delete bowflexT216Treadmill;
+        bowflexT216Treadmill = nullptr;
+    }
     if (pafersTreadmill) {
 
         delete pafersTreadmill;
@@ -2112,6 +2118,8 @@ bluetoothdevice *bluetooth::device() {
         return eslinkerTreadmill;
     } else if (bowflexTreadmill) {
         return bowflexTreadmill;
+    } else if (bowflexT216Treadmill) {
+        return bowflexT216Treadmill;
     } else if (pafersTreadmill) {
         return pafersTreadmill;
     } else if (nautilusTreadmill) {

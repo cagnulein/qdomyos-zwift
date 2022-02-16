@@ -1,6 +1,4 @@
-// THIS MODULE IS UNUSED RIGHT NOW
-
-#include "bowflextreadmill.h"
+#include "bowflext216treadmill.h"
 #include "keepawakehelper.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
@@ -16,8 +14,8 @@ using namespace std::chrono_literals;
 extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
-bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
-                                   double forceInitInclination) {
+bowflext216treadmill::bowflext216treadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService,
+                                           double forceInitSpeed, double forceInitInclination) {
 
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
@@ -36,17 +34,17 @@ bowflextreadmill::bowflextreadmill(uint32_t pollDeviceTime, bool noConsole, bool
 
     refresh = new QTimer(this);
     initDone = false;
-    connect(refresh, &QTimer::timeout, this, &bowflextreadmill::update);
+    connect(refresh, &QTimer::timeout, this, &bowflext216treadmill::update);
     refresh->start(500ms);
 }
 
-void bowflextreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                                           bool wait_for_response) {
+void bowflext216treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                               bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
 
     if (wait_for_response) {
-        connect(this, &bowflextreadmill::packetReceived, &loop, &QEventLoop::quit);
+        connect(this, &bowflext216treadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
         // connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop,
@@ -70,15 +68,15 @@ void bowflextreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
     }
 }
 
-void bowflextreadmill::updateDisplay(uint16_t elapsed) {}
+void bowflext216treadmill::updateDisplay(uint16_t elapsed) {}
 
-void bowflextreadmill::forceIncline(double requestIncline) {}
+void bowflext216treadmill::forceIncline(double requestIncline) {}
 
-double bowflextreadmill::minStepInclination() { return 1.0; }
+double bowflext216treadmill::minStepInclination() { return 1.0; }
 
-void bowflextreadmill::forceSpeed(double requestSpeed) {}
+void bowflext216treadmill::forceSpeed(double requestSpeed) {}
 
-void bowflextreadmill::update() {
+void bowflext216treadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -99,7 +97,7 @@ void bowflextreadmill::update() {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &bowflextreadmill::debug);
+                connect(virtualTreadMill, &virtualtreadmill::debug, this, &bowflext216treadmill::debug);
                 firstInit = 1;
             }
         }
@@ -140,27 +138,30 @@ void bowflextreadmill::update() {
         }
 
         if (requestStart != -1) {
+            uint8_t start[] = {0x07, 0x06, 0xcf, 0x00, 0x1f, 0x05, 0x00};
             emit debug(QStringLiteral("starting..."));
             if (lastSpeed == 0.0) {
                 lastSpeed = 0.5;
             }
+            writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
+            uint8_t stop[] = {0x0a, 0x08, 0x7a, 0x00, 0x19, 0x28, 0x01, 0x32, 0x00, 0x00};
             emit debug(QStringLiteral("stopping..."));
-            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
+            writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
             requestStop = -1;
         }
     }
 }
 
-void bowflextreadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
+void bowflext216treadmill::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
-                                             const QByteArray &newValue) {
+void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                 const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
@@ -172,12 +173,15 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     emit packetReceived();
 
-    if ((newValue.length() != 17))
+    if (characteristic.uuid() != gattNotify3Characteristic.uuid())
+        return;
+
+    if ((newValue.length() != 20))
         return;
 
     double speed = GetSpeedFromPacket(value);
     double incline = GetInclinationFromPacket(value);
-    double kcal = GetKcalFromPacket(value);
+    // double kcal = GetKcalFromPacket(value);
     // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
@@ -190,8 +194,8 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Heart = value.at(18);*/
     }
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    // emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+    // emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
     // debug("Current Distance: " + QString::number(distance));
 
     if (Speed.value() != speed) {
@@ -203,7 +207,7 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
     Inclination = incline;
 
-    KCal = kcal;
+    // KCal = kcal;
     // Distance = distance;
 
     if (speed > 0) {
@@ -235,40 +239,48 @@ void bowflextreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     firstCharacteristicChanged = false;
 }
 
-double bowflextreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint8_t convertedData = (uint8_t)packet.at(14);
-    double data = (double)convertedData / 10.0f;
+double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
+    uint16_t convertedData = (packet.at(7) << 10) | packet.at(9);
+    double data = (double)convertedData / 100.0f;
     return data;
 }
 
-double bowflextreadmill::GetKcalFromPacket(const QByteArray &packet) {
+double bowflext216treadmill::GetKcalFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(7) << 8) | packet.at(8);
     return (double)convertedData;
 }
 
-double bowflextreadmill::GetDistanceFromPacket(const QByteArray &packet) {
+double bowflext216treadmill::GetDistanceFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(12) << 8) | packet.at(13);
     double data = ((double)convertedData) / 10.0f;
     return data;
 }
 
-double bowflextreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(11);
+double bowflext216treadmill::GetInclinationFromPacket(const QByteArray &packet) {
+    uint16_t convertedData = packet.at(4);
     double data = convertedData;
 
     return data;
 }
 
-void bowflextreadmill::btinit(bool startTape) {
+void bowflext216treadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
-    uint8_t initData1[] = {0x07, 0x01, 0xd3, 0x00, 0x1f, 0x05, 0x01};
+    uint8_t initData1[] = {0x05, 0x01, 0xe3, 0x00, 0x17};
+    uint8_t initData2[] = {0x05, 0x02, 0xe4, 0x00, 0x15};
+    uint8_t initData3[] = {0x05, 0x03, 0xe1, 0x00, 0x17};
+    uint8_t initData4[] = {0x07, 0x04, 0xd1, 0x00, 0x1f, 0x05, 0x00};
+    uint8_t initData5[] = {0x05, 0x05, 0xdf, 0x00, 0x17};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
 
     initDone = true;
 }
 
-void bowflextreadmill::stateChanged(QLowEnergyService::ServiceState state) {
+void bowflext216treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
@@ -296,14 +308,14 @@ void bowflextreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
-                &bowflextreadmill::characteristicChanged);
+                &bowflext216treadmill::characteristicChanged);
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, this,
-                &bowflextreadmill::characteristicWritten);
+                &bowflext216treadmill::characteristicWritten);
         connect(gattCommunicationChannelService,
                 static_cast<void (QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
-                this, &bowflextreadmill::errorService);
+                this, &bowflext216treadmill::errorService);
         connect(gattCommunicationChannelService, &QLowEnergyService::descriptorWritten, this,
-                &bowflextreadmill::descriptorWritten);
+                &bowflext216treadmill::descriptorWritten);
 
         QByteArray descriptor;
         descriptor.append((char)0x01);
@@ -321,52 +333,53 @@ void bowflextreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 }
 
-void bowflextreadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
+void bowflext216treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + " " + newValue.toHex(' '));
 
     initRequest = true;
     emit connectedAndDiscovered();
 }
 
-void bowflextreadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
-                                             const QByteArray &newValue) {
+void bowflext216treadmill::characteristicWritten(const QLowEnergyCharacteristic &characteristic,
+                                                 const QByteArray &newValue) {
     Q_UNUSED(characteristic);
     emit debug(QStringLiteral("characteristicWritten ") + newValue.toHex(' '));
 }
 
-void bowflextreadmill::serviceScanDone(void) {
+void bowflext216treadmill::serviceScanDone(void) {
     emit debug(QStringLiteral("serviceScanDone"));
 
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("edff9e80-cad7-11e5-ab63-0002a5d5c51b"));
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
-    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &bowflextreadmill::stateChanged);
+    connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this,
+            &bowflext216treadmill::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
 
-void bowflextreadmill::errorService(QLowEnergyService::ServiceError err) {
+void bowflext216treadmill::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
-    emit debug(QStringLiteral("bowflextreadmill::errorService ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
-               m_control->errorString());
+    emit debug(QStringLiteral("bowflext216treadmill::errorService ") +
+               QString::fromLocal8Bit(metaEnum.valueToKey(err)) + m_control->errorString());
 }
 
-void bowflextreadmill::error(QLowEnergyController::Error err) {
+void bowflext216treadmill::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
-    emit debug(QStringLiteral("bowflextreadmill::error ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
+    emit debug(QStringLiteral("bowflext216treadmill::error ") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
 }
 
-void bowflextreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+void bowflext216treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bowflextreadmill::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &bowflextreadmill::serviceScanDone);
+        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &bowflext216treadmill::serviceDiscovered);
+        connect(m_control, &QLowEnergyController::discoveryFinished, this, &bowflext216treadmill::serviceScanDone);
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &bowflextreadmill::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &bowflextreadmill::controllerStateChanged);
+                this, &bowflext216treadmill::error);
+        connect(m_control, &QLowEnergyController::stateChanged, this, &bowflext216treadmill::controllerStateChanged);
 
         connect(m_control,
                 static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
@@ -393,7 +406,7 @@ void bowflextreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
-void bowflextreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
+void bowflext216treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         qDebug() << QStringLiteral("trying to connect back again...");
@@ -402,25 +415,25 @@ void bowflextreadmill::controllerStateChanged(QLowEnergyController::ControllerSt
     }
 }
 
-bool bowflextreadmill::connected() {
+bool bowflext216treadmill::connected() {
     if (!m_control) {
         return false;
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *bowflextreadmill::VirtualTreadMill() { return virtualTreadMill; }
+void *bowflext216treadmill::VirtualTreadMill() { return virtualTreadMill; }
 
-void *bowflextreadmill::VirtualDevice() { return VirtualTreadMill(); }
+void *bowflext216treadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-bool bowflextreadmill::autoPauseWhenSpeedIsZero() {
+bool bowflext216treadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
         return true;
     else
         return false;
 }
 
-bool bowflextreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+bool bowflext216treadmill::autoStartWhenSpeedIsGreaterThenZero() {
     if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
         return true;
     else

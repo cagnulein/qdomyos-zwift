@@ -50,6 +50,7 @@ SOURCES += \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+   bowflext216treadmill.cpp \
     bowflextreadmill.cpp \
    chronobike.cpp \
     concept2skierg.cpp \
@@ -186,6 +187,7 @@ HEADERS += \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+   bowflext216treadmill.h \
     bowflextreadmill.h \
    chronobike.h \
     concept2skierg.h \
