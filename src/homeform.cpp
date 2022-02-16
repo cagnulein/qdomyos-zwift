@@ -1482,6 +1482,10 @@ void homeform::Plus(const QString &name) {
                 ((treadmill *)bluetoothManager->device())->changeSpeed(speed);
             }
         }
+    } else if (name.contains(QStringLiteral("external_inclination"))) {
+        double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+        elite_rizer_gain = elite_rizer_gain + 0.1;
+        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1499,10 +1503,6 @@ void homeform::Plus(const QString &name) {
                                         ((bike *)bluetoothManager->device())->currentInclination().value() + 0.5);
             }
         }
-    } else if (name.contains(QStringLiteral("external_inclination"))) {
-        double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
-        elite_rizer_gain = elite_rizer_gain + 0.1;
-        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
@@ -1619,6 +1619,11 @@ void homeform::Minus(const QString &name) {
                 }
             }
         }
+    } else if (name.contains(QStringLiteral("external_inclination"))) {
+        double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
+        if (elite_rizer_gain)
+            elite_rizer_gain = elite_rizer_gain - 0.1;
+        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1636,11 +1641,6 @@ void homeform::Minus(const QString &name) {
                                         ((bike *)bluetoothManager->device())->currentInclination().value() - 0.5);
             }
         }
-    } else if (name.contains(QStringLiteral("external_inclination"))) {
-        double elite_rizer_gain = settings.value(QStringLiteral("elite_rizer_gain"), 1.0).toDouble();
-        if (elite_rizer_gain)
-            elite_rizer_gain = elite_rizer_gain - 0.1;
-        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
     } else if (name.contains(QStringLiteral("pid_hr"))) {
         if (bluetoothManager->device()) {
             QSettings settings;
