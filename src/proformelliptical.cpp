@@ -88,14 +88,14 @@ void proformelliptical::update() {
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                        forceIncline(requestInclination);
+                        // forceIncline(requestInclination);
                     }
                     requestInclination = -1;
                 }
                 if (requestSpeed != -1) {
                     if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                         emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                        forceSpeed(requestSpeed);
+                        // forceSpeed(requestSpeed);
                     }
                     requestSpeed = -1;
                 }

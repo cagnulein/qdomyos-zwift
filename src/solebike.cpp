@@ -209,7 +209,10 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     // resistance value is in another frame
     if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0x5b && ((unsigned char)newValue.at(1)) == 0x02 &&
         ((unsigned char)newValue.at(2)) == 0x13) {
-        Resistance = newValue.at(3);
+        double res = 1.0;
+        if (newValue.at(3) > 0)
+            res = newValue.at(3);
+        Resistance = res;
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
@@ -226,7 +229,7 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(14));
+        Cadence = ((uint8_t)newValue.at(10));
     }
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = GetSpeedFromPacket(newValue);
@@ -316,7 +319,7 @@ double solebike::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double solebike::GetWattFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(9) << 8) | packet.at(10);
+    uint16_t convertedData = (packet.at(13) << 8) | packet.at(14);
     double data = ((double)convertedData);
     return data;
 }
