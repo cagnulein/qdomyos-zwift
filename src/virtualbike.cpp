@@ -124,9 +124,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                     QLowEnergyCharacteristicData charDataFIT3;
                     charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
-                    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate);
+                    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate | QLowEnergyCharacteristic::Notify);
                     const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
-                                                                  QByteArray(2, 0));
+                                                                  QByteArray(3, 0));
                     charDataFIT3.addDescriptor(cpClientConfig);
 
                     QLowEnergyCharacteristicData charDataFIT4;
