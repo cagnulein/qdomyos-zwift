@@ -117,7 +117,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
                                                                          value: Data (bytes: [0x0A, 0x00, 0x96, 0x00, 0x0A, 0x00]),
                                                                          permissions: supported_resistance_level_rangePermissions)
 
-        let FitnessMachineControlPointProperties: CBCharacteristicProperties = [.indicate, .write]
+        let FitnessMachineControlPointProperties: CBCharacteristicProperties = [.indicate, .notify, .write]
         let FitnessMachineControlPointPermissions: CBAttributePermissions = [.writeable]
         self.FitnessMachineControlPointCharacteristic = CBMutableCharacteristic(type: FitnessMachineControlPointUuid,
                                                    properties: FitnessMachineControlPointProperties,
