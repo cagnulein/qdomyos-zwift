@@ -71,15 +71,35 @@ void solebike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
 }
 
 void solebike::forceResistance(int8_t requestResistance) {
-    /*uint8_t noOpData[] = {0xf0, 0xb1, 0x01, 0x00, 0x00};
+    uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
+    uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
-    noOpData[3] = requestResistance;
+    /*if (requestSpeed > Speed.value()) {
+        if (requestSpeedState == IDLE)
+            requestSpeedState = UP;
+        else if (requestSpeedState == DOWN) {
+            requestSpeedState = IDLE;
+            this->requestSpeed = -1;
+            return;
+        }
 
-    for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
-        noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
-    }
-
-    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("force resistance"), false, true);*/
+        if (gattCustomService)
+            writeCharacteristic(up, sizeof(up), QStringLiteral("speed up"), false, true);
+    } else if (requestSpeed < Speed.value()) {
+        if (requestSpeedState == IDLE)
+            requestSpeedState = DOWN;
+        else if (requestSpeedState == UP) {
+            requestSpeedState = IDLE;
+            this->requestSpeed = -1;
+            return;
+        }
+        if (gattCustomService)
+            writeCharacteristic(down, sizeof(down), QStringLiteral("speed down"), false, true);
+    } else {
+        this->requestSpeed = -1;
+        requestSpeedState = IDLE;
+    }*/
+    writeCharacteristic(up, sizeof(up), QStringLiteral("up"), false, true);
 }
 
 void solebike::update() {
