@@ -29,26 +29,26 @@ double zwiftworkout::speedFromPace(int Pace) {
     double speed = 0;
     QString pace_default = settings.value(QStringLiteral("pace_default"), QStringLiteral("Half Marathon")).toString();
     if (Pace == 0) {
-        speed = settings.value(QStringLiteral("pacef_1mile"), QStringLiteral("Half Marathon")).toInt();
+        speed = settings.value(QStringLiteral("pacef_1mile"), 250.0).toDouble();
     } else if (Pace == 1) {
-        speed = settings.value(QStringLiteral("pacef_5km"), QStringLiteral("Half Marathon")).toInt();
+        speed = settings.value(QStringLiteral("pacef_5km"), 300.0).toDouble();
     } else if (Pace == 2) {
-        speed = settings.value(QStringLiteral("pacef_10km"), QStringLiteral("Half Marathon")).toInt();
+        speed = settings.value(QStringLiteral("pacef_10km"), 320.0).toDouble();
     } else if (Pace == 3) {
-        speed = settings.value(QStringLiteral("pacef_halfmarathon"), QStringLiteral("Half Marathon")).toInt();
+        speed = settings.value(QStringLiteral("pacef_halfmarathon"), 340.0).toDouble();
     } else if (Pace == 4) {
-        speed = settings.value(QStringLiteral("pacef_marathon"), QStringLiteral("Half Marathon")).toInt();
+        speed = settings.value(QStringLiteral("pacef_marathon"), 360.0).toDouble();
     } else {
         if (!pace_default.compare(QStringLiteral("1 mile")))
-            speed = settings.value(QStringLiteral("pacef_1mile"), QStringLiteral("Half Marathon")).toInt();
+            speed = settings.value(QStringLiteral("pacef_1mile"), 250.0).toDouble();
         else if (!pace_default.compare(QStringLiteral("5 km")))
-            speed = settings.value(QStringLiteral("pacef_5km"), QStringLiteral("Half Marathon")).toInt();
+            speed = settings.value(QStringLiteral("pacef_5km"), 300.0).toDouble();
         else if (!pace_default.compare(QStringLiteral("10 km")))
-            speed = settings.value(QStringLiteral("pacef_10km"), QStringLiteral("Half Marathon")).toInt();
+            speed = settings.value(QStringLiteral("pacef_10km"), 320.0).toDouble();
         else if (!pace_default.compare(QStringLiteral("Half Marathon")))
-            speed = settings.value(QStringLiteral("pacef_halfmarathon"), QStringLiteral("Half Marathon")).toInt();
+            speed = settings.value(QStringLiteral("pacef_halfmarathon"), 340.0).toDouble();
         else
-            speed = settings.value(QStringLiteral("pacef_marathon"), QStringLiteral("Half Marathon")).toInt();
+            speed = settings.value(QStringLiteral("pacef_marathon"), 360.0).toDouble();
     }
 
     return speed;
