@@ -831,18 +831,21 @@ void virtualbike::bikeProvider() {
         if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
                                       (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage, Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
-            if (!erg_mode)
-                slopeChanged(h->virtualbike_getCurrentSlope());
-            else {
-                qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
-                powerChanged(h->virtualbike_getPowerRequested());
-            }
             uint8_t ftms_message[255];
             int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
             if (ret > 0) {
                 lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
                 emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
                                                QByteArray::fromRawData((char *)ftms_message, ret));
+            }
+            qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
+            if(lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) {
+                if (!erg_mode)
+                    slopeChanged(h->virtualbike_getCurrentSlope());
+                else {
+                    qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
+                    powerChanged(h->virtualbike_getPowerRequested());
+                }
             }
         }
         return;
