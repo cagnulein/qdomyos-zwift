@@ -835,6 +835,7 @@ void virtualbike::bikeProvider() {
             int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
             if (ret > 0) {
                 lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+                qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
                 emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
                                                QByteArray::fromRawData((char *)ftms_message, ret));
             }
