@@ -793,6 +793,17 @@ void horizontreadmill::update() {
             }
             requestStart = -1;
             emit tapeStarted();
+            bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
+            if (horizon_paragon_x) {
+                uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x42,
+                                                0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+                uint8_t initData03_paragon[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+
+                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon, sizeof(initData02_paragon),
+                                    QStringLiteral("stopping"), false, false);
+                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon, sizeof(initData03_paragon),
+                                    QStringLiteral("stopping"), false, true);
+            }
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
