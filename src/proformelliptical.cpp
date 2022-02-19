@@ -164,6 +164,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
+    Resistance = ((double)newValue.at(11)) / 2.0;
     Cadence = newValue.at(18);
     Speed = (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
     if (watts(weight))
@@ -199,6 +200,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
