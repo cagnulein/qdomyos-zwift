@@ -746,7 +746,20 @@ void trxappgateusbbike::serviceScanDone(void) {
         uuid = uuid2;
     }
 
-    if (bike_type == DKN_MOTION) {
+    if (bike_type == TYPE::HERTZ_XR_770) {
+        bool found = false;
+        foreach (QBluetoothUuid s, m_control->services()) {
+
+            if (s == QBluetoothUuid::fromString(uuid)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            bike_type = HERTZ_XR_770;
+            uuid = uuid2;
+        }
+    } else if (bike_type == DKN_MOTION) {
 
         bool found = false;
         foreach (QBluetoothUuid s, m_control->services()) {
