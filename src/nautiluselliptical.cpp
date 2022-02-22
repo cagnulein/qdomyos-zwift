@@ -287,8 +287,8 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
 
 double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
-    double data = (double)convertedData / 1000.0f;
+    uint16_t convertedData = (packet.at(4) << 8) | packet.at(3);
+    double data = (double)convertedData / 100.0f;
     return data;
 }
 
