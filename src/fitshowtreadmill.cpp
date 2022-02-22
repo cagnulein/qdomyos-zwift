@@ -154,6 +154,8 @@ void fitshowtreadmill::update() {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
+                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                        &fitshowtreadmill::changeInclinationRequested);
 
                 firstInit = 1;
             }
@@ -791,3 +793,9 @@ bool fitshowtreadmill::autoStartWhenSpeedIsGreaterThenZero() {
 }
 
 double fitshowtreadmill::minStepInclination() { return 1.0; }
+
+void fitshowtreadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
+}
