@@ -340,6 +340,7 @@ void nautiluselliptical::stateChanged(QLowEnergyService::ServiceState state) {
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
         Q_ASSERT(gattNotify2Characteristic.isValid());
@@ -388,6 +389,19 @@ void nautiluselliptical::serviceScanDone(void) {
     QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("3a1a1d3f-3d83-4c43-aa7b-81664ed75ec8"));
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+
+    if (gattCommunicationChannelService == nullptr) {
+        qDebug() << QStringLiteral("main UUID not found, trying the fallback...");
+        bt_variant = 1;
+        QBluetoothUuid _gattCommunicationChannelServiceId(QStringLiteral("ac8f2400-9804-11e3-b25b-0002a5d5c51b"));
+
+        gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
+        if (gattCommunicationChannelService == nullptr) {
+            qDebug() << QStringLiteral("neither the fallback worked, exiting...");
+            return;
+        }
+    }
+
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautiluselliptical::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }

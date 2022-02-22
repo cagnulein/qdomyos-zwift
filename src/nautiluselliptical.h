@@ -75,6 +75,9 @@ class nautiluselliptical : public elliptical {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
+    uint8_t bt_variant =
+        0; // with the same bluetooth name there are different bluetooth controller with different UUIDs
+
   signals:
     void disconnected();
     void debug(QString string);
