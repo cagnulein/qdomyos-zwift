@@ -161,6 +161,7 @@ SOURCES += \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
    trxappgateusbbike.cpp \
+   ultrasportbike.cpp \
    virtualrower.cpp \
 		yesoulbike.cpp \
 		  trainprogram.cpp \
@@ -501,6 +502,7 @@ HEADERS += \
 	trainprogram.h \
    trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
+   ultrasportbike.h \
 	 virtualbike.h \
    virtualrower.h \
 	virtualtreadmill.h \

@@ -90,6 +90,7 @@
 #include "treadmill.h"
 #include "trxappgateusbbike.h"
 #include "trxappgateusbtreadmill.h"
+#include "ultrasportbike.h"
 #include "yesoulbike.h"
 
 class bluetooth : public QObject, public SignalHandler {
@@ -177,6 +178,7 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerSensor = nullptr;
     strydrunpowersensor *powerSensorRun = nullptr;
     stagesbike *powerBike = nullptr;
+    ultrasportbike *ultraSportBike = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
