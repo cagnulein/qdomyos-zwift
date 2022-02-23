@@ -799,11 +799,13 @@ void horizontreadmill::update() {
                                                 0xef, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
                 uint8_t initData03_paragon[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
-                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon, sizeof(initData02_paragon),
-                                    QStringLiteral("stopping"), false, false);
-                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon, sizeof(initData03_paragon),
-                                    QStringLiteral("stopping"), false, true);
+                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
+                                    sizeof(initData02_paragon), QStringLiteral("stopping"), false, false);
+                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
+                                    sizeof(initData03_paragon), QStringLiteral("stopping"), false, true);
             }
+
+            lastStart = QDateTime::currentMSecsSinceEpoch();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
@@ -814,6 +816,8 @@ void horizontreadmill::update() {
                 writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
                                     QStringLiteral("stopping"), false, true);
             }
+
+            lastStop = QDateTime::currentMSecsSinceEpoch();
 
             requestStop = -1;
         }
@@ -1224,6 +1228,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         }
     }
 
+    if (Speed.value() > 0)
+        lastStart = 0;
+    else
+        lastStop = 0;
+
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (m_control->error() != QLowEnergyController::NoError) {
@@ -1504,4 +1513,18 @@ int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count) {
         crc = ((crc << 8) & 65280) ^ c;
     }
     return crc;
+}
+
+bool horizontreadmill::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
+
+bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
 }
