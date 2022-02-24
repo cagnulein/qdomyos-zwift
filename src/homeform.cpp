@@ -195,7 +195,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                 QStringLiteral("0:00:00"), false, QStringLiteral("lapElapsed"), valueElapsedFontSize,
                                 labelFontSize);
     remaningTimeTrainingProgramCurrentRow = new DataObject(
-        QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), false,
+        QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), true,
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
 
     nextRows =
@@ -1608,9 +1608,12 @@ void homeform::Plus(const QString &name) {
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
         }
+    } else if (name.contains(QStringLiteral("remainingtimetrainprogramrow"))) {
+        if (bluetoothManager->device() && trainProgram) {
+            trainProgram->increaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowRemainingTime()));
+        }
     } else if (name.contains(QStringLiteral("peloton_offset"))
                || name.contains(QStringLiteral("peloton_remaining"))) {
-
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
         }
@@ -1748,9 +1751,15 @@ void homeform::Minus(const QString &name) {
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
         }
+    } else if (name.contains(QStringLiteral("remainingtimetrainprogramrow"))) {
+        if (bluetoothManager->device() && trainProgram) {
+            // Offset:
+            // 1. To account for current tick
+            // 2. To bounce back to previous
+            trainProgram->decreaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowElapsedTime()) + 2);
+        }
     } else if (name.contains(QStringLiteral("peloton_offset"))
                || name.contains(QStringLiteral("peloton_remaining"))) {
-
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
         }
@@ -2006,6 +2015,8 @@ void homeform::update() {
             peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
+            remaningTimeTrainingProgramCurrentRow->setSecondLine(
+                trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")));
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);

@@ -490,7 +490,6 @@ double trainprogram::currentTargetMets() {
 }
 
 QTime trainprogram::currentRowElapsedTime() {
-
     uint32_t calculatedLine;
     uint32_t calculatedElapsedTime = 0;
 
@@ -503,7 +502,7 @@ QTime trainprogram::currentRowElapsedTime() {
         calculatedElapsedTime += currentLine;
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
-            return QTime(0, 0, ticks - (calculatedElapsedTime - currentLine));
+            return QTime(0, 0, 0).addSecs(ticks - (calculatedElapsedTime - currentLine));
         }
     }
     return QTime(0, 0, 0);
