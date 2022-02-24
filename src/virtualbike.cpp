@@ -124,7 +124,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
 
                     QLowEnergyCharacteristicData charDataFIT3;
                     charDataFIT3.setUuid((QBluetoothUuid::CharacteristicType)0x2AD9); // Fitness Machine Control Point
-                    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate | QLowEnergyCharacteristic::Notify);
+                    charDataFIT3.setProperties(QLowEnergyCharacteristic::Write | QLowEnergyCharacteristic::Indicate |
+                                               QLowEnergyCharacteristic::Notify);
                     const QLowEnergyDescriptorData cpClientConfig(QBluetoothUuid::ClientCharacteristicConfiguration,
                                                                   QByteArray(3, 0));
                     charDataFIT3.addDescriptor(cpClientConfig);
@@ -710,6 +711,21 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply.append(0x01);
             reply.append(0xb6);
             writeCharacteristic(service, characteristic, reply);
+        } else if (((uint8_t)newValue.at(1)) == 0xA4) {
+
+            // f0 a4 .. .. ..
+            reply.append(0xf0);
+            reply.append(0xa4);
+            reply.append(0x01); // to be changed
+            reply.append(0x01); // to be changed
+
+            uint8_t sum = 0;
+            for (uint8_t i = 0; i < reply.length(); i++) {
+
+                sum += reply[i]; // the last byte is a sort of a checksum
+            }
+            reply.append(sum);
+            writeCharacteristic(service, characteristic, reply);
         }
         // f0 b0 01 00 a1
         else if (((uint8_t)newValue.at(1)) == 0xB0 && ((uint8_t)newValue.at(3)) == 0x00) {
@@ -829,7 +845,8 @@ void virtualbike::bikeProvider() {
     if (h) {
         // really connected to a device
         if (h->virtualbike_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
-                                      (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage, Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
+                                      (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
+                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
             uint8_t ftms_message[255];
             int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
@@ -840,7 +857,7 @@ void virtualbike::bikeProvider() {
                                                QByteArray::fromRawData((char *)ftms_message, ret));
             }
             qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
-            if(lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) {
+            if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) {
                 if (!erg_mode)
                     slopeChanged(h->virtualbike_getCurrentSlope());
                 else {
