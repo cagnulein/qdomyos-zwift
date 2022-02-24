@@ -13,9 +13,18 @@ using namespace std::chrono_literals;
 
 #define BLE_SERIALOUTPUT_MAXSIZE 25
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
     Q_UNUSED(noConsole)
+
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
+
     this->noHeartService = noHeartService;
 
     if (forceInitSpeed > 0) {
