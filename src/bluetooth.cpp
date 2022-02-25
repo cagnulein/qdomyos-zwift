@@ -860,6 +860,18 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 userTemplateManager->start(ftmsBike);
                 innerTemplateManager->start(ftmsBike);
+            } else if ((b.name().toUpper().startsWith("KICKR SNAP")) && !wahooKickrSnapBike && filter) {
+                discoveryAgent->stop();
+                wahooKickrSnapBike =
+                    new wahookickrsnapbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(wahooKickrSnapBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(wahooKickrSnapBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(wahooKickrSnapBike, &wahookickrsnapbike::debug, this, &bluetooth::debug);
+                wahooKickrSnapBike->deviceDiscovered(b);
+                userTemplateManager->start(wahooKickrSnapBike);
+                innerTemplateManager->start(wahooKickrSnapBike);
             } else if (((b.name().toUpper().startsWith("JFIC")) // HORIZON GR7
                         ) &&
                        !horizonGr7Bike && filter) {
@@ -1974,6 +1986,11 @@ void bluetooth::restart() {
         delete ftmsBike;
         ftmsBike = nullptr;
     }
+    if (wahooKickrSnapBike) {
+
+        delete wahooKickrSnapBike;
+        wahooKickrSnapBike = nullptr;
+    }
     if (horizonGr7Bike) {
 
         delete horizonGr7Bike;
@@ -2166,6 +2183,8 @@ bluetoothdevice *bluetooth::device() {
         return snodeBike;
     } else if (ftmsBike) {
         return ftmsBike;
+    } else if (wahooKickrSnapBike) {
+        return wahooKickrSnapBike;
     } else if (horizonGr7Bike) {
         return horizonGr7Bike;
     } else if (renphoBike) {

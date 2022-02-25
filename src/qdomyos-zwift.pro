@@ -163,6 +163,7 @@ SOURCES += \
    trxappgateusbbike.cpp \
    ultrasportbike.cpp \
    virtualrower.cpp \
+   wahookickrsnapbike.cpp \
 		yesoulbike.cpp \
 		  trainprogram.cpp \
 		trxappgateusbtreadmill.cpp \
@@ -507,6 +508,7 @@ HEADERS += \
    virtualrower.h \
 	virtualtreadmill.h \
 	 domyosbike.h \
+   wahookickrsnapbike.h \
         yesoulbike.h \
         scanrecordresult.h \
    zwiftworkout.h
@@ -577,5 +579,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.10.34
+VERSION = 2.10.35
 
