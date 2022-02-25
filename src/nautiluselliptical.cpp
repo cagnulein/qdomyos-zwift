@@ -243,7 +243,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         return;
     }
 
-    if (newValue.length() != 14) {
+    if ((newValue.length() != 14 && bt_variant == 0) || (newValue.length() != 12 && bt_variant == 1)) {
         return;
     }
 
@@ -257,9 +257,13 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(10));
+        if (bt_variant == 0)
+            Cadence = ((uint8_t)newValue.at(10));
+        else
+            Cadence = ((uint8_t)newValue.at(5));
     }
     // m_watt = watt;
+    Speed = speed;
 
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
@@ -281,14 +285,20 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
-
-    Speed = speed;
 }
 
 double nautiluselliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(4) << 8) | packet.at(3);
-    double data = (double)convertedData / 100.0f;
+    uint16_t convertedData = 0;
+    double data = 0;
+    if (bt_variant == 0) {
+        convertedData = (packet.at(4) << 8) | packet.at(3);
+        data = (double)convertedData / 100.0f;
+    } else {
+        convertedData = (packet.at(8) << 8) | packet.at(7);
+        data = (double)convertedData / 10.0f;
+    }
+
     return data;
 }
 
