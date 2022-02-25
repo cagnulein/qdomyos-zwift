@@ -31,6 +31,12 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
                                      bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if (gattFTMSService == nullptr) {
+        qDebug() << QStringLiteral("gattFTMSService not found! skip writing...");
+        return;
+    }
+
     if (wait_for_response) {
         connect(gattFTMSService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
