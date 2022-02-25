@@ -716,15 +716,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             // f0 a4 .. .. ..
             reply.append(0xf0);
             reply.append(0xa4);
-            reply.append(0x01); // to be changed
-            reply.append(0x01); // to be changed
+            reply.append(0x01);
+            reply.append((char)0x00);
+            reply.append(0x95);
 
-            uint8_t sum = 0;
-            for (uint8_t i = 0; i < reply.length(); i++) {
-
-                sum += reply[i]; // the last byte is a sort of a checksum
-            }
-            reply.append(sum);
             writeCharacteristic(service, characteristic, reply);
         }
         // f0 b0 01 00 a1
