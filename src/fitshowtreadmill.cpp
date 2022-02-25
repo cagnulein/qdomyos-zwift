@@ -13,17 +13,9 @@ using namespace std::chrono_literals;
 
 #define BLE_SERIALOUTPUT_MAXSIZE 25
 
-#ifdef Q_OS_IOS
-extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
-#endif
-
 fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                    double forceInitInclination) {
     Q_UNUSED(noConsole)
-
-#ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = true;
-#endif
 
     this->noHeartService = noHeartService;
 
@@ -77,7 +69,13 @@ void fitshowtreadmill::writeCharacteristic(const uint8_t *data, uint8_t data_len
 
     connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
     timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba);
+
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse) {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba,
+                                                             QLowEnergyService::WriteWithoutResponse);
+    } else {
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic, qba);
+    }
 
     loop.exec();
 
@@ -644,7 +642,7 @@ void fitshowtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
         uint32_t id32;
         auto characteristics_list = gattCommunicationChannelService->characteristics();
         for (const QLowEnergyCharacteristic &c : qAsConst(characteristics_list)) {
-            qDebug() << QStringLiteral("c -> ") << c.uuid();
+            qDebug() << QStringLiteral("c -> ") << c.uuid() << c.properties();
             id32 = c.uuid().toUInt32();
             auto descriptors_list = c.descriptors();
             for (const QLowEnergyDescriptor &d : qAsConst(descriptors_list)) {
