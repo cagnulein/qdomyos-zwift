@@ -5,14 +5,31 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
+void bike::changeResistanceRange(int8_t lower, int8_t upper) {
+    // 0.0 is floor and 1.0 is ceil
+    double lastResistanceOffsetPerc = 0.0;
+    if (RequestedLowerResistance >= 0) {
+        lastResistanceOffsetPerc = (Resistance.value() - RequestedLowerResistance) / (RequestedUpperResistance - RequestedLowerResistance);
+    } else {
+        lastResistanceOffsetPerc = 0.0;
+    }
+
+    RequestedLowerResistance = lower;
+    RequestedUpperResistance = upper;
+
+    double calculatedResistance = RequestedLowerResistance + (lastResistanceOffsetPerc * (RequestedUpperResistance - RequestedLowerResistance));
+    changeResistance(calculatedResistance);
+}
+
 void bike::changeResistance(int8_t resistance) {
+    double calculatedResistance = resistance * m_difficult + gears();
     lastRawRequestedResistanceValue = resistance;
+
     if (autoResistanceEnable) {
-        double v = (resistance * m_difficult) + gears();
-        requestResistance = v;
+        requestResistance = calculatedResistance;
         emit resistanceChanged(requestResistance);
     }
-    RequestedResistance = resistance * m_difficult + gears();
+    RequestedResistance = calculatedResistance;
 }
 
 void bike::changeInclination(double grade, double percentage) {

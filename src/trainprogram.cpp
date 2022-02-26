@@ -99,6 +99,12 @@ void trainprogram::scheduler() {
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
         } else {
+            // Set both to ensure that we are tracking the range, but utilize intial value from trainprogram
+            if (rows.at(0).lower_resistance != -1 && true) {
+                qDebug() << "trainprogram change resistance range: " <<
+                                rows.at(0).lower_resistance << "-" << rows.at(0).upper_resistance;
+                emit changeResistanceRange(rows.at(0).lower_resistance, rows.at(0).upper_resistance);
+            }
             if (rows.at(0).resistance != -1) {
                 qDebug() << QStringLiteral("trainprogram change resistance") + QString::number(rows.at(0).resistance);
                 emit changeResistance(rows.at(0).resistance);
@@ -191,7 +197,12 @@ void trainprogram::scheduler() {
                     emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
                 }
             } else {
-                if (rows.at(currentStep).resistance != -1) {
+                // Only set range if available to ensure we update based on range instead of trainprogram
+                if (rows.at(currentStep).lower_resistance != -1 && true) {
+                    qDebug() << "trainprogram change resistance range: " <<
+                                    rows.at(currentStep).lower_resistance << "-" << rows.at(currentStep).upper_resistance;
+                    emit changeResistanceRange(rows.at(currentStep).lower_resistance, rows.at(currentStep).upper_resistance);
+                } else if (rows.at(currentStep).resistance != -1) {
                     qDebug() << QStringLiteral("trainprogram change resistance ") +
                                     QString::number(rows.at(currentStep).resistance);
                     emit changeResistance(rows.at(currentStep).resistance);

@@ -535,6 +535,8 @@ void homeform::trainProgramSignals() {
                    &treadmill::changeFanSpeed);
         disconnect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeSpeedAndInclination);
+        disconnect(trainProgram, &trainprogram::changeResistanceRange, ((bike *)bluetoothManager->device()),
+                   &bike::changeResistanceRange);
         disconnect(trainProgram, &trainprogram::changeResistance, ((bike *)bluetoothManager->device()),
                    &bike::changeResistance);
         disconnect(trainProgram, &trainprogram::changeRequestedPelotonResistance, ((bike *)bluetoothManager->device()),
@@ -562,6 +564,8 @@ void homeform::trainProgramSignals() {
                 &treadmill::changeInclination);
         connect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
                 &treadmill::changeSpeedAndInclination);
+        connect(trainProgram, &trainprogram::changeResistanceRange, ((bike *)bluetoothManager->device()),
+                &bike::changeResistanceRange);
         connect(trainProgram, &trainprogram::changeResistance, ((bike *)bluetoothManager->device()),
                 &bike::changeResistance);
         connect(trainProgram, &trainprogram::changeRequestedPelotonResistance, ((bike *)bluetoothManager->device()),
