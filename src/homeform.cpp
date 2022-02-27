@@ -3714,7 +3714,7 @@ void homeform::saveSettings(const QUrl &filename) {
     QSettings settings;
     QSettings settings2Save(
         path + QStringLiteral("settings/settings_") +
-            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+            QDateTime::currentDateTime().toString("yyyyMMddhhmmss") +
             QStringLiteral(".qzs"),
         QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
