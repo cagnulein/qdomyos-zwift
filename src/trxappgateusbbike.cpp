@@ -107,8 +107,9 @@ void trxappgateusbbike::update() {
 
         QSettings settings;
         bool toorx30 = settings.value(QStringLiteral("toorx_3_0"), false).toBool();
-        if (toorx30 == false && (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE ||
-                                 bike_type == TYPE::ICONSOLE_2 || bike_type == TYPE::HERTZ_XR_770)) {
+        if (toorx30 == false &&
+            (bike_type == TYPE::IRUNNING || bike_type == TYPE::ICONSOLE || bike_type == TYPE::ICONSOLE_2 ||
+             bike_type == TYPE::HERTZ_XR_770 || bike_type == TYPE::HERTZ_XR_770_2)) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0x01, 0x94};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -475,7 +476,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
         writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    } else if (bike_type == TYPE::HERTZ_XR_770) {
+    } else if (bike_type == TYPE::HERTZ_XR_770 || bike_type == TYPE::HERTZ_XR_770_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x02, 0x01, 0x93};
         const uint8_t initData3[] = {0xf0, 0xa3, 0x01, 0x01, 0x01, 0x96};
@@ -682,7 +683,8 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
         QString uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
 
         if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
-            bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2 || bike_type == TYPE::FYTTER_RI08) {
+            bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2 || bike_type == TYPE::FYTTER_RI08 ||
+            bike_type == TYPE::HERTZ_XR_770_2) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -780,7 +782,7 @@ void trxappgateusbbike::serviceScanDone(void) {
             }
         }
         if (!found) {
-            bike_type = HERTZ_XR_770;
+            bike_type = HERTZ_XR_770_2;
             uuid = uuid2;
         }
     } else if (bike_type == DKN_MOTION) {
