@@ -1455,6 +1455,7 @@ void homeform::deviceFound(const QString &name) {
 
 void homeform::Plus(const QString &name) {
     QSettings settings;
+    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
     qDebug() << QStringLiteral("Plus") << name;
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
@@ -1470,10 +1471,13 @@ void homeform::Plus(const QString &name) {
                 speed = requestedspeed;
             double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
             double step = settings.value(QStringLiteral("treadmill_step_speed"), 0.5).toDouble();
-            step = ((double)qRound(step * 10.0)) / 10.0;
+            if (!miles)
+                step = ((double)qRound(step * 10.0)) / 10.0;
             if (step > minStepSpeed)
                 minStepSpeed = step;
-            int rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
+            int rest = 0;
+            if (!miles)
+                rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
             if (rest == 5 || rest == 0)
                 speed = speed + minStepSpeed;
             else
@@ -1590,6 +1594,7 @@ void homeform::Plus(const QString &name) {
 
 void homeform::Minus(const QString &name) {
     QSettings settings;
+    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
     qDebug() << QStringLiteral("Minus") << name;
     if (name.contains(QStringLiteral("speed"))) {
         if (bluetoothManager->device()) {
@@ -1606,10 +1611,13 @@ void homeform::Minus(const QString &name) {
                     speed = requestedspeed;
                 double minStepSpeed = ((treadmill *)bluetoothManager->device())->minStepSpeed();
                 double step = settings.value(QStringLiteral("treadmill_step_speed"), 0.5).toDouble();
-                step = ((double)qRound(step * 10.0)) / 10.0;
+                if (!miles)
+                    step = ((double)qRound(step * 10.0)) / 10.0;
                 if (step > minStepSpeed)
                     minStepSpeed = step;
-                int rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
+                int rest = 0;
+                if (!miles)
+                    rest = (minStepSpeed * 10.0) - (((int)(speed * 10.0)) % (uint8_t)(minStepSpeed * 10.0));
                 if (rest == 5 || rest == 0)
                     speed = speed - minStepSpeed;
                 else
