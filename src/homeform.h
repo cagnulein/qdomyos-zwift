@@ -335,6 +335,7 @@ class homeform : public QObject {
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    Q_INVOKABLE static void clearFiles();
 
     double wattMaxChart() {
         QSettings settings;

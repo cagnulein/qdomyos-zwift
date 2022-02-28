@@ -3718,3 +3718,15 @@ double homeform::heartRateMax() {
     }
     return maxHeartRate;
 }
+
+void homeform::clearFiles() {
+    QString path = homeform::getWritableAppDir();
+    QDir dir(path);
+    QFileInfoList list = dir.entryInfoList(QDir::Files);
+    foreach (QFileInfo f, list) {
+        if (!f.suffix().toLower().compare("log") || !f.suffix().toLower().compare("jpg") ||
+            !f.suffix().toLower().compare("fit") || !f.suffix().toLower().compare("png")) {
+            QFile::remove(f.filePath());
+        }
+    }
+}

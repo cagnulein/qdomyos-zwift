@@ -5811,6 +5811,13 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.log_debug = checked
                     }
+
+                    Button {
+                        id: clearLogs
+                        text: "Clear History"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: rootItem.clearFiles();
+                    }
                 }
             }
         }
