@@ -273,11 +273,11 @@ void bowflextreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
     if (state == QLowEnergyService::ServiceDiscovered) {
         QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("1717b3c0-9803-11e3-90e1-0002a5d5c51b"));
-        QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("35ddd0a09-8031-1e39-a8b0-002a5d5c51b"));
-        QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("6be8f5809-8031-1e3a-b030-002a5d5c51b"));
-        QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("a46a4a809-8031-1e38-f3c0-002a5d5c51b"));
-        QBluetoothUuid _gattNotify4CharacteristicId(QStringLiteral("b8066ec09-8031-1e38-3460-002a5d5c51b"));
-        QBluetoothUuid _gattNotify5CharacteristicId(QStringLiteral("d57cda209-8031-1e38-4260-002a5d5c51b"));
+        QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("35ddd0a0-9803-11e3-9a8b-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("6be8f580-9803-11e3-ab03-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("a46a4a80-9803-11e3-8f3c-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify4CharacteristicId(QStringLiteral("b8066ec0-9803-11e3-8346-0002a5d5c51b"));
+        QBluetoothUuid _gattNotify5CharacteristicId(QStringLiteral("d57cda20-9803-11e3-8426-0002a5d5c51b"));
 
         // qDebug() << gattCommunicationChannelService->characteristics();
 
