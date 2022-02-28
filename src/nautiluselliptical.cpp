@@ -218,6 +218,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -249,6 +250,11 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
 
     double speed =
         GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
+    if (watts())
+        KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
     // double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
@@ -482,8 +488,6 @@ bool nautiluselliptical::connected() {
 void *nautiluselliptical::VirtualTreadmill() { return virtualTreadmill; }
 
 void *nautiluselliptical::VirtualDevice() { return VirtualTreadmill(); }
-
-uint16_t nautiluselliptical::watts() { return m_watt.value(); }
 
 void nautiluselliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
