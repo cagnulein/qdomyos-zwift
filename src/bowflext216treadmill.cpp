@@ -240,9 +240,9 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 }
 
 double bowflext216treadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(7) << 10) | packet.at(9);
+    uint16_t convertedData = (packet.at(7) << 8) | packet.at(6);
     double data = (double)convertedData / 100.0f;
-    return data;
+    return data * 1.60934;
 }
 
 double bowflext216treadmill::GetKcalFromPacket(const QByteArray &packet) {
