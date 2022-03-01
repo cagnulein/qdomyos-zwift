@@ -343,7 +343,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
                 if (CrankRevs != oldCrankRevs && deltaT) {
                     double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * time_division * 60;
                     if (cadence >= 0) {
-                        Cadence = cadence;
+                        Cadence = cadence / 2.0;
                     }
                     lastGoodCadence = QDateTime::currentDateTime();
                 } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
