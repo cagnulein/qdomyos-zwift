@@ -7,6 +7,7 @@
 #include <QMetaEnum>
 #include <QSettings>
 
+#include <QNetworkDatagram>
 #include <QThread>
 #include <math.h>
 #ifdef Q_OS_ANDROID
@@ -30,8 +31,19 @@ smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t ma
     calibrateShiftStep();
 
     initDone = false;
+    bool r = udpSocket->bind(QHostAddress::Any, 10000);
+    if (!r)
+        qDebug() << "SS2K UDP Socket Failed!";
+    connect(udpSocket, &QUdpSocket::readyRead, this, &smartspin2k::readPendingDatagrams);
     connect(refresh, &QTimer::timeout, this, &smartspin2k::update);
     refresh->start(200ms);
+}
+
+void smartspin2k::readPendingDatagrams() {
+    while (udpSocket->hasPendingDatagrams()) {
+        QNetworkDatagram datagram = udpSocket->receiveDatagram();
+        qDebug() << QStringLiteral("SS2K UDP LOG << ") << datagram.data();
+    }
 }
 
 void smartspin2k::autoResistanceChanged(bool value) {

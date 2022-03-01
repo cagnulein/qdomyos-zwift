@@ -27,6 +27,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QUdpSocket>
 
 #include "bike.h"
 #include "ftmsbike.h"
@@ -61,6 +62,8 @@ class smartspin2k : public bike {
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
+    QUdpSocket *udpSocket = new QUdpSocket();
+
     QLowEnergyService *gattCommunicationChannelService;
     QLowEnergyService *gattCommunicationChannelServiceFTMS;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -86,7 +89,7 @@ class smartspin2k : public bike {
 
     double slope = 0.0;
     double intercept = 0.0;
-    
+
     bike *parentDevice = nullptr;
 
 #ifdef Q_OS_IOS
@@ -115,6 +118,8 @@ class smartspin2k : public bike {
     void stateChanged(QLowEnergyService::ServiceState state);
     void stateChangedFTMS(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+    void readPendingDatagrams();
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
