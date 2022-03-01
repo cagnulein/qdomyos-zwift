@@ -34,7 +34,7 @@
 #include "ios/lockscreen.h"
 #endif
 
-class proformelliptical : public treadmill {
+class proformelliptical : public elliptical {
     Q_OBJECT
   public:
     proformelliptical(bool noWriteResistance, bool noHeartService);

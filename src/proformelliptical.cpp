@@ -60,7 +60,7 @@ void proformelliptical::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+        update_metrics(true, watts());
 
         {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
@@ -92,13 +92,14 @@ void proformelliptical::update() {
                     }
                     requestInclination = -1;
                 }
+                /*
                 if (requestSpeed != -1) {
                     if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                         emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                         // forceSpeed(requestSpeed);
                     }
                     requestSpeed = -1;
-                }
+                }*/
                 break;
             case 4:
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
@@ -115,7 +116,7 @@ void proformelliptical::update() {
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
-
+        /*
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
 
@@ -123,7 +124,7 @@ void proformelliptical::update() {
 
             requestStart = -1;
             emit tapeStarted();
-        }
+        }*/
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
@@ -172,8 +173,8 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     Resistance = ((double)newValue.at(11)) / 2.0;
     Cadence = newValue.at(18);
-    if (watts(weight))
-        KCal += ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
+    if (watts())
+        KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
@@ -208,7 +209,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
     // debug("Current Distance: " + QString::number(distance));
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts(weight)));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
