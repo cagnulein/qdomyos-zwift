@@ -143,6 +143,53 @@ void proformelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
+double proformelliptical::GetResistanceFromPacket(QByteArray packet) {
+    uint8_t r = (uint8_t)(packet.at(11));
+    switch (r) {
+    case 1:
+        return 1;
+    case 3:
+        return 2;
+    case 5:
+        return 3;
+    case 7:
+        return 4;
+    case 8:
+        return 5;
+    case 10:
+        return 6;
+    case 12:
+        return 7;
+    case 14:
+        return 8;
+    case 15:
+        return 9;
+    case 17:
+        return 10;
+    case 19:
+        return 11;
+    case 21:
+        return 12;
+    case 23:
+        return 13;
+    case 24:
+        return 14;
+    case 26:
+        return 15;
+    case 28:
+        return 16;
+    case 30:
+        return 17;
+    case 31:
+        return 18;
+    case 35:
+        return 20;
+    case 39:
+        return 22;
+    }
+    return 1;
+}
+
 void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                               const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -171,7 +218,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
         return;
     }
 
-    Resistance = ((double)newValue.at(11)) / 2.0;
+    Resistance = GetResistanceFromPacket(newValue);
     Cadence = newValue.at(18);
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
