@@ -241,6 +241,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
         }
 
         Resistance = newValue.at(18);
+        emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
         return;
     }
 
