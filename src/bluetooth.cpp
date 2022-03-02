@@ -726,7 +726,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("CT800")) ||    // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TRX4500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("ESANGLINKER"))) &&
                        !horizonTreadmill && filter) {
@@ -1447,10 +1447,13 @@ void bluetooth::connectedAndDiscovered() {
     bool fitmetriaFanfitEnabled = settings.value(QStringLiteral("fitmetria_fanfit_enable"), false).toBool();
 
     // only at the first very connection, setting the user default resistance
-    if (device() && firstConnected &&
-        (device()->deviceType() == bluetoothdevice::BIKE || device()->deviceType() == bluetoothdevice::ELLIPTICAL) &&
+    if (device() && firstConnected && device()->deviceType() == bluetoothdevice::BIKE &&
         settings.value(QStringLiteral("bike_resistance_start"), 1).toUInt() != 1) {
         qobject_cast<bike *>(device())->changeResistance(
+            settings.value(QStringLiteral("bike_resistance_start"), 1).toUInt());
+    } else if (device() && firstConnected && device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
+               settings.value(QStringLiteral("bike_resistance_start"), 1).toUInt() != 1) {
+        qobject_cast<elliptical *>(device())->changeResistance(
             settings.value(QStringLiteral("bike_resistance_start"), 1).toUInt());
     }
 
