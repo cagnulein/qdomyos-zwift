@@ -191,7 +191,8 @@ void wahookickrsnapbike::update() {
                 requestResistance = 1;
             }
 
-            if (requestResistance != currentResistance().value()) {
+            if (requestResistance != currentResistance().value() &&
+                ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 QByteArray a = setResistanceMode(requestResistance);
                 writeCharacteristic((uint8_t *)a.data(), a.length(), "setResistance", false, true);
@@ -700,4 +701,11 @@ void wahookickrsnapbike::controllerStateChanged(QLowEnergyController::Controller
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
+    Q_UNUSED(percentage);
+    emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
+    QByteArray a = setSimGrade(grade);
+    writeCharacteristic((uint8_t *)a.data(), a.length(), "setSimGrade", false, true);
 }

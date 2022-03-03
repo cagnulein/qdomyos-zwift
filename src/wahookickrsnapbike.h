@@ -129,5 +129,7 @@ class wahookickrsnapbike : public bike {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void inclinationChanged(double grade, double percentage);
 };
 #endif // WAHOOKICKRSNAPBIKE_H
