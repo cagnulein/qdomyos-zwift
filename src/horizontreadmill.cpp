@@ -794,20 +794,38 @@ void horizontreadmill::update() {
             requestStart = -1;
             emit tapeStarted();
             bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
-            if (horizon_paragon_x) {
-                uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x38,
-                                                0xce, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            if (gattCustomService) {
+                if (!horizon_paragon_x) {
+                    messageID++;
+                    // 0x17 0x34 = 99 minutes (99 * 60 = 5940)
+                    uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x02, 0x11, 0x00, 0x1a,
+                                        0x17, 0x00, 0x00, 0x34, 0x17, 0x00, 0x00, 0x00, 0x00,
+                                        0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
+                    int confirm = GenerateCRC_CCITT(&write1[10], 17);
+                    write1[2] = messageID & 0xff;
+                    write1[3] = messageID >> 8;
+                    write1[8] = confirm & 0xff;
+                    write1[9] = confirm >> 8;
 
-                // TODO: calculate the checksum if you change the speed and incline
+                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, 20,
+                                        QStringLiteral("requestStart"), false, false);
+                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, &write1[20], sizeof(write1) - 20,
+                                        QStringLiteral("requestStart"), false, true);
+                } else {
+                    uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x38,
+                                                    0xce, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-                // uint8_t initData03_paragon[] = {0x01, 0x14 /*2 km/h * 10 */, 0x00, 0x00 /* incline *10 */, 0x00,
-                // 0x00, 0x0d, 0x0a};
-                uint8_t initData03_paragon[] = {0x01, 0x38, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
+                    // TODO: calculate the checksum if you change the speed and incline
 
-                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
-                                    sizeof(initData02_paragon), QStringLiteral("starting"), false, false);
-                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
-                                    sizeof(initData03_paragon), QStringLiteral("starting"), false, true);
+                    // uint8_t initData03_paragon[] = {0x01, 0x14 /*2 km/h * 10 */, 0x00, 0x00 /* incline *10 */, 0x00,
+                    // 0x00, 0x0d, 0x0a};
+                    uint8_t initData03_paragon[] = {0x01, 0x38, 0x00, 0x0f, 0x00, 0x00, 0x0d, 0x0a};
+
+                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02_paragon,
+                                        sizeof(initData02_paragon), QStringLiteral("starting"), false, false);
+                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03_paragon,
+                                        sizeof(initData03_paragon), QStringLiteral("starting"), false, true);
+                }
             }
 
             lastStart = QDateTime::currentMSecsSinceEpoch();
@@ -816,10 +834,21 @@ void horizontreadmill::update() {
             emit debug(QStringLiteral("stopping..."));
 
             bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
-            if (horizon_paragon_x) {
-                uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
-                writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
-                                    QStringLiteral("stopping"), false, true);
+            if (gattCustomService) {
+                if (!horizon_paragon_x) {
+                    messageID++;
+                    uint8_t write1[] = {0x55, 0xaa, 0x13, 0x00, 0x01, 0x14, 0x00, 0x00, 0x00, 0x00};
+                    write1[2] = messageID & 0xff;
+                    write1[3] = messageID >> 8;
+
+                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
+                                        QStringLiteral("requestStop"), false, true);
+                } else {
+
+                    uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x03, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+                    writeCharacteristic(gattCustomService, gattWriteCharCustomService, write, sizeof(write),
+                                        QStringLiteral("stopping"), false, true);
+                }
             }
 
             lastStop = QDateTime::currentMSecsSinceEpoch();
