@@ -337,6 +337,9 @@ import Qt.labs.settings 1.0
             property real elite_rizer_gain: 1.0
             property bool tile_ext_incline_enabled: false
             property int  tile_ext_incline_order: 32
+
+            // from the version 2.10.41
+            property bool reebok_fr30_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -4407,6 +4410,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.jtx_fitness_sprint_treadmill = checked
+                    }
+
+                    SwitchDelegate {
+                        id: reebokFR30TreadmillDelegate
+                        text: qsTr("Reebok FR30 Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.reebok_fr30_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.reebok_fr30_treadmill = checked
                     }
 
                     SwitchDelegate {

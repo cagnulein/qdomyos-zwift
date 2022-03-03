@@ -56,13 +56,24 @@ void trxappgateusbtreadmill::changeInclinationRequested(double grade, double per
 }
 
 void trxappgateusbtreadmill::forceIncline(double requestIncline) {
+    QSettings settings;
+    bool reebok_fr30_treadmill = settings.value(QStringLiteral("reebok_fr30_treadmill"), false).toBool();
+
     if (requestIncline < 0)
         requestIncline = 0;
-    uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
-    write[4] = (requestIncline + 1);
-    write[7] = write[4] + 0x38;
+    if (!reebok_fr30_treadmill) {
+        uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
+        write[4] = (requestIncline + 1);
+        write[7] = write[4] + 0x38;
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+    } else {
+        uint8_t write[] = {0xf0, 0xac, 0x32, 0xd3, 0x01, 0x64, 0x64, 0x6a};
+        write[4] = (requestIncline + 1);
+        write[7] = write[4] + 0x69;
+
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+    }
 }
 
 void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {}
