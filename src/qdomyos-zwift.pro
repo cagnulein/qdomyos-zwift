@@ -66,6 +66,7 @@ SOURCES += \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
     fakebike.cpp \
+   filedownloader.cpp \
     fitmetria_fanfit.cpp \
    fitplusbike.cpp \
 	fitshowtreadmill.cpp \
@@ -205,6 +206,7 @@ HEADERS += \
 	 elliptical.h \
    eslinkertreadmill.h \
     fakebike.h \
+   filedownloader.h \
     fitmetria_fanfit.h \
    fitplusbike.h \
     ftmsrower.h \

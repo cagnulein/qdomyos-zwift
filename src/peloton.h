@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QUrlQuery>
 
+#include "filedownloader.h"
 #include "homefitnessbuddy.h"
 
 class peloton : public QObject {
@@ -42,6 +43,8 @@ class peloton : public QObject {
     QString current_instructor_id = QLatin1String("");
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");
+    QString current_image_url = QLatin1String("");
+    fileDownloader *current_image_downloaded = nullptr;
     QDateTime current_original_air_time;
     int current_pedaling_duration = 0;
 

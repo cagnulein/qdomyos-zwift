@@ -228,6 +228,16 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_ride_id = ride[QStringLiteral("id")].toString();
     current_workout_type = ride[QStringLiteral("fitness_discipline")].toString();
     current_pedaling_duration = ride[QStringLiteral("pedaling_duration")].toInt();
+    current_image_url = ride[QStringLiteral("image_url")].toString();
+
+    if (current_image_downloaded) {
+        delete current_image_downloaded;
+        current_image_downloaded = 0;
+    }
+    if (!current_image_url.isEmpty()) {
+        current_image_downloaded = new fileDownloader(current_image_url);
+    }
+
     qint64 time = ride[QStringLiteral("original_air_time")].toInt();
     qDebug() << QStringLiteral("original_air_time") << time;
     qDebug() << QStringLiteral("current_pedaling_duration") << current_pedaling_duration;

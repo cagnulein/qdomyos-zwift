@@ -3607,6 +3607,26 @@ void homeform::sendMail() {
         fit->setContentType(QStringLiteral("application/octet-stream"));
         message.addPart(fit);
     }
+    if (pelotonHandler && pelotonHandler->current_image_downloaded &&
+        !pelotonHandler->current_image_downloaded->downloadedData().isEmpty()) {
+
+        QString path = getWritableAppDir();
+        QString filename = path +
+                           QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+                           QStringLiteral("_peloton_image.png");
+        QFile file(filename);
+        file.open(QIODevice::WriteOnly);
+        file.write(pelotonHandler->current_image_downloaded->downloadedData());
+        file.close();
+
+        // Create a MimeInlineFile object for each image
+        MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filename)));
+
+        // An unique content id must be setted
+        pelotonImage->setContentId(filename);
+        pelotonImage->setContentType(QStringLiteral("image/png"));
+        message.addPart(pelotonImage);
+    }
 
     /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
     extern QString logfilename;
