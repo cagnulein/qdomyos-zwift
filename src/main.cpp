@@ -64,6 +64,7 @@ bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
+bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
@@ -124,6 +125,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             run_cadence_sensor = true;
         if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
             nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
+            reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -327,6 +330,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
         settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
+        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);
     }
 #endif
 
