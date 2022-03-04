@@ -13,6 +13,7 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QHttpMultiPart>
+#include <QImageWriter>
 #include <QJsonDocument>
 #include <QNetworkAccessManager>
 #include <QOAuth2AuthorizationCodeFlow>
@@ -3614,17 +3615,27 @@ void homeform::sendMail() {
         QString filename = path +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral("_peloton_image.png");
+        QString filenameJPG =
+            path + QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
+            QStringLiteral("_peloton_image.jpg");
         QFile file(filename);
         file.open(QIODevice::WriteOnly);
         file.write(pelotonHandler->current_image_downloaded->downloadedData());
         file.close();
+        QImage image(filename);
+        QImageWriter writer(filename, "png");
+        writer.setFileName(filenameJPG);
+        writer.setFormat("jpg");
+        writer.setQuality(30);
+        writer.write(image);
+        QFile::remove(filename);
 
         // Create a MimeInlineFile object for each image
-        MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filename)));
+        MimeInlineFile *pelotonImage = new MimeInlineFile((new QFile(filenameJPG)));
 
         // An unique content id must be setted
-        pelotonImage->setContentId(filename);
-        pelotonImage->setContentType(QStringLiteral("image/png"));
+        pelotonImage->setContentId(filenameJPG);
+        pelotonImage->setContentType(QStringLiteral("image/jpg"));
         message.addPart(pelotonImage);
     }
 

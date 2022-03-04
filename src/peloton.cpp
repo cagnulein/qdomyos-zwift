@@ -12,6 +12,13 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
     mgr = new QNetworkAccessManager(this);
     timer = new QTimer(this);
 
+    // only for test purpose
+    /*
+    current_image_downloaded =
+        new fileDownloader(QUrl("https://s3.amazonaws.com/peloton-ride-images/fa50b87ea5c44ce078e28a3030b8865b5dbffb35/"
+                                "img_1646099287_a620f71b3d6740718457b21769a7ed46.png"));
+    */
+
     if (!settings.value(QStringLiteral("peloton_username"), QStringLiteral("username"))
              .toString()
              .compare(QStringLiteral("username"))) {
