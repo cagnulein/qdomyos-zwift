@@ -261,7 +261,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
             emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
 
-            if (ResistanceFromFTMSAccessory.value() == 0) {
+            if (ResistanceFromFTMSAccessoryLastTime == 0) {
                 // if we change this, also change the wattsFromResistance function. We can create a standard function in
                 // order to have all the costants in one place (I WANT MORE TIME!!!)
                 double ac = 0.01243107769;
@@ -291,6 +291,7 @@ void stagesbike::characteristicChanged(const QLowEnergyCharacteristic &character
                 else
                     Resistance = m_pelotonResistance;
                 emit resistanceRead(Resistance.value());
+                qDebug() << QStringLiteral("Current Resistance Calculated: ") + QString::number(Resistance.value());
             } else {
                 Resistance = ResistanceFromFTMSAccessory.value();
             }
@@ -573,6 +574,7 @@ uint16_t stagesbike::watts() {
 
 void stagesbike::resistanceFromFTMSAccessory(int8_t res) {
     ResistanceFromFTMSAccessory = res;
+    ResistanceFromFTMSAccessoryLastTime = QDateTime::currentMSecsSinceEpoch();
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
 }
 

@@ -50,6 +50,7 @@ class stagesbike : public bike {
                              bool wait_for_response = false);
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
+    uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
     void startDiscover();
     uint16_t watts();
 
