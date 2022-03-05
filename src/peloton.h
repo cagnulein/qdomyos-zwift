@@ -70,6 +70,7 @@ class peloton : public QObject {
     void getSummary(const QString &workout);
     void getWorkout(const QString &workout);
     void getInstructor(const QString &instructor_id);
+    void getRide(const QString &ride_id);
     void getPerformance(const QString &workout);
 
     bool testMode = false;
@@ -79,8 +80,9 @@ class peloton : public QObject {
     void workoutlist_onfinish(QNetworkReply *reply);
     void summary_onfinish(QNetworkReply *reply);
     void workout_onfinish(QNetworkReply *reply);
-    void performance_onfinish(QNetworkReply *reply);
     void instructor_onfinish(QNetworkReply *reply);
+    void ride_onfinish(QNetworkReply *reply);
+    void performance_onfinish(QNetworkReply *reply);
     void pzp_trainrows(QList<trainrow> *list);
     void hfb_trainrows(QList<trainrow> *list);
     void pzp_loginState(bool ok);
