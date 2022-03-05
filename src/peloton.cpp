@@ -121,10 +121,10 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     current_workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
-    qDebug() << QStringLiteral("data") << data;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << data;
 
     if (data.isEmpty()) {
-        qDebug() << QStringLiteral("Peloton API doens't answer, trying back in 10 seconds...");
+        qDebug() << QStringLiteral("peloton::workoutlist_onfinish Peloton API doens't answer, trying back in 10 seconds...");
         timer->start(10s);
         return;
     }
@@ -143,7 +143,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
         current_workout_id = id;
 
         // starting a workout
-        qDebug() << QStringLiteral("workoutlist_onfinish IN PROGRESS!");
+        qDebug() << QStringLiteral("peloton::workoutlist_onfinish workoutlist_onfinish IN PROGRESS!");
 
         if ((bluetoothManager && bluetoothManager->device()) || testMode) {
             getSummary(id);
@@ -163,9 +163,9 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     }
 
     if (log_request) {
-        qDebug() << QStringLiteral("workoutlist_onfinish") << current_workout;
+        qDebug() << QStringLiteral("peloton::workoutlist_onfinish") << current_workout;
     }
-    qDebug() << QStringLiteral("current workout id") << current_workout_id;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish current workout id") << current_workout_id;
 }
 
 void peloton::summary_onfinish(QNetworkReply *reply) {
@@ -176,9 +176,9 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
     current_workout_summary = QJsonDocument::fromJson(payload, &parseError);
 
     if (log_request) {
-        qDebug() << QStringLiteral("summary_onfinish") << current_workout_summary;
+        qDebug() << QStringLiteral("peloton::summary_onfinish") << current_workout_summary;
     } else {
-        qDebug() << QStringLiteral("summary_onfinish");
+        qDebug() << QStringLiteral("peloton::summary_onfinish");
     }
 
     getWorkout(current_workout_id);
@@ -235,9 +235,9 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_original_air_time = QDateTime::fromSecsSinceEpoch(time, Qt::UTC);
 
     if (log_request) {
-        qDebug() << QStringLiteral("workout_onfinish") << workout;
+        qDebug() << QStringLiteral("peloton::workout_onfinish") << workout;
     } else {
-        qDebug() << QStringLiteral("workout_onfinish");
+        qDebug() << QStringLiteral("peloton::workout_onfinish");
     }
 
     getInstructor(current_instructor_id);
@@ -385,9 +385,9 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     }
 
     if (log_request) {
-        qDebug() << QStringLiteral("performance_onfinish") << performance;
+        qDebug() << QStringLiteral("peloton::performance_onfinish") << performance;
     } else {
-        qDebug() << QStringLiteral("performance_onfinish") << trainrows.length();
+        qDebug() << QStringLiteral("peloton::performance_onfinish") << trainrows.length();
     }
 
     if (!trainrows.isEmpty()) {
@@ -410,6 +410,7 @@ void peloton::getInstructor(const QString &instructor_id) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/instructor/") + instructor_id);
+    qDebug() << "peloton::getInstructor" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -423,6 +424,7 @@ void peloton::getPerformance(const QString &workout) {
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout +
              QStringLiteral("/performance_graph?every_n=") + QString::number(peloton_workout_second_resolution));
+    qDebug() << "peloton::getPerformance" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -435,6 +437,7 @@ void peloton::getWorkout(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout);
+    qDebug() << "peloton::getWorkout" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -447,6 +450,7 @@ void peloton::getSummary(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout + QStringLiteral("/summary"));
+    qDebug() << "peloton::getSummary" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -472,6 +476,7 @@ void peloton::getWorkoutList(int num) {
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/user/") + user_id +
              QStringLiteral("/workouts?sort_by=-created&page=") + QString::number(current_page) +
              QStringLiteral("&limit=") + QString::number(limit));
+    qDebug() << "peloton::getWorkoutList" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
