@@ -98,6 +98,11 @@ void fakebike::update() {
     #endif
     #endif
     }
+
+    if (requestResistance != -1 && requestResistance != currentResistance().value()) {
+        Resistance = requestResistance;
+        m_pelotonResistance = requestResistance;
+    }
 }
 
 void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
