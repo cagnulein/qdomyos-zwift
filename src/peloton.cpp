@@ -274,7 +274,9 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject ride = document.object();
 
-    // TODO ride.pedaling_start_offset generally 60s
+    // ride.pedaling_start_offset and instructor_cues[0].offset.start is
+    // generally 60s for the intro, but let's ignore this since we assume
+    // people are starting the workout after the intro
     QJsonArray instructor_cues = ride[QStringLiteral("instructor_cues")].toArray();
 
     trainrows.clear();
@@ -283,8 +285,6 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QSettings settings;
     QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
 
-    // TODO test running - instructor_cues might be missing
-    // TODO test treadmill
     for (int i = 0; i < instructor_cues.count(); i++) {
         QJsonObject instructor_cue = instructor_cues.at(i).toObject();
         QJsonObject offsets = instructor_cue[QStringLiteral("offsets")].toObject();
