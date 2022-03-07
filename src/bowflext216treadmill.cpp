@@ -173,8 +173,15 @@ void bowflext216treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     emit packetReceived();
 
-    if (characteristic.uuid() != gattNotify3Characteristic.uuid())
+    if (characteristic.uuid() != gattNotify3Characteristic.uuid()) {
+        if (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()) > 5000) {
+            Speed = 0;
+            qDebug() << QStringLiteral("resetting speed since i'm not receiving metrics in the last 5 seconds");
+            emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+        }
+
         return;
+    }
 
     if ((newValue.length() != 20))
         return;
@@ -409,7 +416,10 @@ void bowflext216treadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
 void bowflext216treadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
+        Speed = 0;
+        emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
         qDebug() << QStringLiteral("trying to connect back again...");
+        qDebug() << QStringLiteral("resetting to speed to 0...");
         initDone = false;
         m_control->connectToDevice();
     }
