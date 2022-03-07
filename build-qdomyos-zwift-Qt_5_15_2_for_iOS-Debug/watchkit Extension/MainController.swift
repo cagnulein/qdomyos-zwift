@@ -13,6 +13,8 @@ import CoreMotion
 class MainController: WKInterfaceController {
     @IBOutlet weak var userNameLabel: WKInterfaceLabel!
     @IBOutlet weak var stepCountsLabel: WKInterfaceLabel!
+    @IBOutlet weak var caloriesLabel: WKInterfaceLabel!
+    @IBOutlet weak var distanceLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
     static var start: Bool! = false
@@ -84,6 +86,9 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
+        
+        self.distanceLabel.setText("Distance \(Int(WorkoutTracking.distance))")
+        self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
         //WorkoutTracking.cadenceSteps = pedometer.
     }
     
