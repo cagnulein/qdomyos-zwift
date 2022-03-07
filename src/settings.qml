@@ -340,6 +340,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.41
             property bool reebok_fr30_treadmill: false
+
+            // from the version 2.10.44
+            property bool horizon_treadmill_7_8: false
         }
 
         function paddingZeros(text, limit) {
@@ -4339,6 +4342,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.horizon_paragon_x = checked
+                        }
+                        SwitchDelegate {
+                            id: horizon78TreadmillDelegate
+                            text: qsTr("Horizon 7.8 start issue")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_7_8
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_7_8 = checked
                         }
                     }
                 }
