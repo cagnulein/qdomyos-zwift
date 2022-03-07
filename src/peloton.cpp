@@ -128,10 +128,10 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     current_workout = QJsonDocument::fromJson(payload, &parseError);
     QJsonObject json = current_workout.object();
     QJsonArray data = json[QStringLiteral("data")].toArray();
-    qDebug() << QStringLiteral("data") << data;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << data;
 
     if (data.isEmpty()) {
-        qDebug() << QStringLiteral("Peloton API doens't answer, trying back in 10 seconds...");
+        qDebug() << QStringLiteral("peloton::workoutlist_onfinish Peloton API doens't answer, trying back in 10 seconds...");
         timer->start(10s);
         return;
     }
@@ -150,7 +150,7 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
         current_workout_id = id;
 
         // starting a workout
-        qDebug() << QStringLiteral("workoutlist_onfinish IN PROGRESS!");
+        qDebug() << QStringLiteral("peloton::workoutlist_onfinish workoutlist_onfinish IN PROGRESS!");
 
         if ((bluetoothManager && bluetoothManager->device()) || testMode) {
             getSummary(id);
@@ -170,9 +170,9 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     }
 
     if (log_request) {
-        qDebug() << QStringLiteral("workoutlist_onfinish") << current_workout;
+        qDebug() << QStringLiteral("peloton::workoutlist_onfinish") << current_workout;
     }
-    qDebug() << QStringLiteral("current workout id") << current_workout_id;
+    qDebug() << QStringLiteral("peloton::workoutlist_onfinish current workout id") << current_workout_id;
 }
 
 void peloton::summary_onfinish(QNetworkReply *reply) {
@@ -183,9 +183,9 @@ void peloton::summary_onfinish(QNetworkReply *reply) {
     current_workout_summary = QJsonDocument::fromJson(payload, &parseError);
 
     if (log_request) {
-        qDebug() << QStringLiteral("summary_onfinish") << current_workout_summary;
+        qDebug() << QStringLiteral("peloton::summary_onfinish") << current_workout_summary;
     } else {
-        qDebug() << QStringLiteral("summary_onfinish");
+        qDebug() << QStringLiteral("peloton::summary_onfinish");
     }
 
     getWorkout(current_workout_id);
@@ -220,7 +220,13 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     }
     emit workoutChanged(workout_name, current_instructor_name);
 
-    getPerformance(current_workout_id);
+
+    if (workout_name.toUpper().contains(QStringLiteral("POWER ZONE"))) {
+        qDebug() << QStringLiteral("!!Peloton Power Zone Ride Override!!");
+        getPerformance(current_workout_id);
+    } else {
+        getRide(current_ride_id);
+    }
 }
 
 void peloton::workout_onfinish(QNetworkReply *reply) {
@@ -252,20 +258,111 @@ void peloton::workout_onfinish(QNetworkReply *reply) {
     current_original_air_time = QDateTime::fromSecsSinceEpoch(time, Qt::UTC);
 
     if (log_request) {
-        qDebug() << QStringLiteral("workout_onfinish") << workout;
+        qDebug() << QStringLiteral("peloton::workout_onfinish") << workout;
     } else {
-        qDebug() << QStringLiteral("workout_onfinish");
+        qDebug() << QStringLiteral("peloton::workout_onfinish");
     }
 
     getInstructor(current_instructor_id);
 }
 
-void peloton::performance_onfinish(QNetworkReply *reply) {
+void peloton::ride_onfinish(QNetworkReply *reply) {
+    disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
+
+    QByteArray payload = reply->readAll(); // JSON
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(payload, &parseError);
+    QJsonObject ride = document.object();
+
+    // TODO ride.pedaling_start_offset generally 60s
+    QJsonArray instructor_cues = ride[QStringLiteral("instructor_cues")].toArray();
+
+    trainrows.clear();
+    trainrows.reserve(instructor_cues.count() + 1);
 
     QSettings settings;
-    bool power_zone_ride = current_workout_name.toUpper().contains(QStringLiteral("POWER ZONE"));
     QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
+
+    // TODO test running - instructor_cues might be missing
+    // TODO test treadmill
+    for (int i = 0; i < instructor_cues.count(); i++) {
+        QJsonObject instructor_cue = instructor_cues.at(i).toObject();
+        QJsonObject offsets = instructor_cue[QStringLiteral("offsets")].toObject();
+        QJsonObject resistance_range = instructor_cue[QStringLiteral("resistance_range")].toObject();
+        QJsonObject cadence_range = instructor_cue[QStringLiteral("cadence_range")].toObject();
+
+        trainrow r;
+        int duration = offsets[QStringLiteral("end")].toInt() - offsets[QStringLiteral("start")].toInt();
+        if (i != 0) {
+            // offsets have a 1s gap
+            duration++;
+        }
+
+        if (bluetoothManager && bluetoothManager->device()) {
+            r.lower_resistance =
+                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(resistance_range[QStringLiteral("lower")].toInt());
+            r.upper_resistance =
+                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(resistance_range[QStringLiteral("upper")].toInt());
+        }
+
+        r.lower_requested_peloton_resistance = resistance_range[QStringLiteral("lower")].toInt();
+        r.upper_requested_peloton_resistance = resistance_range[QStringLiteral("upper")].toInt();
+
+        r.lower_cadence = cadence_range[QStringLiteral("lower")].toInt();
+        r.upper_cadence = cadence_range[QStringLiteral("upper")].toInt();
+
+        // Set for compatibility
+        r.average_resistance = (r.lower_resistance + r.upper_resistance) / 2;
+        r.average_requested_peloton_resistance = (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
+        r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
+        if (difficulty == QStringLiteral("average")) {
+            r.resistance = r.average_resistance;
+            r.requested_peloton_resistance = r.average_requested_peloton_resistance;
+            r.cadence = r.average_cadence;
+        } else if (difficulty == QStringLiteral("upper")) {
+            r.resistance = r.upper_resistance;
+            r.requested_peloton_resistance = r.upper_requested_peloton_resistance;
+            r.cadence = r.upper_cadence;
+        } else { // lower
+            r.resistance = r.lower_resistance;
+            r.requested_peloton_resistance = r.lower_requested_peloton_resistance;
+            r.cadence = r.lower_cadence;
+        }
+
+        // in order to have compact rows in the training program to have an Remaining Time tile set correctly
+        if (i == 0 ||
+            (r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
+             r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
+             r.lower_cadence != trainrows.last().lower_cadence ||
+             r.upper_cadence != trainrows.last().upper_cadence)) {
+            r.duration = QTime(0, 0, 0).addSecs(duration);
+            trainrows.append(r);
+        } else {
+            trainrows.last().duration = trainrows.last().duration.addSecs(duration);
+        }
+    }
+
+    if (log_request) {
+        qDebug() << "peloton::ride_onfinish" << ride;
+    } else {
+        qDebug() << "peloton::ride_onfinish" << trainrows.length();
+    }
+
+    if (!trainrows.isEmpty()) {
+        emit workoutStarted(current_workout_name, current_instructor_name);
+        timer->start(30s); // check for a status changed
+    } else {
+        // fallback
+        getPerformance(current_workout_id);
+    }
+}
+
+void peloton::performance_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
+
+    QSettings settings;
+    QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
+
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
     performance = QJsonDocument::fromJson(payload, &parseError);
@@ -277,60 +374,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
     trainrows.clear();
 
-    if (power_zone_ride && !target_performance_metrics.isEmpty()) {
-        qDebug() << QStringLiteral("!!Peloton Power Zone Ride Override!!");
-    }
-
-    if (!target_performance_metrics.isEmpty() && !power_zone_ride) {
-        QJsonArray target_graph_metrics = target_performance_metrics[QStringLiteral("target_graph_metrics")].toArray();
-        QJsonObject resistances = target_graph_metrics[1].toObject();
-        QJsonObject graph_data_resistances = resistances[QStringLiteral("graph_data")].toObject();
-        QJsonArray current_resistances = graph_data_resistances[difficulty].toArray();
-        QJsonArray lower_resistances = graph_data_resistances[QStringLiteral("lower")].toArray();
-        QJsonArray average_resistances = graph_data_resistances[QStringLiteral("average")].toArray();
-        QJsonArray upper_resistances = graph_data_resistances[QStringLiteral("upper")].toArray();
-        QJsonObject cadences = target_graph_metrics[0].toObject();
-        QJsonObject graph_data_cadences = cadences[QStringLiteral("graph_data")].toObject();
-        QJsonArray current_cadences = graph_data_cadences[difficulty].toArray();
-        QJsonArray lower_cadences = graph_data_cadences[QStringLiteral("lower")].toArray();
-        QJsonArray average_cadences = graph_data_cadences[QStringLiteral("average")].toArray();
-        QJsonArray upper_cadences = graph_data_cadences[QStringLiteral("upper")].toArray();
-
-        trainrows.reserve(current_resistances.count() + 1);
-        for (int i = 0; i < current_resistances.count(); i++) {
-            trainrow r;
-            r.duration = QTime(0, 0, peloton_workout_second_resolution, 0);
-            if (bluetoothManager && bluetoothManager->device()) {
-                r.resistance =
-                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(current_resistances.at(i).toInt());
-                r.lower_resistance =
-                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(lower_resistances.at(i).toInt());
-                r.upper_resistance =
-                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(upper_resistances.at(i).toInt());
-                r.average_resistance =
-                    ((bike *)bluetoothManager->device())->pelotonToBikeResistance(average_resistances.at(i).toInt());
-            }
-            r.requested_peloton_resistance = current_resistances.at(i).toInt();
-            r.lower_requested_peloton_resistance = lower_resistances.at(i).toInt();
-            r.average_requested_peloton_resistance = average_resistances.at(i).toInt();
-            r.upper_requested_peloton_resistance = upper_resistances.at(i).toInt();
-            r.cadence = current_cadences.at(i).toInt();
-            r.lower_cadence = lower_cadences.at(i).toInt();
-            r.average_cadence = average_cadences.at(i).toInt();
-            r.upper_cadence = upper_cadences.at(i).toInt();
-
-            // in order to have compact rows in the training program to have an Reamining Time tile set correctly
-            if (i == 0 ||
-                (r.requested_peloton_resistance != trainrows.last().requested_peloton_resistance ||
-                 r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
-                 r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
-                 r.cadence != trainrows.last().cadence || r.lower_cadence != trainrows.last().lower_cadence ||
-                 r.upper_cadence != trainrows.last().upper_cadence))
-                trainrows.append(r);
-            else
-                trainrows.last().duration = trainrows.last().duration.addSecs(peloton_workout_second_resolution);
-        }
-    } else if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
+    if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
         bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
@@ -402,9 +446,9 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     }
 
     if (log_request) {
-        qDebug() << QStringLiteral("performance_onfinish") << performance;
+        qDebug() << QStringLiteral("peloton::performance_onfinish") << performance;
     } else {
-        qDebug() << QStringLiteral("performance_onfinish") << trainrows.length();
+        qDebug() << QStringLiteral("peloton::performance_onfinish") << trainrows.length();
     }
 
     if (!trainrows.isEmpty()) {
@@ -427,6 +471,21 @@ void peloton::getInstructor(const QString &instructor_id) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::instructor_onfinish);
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/instructor/") + instructor_id);
+    qDebug() << "peloton::getInstructor" << url;
+    QNetworkRequest request(url);
+
+    request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
+    request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+
+    mgr->get(request);
+}
+
+void peloton::getRide(const QString &ride_id) {
+    connect(mgr, &QNetworkAccessManager::finished, this, &peloton::ride_onfinish);
+
+    QUrl url(QStringLiteral("https://api.onepeloton.com/api/ride/") + ride_id +
+             QStringLiteral("/details?stream_source=multichannel"));
+    qDebug() << "peloton::getRide" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -440,6 +499,7 @@ void peloton::getPerformance(const QString &workout) {
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout +
              QStringLiteral("/performance_graph?every_n=") + QString::number(peloton_workout_second_resolution));
+    qDebug() << "peloton::getPerformance" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -452,6 +512,7 @@ void peloton::getWorkout(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::workout_onfinish);
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout);
+    qDebug() << "peloton::getWorkout" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -464,6 +525,7 @@ void peloton::getSummary(const QString &workout) {
     connect(mgr, &QNetworkAccessManager::finished, this, &peloton::summary_onfinish);
 
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/workout/") + workout + QStringLiteral("/summary"));
+    qDebug() << "peloton::getSummary" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
@@ -489,6 +551,7 @@ void peloton::getWorkoutList(int num) {
     QUrl url(QStringLiteral("https://api.onepeloton.com/api/user/") + user_id +
              QStringLiteral("/workouts?sort_by=-created&page=") + QString::number(current_page) +
              QStringLiteral("&limit=") + QString::number(limit));
+    qDebug() << "peloton::getWorkoutList" << url;
     QNetworkRequest request(url);
 
     request.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/json"));
