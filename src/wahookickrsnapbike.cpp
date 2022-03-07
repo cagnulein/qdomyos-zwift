@@ -131,6 +131,7 @@ QByteArray wahookickrsnapbike::setSimWindResistance(double windResistanceCoeffic
 
 QByteArray wahookickrsnapbike::setSimGrade(double grade) {
     // TODO: Throw Error if grade is not between -1 and 1
+    grade = (grade / 100.0 + 1.0) * 32768.0;
     QByteArray r;
     uint16_t norm = (uint16_t)((qMin(1.0, qMax(-1.0, grade)) + 1.0) * 65535 / 2.0);
     r.append(_setSimGrade);
@@ -575,12 +576,12 @@ void wahookickrsnapbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+    initRequest = true; // here because it can't be in the descriptorWritten event since it will be called several times
 }
 
 void wahookickrsnapbike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
     emit debug(QStringLiteral("descriptorWritten ") + descriptor.name() + QStringLiteral(" ") + newValue.toHex(' '));
 
-    initRequest = true;
     emit connectedAndDiscovered();
 }
 
