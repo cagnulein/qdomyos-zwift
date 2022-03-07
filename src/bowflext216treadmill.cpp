@@ -417,7 +417,7 @@ void bowflext216treadmill::controllerStateChanged(QLowEnergyController::Controll
     qDebug() << QStringLiteral("controllerStateChanged") << state;
     if (state == QLowEnergyController::UnconnectedState && m_control) {
         Speed = 0;
-        emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+        emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
         qDebug() << QStringLiteral("trying to connect back again...");
         qDebug() << QStringLiteral("resetting to speed to 0...");
         initDone = false;
