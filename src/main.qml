@@ -23,6 +23,9 @@ ApplicationWindow {
     signal strava_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
+    signal deleteSettings(url name)
+    signal saveProfile()
+    signal restart()
     signal volumeUp()
     signal volumeDown()
 
@@ -30,6 +33,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
+        property string profile_name: "default"
     }
 
     Popup {
@@ -378,6 +382,17 @@ ApplicationWindow {
 
         Column {
             anchors.fill: parent
+
+            ItemDelegate {
+                text: qsTr("Profile: ") + settings.profile_name
+                width: parent.width
+                onClicked: {
+                    toolButtonLoadSettings.visible = true;
+                    toolButtonSaveSettings.visible = true;
+                    stackView.push("profiles.qml")
+                    drawer.close()
+                }
+            }
 
             ItemDelegate {
                 text: qsTr("Settings")
