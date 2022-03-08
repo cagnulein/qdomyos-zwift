@@ -70,6 +70,7 @@ import Qt.labs.settings 1.0
             property bool tile_inclination_enabled: true
             property int  tile_inclination_order: 1
             property bool tile_cadence_enabled: true
+            property bool tile_cadence_color_enabled: false
             property int  tile_cadence_order: 2
             property bool tile_elevation_enabled: true
             property int  tile_elevation_order: 3
@@ -108,6 +109,7 @@ import Qt.labs.settings 1.0
             property bool tile_peloton_difficulty_enabled: false
             property int  tile_peloton_difficulty_order: 32
             property bool tile_peloton_resistance_enabled: true
+            property bool tile_peloton_resistance_color_enabled: false
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
             property int  tile_datetime_order: 16
@@ -1935,29 +1937,45 @@ import Qt.labs.settings 1.0
                         title: qsTr("Cadence")
                         linkedBoolSetting: "tile_cadence_enabled"
                         settings: settings
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelcadenceOrder
-                                text: qsTr("order index:")
+                        accordionContent:  ColumnLayout {
+                            SwitchDelegate {
+                                id: cadenceColorEnabled
+                                text: qsTr("Enable Cadence color")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tile_cadence_color_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                horizontalAlignment: Text.AlignRight
+                                onClicked: settings.tile_cadence_color_enabled = checked
                             }
-                            ComboBox {
-                                id: cadenceOrderTextField
-                                model: rootItem.tile_order
-                                displayText: settings.tile_cadence_order
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onActivated: {
-                                    displayText = cadenceOrderTextField.currentValue
-                                 }
-                            }
-                            Button {
-                                id: okcadenceOrderButton
-                                text: "OK"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelcadenceOrder
+                                    text: qsTr("order index:")
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                                ComboBox {
+                                    id: cadenceOrderTextField
+                                    model: rootItem.tile_order
+                                    displayText: settings.tile_cadence_order
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        displayText = cadenceOrderTextField.currentValue
+                                     }
+                                }
+                                Button {
+                                    id: okcadenceOrderButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                                }
                             }
                         }
                     }
@@ -2544,29 +2562,45 @@ import Qt.labs.settings 1.0
                         title: qsTr("Peloton Resistance")
                         linkedBoolSetting: "tile_peloton_resistance_enabled"
                         settings: settings
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelpeloton_resistanceOrder
-                                text: qsTr("order index:")
+                        accordionContent: ColumnLayout {
+                            SwitchDelegate {
+                                id: pelotonResistanceColorEnabled
+                                text: qsTr("Enable Peloton Resistance color")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tile_peloton_resistance_color_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                horizontalAlignment: Text.AlignRight
+                                onClicked: settings.tile_peloton_resistance_color_enabled = checked
                             }
-                            ComboBox {
-                                id: peloton_resistanceOrderTextField
-                                model: rootItem.tile_order
-                                displayText: settings.tile_peloton_resistance_order
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onActivated: {
-                                    displayText = peloton_resistanceOrderTextField.currentValue
-                                 }
-                            }
-                            Button {
-                                id: okpeloton_resistanceOrderButton
-                                text: "OK"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelpeloton_resistanceOrder
+                                    text: qsTr("order index:")
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                                ComboBox {
+                                    id: peloton_resistanceOrderTextField
+                                    model: rootItem.tile_order
+                                    displayText: settings.tile_peloton_resistance_order
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        displayText = peloton_resistanceOrderTextField.currentValue
+                                     }
+                                }
+                                Button {
+                                    id: okpeloton_resistanceOrderButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                                }
                             }
                         }
                     }

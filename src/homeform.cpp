@@ -2251,43 +2251,49 @@ void homeform::update() {
                                 'f', 0));
             if (trainProgram) {
                 int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
+                int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
                 if (lower_requested_peloton_resistance != -1) {
-                    int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
                     this->target_peloton_resistance->setSecondLine(
                         QStringLiteral("MIN: ") +
                         QString::number(lower_requested_peloton_resistance, 'f', 0) +
                         QStringLiteral(" MAX: ") +
                         QString::number(upper_requested_peloton_resistance, 'f', 0));
+                } else {
+                    this->target_peloton_resistance->setSecondLine(QLatin1String(""));
+                }
 
-                    if (peloton_resistance < lower_requested_peloton_resistance) {
+                if (settings.value(QStringLiteral("tile_peloton_resistance_color_enabled"), false).toBool()) {
+                    if (lower_requested_peloton_resistance == -1) {
+                        this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
+                    } else if (peloton_resistance < lower_requested_peloton_resistance) {
                         this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
                     } else if (peloton_resistance <= upper_requested_peloton_resistance) {
                         this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
                     } else {
                         this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
                     }
-                } else {
-                    this->target_peloton_resistance->setSecondLine(QLatin1String(""));
-                    this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
                 }
 
                 int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
+                int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
                 if (lower_cadence != -1) {
-                    int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
                     this->target_cadence->setSecondLine(
                         QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) +
                         QStringLiteral(" MAX: ") + QString::number(upper_cadence, 'f', 0));
+                } else {
+                    this->target_cadence->setSecondLine(QLatin1String(""));
+                }
 
-                    if (cadence < lower_cadence) {
+                if (settings.value(QStringLiteral("tile_cadence_color_enabled"), false).toBool()) {
+                    if (lower_cadence == -1) {
+                        this->cadence->setValueFontColor(QStringLiteral("white"));
+                    } else if (cadence < lower_cadence) {
                         this->cadence->setValueFontColor(QStringLiteral("red"));
                     } else if (cadence <= upper_cadence) {
                         this->cadence->setValueFontColor(QStringLiteral("limegreen"));
                     } else {
                         this->cadence->setValueFontColor(QStringLiteral("orange"));
                     }
-                } else {
-                    this->target_cadence->setSecondLine(QLatin1String(""));
-                    this->cadence->setValueFontColor(QStringLiteral("white"));
                 }
             }
 
