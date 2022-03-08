@@ -211,6 +211,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
+    peloton_remaining =
+        new DataObject(QStringLiteral("Peloton Rem."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
+                       true, QStringLiteral("peloton_remaining"), valueElapsedFontSize, labelFontSize);
     strokesCount = new DataObject(QStringLiteral("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
                                   QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
     strokesLength = new DataObject(QStringLiteral("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
@@ -642,6 +645,12 @@ void homeform::sortTiles() {
                 dataList.append(peloton_offset);
             }
 
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
+            }
+
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
                 calories->setGridId(i);
@@ -808,6 +817,12 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
                 peloton_offset->setGridId(i);
                 dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
             }
 
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
@@ -1021,6 +1036,12 @@ void homeform::sortTiles() {
                 dataList.append(peloton_offset);
             }
 
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
+            }
+
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
                 calories->setGridId(i);
@@ -1221,6 +1242,12 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
                 peloton_offset->setGridId(i);
                 dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
             }
 
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
@@ -1581,7 +1608,8 @@ void homeform::Plus(const QString &name) {
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
         }
-    } else if (name.contains(QStringLiteral("peloton_offset"))) {
+    } else if (name.contains(QStringLiteral("peloton_offset"))
+               || name.contains(QStringLiteral("peloton_remaining"))) {
 
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
@@ -1720,7 +1748,8 @@ void homeform::Minus(const QString &name) {
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
         }
-    } else if (name.contains(QStringLiteral("peloton_offset"))) {
+    } else if (name.contains(QStringLiteral("peloton_offset"))
+               || name.contains(QStringLiteral("peloton_remaining"))) {
 
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
@@ -1973,6 +2002,8 @@ void homeform::update() {
 
         if (trainProgram) {
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
+            peloton_remaining->setValue(trainProgram->remainingTime().toString("h:mm:ss"));
+            peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));

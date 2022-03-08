@@ -453,6 +453,7 @@ class homeform : public QObject {
     DataObject *fan;
     DataObject *jouls;
     DataObject *peloton_offset;
+    DataObject *peloton_remaining;
     DataObject *elapsed;
     DataObject *moving_time;
     DataObject *peloton_resistance;

@@ -540,6 +540,19 @@ QTime trainprogram::currentRowRemainingTime() {
     return QTime(0, 0, 0);
 }
 
+QTime trainprogram::remainingTime() {
+    uint32_t calculatedLine;
+    uint32_t calculatedTotalTime = 0;
+
+    if (rows.length() == 0)
+        return QTime(0, 0, 0);
+
+    for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
+        calculatedTotalTime += calculateTimeForRow(calculatedLine);
+    }
+    return QTime(0, 0, 0).addSecs(calculatedTotalTime - ticks);
+}
+
 QTime trainprogram::duration() {
 
     QTime total(0, 0, 0, 0);

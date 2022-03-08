@@ -103,6 +103,8 @@ import Qt.labs.settings 1.0
             property int  tile_moving_time_order: 21
             property bool tile_peloton_offset_enabled: false
             property int  tile_peloton_offset_order: 22
+            property bool tile_peloton_remaining_enabled: false
+            property int  tile_peloton_remaining_order: 22
             property bool tile_peloton_difficulty_enabled: false
             property int  tile_peloton_difficulty_order: 32
             property bool tile_peloton_resistance_enabled: true
@@ -2436,6 +2438,38 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_peloton_offset_order = pelotonOffsetOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: pelotonRemainingEnabledAccordion
+                        title: qsTr("Peloton Remaining")
+                        linkedBoolSetting: "tile_peloton_remaining_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelPelotonRemainingOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pelotonRemainingOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_peloton_remaining_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pelotonRemainingOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okPelotonRemainingOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText
                             }
                         }
                     }

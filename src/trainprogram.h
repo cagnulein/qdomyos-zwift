@@ -54,6 +54,7 @@ class trainprogram : public QObject {
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
+    QTime remainingTime();
     double currentTargetMets();
     QTime duration();
     double totalDistance();
