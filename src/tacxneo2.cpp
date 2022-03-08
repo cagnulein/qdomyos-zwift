@@ -53,13 +53,12 @@ void tacxneo2::changePower(int32_t power) {
 
     if (power < 0)
         power = 0;
-    uint8_t p[] = {0xa4, 0x09, 0x4e, 0x05, 0x31, 0xff, 0xff, 0xff, 0xff, 0xff, 0x14, 0x02, 0x9c};
-    p[10] = (uint8_t)(power & 0xFF);
-    p[11] = (uint8_t)(power >> 8);
-    for (uint8_t i = 1; i < sizeof(p) - 1; i++) {
-        p[12] += p[i]; // the last byte is a sort of a checksum
+    uint8_t p[] = {0xa4, 0x09, 0x4e, 0x05, 0x31, 0xff, 0xff, 0xff, 0xff, 0xff, 0x14, 0x02, 0x00};
+    p[10] = (uint8_t)((power * 4) & 0xFF);
+    p[11] = (uint8_t)((power * 4) >> 8);
+    for (uint8_t i = 0; i < sizeof(p) - 1; i++) {
+        p[12] ^= p[i]; // the last byte is a sort of a checksum
     }
-    p[12] -= 2;
 
     writeCharacteristic(p, sizeof(p), QStringLiteral("changePower"), false, false);
 }
