@@ -33,6 +33,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
+        property string profile_name: "default"
     }
 
     Popup {

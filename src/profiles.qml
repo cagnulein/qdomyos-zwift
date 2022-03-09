@@ -74,6 +74,7 @@ ColumnLayout {
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
         color: Material.backgroundColor
+        isOpen: true
         accordionContent: ColumnLayout {
             ListView {
                 id: list
