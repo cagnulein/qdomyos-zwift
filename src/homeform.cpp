@@ -3803,7 +3803,9 @@ void homeform::saveProfile() {
 
 void homeform::restart() {
     qApp->quit();
+#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS)
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
 }
 
 double homeform::heartRateMax() {
