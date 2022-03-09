@@ -162,6 +162,7 @@
 		87420DFA269D7F44000C5EC6 /* libdeclarative_webview.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87420DF9269D7F43000C5EC6 /* libdeclarative_webview.a */; };
 		8742C2B227C92C30007D3FA0 /* wahookickrsnapbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8742C2B127C92C30007D3FA0 /* wahookickrsnapbike.cpp */; };
 		8742C2B427C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8742C2B327C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp */; };
+		87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87433F2027D8B722003D1672 /* simplecrypt.cpp */; };
 		87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBC2640291700E4DC0B /* fitplusbike.cpp */; };
 		87440FBF2640292900E4DC0B /* moc_fitplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */; };
 		87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4025B8340E00A243C4 /* proformbike.cpp */; };
@@ -710,6 +711,8 @@
 		8742C2B027C92C30007D3FA0 /* wahookickrsnapbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wahookickrsnapbike.h; path = ../src/wahookickrsnapbike.h; sourceTree = "<group>"; };
 		8742C2B127C92C30007D3FA0 /* wahookickrsnapbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wahookickrsnapbike.cpp; path = ../src/wahookickrsnapbike.cpp; sourceTree = "<group>"; };
 		8742C2B327C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wahookickrsnapbike.cpp; sourceTree = "<group>"; };
+		87433F1F27D8B721003D1672 /* simplecrypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = simplecrypt.h; path = ../src/simplecrypt.h; sourceTree = "<group>"; };
+		87433F2027D8B722003D1672 /* simplecrypt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = simplecrypt.cpp; path = ../src/simplecrypt.cpp; sourceTree = "<group>"; };
 		87440FBB2640291700E4DC0B /* fitplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fitplusbike.h; path = ../src/fitplusbike.h; sourceTree = "<group>"; };
 		87440FBC2640291700E4DC0B /* fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fitplusbike.cpp; path = ../src/fitplusbike.cpp; sourceTree = "<group>"; };
 		87440FBE2640292900E4DC0B /* moc_fitplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fitplusbike.cpp; sourceTree = "<group>"; };
@@ -1400,6 +1403,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87433F2027D8B722003D1672 /* simplecrypt.cpp */,
+				87433F1F27D8B721003D1672 /* simplecrypt.h */,
 				87DED80427D1273800BE4FBB /* filedownloader.cpp */,
 				87DED80527D1273900BE4FBB /* filedownloader.h */,
 				8742C2B127C92C30007D3FA0 /* wahookickrsnapbike.cpp */,
@@ -2440,6 +2445,7 @@
 				87AE0CB227760DCB00E547E9 /* virtualtreadmill_zwift.swift in Compile Sources */,
 				87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */,
 				87E0761F277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp in Compile Sources */,
+				87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */,
 				2B42755BF45173E11E2110CB /* FitFieldDefinition.mm in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
 				87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */,
@@ -2866,7 +2872,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.10.44;
+				CURRENT_PROJECT_VERSION = 2.10.45;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3010,7 +3016,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.10.44;
+				CURRENT_PROJECT_VERSION = 2.10.45;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -3190,7 +3196,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.44;
+				CURRENT_PROJECT_VERSION = 2.10.45;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3282,7 +3288,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.44;
+				CURRENT_PROJECT_VERSION = 2.10.45;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -3368,7 +3374,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.44;
+				CURRENT_PROJECT_VERSION = 2.10.45;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -3457,7 +3463,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.44;
+				CURRENT_PROJECT_VERSION = 2.10.45;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
