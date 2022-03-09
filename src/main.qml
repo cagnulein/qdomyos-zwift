@@ -32,7 +32,7 @@ ApplicationWindow {
     property bool lockTiles: false
 
     Settings {
-        id: settings        
+        id: settings
     }
 
     Popup {
