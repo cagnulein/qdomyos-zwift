@@ -343,6 +343,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.44
             property bool horizon_treadmill_7_8: false
+
+            // from the version 2.10.45
+            property string profile_name: "default"
         }
 
         function paddingZeros(text, limit) {

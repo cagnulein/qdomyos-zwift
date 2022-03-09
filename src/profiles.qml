@@ -1,32 +1,80 @@
-import QtQuick 2.7
-import Qt.labs.folderlistmodel 2.15
+import QtQuick 2.12
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.15
-import QtQuick.Controls.Material 2.0
-import QtQuick.Dialogs 1.0
+import QtQuick.Controls 2.5
+import QtQuick.Controls.Material 2.12
+import Qt.labs.platform 1.1
+import Qt.labs.folderlistmodel 2.15
+import Qt.labs.settings 1.0
 
 ColumnLayout {
-    signal loadSettings(url name)
-    FileDialog {
-        id: fileDialogSettings
-        title: "Please choose a file"
-        folder: shortcuts.home
-        onAccepted: {
-            console.log("You chose: " + fileDialogSettings.fileUrl)
-            loadSettings(fileDialogSettings.fileUrl)
-            fileDialogSettings.close()
+
+    Settings {
+        id: settings
+        property string profile_name: "default"
+    }
+
+    MessageDialog {
+        id: quitDialog
+        title: "Profile loaded"
+        text: "Would you like to quit?"
+        informativeText: "You must quit and restart for changes to take effect."
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            restart()
         }
-        onRejected: {
-            console.log("Canceled")
-            fileDialogSettings.close()
+        onNoClicked: {
+            quitDialog.close()
+        }
+    }
+
+    MessageDialog {
+        id: deleteDialog
+        property string fileUrl
+        title: "Delete profile"
+        text: "Would you like to delete this profile?"
+        buttons: (MessageDialog.Yes | MessageDialog.No)
+        onYesClicked: {
+            deleteSettings(fileUrl)
+        }
+        onNoClicked: {
+            deleteDialog.close()
+        }
+    }
+
+    RowLayout {
+        spacing: 10
+        Label {
+            id: labelProfileName
+            text: qsTr("Profile name")
+            Layout.fillWidth: true
+        }
+        TextField {
+            id: profileNameTextField
+            text: settings.profile_name
+            horizontalAlignment: Text.AlignRight
+            Layout.fillHeight: false
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            onAccepted: settings.profile_name = text
+            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+        }
+        Button {
+            id: saveProfileNameButton
+            text: "Save"
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            onClicked: {
+                settings.profile_name = profileNameTextField.text
+                console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
+                saveProfile();
+            }
         }
     }
 
     AccordionElement {
-        title: qsTr("Settings folder")
+        title: qsTr("Profiles")
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
         color: Material.backgroundColor
+        isOpen: true
         accordionContent: ColumnLayout {
             ListView {
                 id: list
@@ -34,7 +82,7 @@ ColumnLayout {
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.qzs"]
-                    folder: "file://" + rootItem.getWritableAppDir() + 'settings'
+                    folder: "file://" + rootItem.getProfileDir()
                     showDotAndDotDot: false
                     showDirs: true
                     sortReversed: true
@@ -61,7 +109,9 @@ ColumnLayout {
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                                     if (fileUrl) {
+                                        saveProfile();
                                         loadSettings(fileUrl);
+                                        quitDialog.visible = true
                                     }
                                 }
                                 else {
@@ -69,6 +119,12 @@ ColumnLayout {
                                         list.currentItem.textColor = Material.color(Material.Grey)
                                     list.currentIndex = index
                                 }
+                            }
+                            onPressAndHold: {
+                                console.log('onPressAndHold ' + index+ " count "+list.count);
+                                deleteDialog.informativeText = folderModel.get(index, 'fileName').substring(0, fileName.length-4)
+                                deleteDialog.fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL')
+                                deleteDialog.visible = true
                             }
                         }
                     }
@@ -94,22 +150,6 @@ ColumnLayout {
                     }
                 }
             }
-        }
-    }
-    spacing: 10
-
-    Button {
-        id: searchButton
-        height: 50
-        width: parent.width
-        text: "Other folders"
-        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-        onClicked: {
-            console.log("folder is " + rootItem.getWritableAppDir() + 'settings')
-            fileDialogSettings.visible = true
-        }
-        anchors {
-            bottom: parent.bottom
         }
     }
 }

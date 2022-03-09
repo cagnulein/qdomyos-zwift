@@ -129,6 +129,7 @@ SOURCES += \
 	sessionline.cpp \
    shuaa5treadmill.cpp \
 	signalhandler.cpp \
+   simplecrypt.cpp \
     skandikawiribike.cpp \
    smartrowrower.cpp \
    smartspin2k.cpp \
@@ -466,6 +467,7 @@ HEADERS += \
 	sessionline.h \
    shuaa5treadmill.h \
 	signalhandler.h \
+   simplecrypt.h \
     skandikawiribike.h \
    smartrowrower.h \
    smartspin2k.h \

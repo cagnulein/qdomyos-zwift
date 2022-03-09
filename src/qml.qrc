@@ -42,5 +42,6 @@
         <file>Classifica.qml</file>
         <file>Credits.qml</file>
         <file>WebEngineTest.qml</file>
+        <file>profiles.qml</file>
     </qresource>
 </RCC>
