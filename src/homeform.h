@@ -490,6 +490,9 @@ class homeform : public QObject {
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
 
+    const QString cryptoKeySettingsProfilesTag = QStringLiteral("cryptoKeySettingsProfiles");
+    quint64 cryptoKeySettingsProfiles();
+
     int16_t fanOverride = 0;
 
     void update();

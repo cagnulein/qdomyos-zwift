@@ -4,6 +4,7 @@
 #include "keepawakehelper.h"
 #include "material.h"
 #include "qfit.h"
+#include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
 #include "zwiftworkout.h"
 
@@ -3709,23 +3710,38 @@ QString homeform::getAndroidDataAppDir() {
 }
 #endif
 
+quint64 homeform::cryptoKeySettingsProfiles() {
+    QSettings settings;
+    quint64 v = settings.value(cryptoKeySettingsProfilesTag, 0).toULongLong();
+    if (!v) {
+        QRandomGenerator r = QRandomGenerator();
+        r.seed(QDateTime::currentMSecsSinceEpoch());
+        v = r.generate64();
+        settings.setValue(cryptoKeySettingsProfilesTag, v);
+    }
+    return v;
+}
+
 void homeform::saveSettings(const QUrl &filename) {
     Q_UNUSED(filename)
     QString path = getWritableAppDir();
 
     QDir().mkdir(path + QStringLiteral("settings/"));
     QSettings settings;
-    QSettings settings2Save(
-        path + QStringLiteral("settings/settings_") +
-                settings.value("profile_name").toString() +
-                QStringLiteral("_") +
-                QDateTime::currentDateTime().toString("yyyyMMddhhmmss") +
-                QStringLiteral(".qzs"),
-        QSettings::IniFormat);
+    QSettings settings2Save(path + QStringLiteral("settings/settings_") + settings.value("profile_name").toString() +
+                                QStringLiteral("_") + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") +
+                                QStringLiteral(".qzs"),
+                            QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
-            settings2Save.setValue(s, settings.value(s));
+        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                settings2Save.setValue(s, settings.value(s));
+            } else {
+                SimpleCrypt crypt;
+                crypt.setKey(cryptoKeySettingsProfiles());
+                settings2Save.setValue(s, crypt.encryptToString(settings.value(s).toString()));
+            }
         }
     }
 }
@@ -3735,13 +3751,19 @@ void homeform::loadSettings(const QUrl &filename) {
     QSettings settings2Load(filename.toLocalFile(), QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
-        settings.setValue(s, settings2Load.value(s));
+        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                settings.setValue(s, settings2Load.value(s));
+            } else {
+                SimpleCrypt crypt;
+                crypt.setKey(cryptoKeySettingsProfiles());
+                settings.setValue(s, crypt.decryptToString(settings2Load.value(s).toString()));
+            }
+        }
     }
 }
 
-void homeform::deleteSettings(const QUrl &filename) {
-    QFile(filename.toLocalFile()).remove();
-}
+void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
 
 QString homeform::getProfileDir() {
     QString path = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/profiles";
@@ -3754,14 +3776,19 @@ void homeform::saveProfile() {
     QString path = getProfileDir();
 
     QSettings settings;
-    QSettings settings2Save(
-                path + "/" +
-                settings.value("profile_name").toString() +
-                QStringLiteral(".qzs"),
-        QSettings::IniFormat);
+    QSettings settings2Save(path + "/" + settings.value("profile_name").toString() + QStringLiteral(".qzs"),
+                            QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        settings2Save.setValue(s, settings.value(s));
+        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                settings2Save.setValue(s, settings.value(s));
+            } else {
+                SimpleCrypt crypt;
+                crypt.setKey(cryptoKeySettingsProfiles());
+                settings2Save.setValue(s, crypt.encryptToString(settings.value(s).toString()));
+            }
+        }
     }
 }
 
