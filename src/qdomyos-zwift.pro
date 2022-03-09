@@ -515,6 +515,8 @@ HEADERS += \
         scanrecordresult.h \
    zwiftworkout.h
 
+exists(secret.h): HEADERS += secret.h
+
 !ios: HEADERS += charts.h
 
 !ios: FORMS += \
