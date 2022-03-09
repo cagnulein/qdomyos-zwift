@@ -32,8 +32,7 @@ ApplicationWindow {
     property bool lockTiles: false
 
     Settings {
-        id: settings
-        property string profile_name: "default"
+        id: settings        
     }
 
     Popup {
