@@ -18,6 +18,8 @@ src/build/*
 
 src/debug-*
 
+src/secret.h
+
 *.swo
 *.swp
 

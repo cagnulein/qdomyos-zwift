@@ -36,15 +36,24 @@ using namespace std::chrono_literals;
 #include <QtAndroid>
 #endif
 
-#include "secret.h"
+#if __has_include("secret.h")
+#   include "secret.h"
+#else
+#   define STRAVA_SECRET_KEY test
+#   if defined(WIN32)
+#       pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#   else
+#       warning "DEFINE STRAVA_SECRET_KEY!!!"
+#   endif
+#endif
 
 #ifndef STRAVA_CLIENT_ID
-#define STRAVA_CLIENT_ID 7976
-#if defined(WIN32)
-#pragma message("DEFINE STRAVA_CLIENT_ID!!!")
-#else
-#warning "DEFINE STRAVA_CLIENT_ID!!!"
-#endif
+#   define STRAVA_CLIENT_ID 7976
+#   if defined(WIN32)
+#       pragma message("DEFINE STRAVA_CLIENT_ID!!!")
+#   else
+#       warning "DEFINE STRAVA_CLIENT_ID!!!"
+#   endif
 #endif
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
