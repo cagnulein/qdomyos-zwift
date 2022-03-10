@@ -205,7 +205,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                                 QStringLiteral("0:00:00"), false, QStringLiteral("lapElapsed"), valueElapsedFontSize,
                                 labelFontSize);
     remaningTimeTrainingProgramCurrentRow = new DataObject(
-        QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), false,
+        QStringLiteral("Time to Next"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0:00:00"), true,
         QStringLiteral("remainingtimetrainprogramrow"), valueElapsedFontSize, labelFontSize);
 
     nextRows =
@@ -221,6 +221,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     peloton_offset =
         new DataObject(QStringLiteral("Peloton Offset"), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
                        true, QStringLiteral("peloton_offset"), valueElapsedFontSize, labelFontSize);
+    peloton_remaining =
+        new DataObject(QStringLiteral("Peloton Rem."), QStringLiteral("icons/icons/clock.png"), QStringLiteral("0"),
+                       true, QStringLiteral("peloton_remaining"), valueElapsedFontSize, labelFontSize);
     strokesCount = new DataObject(QStringLiteral("Strokes Count"), QStringLiteral("icons/icons/cadence.png"),
                                   QStringLiteral("0"), false, QStringLiteral("strokes_count"), 48, labelFontSize);
     strokesLength = new DataObject(QStringLiteral("Strokes Length"), QStringLiteral("icons/icons/cadence.png"),
@@ -655,6 +658,12 @@ void homeform::sortTiles() {
                 dataList.append(peloton_offset);
             }
 
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
+            }
+
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
                 calories->setGridId(i);
@@ -821,6 +830,12 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
                 peloton_offset->setGridId(i);
                 dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
             }
 
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
@@ -1034,6 +1049,12 @@ void homeform::sortTiles() {
                 dataList.append(peloton_offset);
             }
 
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
+            }
+
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
                 settings.value(QStringLiteral("tile_calories_order"), 0).toInt() == i) {
                 calories->setGridId(i);
@@ -1234,6 +1255,12 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_peloton_offset_order"), 20).toInt() == i) {
                 peloton_offset->setGridId(i);
                 dataList.append(peloton_offset);
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_remaining_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_peloton_remaining_order"), 20).toInt() == i) {
+                peloton_remaining->setGridId(i);
+                dataList.append(peloton_remaining);
             }
 
             if (settings.value(QStringLiteral("tile_calories_enabled"), true).toBool() &&
@@ -1594,8 +1621,12 @@ void homeform::Plus(const QString &name) {
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() + 1);
         }
-    } else if (name.contains(QStringLiteral("peloton_offset"))) {
-
+    } else if (name.contains(QStringLiteral("remainingtimetrainprogramrow"))) {
+        if (bluetoothManager->device() && trainProgram) {
+            trainProgram->increaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowRemainingTime()));
+        }
+    } else if (name.contains(QStringLiteral("peloton_offset"))
+               || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
         }
@@ -1733,8 +1764,15 @@ void homeform::Minus(const QString &name) {
             } else
                 bluetoothManager->device()->changeFanSpeed(bluetoothManager->device()->fanSpeed() - 1);
         }
-    } else if (name.contains(QStringLiteral("peloton_offset"))) {
-
+    } else if (name.contains(QStringLiteral("remainingtimetrainprogramrow"))) {
+        if (bluetoothManager->device() && trainProgram) {
+            // Offset:
+            // 1. To account for current tick
+            // 2. To bounce back to previous
+            trainProgram->decreaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowElapsedTime()) + 2);
+        }
+    } else if (name.contains(QStringLiteral("peloton_offset"))
+               || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
         }
@@ -1986,8 +2024,12 @@ void homeform::update() {
 
         if (trainProgram) {
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
+            peloton_remaining->setValue(trainProgram->remainingTime().toString("h:mm:ss"));
+            peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
+            remaningTimeTrainingProgramCurrentRow->setSecondLine(
+                trainProgram->currentRowElapsedTime().toString(QStringLiteral("h:mm:ss")));
             targetMets->setValue(QString::number(trainProgram->currentTargetMets(), 'f', 1));
             trainrow next = trainProgram->getRowFromCurrent(1);
             trainrow next_1 = trainProgram->getRowFromCurrent(2);
@@ -2232,21 +2274,50 @@ void homeform::update() {
                                     settings.value(QStringLiteral("bike_resistance_offset"), 4.0).toDouble(),
                                 'f', 0));
             if (trainProgram) {
-                if (trainProgram->currentRow().lower_requested_peloton_resistance != -1) {
+                int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
+                int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
+                if (lower_requested_peloton_resistance != -1) {
                     this->target_peloton_resistance->setSecondLine(
                         QStringLiteral("MIN: ") +
-                        QString::number(trainProgram->currentRow().lower_requested_peloton_resistance, 'f', 0) +
+                        QString::number(lower_requested_peloton_resistance, 'f', 0) +
                         QStringLiteral(" MAX: ") +
-                        QString::number(trainProgram->currentRow().upper_requested_peloton_resistance, 'f', 0));
+                        QString::number(upper_requested_peloton_resistance, 'f', 0));
                 } else {
                     this->target_peloton_resistance->setSecondLine(QLatin1String(""));
                 }
-                if (trainProgram->currentRow().lower_cadence != -1) {
+
+                if (settings.value(QStringLiteral("tile_peloton_resistance_color_enabled"), false).toBool()) {
+                    if (lower_requested_peloton_resistance == -1) {
+                        this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
+                    } else if (peloton_resistance < lower_requested_peloton_resistance) {
+                        this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
+                    } else if (peloton_resistance <= upper_requested_peloton_resistance) {
+                        this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
+                    } else {
+                        this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
+                    }
+                }
+
+                int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
+                int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
+                if (lower_cadence != -1) {
                     this->target_cadence->setSecondLine(
-                        QStringLiteral("MIN: ") + QString::number(trainProgram->currentRow().lower_cadence, 'f', 0) +
-                        QStringLiteral(" MAX: ") + QString::number(trainProgram->currentRow().upper_cadence, 'f', 0));
+                        QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) +
+                        QStringLiteral(" MAX: ") + QString::number(upper_cadence, 'f', 0));
                 } else {
                     this->target_cadence->setSecondLine(QLatin1String(""));
+                }
+
+                if (settings.value(QStringLiteral("tile_cadence_color_enabled"), false).toBool()) {
+                    if (lower_cadence == -1) {
+                        this->cadence->setValueFontColor(QStringLiteral("white"));
+                    } else if (cadence < lower_cadence) {
+                        this->cadence->setValueFontColor(QStringLiteral("red"));
+                    } else if (cadence <= upper_cadence) {
+                        this->cadence->setValueFontColor(QStringLiteral("limegreen"));
+                    } else {
+                        this->cadence->setValueFontColor(QStringLiteral("orange"));
+                    }
                 }
             }
 
