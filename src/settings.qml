@@ -70,7 +70,6 @@ import Qt.labs.settings 1.0
             property bool tile_inclination_enabled: true
             property int  tile_inclination_order: 1
             property bool tile_cadence_enabled: true
-            property bool tile_cadence_color_enabled: false
             property int  tile_cadence_order: 2
             property bool tile_elevation_enabled: true
             property int  tile_elevation_order: 3
@@ -104,12 +103,9 @@ import Qt.labs.settings 1.0
             property int  tile_moving_time_order: 21
             property bool tile_peloton_offset_enabled: false
             property int  tile_peloton_offset_order: 22
-            property bool tile_peloton_remaining_enabled: false
-            property int  tile_peloton_remaining_order: 22
             property bool tile_peloton_difficulty_enabled: false
             property int  tile_peloton_difficulty_order: 32
-            property bool tile_peloton_resistance_enabled: true
-            property bool tile_peloton_resistance_color_enabled: false
+            property bool tile_peloton_resistance_enabled: true            
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
             property int  tile_datetime_order: 16
@@ -347,6 +343,15 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.44
             property bool horizon_treadmill_7_8: false
+
+            // from the version 2.10.45
+            property string profile_name: "default"
+
+            // from the version 2.10.46
+            property bool tile_cadence_color_enabled: false
+            property bool tile_peloton_remaining_enabled: false
+            property int  tile_peloton_remaining_order: 22
+            property bool tile_peloton_resistance_color_enabled: false
         }
 
         function paddingZeros(text, limit) {
