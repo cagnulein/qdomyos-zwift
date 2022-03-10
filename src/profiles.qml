@@ -41,6 +41,16 @@ ColumnLayout {
         }
     }
 
+    MessageDialog {
+        id: saveDialog
+        title: "Profile Saved"
+        text: "Profile saved correctly!"
+        buttons: (MessageDialog.Ok)
+        onOkClicked: {
+            stackView.pop();
+        }
+    }
+
     RowLayout {
         spacing: 10
         Label {
@@ -64,6 +74,7 @@ ColumnLayout {
             onClicked: {
                 console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
                 saveProfile(profileNameTextField.text);
+                saveDialog.visible = true;
             }
         }
     }
@@ -85,6 +96,22 @@ ColumnLayout {
                     showDotAndDotDot: false
                     showDirs: false
                     sortReversed: true
+                    onStatusChanged: {
+                        if(folderModel.status ==
+                                FolderListModel.Ready) {
+                            for(var i=0; i<folderModel.count; i++) {
+                                if(folderModel.get(i,
+                                                   "fileBaseName") === settings.profile_name) {
+                                    list.currentIndex = i;
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                    Component.onCompleted: {
+                        // on Windows it doesn't update the folder
+                        folderModel.folder = "file://" + rootItem.getProfileDir();
+                    }
                 }
                 model: folderModel
                 delegate: Component {
