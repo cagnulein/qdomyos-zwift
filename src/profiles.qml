@@ -62,9 +62,8 @@ ColumnLayout {
             text: "Save"
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             onClicked: {
-                settings.profile_name = profileNameTextField.text
                 console.log("folder is " + rootItem.getWritableAppDir() + 'profiles')
-                saveProfile();
+                saveProfile(profileNameTextField.text);
             }
         }
     }
@@ -84,7 +83,7 @@ ColumnLayout {
                     nameFilters: ["*.qzs"]
                     folder: "file://" + rootItem.getProfileDir()
                     showDotAndDotDot: false
-                    showDirs: true
+                    showDirs: false
                     sortReversed: true
                 }
                 model: folderModel
@@ -109,7 +108,7 @@ ColumnLayout {
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                                     if (fileUrl) {
-                                        saveProfile();
+                                        saveProfile(profileNameTextField.text);
                                         loadSettings(fileUrl);
                                         quitDialog.visible = true
                                     }

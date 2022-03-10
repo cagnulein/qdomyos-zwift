@@ -507,7 +507,7 @@ class homeform : public QObject {
     void saveSettings(const QUrl &filename);
     void loadSettings(const QUrl &filename);
     void deleteSettings(const QUrl &filename);
-    void saveProfile();
+    void saveProfile(QString profilename);
     void restart();
 
   private slots:

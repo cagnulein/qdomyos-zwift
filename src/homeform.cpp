@@ -38,23 +38,23 @@ using namespace std::chrono_literals;
 #endif
 
 #if __has_include("secret.h")
-#   include "secret.h"
+#include "secret.h"
 #else
-#   define STRAVA_SECRET_KEY test
-#   if defined(WIN32)
-#       pragma message("DEFINE STRAVA_SECRET_KEY!!!")
-#   else
-#       warning "DEFINE STRAVA_SECRET_KEY!!!"
-#   endif
+#define STRAVA_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
 #endif
 
 #ifndef STRAVA_CLIENT_ID
-#   define STRAVA_CLIENT_ID 7976
-#   if defined(WIN32)
-#       pragma message("DEFINE STRAVA_CLIENT_ID!!!")
-#   else
-#       warning "DEFINE STRAVA_CLIENT_ID!!!"
-#   endif
+#define STRAVA_CLIENT_ID 7976
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_CLIENT_ID!!!")
+#else
+#warning "DEFINE STRAVA_CLIENT_ID!!!"
+#endif
 #endif
 #define _STR(x) #x
 #define STRINGIFY(x) _STR(x)
@@ -303,7 +303,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
     QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
     QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
-    QObject::connect(stack, SIGNAL(saveProfile()), this, SLOT(saveProfile()));
+    QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
     QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
 
     QObject::connect(stack, SIGNAL(volumeUp()), this, SLOT(volumeUp()));
@@ -3780,13 +3780,13 @@ QString homeform::getProfileDir() {
     return path;
 }
 
-void homeform::saveProfile() {
+void homeform::saveProfile(QString profilename) {
     qDebug() << "homeform::saveProfile";
     QString path = getProfileDir();
 
     QSettings settings;
-    QSettings settings2Save(path + "/" + settings.value("profile_name").toString() + QStringLiteral(".qzs"),
-                            QSettings::IniFormat);
+    settings.setValue("profile_name", profilename);
+    QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
         if (!s.contains(cryptoKeySettingsProfilesTag)) {
