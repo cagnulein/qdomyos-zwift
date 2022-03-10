@@ -2271,7 +2271,7 @@ void homeform::update() {
                 QStringLiteral(" MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(
-                QString::number(bluetoothManager->device()->odometer() * 1000.0 * unit_conversion, 'f', 0));
+                QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((rower *)bluetoothManager->device())->pelotonResistance().value();
             totalStrokes = ((rower *)bluetoothManager->device())->currentStrokesCount().value();
@@ -3803,7 +3803,9 @@ void homeform::saveProfile(QString profilename) {
 
 void homeform::restart() {
     qApp->quit();
+#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS)
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
 }
 
 double homeform::heartRateMax() {
