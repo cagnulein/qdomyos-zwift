@@ -129,6 +129,7 @@ SOURCES += \
 	sessionline.cpp \
    shuaa5treadmill.cpp \
 	signalhandler.cpp \
+   simplecrypt.cpp \
     skandikawiribike.cpp \
    smartrowrower.cpp \
    smartspin2k.cpp \
@@ -466,6 +467,7 @@ HEADERS += \
 	sessionline.h \
    shuaa5treadmill.h \
 	signalhandler.h \
+   simplecrypt.h \
     skandikawiribike.h \
    smartrowrower.h \
    smartspin2k.h \
@@ -514,6 +516,8 @@ HEADERS += \
         yesoulbike.h \
         scanrecordresult.h \
    zwiftworkout.h
+
+exists(secret.h): HEADERS += secret.h
 
 !ios: HEADERS += charts.h
 
@@ -581,5 +585,5 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.10.44
+VERSION = 2.10.46
 

@@ -4,6 +4,7 @@
 #include "keepawakehelper.h"
 #include "material.h"
 #include "qfit.h"
+#include "simplecrypt.h"
 #include "templateinfosenderbuilder.h"
 #include "zwiftworkout.h"
 
@@ -36,7 +37,16 @@ using namespace std::chrono_literals;
 #include <QtAndroid>
 #endif
 
+#if __has_include("secret.h")
 #include "secret.h"
+#else
+#define STRAVA_SECRET_KEY test
+#if defined(WIN32)
+#pragma message("DEFINE STRAVA_SECRET_KEY!!!")
+#else
+#warning "DEFINE STRAVA_SECRET_KEY!!!"
+#endif
+#endif
 
 #ifndef STRAVA_CLIENT_ID
 #define STRAVA_CLIENT_ID 7976
@@ -295,6 +305,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(peloton_abort_workout()), this, SLOT(peloton_abort_workout()));
     QObject::connect(stack, SIGNAL(loadSettings(QUrl)), this, SLOT(loadSettings(QUrl)));
     QObject::connect(stack, SIGNAL(saveSettings(QUrl)), this, SLOT(saveSettings(QUrl)));
+    QObject::connect(stack, SIGNAL(deleteSettings(QUrl)), this, SLOT(deleteSettings(QUrl)));
+    QObject::connect(stack, SIGNAL(saveProfile(QString)), this, SLOT(saveProfile(QString)));
+    QObject::connect(stack, SIGNAL(restart()), this, SLOT(restart()));
 
     QObject::connect(stack, SIGNAL(volumeUp()), this, SLOT(volumeUp()));
     QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
@@ -2329,7 +2342,7 @@ void homeform::update() {
                 QStringLiteral(" MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
             odometer->setValue(
-                QString::number(bluetoothManager->device()->odometer() * 1000.0 * unit_conversion, 'f', 0));
+                QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((rower *)bluetoothManager->device())->pelotonResistance().value();
             totalStrokes = ((rower *)bluetoothManager->device())->currentStrokesCount().value();
@@ -3777,36 +3790,93 @@ QString homeform::getAndroidDataAppDir() {
 }
 #endif
 
+quint64 homeform::cryptoKeySettingsProfiles() {
+    QSettings settings;
+    quint64 v = settings.value(cryptoKeySettingsProfilesTag, 0).toULongLong();
+    if (!v) {
+        QRandomGenerator r = QRandomGenerator();
+        r.seed(QDateTime::currentMSecsSinceEpoch());
+        v = r.generate64();
+        settings.setValue(cryptoKeySettingsProfilesTag, v);
+    }
+    return v;
+}
+
 void homeform::saveSettings(const QUrl &filename) {
     Q_UNUSED(filename)
     QString path = getWritableAppDir();
 
     QDir().mkdir(path + QStringLiteral("settings/"));
     QSettings settings;
-    QSettings settings2Save(
-        path + QStringLiteral("settings/settings_") +
-            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
-            QStringLiteral(".qzs"),
-        QSettings::IniFormat);
+    QSettings settings2Save(path + QStringLiteral("settings/settings_") + settings.value("profile_name").toString() +
+                                QStringLiteral("_") + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") +
+                                QStringLiteral(".qzs"),
+                            QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
-            settings2Save.setValue(s, settings.value(s));
+        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                settings2Save.setValue(s, settings.value(s));
+            } else {
+                SimpleCrypt crypt;
+                crypt.setKey(cryptoKeySettingsProfiles());
+                settings2Save.setValue(s, crypt.encryptToString(settings.value(s).toString()));
+            }
         }
     }
 }
 
 void homeform::loadSettings(const QUrl &filename) {
-
     QSettings settings;
     QSettings settings2Load(filename.toLocalFile(), QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
-        if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
-
-            settings.setValue(s, settings2Load.value(s));
+        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                settings.setValue(s, settings2Load.value(s));
+            } else {
+                SimpleCrypt crypt;
+                crypt.setKey(cryptoKeySettingsProfiles());
+                settings.setValue(s, crypt.decryptToString(settings2Load.value(s).toString()));
+            }
         }
     }
+}
+
+void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
+
+QString homeform::getProfileDir() {
+    QString path = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/profiles";
+    QDir().mkdir(path);
+    return path;
+}
+
+void homeform::saveProfile(QString profilename) {
+    qDebug() << "homeform::saveProfile";
+    QString path = getProfileDir();
+
+    QSettings settings;
+    settings.setValue("profile_name", profilename);
+    QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
+    auto settigsAllKeys = settings.allKeys();
+    for (const QString &s : qAsConst(settigsAllKeys)) {
+        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+            if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
+                settings2Save.setValue(s, settings.value(s));
+            } else {
+                SimpleCrypt crypt;
+                crypt.setKey(cryptoKeySettingsProfiles());
+                settings2Save.setValue(s, crypt.encryptToString(settings.value(s).toString()));
+            }
+        }
+    }
+}
+
+void homeform::restart() {
+    qApp->quit();
+#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS)
+    QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
+#endif
 }
 
 double homeform::heartRateMax() {
