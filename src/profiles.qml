@@ -84,10 +84,11 @@ ColumnLayout {
         indicatRectColor: Material.color(Material.Grey)
         textColor: Material.color(Material.Grey)
         color: Material.backgroundColor
-        isOpen: true
+        isOpen: true        
         accordionContent: ColumnLayout {
             ListView {
                 id: list
+                property bool clicked: false
                 anchors.fill: parent
                 FolderListModel {
                     id: folderModel
@@ -98,7 +99,7 @@ ColumnLayout {
                     sortReversed: true
                     onStatusChanged: {
                         if(folderModel.status ==
-                                FolderListModel.Ready) {
+                                FolderListModel.Ready && list.clicked == false) {
                             for(var i=0; i<folderModel.count; i++) {
                                 if(folderModel.get(i,
                                                    "fileBaseName") === settings.profile_name) {
@@ -131,6 +132,7 @@ ColumnLayout {
                             anchors.fill: parent
                             z: 100
                             onClicked: {
+                                list.clicked = true;
                                 console.log('onclicked ' + index+ " count "+list.count);
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
@@ -147,6 +149,7 @@ ColumnLayout {
                                 }
                             }
                             onPressAndHold: {
+                                list.clicked = true;
                                 console.log('onPressAndHold ' + index+ " count "+list.count);
                                 deleteDialog.informativeText = folderModel.get(index, 'fileName').substring(0, fileName.length-4)
                                 deleteDialog.fileUrl = folderModel.get(index, 'fileUrl') || folderModel.get(index, 'fileURL')
@@ -171,6 +174,9 @@ ColumnLayout {
                 onCurrentItemChanged: {
                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                     if (fileUrl) {
+                        for(var i=0; i<folderModel.count; i++) {
+                            list.itemAtIndex(i).textColor = Material.color(Material.Grey)
+                        }
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
                     }
