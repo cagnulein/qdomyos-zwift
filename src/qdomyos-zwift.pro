@@ -42,7 +42,11 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-android: include(../android_openssl/openssl.pri)
+android: {
+    include(../android_openssl/openssl.pri)
+    SOURCES += share_send_recv/android/androidshareutils.cpp
+    HEADERS += share_send_recv/android/androidshareutils.hpp
+}
 
 SOURCES += \
     activiotreadmill.cpp \
@@ -127,6 +131,8 @@ SOURCES += \
 	schwinnic4bike.cpp \
    screencapture.cpp \
 	sessionline.cpp \
+    share_send_recv/applicationui.cpp \
+    share_send_recv/shareutils.cpp \
    shuaa5treadmill.cpp \
 	signalhandler.cpp \
    simplecrypt.cpp \
@@ -465,6 +471,8 @@ HEADERS += \
 	schwinnic4bike.h \
    screencapture.h \
 	sessionline.h \
+    share_send_recv/applicationui.hpp \
+    share_send_recv/shareutils.hpp \
    shuaa5treadmill.h \
 	signalhandler.h \
    simplecrypt.h \
@@ -539,6 +547,7 @@ DISTFILES += \
 	android/gradlew.bat \
 	android/libs/android_antlib_4-14-0.jar \
 	android/res/values/libs.xml \
+        android/res/xml/filepaths.xml \
 	android/src/Ant.java \
 	android/src/ChannelService.java \
         android/src/ScanRecordResult.java \
@@ -548,6 +557,9 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+        android/src/org/cagnulen/qdomyoszwift/share_send_recv/QShareUtils.java \
+        android/src/org/cagnulen/qdomyoszwift/share_send_recv/QShareActivity.java \
+        android/src/org/cagnulen/qdomyoszwift/share_send_recv/QSharePathResolver.java \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 
@@ -571,10 +583,15 @@ ios {
 	 fit-sdk/FitMesg.mm \
          fit-sdk/FitMesgDefinition.mm \
          ios/M3iNS.mm \
+         ios/share_send_recv/iosshareutils.mm \
+         ios/share_send_recv/docviewcontroller.mm
 
     SOURCES += ios/M3iNSQT.cpp
 
     OBJECTIVE_HEADERS += ios/M3iNS.h
+
+    HEADERS += share_send_recv/ios/iosshareutils.hpp \
+    share_send_recv/ios/docviewcontroller.hpp
 
     QMAKE_INFO_PLIST = ios/Info.plist
 	 QMAKE_ASSET_CATALOGS = $$PWD/ios/Images.xcassets

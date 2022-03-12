@@ -28,11 +28,13 @@ class PersonalGrabber {
         this.user = urlParams.has('personal-username')?urlParams.get('personal-username'):(typeof(DEFAULT_PERSONAL_USER) != 'string'? '':DEFAULT_PERSONAL_USER);
         this.conv = urlParams.has('personal-conv')?urlParams.get('personal-conv'):0;
         let host = this.url;
-        while (host.lastIndexOf('/') == host.length - 1)
-            host = host.substring(0, host.length -1);
-        let idx;
-        if ((idx = host.lastIndexOf('/')) > 10) {
-            host = host.substring(0, idx);
+        if (host && host.length) {
+            while (host.lastIndexOf('/') == host.length - 1)
+                host = host.substring(0, host.length -1);
+            let idx;
+            if ((idx = host.lastIndexOf('/')) > 10) {
+                host = host.substring(0, idx);
+            }
         }
         this.ajax_settings = {
             type        : 'GET',

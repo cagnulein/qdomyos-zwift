@@ -28,6 +28,115 @@ ApplicationWindow {
     signal restart()
     signal volumeUp()
     signal volumeDown()
+    property string lastSettingsFileName: ""
+    function readTextFile(fileUrl, handle) {
+        var xhr = new XMLHttpRequest;
+        xhr.open("GET", fileUrl); // set Method and File
+        xhr.onreadystatechange = function () {
+            if(xhr.readyState === XMLHttpRequest.DONE){ // if request_status == DONE
+                var response = xhr.responseText;
+
+                console.log(response);
+                if (handle)
+                    handle(fileUrl, response);
+               // Your Code
+            }
+        }
+        xhr.send(); // begin the request
+    }
+
+    function notify_load_on_intent(url) {
+        if (!url.startsWith('file://'))
+            url = 'file://' + url;
+        if(Qt.platform.os === "android") {
+            if(!appui.checkPermission()) {
+                popupLoadSaveFile.labelText = qsTr("Loading settings needs permission for external storage\n%1").arg(url)
+                popupLoadSaveFile.open()
+                return
+            }
+        }
+        loadSettings(url);
+    }
+
+    Connections {
+        target: shareUtils
+        onFileUrlReceived: {
+            console.log("Loading settings from "+url)
+            notify_load_on_intent(url);
+        }
+    }
+
+    Connections {
+        target: shareUtils
+        onFileReceivedAndSaved: {
+            console.log("Loading settings from my saved "+url)
+            notify_load_on_intent(url)
+        }
+    }
+    Connections {
+        target: rootItem
+        onSettingsSaved: {
+            let qmlString = settingsFileUri;
+            let idx = qmlString.lastIndexOf('/');
+            if (idx > 0) {
+                lastSettingsFileName = qmlString.substring(idx + 1);
+                if (settingsN) {
+                    shareUtils.sendFile(appui.filePathDocumentsLocation(qmlString), "Send Settings file", "text/plain", 13, 0)
+                }
+                else {
+                    popupLoadSaveFile.labelText = qsTr("Cannot save settings to file\n%1").arg(lastSettingsFileName);
+                    popupLoadSaveFile.open();
+                }
+            }
+        }
+    }
+    Connections {
+        target: rootItem
+        onSettingsLoaded: {
+            let qmlString = settingsFileUri;
+            let idx = qmlString.lastIndexOf('/');
+            if (idx > 0) {
+                lastSettingsFileName = qmlString.substring(idx + 1);
+                if (settingsN) {
+                    popupLoadSaveFile.labelText = qsTr("Settings has been loaded correctly (%1 keys). Restart the app!\nFile name was %2").arg(settingsN).arg(lastSettingsFileName);
+                    popupLoadSaveFile.open();
+                }
+                else {
+                    popupLoadSaveFile.labelText = qsTr("Cannot save settings to file\n%1").arg(lastSettingsFileName);
+                    popupLoadSaveFile.open();
+                }
+            }
+        }
+    }
+    Connections {
+        target: shareUtils
+        onShareEditDone: {
+            popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + " OK")
+            popupLoadSaveFile.open();
+        }
+    }
+    Connections {
+        target: shareUtils
+        onShareFinished: {
+            popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + " cancelled")
+            popupLoadSaveFile.open();
+        }
+    }
+    Connections {
+        target: shareUtils
+        onShareNoAppAvailable: {
+            popupLoadSaveFile.labelText = qsTr("No app available to share settings file\n" + lastSettingsFileName)
+            popupLoadSaveFile.open();
+        }
+    }
+    Connections {
+        target: shareUtils
+        onShareError: {
+            popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + "\nerror: " + message)
+            popupLoadSaveFile.open();
+        }
+    }
+
 
     property bool lockTiles: false
 
@@ -134,37 +243,9 @@ ApplicationWindow {
     }
 
     Popup {
-        id: popupLoadSettings
+        id: popupLoadSaveFile
          parent: Overlay.overlay
-
-       x: Math.round((parent.width - width) / 2)
-         y: Math.round((parent.height - height) / 2)
-         width: 380
-         height: 60
-         modal: true
-         focus: true
-         palette.text: "white"
-         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-         enter: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-         }
-         exit: Transition
-         {
-             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-         }
-         Column {
-             anchors.horizontalCenter: parent.horizontalCenter
-         Label {
-             anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("Settings has been loaded correctly. Restart the app!")
-            }
-         }
-    }
-
-    Popup {
-        id: popupSaveFile
-         parent: Overlay.overlay
+         property alias labelText: popupLabel.text
 
          x: Math.round((parent.width - width) / 2)
          y: Math.round((parent.height - height) / 2)
@@ -185,8 +266,9 @@ ApplicationWindow {
          Column {
              anchors.horizontalCenter: parent.horizontalCenter
          Label {
+             id: popupLabel
              anchors.horizontalCenter: parent.horizontalCenter
-             text: qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+             text: qsTr("Send File OK")
             }
          }
     }
@@ -328,7 +410,8 @@ ApplicationWindow {
                     if (stackView.depth > 1) {
                         stackView.pop()
                     }
-                    popupLoadSettings.open();
+                    popupLoadSaveFile.labelText = qsTr("Settings has been loaded correctly. Restart the app!")
+                    popupLoadSaveFile.open();
                  });
                 drawer.close()
             }
@@ -341,7 +424,6 @@ ApplicationWindow {
             icon.source: "icons/icons/tray-arrow-down.png"
             onClicked: {
                 saveSettings("settings");
-                popupSaveFile.open()
             }
             anchors.right: toolButtonAutoResistance.left/*toolClassifica.left*/
             visible: false
@@ -455,7 +537,8 @@ ApplicationWindow {
                 onClicked: {
                     gpx_save_clicked()
                     drawer.close()
-                    popupSaveFile.open()
+                    popupLoadSaveFile.labelText = qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+                    popupLoadSaveFile.open()
                 }
             }
             ItemDelegate {
@@ -465,7 +548,8 @@ ApplicationWindow {
                 onClicked: {
                     fit_save_clicked()
                     drawer.close()
-                    popupSaveFile.open()
+                    popupLoadSaveFile.labelText = qsTr("Saved! Check your private folder (Android)<br>or Files App (iOS)")
+                    popupLoadSaveFile.open()
                 }
             }
             ItemDelegate {

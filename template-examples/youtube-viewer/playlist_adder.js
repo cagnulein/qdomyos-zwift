@@ -1,6 +1,6 @@
 let playlist_grabbers_obj = {};
 let playlist_raw_list = [];
-let playlist_grabbers = ['youtube', 'personal', 'twitch'];
+let playlist_grabbers = ['youtube', 'personal', 'twitch', 'peertube', 'skrepin'];
 let badge_colors = ['primary', 'success', 'secondary', 'danger', 'warning', 'info', 'light', 'dark'];
 let playlist_load_idx = 0;
 let playlist_current_id = 0;

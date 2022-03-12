@@ -15,6 +15,7 @@
 #include "mainwindow.h"
 #include "qfit.h"
 #include "virtualtreadmill.h"
+#include "share_send_recv/applicationui.hpp"
 #include <QDir>
 #include <QGuiApplication>
 #include <QOperatingSystemVersion>
@@ -482,8 +483,13 @@ int main(int argc, char *argv[]) {
                 qDebug() << "BLUETOOTH_ADMIN denied!";
         }
 #endif
+#if defined(Q_OS_ANDROID) || !defined(Q_OS_IOS)
+        ApplicationUI appui;
+        appui.addContextProperty(engine.rootContext());
+#endif
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
+        QObject::connect(app.get(), SIGNAL(applicationStateChanged(Qt::ApplicationState)), &appui, SLOT(onApplicationStateChanged(Qt::ApplicationState)));
 #else
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
 #endif

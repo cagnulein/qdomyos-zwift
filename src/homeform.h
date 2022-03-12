@@ -576,6 +576,8 @@ class homeform : public QObject {
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);
+    void settingsSaved(QString settingsFileUri, int settingsN);
+    void settingsLoaded(QString settingsFileUri, int settingsN);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };
