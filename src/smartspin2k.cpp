@@ -201,7 +201,7 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
     write[2] = (uint8_t)(requestResistance & 0xFF);
     write[3] = (uint8_t)(requestResistance >> 8);
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance), false, true);
 }
 
 void smartspin2k::update() {
@@ -237,7 +237,7 @@ void smartspin2k::update() {
 
                 writeCharacteristic(watt, sizeof(watt),
                                     QStringLiteral("watt sync ") +
-                                        QString::number(parentDevice->wattsMetric().value()));
+                                        QString::number(parentDevice->wattsMetric().value()), false, true);
 
                 // cadence sync
                 uint8_t cadence[] = {0x02, 0x05, 0x00, 0x00};
@@ -246,7 +246,7 @@ void smartspin2k::update() {
 
                 writeCharacteristic(cadence, sizeof(cadence),
                                     QStringLiteral("cadence sync ") +
-                                        QString::number(parentDevice->currentCadence().value()));
+                                        QString::number(parentDevice->currentCadence().value()), false, true);
 
                 // hr sync
                 uint8_t heart[] = {0x02, 0x04, 0x00, 0x00};
@@ -255,7 +255,7 @@ void smartspin2k::update() {
 
                 writeCharacteristic(heart, sizeof(heart),
                                     QStringLiteral("heart sync ") +
-                                        QString::number(parentDevice->currentHeart().value()));
+                                        QString::number(parentDevice->currentHeart().value()), false, true);
             }
         }
 
@@ -267,7 +267,7 @@ void smartspin2k::update() {
 
             writeCharacteristicFTMS(write, sizeof(write),
                                     QStringLiteral("forcePower to SS2K ") +
-                                        QString::number(parentDevice->lastRequestedPower().value()));
+                                        QString::number(parentDevice->lastRequestedPower().value()), false, true);
 
             requestResistance = -1;
         }
@@ -288,7 +288,7 @@ void smartspin2k::update() {
             requestResistance = -1;
         } else {
             uint8_t read[] = {0x01, 0x17};
-            writeCharacteristic(read, sizeof(read), QStringLiteral("polling"));
+            writeCharacteristic(read, sizeof(read), QStringLiteral("polling"), false, true);
         }
     }
 }
