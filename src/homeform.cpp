@@ -1625,8 +1625,7 @@ void homeform::Plus(const QString &name) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowRemainingTime()));
         }
-    } else if (name.contains(QStringLiteral("peloton_offset"))
-               || name.contains(QStringLiteral("peloton_remaining"))) {
+    } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->increaseElapsedTime(1);
         }
@@ -1771,8 +1770,7 @@ void homeform::Minus(const QString &name) {
             // 2. To bounce back to previous
             trainProgram->decreaseElapsedTime(QTime(0, 0, 0).secsTo(trainProgram->currentRowElapsedTime()) + 2);
         }
-    } else if (name.contains(QStringLiteral("peloton_offset"))
-               || name.contains(QStringLiteral("peloton_remaining"))) {
+    } else if (name.contains(QStringLiteral("peloton_offset")) || name.contains(QStringLiteral("peloton_remaining"))) {
         if (bluetoothManager->device() && trainProgram) {
             trainProgram->decreaseElapsedTime(1);
         }
@@ -2025,7 +2023,8 @@ void homeform::update() {
         if (trainProgram) {
             peloton_offset->setValue(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
             peloton_remaining->setValue(trainProgram->remainingTime().toString("h:mm:ss"));
-            peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) + QStringLiteral(" sec."));
+            peloton_remaining->setSecondLine(QString::number(trainProgram->offsetElapsedTime()) +
+                                             QStringLiteral(" sec."));
             remaningTimeTrainingProgramCurrentRow->setValue(
                 trainProgram->currentRowRemainingTime().toString(QStringLiteral("h:mm:ss")));
             remaningTimeTrainingProgramCurrentRow->setSecondLine(
@@ -2274,14 +2273,14 @@ void homeform::update() {
                                     settings.value(QStringLiteral("bike_resistance_offset"), 4.0).toDouble(),
                                 'f', 0));
             if (trainProgram) {
-                int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
-                int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
+                int8_t lower_requested_peloton_resistance =
+                    trainProgram->currentRow().lower_requested_peloton_resistance;
+                int8_t upper_requested_peloton_resistance =
+                    trainProgram->currentRow().upper_requested_peloton_resistance;
                 if (lower_requested_peloton_resistance != -1) {
                     this->target_peloton_resistance->setSecondLine(
-                        QStringLiteral("MIN: ") +
-                        QString::number(lower_requested_peloton_resistance, 'f', 0) +
-                        QStringLiteral(" MAX: ") +
-                        QString::number(upper_requested_peloton_resistance, 'f', 0));
+                        QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
+                        QStringLiteral(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
                 } else {
                     this->target_peloton_resistance->setSecondLine(QLatin1String(""));
                 }
@@ -2302,8 +2301,8 @@ void homeform::update() {
                 int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
                 if (lower_cadence != -1) {
                     this->target_cadence->setSecondLine(
-                        QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) +
-                        QStringLiteral(" MAX: ") + QString::number(upper_cadence, 'f', 0));
+                        QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) + QStringLiteral(" MAX: ") +
+                        QString::number(upper_cadence, 'f', 0));
                 } else {
                     this->target_cadence->setSecondLine(QLatin1String(""));
                 }
@@ -2341,8 +2340,7 @@ void homeform::update() {
                 ((rower *)bluetoothManager->device())->averagePace().toString(QStringLiteral("m:ss")) +
                 QStringLiteral(" MAX: ") +
                 ((rower *)bluetoothManager->device())->maxPace().toString(QStringLiteral("m:ss")));
-            odometer->setValue(
-                QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
+            odometer->setValue(QString::number(bluetoothManager->device()->odometer() * 1000.0, 'f', 0));
             resistance = ((rower *)bluetoothManager->device())->currentResistance().value();
             peloton_resistance = ((rower *)bluetoothManager->device())->pelotonResistance().value();
             totalStrokes = ((rower *)bluetoothManager->device())->currentStrokesCount().value();
@@ -3846,7 +3844,7 @@ void homeform::loadSettings(const QUrl &filename) {
 void homeform::deleteSettings(const QUrl &filename) { QFile(filename.toLocalFile()).remove(); }
 
 QString homeform::getProfileDir() {
-    QString path = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/profiles";
+    QString path = getWritableAppDir() + "profiles";
     QDir().mkdir(path);
     return path;
 }
