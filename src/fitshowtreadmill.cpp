@@ -804,5 +804,5 @@ double fitshowtreadmill::minStepInclination() { return 1.0; }
 void fitshowtreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
-    changeInclination(grade, percentage);
+    changeInclination(qRound(grade), qRound(percentage));
 }
