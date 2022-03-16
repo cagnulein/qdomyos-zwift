@@ -570,8 +570,21 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QByteArray reply2;
         QByteArray reply3;
         QByteArray reply4;
-        if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x81) {
+        
+        static bool answer_13 = false;
+        
+        if(answer_13) {
+            answer_13 = false;
+            
+            qDebug() << "ifit ans 13";
+            reply1 = QByteArray::fromHex("fe020a02000000000000001bffffffffffffffff");
+            reply2 = QByteArray::fromHex("ff0a010402060706900208a7ffffffffffffffff");
+            
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x81) {
             // equipment information
+            qDebug() << "ifit ans 1";
             reply1 = QByteArray::fromHex("fe02210340ff7b81600080dfbf1404fffb4808b7");
             reply2 = QByteArray::fromHex("00120104021d071d810253010300000000000fbc");
             reply3 = QByteArray::fromHex("ff0fbcfdc3fcffca94e707c0c0d118180d000fbc");
@@ -579,6 +592,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x80) {
+            qDebug() << "ifit ans 2";
             reply1 = QByteArray::fromHex("fe021303c3fcffca94e707c0c0d118180d000fbc");
             reply2 = QByteArray::fromHex("00120104020f070f8002094c4745434d4e464f41");
             reply3 = QByteArray::fromHex("ff012d04020f070f8002094c4745434d4e464f41");
@@ -586,11 +600,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x88) {
+            qDebug() << "ifit ans 3";
             reply1 = QByteArray::fromHex("fe021102020f070f8002094c4745434d4e464f41");
             reply2 = QByteArray::fromHex("ff110104020d070d880209829083718984954f41");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x82) {
+            qDebug() << "ifit ans 4";
             reply1 = QByteArray::fromHex("fe022504020d070d880209829083718984954f41");
             reply2 = QByteArray::fromHex("00120104022107218202640001aff900002b5706");
             reply3 = QByteArray::fromHex("01120056002ae8030024f400f401000001020000");
@@ -600,6 +616,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply3);
             writeCharacteristic(service, characteristic, reply4);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x84) {
+            qDebug() << "ifit ans 5";
             reply1 = QByteArray::fromHex("fe022003002ae8030024f400f401000001020000");
             reply2 = QByteArray::fromHex("00120104021c071c8402539600302e312e303631");
             reply3 = QByteArray::fromHex("ff0e32323031372e30393038012a030f2e303631");
@@ -607,6 +624,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x95) {
+            qDebug() << "ifit ans 6";
             reply1 = QByteArray::fromHex("fe021c033031372e30393038012a030f2e303631");
             reply2 = QByteArray::fromHex("00120104021807189502123431373131302d4e4e");
             reply3 = QByteArray::fromHex("ff0a32335a313130313737af31373131302d4e4e");
@@ -614,6 +632,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x5d) {
+            qDebug() << "ifit ans 7";
             reply1 = QByteArray::fromHex("fe02240302060706900208a731373131302d4e4e");
             reply2 = QByteArray::fromHex("0012010402200720020202701750001e00780000");
             reply3 = QByteArray::fromHex("ff12104c2c2c010000000000000000b400000003");
@@ -622,22 +641,43 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply3);
         } else if (newValue.length() > 9 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00 &&
                    ((uint8_t)newValue.at(9)) == 0xd1) {
+            qDebug() << "ifit ans 8";
             reply1 = QByteArray::fromHex("fe020a025a313130313737af31373131302d4e4e");
             reply2 = QByteArray::fromHex("ff0a010402060706900208a731373131302d4e4e");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 9 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00 &&
                    ((uint8_t)newValue.at(3)) == 0x80) {
+            qDebug() << "ifit ans 9";
             reply1 = QByteArray::fromHex("fe0209020205070502021000000000b400000003");
             reply2 = QByteArray::fromHex("ff0901040205070502021000000000b400000003");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x3d) {
+            qDebug() << "ifit ans 10";
             reply1 = QByteArray::fromHex("fe0209020205070502021000000000b400000003");
             reply2 = QByteArray::fromHex("ff0901040205070502021000000000b400000003");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
+            qDebug() << "ifit ans 11";
+            reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
+            reply2 = QByteArray::fromHex("00120104022f072f0202320239002d0000003000");
+            reply3 = QByteArray::fromHex("0112000000000e000000020e0016060e000000b4");
+            reply4 = QByteArray::fromHex("ff0f5e0100b400240058020000000000910000b4");
+            /*
+            static uint8_t counter = 0;
+            
+            reply3[6] = counter ++;
+            reply3[11] = counter ++;*/
+            
+            /*static uint64_t time = 0;
+            if(time == 0) time = QDateTime::currentMSecsSinceEpoch();
+            
+            reply3[13] = ((QDateTime::currentMSecsSinceEpoch() - time) / 10) & 0xff;
+            reply3[14] = ((QDateTime::currentMSecsSinceEpoch() - time) / 10) >> 8;*/
+            
+            /*
             reply1 = QByteArray::fromHex("fe02330400caaf020000000000330000df130013");
             reply2 = QByteArray::fromHex("00120104022f072f020200003d00650000003700");
             reply3 = QByteArray::fromHex("01120000000114000000021400f5061400000067");
@@ -646,7 +686,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply2[11] = Bike->currentResistance().value();
             reply2[12] = ((uint16_t)normalizeWattage) & 0xFF;
             reply2[13] = (((uint16_t)normalizeWattage) >> 8) & 0xFF;
-            reply2[18] = Bike->currentCadence().value();
+            reply2[18] = Bike->currentCadence().value();*/
 
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
@@ -654,6 +694,16 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply4);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x07 &&
                    ((uint8_t)newValue.at(7)) == 0x10) {
+            qDebug() << "ifit ans 12";
+            reply1 = QByteArray::fromHex("fe021c0300b4002200580200000000007e0000b4");
+            reply2 = QByteArray::fromHex("001201040218071802020000ffffffffffffffff");
+            reply3 = QByteArray::fromHex("ff0a00000000302a00000075ffffffffffffffff");
+            
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+            writeCharacteristic(service, characteristic, reply3);
+            
+            /*
             reply1 = QByteArray::fromHex("fe023304002c012700b400000000000005000085");
             reply2 = QByteArray::fromHex("00120104022f072f020200003900450000003500");
             reply3 = QByteArray::fromHex("01120000ffffffffffffffff00000000020d000d");
@@ -667,7 +717,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
-            writeCharacteristic(service, characteristic, reply4);
+            writeCharacteristic(service, characteristic, reply4);*/
+        } else if (newValue.length() > 8 && !newValue.compare(QByteArray::fromHex("0112b472461cf0be92403ceacea488764a2804e2"))) {
+            answer_13 = true;
+        } else if (newValue.length() > 8) {
+            qDebug() << "ifit not managed";
         }
     }
 
