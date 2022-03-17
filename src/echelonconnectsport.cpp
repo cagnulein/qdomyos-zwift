@@ -166,6 +166,9 @@ int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
 uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    if (Cadence.value() == 0)
+        return 1;
+
     for (int i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
