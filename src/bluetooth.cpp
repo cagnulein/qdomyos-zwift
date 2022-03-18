@@ -1291,6 +1291,16 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ultraSportBike->deviceDiscovered(b);
                 userTemplateManager->start(ultraSportBike);
                 innerTemplateManager->start(ultraSportBike);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("KEEP_BIKE_"))) && !keepBike && filter) {
+                discoveryAgent->stop();
+                keepBike = new keepbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(keepBike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(keepBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(keepBike, &solebike::debug, this, &bluetooth::debug);
+                keepBike->deviceDiscovered(b);
+                userTemplateManager->start(keepBike);
+                innerTemplateManager->start(keepBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("LCB")) ||
                         b.name().toUpper().startsWith(QStringLiteral("R92"))) &&
                        !soleBike && filter) {
@@ -1867,6 +1877,11 @@ void bluetooth::restart() {
         delete soleBike;
         soleBike = nullptr;
     }
+    if (keepBike) {
+
+        delete keepBike;
+        keepBike = nullptr;
+    }
     if (ultraSportBike) {
 
         delete ultraSportBike;
@@ -2121,6 +2136,8 @@ bluetoothdevice *bluetooth::device() {
         return trxappgateusbBike;
     } else if (soleBike) {
         return soleBike;
+    } else if (keepBike) {
+        return keepBike;
     } else if (ultraSportBike) {
         return ultraSportBike;
     } else if (horizonTreadmill) {
