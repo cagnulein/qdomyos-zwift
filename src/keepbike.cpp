@@ -207,9 +207,11 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(16));
     }
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+
+    /*if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = ((uint8_t)newValue.at(18));
-    } else {
+    } else*/
+    {
         Speed = metric::calculateSpeedFromPower(m_watt.value());
     }
 
@@ -295,7 +297,7 @@ double keepbike::GetDistanceFromPacket(const QByteArray &packet) {
 }
 
 double keepbike::GetWattFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(8) << 8) | packet.at(9);
+    uint16_t convertedData = (packet.at(17) << 8) | packet.at(18);
     double data = ((double)convertedData);
     return data;
 }
