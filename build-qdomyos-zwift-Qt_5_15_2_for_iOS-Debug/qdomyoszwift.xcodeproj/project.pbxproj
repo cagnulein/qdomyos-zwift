@@ -282,6 +282,8 @@
 		87C5F0D726285E7E0067A1B5 /* moc_mimefile.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0CC26285E7E0067A1B5 /* moc_mimefile.cpp */; };
 		87C5F0D826285E7E0067A1B5 /* moc_quotedprintable.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0CD26285E7E0067A1B5 /* moc_quotedprintable.cpp */; };
 		87C5F0D926285E7E0067A1B5 /* moc_mimeattachment.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C5F0CE26285E7E0067A1B5 /* moc_mimeattachment.cpp */; };
+		87C7074227E4CF5300E79C46 /* moc_keepbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C7074127E4CF5300E79C46 /* moc_keepbike.cpp */; };
+		87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87C7073F27E4CF4500E79C46 /* keepbike.cpp */; };
 		87CC3B9D25A08812001EC5A8 /* moc_domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9B25A08812001EC5A8 /* moc_domyoselliptical.cpp */; };
 		87CC3B9E25A08812001EC5A8 /* moc_elliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */; };
 		87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87CC3B9F25A0885D001EC5A8 /* domyoselliptical.cpp */; };
@@ -903,6 +905,9 @@
 		87C5F0CC26285E7E0067A1B5 /* moc_mimefile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mimefile.cpp; sourceTree = "<group>"; };
 		87C5F0CD26285E7E0067A1B5 /* moc_quotedprintable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_quotedprintable.cpp; sourceTree = "<group>"; };
 		87C5F0CE26285E7E0067A1B5 /* moc_mimeattachment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_mimeattachment.cpp; sourceTree = "<group>"; };
+		87C7073F27E4CF4500E79C46 /* keepbike.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = keepbike.cpp; path = ../src/keepbike.cpp; sourceTree = "<group>"; };
+		87C7074027E4CF4500E79C46 /* keepbike.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = keepbike.h; path = ../src/keepbike.h; sourceTree = "<group>"; };
+		87C7074127E4CF5300E79C46 /* moc_keepbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_keepbike.cpp; sourceTree = "<group>"; };
 		87CC3B9B25A08812001EC5A8 /* moc_domyoselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_domyoselliptical.cpp; sourceTree = "<group>"; };
 		87CC3B9C25A08812001EC5A8 /* moc_elliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_elliptical.cpp; sourceTree = "<group>"; };
 		87CC3B9F25A0885D001EC5A8 /* domyoselliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = domyoselliptical.cpp; path = ../src/domyoselliptical.cpp; sourceTree = "<group>"; };
@@ -1294,6 +1299,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87C7074127E4CF5300E79C46 /* moc_keepbike.cpp */,
 				87DED80727D1274500BE4FBB /* moc_filedownloader.cpp */,
 				8742C2B327C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp */,
 				87FA11AC27C5ECE4008AC5D1 /* moc_ultrasportbike.cpp */,
@@ -1403,6 +1409,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87C7073F27E4CF4500E79C46 /* keepbike.cpp */,
+				87C7074027E4CF4500E79C46 /* keepbike.h */,
 				87433F2027D8B722003D1672 /* simplecrypt.cpp */,
 				87433F1F27D8B721003D1672 /* simplecrypt.h */,
 				87DED80427D1273800BE4FBB /* filedownloader.cpp */,
@@ -2361,6 +2369,7 @@
 				87C5F0BE26285E5F0067A1B5 /* mimemultipart.cpp in Compile Sources */,
 				87C5F0D426285E7E0067A1B5 /* moc_chronobike.cpp in Compile Sources */,
 				87BE6FDC272D2A3100C35795 /* horizongr7bike.cpp in Compile Sources */,
+				87C7074227E4CF5300E79C46 /* moc_keepbike.cpp in Compile Sources */,
 				BBBE7689F5792CB3FD1997EC /* fit_factory.cpp in Compile Sources */,
 				876ED21625C3E8DE0065F3DC /* schwinnic4bike.cpp in Compile Sources */,
 				87D269A325F535340076AA48 /* moc_skandikawiribike.cpp in Compile Sources */,
@@ -2384,6 +2393,7 @@
 				FE77C778768741F1A161682E /* fit_mesg_definition.cpp in Compile Sources */,
 				875F69B926342E8D0009FD78 /* spirittreadmill.cpp in Compile Sources */,
 				87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */,
+				87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */,
 				8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */,
 				8781907E2615089D0085E656 /* peloton.cpp in Compile Sources */,
 				2B800DC34C91D8B080DEFBE8 /* fit_mesg_with_event_broadcaster.cpp in Compile Sources */,
@@ -3338,6 +3348,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
 				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
@@ -3427,6 +3438,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
 				"ARCHS[sdk=iphoneos*]" = "$(ARCHS_STANDARD)";
 				"ARCHS[sdk=iphonesimulator*]" = "$(ARCHS_STANDARD)";
