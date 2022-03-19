@@ -2,6 +2,7 @@
 #define METRIC_H
 
 #include "qdebugfixup.h"
+#include <QDateTime>
 #include <math.h>
 
 class metric {
@@ -21,6 +22,11 @@ class metric {
     double value();
     double average();
     double average5s();
+
+    // rate of the current metric in a second, useful to know how many Kcal i will burn in a
+    // minute if i keep the current pace
+    double rate1s() { return m_rateAtSec; }
+
     double min();
     double max();
     double lapValue();
@@ -51,6 +57,9 @@ class metric {
     double m_lapCountValue = 0;
     double m_lapMin = 999999999;
     double m_lapMax = 0;
+
+    QDateTime m_lastChanged = QDateTime::currentDateTime();
+    double m_rateAtSec = 0;
 
     _metric_type m_type = METRIC_OTHER;
 

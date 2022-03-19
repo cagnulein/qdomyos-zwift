@@ -41,5 +41,7 @@
         <file>inner_templates/chartjs/ajax-loader.gif</file>
         <file>Classifica.qml</file>
         <file>Credits.qml</file>
+        <file>WebEngineTest.qml</file>
+        <file>profiles.qml</file>
     </qresource>
 </RCC>

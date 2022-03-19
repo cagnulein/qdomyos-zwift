@@ -32,6 +32,11 @@ ftmsrower::ftmsrower(bool noWriteResistance, bool noHeartService) {
 
 void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                                     bool wait_for_response) {
+    if (!gattFTMSService || !gattWriteCharControlPointId.isValid()) {
+        qDebug() << QStringLiteral("gattWriteCharControlPointId or gattFTMSService not valid!!");
+        return;
+    }
+
     QEventLoop loop;
     QTimer timeout;
     if (wait_for_response) {
@@ -80,7 +85,7 @@ void ftmsrower::update() {
                                                                            // gattNotify1Characteristic.isValid() &&
                /*initDone*/) {
 
-        update_metrics(true, watts());
+        update_metrics(false, watts());
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {

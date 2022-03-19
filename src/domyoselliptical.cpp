@@ -99,8 +99,8 @@ void domyoselliptical::updateDisplay(uint16_t elapsed) {
 
     display[16] = (uint8_t)currentCadence().value();
 
-    display[19] = ((((uint16_t)calories())) >> 8) & 0xFF;
-    display[20] = (((uint16_t)calories())) & 0xFF;
+    display[19] = ((((uint16_t)calories().value())) >> 8) & 0xFF;
+    display[20] = (((uint16_t)calories().value())) & 0xFF;
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
 

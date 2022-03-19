@@ -72,6 +72,9 @@ class fakebike : public bike {
     void debug(QString string);
 
   private slots:
+    void changeInclinationRequested(double grade, double percentage);
     void update();
+    
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 #endif // FAKEBIKE_H

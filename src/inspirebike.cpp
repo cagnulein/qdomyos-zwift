@@ -399,9 +399,12 @@ uint16_t inspirebike::watts() {
             -136.8333333, -132.3333333, -160,         -66.16666667, -93.5,        -131.5,       -149.5, -92.16666667};
 
         uint8_t res = qRound(currentResistance().value());
-        if (res - 1 < max_resistance && res > 0)
-            return (uint16_t)((m[res - 1] * (double)(currentCadence().value())) + q[res - 1]);
-        else
+        if (res - 1 < max_resistance && res > 0) {
+            double w = ((m[res - 1] * (double)(currentCadence().value())) + q[res - 1]);
+            if (w < 0)
+                w = 0;
+            return (uint16_t)w;
+        } else
             return 0;
 
     } else if (settings.value(QStringLiteral("inspire_peloton_formula"), false).toBool()) {

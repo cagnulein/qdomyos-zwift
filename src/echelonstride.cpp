@@ -68,7 +68,30 @@ void echelonstride::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
 
 void echelonstride::updateDisplay(uint16_t elapsed) {}
 
-void echelonstride::forceSpeedOrIncline(double requestSpeed, double requestIncline) {}
+void echelonstride::forceSpeed(double requestSpeed) {
+    uint8_t noOpData[] = {0xf0, 0xb2, 0x02, 0x00, 0x00, 0x00};
+
+    noOpData[3] = (uint8_t)(((uint16_t)(requestSpeed * 1000.0)) >> 8);
+    noOpData[4] = ((uint8_t)(requestSpeed * 1000.0));
+
+    for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+        noOpData[5] += noOpData[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("force speed"), false, true);
+}
+
+void echelonstride::forceIncline(double requestIncline) {
+    uint8_t noOpData[] = {0xf0, 0xb1, 0x01, 0x00, 0x00};
+
+    noOpData[3] = requestIncline;
+
+    for (uint8_t i = 0; i < sizeof(noOpData) - 1; i++) {
+        noOpData[4] += noOpData[i]; // the last byte is a sort of a checksum
+    }
+
+    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("force incline"), false, true);
+}
 
 void echelonstride::sendPoll() {
     uint8_t noOpData[] = {0xf0, 0xa0, 0x01, 0x00, 0x00};
@@ -87,6 +110,12 @@ void echelonstride::sendPoll() {
     }
 }
 
+void echelonstride::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
+}
+
 void echelonstride::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
@@ -102,12 +131,22 @@ void echelonstride::update() {
                gattNotify2Characteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+        if (!firstInit && !virtualTreadMill && !virtualBike) {
+            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
+            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
-                emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
-                connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
+                if (!virtual_device_force_bike) {
+                    debug("creating virtual treadmill interface...");
+                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
+                    connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                            &echelonstride::changeInclinationRequested);
+                } else {
+                    debug("creating virtual bike interface...");
+                    virtualBike = new virtualbike(this);
+                    connect(virtualBike, &virtualbike::changeInclination, this,
+                            &echelonstride::changeInclinationRequested);
+                }
                 firstInit = 1;
             }
         }
@@ -121,60 +160,52 @@ void echelonstride::update() {
             sendPoll();
         }
 
-        // byte 3 - 4 = elapsed time
-        // byte 17    = inclination
-        if (incompletePackets == false) {
-            if (requestSpeed != -1) {
-                if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
-                    emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                    double inc = Inclination.value();
-                    if (requestInclination != -1) {
-                        inc = requestInclination;
-                        requestInclination = -1;
-                    }
-                    forceSpeedOrIncline(requestSpeed, inc);
-                }
-                requestSpeed = -1;
+        if (requestSpeed != -1) {
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                forceSpeed(requestSpeed);
             }
-            if (requestInclination != -1) {
-                if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
-                    requestInclination <= 15) {
-                    emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                    double speed = currentSpeed().value();
-                    if (requestSpeed != -1) {
-                        speed = requestSpeed;
-                        requestSpeed = -1;
-                    }
-                    forceSpeedOrIncline(speed, requestInclination);
-                }
-                requestInclination = -1;
+            requestSpeed = -1;
+        }
+        if (requestInclination != -1) {
+            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                requestInclination <= 15) {
+                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+                forceIncline(requestInclination);
             }
-            if (requestStart != -1) {
-                emit debug(QStringLiteral("starting..."));
-                if (lastSpeed == 0.0) {
-                    lastSpeed = 0.5;
-                }
-                requestStart = -1;
-                emit tapeStarted();
+            requestInclination = -1;
+        }
+        if (requestStart != -1) {
+            emit debug(QStringLiteral("starting..."));
+            if (lastSpeed == 0.0) {
+                lastSpeed = 0.5;
             }
-            if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping..."));
-                requestStop = -1;
-            }
-            if (requestFanSpeed != -1) {
-                emit debug(QStringLiteral("changing fan speed..."));
-                //sendChangeFanSpeed(requestFanSpeed);
-                requestFanSpeed = -1;
-            }
-            if (requestIncreaseFan != -1) {
-                emit debug(QStringLiteral("increasing fan speed..."));
-                //sendChangeFanSpeed(FanSpeed + 1);
-                requestIncreaseFan = -1;
-            } else if (requestDecreaseFan != -1) {
-                emit debug(QStringLiteral("decreasing fan speed..."));
-                //sendChangeFanSpeed(FanSpeed - 1);
-                requestDecreaseFan = -1;
-            }
+            uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
+            writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("start"), false, true);
+            lastStart = QDateTime::currentMSecsSinceEpoch();
+            requestStart = -1;
+            emit tapeStarted();
+        }
+        if (requestStop != -1) {
+            emit debug(QStringLiteral("stopping..."));
+            uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x00, 0xa1};
+            writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("stop"), false, true);
+            requestStop = -1;
+            lastStop = QDateTime::currentMSecsSinceEpoch();
+        }
+        if (requestFanSpeed != -1) {
+            emit debug(QStringLiteral("changing fan speed..."));
+            // sendChangeFanSpeed(requestFanSpeed);
+            requestFanSpeed = -1;
+        }
+        if (requestIncreaseFan != -1) {
+            emit debug(QStringLiteral("increasing fan speed..."));
+            // sendChangeFanSpeed(FanSpeed + 1);
+            requestIncreaseFan = -1;
+        } else if (requestDecreaseFan != -1) {
+            emit debug(QStringLiteral("decreasing fan speed..."));
+            // sendChangeFanSpeed(FanSpeed - 1);
+            requestDecreaseFan = -1;
         }
     }
 }
@@ -182,6 +213,8 @@ void echelonstride::update() {
 void echelonstride::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
+
+double echelonstride::minStepInclination() { return 1.0; }
 
 void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
@@ -196,22 +229,31 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
     lastPacket = newValue;
 
     if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd3) {
+
+        double miles = 1.60934;
+
         // this line on iOS sometimes gives strange overflow values
         // uint16_t convertedData = (((uint16_t)newValue.at(3)) << 8) | (uint16_t)newValue.at(4);
         qDebug() << "speed1" << newValue.at(3);
-        uint16_t convertedData = newValue.at(3);
+        uint16_t convertedData = (uint8_t)newValue.at(3);
         qDebug() << "speed2" << convertedData;
         convertedData = convertedData << 8;
         qDebug() << "speed3" << convertedData;
         convertedData = convertedData & 0xFF00;
         qDebug() << "speed4" << convertedData;
-        convertedData = convertedData + newValue.at(4);
+        convertedData = convertedData + (uint8_t)newValue.at(4);
         qDebug() << "speed5" << convertedData;
-        Speed = ((double)convertedData) / 1000.0;
+        Speed = (((double)convertedData) / 1000.0) * miles;
+
+        if(Speed.value() > 0)
+            lastStart = 0;
+        else
+            lastStop = 0;
+
         qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
         return;
     } else if (((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Inclination = newValue.at(3);
+        Inclination = (uint8_t)newValue.at(3);
         qDebug() << QStringLiteral("Current Inclination: ") + QString::number(Inclination.value());
         return;
     }
@@ -235,6 +277,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
                      (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
+    if((uint8_t)newValue.at(1) == 0xD1 && newValue.length() > 11)
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -242,19 +285,26 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+
+            uint8_t heart = ((uint8_t)newValue.at(11));
+            if (heart == 0) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            lockscreen h;
-            long appleWatchHeartRate = h.heartRate();
-            h.setKcal(KCal.value());
-            h.setDistance(Distance.value());
-            Heart = appleWatchHeartRate;
-            qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+                lockscreen h;
+                long appleWatchHeartRate = h.heartRate();
+                h.setKcal(KCal.value());
+                h.setDistance(Distance.value());
+                Heart = appleWatchHeartRate;
+                qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
 #endif
 #endif
+            } else {
+                Heart = heart;
+            }
         }
     }
 
+    qDebug() << QStringLiteral("Current Heart: ") + QString::number(Heart.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Watt: ") +
                     QString::number(watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
@@ -268,8 +318,7 @@ void echelonstride::characteristicChanged(const QLowEnergyCharacteristic &charac
 
 void echelonstride::btinit() {
     uint8_t initData1[] = {0xf0, 0xa1, 0x00, 0x91};
-    uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};
-    uint8_t initData3[] = {0xf0, 0xb0, 0x01, 0x01, 0xa2};
+    uint8_t initData2[] = {0xf0, 0xa3, 0x00, 0x93};    
     // uint8_t initData4[] = { 0xf0, 0x60, 0x00, 0x50 }; // get sleep command
 
     // useless i guess
@@ -283,8 +332,7 @@ void echelonstride::btinit() {
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
 
     writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);    
 
     initDone = true;
 }
@@ -376,7 +424,6 @@ void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));
-                    searchStopped = false;
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
@@ -387,7 +434,6 @@ void echelonstride::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("LowEnergy controller disconnected"));
-            searchStopped = false;
             emit disconnected();
         });
 
@@ -417,4 +463,17 @@ void *echelonstride::VirtualTreadMill() { return virtualTreadMill; }
 
 void *echelonstride::VirtualDevice() { return VirtualTreadMill(); }
 
-void echelonstride::searchingStop() { searchStopped = true; }
+bool echelonstride::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
+
+bool echelonstride::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
+}
+

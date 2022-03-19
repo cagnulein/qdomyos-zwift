@@ -41,6 +41,7 @@ class renphobike : public bike {
     int pelotonToBikeResistance(int pelotonResistance);
     // uint8_t resistanceFromPowerRequest(uint16_t power);
     bool connected();
+    uint8_t maxResistance() { return max_resistance; }
 
     void *VirtualBike();
     void *VirtualDevice();
@@ -60,12 +61,14 @@ class renphobike : public bike {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattFTMSService;
+    QLowEnergyService *gattFTMSService = nullptr;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
+    QByteArray lastFTMSPacketReceived;
+    int8_t lastRequestResistance = -1;
 
     bool initDone = false;
     bool initRequest = false;
@@ -99,6 +102,8 @@ class renphobike : public bike {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
 #endif // renphobike_H

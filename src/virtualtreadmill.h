@@ -17,6 +17,10 @@
 #else
 #include <QtGui/qguiapplication.h>
 #endif
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
 #include <QtCore/qlist.h>
 #include <QtCore/qloggingcategory.h>
 #include <QtCore/qscopedpointer.h>
@@ -29,20 +33,35 @@ class virtualtreadmill : public QObject {
   public:
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
     bool connected();
+    bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
 
   private:
     QLowEnergyController *leController = nullptr;
-    QLowEnergyService *service = nullptr;
+    QLowEnergyService *serviceFTMS = nullptr;
+    QLowEnergyService *serviceRSC = nullptr;
     QLowEnergyService *serviceHR = nullptr;
     QLowEnergyAdvertisingData advertisingData;
-    QLowEnergyServiceData serviceData;
+    QLowEnergyServiceData serviceDataFTMS;
+    QLowEnergyServiceData serviceDataRSC;
     QLowEnergyServiceData serviceDataHR;
     QTimer treadmillTimer;
     bluetoothdevice *treadMill;
+    
+    uint64_t lastSlopeChanged = 0;
 
     bool noHeartService = false;
 
+    bool m_autoInclinationEnabled = false;
+
     void slopeChanged(int16_t iresistance);
+
+    bool ftmsServiceEnable();
+    bool ftmsTreadmillEnable();
+    bool RSCEnable();
+    
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   signals:
     void debug(QString string);

@@ -12,7 +12,6 @@ class elliptical : public bluetoothdevice {
     metric lastRequestedResistance();
     virtual metric currentInclination();
     virtual metric currentResistance();
-    virtual metric currentCadence();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
@@ -32,7 +31,6 @@ class elliptical : public bluetoothdevice {
 
   protected:
     metric RequestedResistance;
-    metric Cadence;
     metric Resistance;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;

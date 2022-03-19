@@ -476,6 +476,45 @@ void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
+    if (!device->isPaused()) {
+        device->clearStats();
+        device->start();
+        emit workoutEventStateChanged(bluetoothdevice::STARTED);
+    } else {
+        device->start();
+        device->setPaused(false);
+        emit workoutEventStateChanged(bluetoothdevice::RESUMED);
+    }
+    QJsonObject main;
+    main[QStringLiteral("msg")] = QStringLiteral("R_start");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
+    if (!device->isPaused()) {
+        device->stop();
+        device->setPaused(true);
+        emit workoutEventStateChanged(bluetoothdevice::PAUSED);
+    }
+    QJsonObject main;
+    main[QStringLiteral("msg")] = QStringLiteral("R_pause");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
+void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
+    device->stop();
+    device->setPaused(true);
+    device->clearStats();
+    emit workoutEventStateChanged(bluetoothdevice::STOPPED);
+    QJsonObject main;
+    main[QStringLiteral("msg")] = QStringLiteral("R_stop");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onSaveTrainingProgram(const QJsonValue &msgContent, TemplateInfoSender *tempSender) {
     QString fileName;
     QJsonArray rows;
@@ -628,6 +667,18 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
+                } 
+                if (msg == QStringLiteral("start")) {
+                    onStart(sender);
+                    return;
+                }
+                if (msg == QStringLiteral("pause")) {
+                    onPause(sender);
+                    return;
+                }
+                if (msg == QStringLiteral("stop")) {
+                    onStop(sender);
+                    return;
                 }
             }
         }
@@ -713,13 +764,13 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("moving_h"), el.hour());
         obj.setProperty(QStringLiteral("speed"), (dep = device->currentSpeed()).value());
         obj.setProperty(QStringLiteral("speed_avg"), dep.average());
-        obj.setProperty(QStringLiteral("calories"), device->calories());
+        obj.setProperty(QStringLiteral("calories"), device->calories().value());
         obj.setProperty(QStringLiteral("distance"), device->odometer());
         obj.setProperty(QStringLiteral("heart"), (dep = device->currentHeart()).value());
         obj.setProperty(QStringLiteral("heart_avg"), dep.average());
         obj.setProperty(QStringLiteral("heart_max"), dep.max());
         obj.setProperty(QStringLiteral("jouls"), device->jouls().value());
-        obj.setProperty(QStringLiteral("elevation"), device->elevationGain());
+        obj.setProperty(QStringLiteral("elevation"), device->elevationGain().value());
         obj.setProperty(QStringLiteral("difficult"), device->difficult());
         obj.setProperty(QStringLiteral("watts"), (dep = device->wattsMetric()).value());
         obj.setProperty(QStringLiteral("watts_avg"), dep.average());

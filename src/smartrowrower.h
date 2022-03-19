@@ -39,6 +39,7 @@ class smartrowrower : public rower {
     smartrowrower(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     int pelotonToBikeResistance(int pelotonResistance);
     uint8_t resistanceFromPowerRequest(uint16_t power);
+    uint8_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();

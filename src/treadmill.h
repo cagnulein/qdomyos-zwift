@@ -9,12 +9,15 @@ class treadmill : public bluetoothdevice {
   public:
     treadmill();
     void update_metrics(bool watt_calc, const double watts);
+    metric lastRequestedSpeed() { return RequestedSpeed; }
+    metric lastRequestedInclination() { return RequestedInclination; }
     virtual bool connected();
     virtual metric currentInclination();
     virtual double requestedSpeed();
     virtual double currentTargetSpeed();
     virtual double requestedInclination();
     virtual double minStepInclination();
+    virtual double minStepSpeed();
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
@@ -38,10 +41,12 @@ class treadmill : public bluetoothdevice {
 
   protected:
     volatile double requestSpeed = -1;
-    double targetSpeed = -1;    
+    double targetSpeed = -1;
     double requestInclination = -1;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    metric RequestedSpeed;
+    metric RequestedInclination;
 };
 
 #endif // TREADMILL_H

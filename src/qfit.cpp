@@ -12,7 +12,7 @@
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag) {
+                uint32_t processFlag, FIT_SPORT overrideSport) {
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -67,7 +67,11 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetTrigger(FIT_SESSION_TRIGGER_ACTIVITY_END);
     sessionMesg.SetMessageIndex(FIT_MESSAGE_INDEX_RESERVED);
 
-    if (type == bluetoothdevice::TREADMILL) {
+    if (overrideSport != FIT_SPORT_INVALID) {
+        sessionMesg.SetSport(overrideSport);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_GENERIC);
+        qDebug() << "overriding FIT sport " << overrideSport;
+    } else if (type == bluetoothdevice::TREADMILL) {
 
         sessionMesg.SetSport(FIT_SPORT_RUNNING);
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
@@ -90,7 +94,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     } else {
 
         sessionMesg.SetSport(FIT_SPORT_CYCLING);
-        sessionMesg.SetSubSport(FIT_SUB_SPORT_INDOOR_CYCLING);
+        sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     }
 
     fit::DeveloperDataIdMesg devIdMesg;
@@ -121,7 +125,10 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     lapMesg.SetLapTrigger(FIT_LAP_TRIGGER_TIME);
     lapMesg.SetTotalElapsedTime(0);
     lapMesg.SetTotalTimerTime(0);
-    if (type == bluetoothdevice::TREADMILL) {
+    if (overrideSport != FIT_SPORT_INVALID) {
+
+        lapMesg.SetSport(FIT_SPORT_GENERIC);
+    } else if (type == bluetoothdevice::TREADMILL) {
 
         lapMesg.SetSport(FIT_SPORT_RUNNING);
     } else if (type == bluetoothdevice::ELLIPTICAL) {

@@ -63,6 +63,8 @@ bool battery_service = false;
 bool service_changed = false;
 bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
+bool nordictrack_10_treadmill = false;
+bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
@@ -121,6 +123,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             bike_wheel_revs = true;
         if (!qstrcmp(argv[i], "-run-cadence-sensor"))
             run_cadence_sensor = true;
+        if (!qstrcmp(argv[i], "-nordictrack-10-treadmill"))
+            nordictrack_10_treadmill = true;
+        if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
+            reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -213,7 +219,7 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
     QSettings settings;
     static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
-    if((logs == false && !forceQml) || (logdebug == false && forceQml))
+    if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
     if (logdebug == false)
 #endif
@@ -323,6 +329,8 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("service_changed"), service_changed);
         settings.setValue(QStringLiteral("bike_wheel_revs"), bike_wheel_revs);
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
+        settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
+        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);
     }
 #endif
 
@@ -379,7 +387,7 @@ int main(int argc, char *argv[]) {
             homefitnessbuddy *h = new homefitnessbuddy(0, 0);
             QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
                 if (ok) {
-                    h->searchWorkout(QDate(2021, 5, 19), "Christine D'Ercole");
+                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700);
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);

@@ -11,25 +11,11 @@ This list is not exhaustive. Please report any application known to be working w
 |[Fulgaz](21_applications_detail.md#fulgaz)|![bike](img/20_bike.png)|![IOS](img/20_apple.png) ![Android](img/20_android.png) ![PC](img/20_windows.png)|Yes|Yes|Yes|Yes, no FTMS support (see note)|Yes (see note) |
 
 # Supported devices
+Check the full list https://github.com/cagnulein/qdomyos-zwift/wiki/Equipment-Compatibility
+
 This list is not exhaustive. 
 Try the qdomyos app with your fitness appliance and report how it is going.
 If it's not working, you can [ask for your device to be supported](#ask-for-device-support)
-
-## Supported bikes
-
-|Manufacturer|Model|Speed|RPM|Power|HRM|Resistence Control|
-|------------|-----|------------|---|-----|---|------------------|
-|[Echelon](22_devices_detail.md#echelon)|Connect Sport|Yes|Yes|Yes|Yes|N/A|
-|[Sportstech](22_devices_detail.md#sportstech)|ESX500|Yes|Yes|Yes|Yes|Yes|
-
-## Supported treadmills
-
-|Manufacturer|Model|Speed|HRM|Inclinaison Control| Speed control|
-|------------|-----|------------|---|-------------------|--------------|
-|Domyos|Intense Run|Yes|Yes|Yes|Yes|
-|Domyos|T900c|Yes|Yes|Yes|Yes|
-|Toorx|TRX Route Key|Yes|Yes|Yes|Yes|
-
 
 # Ask for device support
 

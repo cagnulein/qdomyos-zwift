@@ -9,17 +9,27 @@
 class trainrow {
   public:
     QTime duration = QTime(0, 0, 0, 0);
+    double distance = -1;
     double speed = -1;
+    double lower_speed = -1;   // used for peloton
+    double average_speed = -1; // used for peloton
+    double upper_speed = -1;   // used for peloton
     double fanspeed = -1;
     double inclination = -200;
+    double lower_inclination = -200;   // used for peloton
+    double average_inclination = -200; // used for peloton
+    double upper_inclination = -200;   // used for peloton
     int8_t resistance = -1;
     int8_t lower_resistance = -1;
+    int8_t average_resistance = -1; // used for peloton
     int8_t upper_resistance = -1;
     int8_t requested_peloton_resistance = -1;
     int8_t lower_requested_peloton_resistance = -1;
+    int8_t average_requested_peloton_resistance = -1; // used for peloton
     int8_t upper_requested_peloton_resistance = -1;
     int16_t cadence = -1;
     int16_t lower_cadence = -1;
+    int16_t average_cadence = -1; // used for peloton
     int16_t upper_cadence = -1;
     bool forcespeed = false;
     int8_t loopTimeHR = 10;
@@ -29,6 +39,7 @@ class trainrow {
     int32_t mets = -1;
     double latitude = NAN;
     double longitude = NAN;
+    QString toString() const;
 };
 
 class trainprogram : public QObject {
@@ -43,10 +54,12 @@ class trainprogram : public QObject {
     QTime totalElapsedTime();
     QTime currentRowElapsedTime();
     QTime currentRowRemainingTime();
+    QTime remainingTime();
     double currentTargetMets();
     QTime duration();
     double totalDistance();
     trainrow currentRow();
+    trainrow getRowFromCurrent(uint32_t offset);
     void increaseElapsedTime(uint32_t i);
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }
@@ -77,11 +90,14 @@ class trainprogram : public QObject {
 
   private:
     uint32_t calculateTimeForRow(int32_t row);
+    double calculateDistanceForRow(int32_t row);
     bluetooth *bluetoothManager;
     bool started = false;
     int32_t ticks = 0;
     uint16_t currentStep = 0;
     int32_t offset = 0;
+    double lastOdometer = 0;
+    double currentStepDistance = 0;
     QTimer timer;
 };
 

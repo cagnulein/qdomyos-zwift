@@ -31,6 +31,12 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
                                      bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+
+    if (gattFTMSService == nullptr) {
+        qDebug() << QStringLiteral("gattFTMSService not found! skip writing...");
+        return;
+    }
+
     if (wait_for_response) {
         connect(gattFTMSService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)), &loop,
                 SLOT(quit()));
@@ -59,7 +65,12 @@ void renphobike::forcePower(int16_t requestPower) {
 }
 
 void renphobike::forceResistance(int8_t requestResistance) {
-    requestPower = powerFromResistanceRequest(requestResistance);
+    // requestPower = powerFromResistanceRequest(requestResistance);
+    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+
+    write[1] = ((uint8_t)(requestResistance * 2));
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 }
 
 void renphobike::update() {
@@ -84,33 +95,37 @@ void renphobike::update() {
                /*initDone*/) {
         update_metrics(true, watts());
 
-        // zwift send this every 5 seconds
-        if (sec1Update++ == (5000 / refresh->interval())) {
-            sec1Update = 0;
-            uint8_t write[] = {FTMS_REQUEST_CONTROL};
-            writeCharacteristic(write, sizeof(write), "requestControl", false, true);
-            write[0] = {FTMS_START_RESUME};
-            writeCharacteristic(write, sizeof(write), "start simulation", false, true);
-        }
+        if (!autoResistanceEnable) {
+            uint8_t write[] = {FTMS_STOP_PAUSE, 0x01};
+            writeCharacteristic(write, sizeof(write),
+                                QStringLiteral("stopping control ") + QString::number(requestPower));
+            return;
+        } else {
+            if (requestPower != -1) {
+                debug("writing power request " + QString::number(requestPower));
+                // if zwift is connected, QZ routes the ftms packets directly to the bike.
+                // if peloton is connected, the power request is handled by QZ
+                if (virtualBike && !virtualBike->ftmsDeviceConnected() && requestPower != 0)
+                    forcePower(requestPower);
+                requestPower = -1;
+                requestResistance = -1;
+            }
+            if (requestResistance != -1) {
+                if (requestResistance > max_resistance)
+                    requestResistance = max_resistance;
+                else if (requestResistance == 0)
+                    requestResistance = 1;
 
-        if (requestPower != -1) {
-            debug("writing power request " + QString::number(requestPower));
-            if (autoResistanceEnable)
-                forcePower(requestPower);
-            // requestPower = -1;   // power should be always sent as zwift does
-            requestResistance = -1;
-        }
-        if (requestResistance != -1) {
-            if (requestResistance > max_resistance)
-                requestResistance = max_resistance;
-            else if (requestResistance == 0)
-                requestResistance = 1;
-
-            if (requestResistance != currentResistance().value()) {
+                lastRequestResistance = lastRawRequestedResistanceValue;
                 debug("writing resistance " + QString::number(requestResistance));
                 forceResistance(requestResistance);
+
+                requestResistance = -1;
+            } else if (lastRequestResistance != -1) {
+                int8_t r = lastRequestResistance * m_difficult + gears();
+                debug("writing resistance for renpho forever " + QString::number(r));
+                forceResistance(r);
             }
-            requestResistance = -1;
         }
         if (requestStart != -1) {
             debug("starting...");
@@ -121,6 +136,7 @@ void renphobike::update() {
             emit bikeStarted();
         }
         if (requestStop != -1) {
+            lastRequestResistance = -1;
             debug("stopping...");
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
@@ -363,6 +379,13 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
             qDebug() << s->serviceUuid() << "connected!";
 
+            // zwift doesn't write the client configuration on services different from these ones
+            if (s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1826) &&
+                s->serviceUuid() != ((QBluetoothUuid)(quint16)0x1816)) {
+                qDebug() << QStringLiteral("skipping service") << s->serviceUuid();
+                continue;
+            }
+
             foreach (QLowEnergyCharacteristic c, s->characteristics()) {
                 qDebug() << "char uuid" << c.uuid() << "handle" << c.handle();
                 foreach (QLowEnergyDescriptor d, c.descriptors())
@@ -436,10 +459,31 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&renphobike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &renphobike::changeInclination);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &renphobike::ftmsCharacteristicChanged);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+
+    if (!autoResistanceEnable) {
+        qDebug() << QStringLiteral(
+            "routing FTMS packet to the bike from virtualbike discarded because auto resistance is disabled");
+        return;
+    }
+
+    lastFTMSPacketReceived.clear();
+    for (int i = 0; i < newValue.length(); i++)
+        lastFTMSPacketReceived.append(newValue.at(i));
+
+    if (gattWriteCharControlPointId.isValid()) {
+        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ')
+                 << lastFTMSPacketReceived.toHex(' ');
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);
+    }
 }
 
 void renphobike::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {
@@ -555,11 +599,22 @@ uint8_t renphobike::resistanceFromPowerRequest(uint16_t power)
 }*/
 
 double renphobike::bikeResistanceToPeloton(double resistance) {
-    // 0,0069x2 + 0,3538x + 24,207
-    double p = ((0.0069 * pow(resistance, 2)) + (0.3538 * resistance) + 24.207);
-    if (p < 0)
-        p = 0;
-    return p;
+    QSettings settings;
+    bool renpho_peloton_conversion_v2 = settings.value(QStringLiteral("renpho_peloton_conversion_v2"), false).toBool();
+
+    if (!renpho_peloton_conversion_v2) {
+        // 0,0069x2 + 0,3538x + 24,207
+        double p = ((0.0069 * pow(resistance, 2)) + (0.3538 * resistance) + 24.207);
+        if (p < 0)
+            p = 0;
+        return p;
+    } else {
+        // y = 0,0283x2 + 0,6748x + 24,518
+        double p = ((0.0283 * pow(resistance, 2)) + (0.6748 * resistance) + 24.518);
+        if (p < 0)
+            p = 0;
+        return p;
+    }
 }
 
 bool renphobike::connected() {

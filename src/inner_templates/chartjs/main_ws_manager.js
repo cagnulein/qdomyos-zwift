@@ -115,7 +115,7 @@ function main_ws_connect() {
         console.log('Socket is closed. Reconnect will be attempted in 30 second.', e.reason);
         setTimeout(function() {
             main_ws_connect();
-        }, 30000);
+        }, 5000);
     };
 
     socket.onerror = function(err) {

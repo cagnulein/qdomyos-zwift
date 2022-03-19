@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -41,25 +42,28 @@ class echelonstride : public treadmill {
     bool connected() override;
 
     void *VirtualTreadMill();
+    double minStepInclination() override;
     void *VirtualDevice() override;
+
+    bool autoPauseWhenSpeedIsZero() override;
+    bool autoStartWhenSpeedIsGreaterThenZero() override;
 
   private:
     double GetSpeedFromPacket(QByteArray packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(QByteArray packet);
     double GetDistanceFromPacket(QByteArray packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit();
     void sendPoll();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    volatile bool incompletePackets = false;
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
-    bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     uint8_t counterPoll = 1;
@@ -67,8 +71,12 @@ class echelonstride : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
+
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
+    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
@@ -90,7 +98,6 @@ class echelonstride : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
 
@@ -99,6 +106,7 @@ class echelonstride : public treadmill {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

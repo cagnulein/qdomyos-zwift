@@ -15,7 +15,6 @@ class bike : public bluetoothdevice {
     metric lastRequestedCadence();
     metric lastRequestedPower();
     virtual metric currentResistance();
-    virtual metric currentCadence();
     virtual uint8_t fanSpeed();
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
@@ -24,6 +23,7 @@ class bike : public bluetoothdevice {
     virtual int pelotonToBikeResistance(int pelotonResistance);
     virtual uint8_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(int8_t requestResistance);
+    virtual bool ergManagedBySS2K() { return false; }
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
@@ -32,6 +32,7 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate();
     void setGears(int8_t d);
     int8_t gears();
+    metric currentSteeringAngle() { return m_steeringAngle; }
 
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
@@ -41,11 +42,14 @@ class bike : public bluetoothdevice {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void changeInclination(double grade, double percentage);
+    virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
+    virtual void resistanceFromFTMSAccessory(int8_t res) { Q_UNUSED(res); }
 
   Q_SIGNALS:
     void bikeStarted();
     void resistanceChanged(int8_t resistance);
     void resistanceRead(int8_t resistance);
+    void steeringAngleChanged(double angle);
 
   protected:
     metric RequestedResistance;
@@ -66,6 +70,8 @@ class bike : public bluetoothdevice {
     double CrankRevs = 0;
 
     metric m_pelotonResistance;
+
+    metric m_steeringAngle;
 };
 
 #endif // BIKE_H

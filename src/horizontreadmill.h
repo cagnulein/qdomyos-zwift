@@ -29,6 +29,7 @@
 #include <QString>
 
 #include "treadmill.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -46,15 +47,19 @@ class horizontreadmill : public treadmill {
     void *VirtualTreadmill();
     void *VirtualDevice();
 
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
+
   private:
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
-                             bool wait_for_response = false);
+    void writeCharacteristic(QLowEnergyService *service, QLowEnergyCharacteristic characteristic, uint8_t *data,
+                             uint8_t data_len, QString info, bool disable_log = false, bool wait_for_response = false);
     void waitForAPacket();
     void startDiscover();
     void btinit();
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
+    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
@@ -65,10 +70,14 @@ class horizontreadmill : public treadmill {
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
+    QByteArray lastPacketComplete;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    bool firstDistanceCalculated = false;
     uint8_t firstStateChanged = 0;
     double lastSpeed = 0.0;
     double lastInclination = 0;
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     bool initDone = false;
     bool initRequest = false;
@@ -107,6 +116,8 @@ class horizontreadmill : public treadmill {
     void update();
     void error(QLowEnergyController::Error err);
     void errorService(QLowEnergyService::ServiceError);
+
+    void changeInclinationRequested(double grade, double percentage);
 };
 
 #endif // HORIZONTREADMILL_H

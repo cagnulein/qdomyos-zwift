@@ -63,7 +63,7 @@ void MainWindow::update() {
         ui->speed->setText(QString::number(bluetoothManager->device()->currentSpeed().value(), 'f', 2));
         ui->heartrate->setText(QString::number(bluetoothManager->device()->currentHeart().value()));
         ui->odometer->setText(QString::number(bluetoothManager->device()->odometer(), 'f', 2));
-        ui->calories->setText(QString::number(bluetoothManager->device()->calories(), 'f', 0));
+        ui->calories->setText(QString::number(bluetoothManager->device()->calories().value(), 'f', 0));
         ui->fanBar->setValue(bluetoothManager->device()->fanSpeed());
 
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -84,7 +84,7 @@ void MainWindow::update() {
             ui->watt->setText(QString::number(watts, 'f', 0));
             ui->inclination->setText(QString::number(inclination, 'f', 1));
             ui->elevationGain->setText(
-                QString::number(((treadmill *)bluetoothManager->device())->elevationGain(), 'f', 1));
+                QString::number(((treadmill *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
             cadence = ((bike *)bluetoothManager->device())->currentCadence().value();
@@ -162,7 +162,8 @@ void MainWindow::update() {
         SessionLine s(bluetoothManager->device()->currentSpeed().value(), inclination,
                       bluetoothManager->device()->odometer(), watts, resistance, peloton_resistance,
                       (uint8_t)bluetoothManager->device()->currentHeart().value(), pace, cadence,
-                      bluetoothManager->device()->calories(), bluetoothManager->device()->elevationGain(),
+                      bluetoothManager->device()->calories().value(),
+                      bluetoothManager->device()->elevationGain().value(),
                       bluetoothManager->device()->elapsedTime().second() +
                           (bluetoothManager->device()->elapsedTime().minute() * 60) +
                           (bluetoothManager->device()->elapsedTime().hour() * 3600),

@@ -77,7 +77,8 @@ void shuaa5treadmill::update() {
     }
 
     if (initRequest && firstStateChanged) {
-        // btinit(); // commented because this means starting the tape
+        uint8_t initData01[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
 
