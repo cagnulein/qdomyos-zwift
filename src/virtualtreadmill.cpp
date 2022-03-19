@@ -446,7 +446,7 @@ void virtualtreadmill::treadmillProvider() {
             }
 
             QLowEnergyCharacteristic characteristic =
-                serviceHR->characteristic(QBluetoothUuid::CharacteristicType::RSCMeasurement);
+                serviceHR->characteristic(QBluetoothUuid::CharacteristicType::HeartRateMeasurement);
             Q_ASSERT(characteristic.isValid());
             if (leController->state() != QLowEnergyController::ConnectedState) {
                 qDebug() << QStringLiteral("virtual treadmill not connected");
