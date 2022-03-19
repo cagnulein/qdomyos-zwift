@@ -57,8 +57,6 @@ class virtualtreadmill : public QObject {
     CharacteristicNotifier2A37 *notif2A37 = 0;
     DirconManager *dirconManager = 0;
 
-    uint64_t lastSlopeChanged = 0;
-
     bool noHeartService = false;
 
     bool m_autoInclinationEnabled = false;

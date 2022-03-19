@@ -885,7 +885,7 @@ void virtualbike::bikeProvider() {
     if (lastFTMSFrameReceived > 0 &&
         (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
         qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
-        powerChanged(((bike *)Bike)->lastRequestedPower().value());
+        writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
     }
 
     if (!echelon && !ifit) {

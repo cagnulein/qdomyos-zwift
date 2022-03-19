@@ -1,3 +1,4 @@
+#include <QSettings>
 #include "characteristicnotifier2ad2.h"
 #include "elliptical.h"
 
