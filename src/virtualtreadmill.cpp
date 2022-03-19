@@ -364,6 +364,7 @@ void virtualtreadmill::treadmillProvider() {
 
     if (ftmsServiceEnable()) {
         if (ftmsTreadmillEnable()) {
+            value.clear();
             if (notif2ACD->notify(value) == CN_OK) {
                 if (!serviceFTMS) {
                     qDebug() << QStringLiteral("service not available");
@@ -386,6 +387,7 @@ void virtualtreadmill::treadmillProvider() {
                 }
             }
         }
+        value.clear();
         if (notif2AD2->notify(value) == CN_OK) {
             if (!serviceFTMS) {
                 qDebug() << QStringLiteral("serviceFIT not available");
@@ -409,6 +411,7 @@ void virtualtreadmill::treadmillProvider() {
         }
     }
     if (RSCEnable()) {
+        value.clear();
         if (notif2A53->notify(value) == CN_OK) {
             if (!serviceRSC) {
                 qDebug() << QStringLiteral("serviceFIT not available");
@@ -438,6 +441,7 @@ void virtualtreadmill::treadmillProvider() {
     // service->readCharacteristic(characteristic);
 
     if (noHeartService == false) {
+        value.clear();
         if (notif2A53->notify(value) == CN_OK) {
             if (!serviceHR) {
                 qDebug() << QStringLiteral("serviceFIT not available");

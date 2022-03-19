@@ -891,7 +891,7 @@ void virtualbike::bikeProvider() {
     if (!echelon && !ifit) {
         if (!heart_only) {
             if (!cadence && !power) {
-
+                value.clear();
                 if (notif2AD2->notify(value) == CN_OK) {
                     if (!serviceFIT) {
                         qDebug() << QStringLiteral("serviceFIT not available");
@@ -910,7 +910,7 @@ void virtualbike::bikeProvider() {
                     writeCharacteristic(serviceFIT, characteristic, value);
                 }
             } else if (power) {
-
+                value.clear();
                 if (notif2A63->notify(value) == CN_OK) {
 
                     if (!service) {
@@ -930,6 +930,7 @@ void virtualbike::bikeProvider() {
                     writeCharacteristic(service, characteristic, value);
                 }
             } else {
+                value.clear();
                 if (notif2A5B->notify(value) == CN_OK) {
 
                     if (!service) {
