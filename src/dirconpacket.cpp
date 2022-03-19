@@ -2,16 +2,19 @@
 
 DirconPacket::DirconPacket() {}
 
-QString DirconPacket::toString() const {
-    return QString(QStringLiteral("vers=%1 Id=%2 sn=%3 resp=%4 len=%5 req?=%8 uuid=%6 dat=%7"))
+DirconPacket::operator QString() const {
+    QString us = QString();
+    foreach (quint16 u, uuids) { us += QString(QStringLiteral("%1,")).arg(u, 4, 16, QLatin1Char('0')); }
+    return QString(QStringLiteral("vers=%1 Id=%2 sn=%3 resp=%4 len=%5 req?=%8 uuid=%6 dat=%7 uuids=[%9]"))
         .arg(MessageVersion)
         .arg(Identifier)
         .arg(SequenceNumber)
         .arg(ResponseCode)
         .arg(Length)
-        .arg(uuid)
+        .arg(uuid, 4, 16, QLatin1Char('0'))
         .arg(additional_data.toHex().constData())
-        .arg(isRequest);
+        .arg(isRequest)
+        .arg(us);
 }
 
 int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {

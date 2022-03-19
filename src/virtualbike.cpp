@@ -826,6 +826,7 @@ void virtualbike::bikeProvider() {
                                       (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
                                       Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
             h->virtualbike_setHeartRate(Bike->currentHeart().value());
+
             uint8_t ftms_message[255];
             int ret = h->virtualbike_getLastFTMSMessage(ftms_message);
             if (ret > 0) {

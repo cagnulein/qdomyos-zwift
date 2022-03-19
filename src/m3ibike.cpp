@@ -620,7 +620,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 && !h
 #endif
-            ) {
+                ) {
                 bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
@@ -644,7 +644,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #else
                                 2500
 #endif
-                );
+                                );
                 m_jouls = 0;
             }
             emit connectedAndDiscovered();

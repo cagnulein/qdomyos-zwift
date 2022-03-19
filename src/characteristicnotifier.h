@@ -8,9 +8,12 @@
 
 class CharacteristicNotifier : public QObject {
     Q_OBJECT
+    quint16 my_uuid;
+
   public:
-    explicit CharacteristicNotifier(QObject *parent = nullptr) : QObject(parent) {}
+    explicit CharacteristicNotifier(quint16 uuid, QObject *parent = nullptr) : QObject(parent), my_uuid(uuid) {}
     virtual int notify(QByteArray &out) = 0;
+    quint16 uuid() const { return my_uuid; }
   signals:
 };
 
