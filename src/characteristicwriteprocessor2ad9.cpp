@@ -80,13 +80,22 @@ void CharacteristicWriteProcessor2AD9::slopeChanged(int16_t iresistance) {
     QSettings settings;
     bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
     bool erg_mode = settings.value(QStringLiteral("zwift_erg"), false).toBool();
+    bool zwift_negative_inclination_x2 =
+        settings.value(QStringLiteral("zwift_negative_inclination_x2"), false).toBool();
+    double offset = settings.value(QStringLiteral("zwift_inclination_offset"), 0.0).toDouble();
+    double gain = settings.value(QStringLiteral("zwift_inclination_gain"), 1.0).toDouble();
 
     qDebug() << QStringLiteral("new requested resistance zwift erg grade ") + QString::number(iresistance) +
                     QStringLiteral(" enabled ") + force_resistance;
     double resistance = ((double)iresistance * 1.5) / 100.0;
     qDebug() << QStringLiteral("calculated erg grade ") + QString::number(resistance);
 
-    emit changeInclination(iresistance / 100.0, qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0);
+    if (iresistance >= 0 || !zwift_negative_inclination_x2)
+        emit changeInclination(((iresistance / 100.0) * gain) + offset,
+                               ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
+    else
+        emit changeInclination((((iresistance / 100.0) * 2.0) * gain) + offset,
+                               (((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * 2.0) * gain) + offset);
 
     if (force_resistance && !erg_mode) {
         // same on the training program

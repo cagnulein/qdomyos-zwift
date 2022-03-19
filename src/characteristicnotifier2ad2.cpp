@@ -5,6 +5,10 @@ CharacteristicNotifier2AD2::CharacteristicNotifier2AD2(bluetoothdevice *Bike, QO
 
 int CharacteristicNotifier2AD2::notify(QByteArray &value) {
     uint16_t normalizeSpeed = (uint16_t)qRound(Bike->currentSpeed().value() * 100);
+    double normalizeWattage = Bike->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
     value.append((char)0x64); // speed, inst. cadence, resistance lvl, instant power
     value.append((char)0x02); // heart rate
 
@@ -17,10 +21,10 @@ int CharacteristicNotifier2AD2::notify(QByteArray &value) {
     value.append((char)Bike->currentResistance().value()); // resistance
     value.append((char)(0));                               // resistance
 
-    value.append((char)(((uint16_t)Bike->wattsMetric().value()) & 0xFF));      // watts
-    value.append((char)(((uint16_t)Bike->wattsMetric().value()) >> 8) & 0xFF); // watts
+    value.append((char)(((uint16_t)normalizeWattage) & 0xFF));      // watts
+    value.append((char)(((uint16_t)normalizeWattage) >> 8) & 0xFF); // watts
 
     value.append(char(Bike->currentHeart().value())); // Actual value.
-    value.append((char)0);
+    value.append((char)0);                            // Bkool FTMS protocol HRM offset 1280 fix
     return CN_OK;
 }
