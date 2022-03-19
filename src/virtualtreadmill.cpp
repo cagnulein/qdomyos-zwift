@@ -10,6 +10,7 @@ using namespace std::chrono_literals;
 virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     QSettings settings;
     treadMill = t;
+
     this->noHeartService = noHeartService;
     if (settings.value("dircon_yes", false).toBool()) {
         dirconManager = new DirconManager(t, 0, 0, this);
@@ -27,6 +28,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(0, 0, t, this);
     connect(writeP2AD9, SIGNAL(changeInclination(grade, perc)), this, SIGNAL(changeInclination(grade, perc)));
     connect(writeP2AD9, SIGNAL(slopeChanged()), this, SLOT(slopeChanged()));
+
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
@@ -283,6 +285,7 @@ void virtualtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
 void virtualtreadmill::slopeChanged() {
     lastSlopeChanged = QDateTime::currentSecsSinceEpoch();
+
     if (treadMill && treadMill->autoResistance())
         m_autoInclinationEnabled = true;
     else
@@ -292,6 +295,7 @@ void virtualtreadmill::slopeChanged() {
 void virtualtreadmill::reconnect() {
     QSettings settings;
     bool bluetooth_relaxed = settings.value(QStringLiteral("bluetooth_relaxed"), false).toBool();
+    bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();
 
     if (bluetooth_relaxed) {
         return;
@@ -318,6 +322,7 @@ void virtualtreadmill::reconnect() {
 void virtualtreadmill::treadmillProvider() {
     const uint64_t slopeTimeoutSecs = 30;
     QSettings settings;
+
     if ((uint64_t)QDateTime::currentSecsSinceEpoch() > lastSlopeChanged + slopeTimeoutSecs)
         m_autoInclinationEnabled = false;
 
@@ -327,7 +332,7 @@ void virtualtreadmill::treadmillProvider() {
         uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
         // really connected to a device
         if (h->virtualtreadmill_updateFTMS(normalizeSpeed, 0,
-                                           (uint16_t)((treadmill *)treadMill)->currentCadence().value() * 2,
+                                           (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
                                            (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
@@ -467,6 +472,7 @@ bool virtualtreadmill::connected() {
 // Android<10 RSC  |      X        |                     |     X     |  X  |   X
 // Android>9 FTMS  |      X        |          X          |     X     |     |
 // Android>9 RSC   |               |                     |           |  X  |
+
 bool virtualtreadmill::ftmsServiceEnable() {
     QSettings settings;
     bool cadence = settings.value(QStringLiteral("run_cadence_sensor"), false).toBool();

@@ -58,6 +58,9 @@ void fakebike::update() {
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            connect(virtualBike, &virtualbike::changeInclination, this,
+                    &fakebike::changeInclinationRequested);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
         }
     }
     if(!firstStateChanged) emit connectedAndDiscovered();
@@ -95,6 +98,22 @@ void fakebike::update() {
     #endif
     #endif
     }
+
+    if (requestResistance != -1 && requestResistance != currentResistance().value()) {
+        Resistance = requestResistance;
+        m_pelotonResistance = requestResistance;
+    }
+}
+
+void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+    QByteArray b = newValue;    
+    qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
+}
+
+void fakebike::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
 }
 
 bool fakebike::connected() {

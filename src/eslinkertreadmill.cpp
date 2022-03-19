@@ -26,7 +26,7 @@ eslinkertreadmill::eslinkertreadmill(uint32_t pollDeviceTime, bool noConsole, bo
     refresh = new QTimer(this);
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &eslinkertreadmill::update);
-    refresh->start(pollDeviceTime);
+    refresh->start(500ms);
 }
 
 void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -38,8 +38,8 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         connect(this, &eslinkertreadmill::packetReceived, &loop, &QEventLoop::quit);
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     } else {
-        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        // connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop,
+        // &QEventLoop::quit); timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
     gattCommunicationChannelService->writeCharacteristic(
@@ -50,10 +50,13 @@ void eslinkertreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, con
                    QStringLiteral(" // ") + info);
     }
 
-    loop.exec();
+    // packets sent from the characChanged event, i don't want to block everything
+    if (wait_for_response) {
+        loop.exec();
 
-    if (timeout.isActive() == false)
-        emit debug(QStringLiteral(" exit for timeout"));
+        if (timeout.isActive() == false)
+            emit debug(QStringLiteral(" exit for timeout"));
+    }
 }
 
 void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
@@ -64,36 +67,40 @@ void eslinkertreadmill::updateDisplay(uint16_t elapsed) {
         writeCharacteristic(display, sizeof(display),
                             QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
     } else {
-        uint8_t display[] = {0x01, 0x01, 0x00};
-        display[2] = currentSpeed().value();
-
-        writeCharacteristic(display, sizeof(display),
-                            QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, false);
     }
 }
 
-/*
-void eslinkertreadmill::forceSpeed(double requestSpeed)
-{
-   uint8_t writeIncline[] = { 0xa9, 0x01, 0x01, 0x00, 0x00 };
+void eslinkertreadmill::forceIncline(double requestIncline) {
+    if (treadmill_type == CADENZA_FITNESS_T45) {
+        uint8_t display[] = {0x04, 0x01, 0x00};
+        display[2] = requestIncline;
 
-   writeIncline[3] = ((uint8_t)(requestSpeed*10));
-
-   for(uint8_t i=0; i<sizeof(writeIncline)-1; i++)
-   {
-      writeIncline[4] += writeIncline[i]; // the last byte is a sort of a checksum
-   }
-
-   writeCharacteristic(writeIncline, sizeof(writeIncline), "forceSpeed speed=" + QString::number(requestSpeed), false,
-false);
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceIncline inclination=") + QString::number(requestIncline), false, true);
+    }
 }
-*/
+
+double eslinkertreadmill::minStepInclination() { return 1.0; }
+
+void eslinkertreadmill::forceSpeed(double requestSpeed) {
+    if (treadmill_type == CADENZA_FITNESS_T45) {
+        uint8_t display[] = {0x01, 0x01, 0x00};
+        display[2] = requestSpeed * 10;
+
+        writeCharacteristic(display, sizeof(display),
+                            QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, true);
+    }
+}
 
 void eslinkertreadmill::update() {
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
     }
+
+    qDebug() << m_control->state() << bluetoothDevice.isValid() << gattCommunicationChannelService
+             << gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone << treadmill_type
+             << requestSpeed << requestInclination;
 
     if (initRequest) {
         initRequest = false;
@@ -103,7 +110,7 @@ void eslinkertreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !virtualTreadMill) {
+        if (!firstInit && !virtualTreadMill) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
@@ -122,9 +129,7 @@ void eslinkertreadmill::update() {
             updateDisplay(elapsed.value());
         }
 
-        // byte 3 - 4 = elapsed time
-        // byte 17    = inclination
-        if (incompletePackets == false) {
+        if (treadmill_type == TYPE::RHYTHM_FUN) {
             if (requestSpeed != -1) {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
@@ -133,7 +138,7 @@ void eslinkertreadmill::update() {
                         //                        inc = requestInclination;
                         requestInclination = -1;
                     }
-                    // forceSpeedOrIncline(requestSpeed, inc);
+                    forceSpeed(requestSpeed);
                 }
                 requestSpeed = -1;
             }
@@ -146,24 +151,66 @@ void eslinkertreadmill::update() {
                         // speed = requestSpeed;
                         requestSpeed = -1;
                     }
-                    // forceSpeedOrIncline(speed, requestInclination);
+                    forceIncline(requestInclination);
                 }
                 requestInclination = -1;
             }
-            if (requestStart != -1) {
-                emit debug(QStringLiteral("starting..."));
-                if (lastSpeed == 0.0) {
-                    lastSpeed = 0.5;
+        } else {
+            if (requestVar2) {
+                uint8_t display[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
+                writeCharacteristic(display, sizeof(display), QStringLiteral("var2"), false, true);
+                requestHandshake = (1000 / refresh->interval());
+                uint8_t display1[] = {0x09, 0x01, 0x01};
+                writeCharacteristic(display1, sizeof(display1), QStringLiteral("speedslope"), false, true);
+                uint8_t display2[] = {0x09, 0x01, 0x02};
+                writeCharacteristic(display2, sizeof(display2), QStringLiteral("speedslope2"), false, true);
+                requestVar2 = false;
+            }
+            if (requestHandshake) {
+                requestHandshake--;
+                if (!requestHandshake) {
+                    uint8_t display[] = {0x08, 0x03, 0x00, 0x00, 0x00};
+                    display[2] = 0;
+                    display[3] = (uint8_t)(display[2] ^ 245);
+                    display[4] = (uint8_t)(display[2] ^ 66);
+                    writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, true);
                 }
+            } else {
+                // we need always to send values
+                if (requestSpeed != -1 && requestInclination != -1) {
+                    if (requestSpeed >= 0 && requestSpeed <= 20 && !toggleRequestSpeed) {
+                        lastStart = 0;
+                        forceSpeed(requestSpeed);
+                        Speed = requestSpeed;
+                        if (requestSpeed == 0)
+                            lastStop = 0;
+                    } else {
+                        if (requestInclination > 18)
+                            requestInclination = 18;
+                        forceIncline(requestInclination);
+                        Inclination = requestInclination;
+                    }
+                    toggleRequestSpeed = !toggleRequestSpeed;
+                }
+            }
+        }
+
+        if (requestStart != -1) {
+            emit debug(QStringLiteral("starting..."));
+            if (lastSpeed == 0.0) {
+                lastSpeed = 0.5;
+            }
+            if (treadmill_type == TYPE::RHYTHM_FUN)
                 btinit(true);
-                requestStart = -1;
-                emit tapeStarted();
-            }
-            if (requestStop != -1) {
-                emit debug(QStringLiteral("stopping..."));
-                // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
-                requestStop = -1;
-            }
+            requestSpeed = 1.0;
+            requestStart = -1;
+            emit tapeStarted();
+        }
+        if (requestStop != -1) {
+            requestSpeed = 0;
+            emit debug(QStringLiteral("stopping..."));
+            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape", false, true);
+            requestStop = -1;
         }
     }
 }
@@ -176,74 +223,151 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
                                               const QByteArray &newValue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
-    // QString heartRateBeltName = settings.value(QStringLiteral("heart_rate_belt_name"), //Unused variable
-    // QStringLiteral("Disabled")).toString();
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(value.length()) + QStringLiteral(" ") + value.toHex(' '));
 
-    if ((uint8_t)newValue.at(0) != 0xA9) {
-        emit debug(QStringLiteral("CADENZA_FITNESS_T45 protocol"));
-        treadmill_type = CADENZA_FITNESS_T45;
-    }
-
     emit packetReceived();
 
-    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN) ||
-        (newValue.length() != 15 && treadmill_type == CADENZA_FITNESS_T45))
+    if (treadmill_type == CADENZA_FITNESS_T45) {
+        if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
+            newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
+            if (requestSpeed == -1 || requestInclination == -1) {
+                requestSpeed = 0;
+                requestInclination = 0;
+                qDebug() << QStringLiteral("we can start send force commands");
+            }
+            requestVar2 = true;
+        } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1 && newValue.at(2) == -1) {
+            uint8_t display[] = {0x08, 0x01, 0x01};
+
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var1"), false, false);
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 1) {
+            if (requestSpeed <= 0)
+                requestSpeed = 1;
+            qDebug() << QStringLiteral("Start received!");
+            lastStart = QDateTime::currentMSecsSinceEpoch();
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 2) {
+            requestSpeed = 0;
+            qDebug() << QStringLiteral("Stop received!");
+            lastStop = QDateTime::currentMSecsSinceEpoch();
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 5) {
+            requestInclination += 1;
+            qDebug() << QStringLiteral("Elevation UP received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 6) {
+            if (requestInclination >= 1)
+                requestInclination -= 1;
+            else
+                requestInclination = 0;
+            qDebug() << QStringLiteral("Elevation DOWN received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 3) {
+            requestSpeed += 0.5;
+            qDebug() << QStringLiteral("Speed UP received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 5 && newValue.at(1) == 1 && newValue.at(2) == 4) {
+            if (requestSpeed >= 0.5)
+                requestSpeed -= 0.5;
+            else
+                requestSpeed = 0;
+            qDebug() << QStringLiteral("Speed DOWN received!");
+        } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1) {
+            uint8_t display[] = {0x08, 0x01, 0x01};
+            if (requestSpeed == -1 || requestInclination == -1) {
+                requestSpeed = 0;
+                requestInclination = 0;
+                qDebug() << QStringLiteral("we can start send force commands");
+            }
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var1"), false, false);
+        } else if (newValue.length() == 5 && newValue.at(0) == 8 && newValue.at(1) == 3 &&
+                   (uint8_t)newValue.at(3) == (uint8_t)(newValue.at(2) ^ 245) &&
+                   (uint8_t)newValue.at(4) == (uint8_t)(newValue.at(2) ^ 222)) {
+            uint8_t display[] = {0x08, 0x03, 0x00, 0x00, 0x00};
+            display[2] = newValue.at(4);
+            display[3] = (uint8_t)(newValue.at(4) ^ 245);
+            display[4] = (uint8_t)(newValue.at(4) ^ 66);
+            writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, false);
+        } else if (newValue.length() == 4 && newValue.at(0) == 8 && newValue.at(1) == 2) {
+            if (requestSpeed == -1 || requestInclination == -1) {
+                qDebug() << QStringLiteral("we can start send force commands");
+                requestSpeed = 0;
+                requestInclination = 0;
+            }
+        } else if (newValue.length() == 3 && newValue.at(0) == 2 && newValue.at(1) == 1) {
+            uint8_t heart = newValue.at(2);
+#ifdef Q_OS_ANDROID
+            if (settings.value("ant_heart", false).toBool())
+                Heart = (uint8_t)KeepAwakeHelper::heart();
+            else
+#endif
+            {
+                if (heartRateBeltName.startsWith("Disabled"))
+                    Heart = heart;
+            }
+            emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+        }
+    }
+
+    if ((newValue.length() != 17 && treadmill_type == RHYTHM_FUN))
         return;
 
-    // adding this in order to have the same frame structure to the parser
-    if (treadmill_type == CADENZA_FITNESS_T45)
-        value.insert((int)0, 0xa9);
-
-    double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
-    double kcal = GetKcalFromPacket(value);
-    // double distance = GetDistanceFromPacket(value);
+    if (treadmill_type == RHYTHM_FUN) {
+        double speed = GetSpeedFromPacket(value);
+        double incline = GetInclinationFromPacket(value);
+        double kcal = GetKcalFromPacket(value);
+        // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        /*if(heartRateBeltName.startsWith("Disabled"))
+        {
+            /*if(heartRateBeltName.startsWith("Disabled"))
             Heart = value.at(18);*/
+        }
+        emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+        // debug("Current Distance: " + QString::number(distance));
+
+        if (Speed.value() != speed) {
+            emit speedChanged(speed);
+        }
+        Speed = speed;
+        if (Inclination.value() != incline) {
+            emit inclinationChanged(0.0, incline);
+        }
+        Inclination = incline;
+
+        KCal = kcal;
+        // Distance = distance;
+
+        if (speed > 0) {
+            lastSpeed = speed;
+            lastInclination = incline;
+        }
     }
 
     if (!firstCharacteristicChanged) {
-        Distance +=
-            ((speed / 3600.0) / (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+        if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
+            KCal +=
+                ((((0.048 * ((double)watts(settings.value(QStringLiteral("weight"), 75.0).toFloat())) + 1.19) *
+                   settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                  200.0) /
+                 (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
+
+        Distance += ((Speed.value() / 3600.0) /
+                     (1000.0 / (lastTimeCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
     }
 
-    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
-    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-    // debug("Current Distance: " + QString::number(distance));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
 
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
-    }
-
-    if (Speed.value() != speed) {
-        emit speedChanged(speed);
-    }
-    Speed = speed;
-    if (Inclination.value() != incline) {
-        emit inclinationChanged(0.0, incline);
-    }
-    Inclination = incline;
-
-    KCal = kcal;
-    // Distance = distance;
-
-    if (speed > 0) {
-        lastSpeed = speed;
-        lastInclination = incline;
     }
 
     lastTimeCharacteristicChanged = QDateTime::currentDateTime();
@@ -291,11 +415,10 @@ void eslinkertreadmill::btinit(bool startTape) {
     uint8_t initData12[] = {0xa9, 0xa0, 0x03, 0x02, 0x08, 0x00, 0x00};
 
     uint8_t initData2_CADENZA[] = {0x08, 0x01, 0x01};
-    uint8_t initData3_CADENZA[] = {0x08, 0x04, 0x01, 0x00, 0x00, 0x01};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
     if (treadmill_type == RHYTHM_FUN) {
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
         writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
         writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
@@ -312,7 +435,6 @@ void eslinkertreadmill::btinit(bool startTape) {
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, true);
     } else {
         writeCharacteristic(initData2_CADENZA, sizeof(initData2_CADENZA), QStringLiteral("init"), false, true);
-        writeCharacteristic(initData3_CADENZA, sizeof(initData3_CADENZA), QStringLiteral("init"), false, true);
     }
 
     initDone = true;
@@ -404,7 +526,6 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     Q_UNUSED(error);
                     Q_UNUSED(this);
                     emit debug(QStringLiteral("Cannot connect to remote device."));
-                    searchStopped = false;
                     emit disconnected();
                 });
         connect(m_control, &QLowEnergyController::connected, this, [this]() {
@@ -415,9 +536,15 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
             Q_UNUSED(this);
             emit debug(QStringLiteral("LowEnergy controller disconnected"));
-            searchStopped = false;
             emit disconnected();
         });
+
+        QSettings settings;
+        bool eslinker_cadenza = settings.value(QStringLiteral("eslinker_cadenza"), true).toBool();
+        if (eslinker_cadenza) {
+            treadmill_type = CADENZA_FITNESS_T45;
+        } else
+            treadmill_type = RHYTHM_FUN;
 
         // Connect
         m_control->connectToDevice();
@@ -445,4 +572,16 @@ void *eslinkertreadmill::VirtualTreadMill() { return virtualTreadMill; }
 
 void *eslinkertreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
-void eslinkertreadmill::searchingStop() { searchStopped = true; }
+bool eslinkertreadmill::autoPauseWhenSpeedIsZero() {
+    if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))
+        return true;
+    else
+        return false;
+}
+
+bool eslinkertreadmill::autoStartWhenSpeedIsGreaterThenZero() {
+    if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
+        return true;
+    else
+        return false;
+}

@@ -27,6 +27,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QUdpSocket>
 
 #include "bike.h"
 #include "ftmsbike.h"
@@ -40,26 +41,33 @@ class smartspin2k : public bike {
 
     Q_OBJECT
   public:
-    smartspin2k(bool noWriteResistance, bool noHeartService);
+    smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice);
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
   private:
+    const int max_calibration_samples = 4;
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                                 bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
-    void setShiftStep();
+    void setShiftStep(uint16_t);
     void lowInit(int8_t resistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
 
+    QUdpSocket *udpSocket = new QUdpSocket();
+
     QLowEnergyService *gattCommunicationChannelService;
+    QLowEnergyService *gattCommunicationChannelServiceFTMS;
     QLowEnergyCharacteristic gattWriteCharacteristic;
+    QLowEnergyCharacteristic gattWriteCharControlPointId;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -68,11 +76,21 @@ class smartspin2k : public bike {
 
     bool initDone = false;
     bool initRequest = false;
+    bool first = true;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
 
     int8_t startupResistance = -1;
+    int8_t lastResistance;
+    int8_t lastRequestResistance;
+
+    uint8_t max_resistance;
+
+    double slope = 0.0;
+    double intercept = 0.0;
+
+    bike *parentDevice = nullptr;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -81,11 +99,14 @@ class smartspin2k : public bike {
   signals:
     void disconnected();
     void debug(QString string);
+    void gearUp();
+    void gearDown();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void resistanceReadFromTheBike(int8_t resistance);
     void autoResistanceChanged(bool value);
+    void calibrateShiftStep();
 
   private slots:
 
@@ -95,7 +116,10 @@ class smartspin2k : public bike {
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
+    void stateChangedFTMS(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+
+    void readPendingDatagrams();
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

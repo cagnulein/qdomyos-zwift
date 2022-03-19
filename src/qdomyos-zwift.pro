@@ -66,6 +66,7 @@ SOURCES += \
     qmdnsengine/src/src/server.cpp \
     qmdnsengine/src/src/service.cpp \
     activiotreadmill.cpp \
+   bhfitnesselliptical.cpp \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
@@ -73,20 +74,26 @@ SOURCES += \
     characteristicnotifier2a63.cpp \
     characteristicnotifier2ad2.cpp \
     characteristicwriteprocessor2ad9.cpp \
+   bowflext216treadmill.cpp \
+    bowflextreadmill.cpp \
    chronobike.cpp \
+    concept2skierg.cpp \
    cscbike.cpp \
     dirconmanager.cpp \
     dirconpacket.cpp \
     dirconprocessor.cpp \
 	 domyoselliptical.cpp \
+   domyosrower.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
    echelonrower.cpp \
    echelonstride.cpp \
    eliterizer.cpp \
+   elitesterzosmart.cpp \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
     fakebike.cpp \
+   filedownloader.cpp \
     fitmetria_fanfit.cpp \
    fitplusbike.cpp \
 	fitshowtreadmill.cpp \
@@ -126,16 +133,21 @@ SOURCES += \
    iconceptbike.cpp \
 	inspirebike.cpp \
 	keepawakehelper.cpp \
+   keepbike.cpp \
    kingsmithr1protreadmill.cpp \
    kingsmithr2treadmill.cpp \
 	     main.cpp \
    mcfbike.cpp \
 		metric.cpp \
+   nautiluselliptical.cpp \
+    nautilustreadmill.cpp \
     npecablebike.cpp \
    pafersbike.cpp \
+   paferstreadmill.cpp \
    peloton.cpp \
    powerzonepack.cpp \
 	proformbike.cpp \
+   proformelliptical.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
    renphobike.cpp \
@@ -145,6 +157,7 @@ SOURCES += \
 	sessionline.cpp \
    shuaa5treadmill.cpp \
 	signalhandler.cpp \
+   simplecrypt.cpp \
     skandikawiribike.cpp \
    smartrowrower.cpp \
    smartspin2k.cpp \
@@ -161,19 +174,26 @@ SOURCES += \
     smtpclient/src/quotedprintable.cpp \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
+   solebike.cpp \
    soleelliptical.cpp \
    solef80treadmill.cpp \
    spirittreadmill.cpp \
+   sportsplusbike.cpp \
    sportstechbike.cpp \
    strydrunpowersensor.cpp \
    tacxneo2.cpp \
     tcpclientinfosender.cpp \
+   technogymmyruntreadmill.cpp \
+    technogymmyruntreadmillrfcomm.cpp \
     templateinfosender.cpp \
     templateinfosenderbuilder.cpp \
    stagesbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
    trxappgateusbbike.cpp \
+   ultrasportbike.cpp \
+   virtualrower.cpp \
+   wahookickrsnapbike.cpp \
 		yesoulbike.cpp \
 		  trainprogram.cpp \
 		trxappgateusbtreadmill.cpp \
@@ -225,6 +245,7 @@ HEADERS += \
     qmdnsengine/src/src/server_p.h \
     qmdnsengine/src/src/service_p.h \
     activiotreadmill.h \
+   bhfitnesselliptical.h \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
@@ -234,26 +255,33 @@ HEADERS += \
     characteristicnotifier2ad2.h \
     characteristicwriteprocessor.h \
     characteristicwriteprocessor2ad9.h \
+   bowflext216treadmill.h \
+    bowflextreadmill.h \
    chronobike.h \
+    concept2skierg.h \
    cscbike.h \
     dirconmanager.h \
     dirconpacket.h \
     dirconprocessor.h \
 	 domyoselliptical.h \
+   domyosrower.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \
    echelonrower.h \
    echelonstride.h \
    eliterizer.h \
+   elitesterzosmart.h \
 	 elliptical.h \
    eslinkertreadmill.h \
     fakebike.h \
+   filedownloader.h \
     fitmetria_fanfit.h \
    fitplusbike.h \
     ftmsrower.h \
    homefitnessbuddy.h \
     horizongr7bike.h \
    iconceptbike.h \
+   keepbike.h \
    kingsmithr1protreadmill.h \
    kingsmithr2treadmill.h \
    m3ibike.h \
@@ -488,11 +516,15 @@ HEADERS += \
 	material.h \
    mcfbike.h \
 	metric.h \
+   nautiluselliptical.h \
+    nautilustreadmill.h \
     npecablebike.h \
    pafersbike.h \
+   paferstreadmill.h \
    peloton.h \
    powerzonepack.h \
 	proformbike.h \
+   proformelliptical.h \
 	proformtreadmill.h \
     qdebugfixup.h \
 	qfit.h \
@@ -504,6 +536,7 @@ HEADERS += \
 	sessionline.h \
    shuaa5treadmill.h \
 	signalhandler.h \
+   simplecrypt.h \
     skandikawiribike.h \
    smartrowrower.h \
    smartspin2k.h \
@@ -522,13 +555,17 @@ HEADERS += \
     smtpclient/src/smtpclient.h \
     smtpclient/src/smtpexports.h \
    snodebike.h \
+   solebike.h \
    soleelliptical.h \
    solef80treadmill.h \
    spirittreadmill.h \
+   sportsplusbike.h \
    sportstechbike.h \
    strydrunpowersensor.h \
    tacxneo2.h \
     tcpclientinfosender.h \
+   technogymmyruntreadmill.h \
+    technogymmyruntreadmillrfcomm.h \
     templateinfosender.h \
     templateinfosenderbuilder.h \
    stagesbike.h \
@@ -539,12 +576,17 @@ HEADERS += \
 	trainprogram.h \
    trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
+   ultrasportbike.h \
 	 virtualbike.h \
+   virtualrower.h \
 	virtualtreadmill.h \
 	 domyosbike.h \
+   wahookickrsnapbike.h \
         yesoulbike.h \
         scanrecordresult.h \
    zwiftworkout.h
+
+exists(secret.h): HEADERS += secret.h
 
 !ios: HEADERS += charts.h
 
@@ -609,7 +651,8 @@ ios {
 
     TARGET = qdomyoszwift
 	 QMAKE_TARGET_BUNDLE_PREFIX = org.cagnulein
+    DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.8.130
+VERSION = 2.10.48
 

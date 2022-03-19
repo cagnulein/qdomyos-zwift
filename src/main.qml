@@ -16,12 +16,16 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
     signal refresh_bluetooth_devices_clicked()
     signal strava_connect_clicked()
     signal loadSettings(url name)
     signal saveSettings(url name)
+    signal deleteSettings(url name)
+    signal saveProfile(string profilename)
+    signal restart()
     signal volumeUp()
     signal volumeDown()
 
@@ -29,6 +33,7 @@ ApplicationWindow {
 
     Settings {
         id: settings
+        property string profile_name: "default"
     }
 
     Popup {
@@ -86,6 +91,44 @@ ApplicationWindow {
          Label {
              anchors.horizontalCenter: parent.horizontalCenter
              text: qsTr("QZ Classifica is a realtime viewer about the actual\neffort of every QZ users! If you want to join in,\nchoose a nickname in the general settings\nand enable the QZ Classifica setting in the\nexperimental settings section and\nrestart the app.")
+            }
+         }
+    }
+
+    Popup {
+        id: popupWhatsOnZwiftHelper
+         parent: Overlay.overlay
+
+       x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 380
+         height: 130
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         onClosed: {
+             stackView.push("WebEngineTest.qml")
+             drawer.close()
+             stackView.currentItem.trainprogram_zwo_loaded.connect(trainprogram_zwo_loaded)
+             stackView.currentItem.trainprogram_zwo_loaded.connect(function(s) {
+                 stackView.pop();
+              });
+         }
+
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             text: qsTr("Browse the What's on Zwift workout library<br>and choose your workout. It will<br> be automatically loaded on QZ when you will<br>press the load button on the top!<br><br>QZ is not affiliated with Zwift<br>or https://whatsonzwift.com/ website.")
             }
          }
     }
@@ -341,6 +384,17 @@ ApplicationWindow {
             anchors.fill: parent
 
             ItemDelegate {
+                text: qsTr("Profile: ") + settings.profile_name
+                width: parent.width
+                onClicked: {
+                    toolButtonLoadSettings.visible = true;
+                    toolButtonSaveSettings.visible = true;
+                    stackView.push("profiles.qml")
+                    drawer.close()
+                }
+            }
+
+            ItemDelegate {
                 text: qsTr("Settings")
                 width: parent.width
                 onClicked: {
@@ -385,6 +439,15 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            /*
+            ItemDelegate {
+                text: qsTr("Whats On Zwift™")
+                width: parent.width
+                onClicked: {
+                    popupWhatsOnZwiftHelper.open()
+                }
+            }*/
+
             ItemDelegate {
                 id: gpx_save
                 text: qsTr("Save GPX")
@@ -441,7 +504,7 @@ ApplicationWindow {
                 }
             }
             ItemDelegate {
-                text: "version 2.8.130"
+                text: "version 2.10.48"
                 width: parent.width
             }
 				FileDialog {

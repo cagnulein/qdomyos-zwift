@@ -8,13 +8,17 @@
 
 import WatchKit
 import HealthKit
+import CoreMotion
 
 class MainController: WKInterfaceController {
     @IBOutlet weak var userNameLabel: WKInterfaceLabel!
     @IBOutlet weak var stepCountsLabel: WKInterfaceLabel!
+    @IBOutlet weak var caloriesLabel: WKInterfaceLabel!
+    @IBOutlet weak var distanceLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
     static var start: Bool! = false
+    let pedometer = CMPedometer()
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
@@ -28,6 +32,15 @@ class MainController: WKInterfaceController {
         super.willActivate()
         print("WILL ACTIVE")
         WorkoutTracking.shared.fetchStepCounts()
+        if CMPedometer.isStepCountingAvailable() {
+            pedometer.startUpdates(from: Date()) { pedometerData, error in
+                guard let pedometerData = pedometerData, error == nil else { return }
+                self.stepCountsLabel.setText("\(Int(((pedometerData.currentCadence?.doubleValue ?? 0) * 60.0 / 2.0))) STEP CAD.")
+                WatchKitConnection.stepCadence = Int(((pedometerData.currentCadence?.doubleValue ?? 0) * 60.0 / 2.0))
+                WatchKitConnection.shared.sendMessage(message: ["stepCadence":
+                    "\(WatchKitConnection.stepCadence)" as AnyObject])
+            }
+        }
     }
     
     override func didDeactivate() {
@@ -59,6 +72,7 @@ extension MainController {
 }
 
 extension MainController: WorkoutTrackingDelegate {
+    
     func didReceiveHealthKitDistanceCycling(_ distanceCycling: Double) {
         
     }
@@ -72,10 +86,17 @@ extension MainController: WorkoutTrackingDelegate {
             "\(heartRate)" as AnyObject])
         WorkoutTracking.distance = WatchKitConnection.distance
         WorkoutTracking.kcal = WatchKitConnection.kcal
+        
+        self.distanceLabel.setText("Distance \(Double(WorkoutTracking.distance))")
+        self.caloriesLabel.setText("KCal \(Int(WorkoutTracking.kcal))")
+        //WorkoutTracking.cadenceSteps = pedometer.
     }
     
     func didReceiveHealthKitStepCounts(_ stepCounts: Double) {
-        stepCountsLabel.setText("\(stepCounts) STEPS")
+        //stepCountsLabel.setText("\(stepCounts) STEPS")
+    }
+    func didReceiveHealthKitStepCadence(_ stepCadence: Double) {
+        
     }
 }
 

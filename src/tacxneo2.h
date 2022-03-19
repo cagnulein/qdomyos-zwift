@@ -37,7 +37,6 @@ class tacxneo2 : public bike {
     Q_OBJECT
   public:
     tacxneo2(bool noWriteResistance, bool noHeartService);
-    void changeInclination(double inclination);
     void changePower(int32_t power) override;
     bool connected() override;
 
@@ -48,15 +47,16 @@ class tacxneo2 : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    void forceInclination(double inclination);
     uint16_t watts() override;
 
     QTimer *refresh;
     virtualbike *virtualBike = 0;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
-    // QLowEnergyCharacteristic gattWriteCharControlPointId;
+    QLowEnergyCharacteristic gattWriteCharControlPointId;
     QLowEnergyCharacteristic gattWriteCharCustomId;
-    // QLowEnergyService* gattPowerService;
+    QLowEnergyService *gattPowerService = nullptr;
     QLowEnergyService *gattCustomService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;
 

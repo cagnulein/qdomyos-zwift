@@ -5,7 +5,7 @@
 #include "bluetoothdevice.h"
 #include <QObject>
 
-class rower : public bike {
+class rower : public bluetoothdevice {
     Q_OBJECT
 
   public:
@@ -15,7 +15,6 @@ class rower : public bike {
     metric lastRequestedCadence();
     metric lastRequestedPower();
     virtual metric currentResistance();
-    virtual metric currentCadence();
     virtual metric currentStrokesCount();
     virtual metric currentStrokesLength();
     virtual QTime currentPace();
@@ -46,10 +45,10 @@ class rower : public bike {
     void resistanceRead(int8_t resistance);
 
   protected:
-    metric Cadence;
     metric Resistance;
     metric RequestedResistance;
     metric RequestedPelotonResistance;
+    double requestInclination = -1;
     metric RequestedCadence;
     metric RequestedPower;
     metric StrokesLength;

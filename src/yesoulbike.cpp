@@ -142,9 +142,13 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     if (!settings.value(QStringLiteral("yesoul_peloton_formula"), false).toBool()) {
-        m_pelotonResistance = Resistance.value() * 0.88; // 15% lower than yesoul bike
+        m_pelotonResistance =
+            ((Resistance.value() * 0.88) * settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble(); // 15% lower than yesoul bike
     } else {
-        m_pelotonResistance = (Resistance.value() * 1.1099) - 20.769;
+        m_pelotonResistance = (((Resistance.value() * 1.1099) - 20.769) *
+                               settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+                              settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
     }
 
     if (Cadence.value() > 0) {

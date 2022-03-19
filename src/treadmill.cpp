@@ -4,22 +4,28 @@
 
 treadmill::treadmill() {}
 
-void treadmill::changeSpeed(double speed) { requestSpeed = speed; }
+void treadmill::changeSpeed(double speed) {
+    RequestedSpeed = speed;
+    if (autoResistanceEnable)
+        requestSpeed = speed;
+}
 void treadmill::changeInclination(double grade, double inclination) {
-    Q_UNUSED(grade);
+    Q_UNUSED(inclination);
+    RequestedInclination = grade;
     if (autoResistanceEnable) {
-        requestInclination = inclination;
+        requestInclination = grade;
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
-    requestSpeed = speed;
-    requestInclination = inclination;
+    changeSpeed(speed);
+    changeInclination(inclination, inclination);
 }
 metric treadmill::currentInclination() { return Inclination; }
 bool treadmill::connected() { return false; }
 bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }
 
 double treadmill::minStepInclination() { return 0.5; }
+double treadmill::minStepSpeed() { return 0.5; }
 
 void treadmill::update_metrics(bool watt_calc, const double watts) {
 

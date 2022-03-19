@@ -34,6 +34,9 @@ class eslinkertreadmill : public treadmill {
     eslinkertreadmill(uint32_t poolDeviceTime = 200, bool noConsole = false, bool noHeartService = false,
                       double forceInitSpeed = 0.0, double forceInitInclination = 0.0);
     bool connected();
+    double minStepInclination();
+    bool autoPauseWhenSpeedIsZero();
+    bool autoStartWhenSpeedIsGreaterThenZero();
 
     void *VirtualTreadMill();
     void *VirtualDevice();
@@ -43,28 +46,33 @@ class eslinkertreadmill : public treadmill {
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    void forceSpeedOrIncline(double requestSpeed, double requestIncline);
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    volatile bool incompletePackets = false;
     bool noConsole = false;
     bool noHeartService = false;
     uint32_t pollDeviceTime = 200;
-    bool searchStopped = false;
     uint8_t sec1Update = 0;
     uint8_t firstInit = 0;
     QByteArray lastPacket;
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
+    uint8_t requestHandshake = 0;
+    bool requestVar2 = false;
+    bool toggleRequestSpeed = false;
 
     typedef enum TYPE {
         RHYTHM_FUN = 0,
         CADENZA_FITNESS_T45 = 1, // it has the same protocol of RHYTHM_FUN but without the header and the footer
     } TYPE;
     volatile TYPE treadmill_type = RHYTHM_FUN;
+
+    int64_t lastStart = 0;
+    int64_t lastStop = 0;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
@@ -84,7 +92,6 @@ class eslinkertreadmill : public treadmill {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void searchingStop();
 
   private slots:
 

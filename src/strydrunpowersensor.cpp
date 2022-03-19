@@ -88,6 +88,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -138,30 +139,38 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
             KCal += ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
                        3.5) /
                       200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+                     (60000.0 / ((double)lastRefreshPowerChanged.msecsTo(QDateTime::currentDateTime()))));
         emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        lastRefreshPowerChanged = QDateTime::currentDateTime();
 
     } else if (characteristic.uuid() == QBluetoothUuid::RSCMeasurement) {
         uint8_t flags = (uint8_t)newValue.at(0);
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
         bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
+        bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+        double cadence_multiplier = 1.0;
+        if (double_cadence)
+            cadence_multiplier = 2.0;
 
         // Unit is in m/s with a resolution of 1/256
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
-        double cadence = (uint8_t)newValue.at(3);
+        double cadence = (uint8_t)newValue.at(3)  * cadence_multiplier;
 
-        Speed = speed;
         Cadence = cadence;
         emit cadenceChanged(cadence);
-        emit speedChanged(speed);
-        Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+        if(power_as_treadmill) {
+            Speed = speed;
 
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
+            emit speedChanged(speed);
+            Distance +=
+                ((Speed.value() / 3600000.0) * ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(speed));
+        }
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
+        lastRefreshCadenceChanged = QDateTime::currentDateTime();
     }
 
     if (!noVirtualDevice) {
@@ -184,8 +193,6 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
 #endif
         }
     }
-
-    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     if (!noVirtualDevice) {
 #ifdef Q_OS_IOS

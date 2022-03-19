@@ -37,7 +37,7 @@ class bluetoothdevice : public QObject {
     virtual QTime averagePace();
     virtual QTime maxPace();
     virtual double odometer();
-    virtual double calories();
+    virtual metric calories();
     metric jouls();
     virtual uint8_t fanSpeed();
     virtual QTime elapsedTime();
@@ -54,7 +54,7 @@ class bluetoothdevice : public QObject {
     uint16_t watts(double weight);
     metric wattsMetric();
     virtual bool changeFanSpeed(uint8_t speed);
-    virtual double elevationGain();
+    virtual metric elevationGain();
     virtual void clearStats();
     QBluetoothDeviceInfo bluetoothDevice;
     void disconnectBluetooth();
@@ -68,6 +68,12 @@ class bluetoothdevice : public QObject {
     double weightLoss() { return WeightLoss.value(); }
     metric wattKg() { return WattKg; }
     metric currentMETS() { return METS; }
+    metric currentHeartZone() {return HeartZone;}
+    metric currentPowerZone() {return PowerZone;}
+
+    // in the future these 2 should be calculated inside the update_metrics()
+    void setHeartZone(double hz) {HeartZone = hz;}
+    void setPowerZone(double pz) {PowerZone = pz;}
 
     enum BLUETOOTH_TYPE { UNKNOWN = 0, TREADMILL, BIKE, ROWING, ELLIPTICAL };
     enum WORKOUT_EVENT_STATE { STARTED = 0, PAUSED = 1, RESUMED = 2, STOPPED = 3 };
@@ -75,6 +81,7 @@ class bluetoothdevice : public QObject {
     virtual BLUETOOTH_TYPE deviceType();
     static QStringList metrics();
     virtual uint8_t metrics_override_heartrate();
+    virtual uint8_t maxResistance();
 
   public Q_SLOTS:
     virtual void start();
@@ -114,7 +121,7 @@ class bluetoothdevice : public QObject {
     double requestFanSpeed = -1;
     double m_difficult = 1.0;
     metric m_jouls;
-    double elevationAcc = 0;
+    metric elevationAcc;
     metric m_watt;
     metric WattKg;
     metric WeightLoss;
@@ -123,6 +130,8 @@ class bluetoothdevice : public QObject {
     metric METS;
     QGeoCoordinate coordinate;
     metric Inclination;
+    metric HeartZone;
+    metric PowerZone;
 
     bluetoothdevice::WORKOUT_EVENT_STATE lastState;
     bool paused = false;

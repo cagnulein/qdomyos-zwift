@@ -72,12 +72,14 @@ void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
 
 void domyosbike::updateDisplay(uint16_t elapsed) {
     uint16_t multiplier = 1;
-    if (bike_type == TELINK) {
-        multiplier = 10;
-    }
 
     QSettings settings;
     bool distance = settings.value(QStringLiteral("domyos_treadmill_distance_display"), true).toBool();
+    bool domyos_bike_display_calories = settings.value(QStringLiteral("domyos_bike_display_calories"), true).toBool();
+
+    if (domyos_bike_display_calories) {
+        multiplier = 10;
+    }
 
     // if(bike_type == CHANG_YOW)
     if (distance) {
@@ -101,23 +103,37 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
     display[3] = (elapsed / 60) & 0xFF; // high byte for elapsed time (in seconds)
     display[4] = (elapsed % 60 & 0xFF); // low byte for elasped time (in seconds)
 
-    display[7] = ((uint8_t)((uint16_t)(currentSpeed().value() * multiplier) >> 8)) & 0xFF;
-    display[8] = (uint8_t)(currentSpeed().value() * multiplier) & 0xFF;
+    if (currentSpeed().value() < 10.0) {
+
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x02; // decimal position
+    } else if (currentSpeed().value() < 100.0) {
+
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x01; // decimal position
+    } else {
+
+        display[7] = ((uint16_t)(currentSpeed().value() * multiplier) >> 8) & 0xFF;
+        display[8] = (uint16_t)(currentSpeed().value() * multiplier) & 0xFF;
+        display[9] = 0x00; // decimal position
+    }
 
     display[12] = (uint8_t)currentHeart().value();
 
     // display[13] = ((((uint8_t)calories())) >> 8) & 0xFF;
     // display[14] = (((uint8_t)calories())) & 0xFF;
 
-    if (bike_type == TELINK) {
+    if (domyos_bike_display_calories) {
         display[15] = ((((uint16_t)currentCadence().value()) * multiplier) >> 8) & 0xFF;
         display[16] = (((uint16_t)currentCadence().value()) * multiplier) & 0xFF;
     } else {
         display[16] = ((uint8_t)(currentCadence().value() * multiplier));
     }
 
-    display[19] = ((((uint16_t)calories()) * multiplier) >> 8) & 0xFF;
-    display[20] = (((uint16_t)calories()) * multiplier) & 0xFF;
+    display[19] = ((((uint16_t)calories().value()) * multiplier) >> 8) & 0xFF;
+    display[20] = (((uint16_t)calories().value()) * multiplier) & 0xFF;
 
     for (uint8_t i = 0; i < sizeof(display) - 1; i++) {
         display[26] += display[i]; // the last byte is a sort of a checksum
@@ -656,7 +672,7 @@ uint16_t domyosbike::watts() {
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    if (currentSpeed().value() <= 0) {
+    if (currentCadence().value() <= 0) {
         return 0;
     }
     v = wattsFromResistance(currentResistance().value());

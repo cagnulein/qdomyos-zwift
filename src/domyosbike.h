@@ -40,6 +40,7 @@ class domyosbike : public bike {
                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     uint8_t resistanceFromPowerRequest(uint16_t power);
     int pelotonToBikeResistance(int pelotonResistance);
+    uint8_t maxResistance() { return max_resistance; }
     ~domyosbike();
     bool connected();
 

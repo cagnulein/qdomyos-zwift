@@ -12,6 +12,7 @@ HomeForm{
     signal stop_clicked;
     signal lap_clicked;
     signal peloton_start_workout;
+    signal peloton_abort_workout;
     signal plus_clicked(string name)
     signal minus_clicked(string name)
 
@@ -26,7 +27,7 @@ HomeForm{
         informativeText: "Do you want to follow the resistance? " + rootItem.pelotonProvider
         buttons: (MessageDialog.Yes | MessageDialog.No)
         onYesClicked: {rootItem.pelotonAskStart = false; peloton_start_workout();}
-        onNoClicked: rootItem.pelotonAskStart = false;
+        onNoClicked: {rootItem.pelotonAskStart = false; peloton_abort_workout();}
         visible: rootItem.pelotonAskStart
     }
 
@@ -155,6 +156,12 @@ HomeForm{
                 samples: 16
                 color: Material.color(Material.Purple)
                 source: rect
+            }
+
+            Timer {
+                id: toggleIconTimer
+                interval: 500; running: true; repeat: true
+                onTriggered: { if(identificator === "inclination" && rootItem.autoInclinationEnabled()) myIcon.visible = !myIcon.visible; else myIcon.visible = true; }
             }
 
             Image {

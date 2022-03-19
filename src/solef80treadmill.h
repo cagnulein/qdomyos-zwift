@@ -108,6 +108,8 @@ class solef80treadmill : public treadmill {
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
 
+    void changeInclinationRequested(double grade, double percentage);
+
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
     void update();

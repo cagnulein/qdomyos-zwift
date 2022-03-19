@@ -3,6 +3,7 @@
 
 #include "bluetooth.h"
 
+#include "fit_profile.hpp"
 #include "peloton.h"
 #include "screencapture.h"
 #include "sessionline.h"
@@ -33,6 +34,7 @@ class DataObject : public QObject {
     Q_PROPERTY(bool visibleItem READ visibleItem NOTIFY visibleChanged)
     Q_PROPERTY(QString plusName READ plusName NOTIFY plusNameChanged)
     Q_PROPERTY(QString minusName READ minusName NOTIFY minusNameChanged)
+    Q_PROPERTY(QString identificator READ identificator)
 
   public:
     DataObject(const QString &name, const QString &icon, const QString &value, bool writable, const QString &id,
@@ -58,6 +60,7 @@ class DataObject : public QObject {
     bool visibleItem() { return m_visible; }
     QString plusName() { return m_id + QStringLiteral("_plus"); }
     QString minusName() { return m_id + QStringLiteral("_minus"); }
+    QString identificator() { return m_id; }
 
     QString m_id;
     QString m_name;
@@ -203,10 +206,7 @@ class homeform : public QObject {
                     // Customize chart background
                     QLinearGradient backgroundGradient;
                     QSettings settings;
-                    double maxHeartRate = 220.0 - settings.value(QStringLiteral("age"), 35).toDouble();
-                    if (maxHeartRate == 0) {
-                        maxHeartRate = 190.0;
-                    }
+                    double maxHeartRate = heartRateMax();
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
@@ -265,6 +265,15 @@ class homeform : public QObject {
             axisY->setShadesPen(Qt::NoPen);
             axisY->setShadesBrush(QBrush(QColor(0x99, 0xcc, 0xcc, 0x55)));
         }
+    }
+
+    Q_INVOKABLE bool autoInclinationEnabled() {
+        QSettings settings;
+        bool virtual_bike = settings.value("virtual_device_force_bike", false).toBool();
+        return bluetoothManager && bluetoothManager->device() &&
+               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
+               bluetoothManager->device()->VirtualDevice() &&
+               ((virtualtreadmill *)bluetoothManager->device()->VirtualDevice())->autoInclinationEnabled();
     }
 
     homeform(QQmlApplicationEngine *engine, bluetooth *bl);
@@ -326,6 +335,8 @@ class homeform : public QObject {
     static QString getAndroidDataAppDir();
 #endif
     Q_INVOKABLE static QString getWritableAppDir();
+    Q_INVOKABLE static QString getProfileDir();
+    Q_INVOKABLE static void clearFiles();
 
     double wattMaxChart() {
         QSettings settings;
@@ -415,7 +426,12 @@ class homeform : public QObject {
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
+    FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
+    QString pelotonAskedName = QStringLiteral("");
+    QString pelotonAskedInstructor = QStringLiteral("");
+    QString pelotonAbortedName = QStringLiteral("");
+    QString pelotonAbortedInstructor = QStringLiteral("");
 
     QString lastFitFileSaved = QLatin1String("");
 
@@ -438,6 +454,7 @@ class homeform : public QObject {
     DataObject *fan;
     DataObject *jouls;
     DataObject *peloton_offset;
+    DataObject *peloton_remaining;
     DataObject *elapsed;
     DataObject *moving_time;
     DataObject *peloton_resistance;
@@ -446,6 +463,8 @@ class homeform : public QObject {
     DataObject *target_cadence;
     DataObject *target_power;
     DataObject *target_zone;
+    DataObject *target_speed;
+    DataObject *target_incline;
     DataObject *ftp;
     DataObject *lapElapsed;
     DataObject *weightLoss;
@@ -454,8 +473,12 @@ class homeform : public QObject {
     DataObject *wattKg;
     DataObject *gears;
     DataObject *remaningTimeTrainingProgramCurrentRow;
+    DataObject *nextRows;
     DataObject *mets;
     DataObject *targetMets;
+    DataObject *steeringAngle;
+    DataObject *pidHR;
+    DataObject *extIncline;
 
     QTimer *timer;
     QTimer *backupTimer;
@@ -468,9 +491,13 @@ class homeform : public QObject {
                                                                            const QUrl &clientIdentifierSharedKey);
     bool strava_upload_file(const QByteArray &data, const QString &remotename);
 
+    const QString cryptoKeySettingsProfilesTag = QStringLiteral("cryptoKeySettingsProfiles");
+    quint64 cryptoKeySettingsProfiles();
+
     int16_t fanOverride = 0;
 
     void update();
+    double heartRateMax();
     void backup();
     bool getDevice();
     bool getLap();
@@ -480,6 +507,9 @@ class homeform : public QObject {
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
     void loadSettings(const QUrl &filename);
+    void deleteSettings(const QUrl &filename);
+    void saveProfile(QString profilename);
+    void restart();
 
   private slots:
     void Start();
@@ -493,6 +523,7 @@ class homeform : public QObject {
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_zwo_loaded(const QString &comp);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
     void fit_save_clicked();
@@ -512,10 +543,13 @@ class homeform : public QObject {
     void pelotonLoginState(bool ok);
     void pzpLoginState(bool ok);
     void peloton_start_workout();
+    void peloton_abort_workout();
     void smtpError(SmtpClient::SmtpError e);
     void setActivityDescription(QString newdesc);
     void chartSaved(QString fileName);
     void sortTilesTimeout();
+    void gearUp();
+    void gearDown();
 
   signals:
 

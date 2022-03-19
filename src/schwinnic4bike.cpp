@@ -57,6 +57,8 @@ data_len));
 }*/
 
 void schwinnic4bike::update() {
+    qDebug() << gattNotify1Characteristic.isValid();
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
         emit disconnected();
@@ -66,13 +68,7 @@ void schwinnic4bike::update() {
     if (initRequest) {
 
         initRequest = false;
-    } else if (bluetoothDevice.isValid() //&&
-
-               // m_control->state() == QLowEnergyController::DiscoveredState //&&
-               // gattCommunicationChannelService &&
-               // gattWriteCharacteristic.isValid() &&
-               // gattNotify1Characteristic.isValid() &&
-               /*initDone*/) {
+    } else if (gattNotify1Characteristic.isValid()) {
 
         update_metrics(false, watts());
 
@@ -84,8 +80,8 @@ void schwinnic4bike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 15)
-                requestResistance = 15;
+            if (requestResistance > max_resistance)
+                requestResistance = max_resistance;
             else if (requestResistance == 0) {
                 requestResistance = 1;
             }
@@ -298,6 +294,8 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
+    // if we change this, also change the wattsFromResistance function. We can create a standard function in order to
+    // have all the costants in one place (I WANT MORE TIME!!!)
     double ac = 0.01243107769;
     double bc = 1.145964912;
     double cc = -23.50977444;
@@ -422,7 +420,10 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            uint8_t bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 4).toInt();
+            double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1.0).toDouble();
+            virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::changeInclination);
         }
@@ -545,7 +546,8 @@ void schwinnic4bike::controllerStateChanged(QLowEnergyController::ControllerStat
 
 int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
-    if (settings.value(QStringLiteral("schwinn_bike_resistance"), false).toBool()) {
+    bool schwinn_bike_resistance_v2 = settings.value(QStringLiteral("schwinn_bike_resistance_v2"), false).toBool();
+    if (!schwinn_bike_resistance_v2) {
         if (pelotonResistance > 54)
             return pelotonResistance;
         if (pelotonResistance < 26)
@@ -554,6 +556,80 @@ int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
         // y = 0,04x2 - 1,32x + 11,8
         return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
     } else {
-        return pelotonResistance;
+        if (pelotonResistance > 20)
+            return (((double)pelotonResistance - 20.0) * 1.25);
+        else
+            return 1;
     }
 }
+
+uint16_t schwinnic4bike::wattsFromResistance(double resistance) {
+    QSettings settings;
+
+    double ac = 0.01243107769;
+    double bc = 1.145964912;
+    double cc = -23.50977444;
+
+    double ar = 0.1469553975;
+    double br = -5.841344538;
+    double cr = 97.62165482;
+
+    for (uint16_t i = 1; i < 2000; i += 5) {
+        double res =
+            (((sqrt(pow(br, 2.0) -
+                    4.0 * ar *
+                        (cr - ((double)i * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+               br) /
+              (2.0 * ar)) *
+             settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+
+        if (!isnan(res) && res >= resistance) {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
+void schwinnic4bike::resistanceFromFTMSAccessory(int8_t res) {
+    ResistanceFromFTMSAccessory = res;
+    qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
+}
+
+/*
+uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value() << power;
+
+    if (Cadence.value() == 0)
+        return 1;
+
+    for (int i = 1; i < max_resistance; i++) {
+        if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
+            uint8_t res = pelotonToBikeResistance(i);
+            qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
+                     << wattsFromResistance(i + 1) << QStringLiteral("power=") << power << QStringLiteral("res=")
+                     << res;
+            // if the SS2K didn't send resistance at all or
+            // only if the resistance requested is higher and the current wattage is lower than the target
+            // only if the resistance requested is lower and the current wattage is higher than the target
+            // the main issue about schwinn is that the formula to get the wattage from the resistance is not so good
+            // so we need to put some constraint in the ERG mode
+            if (ResistanceFromFTMSAccessory.value() == 0 ||
+                ((power > m_watt.value() && res > (uint8_t)ResistanceFromFTMSAccessory.value()) ||
+                 ((power < m_watt.value() && res < (uint8_t)ResistanceFromFTMSAccessory.value())))) {
+                return res;
+            } else {
+                if (power > m_watt.value())
+                    return ResistanceFromFTMSAccessory.value() + 1;
+                else
+                    return ResistanceFromFTMSAccessory.value() - 1;
+            }
+        }
+    }
+    if (power < wattsFromResistance(1))
+        return 1;
+    else
+        return 1;
+}
+*/

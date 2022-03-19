@@ -21,6 +21,7 @@
 #include <QTimer>
 #include <QUrlQuery>
 
+#include "filedownloader.h"
 #include "homefitnessbuddy.h"
 
 class peloton : public QObject {
@@ -38,10 +39,14 @@ class peloton : public QObject {
     QString current_workout_id = QLatin1String("");
     QString current_workout_name = QLatin1String("");
     QString current_workout_status = QLatin1String("");
+    QString current_workout_type = QLatin1String("");
     QString current_instructor_id = QLatin1String("");
     QString current_instructor_name = QLatin1String("");
     QString current_ride_id = QLatin1String("");
+    QString current_image_url = QLatin1String("");
+    fileDownloader *current_image_downloaded = nullptr;
     QDateTime current_original_air_time;
+    int current_pedaling_duration = 0;
 
     void setTestMode(bool test);
 
@@ -68,6 +73,7 @@ class peloton : public QObject {
     void getSummary(const QString &workout);
     void getWorkout(const QString &workout);
     void getInstructor(const QString &instructor_id);
+    void getRide(const QString &ride_id);
     void getPerformance(const QString &workout);
 
     bool testMode = false;
@@ -77,8 +83,9 @@ class peloton : public QObject {
     void workoutlist_onfinish(QNetworkReply *reply);
     void summary_onfinish(QNetworkReply *reply);
     void workout_onfinish(QNetworkReply *reply);
-    void performance_onfinish(QNetworkReply *reply);
     void instructor_onfinish(QNetworkReply *reply);
+    void ride_onfinish(QNetworkReply *reply);
+    void performance_onfinish(QNetworkReply *reply);
     void pzp_trainrows(QList<trainrow> *list);
     void hfb_trainrows(QList<trainrow> *list);
     void pzp_loginState(bool ok);

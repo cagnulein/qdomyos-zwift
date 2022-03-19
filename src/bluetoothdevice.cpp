@@ -86,18 +86,20 @@ QTime bluetoothdevice::maxPace() {
 }
 
 double bluetoothdevice::odometer() { return Distance.value(); }
-double bluetoothdevice::calories() { return KCal.value(); }
+metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
 void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     // managing underflow
-    if (speed > 230 && FanSpeed < 10) {
+    if (speed > 230 && FanSpeed < 20) {
         speed = 0;
-    } else if (speed < 10 && FanSpeed > 230) {
+    } else if (speed < 20 && FanSpeed > 230) {
         // managing overflow
-        speed = 255;
+        speed = 100;
     }
+    if (speed > 100)
+        speed = 100;
     // this is useful when there is a fitmetria fanfit in order to set the current
     // value to the last requested
     FanSpeed = speed;
@@ -107,7 +109,7 @@ bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     return false;
 }
 bool bluetoothdevice::connected() { return false; }
-double bluetoothdevice::elevationGain() { return elevationAcc; }
+metric bluetoothdevice::elevationGain() { return elevationAcc; }
 void bluetoothdevice::heartRate(uint8_t heart) { Heart.setValue(heart); }
 void bluetoothdevice::disconnectBluetooth() {
     if (m_control) {
@@ -150,8 +152,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             WeightLoss = metric::calculateWeightLoss(KCal.value());
             if (watt_calc) {
                 m_watt = watts;
-                WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
             }
+            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
         } else if (m_watt.value() > 0) {
 
             m_watt = 0;
@@ -161,8 +163,8 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         // useful for FTP test
         if (watt_calc) {
             m_watt = watts;
-            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
         }
+        WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
     } else if (m_watt.value() > 0) {
 
         m_watt = 0;
@@ -250,6 +252,8 @@ QStringList bluetoothdevice::metrics() {
     return r;
 }
 
+uint8_t bluetoothdevice::maxResistance() { return 100; }
+
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;
@@ -268,10 +272,10 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
         return 0;
     } else if (!setting.compare(QStringLiteral("Elevation"))) {
 
-        return elevationGain();
+        return elevationGain().value();
     } else if (!setting.compare(QStringLiteral("Calories"))) {
 
-        return calories();
+        return calories().value();
     } else if (!setting.compare(QStringLiteral("Odometer"))) {
 
         return odometer();
