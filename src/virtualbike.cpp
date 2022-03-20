@@ -591,15 +591,57 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
             qDebug() << "ifit ans 11";
-            reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
-            reply2 = QByteArray::fromHex("00120104022f072f0202320239002d0000003000");
-            reply3 = QByteArray::fromHex("0112000000000e000000020e0016060e000000b4");
-            reply4 = QByteArray::fromHex("ff0f5e0100b400240058020000000000910000b4");
-            /*
-            static uint8_t counter = 0;
+            static int counter = 0 ;
+            static int timer = 0;
+            timer++;
+            if(counter == 0) {
+                reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
+                reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
+                reply3 = QByteArray::fromHex("01120000000017000000021700a4031700000069");
+                reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580200000000002e000069");
+            } else if(counter == 1) {
+                reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
+                reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
+                reply3 = QByteArray::fromHex("01120000000018000000021800a4031800000066");
+                reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580200000000002e000066");
+            }
             
-            reply3[6] = counter ++;
-            reply3[11] = counter ++;*/
+            // con byyte modificati
+            /*
+             if(counter == 0) {
+                 reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
+                 reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
+                 reply3 = QByteArray::fromHex("01120000000017000000021700a4031700000069");
+                 reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580200000000002e000069");
+             } else if(counter == 1) {
+                 reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
+                 reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
+                 reply3 = QByteArray::fromHex("01120000000018000000021800a4031800000066");
+                 reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580200000000002e000066");
+             }
+
+             */
+            // originale
+            /*
+             fe0233040000302a00000075ffffffffffffffff
+             00120104022f072f020232021f00530000002100
+             01120000000017000000021700a4031700000069
+             ff0f9c0200b4002a00580200000000002e000069
+             
+             fe0233040000302a00000075ffffffffffffffff
+             00120104022f072f020232021f00530000002100
+             01120000000018000000021800a403180000007d
+             ff0fb50200b4002a00580200000000005e00007d
+             */
+                        
+            reply3[6] = timer & 0xff;
+            reply3[11] = timer & 0xff;
+            reply3[15] = timer & 0xff;
+            reply3[19] = 0xAE - (reply3[15] * 3);
+            reply4[19] = reply3[19];
+            
+            counter++;
+            if(counter > 1) counter = 0;
             
             /*static uint64_t time = 0;
             if(time == 0) time = QDateTime::currentMSecsSinceEpoch();
