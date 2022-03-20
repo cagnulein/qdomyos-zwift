@@ -193,6 +193,38 @@
             endingLineNumber = "57"
             landmarkName = "BLEPeripheralManager"
             landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "16D24B27-D0FB-4EC3-BAE8-56101FE7949B - 1c798ec95ff8d4b7"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "qdomyoszwift.BLEPeripheralManager.crankRevolutions.modify : Swift.Optional&lt;Swift.UInt16&gt;"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/build-qdomyos-zwift-Qt_5_15_2_for_iOS-Debug/%3Ccompiler-generated%3E"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  uuid = "16D24B27-D0FB-4EC3-BAE8-56101FE7949B - 5ebbef0dc9913f07"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "qdomyoszwift.BLEPeripheralManager.init() -&gt; qdomyoszwift.BLEPeripheralManager"
+                  moduleName = "qdomyoszwift"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cagnulein/qdomyos-zwift/src/ios/BLEPeripheralManager.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "57"
+                  endingLineNumber = "57"
+                  offsetFromSymbolStart = "132">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -335,7 +367,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "38"
             endingLineNumber = "38"
-            landmarkName = "lockscreen::virtualbike_setHeartRate(heartRate)"
+            landmarkName = "lockscreen::stepCadence()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -343,7 +375,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "FE5697FF-F44C-43C2-A98D-C400EE56F047"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/ios/lockscreen.mm"
@@ -351,8 +383,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "44"
             endingLineNumber = "44"
-            landmarkName = "lockscreen::virtualbike_setCadence(crankRevolutions, lastCrankEventTime)"
-            landmarkType = "7">
+            landmarkName = "unknown"
+            landmarkType = "0">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -367,7 +399,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "37"
             endingLineNumber = "37"
-            landmarkName = "lockscreen::virtualbike_setHeartRate(heartRate)"
+            landmarkName = "lockscreen::stepCadence()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -375,7 +407,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "3DBE0495-050A-4979-85D4-28B78676F212"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "../src/ios/lockscreen.mm"
@@ -383,7 +415,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "43"
             endingLineNumber = "43"
-            landmarkName = "lockscreen::virtualbike_setCadence(crankRevolutions, lastCrankEventTime)"
+            landmarkName = "lockscreen::setKcal(kcal)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -399,7 +431,7 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "32"
             endingLineNumber = "32"
-            landmarkName = "lockscreen::virtualbike_ios()"
+            landmarkName = "lockscreen::heartRate()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -431,7 +463,7 @@
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "35"
                   endingLineNumber = "35"
-                  offsetFromSymbolStart = "22">
+                  offsetFromSymbolStart = "32">
                </Location>
                <Location
                   uuid = "18F27065-9FB2-44A2-99D0-7D41061141A3 - 4daffae51fb2d733"
@@ -446,7 +478,7 @@
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "35"
                   endingLineNumber = "35"
-                  offsetFromSymbolStart = "28">
+                  offsetFromSymbolStart = "36">
                </Location>
             </Locations>
          </BreakpointContent>

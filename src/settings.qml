@@ -285,6 +285,7 @@ import Qt.labs.settings 1.0
             property bool battery_service: false
             property bool service_changed: false
             property bool virtual_device_enabled: true
+            property bool virtual_device_bluetooth: true
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
             property bool log_debug: false
@@ -352,6 +353,10 @@ import Qt.labs.settings 1.0
             property bool tile_peloton_remaining_enabled: false
             property int  tile_peloton_remaining_order: 22
             property bool tile_peloton_resistance_color_enabled: false
+
+            // from the version 2.10.49
+            property bool dircon_yes: false
+            property int dircon_server_base_port: 4810
         }
 
         function paddingZeros(text, limit) {
@@ -5695,109 +5700,139 @@ import Qt.labs.settings 1.0
                         onClicked: settings.service_changed = checked
                     }
         */
-                    SwitchDelegate {
-                        id: virtualDeviceEnabledDelegate
-                        text: qsTr("Virtual Device")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_enabled = checked
-                    }
+                    AccordionCheckElement {
+                        id: virtualDeviceAccordion
+                        title: qsTr("Enable Virtual Device")
+                        linkedBoolSetting: "virtual_device_enabled"
+                        settings: settings
+                        accordionContent: ColumnLayout {
+                            AccordionCheckElement {
+                                id: virtualBeviceBluetoothAccordion
+                                title: qsTr("Virtual Device Bluetooth")
+                                linkedBoolSetting: "virtual_device_bluetooth"
+                                settings: settings
+                                accordionContent: ColumnLayout {
+                                    SwitchDelegate {
+                                        id: virtualDeviceOnlyHeartDelegate
+                                        text: qsTr("Virtual Heart Only")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_onlyheart
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_onlyheart = checked
+                                    }
+                                    SwitchDelegate {
+                                        id: virtualDeviceEchelonDelegate
+                                        text: qsTr("Virtual Echelon")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_echelon
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_echelon = checked
+                                    }
 
-                    SwitchDelegate {
-                        id: virtualDeviceOnlyHeartDelegate
-                        text: qsTr("Virtual Heart Only")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_onlyheart
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_onlyheart = checked
-                    }
+                                    SwitchDelegate {
+                                        id: virtualDeviceRowerDelegate
+                                        text: qsTr("Virtual Rower")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_rower
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_rower = checked
+                                    }                                    
+                                    SwitchDelegate {
+                                        id: virtualBikeForceResistanceDelegate
+                                        text: qsTr("Zwift Force Resistance")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtualbike_forceresistance
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtualbike_forceresistance = checked
+                                    }
 
-                    SwitchDelegate {
-                        id: virtualDeviceEchelonDelegate
-                        text: qsTr("Virtual Echelon")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_echelon
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_echelon = checked
-                    }
-
-                    SwitchDelegate {
-                        id: virtualDeviceIfitDelegate
-                        text: qsTr("Virtual iFit")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_ifit
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_ifit = checked
-                    }
-
-                    SwitchDelegate {
-                        id: virtualDeviceRowerDelegate
-                        text: qsTr("Virtual Rower")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_rower
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_rower = checked
-                    }
-
-                    SwitchDelegate {
-                        id: virtualBikeForceResistanceDelegate
-                        text: qsTr("Zwift Force Resistance")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtualbike_forceresistance
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtualbike_forceresistance = checked
-                    }
-
-                    SwitchDelegate {
-                        id: bikePowerSensorDelegate
-                        text: qsTr("Bike Power Sensor")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.bike_power_sensor
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.bike_power_sensor = checked
+                                    SwitchDelegate {
+                                        id: bikePowerSensorDelegate
+                                        text: qsTr("Bike Power Sensor")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.bike_power_sensor
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.bike_power_sensor = checked
+                                    }
+                                    SwitchDelegate {
+                                        id: virtualDeviceIfitDelegate
+                                        text: qsTr("Virtual iFit")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_ifit
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_ifit = checked
+                                    }
+                                }
+                            }
+                            AccordionCheckElement {
+                                id: dirconAccordion
+                                title: qsTr("Wahoo direct connect")
+                                linkedBoolSetting: "dircon_yes"
+                                settings: settings
+                                accordionContent: ColumnLayout {
+                                    spacing: 0
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelDirconServerPort
+                                            text: qsTr("Server Port:")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: dirconServerPortTextField
+                                            text: settings.dircon_server_base_port
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.dircon_server_base_port = text
+                                        }
+                                        Button {
+                                            id: okDirconServerPort
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.dircon_server_base_port = dirconServerPortTextField.text
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     SwitchDelegate {
