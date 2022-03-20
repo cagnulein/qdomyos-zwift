@@ -26,7 +26,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     notif2A53 = new CharacteristicNotifier2A53(t, this);
     notif2A37 = new CharacteristicNotifier2A37(t, this);
     writeP2AD9 = new CharacteristicWriteProcessor2AD9(0, 0, t, this);
-    connect(writeP2AD9, SIGNAL(changeInclination(grade, perc)), this, SIGNAL(changeInclination(grade, perc)));
+    connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(slopeChanged()), this, SLOT(slopeChanged()));
 
 #ifdef Q_OS_IOS

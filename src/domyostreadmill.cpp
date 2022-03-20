@@ -233,6 +233,8 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed) {
 void domyostreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
+    if (grade < 0)
+        grade = 0;
     changeInclination(grade, percentage);
 }
 
