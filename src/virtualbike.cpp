@@ -598,12 +598,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
                 reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
                 reply3 = QByteArray::fromHex("01120000000017000000021700a4031700000069");
-                reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580200000000002e000069");
+                reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580000000000002e000069");
             } else if(counter == 1) {
                 reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
                 reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
                 reply3 = QByteArray::fromHex("01120000000018000000021800a4031800000066");
-                reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580200000000002e000066");
+                reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580000000000002e000066");
             }
             
             // con byyte modificati
@@ -637,7 +637,9 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply3[6] = timer & 0xff;
             reply3[11] = timer & 0xff;
             reply3[15] = timer & 0xff;
-            reply3[19] = 0xAE - (reply3[15] * 3);
+            reply4[3] = (timer); // KCal
+            reply4[10] = (timer); // KCal extimated
+            reply3[19] = 0xB2 - (reply3[15] * 3) - (reply4[10] * 2);
             reply4[19] = reply3[19];
             
             counter++;
