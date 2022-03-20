@@ -634,17 +634,17 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              ff0fb50200b4002a00580200000000005e00007d
              */
             
-            reply2[11] = timer & 0x26; // resistance (limit to 0x26)
-            reply2[12] = timer & 0xff; // watt (l)
-            reply2[13] = 0; // watt (h)
-            reply2[18] = timer & 0xff; // cadence
+            reply2[11] = ((uint8_t)Bike->currentResistance().value()) & 0x26; // resistance (limit to 0x26)
+            reply2[12] = ((uint16_t)normalizeWattage) & 0xff; // watt (l)
+            reply2[13] = ((uint16_t)normalizeWattage) >> 8; // watt (h)
+            reply2[18] = ((uint8_t)Bike->currentCadence().value()) & 0xff; // cadence
             reply3[6] = timer & 0xff;
             reply3[11] = timer & 0xff;
-            reply3[13] = timer & 0xff; // speed (l)
-            reply3[14] = 0; // speed (h)
+            reply3[13] = ((uint16_t)Bike->currentSpeed().value()) & 0xff; // speed (l)
+            reply3[14] = ((uint16_t)Bike->currentSpeed().value()) >> 8; // speed (h)
             reply3[15] = timer & 0xff;
-            reply4[3] = (timer); // KCal
-            reply4[10] = (timer); // KCal extimated
+            reply4[3] = ((uint16_t)Bike->calories().value()); // KCal
+            reply4[10] = ((uint16_t)Bike->calories().value()); // KCal extimated
             reply3[19] = 0x9B - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) - (reply2[13]) - (reply3[13]) - (reply3[14]);
             reply4[19] = reply3[19];
             
