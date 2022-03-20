@@ -633,13 +633,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              01120000000018000000021800a403180000007d
              ff0fb50200b4002a00580200000000005e00007d
              */
-                        
+            
+            reply2[11] = timer & 0xff; // resistance
+            reply2[18] = timer & 0xff; // cadence
             reply3[6] = timer & 0xff;
             reply3[11] = timer & 0xff;
             reply3[15] = timer & 0xff;
             reply4[3] = (timer); // KCal
             reply4[10] = (timer); // KCal extimated
-            reply3[19] = 0xB2 - (reply3[15] * 3) - (reply4[10] * 2);
+            reply3[19] = 0xD5 - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]);
             reply4[19] = reply3[19];
             
             counter++;
