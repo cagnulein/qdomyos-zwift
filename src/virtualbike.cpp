@@ -700,6 +700,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply4);*/
         } else if (newValue.length() > 8 && !newValue.compare(QByteArray::fromHex("0112b472461cf0be92403ceacea488764a2804e2"))) {
             answer_13 = true;
+        } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0D &&
+                   ((uint8_t)newValue.at(2)) == 0x02) {
+            qDebug() << "ifit ans 14";
+            // force resistance
+            reply1 = QByteArray::fromHex("fe0209020205070502021075ffffffffffffffff");
+            reply2 = QByteArray::fromHex("ff0901040205070502021075ffffffffffffffff");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+
         } else if (newValue.length() > 8) {
             qDebug() << "ifit not managed";
         }
