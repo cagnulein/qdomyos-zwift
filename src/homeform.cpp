@@ -342,7 +342,7 @@ void homeform::chartSaved(QString fileName) {
     if (!stopped)
         return;
     chartImagesFilenames.append(fileName);
-    if (chartImagesFilenames.length() >= 6) {
+    if (chartImagesFilenames.length() >= 7) {
         sendMail();
         chartImagesFilenames.clear();
     }
