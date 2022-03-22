@@ -536,6 +536,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(proformElliptical);
                 innerTemplateManager->start(proformElliptical);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_RW"))) && !proformRower && filter) {
+                discoveryAgent->stop();
+                proformRower = new proformrower(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(proformRower, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(proformRower, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformRower, &proformrower::debug, this, &bluetooth::debug);
+                proformRower->deviceDiscovered(b);
+                // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(proformRower);
+                innerTemplateManager->start(proformRower);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("B01_"))) && !bhFitnessElliptical && filter) {
                 discoveryAgent->stop();
                 bhFitnessElliptical = new bhfitnesselliptical(noWriteResistance, noHeartService, bikeResistanceOffset,
@@ -1937,6 +1951,11 @@ void bluetooth::restart() {
         delete proformElliptical;
         proformElliptical = nullptr;
     }
+    if (proformRower) {
+
+        delete proformRower;
+        proformRower = nullptr;
+    }
     if (eslinkerTreadmill) {
 
         delete eslinkerTreadmill;
@@ -2176,6 +2195,8 @@ bluetoothdevice *bluetooth::device() {
         return proformTreadmill;
     } else if (proformElliptical) {
         return proformElliptical;
+    } else if (proformRower) {
+        return proformRower;
     } else if (eslinkerTreadmill) {
         return eslinkerTreadmill;
     } else if (bowflexTreadmill) {
