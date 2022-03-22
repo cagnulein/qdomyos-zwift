@@ -131,7 +131,7 @@ QByteArray wahookickrsnapbike::setSimWindResistance(double windResistanceCoeffic
 
 QByteArray wahookickrsnapbike::setSimGrade(double grade) {
     // TODO: Throw Error if grade is not between -1 and 1
-    grade = (grade / 100.0 + 1.0) * 32768.0;
+    grade = grade / 100;
     QByteArray r;
     uint16_t norm = (uint16_t)((qMin(1.0, qMax(-1.0, grade)) + 1.0) * 65535 / 2.0);
     r.append(_setSimGrade);
@@ -164,8 +164,13 @@ void wahookickrsnapbike::update() {
     }
 
     if (initRequest) {
+        QSettings settings;
         QByteArray a = unlockCommand();
         writeCharacteristic((uint8_t *)a.data(), a.length(), "init", false, true);
+
+        QByteArray b = setSimMode(settings.value(QStringLiteral("weight"), 75.0).toFloat(), 0.004,
+                                  0.4); // wind and rolling should arrive from FTMS
+        writeCharacteristic((uint8_t *)b.data(), b.length(), "setSimMode", false, true);
 
         // required to the SS2K only one time
         Resistance = 0;
