@@ -89,6 +89,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         } else if (ifit) {
             services << (QBluetoothUuid(QStringLiteral("00001533-1412-efde-1523-785feabcd123")));
 
+            this->noHeartService = true;
             if (!this->noHeartService) {
                 services << QBluetoothUuid::HeartRate;
             }
@@ -438,9 +439,10 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bikeTimer.start(1s);
     //! [Provide Heartbeat]
     QObject::connect(leController, &QLowEnergyController::disconnected, this, &virtualbike::reconnect);
-    QObject::connect(leController, static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(
-                                       &QLowEnergyController::error),
-                     this, &virtualbike::error);
+    QObject::connect(
+        leController,
+        static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), this,
+        &virtualbike::error);
 }
 
 void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
@@ -500,16 +502,16 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         QByteArray reply2;
         QByteArray reply3;
         QByteArray reply4;
-        
+
         static bool answer_13 = false;
-        
-        if(answer_13) {
+
+        if (answer_13) {
             answer_13 = false;
-            
+
             qDebug() << "ifit ans 13";
             reply1 = QByteArray::fromHex("fe020a02000000000000001bffffffffffffffff");
             reply2 = QByteArray::fromHex("ff0a010402060706900208a7ffffffffffffffff");
-            
+
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x81) {
@@ -596,7 +598,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
             reply3 = QByteArray::fromHex("01120000000017000000021700a4031700000069");
             reply4 = QByteArray::fromHex("ff0f9c0200b4002a00580000000000002e000069");
-            
+
             // with mod bytes
             /*
              if(counter == 0) {
@@ -618,38 +620,39 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              00120104022f072f020232021f00530000002100
              01120000000017000000021700a4031700000069
              ff0f9c0200b4002a00580200000000002e000069
-             
+
              fe0233040000302a00000075ffffffffffffffff
              00120104022f072f020232021f00530000002100
              01120000000018000000021800a403180000007d
              ff0fb50200b4002a00580200000000005e00007d
              */
-            
-            int resistance = iFit_pelotonToBikeResistance((uint8_t)((bike*)Bike)->pelotonResistance().value());
-            if(resistance > 0x26)
+
+            int resistance = iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value());
+            if (resistance > 0x26)
                 resistance = 0x26;
             qint64 t = (QDateTime::currentSecsSinceEpoch() - timer);
-            reply2[11] = resistance; // resistance (limit to 0x26)
-            reply2[12] = ((uint16_t)normalizeWattage) & 0xff; // watt (l)
-            reply2[13] = ((uint16_t)normalizeWattage) >> 8; // watt (h)
-            reply2[14] = ((uint32_t)Bike->odometer()) & 0xFF;// distance (l)
+            reply2[11] = resistance;                                       // resistance (limit to 0x26)
+            reply2[12] = ((uint16_t)normalizeWattage) & 0xff;              // watt (l)
+            reply2[13] = ((uint16_t)normalizeWattage) >> 8;                // watt (h)
+            reply2[14] = ((uint32_t)Bike->odometer()) & 0xFF;              // distance (l)
             reply2[18] = ((uint8_t)Bike->currentCadence().value()) & 0xff; // cadence
             reply3[6] = t & 0xff;
             reply3[11] = t & 0xff;
             reply3[13] = ((uint16_t)(Bike->currentSpeed().value() * 100.0)) & 0xff; // speed (l)
-            reply3[14] = ((uint16_t)(Bike->currentSpeed().value() * 100.0)) >> 8; // speed (h)
+            reply3[14] = ((uint16_t)(Bike->currentSpeed().value() * 100.0)) >> 8;   // speed (h)
             reply3[15] = t & 0xff;
-            reply4[3] = ((uint16_t)Bike->calories().value()); // KCal
+            reply4[3] = ((uint16_t)Bike->calories().value());  // KCal
             reply4[10] = ((uint16_t)Bike->calories().value()); // KCal extimated
-            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) - (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]);
+            reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
+                         (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]);
             reply4[19] = reply3[19];
-            
+
             /*static uint64_t time = 0;
             if(time == 0) time = QDateTime::currentMSecsSinceEpoch();
-            
+
             reply3[13] = ((QDateTime::currentMSecsSinceEpoch() - time) / 10) & 0xff;
             reply3[14] = ((QDateTime::currentMSecsSinceEpoch() - time) / 10) >> 8;*/
-            
+
             /*
             reply1 = QByteArray::fromHex("fe02330400caaf020000000000330000df130013");
             reply2 = QByteArray::fromHex("00120104022f072f020200003d00650000003700");
@@ -671,11 +674,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply1 = QByteArray::fromHex("fe021c0300b4002200580200000000007e0000b4");
             reply2 = QByteArray::fromHex("001201040218071802020000ffffffffffffffff");
             reply3 = QByteArray::fromHex("ff0a00000000302a00000075ffffffffffffffff");
-            
+
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
-            
+
             /*
             reply1 = QByteArray::fromHex("fe023304002c012700b400000000000005000085");
             reply2 = QByteArray::fromHex("00120104022f072f020200003900450000003500");
@@ -691,7 +694,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
             writeCharacteristic(service, characteristic, reply3);
             writeCharacteristic(service, characteristic, reply4);*/
-        } else if (newValue.length() > 8 && !newValue.compare(QByteArray::fromHex("0112b472461cf0be92403ceacea488764a2804e2"))) {
+        } else if (newValue.length() > 8 &&
+                   !newValue.compare(QByteArray::fromHex("0112b472461cf0be92403ceacea488764a2804e2"))) {
             answer_13 = true;
         } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0D &&
                    ((uint8_t)newValue.at(2)) == 0x02) {
@@ -708,11 +712,13 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             uint8_t resistance = newValue.at(12);
             qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(resistance);
 
-            for(int i=0; i<100; i++) {
-                if(iFit_pelotonToBikeResistance(i) == resistance) {
+            for (int i = 0; i < 100; i++) {
+                if (iFit_pelotonToBikeResistance(i) == resistance) {
                     if (force_resistance) {
                         // same on the training program
-                        Bike->changeResistance((int8_t)(round((((bike*)Bike)->pelotonToBikeResistance(i)) * bikeResistanceGain)) + bikeResistanceOffset); // resistance start from 1
+                        Bike->changeResistance(
+                            (int8_t)(round((((bike *)Bike)->pelotonToBikeResistance(i)) * bikeResistanceGain)) +
+                            bikeResistanceOffset); // resistance start from 1
                     }
                     break;
                 }
