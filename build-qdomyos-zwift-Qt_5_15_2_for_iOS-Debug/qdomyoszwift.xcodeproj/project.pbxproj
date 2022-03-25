@@ -357,6 +357,21 @@
 		87E5D2C825E69F4700BDBE6C /* moc_horizontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E5D2C725E69F4700BDBE6C /* moc_horizontreadmill.cpp */; };
 		87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */; };
 		87E6A85B25B5C8B900371D28 /* flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85925B5C8B900371D28 /* flywheelbike.cpp */; };
+		87EB917627EE5FB3002535E1 /* nautilusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917427EE5FB3002535E1 /* nautilusbike.cpp */; };
+		87EB918227EE5FE7002535E1 /* moc_inapptransaction.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917727EE5FE7002535E1 /* moc_inapptransaction.cpp */; };
+		87EB918327EE5FE7002535E1 /* moc_inappstore.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917827EE5FE7002535E1 /* moc_inappstore.cpp */; };
+		87EB918427EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917927EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp */; };
+		87EB918527EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917A27EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp */; };
+		87EB918627EE5FE7002535E1 /* moc_inapppurchasebackend.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917B27EE5FE7002535E1 /* moc_inapppurchasebackend.cpp */; };
+		87EB918727EE5FE7002535E1 /* moc_nautilusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917C27EE5FE7002535E1 /* moc_nautilusbike.cpp */; };
+		87EB918827EE5FE7002535E1 /* moc_inappstoreqmltype.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917D27EE5FE7002535E1 /* moc_inappstoreqmltype.cpp */; };
+		87EB918927EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917E27EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp */; };
+		87EB918A27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB917F27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp */; };
+		87EB918B27EE5FE7002535E1 /* moc_inappproductqmltype.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB918027EE5FE7002535E1 /* moc_inappproductqmltype.cpp */; };
+		87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EB918127EE5FE7002535E1 /* moc_inappproduct.cpp */; };
+		87EB919027EE6016002535E1 /* inapp in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 87EB918D27EE6016002535E1 /* inapp */; };
+		87EB919127EE6016002535E1 /* ios in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 87EB918E27EE6016002535E1 /* ios */; };
+		87EB919227EE6016002535E1 /* qmltypes in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 87EB918F27EE6016002535E1 /* qmltypes */; };
 		87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */; };
 		87EFB57025BD704A0039DD5A /* moc_proformtreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */; };
 		87EFE45927A518F5006EA1C3 /* nautiluselliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87EFE45827A518F5006EA1C3 /* nautiluselliptical.cpp */; };
@@ -1066,6 +1081,22 @@
 		87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_flywheelbike.cpp; sourceTree = "<group>"; };
 		87E6A85925B5C8B900371D28 /* flywheelbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = flywheelbike.cpp; path = ../src/flywheelbike.cpp; sourceTree = "<group>"; };
 		87E6A85A25B5C8B900371D28 /* flywheelbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = flywheelbike.h; path = ../src/flywheelbike.h; sourceTree = "<group>"; };
+		87EB917427EE5FB3002535E1 /* nautilusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nautilusbike.cpp; path = ../src/nautilusbike.cpp; sourceTree = "<group>"; };
+		87EB917527EE5FB3002535E1 /* nautilusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nautilusbike.h; path = ../src/nautilusbike.h; sourceTree = "<group>"; };
+		87EB917727EE5FE7002535E1 /* moc_inapptransaction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inapptransaction.cpp; sourceTree = "<group>"; };
+		87EB917827EE5FE7002535E1 /* moc_inappstore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappstore.cpp; sourceTree = "<group>"; };
+		87EB917927EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iosinapppurchaseproduct.cpp; sourceTree = "<group>"; };
+		87EB917A27EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iosinapppurchasetransaction.cpp; sourceTree = "<group>"; };
+		87EB917B27EE5FE7002535E1 /* moc_inapppurchasebackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inapppurchasebackend.cpp; sourceTree = "<group>"; };
+		87EB917C27EE5FE7002535E1 /* moc_nautilusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nautilusbike.cpp; sourceTree = "<group>"; };
+		87EB917D27EE5FE7002535E1 /* moc_inappstoreqmltype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappstoreqmltype.cpp; sourceTree = "<group>"; };
+		87EB917E27EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iosinapppurchasebackend.cpp; sourceTree = "<group>"; };
+		87EB917F27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qdomyoszwift_qmltyperegistrations.cpp; sourceTree = "<group>"; };
+		87EB918027EE5FE7002535E1 /* moc_inappproductqmltype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappproductqmltype.cpp; sourceTree = "<group>"; };
+		87EB918127EE5FE7002535E1 /* moc_inappproduct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappproduct.cpp; sourceTree = "<group>"; };
+		87EB918D27EE6016002535E1 /* inapp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = inapp; path = ../src/purchasing/inapp; sourceTree = "<group>"; };
+		87EB918E27EE6016002535E1 /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ios; path = ../src/purchasing/ios; sourceTree = "<group>"; };
+		87EB918F27EE6016002535E1 /* qmltypes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = qmltypes; path = ../src/purchasing/qmltypes; sourceTree = "<group>"; };
 		87EFB56C25BD703C0039DD5A /* proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformtreadmill.cpp; path = ../src/proformtreadmill.cpp; sourceTree = "<group>"; };
 		87EFB56D25BD703C0039DD5A /* proformtreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformtreadmill.h; path = ../src/proformtreadmill.h; sourceTree = "<group>"; };
 		87EFB56F25BD704A0039DD5A /* moc_proformtreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformtreadmill.cpp; sourceTree = "<group>"; };
@@ -1419,6 +1450,17 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87EB918127EE5FE7002535E1 /* moc_inappproduct.cpp */,
+				87EB918027EE5FE7002535E1 /* moc_inappproductqmltype.cpp */,
+				87EB917B27EE5FE7002535E1 /* moc_inapppurchasebackend.cpp */,
+				87EB917827EE5FE7002535E1 /* moc_inappstore.cpp */,
+				87EB917D27EE5FE7002535E1 /* moc_inappstoreqmltype.cpp */,
+				87EB917727EE5FE7002535E1 /* moc_inapptransaction.cpp */,
+				87EB917E27EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp */,
+				87EB917927EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp */,
+				87EB917A27EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp */,
+				87EB917C27EE5FE7002535E1 /* moc_nautilusbike.cpp */,
+				87EB917F27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp */,
 				87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */,
 				873824AB27E64705004F1B46 /* moc_abstractserver.cpp */,
 				8738249D27E64702004F1B46 /* moc_browser_p.cpp */,
@@ -1550,6 +1592,11 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87EB918D27EE6016002535E1 /* inapp */,
+				87EB918E27EE6016002535E1 /* ios */,
+				87EB918F27EE6016002535E1 /* qmltypes */,
+				87EB917427EE5FB3002535E1 /* nautilusbike.cpp */,
+				87EB917527EE5FB3002535E1 /* nautilusbike.h */,
 				87473A9527ECA9EE00C203F5 /* proformrower.cpp */,
 				87473A9427ECA9EE00C203F5 /* proformrower.h */,
 				873824D527E647A6004F1B46 /* abstractserver.cpp */,
@@ -2402,8 +2449,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87EB919127EE6016002535E1 /* ios in Copy Bundle Resources */,
+				87EB919227EE6016002535E1 /* qmltypes in Copy Bundle Resources */,
 				87C5F0BC26285E5F0067A1B5 /* SmtpMime in Copy Bundle Resources */,
 				2188AA0A52E9CD610922F82E /* Default-568h@2x.png in Copy Bundle Resources */,
+				87EB919027EE6016002535E1 /* inapp in Copy Bundle Resources */,
 				23FA86F306CFF9E704521C39 /* LaunchScreen.storyboard in Copy Bundle Resources */,
 				AE8CD574A5B60EF037ACA8F8 /* Images.xcassets in Copy Bundle Resources */,
 			);
@@ -2562,15 +2612,18 @@
 				873824B627E64707004F1B46 /* moc_hostname_p.cpp in Compile Sources */,
 				873824EA27E647A8004F1B46 /* browser.cpp in Compile Sources */,
 				87DAE16A26E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp in Compile Sources */,
+				87EB918927EE5FE7002535E1 /* moc_iosinapppurchasebackend.cpp in Compile Sources */,
 				87C5F0D226285E7E0067A1B5 /* moc_mimemultipart.cpp in Compile Sources */,
 				87BE6FDE272D2A3E00C35795 /* moc_horizongr7bike.cpp in Compile Sources */,
 				A4BD6DF51CFFF867B7B5AED4 /* fit_developer_field_definition.cpp in Compile Sources */,
+				87EB918B27EE5FE7002535E1 /* moc_inappproductqmltype.cpp in Compile Sources */,
 				8762D5132601F89500F6F049 /* scanrecordresult.cpp in Compile Sources */,
 				3015F9B9FF4CA6D653D46CCA /* fit_developer_field_description.cpp in Compile Sources */,
 				87310B22266FBB78008BA0D6 /* moc_homefitnessbuddy.cpp in Compile Sources */,
 				87958F1B27628D5400124B24 /* moc_elitesterzosmart.cpp in Compile Sources */,
 				87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */,
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
+				87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */,
 				87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */,
 				873824EE27E647A9004F1B46 /* service.cpp in Compile Sources */,
 				8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */,
@@ -2614,9 +2667,11 @@
 				87C5F0B726285E5F0067A1B5 /* mimecontentformatter.cpp in Compile Sources */,
 				23191C28CB29474279752FD3 /* fit_protocol_validator.cpp in Compile Sources */,
 				275D55B5D956B2E5F1B7E46E /* fit_unicode.cpp in Compile Sources */,
+				87EB918427EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp in Compile Sources */,
 				8703BAEB273C67A90058E206 /* pafersbike.cpp in Compile Sources */,
 				873824BA27E64707004F1B46 /* moc_server_p.cpp in Compile Sources */,
 				87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */,
+				87EB917627EE5FB3002535E1 /* nautilusbike.cpp in Compile Sources */,
 				ACB47DC464A2BC9D39C544AD /* gpx.cpp in Compile Sources */,
 				6361329E515248BB41640C07 /* homeform.cpp in Compile Sources */,
 				87A18F072660D5C1002D7C96 /* ftmsrower.cpp in Compile Sources */,
@@ -2624,6 +2679,7 @@
 				87DAE16326E9FF3A00B0527E /* shuaa5treadmill.cpp in Compile Sources */,
 				87DED80827D1274600BE4FBB /* moc_filedownloader.cpp in Compile Sources */,
 				7CF08714869DA569C2EA551C /* keepawakehelper.cpp in Compile Sources */,
+				87EB918727EE5FE7002535E1 /* moc_nautilusbike.cpp in Compile Sources */,
 				873824B827E64707004F1B46 /* moc_cache.cpp in Compile Sources */,
 				873824E427E647A8004F1B46 /* cache.cpp in Compile Sources */,
 				87310B1E266FBB59008BA0D6 /* smartrowrower.cpp in Compile Sources */,
@@ -2649,15 +2705,18 @@
 				47E45EE0BB22C1E4332F1D1D /* trxappgateusbtreadmill.cpp in Compile Sources */,
 				873824BB27E64707004F1B46 /* moc_prober_p.cpp in Compile Sources */,
 				8742C2B227C92C30007D3FA0 /* wahookickrsnapbike.cpp in Compile Sources */,
+				87EB918327EE5FE7002535E1 /* moc_inappstore.cpp in Compile Sources */,
 				8780D949264FB8B800192D41 /* moc_smartspin2k.cpp in Compile Sources */,
 				6943DA124B60175E1F9EBD1B /* virtualbike.cpp in Compile Sources */,
 				8780D947264FB8AC00192D41 /* smartspin2k.cpp in Compile Sources */,
 				87C5F0CF26285E7E0067A1B5 /* moc_mimepart.cpp in Compile Sources */,
+				87EB918A27EE5FE7002535E1 /* qdomyoszwift_qmltyperegistrations.cpp in Compile Sources */,
 				87182A0B276BBB1200141463 /* moc_virtualrower.cpp in Compile Sources */,
 				0317752B0C295CAB82D37E45 /* virtualtreadmill.cpp in Compile Sources */,
 				8742C2B427C92C48007D3FA0 /* moc_wahookickrsnapbike.cpp in Compile Sources */,
 				878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */,
 				873824B027E64706004F1B46 /* moc_cache_p.cpp in Compile Sources */,
+				87EB918627EE5FE7002535E1 /* moc_inapppurchasebackend.cpp in Compile Sources */,
 				87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */,
 				87819080261508B10085E656 /* moc_peloton.cpp in Compile Sources */,
 				7EC1321DD83EAAFAA2B7109C /* domyosbike.cpp in Compile Sources */,
@@ -2733,6 +2792,7 @@
 				140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */,
 				873824BF27E64707004F1B46 /* moc_abstractserver.cpp in Compile Sources */,
 				87C5F0BA26285E5F0067A1B5 /* mimefile.cpp in Compile Sources */,
+				87EB918527EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp in Compile Sources */,
 				873824B227E64706004F1B46 /* moc_hostname.cpp in Compile Sources */,
 				873824EB27E647A8004F1B46 /* prober.cpp in Compile Sources */,
 				87B617F425F260150094A1CB /* moc_screencapture.cpp in Compile Sources */,
@@ -2751,6 +2811,7 @@
 				876F45FD279350CC003CDA5A /* concept2skierg.cpp in Compile Sources */,
 				873824BE27E64707004F1B46 /* moc_server.cpp in Compile Sources */,
 				AFEC086E92015064EB841234 /* moc_trainprogram.cpp in Compile Sources */,
+				87EB918227EE5FE7002535E1 /* moc_inapptransaction.cpp in Compile Sources */,
 				878531642711A3E1004B153D /* fakebike.cpp in Compile Sources */,
 				87A0C4C0262329B500121A76 /* moc_npecablebike.cpp in Compile Sources */,
 				87DAE16B26E9FF5000B0527E /* moc_solef80treadmill.cpp in Compile Sources */,
@@ -2767,6 +2828,7 @@
 				74C43649C9C4E2E5F9378019 /* moc_domyosbike.cpp in Compile Sources */,
 				87E0761D277A081A00FDA0F9 /* technogymmyruntreadmillrfcomm.cpp in Compile Sources */,
 				873824B327E64707004F1B46 /* moc_dirconprocessor.cpp in Compile Sources */,
+				87EB918827EE5FE7002535E1 /* moc_inappstoreqmltype.cpp in Compile Sources */,
 				87083D9626678EFA0072410D /* zwiftworkout.cpp in Compile Sources */,
 				87C5F0B826285E5F0067A1B5 /* stagesbike.cpp in Compile Sources */,
 				87C5F0D526285E7E0067A1B5 /* moc_mimehtml.cpp in Compile Sources */,
@@ -3147,6 +3209,9 @@
 					../../Qt/5.15.2/ios/include/QtNetworkAuth,
 					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
+					../src/purchasing/inapp,
+					"../src/purchasing/qmltypes\n",
+					"../src/purchasing/ios\n",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -3294,6 +3359,9 @@
 					../../Qt/5.15.2/ios/include/QtNetworkAuth,
 					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
+					../src/purchasing/inapp,
+					"../src/purchasing/qmltypes\n",
+					"../src/purchasing/ios\n",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
