@@ -28,6 +28,7 @@
 
 #include "rower.h"
 #include "virtualbike.h"
+#include "virtualrower.h"
 #include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
@@ -58,6 +59,7 @@ class proformrower : public rower {
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
+    virtualrower *virtualRower = nullptr;
     uint8_t counterPoll = 0;
     uint16_t watts();
 
