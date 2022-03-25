@@ -404,6 +404,16 @@ ApplicationWindow {
                     drawer.close()                    
                 }
             }
+
+            ItemDelegate {
+                text: qsTr("👜Swag Bag")
+                width: parent.width
+                onClicked: {
+                    stackView.push("SwagBagView.qml")
+                    drawer.close()
+                }
+            }
+
             ItemDelegate {
                 text: qsTr("Charts")
                 width: parent.width
