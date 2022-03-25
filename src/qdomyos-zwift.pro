@@ -50,6 +50,7 @@ SOURCES += \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
     characteristicnotifier2acd.cpp \
+   nautilusbike.cpp \
    proformrower.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
     qmdnsengine/src/src/bitmap.cpp \
@@ -218,6 +219,7 @@ HEADERS += \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \
     characteristicnotifier2acd.h \
+   nautilusbike.h \
    proformrower.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
     qmdnsengine/src/include/qmdnsengine/bitmap.h \

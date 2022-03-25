@@ -506,7 +506,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(domyosElliptical);
                 innerTemplateManager->start(domyosElliptical);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E616"))) && !nautilusElliptical &&
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS E"))) &&
+                       !nautilusElliptical && // NAUTILUS E616
                        filter) {
                 discoveryAgent->stop();
                 nautilusElliptical = new nautiluselliptical(noWriteResistance, noHeartService, testResistance,
@@ -522,6 +523,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(nautilusElliptical);
                 innerTemplateManager->start(nautilusElliptical);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("NAUTILUS B"))) && !nautilusBike &&
+                       filter) { // NAUTILUS B628
+                discoveryAgent->stop();
+                nautilusBike = new nautilusbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
+                                                bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(nautilusBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(nautilusBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(nautilusBike, &nautilusbike::debug, this, &bluetooth::debug);
+                nautilusBike->deviceDiscovered(b);
+                connect(this, &bluetooth::searchingStop, nautilusBike, &nautilusbike::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(nautilusBike);
+                innerTemplateManager->start(nautilusBike);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
                 discoveryAgent->stop();
                 proformElliptical = new proformelliptical(noWriteResistance, noHeartService);
@@ -1815,6 +1832,11 @@ void bluetooth::restart() {
         delete nautilusElliptical;
         nautilusElliptical = nullptr;
     }
+    if (nautilusBike) {
+
+        delete nautilusBike;
+        nautilusBike = nullptr;
+    }
     if (bhFitnessElliptical) {
 
         delete bhFitnessElliptical;
@@ -2125,6 +2147,8 @@ bluetoothdevice *bluetooth::device() {
         return soleElliptical;
     } else if (nautilusElliptical) {
         return nautilusElliptical;
+    } else if (nautilusBike) {
+        return nautilusBike;
     } else if (bhFitnessElliptical) {
         return bhFitnessElliptical;
     } else if (cscBike) {
