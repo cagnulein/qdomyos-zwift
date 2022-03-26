@@ -1085,8 +1085,8 @@
 		87EB917527EE5FB3002535E1 /* nautilusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nautilusbike.h; path = ../src/nautilusbike.h; sourceTree = "<group>"; };
 		87EB917727EE5FE7002535E1 /* moc_inapptransaction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inapptransaction.cpp; sourceTree = "<group>"; };
 		87EB917827EE5FE7002535E1 /* moc_inappstore.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappstore.cpp; sourceTree = "<group>"; };
-		87EB917927EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iosinapppurchaseproduct.cpp; sourceTree = "<group>"; };
-		87EB917A27EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_iosinapppurchasetransaction.cpp; sourceTree = "<group>"; };
+		87EB917927EE5FE7002535E1 /* moc_iosinapppurchaseproduct.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = moc_iosinapppurchaseproduct.cpp; sourceTree = "<group>"; };
+		87EB917A27EE5FE7002535E1 /* moc_iosinapppurchasetransaction.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = moc_iosinapppurchasetransaction.cpp; sourceTree = "<group>"; };
 		87EB917B27EE5FE7002535E1 /* moc_inapppurchasebackend.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inapppurchasebackend.cpp; sourceTree = "<group>"; };
 		87EB917C27EE5FE7002535E1 /* moc_nautilusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nautilusbike.cpp; sourceTree = "<group>"; };
 		87EB917D27EE5FE7002535E1 /* moc_inappstoreqmltype.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_inappstoreqmltype.cpp; sourceTree = "<group>"; };
