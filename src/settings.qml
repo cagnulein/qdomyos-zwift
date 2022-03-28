@@ -357,6 +357,9 @@ import Qt.labs.settings 1.0
             // from the version 2.10.49
             property bool dircon_yes: false
             property int dircon_server_base_port: 4810
+
+            // from the version 2.10.xx
+            property int app_opening: 0
         }
 
         function paddingZeros(text, limit) {

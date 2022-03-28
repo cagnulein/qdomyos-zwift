@@ -419,6 +419,8 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
+    settings.setValue(QStringLiteral("app_opening"), settings.value(QStringLiteral("app_opening"), 0).toInt() + 1);
+
     /* test virtual echelon
      * settings.setValue("virtual_device_echelon", true);
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);

@@ -54,13 +54,14 @@ import QtQuick.Layouts 1.3
 import org.cagnulein.qdomyoszwift 1.0
 
 Item {
-    PageHeader {
-        id: header
-        title: "Swag Bag"
+
+    Text {
+        id: description
+        text: qsTr("Hi! Do you know that QZ is just an Open Souce Indie App?<br>No Big Companies are running this!<br><br>The \"Swag Bag\" is a way to support the ongoing<br>development, maintenance and support of QZ Fitness!<br><br>Thanks to Rungap App to give me the idea of the name!")
     }
 
     Column {
-        anchors.top: header.bottom
+        anchors.top: description.bottom
         anchors.bottom: restoreButton.top
         anchors.margins: topLevel.globalMargin
         anchors.right: parent.right
