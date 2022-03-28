@@ -264,10 +264,7 @@ void nautiluselliptical::characteristicChanged(const QLowEnergyCharacteristic &c
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        if (bt_variant == 0)
-            Cadence = ((uint8_t)newValue.at(10));
-        else
-            Cadence = ((uint8_t)newValue.at(5));
+        Cadence = ((uint8_t)newValue.at(5));
     }
     // m_watt = watt;
     Speed = speed;
