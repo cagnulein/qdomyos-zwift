@@ -349,8 +349,12 @@ void virtualrower::rowerProvider() {
         }
 
         QLowEnergyCharacteristic characteristic =
-            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
-        Q_ASSERT(characteristic.isValid());
+            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD1);
+        if (!characteristic.isValid()) {
+            qDebug() << QStringLiteral("virtual rower characteristic not valid!");
+
+            return;
+        }
         if (leController->state() != QLowEnergyController::ConnectedState) {
             qDebug() << QStringLiteral("virtual rower not connected");
 
