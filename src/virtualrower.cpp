@@ -281,11 +281,9 @@ void virtualrower::reconnect() {
     qDebug() << QStringLiteral("virtualrower::reconnect");
     leController->disconnectFromDevice();
 
-#ifndef Q_OS_IOS
     serviceFIT = leController->addService(serviceDataFIT);
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
-#endif
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
