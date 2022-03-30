@@ -446,7 +446,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     }
 
     if (log_request) {
-        qDebug() << QStringLiteral("peloton::performance_onfinish") << performance;
+        qDebug() << QStringLiteral("peloton::performance_onfinish") << trainrows.length() << performance;
     } else {
         qDebug() << QStringLiteral("peloton::performance_onfinish") << trainrows.length();
     }
