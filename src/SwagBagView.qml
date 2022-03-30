@@ -57,16 +57,16 @@ Item {
 
     Text {
         id: description
+        width: parent.width
+        color: white
         text: qsTr("Hi! Do you know that QZ is just an Open Souce Indie App?<br>No Big Companies are running this!<br><br>The \"Swag Bag\" is a way to support the ongoing<br>development, maintenance and support of QZ Fitness!<br><br>Thanks to Rungap App to give me the idea of the name!")
     }
 
     Column {
         anchors.top: description.bottom
         anchors.bottom: restoreButton.top
-        anchors.margins: topLevel.globalMargin
         anchors.right: parent.right
         anchors.left: parent.left
-        spacing: topLevel.globalMargin
 
         SwagBagItem {
             product: productUnlockVowels
@@ -77,9 +77,7 @@ Item {
     Button {
         id: restoreButton
         anchors.bottom: parent.bottom
-        anchors.margins: topLevel.globalMargin
         anchors.horizontalCenter: parent.horizontalCenter
-        height: topLevel.buttonHeight
         width: parent.width * .5
         text: "Restore Purchases"
         onClicked: {

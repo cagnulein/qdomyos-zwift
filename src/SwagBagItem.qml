@@ -63,29 +63,23 @@ Rectangle {
     radius: 10
     color: "white"
 
-    height: titleText.contentHeight + descriptionText.contentHeight + topLevel.globalMargin * 2
+    height: titleText.contentHeight + descriptionText.contentHeight +  2
     // ![0]
     Text {
         id: titleText
         text: product.title
         font.bold: true
         anchors.right: priceText.left
-        anchors.rightMargin: topLevel.globalMargin
         anchors.top: parent.top
-        anchors.topMargin: topLevel.globalMargin
         anchors.left: parent.left
-        anchors.leftMargin: topLevel.globalMargin
     }
 
     Text {
         id: descriptionText
         text: product.description
         anchors.right: priceText.left
-        anchors.rightMargin: topLevel.globalMargin
         anchors.left: parent.left
-        anchors.leftMargin: topLevel.globalMargin
         anchors.top: titleText.bottom
-        anchors.topMargin: topLevel.globalMargin / 2
         wrapMode: Text.WordWrap
     }
 
@@ -93,7 +87,6 @@ Rectangle {
         id: priceText
         text: product.price
         anchors.right: parent.right
-        anchors.rightMargin: topLevel.globalMargin
         anchors.verticalCenter: parent.verticalCenter
     }
 
@@ -127,7 +120,6 @@ Rectangle {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: spinBox.left
-            anchors.margins: topLevel.globalMargin
             verticalAlignment: Text.AlignVCenter
         }
         BusyIndicator {
@@ -135,7 +127,6 @@ Rectangle {
             anchors.top: parent.top
             anchors.bottom: parent.bottom
             anchors.right: parent.right
-            anchors.margins: topLevel.globalMargin
             width: height
         }
 
