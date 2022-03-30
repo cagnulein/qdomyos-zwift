@@ -18,4 +18,7 @@ RUN git submodule update --init src/smtpclient/
 RUN git submodule update --init src/qmdnsengine/
 WORKDIR /usr/local/src/qdomyos-zwift/src
 RUN qmake
-RUN make -j4 
+RUN make -j4
+
+WORKDIR /usr/local/src/qdomyos-zwift/src
+CMD ["./qdomyos-zwift","-no-gui"]
