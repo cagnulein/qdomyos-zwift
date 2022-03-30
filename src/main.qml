@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import org.cagnulein.qdomyoszwift 1.0
 
 ApplicationWindow {
     id: window
@@ -34,6 +35,10 @@ ApplicationWindow {
     Settings {
         id: settings
         property string profile_name: "default"
+    }
+
+    Store {
+        id: iapStore
     }
 
     Popup {

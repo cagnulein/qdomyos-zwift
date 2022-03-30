@@ -27,18 +27,28 @@
           "displayPrice" : "1.99",
           "familyShareable" : false,
           "groupNumber" : 1,
-          "internalID" : "9BBFA793",
+          "internalID" : "F108BD35",
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "",
-              "displayName" : "",
+              "description" : "Swag Bag",
+              "displayName" : "Swag Bag",
               "locale" : "en_US"
+            },
+            {
+              "description" : "Swag Bag",
+              "displayName" : "Swag Bag",
+              "locale" : "en_GB"
+            },
+            {
+              "description" : "Swag Bag",
+              "displayName" : "Swag Bag",
+              "locale" : "it"
             }
           ],
           "productID" : "org.cagnulein.qdomyoszwift.swagbag",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Swag Bag",
+          "referenceName" : "SwagBag",
           "subscriptionGroupID" : "F012E388",
           "type" : "RecurringSubscription"
         }

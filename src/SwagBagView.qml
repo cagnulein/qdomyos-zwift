@@ -58,13 +58,15 @@ Item {
     Text {
         id: description
         width: parent.width
-        color: white
-        text: qsTr("Hi! Do you know that QZ is just an Open Souce Indie App?<br>No Big Companies are running this!<br><br>The \"Swag Bag\" is a way to support the ongoing<br>development, maintenance and support of QZ Fitness!<br><br>Thanks to Rungap App to give me the idea of the name!")
+        anchors.horizontalCenter: parent.horizontalCenter
+        color: "white"
+        text: qsTr("Hi! Do you know that QZ is just an<br>Open Souce Indie App?<br>No Big Companies are running this!<br><br>The \"Swag Bag\" is a way to support the ongoing<br>development, maintenance and support<br>of QZ Fitness!<br><br>Thanks to Rungap App to give me the idea<br>of the name!")
     }
 
     Column {
-        anchors.top: description.bottom
-        anchors.bottom: restoreButton.top
+        //anchors.top: description.bottom + 10
+        anchors.bottom: parent.bottom
+        //anchors.bottom: restoreButton.top
         anchors.right: parent.right
         anchors.left: parent.left
 
@@ -74,7 +76,7 @@ Item {
         }
     }
 
-    Button {
+    /*Button {
         id: restoreButton
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
@@ -84,7 +86,7 @@ Item {
             console.log("restoring...");
             iapStore.restorePurchases();
         }
-    }
+    }*/
 
     Product {
         id: productUnlockVowels
