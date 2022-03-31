@@ -636,7 +636,7 @@ DISTFILES += \
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_ABIS = armeabi-v7a arm64-v8a
+ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
 #ANDROID_ABIS = arm64-v8a
 
 ios {
