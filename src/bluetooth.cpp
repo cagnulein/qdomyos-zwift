@@ -1512,6 +1512,8 @@ void bluetooth::connectedAndDiscovered() {
     if (this->device() != nullptr) {
 
 #ifdef Q_OS_IOS
+// this will leading to unreliable connection to HR
+#if 0
         QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
         QString b = settings.value("hrm_lastdevice_name", "").toString();
         qDebug() << "last hrm name" << b;
@@ -1527,6 +1529,7 @@ void bluetooth::connectedAndDiscovered() {
             qDebug() << "UUID" << bt.deviceUuid();
             heartRateBelt->deviceDiscovered(bt);
         }
+#endif
 #endif
         for (const QBluetoothDeviceInfo &b : qAsConst(devices)) {
             if (((b.name().startsWith(heartRateBeltName))) && !heartRateBelt &&

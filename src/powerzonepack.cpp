@@ -56,6 +56,9 @@ void powerzonepack::login_onfinish(const QString &message) {
 }
 
 bool powerzonepack::searchWorkout(const QString &classid) {
+
+    qDebug() << "powerzonepack::searchWorkout" << pzp_credentials_wrong << classid;
+
     if (pzp_credentials_wrong) {
         return false;
     }
