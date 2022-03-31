@@ -105,9 +105,9 @@ public class InAppPurchase implements PurchasesUpdatedListener
     public static final int FAILUREREASON_USERCANCELED = 1;
     public static final int FAILUREREASON_ERROR        = 2;
 
-	 public InAppPurchase(long nativePointer)
+    public InAppPurchase(Context context, long nativePointer)
     {
-		  m_context = getActivity().getApplicationContext(); // changed from Qt6
+        m_context = context;
         m_nativePointer = nativePointer;
     }
 
