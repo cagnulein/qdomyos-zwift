@@ -22,6 +22,8 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    container:
+      image: ubuntu:21.04    
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
