@@ -668,9 +668,11 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-include($$PWD/purchasing/purchasing.pri)
-INCLUDEPATH += purchasing/qmltypes
-INCLUDEPATH += purchasing/inapp
+unix:android|ios {
+   include($$PWD/purchasing/purchasing.pri)
+   INCLUDEPATH += purchasing/qmltypes
+   INCLUDEPATH += purchasing/inapp
+}
 
 VERSION = 2.10.55
 
