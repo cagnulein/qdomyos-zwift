@@ -631,6 +631,10 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+	android/src/org/qtproject/qt/android/purchasing/Security.java \
+	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
+	android/src/org/qtproject/qt/android/purchasing/Base64.java \
+	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 

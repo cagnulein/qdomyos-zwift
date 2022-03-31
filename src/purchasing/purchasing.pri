@@ -29,17 +29,6 @@ android {
         $$PWD/android/androidinappproduct.h \
         $$PWD/android/androidinapppurchasebackend.h \
         $$PWD/android/androidinapptransaction.h
-
-    ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android/
-    JAVA_CLASS_PATH = $$ANDROID_PACKAGE_SOURCE_DIR/src/org/qtproject/qt/android/purchasing/
-
-    OTHER_FILES += \
-        $$PWD/android/AndroidManifest.xml \
-        $$PWD/android/build.gradle \
-        $$JAVA_CLASS_PATH/Security.java \
-        $$JAVA_CLASS_PATH/InAppPurchase.java \
-        $$JAVA_CLASS_PATH/Base64.java \
-        $$JAVA_CLASS_PATH/Base64DecoderException.java
 }
 
 ios {
