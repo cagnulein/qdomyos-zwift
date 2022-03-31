@@ -357,6 +357,9 @@ import Qt.labs.settings 1.0
             // from the version 2.10.49
             property bool dircon_yes: false
             property int dircon_server_base_port: 4810
+
+            // from the version 2.10.56
+            property bool ios_cache_heart_device: true
         }
 
         function paddingZeros(text, limit) {
@@ -5938,6 +5941,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: appleHeartCacheDelegate
+                        text: qsTr("iOS Heart Caching")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_cache_heart_device
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ios_cache_heart_device = checked
                     }
 
                     SwitchDelegate {
