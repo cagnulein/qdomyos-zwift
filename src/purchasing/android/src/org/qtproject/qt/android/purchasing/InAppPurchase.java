@@ -105,11 +105,17 @@ public class InAppPurchase implements PurchasesUpdatedListener
     public static final int FAILUREREASON_USERCANCELED = 1;
     public static final int FAILUREREASON_ERROR        = 2;
 
-    public InAppPurchase(Context context, long nativePointer)
+	 public InAppPurchase()
     {
-        m_context = context;
-        m_nativePointer = nativePointer;
+		  //m_context = context;
+		  //m_nativePointer = nativePointer;
     }
+
+    public void initPointer(Context context, long nativePointer)
+	 {
+		 m_context = context;
+		 m_nativePointer = nativePointer;
+	 }
 
     public void initializeConnection(){
         billingClient = BillingClient.newBuilder(m_context)

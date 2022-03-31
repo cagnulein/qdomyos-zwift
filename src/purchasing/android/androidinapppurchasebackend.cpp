@@ -62,8 +62,9 @@ QT_BEGIN_NAMESPACE
 
 AndroidInAppPurchaseBackend::AndroidInAppPurchaseBackend(QObject *parent)
     : InAppPurchaseBackend(parent), m_isReady(false) {
-    m_javaObject =
-        QAndroidJniObject("org/qtproject/qt/android/purchasing/InAppPurchase", "(Landroid/content/Context;J)V", this);
+    m_javaObject = QAndroidJniObject("org/qtproject/qt/android/purchasing/InAppPurchase");
+    m_javaObject.callMethod<void>("initPointer", "(Landroid/content/Context;J)V", QtAndroid::androidContext().object(),
+                                  this);
 
     if (!m_javaObject.isValid()) {
         qWarning("Cannot initialize IAP backend for Android due to missing dependency: InAppPurchase class");
