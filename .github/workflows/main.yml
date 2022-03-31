@@ -22,8 +22,6 @@ jobs:
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    container:
-      image: ubuntu:21.04    
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -43,7 +41,7 @@ jobs:
 
       - name: Xvfb install and run
         run: |
-          apt-get install -y xvfb
+          sudo apt-get install -y xvfb
           Xvfb -ac ${{ env.DISPLAY }} -screen 0 1280x780x24 &    
 
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -63,7 +61,7 @@ jobs:
           ref: "DesiredHostname"
 
       - name: Install packages required to run QZ inside workflow
-        run: apt update -y && sudo apt-get install -y sudo qt5-default qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
+        run: apt update -y && sudo apt-get install -y qt5-default qtquickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-default libqt5networkauth5-dev libqt5websockets5* libxcb-randr0-dev libxcb-xtest0-dev libxcb-xinerama0-dev libxcb-shape0-dev libxcb-xkb-dev
       
       - name: Compile Linux Desktop
         run: cd src; qmake; make -j8
