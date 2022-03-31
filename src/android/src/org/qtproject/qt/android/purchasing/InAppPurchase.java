@@ -230,7 +230,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
     }
 
     //Launch Google purchasing screen
-    public void launchBillingFlow(String identifier, int requestCode){
+    public void launchBillingFlow(String identifier, final int requestCode){
 
         purchaseRequestCode = requestCode;
         List<String> skuList = new ArrayList<>();
@@ -297,7 +297,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
         billingClient.acknowledgePurchase(acknowledgePurchaseParams, acknowledgePurchaseResponseListener);
     }
 
-    public void queryPurchasedProducts(List<String> productIdList) {
+    public void queryPurchasedProducts(final List<String> productIdList) {
 
         billingClient.queryPurchasesAsync(TYPE_INAPP, new PurchasesResponseListener() {
             @Override
