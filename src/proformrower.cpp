@@ -522,11 +522,16 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
+        bool virtual_device_rower = settings.value("virtual_device_rower", false).toBool();
         if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
-                if (!virtual_device_force_bike) {
+                if (virtual_device_rower) {
+                    qDebug() << QStringLiteral("creating virtual rower interface...");
+                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
                     virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformrower::debug);
