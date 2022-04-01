@@ -105,7 +105,7 @@ import Qt.labs.settings 1.0
             property int  tile_peloton_offset_order: 22
             property bool tile_peloton_difficulty_enabled: false
             property int  tile_peloton_difficulty_order: 32
-            property bool tile_peloton_resistance_enabled: true            
+            property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
             property int  tile_datetime_order: 16
@@ -166,7 +166,7 @@ import Qt.labs.settings 1.0
             property bool domyos_treadmill_distance_display: true
             property bool domyos_treadmill_display_invert: false
 
-            property real domyos_bike_cadence_filter: 0.0            
+            property real domyos_bike_cadence_filter: 0.0
             property bool domyos_bike_display_calories: true
 
             property real domyos_elliptical_speed_ratio: 1.0
@@ -307,9 +307,9 @@ import Qt.labs.settings 1.0
             // from version 2.10.18
             property real treadmill_step_speed: 0.5
             property real treadmill_step_incline: 0.5
-            
+
             // from version 2.10.19
-            property bool  fitshow_anyrun: false            
+            property bool  fitshow_anyrun: false
 
             // from version 2.10.21
             property bool nordictrack_s30_treadmill: false
@@ -330,8 +330,8 @@ import Qt.labs.settings 1.0
             property real ss2k_resistance_sample_3: 40
             property real ss2k_shift_step_sample_3: 0
             property real ss2k_resistance_sample_4: 50
-            property real ss2k_shift_step_sample_4: 0            
-            
+            property real ss2k_shift_step_sample_4: 0
+
             property bool  fitshow_truetimer: false
 
             // from the version 2.10.28
@@ -358,7 +358,10 @@ import Qt.labs.settings 1.0
             property bool dircon_yes: false
             property int dircon_server_base_port: 4810
 
-            // from the version 2.10.xx
+            // from the version 2.10.56
+            property bool ios_cache_heart_device: true
+
+            // from the version 2.10.57
             property int app_opening: 0
         }
 
@@ -3245,7 +3248,7 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.top_bar_enabled = checked
-                    }                    
+                    }
                 }
             }
 
@@ -5757,7 +5760,7 @@ import Qt.labs.settings 1.0
                                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                         Layout.fillWidth: true
                                         onClicked: settings.virtual_device_rower = checked
-                                    }                                    
+                                    }
                                     SwitchDelegate {
                                         id: virtualBikeForceResistanceDelegate
                                         text: qsTr("Zwift Force Resistance")
@@ -5941,6 +5944,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: appleHeartCacheDelegate
+                        text: qsTr("iOS Heart Caching")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_cache_heart_device
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ios_cache_heart_device = checked
                     }
 
                     SwitchDelegate {
