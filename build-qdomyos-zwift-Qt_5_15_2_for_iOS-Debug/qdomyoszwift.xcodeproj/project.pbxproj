@@ -223,6 +223,7 @@
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
 		8752B4CD27F43D9200E2EC6C /* qz.storekit in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8752B4CC27F43D9200E2EC6C /* qz.storekit */; };
+		8754D24C27F786F0003D7054 /* virtualrower.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8754D24B27F786F0003D7054 /* virtualrower.swift */; };
 		87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4025B8340E00A243C4 /* proformbike.cpp */; };
 		87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4225B8341B00A243C4 /* moc_proformbike.cpp */; };
 		875F69B926342E8D0009FD78 /* spirittreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 875F69B826342E8D0009FD78 /* spirittreadmill.cpp */; };
@@ -874,6 +875,7 @@
 		87473A9527ECA9EE00C203F5 /* proformrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformrower.cpp; path = ../src/proformrower.cpp; sourceTree = "<group>"; };
 		87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformrower.cpp; sourceTree = "<group>"; };
 		8752B4CC27F43D9200E2EC6C /* qz.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = qz.storekit; sourceTree = "<group>"; };
+		8754D24B27F786F0003D7054 /* virtualrower.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualrower.swift; path = ../src/ios/virtualrower.swift; sourceTree = "<group>"; };
 		87586A3F25B8340D00A243C4 /* proformbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformbike.h; path = ../src/proformbike.h; sourceTree = "<group>"; };
 		87586A4025B8340E00A243C4 /* proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformbike.cpp; path = ../src/proformbike.cpp; sourceTree = "<group>"; };
 		87586A4225B8341B00A243C4 /* moc_proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformbike.cpp; sourceTree = "<group>"; };
@@ -1448,6 +1450,7 @@
 		0FF051564C679F373AD93E32 /* ios */ = {
 			isa = PBXGroup;
 			children = (
+				8754D24B27F786F0003D7054 /* virtualrower.swift */,
 				2F0E70F726316F3600E11F3A /* virtualbike_zwift.swift */,
 				871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */,
 				876E4E4E259479EE00BD5714 /* APIFetcher.swift */,
@@ -2574,7 +2577,6 @@
 				87C5F0C126285E5F0067A1B5 /* mimeattachment.cpp in Compile Sources */,
 				87440FBD2640291700E4DC0B /* fitplusbike.cpp in Compile Sources */,
 				878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */,
-				87EB916D27EE574A002535E1 /* moc_nautilusbike.cpp in Compile Sources */,
 				871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */,
 				87ADD2BB27634C1500B7A0AB /* technogymmyruntreadmill.cpp in Compile Sources */,
 				873824BC27E64707004F1B46 /* moc_resolver.cpp in Compile Sources */,
@@ -2825,6 +2827,7 @@
 				8718CBA3263063BD004BF4EE /* templateinfosender.cpp in Compile Sources */,
 				E8B499F921FB0AB55C7A8A8B /* moc_gpx.cpp in Compile Sources */,
 				87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */,
+				8754D24C27F786F0003D7054 /* virtualrower.swift in Compile Sources */,
 				873824B727E64707004F1B46 /* moc_characteristicwriteprocessor.cpp in Compile Sources */,
 				87310B1F266FBB59008BA0D6 /* homefitnessbuddy.cpp in Compile Sources */,
 				140BAAA8823E05940EF35A38 /* moc_treadmill.cpp in Compile Sources */,

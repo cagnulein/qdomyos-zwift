@@ -19,6 +19,18 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     Q_UNUSED(noWriteResistance)
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
+
+        qDebug() << "ios_zwift_workaround activated!";
+        h = new lockscreen();
+        h->virtualbike_zwift_ios();
+    } else
+
+#endif
+#endif
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -294,6 +306,38 @@ void virtualrower::rowerProvider() {
 
     QSettings settings;
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (h) {
+        // really connected to a device
+        if (h->virtualrower_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
+                                      (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
+                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
+            h->virtualrower_setHeartRate(Bike->currentHeart().value());
+
+            uint8_t ftms_message[255];
+            int ret = h->virtualrower_getLastFTMSMessage(ftms_message);
+            if (ret > 0) {
+                lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+                qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
+                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
+                                               QByteArray::fromRawData((char *)ftms_message, ret));
+            }
+            qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
+            if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) {/*
+                if (!erg_mode)
+                    writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope());
+                else {
+                    qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
+                    writeP2AD9->changePower(h->virtualbike_getPowerRequested());
+                }*/
+            }
+        }
+        return;
+    }
+#endif
+#endif
 
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtual rower not connected");

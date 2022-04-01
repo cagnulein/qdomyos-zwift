@@ -315,39 +315,17 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   }
     
     func calculateRower() -> Data {
-
-/*
-
-        value.append((char)0xA0); // resistance level, power and speed
-        value.append((char)0x02); // heart rate
-
-        value.append((char)((uint8_t)Rower->currentCadence().value() & 0xFF)); // Stroke Rate
-
-        value.append((char)((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) & 0xFF));        // Stroke Count
-        value.append((char)(((uint16_t)(((rower *)Rower)->currentStrokesCount().value()) >> 8) & 0xFF)); // Stroke Count
-
-        value.append((char)(((uint16_t)Rower->wattsMetric().value()) & 0xFF));      // watts
-        value.append((char)(((uint16_t)Rower->wattsMetric().value()) >> 8) & 0xFF); // watts
-
-        value.append((char)((uint16_t)(Rower->currentResistance().value()) & 0xFF));        // resistance
-        value.append((char)(((uint16_t)(Rower->currentResistance().value()) >> 8) & 0xFF)); // resistance
-
-        value.append(char(Rower->currentHeart().value())); // Actual value.
-        value.append((char)0);                             // Bkool FTMS protocol HRM offset 1280 fix
-*/
-
         let flags0:UInt8 = 0xA0
         let flags1:UInt8 = 0x02
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var rower: [UInt8] = [flags0, flags1,  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)((self.CurrentCadence >> 8) & 0xFF), self.CurrentResistance, 0x00, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF),
-                                   self.heartRate, 0x00]
-      let rowerData = Data(bytes: &indoorBike, count: 12)
+        var rower: [UInt8] = [flags0, flags1,  (UInt8)(self.CurrentCadence & 0xFF), 0x00 /* stroke count L*/, 0x00 /* stroke count H*/, (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), 0x00 /* resistance L*/, 0x00 /* resistance H*/, self.heartRate, 0x00]
+      let rowerData = Data(bytes: &rower, count: 11)
       return rowerData
     }
   
   @objc func updateSubscribers() {
     let heartRateData = self.calculateHeartRate()
-    let indoorBikeData = self.calculateIndoorBike()
+    let rowerData = self.calculateRower()
     let cadenceData = self.calculateCadence()
     
     if(self.serviceToggle == 2)
@@ -366,7 +344,7 @@ class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
     }
     else
     {
-        let ok = self.peripheralManager.updateValue(indoorBikeData, for: self.indoorbikeCharacteristic, onSubscribedCentrals: nil)
+        let ok = self.peripheralManager.updateValue(rowerData, for: self.rowerCharacteristic, onSubscribedCentrals: nil)
         if(ok) {
             self.serviceToggle = self.serviceToggle + 1
         }
