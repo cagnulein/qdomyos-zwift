@@ -43,5 +43,8 @@
         <file>Credits.qml</file>
         <file>WebEngineTest.qml</file>
         <file>profiles.qml</file>
+        <file>SwagBagView.qml</file>
+        <file>SimpleButton.qml</file>
+        <file>SwagBagItem.qml</file>
     </qresource>
 </RCC>

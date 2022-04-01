@@ -21,6 +21,16 @@ qtHaveModule(httpserver) {
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
+
+CONFIG += qmltypes
+QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
+QML_IMPORT_MAJOR_VERSION = 1
+# Additional import path used to resolve QML modules in Qt Creator's code model
+QML_IMPORT_PATH =
+
+# Additional import path used to resolve QML modules just for Qt Quick Designer
+QML_DESIGNER_IMPORT_PATH =
+
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
@@ -621,12 +631,16 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+	android/src/org/qtproject/qt/android/purchasing/Security.java \
+	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
+	android/src/org/qtproject/qt/android/purchasing/Base64.java \
+	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-ANDROID_ABIS = armeabi-v7a arm64-v8a
+ANDROID_ABIS = armeabi-v7a arm64-v8a x86 x86_64
 #ANDROID_ABIS = arm64-v8a
 
 ios {
@@ -658,5 +672,10 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.10.56
+unix:android|ios {
+   include($$PWD/purchasing/purchasing.pri)
+   INCLUDEPATH += purchasing/qmltypes
+   INCLUDEPATH += purchasing/inapp
+}
 
+VERSION = 2.10.56
