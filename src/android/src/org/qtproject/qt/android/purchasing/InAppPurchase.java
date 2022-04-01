@@ -97,7 +97,8 @@ public class InAppPurchase implements PurchasesUpdatedListener
 
     public static final int RESULT_OK = BillingClient.BillingResponseCode.OK;
     public static final int RESULT_USER_CANCELED = BillingClient.BillingResponseCode.USER_CANCELED;
-    public static final String TYPE_INAPP = BillingClient.SkuType.INAPP;
+	 public static final String TYPE_INAPP = BillingClient.SkuType.INAPP;
+	 public static final String TYPE_SUBS = BillingClient.SkuType.SUBS;
     public static final String TAG = "InAppPurchase";
 
     // Should be in sync with InAppTransaction::FailureReason
@@ -184,22 +185,24 @@ public class InAppPurchase implements PurchasesUpdatedListener
     }
 
     public void queryDetails(final String[] productIds) {
-
+		  Log.d(TAG, "queryDetails: start");
         int index = 0;
+		  Log.d(TAG, "queryDetails: productIds.length " + productIds.length);
         while (index < productIds.length) {
             List<String> productIdList = new ArrayList<>();
             for (int i = index; i < Math.min(index + 20, productIds.length); ++i) {
-                productIdList.add(productIds[i]);
+                productIdList.add(productIds[i]);					 
             }
             index += productIdList.size();
 
             SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
-            params.setSkusList(productIdList).setType(TYPE_INAPP);
+				params.setSkusList(productIdList).setType(TYPE_SUBS);
             billingClient.querySkuDetailsAsync(params.build(),
                     new SkuDetailsResponseListener() {
                         @Override
                         public void onSkuDetailsResponse(BillingResult billingResult, List<SkuDetails> skuDetailsList) {
                             int responseCode = billingResult.getResponseCode();
+									 Log.d(TAG, "onSkuDetailsResponse: responseCode " + responseCode);
 
                             if (responseCode != RESULT_OK) {
                                 Log.e(TAG, "queryDetails: Couldn't retrieve sku details.");
@@ -210,6 +213,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
                                 return;
                             }
 
+								    Log.d(TAG, "onSkuDetailsResponse: skuDetailsList " + skuDetailsList);
                             for (SkuDetails skuDetails : skuDetailsList) {
                                 try {
                                     String queriedProductId = skuDetails.getSku();
@@ -240,7 +244,7 @@ public class InAppPurchase implements PurchasesUpdatedListener
         List<String> skuList = new ArrayList<>();
         skuList.add(identifier);
         SkuDetailsParams.Builder params = SkuDetailsParams.newBuilder();
-        params.setSkusList(skuList).setType(TYPE_INAPP);
+		  params.setSkusList(skuList).setType(TYPE_SUBS);
         billingClient.querySkuDetailsAsync(params.build(),
                 new SkuDetailsResponseListener() {
                     @Override
