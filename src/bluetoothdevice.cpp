@@ -171,6 +171,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         WattKg = 0;
     }
     METS = calculateMETS();
+    elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
     _firstUpdate = false;
@@ -341,3 +342,4 @@ void bluetoothdevice::changeGeoPosition(QGeoCoordinate p) { coordinate = p; }
 QGeoCoordinate bluetoothdevice::currentCordinate() { return coordinate; }
 
 void bluetoothdevice::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) { lastState = state; }
+void bluetoothdevice::setInclination(double inclination) {Inclination = inclination;}

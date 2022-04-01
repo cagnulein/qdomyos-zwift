@@ -426,6 +426,17 @@ void proformbike::update() {
     }
 }
 
+bool proformbike::inclinationAvailableByHardware() {
+    QSettings settings;
+    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+
+    if(proform_studio || proform_tdf_10)
+        return true;
+    else
+        return false;
+}
+
 int proformbike::pelotonToBikeResistance(int pelotonResistance) {
     if (pelotonResistance <= 10) {
         return 1;

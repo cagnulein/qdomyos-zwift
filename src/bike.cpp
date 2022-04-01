@@ -239,3 +239,5 @@ uint8_t bike::metrics_override_heartrate() {
     }
     return qRound(currentHeart().value());
 }
+
+bool bike::inclinationAvailableByHardware() {return false;}

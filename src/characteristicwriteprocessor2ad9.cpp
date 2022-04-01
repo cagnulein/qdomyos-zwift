@@ -142,8 +142,13 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance) {
       double resistance = ((double)iresistance * 1.5) / 100.0;
       qDebug() << QStringLiteral("calculated erg grade ") + QString::number(resistance);
 
+      double grade = ((iresistance / 100.0) * gain) + offset;
+      // if the bike doesn't have the inclination by hardware, i'm simulating inclination with the value received form Zwift
+      if(!((bike*)Bike)->inclinationAvailableByHardware())
+          Bike->setInclination(grade);
+
       if (iresistance >= 0 || !zwift_negative_inclination_x2)
-          emit changeInclination(((iresistance / 100.0) * gain) + offset,
+          emit changeInclination(grade,
                                  ((qTan(qDegreesToRadians(iresistance / 100.0)) * 100.0) * gain) + offset);
       else
           emit changeInclination((((iresistance / 100.0) * 2.0) * gain) + offset,

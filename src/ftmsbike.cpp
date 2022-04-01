@@ -453,6 +453,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
+        // handling gears
+        if(b.at(0) == 0x11) {
+            qDebug() << "applying gears mod" << m_gears;
+            int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+            if(m_gears != 0) {
+                slope += slope * (m_gears * 0.05);
+                b[3] = slope & 0xFF;
+                b[4] = slope >> 8;
+            }
+        }
+
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
     }
 }

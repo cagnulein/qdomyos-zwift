@@ -34,6 +34,7 @@ class bluetoothdevice : public QObject {
     virtual metric currentSpeed();
     virtual QTime currentPace();
     virtual metric currentInclination();
+    void setInclination(double inclination);
     virtual QTime averagePace();
     virtual QTime maxPace();
     virtual double odometer();

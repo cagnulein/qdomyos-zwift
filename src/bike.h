@@ -33,6 +33,7 @@ class bike : public bluetoothdevice {
     void setGears(int8_t d);
     int8_t gears();
     metric currentSteeringAngle() { return m_steeringAngle; }
+    virtual bool inclinationAvailableByHardware();
 
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
