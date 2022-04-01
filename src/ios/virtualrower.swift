@@ -1,19 +1,13 @@
 import CoreBluetooth
 
-let FitnessMachineServiceUuid = CBUUID(string: "0x1826");
-let FitnessMachineFeatureCharacteristicUuid = CBUUID(string: "0x2ACC");
-let supported_resistance_level_rangeCharacteristicUuid = CBUUID(string: "0x2AD6");
-let FitnessMachineControlPointUuid = CBUUID(string: "0x2AD9");
 let rowerUuid = CBUUID(string: "0x2AD1");
-let FitnessMachinestatusUuid = CBUUID(string: "0x2ADA");
-let TrainingStatusUuid = CBUUID(string: "0x2AD3");
 
 @objc public class virtualrower: NSObject {
-    private var peripheralManager: BLEPeripheralManagerZwift!
+    private var peripheralManager: rowerBLEPeripheralManagerZwift!
     
     @objc public override init() {
       super.init()
-      peripheralManager = BLEPeripheralManagerZwift()
+      peripheralManager = rowerBLEPeripheralManagerZwift()
     }
     
     @objc public func updateHeartRate(HeartRate: UInt8)
@@ -50,7 +44,7 @@ let TrainingStatusUuid = CBUUID(string: "0x2AD3");
     }
 }
 
-class BLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
+class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   private var peripheralManager: CBPeripheralManager!
 
   private var heartRateService: CBMutableService!

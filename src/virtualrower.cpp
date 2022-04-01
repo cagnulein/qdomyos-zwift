@@ -22,7 +22,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-    if (ios_peloton_workaround && !cadence && !echelon && !ifit && !heart_only && !power) {
+    if (ios_peloton_workaround && !heart_only) {
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
@@ -307,14 +307,20 @@ void virtualrower::rowerProvider() {
     QSettings settings;
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
 
+    double normalizeWattage = Rower->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
+    uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+    
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     if (h) {
         // really connected to a device
-        if (h->virtualrower_updateFTMS(normalizeSpeed, (char)Bike->currentResistance().value(),
-                                      (uint16_t)Bike->currentCadence().value() * 2, (uint16_t)normalizeWattage,
-                                      Bike->currentCrankRevolutions(), Bike->lastCrankEventTime())) {
-            h->virtualrower_setHeartRate(Bike->currentHeart().value());
+        if (h->virtualrower_updateFTMS(normalizeSpeed, (char)Rower->currentResistance().value(),
+                                      (uint16_t)Rower->currentCadence().value() * 2, (uint16_t)normalizeWattage,
+                                       Rower->currentCrankRevolutions(), Rower->lastCrankEventTime())) {
+            h->virtualrower_setHeartRate(Rower->currentHeart().value());
 
             uint8_t ftms_message[255];
             int ret = h->virtualrower_getLastFTMSMessage(ftms_message);

@@ -60,8 +60,6 @@ void lockscreen::virtualbike_setHeartRate(unsigned char heartRate)
         [_virtualbike updateHeartRateWithHeartRate:heartRate];
     if(_virtualbike_zwift != nil)
         [_virtualbike_zwift updateHeartRateWithHeartRate:heartRate];
-    if(_virtualrower != nil)
-        [_virtualrower updateHeartRateWithHeartRate:heartRate];
 }
 
 void lockscreen::virtualbike_setCadence(unsigned short crankRevolutions, unsigned short lastCrankEventTime)
@@ -110,6 +108,12 @@ bool lockscreen::virtualrower_updateFTMS(UInt16 normalizeSpeed, UInt8 currentRes
     if(_virtualrower != nil)
         return [_virtualrower updateFTMSWithNormalizeSpeed:normalizeSpeed currentCadence:currentCadence currentResistance:currentResistance currentWatt:currentWatt CrankRevolutions:CrankRevolutions LastCrankEventTime:LastCrankEventTime];
     return 0;
+}
+
+void lockscreen::virtualrower_setHeartRate(unsigned char heartRate)
+{
+    if(_virtualrower != nil)
+        [_virtualrower updateHeartRateWithHeartRate:heartRate];
 }
 
 
