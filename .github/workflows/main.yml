@@ -68,6 +68,7 @@ jobs:
         with:
           version: '5.15.2'
           host: 'linux'
+          modules: 'qtnetworkauth qtcharts'
       
       - name: Compile Linux Desktop
         run: cd src; qmake; make -j8
