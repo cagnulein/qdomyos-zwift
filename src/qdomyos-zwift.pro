@@ -678,4 +678,4 @@ unix:android|ios {
    INCLUDEPATH += purchasing/inapp
 }
 
-VERSION = 2.10.57
+VERSION = 2.10.58

@@ -26,7 +26,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
         qDebug() << "ios_zwift_workaround activated!";
         h = new lockscreen();
-        h->virtualbike_zwift_ios();
+        h->virtualrower_ios();
     } else
 
 #endif
