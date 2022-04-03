@@ -458,7 +458,7 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
             qDebug() << "applying gears mod" << m_gears;
             int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
             if(m_gears != 0) {
-                slope += slope * (m_gears * 0.05);
+                slope += (m_gears * 50);
                 b[3] = slope & 0xFF;
                 b[4] = slope >> 8;
             }
