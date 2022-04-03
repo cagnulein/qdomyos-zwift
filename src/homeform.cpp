@@ -2273,6 +2273,13 @@ void homeform::update() {
                                     settings.value(QStringLiteral("bike_resistance_gain_f"), 1.0).toDouble() *
                                     settings.value(QStringLiteral("bike_resistance_offset"), 4.0).toDouble(),
                                 'f', 0));
+
+            elevation->setValue(
+                QString::number(((bike *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
+            elevation->setSecondLine(
+                QString::number(((bike *)bluetoothManager->device())->elevationGain().rate1s() * 60.0, 'f', 1) +
+                " /min");
+            
             if (trainProgram) {
                 int8_t lower_requested_peloton_resistance =
                     trainProgram->currentRow().lower_requested_peloton_resistance;
@@ -2423,6 +2430,9 @@ void homeform::update() {
                 QString::number(((elliptical *)bluetoothManager->device())->currentInclination().max(), 'f', 1));
             elevation->setValue(
                 QString::number(((elliptical *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
+            elevation->setSecondLine(
+                QString::number(((elliptical *)bluetoothManager->device())->elevationGain().rate1s() * 60.0, 'f', 1) +
+                " /min");
         }
         watt->setSecondLine(
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
