@@ -628,23 +628,32 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              */
 
             int resistance = iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value());
+            double odometer = Bike->odometer();
+            double calories = Bike->calories().value();
             if (resistance > 0x26)
                 resistance = 0x26;
             qint64 t = (QDateTime::currentSecsSinceEpoch() - timer);
             reply2[11] = resistance;                                       // resistance (limit to 0x26)
             reply2[12] = ((uint16_t)normalizeWattage) & 0xff;              // watt (l)
             reply2[13] = ((uint16_t)normalizeWattage) >> 8;                // watt (h)
-            reply2[14] = ((uint32_t)Bike->odometer()) & 0xFF;              // distance (l)
+            reply2[14] = ((uint32_t)odometer) & 0xFF;              // distance (l)
+            reply2[15] = ((uint32_t)odometer) >> 8;              // distance (ll)
+            reply2[16] = ((uint32_t)odometer) >> 16;              // distance (h)
             reply2[18] = ((uint8_t)Bike->currentCadence().value()) & 0xff; // cadence
             reply3[6] = t & 0xff;
+            reply3[7] = t >> 8;
             reply3[11] = t & 0xff;
-            reply3[13] = ((uint16_t)(Bike->currentSpeed().value() * 100.0)) & 0xff; // speed (l)
-            reply3[14] = ((uint16_t)(Bike->currentSpeed().value() * 100.0)) >> 8;   // speed (h)
+            reply3[12] = t >> 8;
+            double speed = Bike->currentSpeed().value();
+            reply3[13] = ((uint16_t)(speed * 100.0)) & 0xff; // speed (l)
+            reply3[14] = ((uint16_t)(speed * 100.0)) >> 8;   // speed (h)
             reply3[15] = t & 0xff;
-            reply4[3] = ((uint16_t)Bike->calories().value());  // KCal
-            reply4[10] = ((uint16_t)Bike->calories().value()); // KCal extimated
+            reply3[16] = t >> 8;
+            reply4[3] = ((uint16_t)calories);  // KCal
+            reply4[10] = ((uint16_t)calories); // KCal extimated
             reply3[19] = 0xEE - (reply3[15] * 3) - (reply4[10] * 2) - (reply2[18]) - (reply2[11]) - (reply2[12]) -
-                         (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]);
+                         (reply2[13]) - (reply3[13]) - (reply3[14]) - (reply2[14]) - (reply3[7]) - (reply3[12]) -
+                         (reply3[16]) - (reply2[15]) - (reply2[16]);
             reply4[19] = reply3[19];
 
             /*static uint64_t time = 0;
@@ -724,7 +733,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 }
             }
 
-        } else if (newValue.length() > 8) {
+        } else if (newValue.length() > 8 && (uint8_t)newValue.at(0) == 0xFF) {
             qDebug() << "ifit not managed";
         }
     }
