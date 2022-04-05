@@ -1214,6 +1214,12 @@ void homeform::sortTiles() {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
             }
+
+            if (settings.value(QStringLiteral("tile_target_zone_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_zone_order"), 24).toInt() == i) {
+                target_zone->setGridId(i);
+                dataList.append(target_zone);
+            }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
         for (int i = 0; i < 100; i++) {
@@ -2274,12 +2280,11 @@ void homeform::update() {
                                     settings.value(QStringLiteral("bike_resistance_offset"), 4.0).toDouble(),
                                 'f', 0));
 
-            elevation->setValue(
-                QString::number(((bike *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
+            elevation->setValue(QString::number(((bike *)bluetoothManager->device())->elevationGain().value(), 'f', 1));
             elevation->setSecondLine(
                 QString::number(((bike *)bluetoothManager->device())->elevationGain().rate1s() * 60.0, 'f', 1) +
                 " /min");
-            
+
             if (trainProgram) {
                 int8_t lower_requested_peloton_resistance =
                     trainProgram->currentRow().lower_requested_peloton_resistance;
@@ -2532,7 +2537,8 @@ void homeform::update() {
         ftp->setSecondLine(ftpMinW + QStringLiteral("-") + ftpMaxW + QStringLiteral("W ") +
                            QString::number(ftpPerc, 'f', 0) + QStringLiteral("%"));
 
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE ||
+            bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
             if (requestedPerc < 56) {
 
                 requestedMinW = QString::number(0, 'f', 0);
