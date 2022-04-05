@@ -50,6 +50,10 @@ class peloton : public QObject {
 
     void setTestMode(bool test);
 
+    bool isWorkoutInProgress() {
+        return current_workout_status.contains(QStringLiteral("IN_PROGRESS"), Qt::CaseInsensitive);
+    }
+
   private:
     _PELOTON_API current_api = peloton_api;
     const int peloton_workout_second_resolution = 10;

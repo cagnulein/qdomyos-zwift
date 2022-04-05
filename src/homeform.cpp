@@ -1815,11 +1815,13 @@ void homeform::Start_inner(bool send_event_to_device) {
             Session.clear();
             chartImagesFilenames.clear();
 
-            stravaPelotonActivityName = QLatin1String("");
-            stravaPelotonInstructorName = QLatin1String("");
-            stravaPelotonWorkoutType = FIT_SPORT_INVALID;
-            emit workoutNameChanged(workoutName());
-            emit instructorNameChanged(instructorName());
+            if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
+                stravaPelotonActivityName = QLatin1String("");
+                stravaPelotonInstructorName = QLatin1String("");
+                stravaPelotonWorkoutType = FIT_SPORT_INVALID;
+                emit workoutNameChanged(workoutName());
+                emit instructorNameChanged(instructorName());
+            }
             emit workoutEventStateChanged(bluetoothdevice::STARTED);
         } else
             emit workoutEventStateChanged(bluetoothdevice::RESUMED);
