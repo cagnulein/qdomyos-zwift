@@ -628,7 +628,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              */
 
             int resistance = iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value());
-            double odometer = Bike->odometer();
+            double odometer = Bike->odometer() * 1000;
             double calories = Bike->calories().value();
             if (resistance > 0x26)
                 resistance = 0x26;

@@ -96,6 +96,12 @@ void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
                                       bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
+    
+    if(gattCommunicationChannelService == nullptr || gattCommunicationChannelService == nullptr) {
+        qDebug() << "pointer no valid" << gattCommunicationChannelService << gattCommunicationChannelService;
+        return;
+    }
+    
     if (wait_for_response) {
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
                 &loop, SLOT(quit()));
