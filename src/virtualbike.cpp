@@ -732,6 +732,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     break;
                 }
             }
+        } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x0F &&
+                   ((uint8_t)newValue.at(2)) == 0x02 && ((uint8_t)newValue.at(3)) == 0x04 && ((uint8_t)newValue.at(4)) == 0x02 &&
+                   ((uint8_t)newValue.at(5)) == 0x0b && ((uint8_t)newValue.at(6)) == 0x07 && ((uint8_t)newValue.at(7)) == 0x0b &&
+                   ((uint8_t)newValue.at(8)) == 0x02) { // ff0f0204020b070b0202041032020a0068000000
+            qDebug() << "ifit ans 15 stop request";
+            reply1 = QByteArray::fromHex("fe02090200b40000005802000000000038000000");
+            reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
 
         } else if (newValue.length() > 8 && (uint8_t)newValue.at(0) == 0xFF) {
             qDebug() << "ifit not managed";
