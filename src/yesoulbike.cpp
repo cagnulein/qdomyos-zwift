@@ -320,7 +320,8 @@ void yesoulbike::error(QLowEnergyController::Error err) {
 void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("YESOUL"))) {
+    //if (device.name().startsWith(QStringLiteral("YESOUL")))
+    {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

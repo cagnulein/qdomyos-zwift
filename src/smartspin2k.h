@@ -64,8 +64,8 @@ class smartspin2k : public bike {
 
     QUdpSocket *udpSocket = new QUdpSocket();
 
-    QLowEnergyService *gattCommunicationChannelService;
-    QLowEnergyService *gattCommunicationChannelServiceFTMS;
+    QLowEnergyService *gattCommunicationChannelService = nullptr;
+    QLowEnergyService *gattCommunicationChannelServiceFTMS = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
 
