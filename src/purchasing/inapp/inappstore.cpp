@@ -60,54 +60,49 @@
 #include "../ios/iosinapppurchasebackend.h"
 #endif
 
-class IAPRegisterMetaTypes
-{
-public:
-    IAPRegisterMetaTypes()
-    {
-        qRegisterMetaType<InAppProduct::ProductType>("InAppProduct::ProductType");
-    }
+class IAPRegisterMetaTypes {
+  public:
+    IAPRegisterMetaTypes() { qRegisterMetaType<InAppProduct::ProductType>("InAppProduct::ProductType"); }
 } _registerIAPMetaTypes;
 
-InAppStore::InAppStore(QObject *parent)
-    : QObject(parent)
-{
+InAppStore::InAppStore(QObject *parent) : QObject(parent) {
     d = QSharedPointer<InAppStorePrivate>(new InAppStorePrivate);
     setupBackend();
 }
 
-InAppStore::~InAppStore()
-{
-}
+InAppStore::~InAppStore() {}
 
-void InAppStore::setupBackend()
-{
-    #ifdef Q_OS_ANDROID
+void InAppStore::setupBackend() {
+#if !defined(Q_OS_IOS) && !defined(Q_OS_ANDROID)
+    qDebug() << "no store available";
+    return;
+#endif
+
+#ifdef Q_OS_ANDROID
     d->backend = new AndroidInAppPurchaseBackend;
-    #endif
-    #ifdef Q_OS_IOS
+#endif
+#ifdef Q_OS_IOS
     d->backend = new IosInAppPurchaseBackend;
-    #endif
+#endif
     d->backend->setStore(this);
 
-    connect(d->backend, &InAppPurchaseBackend::ready,
-            this, &InAppStore::registerPendingProducts);
-    connect(d->backend, &InAppPurchaseBackend::transactionReady,
-            this, &InAppStore::transactionReady);
-    connect(d->backend, &InAppPurchaseBackend::productQueryFailed,
-            this, &InAppStore::productUnknown);
-    connect(d->backend, &InAppPurchaseBackend::productQueryDone,
-            this, static_cast<void (InAppStore::*)(InAppProduct *)>(&InAppStore::registerProduct));
+    connect(d->backend, &InAppPurchaseBackend::ready, this, &InAppStore::registerPendingProducts);
+    connect(d->backend, &InAppPurchaseBackend::transactionReady, this, &InAppStore::transactionReady);
+    connect(d->backend, &InAppPurchaseBackend::productQueryFailed, this, &InAppStore::productUnknown);
+    connect(d->backend, &InAppPurchaseBackend::productQueryDone, this,
+            static_cast<void (InAppStore::*)(InAppProduct *)>(&InAppStore::registerProduct));
 }
 
-void InAppStore::registerProduct(InAppProduct *product)
-{
+void InAppStore::registerProduct(InAppProduct *product) {
     d->registeredProducts[product->identifier()] = product;
     emit productRegistered(product);
 }
 
-void InAppStore::registerPendingProducts()
-{
+void InAppStore::registerPendingProducts() {
+
+    if (d->backend == nullptr)
+        return;
+
     QList<InAppPurchaseBackend::Product> products;
     products.reserve(d->pendingProducts.size());
 
@@ -121,8 +116,10 @@ void InAppStore::registerPendingProducts()
         restorePurchases();
 }
 
-void InAppStore::restorePurchases()
-{
+void InAppStore::restorePurchases() {
+    if (d->backend == nullptr)
+        return;
+
     if (d->backend->isReady()) {
         d->pendingRestorePurchases = false;
         d->backend->restorePurchases();
@@ -131,13 +128,15 @@ void InAppStore::restorePurchases()
     }
 }
 
-void InAppStore::setPlatformProperty(const QString &propertyName, const QString &value)
-{
+void InAppStore::setPlatformProperty(const QString &propertyName, const QString &value) {
+    if (d->backend == nullptr)
+        return;
     d->backend->setPlatformProperty(propertyName, value);
 }
 
-void InAppStore::registerProduct(InAppProduct::ProductType productType, const QString &identifier)
-{
+void InAppStore::registerProduct(InAppProduct::ProductType productType, const QString &identifier) {
+    if (d->backend == nullptr)
+        return;
     if (!d->backend->isReady()) {
         d->pendingProducts[identifier] = productType;
         if (!d->hasCalledInitialize) {
@@ -149,7 +148,6 @@ void InAppStore::registerProduct(InAppProduct::ProductType productType, const QS
     }
 }
 
-InAppProduct *InAppStore::registeredProduct(const QString &identifier) const
-{
+InAppProduct *InAppStore::registeredProduct(const QString &identifier) const {
     return d->registeredProducts.value(identifier);
 }

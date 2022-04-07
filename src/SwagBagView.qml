@@ -60,12 +60,14 @@ Item {
         width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
         color: "white"
-        text: qsTr("Hi! Do you know that QZ is just an<br>Open Souce Indie App?<br>No Big Companies are running this!<br><br>The \"Swag Bag\" is a way to support the ongoing<br>development, maintenance and support<br>of QZ Fitness!<br><br>Thanks to Rungap App to give me the idea<br>of the name!")
+        font.pointSize: 10
+        wrapMode: TextArea.Wrap
+        text: qsTr("Hi! Do you know that QZ is just an Open Souce Indie App?<br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!<br>Thanks to Rungap App to give me the idea of the name!")
     }
 
     Column {
         //anchors.top: description.bottom + 10
-        anchors.bottom: parent.bottom
+        anchors.bottom: description.bottom
         //anchors.bottom: restoreButton.top
         anchors.right: parent.right
         anchors.left: parent.left

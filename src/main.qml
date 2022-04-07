@@ -41,6 +41,14 @@ ApplicationWindow {
         id: iapStore
     }
 
+    // here in order to cache everything for the SwagBagView
+    Product {
+        id: productUnlockVowels
+        type: Product.Unlockable
+        store: iapStore
+        identifier: "org.cagnulein.qdomyoszwift.swagbag"
+    }
+
     Popup {
 	    id: popup
 		 parent: Overlay.overlay
