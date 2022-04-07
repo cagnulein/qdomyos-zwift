@@ -47,6 +47,28 @@ ApplicationWindow {
         type: Product.Unlockable
         store: iapStore
         identifier: "org.cagnulein.qdomyoszwift.swagbag"
+
+        onPurchaseSucceeded: {
+            console.log(identifier + " purchase successful");
+            applicationData.vowelsUnlocked = true;
+            transaction.finalize();
+            pageStack.pop();
+        }
+
+        onPurchaseFailed: {
+            console.log(identifier + " purchase failed");
+            console.log("reason: "
+                        + transaction.failureReason === Transaction.CanceledByUser ? "Canceled" : transaction.errorString);
+            transaction.finalize();
+        }
+
+        onPurchaseRestored: {
+            console.log(identifier + " purchase restored");
+            applicationData.vowelsUnlocked = true;
+            console.log("timestamp: " + transaction.timestamp);
+            transaction.finalize();
+            pageStack.pop();
+        }
     }
 
     Popup {
