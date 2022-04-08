@@ -63,6 +63,7 @@
 #include "proformelliptical.h"
 #include "proformrower.h"
 #include "proformtreadmill.h"
+#include "proformwifibike.h"
 #include "schwinnic4bike.h"
 #include "signalhandler.h"
 #include "skandikawiribike.h"
@@ -141,6 +142,7 @@ class bluetooth : public QObject, public SignalHandler {
     flywheelbike *flywheelBike = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
+    proformwifibike *proformWifiBike = nullptr;
     proformelliptical *proformElliptical = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;

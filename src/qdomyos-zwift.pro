@@ -62,6 +62,7 @@ SOURCES += \
     characteristicnotifier2acd.cpp \
    nautilusbike.cpp \
    proformrower.cpp \
+   proformwifibike.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
     qmdnsengine/src/src/bitmap.cpp \
     qmdnsengine/src/src/browser.cpp \
@@ -231,6 +232,7 @@ HEADERS += \
     characteristicnotifier2acd.h \
    nautilusbike.h \
    proformrower.h \
+   proformwifibike.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
     qmdnsengine/src/include/qmdnsengine/bitmap.h \
     qmdnsengine/src/include/qmdnsengine/browser.h \
@@ -676,4 +678,4 @@ include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
-VERSION = 2.10.60
+VERSION = 2.10.62

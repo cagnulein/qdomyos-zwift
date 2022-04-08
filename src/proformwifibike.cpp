@@ -1,0 +1,528 @@
+#include "proformwifibike.h"
+#include "ios/lockscreen.h"
+#include "keepawakehelper.h"
+#include "virtualbike.h"
+#include <QDateTime>
+#include <QFile>
+#include <QMetaEnum>
+#include <QSettings>
+#include <QThread>
+#include <QtXml>
+#include <chrono>
+#include <math.h>
+
+using namespace std::chrono_literals;
+
+proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                                 double bikeResistanceGain) {
+    QSettings settings;
+    m_watt.setType(metric::METRIC_WATT);
+    Speed.setType(metric::METRIC_SPEED);
+    refresh = new QTimer(this);
+    this->noWriteResistance = noWriteResistance;
+    this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
+    initDone = false;
+    connect(refresh, &QTimer::timeout, this, &proformwifibike::update);
+    refresh->start(200ms);
+
+    connect(&websocket, &QWebSocket::textMessageReceived, this, &proformwifibike::characteristicChanged);
+    connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
+
+    // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
+    websocket.open(QUrl("ws://" + settings.value(QStringLiteral("proformtdf4ip"), "").toString() + "/control"));
+
+    initRequest = true;
+    emit connectedAndDiscovered();
+
+    // ******************************************* virtual bike init *************************************
+    if (!firstStateChanged && !virtualBike
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        && !h
+#endif
+#endif
+    ) {
+        QSettings settings;
+        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+        if (ios_peloton_workaround && cadence) {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+            h->virtualbike_ios();
+        } else
+#endif
+#endif
+            if (virtual_device_enabled) {
+            emit debug(QStringLiteral("creating virtual bike interface..."));
+            virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            // connect(virtualBike,&virtualbike::debug ,this,& proformwifibike::debug);
+            connect(virtualBike, &virtualbike::changeInclination, this, &proformwifibike::changeInclination);
+        }
+    }
+    firstStateChanged = 1;
+    // ********************************************************************************************************
+}
+
+/*
+void proformwifibike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
+                                          bool wait_for_response) {
+    QEventLoop loop;
+    QTimer timeout;
+    if (wait_for_response) {
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    } else {
+        connect(gattCommunicationChannelService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+    }
+
+    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+                                                         QByteArray((const char *)data, data_len));
+
+    if (!disable_log) {
+        emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
+                   QStringLiteral(" // ") + info);
+    }
+
+    loop.exec();
+}*/
+
+uint8_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+
+    QSettings settings;
+
+    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+
+    for (int i = 1; i < max_resistance; i++) {
+        if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
+            ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
+            qDebug() << QStringLiteral("resistanceFromPowerRequest")
+                     << ((wattsFromResistance(i) * watt_gain) + watt_offset)
+                     << ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) << power;
+            return i;
+        }
+    }
+    if (power < ((wattsFromResistance(1) * watt_gain) + watt_offset))
+        return 1;
+    else
+        return max_resistance;
+}
+
+uint16_t proformwifibike::wattsFromResistance(uint8_t resistance) {
+
+    if (currentCadence().value() == 0)
+        return 0;
+
+    switch (resistance) {
+    case 0:
+    case 1:
+        // -13.5 + 0.999x + 0.00993x²
+        return (-13.5 + (0.999 * currentCadence().value()) + (0.00993 * pow(currentCadence().value(), 2)));
+    case 2:
+        // -17.7 + 1.2x + 0.0116x²
+        return (-17.7 + (1.2 * currentCadence().value()) + (0.0116 * pow(currentCadence().value(), 2)));
+
+    case 3:
+        // -17.5 + 1.24x + 0.014x²
+        return (-17.5 + (1.24 * currentCadence().value()) + (0.014 * pow(currentCadence().value(), 2)));
+
+    case 4:
+        // -20.9 + 1.43x + 0.016x²
+        return (-20.9 + (1.43 * currentCadence().value()) + (0.016 * pow(currentCadence().value(), 2)));
+
+    case 5:
+        // -27.9 + 1.75x+0.0172x²
+        return (-27.9 + (1.75 * currentCadence().value()) + (0.0172 * pow(currentCadence().value(), 2)));
+
+    case 6:
+        // -26.7 + 1.9x + 0.0201x²
+        return (-26.7 + (1.9 * currentCadence().value()) + (0.0201 * pow(currentCadence().value(), 2)));
+
+    case 7:
+        // -33.5 + 2.23x + 0.0225x²
+        return (-33.5 + (2.23 * currentCadence().value()) + (0.0225 * pow(currentCadence().value(), 2)));
+
+    case 8:
+        // -36.5+2.5x+0.0262x²
+        return (-36.5 + (2.5 * currentCadence().value()) + (0.0262 * pow(currentCadence().value(), 2)));
+
+    case 9:
+        // -38+2.62x+0.0305x²
+        return (-38.0 + (2.62 * currentCadence().value()) + (0.0305 * pow(currentCadence().value(), 2)));
+
+    case 10:
+        // -41.2+2.85x+0.0327x²
+        return (-41.2 + (2.85 * currentCadence().value()) + (0.0327 * pow(currentCadence().value(), 2)));
+
+    case 11:
+        // -43.4+3.01x+0.0359x²
+        return (-43.4 + (3.01 * currentCadence().value()) + (0.0359 * pow(currentCadence().value(), 2)));
+
+    case 12:
+        // -46.8+3.23x+0.0364x²
+        return (-46.8 + (3.23 * currentCadence().value()) + (0.0364 * pow(currentCadence().value(), 2)));
+
+    case 13:
+        // -49+3.39x+0.0371x²
+        return (-49.0 + (3.39 * currentCadence().value()) + (0.0371 * pow(currentCadence().value(), 2)));
+
+    case 14:
+        // -53.4+3.55x+0.0383x²
+        return (-53.4 + (3.55 * currentCadence().value()) + (0.0383 * pow(currentCadence().value(), 2)));
+
+    case 15:
+        // -49.9+3.37x+0.0429x²
+        return (-49.9 + (3.37 * currentCadence().value()) + (0.0429 * pow(currentCadence().value(), 2)));
+
+    case 16:
+    default:
+        // -47.1+3.25x+0.0464x²
+        return (-47.1 + (3.25 * currentCadence().value()) + (0.0464 * pow(currentCadence().value(), 2)));
+    }
+}
+
+void proformwifibike::forceResistance(int8_t requestResistance) {
+    QSettings settings;
+    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+    /*
+        if (proform_studio || proform_tdf_10) {
+            const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
+            uint8_t res2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x12, 0x08, 0x12, 0x02, 0x04,
+                              0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0x00, 0x06, 0x06};
+
+            res2[18] = requestResistance;
+
+            uint8_t res3[] = {0xff, 0x04, 0x00, 0x1b, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00,
+                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            res3[5] = 0x45 + requestResistance;
+
+            writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, false);
+            writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, false);
+            writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
+
+        } else {
+            const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0x32, 0x02, 0x00, 0x4b, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0xa3, 0x04, 0x00, 0xbe, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res3[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0x14, 0x07, 0x00, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res4[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0x85, 0x09, 0x00, 0xa5, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res5[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0xf6, 0x0b, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res6[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0x67, 0x0e, 0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res7[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0xd8, 0x10, 0x00, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res8[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0x49, 0x13, 0x00, 0x73, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res9[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                    0x04, 0xba, 0x15, 0x00, 0xe6, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res10[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0x2b, 0x18, 0x00, 0x5a, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res11[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0x9c, 0x1a, 0x00, 0xcd, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res12[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0x0d, 0x1d, 0x00, 0x41, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res13[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0x7e, 0x1f, 0x00, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res14[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0xef, 0x21, 0x00, 0x27, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res15[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0x60, 0x24, 0x00, 0x9b, 0x00, 0x00, 0x00, 0x00, 0x00};
+            const uint8_t res16[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x07, 0x09, 0x02, 0x01,
+                                     0x04, 0xd1, 0x26, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+            switch (requestResistance) {
+            case 1:
+                writeCharacteristic((uint8_t *)res1, sizeof(res1), QStringLiteral("resistance1"), false, true);
+                break;
+            case 2:
+                writeCharacteristic((uint8_t *)res2, sizeof(res2), QStringLiteral("resistance2"), false, true);
+                break;
+            case 3:
+                writeCharacteristic((uint8_t *)res3, sizeof(res3), QStringLiteral("resistance3"), false, true);
+                break;
+            case 4:
+                writeCharacteristic((uint8_t *)res4, sizeof(res4), QStringLiteral("resistance4"), false, true);
+                break;
+            case 5:
+                writeCharacteristic((uint8_t *)res5, sizeof(res5), QStringLiteral("resistance5"), false, true);
+                break;
+            case 6:
+                writeCharacteristic((uint8_t *)res6, sizeof(res6), QStringLiteral("resistance6"), false, true);
+                break;
+            case 7:
+                writeCharacteristic((uint8_t *)res7, sizeof(res7), QStringLiteral("resistance7"), false, true);
+                break;
+            case 8:
+                writeCharacteristic((uint8_t *)res8, sizeof(res8), QStringLiteral("resistance8"), false, true);
+                break;
+            case 9:
+                writeCharacteristic((uint8_t *)res9, sizeof(res9), QStringLiteral("resistance9"), false, true);
+                break;
+            case 10:
+                writeCharacteristic((uint8_t *)res10, sizeof(res10), QStringLiteral("resistance10"), false, true);
+                break;
+            case 11:
+                writeCharacteristic((uint8_t *)res11, sizeof(res11), QStringLiteral("resistance11"), false, true);
+                break;
+            case 12:
+                writeCharacteristic((uint8_t *)res12, sizeof(res12), QStringLiteral("resistance12"), false, true);
+                break;
+            case 13:
+                writeCharacteristic((uint8_t *)res13, sizeof(res13), QStringLiteral("resistance13"), false, true);
+                break;
+            case 14:
+                writeCharacteristic((uint8_t *)res14, sizeof(res14), QStringLiteral("resistance14"), false, true);
+                break;
+            case 15:
+                writeCharacteristic((uint8_t *)res15, sizeof(res15), QStringLiteral("resistance15"), false, true);
+                break;
+            case 16:
+                writeCharacteristic((uint8_t *)res16, sizeof(res16), QStringLiteral("resistance16"), false, true);
+                break;
+            }
+        }*/
+}
+
+void proformwifibike::forceIncline(double incline) {
+    uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x08, 0x09, 0x02, 0x01,
+                       0x02, 0x38, 0xff, 0x00, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    write[11] = ((uint16_t)(incline * 100)) & 0x00FF;
+    write[12] = ((((uint16_t)(incline * 100)) & 0xFF00) >> 8) & 0x00FF;
+    write[14] = write[6] + write[7] + write[8] + write[9] + write[10] + write[11] + write[12];
+
+    /*writeCharacteristic((uint8_t *)write, sizeof(write), QStringLiteral("incline ") + QString::number(incline), false,
+                        true);*/
+}
+
+void proformwifibike::innerWriteResistance() {
+    if (requestResistance != -1) {
+        if (requestResistance > max_resistance) {
+            requestResistance = max_resistance;
+        } else if (requestResistance == 0) {
+            requestResistance = 1;
+        }
+
+        if (requestResistance != currentResistance().value()) {
+            emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+            forceResistance(requestResistance);
+        }
+        requestResistance = -1;
+    }
+}
+
+void proformwifibike::update() {
+    qDebug() << "websocket.state()" << websocket.state();
+
+    if (initRequest) {
+        initRequest = false;
+        btinit();
+    } else if (websocket.state() == QAbstractSocket::ConnectedState) {
+        update_metrics(true, watts());
+
+        // updating the treadmill console every second
+        if (sec1Update++ == (500 / refresh->interval())) {
+            sec1Update = 0;
+            // updateDisplay(elapsed);
+        }
+
+        if (requestStart != -1) {
+            emit debug(QStringLiteral("starting..."));
+
+            // btinit();
+
+            requestStart = -1;
+            emit bikeStarted();
+        }
+        if (requestStop != -1) {
+            emit debug(QStringLiteral("stopping..."));
+            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+            requestStop = -1;
+        }
+    }
+}
+
+bool proformwifibike::inclinationAvailableByHardware() {
+    QSettings settings;
+    bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
+    bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
+
+    if (proform_studio || proform_tdf_10)
+        return true;
+    else
+        return false;
+}
+
+int proformwifibike::pelotonToBikeResistance(int pelotonResistance) {
+    if (pelotonResistance <= 10) {
+        return 1;
+    }
+    if (pelotonResistance <= 20) {
+        return 2;
+    }
+    if (pelotonResistance <= 25) {
+        return 3;
+    }
+    if (pelotonResistance <= 30) {
+        return 4;
+    }
+    if (pelotonResistance <= 35) {
+        return 5;
+    }
+    if (pelotonResistance <= 40) {
+        return 6;
+    }
+    if (pelotonResistance <= 45) {
+        return 7;
+    }
+    if (pelotonResistance <= 50) {
+        return 8;
+    }
+    if (pelotonResistance <= 55) {
+        return 9;
+    }
+    if (pelotonResistance <= 60) {
+        return 10;
+    }
+    if (pelotonResistance <= 65) {
+        return 11;
+    }
+    if (pelotonResistance <= 70) {
+        return 12;
+    }
+    if (pelotonResistance <= 75) {
+        return 13;
+    }
+    if (pelotonResistance <= 80) {
+        return 14;
+    }
+    if (pelotonResistance <= 85) {
+        return 15;
+    }
+    if (pelotonResistance <= 100) {
+        return 16;
+    }
+    return Resistance.value();
+}
+
+void proformwifibike::serviceDiscovered(const QBluetoothUuid &gatt) {
+    emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
+}
+
+void proformwifibike::characteristicChanged(const QString &newValue) {
+    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    QSettings settings;
+    QString heartRateBeltName =
+        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+
+    emit debug(QStringLiteral(" << ") + newValue);
+
+    lastPacket = newValue;
+
+    lastPacket = lastPacket.replace("à", "a");
+    QByteArray payload = lastPacket.toLocal8Bit(); // JSON
+    QJsonParseError parseError;
+    QJsonDocument metrics = QJsonDocument::fromJson(payload, &parseError);
+
+    QJsonObject json = metrics.object();
+    QJsonValue values = json.value("values");
+
+    QJsonArray aValues = values.toArray();
+
+    if (aValues.count() < 47) {
+        qDebug() << "incorrect json" << aValues.count();
+        return;
+    }
+
+    double kph = aValues.at(16).toDouble();
+    double odometer = aValues.at(8).toDouble();
+    double calories = aValues.at(4).toDouble();
+    double resistance = aValues.at(32).toDouble();
+    double watt = aValues.at(47).toDouble();
+    double cadence = aValues.at(30).toDouble();
+
+    Speed = kph;
+    Distance = odometer;
+    KCal = calories;
+    Resistance = resistance;
+    m_pelotonResistance = (100 / 32) * Resistance.value();
+    emit resistanceRead(Resistance.value());
+    m_watts = watt;
+    Cadence = cadence;
+
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
+#ifdef Q_OS_ANDROID
+    if (settings.value("ant_heart", false).toBool())
+        Heart = (uint8_t)KeepAwakeHelper::heart();
+    else
+#endif
+    {
+        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#endif
+#endif
+        }
+    }
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", false).toBool();
+    if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+        h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+        h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+    }
+#endif
+#endif
+
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
+    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+    emit debug("Current Distance: " + QString::number(odometer));
+    emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
+    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+}
+
+void proformwifibike::btinit() { initDone = true; }
+
+void proformwifibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
+    emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
+}
+
+bool proformwifibike::connected() { return websocket.state() == QAbstractSocket::ConnectedState; }
+
+void *proformwifibike::VirtualBike() { return virtualBike; }
+
+void *proformwifibike::VirtualDevice() { return VirtualBike(); }
+
+uint16_t proformwifibike::watts() {
+    if (currentCadence().value() == 0) {
+        return 0;
+    }
+
+    return m_watts;
+}

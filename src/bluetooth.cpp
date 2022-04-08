@@ -319,6 +319,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     bool fake_bike = settings.value(QStringLiteral("applewatch_fakedevice"), false).toBool();
     bool pafers_treadmill = settings.value(QStringLiteral("pafers_treadmill"), false).toBool();
+    QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
 
     if (!heartRateBeltFound) {
 
@@ -410,6 +411,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(fakeBike);
                 innerTemplateManager->start(fakeBike);
+            } else if (!proformtdf4ip.isEmpty()) {
+                discoveryAgent->stop();
+                proformWifiBike =
+                    new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(proformWifiBike, &proformWifiBike::debug, this, &bluetooth::debug);
+                proformWifiBike->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(proformWifiBike);
+                innerTemplateManager->start(proformWifiBike);
             } else if (csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter) {
 
                 discoveryAgent->stop();
@@ -1512,7 +1529,7 @@ void bluetooth::connectedAndDiscovered() {
     if (this->device() != nullptr) {
 
 #ifdef Q_OS_IOS
-        if(settings.value(QStringLiteral("ios_cache_heart_device"), true).toBool()) {
+        if (settings.value(QStringLiteral("ios_cache_heart_device"), true).toBool()) {
             QString heartRateBeltName = settings.value("heart_rate_belt_name", "Disabled").toString();
             QString b = settings.value("hrm_lastdevice_name", "").toString();
             qDebug() << "last hrm name" << b;
@@ -1849,6 +1866,11 @@ void bluetooth::restart() {
         delete cscBike;
         cscBike = nullptr;
     }
+    if (proformWifiBike) {
+
+        delete proformWifiBike;
+        proformWifiBike = nullptr;
+    }
     if (powerBike) {
 
         delete powerBike;
@@ -2155,6 +2177,8 @@ bluetoothdevice *bluetooth::device() {
         return bhFitnessElliptical;
     } else if (cscBike) {
         return cscBike;
+    } else if (proformWifiBike) {
+        return proformWifiBike;
     } else if (powerBike) {
         return powerBike;
     } else if (powerTreadmill) {

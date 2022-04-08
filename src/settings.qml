@@ -363,6 +363,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.57
             property int app_opening: 0
+
+            // from the version 2.10.62
+            property string proformtdf4ip: ""
         }
 
         function paddingZeros(text, limit) {
@@ -1718,6 +1721,30 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelproformTDF4IP
+                            text: qsTr("TDF4 IP:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: proformTDF4IPTextField
+                            text: settings.proformtdf4ip
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.proformtdf4ip = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okproformTDF4IPButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.proformtdf4ip = proformTDF4IPTextField.text
+                        }
                     }
                 }
 
