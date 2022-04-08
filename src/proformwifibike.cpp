@@ -453,7 +453,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     double calories = aValues.at(4).toDouble();
     double resistance = aValues.at(32).toDouble();
     double watt = aValues.at(47).toDouble();
-    double cadence = aValues.at(30).toDouble();
+    double rpm = aValues.at(30).toDouble();
 
     Speed = kph;
     Distance = odometer;
@@ -462,7 +462,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     m_pelotonResistance = (100 / 32) * Resistance.value();
     emit resistanceRead(Resistance.value());
     m_watts = watt;
-    Cadence = cadence;
+    Cadence = rpm;
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
