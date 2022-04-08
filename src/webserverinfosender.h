@@ -29,6 +29,7 @@ class WebServerInfoSender : public TemplateInfoSender {
     QStringList folders;
     bool listen();
     void processFetcher(QWebSocket *sender, const QByteArray &data);
+    QTimer watchdogTimer;
 
   protected:
     virtual void innerStop();
@@ -41,6 +42,7 @@ class WebServerInfoSender : public TemplateInfoSender {
     QHash<QString, QString> relative2Absolute;
     QHash<QNetworkReply *, QPair<QJsonObject, QWebSocket *>> reply2Req;
 private slots:
+    void watchdogEvent();
     void onNewConnection();
     void handleFetcherRequest(QNetworkReply *reply);
     void processTextMessage(QString message);

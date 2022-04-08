@@ -26,6 +26,10 @@ bool WebServerInfoSender::listen() {
                                   port = innerTcpServer->serverPort());
             }
             httpServer->bind(innerTcpServer);
+
+            connect(&watchdogTimer, SIGNAL(timeout()), this, SLOT(watchdogEvent()));
+            watchdogTimer.start(5000);
+
             return true;
         } else {
             delete innerTcpServer;
@@ -110,6 +114,12 @@ bool WebServerInfoSender::init() {
         }
     }
     return false;
+}
+
+void WebServerInfoSender::watchdogEvent() {
+    if(innerTcpServer && !innerTcpServer->isListening()) {
+        qDebug() << QStringLiteral("innerTcpServer is not LISTENING!");
+    }
 }
 
 void WebServerInfoSender::handleFetcherRequest(QNetworkReply *reply) {
