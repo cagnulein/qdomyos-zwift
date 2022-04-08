@@ -56,18 +56,19 @@ import org.cagnulein.qdomyoszwift 1.0
 Item {
 
     Text {
+        padding: 5
         id: description
         width: parent.width
         anchors.horizontalCenter: parent.horizontalCenter
         color: "white"
-        font.pointSize: 10
+        font.pointSize: 22
         wrapMode: TextArea.Wrap
         text: qsTr("Hi! Do you know that QZ is just an Open Souce Indie App?<br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!<br>Thanks to Rungap App to give me the idea of the name!")
     }
 
     Column {
         //anchors.top: description.bottom + 10
-        anchors.bottom: description.bottom
+        anchors.top: description.bottom
         //anchors.bottom: restoreButton.top
         anchors.right: parent.right
         anchors.left: parent.left
@@ -89,33 +90,4 @@ Item {
             iapStore.restorePurchases();
         }
     }*/
-
-    Product {
-        id: productUnlockVowels
-        type: Product.Unlockable
-        store: iapStore
-        identifier: "org.cagnulein.qdomyoszwift.swagbag"
-
-        onPurchaseSucceeded: {
-            console.log(identifier + " purchase successful");
-            applicationData.vowelsUnlocked = true;
-            transaction.finalize();
-            pageStack.pop();
-        }
-
-        onPurchaseFailed: {
-            console.log(identifier + " purchase failed");
-            console.log("reason: "
-                        + transaction.failureReason === Transaction.CanceledByUser ? "Canceled" : transaction.errorString);
-            transaction.finalize();
-        }
-
-        onPurchaseRestored: {
-            console.log(identifier + " purchase restored");
-            applicationData.vowelsUnlocked = true;
-            console.log("timestamp: " + transaction.timestamp);
-            transaction.finalize();
-            pageStack.pop();
-        }
-    }
 }
