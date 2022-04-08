@@ -35,7 +35,7 @@ class virtualbike : public QObject {
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected();
-    bool ftmsDeviceConnected() {return lastFTMSFrameReceived != 0;}    
+    bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0; }
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -69,6 +69,7 @@ class virtualbike : public QObject {
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
+    void echelonWriteStatus();
 
     void writeCharacteristic(QLowEnergyService *service, const QLowEnergyCharacteristic &characteristic,
                              const QByteArray &value);
