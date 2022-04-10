@@ -431,7 +431,9 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 qDebug() << i << r.duration << r.speed << r.inclination;
             }
         }
-    } else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
+    }
+    // Target METS it's quite useless so I removed, no one use this
+    /* else if (!segment_list.isEmpty() && bluetoothManager->device()->deviceType() != bluetoothdevice::BIKE) {
         trainrows.reserve(segment_list.count() + 1);
         foreach (QJsonValue o, segment_list) {
             int len = o["length"].toInt();
@@ -443,7 +445,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 trainrows.append(r);
             }
         }
-    }
+    }*/
 
     if (log_request) {
         qDebug() << QStringLiteral("peloton::performance_onfinish") << trainrows.length() << performance;
