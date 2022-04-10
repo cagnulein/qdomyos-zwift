@@ -439,30 +439,66 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     QJsonDocument metrics = QJsonDocument::fromJson(payload, &parseError);
 
     QJsonObject json = metrics.object();
-    QJsonValue values = json.value("values");
+    QJsonValue values = json.value("values");    
 
-    QJsonArray aValues = values.toArray();
-
-    if (aValues.count() < 47) {
-        qDebug() << "incorrect json" << aValues.count();
-        return;
+    if(!values[QStringLiteral("Current KPH")].isUndefined()) {
+        double kph = values[QStringLiteral("Current KPH")].toDouble();
+        Speed = kph;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    } else if(!values[QStringLiteral("KPH")].isUndefined()) {
+        double kph = values[QStringLiteral("KPH")].toDouble();
+        Speed = kph;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
-    double kph = aValues.at(16).toDouble();
-    double odometer = aValues.at(8).toDouble();
-    double calories = aValues.at(4).toDouble();
-    double resistance = aValues.at(32).toDouble();
-    double watt = aValues.at(47).toDouble();
-    double rpm = aValues.at(30).toDouble();
+    if(!values[QStringLiteral("Kilometers")].isUndefined()) {
+        double odometer = values[QStringLiteral("Kilometers")].toDouble();
+        Distance = odometer;
+        emit debug("Current Distance: " + QString::number(odometer));
+    } else if(!values[QStringLiteral("Chilometri")].isUndefined()) {
+        double odometer = values[QStringLiteral("Chilometri")].toDouble();
+        Distance = odometer;
+        emit debug("Current Distance: " + QString::number(odometer));
+    }
 
-    Speed = kph;
-    Distance = odometer;
-    KCal = calories;
+    if(!values[QStringLiteral("RPM")].isUndefined()) {
+        double rpm = values[QStringLiteral("RPM")].toDouble();
+        Cadence = rpm;
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
+    }
+
+    if(!values[QStringLiteral("Current Watts")].isUndefined()) {
+        double watt = values[QStringLiteral("Current Watts")].toDouble();
+        m_watts = watt;
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    } else if(!values[QStringLiteral("Watt attuali")].isUndefined()) {
+        double watt = values[QStringLiteral("Watt attuali")].toDouble();
+        m_watts = watt;
+        emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    }
+
+    if(!values[QStringLiteral("Actual Incline")].isUndefined()) {
+        double incline = values[QStringLiteral("Actual Incline")].toDouble();
+        Inclination = incline;
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
+    }
+
+    if (watts())
+        KCal +=
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+              200.0) /
+             (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                            QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
+                                                              //* 3.5) / 200 ) / 60
+/*
     Resistance = resistance;
     m_pelotonResistance = (100 / 32) * Resistance.value();
-    emit resistanceRead(Resistance.value());
-    m_watts = watt;
-    Cadence = rpm;
+    emit resistanceRead(Resistance.value());    */
 
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
@@ -497,14 +533,11 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
 #endif
 #endif
 
-    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
-    emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-    emit debug("Current Distance: " + QString::number(odometer));
+    /*
+    emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));    
+    emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));    
     emit debug(QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs));
-    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));
-    emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
+    emit debug(QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime));    */
 }
 
 void proformwifibike::btinit() { initDone = true; }
