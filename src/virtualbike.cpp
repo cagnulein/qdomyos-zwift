@@ -593,7 +593,8 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
             qDebug() << "ifit ans 11";
-            static qint64 timer = QDateTime::currentSecsSinceEpoch();
+            if(iFit_timer == 0)
+                iFit_timer = QDateTime::currentSecsSinceEpoch();
             reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
             reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
             reply3 = QByteArray::fromHex("01120000000017000000021700a4031700000069");
@@ -632,7 +633,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             double calories = Bike->calories().value();
             if (resistance > 0x26)
                 resistance = 0x26;
-            qint64 t = (QDateTime::currentSecsSinceEpoch() - timer);
+            qint64 t = (QDateTime::currentSecsSinceEpoch() - iFit_timer);
             reply2[11] = resistance;                                       // resistance (limit to 0x26)
             reply2[12] = ((uint16_t)normalizeWattage) & 0xff;              // watt (l)
             reply2[13] = ((uint16_t)normalizeWattage) >> 8;                // watt (h)
@@ -738,6 +739,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                    ((uint8_t)newValue.at(6)) == 0x07 && ((uint8_t)newValue.at(7)) == 0x0b &&
                    ((uint8_t)newValue.at(8)) == 0x02) { // ff0f0204020b070b0202041032020a0068000000
             qDebug() << "ifit ans 15 stop request";
+            iFit_timer = 0;
             reply1 = QByteArray::fromHex("fe02090200b40000005802000000000038000000");
             reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
             writeCharacteristic(service, characteristic, reply1);

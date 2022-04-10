@@ -66,6 +66,7 @@ class virtualbike : public QObject {
     double bikeResistanceGain = 1.0;
     DirconManager *dirconManager = 0;
     int iFit_pelotonToBikeResistance(int pelotonResistance);
+    qint64 iFit_timer = 0;
 
     bool echelonInitDone = false;
     void echelonWriteResistance();
