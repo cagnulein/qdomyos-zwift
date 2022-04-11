@@ -411,7 +411,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(fakeBike);
                 innerTemplateManager->start(fakeBike);
-            } else if (!proformtdf4ip.isEmpty()) {
+            } else if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
                 discoveryAgent->stop();
                 proformWifiBike =
                     new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
