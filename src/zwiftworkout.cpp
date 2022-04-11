@@ -114,10 +114,12 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
         Pace = va_arg(args, int);
         for (uint32_t i = 0; i < Duration; i++) {
             trainrow row;
-            if (!durationAsDistance(sportType, durationType))
+            if (!durationAsDistance(sportType, durationType)) {
                 row.duration = QTime(0, 0, 1, 0);
-            else
+                row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+            } else {
                 row.distance = 0.001;
+            }
             if (PowerHigh > PowerLow) {
                 if (sportType.toLower().contains(QStringLiteral("run"))) {
                     row.forcespeed = 1;

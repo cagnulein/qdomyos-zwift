@@ -63,6 +63,21 @@ uint32_t trainprogram::calculateTimeForRow(int32_t row) {
         return 0;
 }
 
+uint32_t trainprogram::calculateTimeForRowMergingRamps(int32_t row) {
+    if (row >= rows.length())
+        return 0;
+
+    if (rows.at(row).distance == -1)
+        if (rows.at(row).rampDuration == QTime(0, 0, 0))
+            return (rows.at(row).duration.second() + (rows.at(row).duration.minute() * 60) +
+                    (rows.at(row).duration.hour() * 3600));
+        else
+            return (rows.at(row).rampDuration.second() + (rows.at(row).rampDuration.minute() * 60) +
+                    (rows.at(row).rampDuration.hour() * 3600));
+    else
+        return 0;
+}
+
 double trainprogram::calculateDistanceForRow(int32_t row) {
     if (row >= rows.length())
         return 0;
@@ -498,7 +513,7 @@ QTime trainprogram::currentRowElapsedTime() {
 
     for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
 
-        uint32_t currentLine = calculateTimeForRow(calculatedLine);
+        uint32_t currentLine = calculateTimeForRowMergingRamps(calculatedLine);
         calculatedElapsedTime += currentLine;
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
@@ -526,7 +541,7 @@ QTime trainprogram::currentRowRemainingTime() {
     } else {
         for (calculatedLine = 0; calculatedLine < static_cast<uint32_t>(rows.length()); calculatedLine++) {
 
-            uint32_t currentLine = calculateTimeForRow(calculatedLine);
+            uint32_t currentLine = calculateTimeForRowMergingRamps(calculatedLine);
             calculatedElapsedTime += currentLine;
 
             if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {

@@ -37,6 +37,8 @@ class trainrow {
     int8_t maxSpeed = -1;
     int32_t power = -1;
     int32_t mets = -1;
+    QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
+                                            // is the ramp from this very moment
     double latitude = NAN;
     double longitude = NAN;
     QString toString() const;
@@ -90,6 +92,7 @@ class trainprogram : public QObject {
 
   private:
     uint32_t calculateTimeForRow(int32_t row);
+    uint32_t calculateTimeForRowMergingRamps(int32_t row);
     double calculateDistanceForRow(int32_t row);
     bluetooth *bluetoothManager;
     bool started = false;
