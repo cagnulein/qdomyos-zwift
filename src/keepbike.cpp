@@ -212,7 +212,7 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         Speed = ((uint8_t)newValue.at(18));
     } else*/
     {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
 
     m_watt = GetWattFromPacket(newValue);

@@ -178,12 +178,12 @@ void metric::clearLap(bool accumulator) {
 
 void metric::setLap(bool accumulator) { clearLap(accumulator); }
 
-double metric::calculateSpeedFromPower(double power) {
+double metric::calculateSpeedFromPower(double power, double inclination) {
     QSettings settings;
     double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() + 0.0); // bike weight is null
     double aero = 0.22691607640851885;
     double hw = 0; // wind speed
-    double tr = twt * 0.005;
+    double tr = twt * ((inclination / 100.0) + 0.005);
     double tran = 0.95;
     double p = power;
     double vel = 20;        // Initial guess

@@ -254,7 +254,7 @@ void solebike::characteristicChanged(const QLowEnergyCharacteristic &characteris
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = GetSpeedFromPacket(newValue);
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
 
     m_watt = GetWattFromPacket(newValue);

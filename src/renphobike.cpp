@@ -191,7 +191,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         else
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }

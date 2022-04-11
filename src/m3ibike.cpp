@@ -679,7 +679,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = k3.speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
         if (settings.value(QStringLiteral("m3i_bike_kcal"), true).toBool()) {
             KCal = k3.calorie;

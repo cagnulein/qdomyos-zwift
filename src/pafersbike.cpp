@@ -208,7 +208,7 @@ void pafersbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = ((uint8_t)newValue.at(3));
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
 
     Resistance = ((uint8_t)newValue.at(5));

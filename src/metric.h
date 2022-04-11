@@ -40,7 +40,7 @@ class metric {
     void setPaused(bool p);
     void setLap(bool accumulator);
 
-    static double calculateSpeedFromPower(double power);
+    static double calculateSpeedFromPower(double power, double inclination);
     static double calculateWeightLoss(double kcal);
 
   private:

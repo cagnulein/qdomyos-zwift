@@ -178,7 +178,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     /*if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = GetSpeedFromPacket(newValue);
     } else*/
-    { Speed = metric::calculateSpeedFromPower(m_watt.value()); }
+    { Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value()); }
 
     if (watts())
         KCal +=

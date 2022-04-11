@@ -134,7 +134,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
         lastTimeCharChanged = QDateTime::currentDateTime();
     } else if (newValue.at(1) == 0x30) {

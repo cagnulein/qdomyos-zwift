@@ -172,7 +172,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
