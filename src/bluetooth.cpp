@@ -419,7 +419,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                // connect(proformWifiBike, &proformWifiBike::debug, this, &bluetooth::debug);
+                connect(proformWifiBike, &proformwifibike::debug, this, &bluetooth::debug);
                 proformWifiBike->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
                 if (!discoveryAgent->isActive()) {
