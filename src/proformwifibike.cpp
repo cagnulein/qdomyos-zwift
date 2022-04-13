@@ -445,27 +445,27 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     QJsonValue values = json.value("values");
 
     if (!values[QStringLiteral("Current KPH")].isUndefined()) {
-        double kph = values[QStringLiteral("Current KPH")].toDouble();
+        double kph = values[QStringLiteral("Current KPH")].toString().toDouble();
         Speed = kph;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     } else if (!values[QStringLiteral("KPH")].isUndefined()) {
-        double kph = values[QStringLiteral("KPH")].toDouble();
+        double kph = values[QStringLiteral("KPH")].toString().toDouble();
         Speed = kph;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     }
 
     if (!values[QStringLiteral("Kilometers")].isUndefined()) {
-        double odometer = values[QStringLiteral("Kilometers")].toDouble();
+        double odometer = values[QStringLiteral("Kilometers")].toString().toDouble();
         Distance = odometer;
         emit debug("Current Distance: " + QString::number(odometer));
     } else if (!values[QStringLiteral("Chilometri")].isUndefined()) {
-        double odometer = values[QStringLiteral("Chilometri")].toDouble();
+        double odometer = values[QStringLiteral("Chilometri")].toString().toDouble();
         Distance = odometer;
         emit debug("Current Distance: " + QString::number(odometer));
     }
 
     if (!values[QStringLiteral("RPM")].isUndefined()) {
-        double rpm = values[QStringLiteral("RPM")].toDouble();
+        double rpm = values[QStringLiteral("RPM")].toString().toDouble();
         Cadence = rpm;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
 
@@ -476,17 +476,17 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     }
 
     if (!values[QStringLiteral("Current Watts")].isUndefined()) {
-        double watt = values[QStringLiteral("Current Watts")].toDouble();
+        double watt = values[QStringLiteral("Current Watts")].toString().toDouble();
         m_watts = watt;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     } else if (!values[QStringLiteral("Watt attuali")].isUndefined()) {
-        double watt = values[QStringLiteral("Watt attuali")].toDouble();
+        double watt = values[QStringLiteral("Watt attuali")].toString().toDouble();
         m_watts = watt;
         emit debug(QStringLiteral("Current Watt: ") + QString::number(watts()));
     }
 
     if (!values[QStringLiteral("Actual Incline")].isUndefined()) {
-        double incline = values[QStringLiteral("Actual Incline")].toDouble();
+        double incline = values[QStringLiteral("Actual Incline")].toString().toDouble();
         Inclination = incline;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(incline));
     }
