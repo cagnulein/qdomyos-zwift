@@ -306,10 +306,14 @@ void solef80treadmill::update() {
             // requestSpeed = -1;
         }
         if (requestInclination != -1) {
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+            // this treadmill has only 1% step inclination
+            if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
+            } else if((int)requestInclination == (int)currentInclination().value()) {
+                qDebug() << "int inclination match the current one" << requestInclination << currentInclination().value();
+                requestInclination = -1;
             }
             // i have to do the reset on when the inclination is equal to the current
             // requestInclination = -1;
