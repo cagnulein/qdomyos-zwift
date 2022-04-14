@@ -6,5 +6,5 @@
 	url = https://github.com/bluetiger9/SmtpClient-for-Qt.git
 [submodule "src/qmdnsengine"]
 	path = src/qmdnsengine
-	url = https://github.com/p3g4asus/qmdnsengine.git
-	branch = DesiredHostname
+	url = https://github.com/cagnulein/qmdnsengine.git
+	branch = zwift
