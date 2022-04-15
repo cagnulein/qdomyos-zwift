@@ -33,6 +33,7 @@ void fakebike::update() {
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
+    update_metrics(true, watts());
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualBike && !noVirtualDevice

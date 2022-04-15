@@ -117,6 +117,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
             if (!durationAsDistance(sportType, durationType)) {
                 row.duration = QTime(0, 0, 1, 0);
                 row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
             } else {
                 row.distance = 0.001;
             }

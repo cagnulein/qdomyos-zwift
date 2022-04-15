@@ -39,6 +39,7 @@ class trainrow {
     int32_t mets = -1;
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
                                             // is the ramp from this very moment
+    QTime rampElapsed = QTime(0, 0, 0, 0);
     double latitude = NAN;
     double longitude = NAN;
     QString toString() const;
