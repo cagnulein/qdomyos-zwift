@@ -62,14 +62,14 @@ class TwitchGrabber {
         else if (!this.access || !this.token) {
             if (new Date().getTime() - this.time_last_refresh > 15000) {
                 let secure_code = generate_rand_string(32);
-                let url = `https://id.twitch.tv/oauth2/authorize?response_type=token+id_token&client_id=${TWITCH_CLIENT_ID}&redirect_uri=${window.location.protocol}//${window.location.host}/${get_template_name()}/twitch-id.htm&scope=viewing_activity_read+openid&state=${secure_code}`;
+                this.time_last_refresh = new Date().getTime();
+                let url = `https://id.twitch.tv/oauth2/authorize?response_type=token+id_token&client_id=${TWITCH_CLIENT_ID}&redirect_uri=${window.location.protocol}//${window.location.host}${get_prefix_name()}/twitch-id.htm&scope=viewing_activity_read+openid&state=${secure_code}`;
                 window.open(url);
                 window.addEventListener('id-window-closed', function(ev) {
                     let event = ev.detail;
                     if (event.error)
                         this.on_fail(event.error);
                     else if (secure_code == event.state) {
-                        this.time_last_refresh = new Date().getTime();
                         this.access = event.access;
                         this.token = event.token;
                         this.ajax_settings.headers.Authorization = 'Bearer ' + this.access;
@@ -95,8 +95,9 @@ class TwitchGrabber {
 
     on_fail(e) {
         console.error('fail downloading / parsing ' + e);
-        if (this.on_grab) {
-            this.on_grab([], this.ajax_settings.raw_query, 'twitch');
+        if (this.grab) {
+            this.access = null;
+            this.grab(this.ajax_settings.raw_query);
         }
     }
 
@@ -144,6 +145,7 @@ class TwitchGrabber {
             }
             d.dur = dur;
         }
+        json_obj.data = json_obj.data.reverse();
         if (this.on_grab) {
             this.on_grab(json_obj.data, this.ajax_settings.raw_query, 'twitch');
         }

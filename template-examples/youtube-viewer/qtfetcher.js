@@ -182,7 +182,7 @@ function base64toBlob(base64Data, contentType) {
 }
 
 function fetcher_connect() {
-    let mysocket = new WebSocket((location.protocol == 'https:'?'wss://' : 'ws://') + host_url + '/fetcher');
+    let mysocket = new WebSocket((location.protocol == 'https:'?'wss://' : 'ws://') + host_url + get_prefix_name()  + '/fetcher');
     mysocket.onopen = function (event) {
         console.log('Fetcher Upgrade HTTP connection OK');
         fetcher_socket = mysocket;

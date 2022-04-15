@@ -25,6 +25,14 @@ function get_template_name() {
         return '';
 }
 
+function get_prefix_name() {
+    let endidx = location.pathname.lastIndexOf('/');
+    if (endidx>=0)
+        return location.pathname.substring(0, endidx);
+    else
+        return location.pathname;
+}
+
 function get_url_without_file() {
     /*let idx = location.pathname.lastIndexOf('/');
     let end = location.pathname;
