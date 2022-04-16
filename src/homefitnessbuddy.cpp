@@ -102,7 +102,8 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
     emit loginState(true);
 
     // REMOVE IT
-    // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole");
+    // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole", 3600);
+    // searchWorkout(QDate(2020,1,18) ,"Denis & Matt", 3600); //     Multiple Instructors
 }
 
 void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedaling_duration) {
@@ -111,6 +112,8 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
         QDate d = QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
         d = d.addYears(100);
         bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
+        qDebug() << coach.contains('&') << r.toObject().value(QStringLiteral("Coach")).toString() << r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors")) << d << date;
+        c |= coach.contains('&') && r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
         if (d == date && c) {
             found++;
         }
@@ -122,6 +125,7 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
                 QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
             d = d.addYears(100);
             bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
+            c |= coach.contains('&') && r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
             if (d == date && c) {
                 connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
                 QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));
