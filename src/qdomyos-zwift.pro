@@ -59,6 +59,7 @@ android: include(../android_openssl/openssl.pri)
 SOURCES += \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
+    characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
    nautilusbike.cpp \
    proformrower.cpp \
@@ -229,6 +230,7 @@ INCLUDEPATH += fit-sdk/
 HEADERS += \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \
+    characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
    nautilusbike.h \
    proformrower.h \

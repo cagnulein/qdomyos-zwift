@@ -205,14 +205,14 @@ bool DirconProcessor::sendCharacteristicNotification(quint16 uuid, const QByteAr
     pkt.uuid = uuid;
     for (QHash<QTcpSocket *, DirconProcessorClient *>::iterator i = clientsMap.begin(); i != clientsMap.end(); ++i) {
         client = i.value();
-        if (client->char_notify.indexOf(uuid) >= 0) {
+        /*if (client->char_notify.indexOf(uuid) >= 0)*/ {
             socket = i.key();
             rvs = socket->write(pkt.encode(0)) < 0;
             if (rvs)
                 rv = false;
             qDebug() << serverName << "sending to" << socket->peerAddress().toString() << ":" << socket->peerPort()
                      << " notification for uuid = " << QString(QStringLiteral("%1")).arg(uuid, 4, 16, QLatin1Char('0'))
-                     << "rv=" << (!rvs);
+                     << "rv=" << (!rvs) << data.toHex(' ');
         }
     }
     return rv;
