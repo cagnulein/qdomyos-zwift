@@ -15,7 +15,10 @@ void rower::changeResistance(int8_t resistance) {
 
 void rower::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void rower::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
-void rower::changePower(int32_t power) { RequestedPower = power; }
+void rower::changePower(int32_t power) {
+    RequestedPower = power;
+    qDebug() << "rower::changePower" << power;
+}
 double rower::currentCrankRevolutions() { return CrankRevs; }
 uint16_t rower::lastCrankEventTime() { return LastCrankEventTime; }
 metric rower::lastRequestedResistance() { return RequestedResistance; }
