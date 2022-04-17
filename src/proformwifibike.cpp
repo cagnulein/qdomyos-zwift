@@ -191,7 +191,7 @@ uint16_t proformwifibike::wattsFromResistance(uint8_t resistance) {
 }
 
 void proformwifibike::forceResistance(int8_t requestResistance) {
-    websocket.sendTextMessage("{ \"set\":{ \"Target Watts\":\"" + QString::number(requestResistance * 10) + "\" } }");
+    websocket.sendTextMessage("{ \"set\":{ \"Resistance\":\"" + QString::number(requestResistance + 20) + "\" } }");
 }
 
 void proformwifibike::forceIncline(double incline) {
@@ -236,6 +236,8 @@ void proformwifibike::update() {
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
+        
+        innerWriteResistance();
 
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
