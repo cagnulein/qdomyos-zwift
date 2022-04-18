@@ -44,12 +44,15 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
       
-      - name: Compile Windows Desktop        
-        working-directory: src/
-        run: qmake
-      - name: Compile Windows Desktop        
-        run: make -j8
-        working-directory: src/   
+      - name: Run vcvars
+        run: |
+          call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        shell: cmd
+        
+      - name: Generate Makefile
+        run: |
+          qmake -o src/Makefile src/qdomyos-zwift.pro
+          make -j8
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
