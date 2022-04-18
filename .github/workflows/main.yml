@@ -20,9 +20,6 @@ on:
 jobs:
   window-build:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: msys2 {0}
         
     steps:
       - uses: actions/checkout@v2
@@ -46,6 +43,11 @@ jobs:
           msystem: mingw64
           release: false          
       
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
+        with:
+          cmake-version: '3.20.x'      
+      
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
@@ -57,11 +59,11 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
       
-      - name: qmake & make
+      - name: Build
         run: |
-          cd src
-          qmake
-          make
+            cd src
+            cmake -Bbuild -G "MinGW Makefiles"
+            cmake --build build
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
