@@ -44,8 +44,12 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
       
-      - name: Compile Windows Desktop
-        run: cd src; qmake; make -j8
+      - name: Compile Windows Desktop        
+        working-directory: src/
+        run: qmake
+      - name: Compile Windows Desktop        
+        run: make -j8
+        working-directory: src/   
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
