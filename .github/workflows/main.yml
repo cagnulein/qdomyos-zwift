@@ -57,12 +57,13 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
       
-      - name: Configure CMake
-        env:
-          CMAKE_PREFIX_PATH: ${{env.Qt5_Dir}}
-        run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - MinGW Makefiles" -B '${{github.workspace}}'/build
       - name: Build
-        run: cmake --build '${{github.workspace}}'/build --target RePr
+        run: |
+          Install-Module -Name Pscx -Force -AllowClobber
+          Invoke-BatchFile "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cd src
+          qmake
+          nmake
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
