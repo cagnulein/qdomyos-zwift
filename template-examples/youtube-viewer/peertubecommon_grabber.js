@@ -54,7 +54,7 @@ class PeertubeGrabber {
                         if (this.on_grab)
                             this.on_grab([], '' + error, this.name);
                     }.bind(this), 0);
-                }
+                }.bind(this)
             );
         }
         else {
