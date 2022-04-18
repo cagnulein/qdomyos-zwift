@@ -20,7 +20,10 @@ on:
 jobs:
   window-build:
     runs-on: windows-latest
-
+    defaults:
+      run:
+        shell: msys2 {0}
+        
     steps:
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -36,6 +39,12 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"
+          
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: mingw-w64-x86_64-toolchain
+          msystem: mingw64
+          release: false          
       
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
@@ -43,16 +52,17 @@ jobs:
           version: '5.15.2'
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: "win64_mingw73"
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"          
       
-      - name: Run vcvars
-        run: |
-          call "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-        shell: cmd
-        
-      - name: Generate Makefile
-        run: |
-          qmake -o src/Makefile src/qdomyos-zwift.pro
-          make -j8
+      - name: Configure CMake
+        env:
+          CMAKE_PREFIX_PATH: ${{env.Qt5_Dir}}
+        run: cmake -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -G "CodeBlocks - MinGW Makefiles" -B '${{github.workspace}}'/build
+      - name: Build
+        run: cmake --build '${{github.workspace}}'/build --target RePr
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
