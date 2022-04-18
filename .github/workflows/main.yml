@@ -63,13 +63,13 @@ jobs:
         run: |         
             cd src
             qmake
-            make -j4
+            make -j8
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: src/qdomyos-zwift.exe                  
+          path: src/release/qdomyos-zwift.exe                  
 
   # This workflow contains a single job called "build"
   build:
