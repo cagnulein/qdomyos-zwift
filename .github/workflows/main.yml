@@ -53,15 +53,15 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
+          arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
       
-      - name: Build
+      - name: qmake & make
         run: |
-          Invoke-BatchFile "%programfiles(x86)%\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           cd src
           qmake
-          nmake
+          make
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
