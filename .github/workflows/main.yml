@@ -60,10 +60,10 @@ jobs:
           install-deps: "true"          
       
       - name: Build
-        run: |
+        run: |         
             cd src
-            cmake -Bbuild -G "MinGW Makefiles"
-            cmake --build build
+            qmake
+            make -j4
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
