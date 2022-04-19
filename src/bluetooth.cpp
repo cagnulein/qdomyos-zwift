@@ -1318,7 +1318,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          (toorx_bike))) &&
                        !trxappgateusb && !trxappgateusbBike && filter) {
                 discoveryAgent->stop();
-                trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService);
+                trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(trxappgateusbBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
