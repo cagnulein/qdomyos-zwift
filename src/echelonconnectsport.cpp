@@ -183,12 +183,13 @@ uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
 }
 
 double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
+    QSettings settings;
     // 0,0097x3 - 0,4972x2 + 10,126x - 37,08
     double p = ((pow(resistance, 3) * 0.0097) - (0.4972 * pow(resistance, 2)) + (10.126 * resistance) - 37.08);
     if (p < 0) {
         p = 0;
     }
-    return p;
+    return (p * settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) + settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
 }
 
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
