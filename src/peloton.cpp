@@ -220,11 +220,11 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     }
     emit workoutChanged(workout_name, current_instructor_name);
 
-
+    /*
     if (workout_name.toUpper().contains(QStringLiteral("POWER ZONE"))) {
         qDebug() << QStringLiteral("!!Peloton Power Zone Ride Override!!");
         getPerformance(current_workout_id);
-    } else {
+    } else*/ {
         getRide(current_ride_id);
     }
 }
@@ -280,10 +280,13 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QJsonArray instructor_cues = ride[QStringLiteral("instructor_cues")].toArray();
 
     trainrows.clear();
-    trainrows.reserve(instructor_cues.count() + 1);
+    if(instructor_cues.count() > 0)
+        trainrows.reserve(instructor_cues.count() + 1);
 
     QSettings settings;
     QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
+    QJsonObject segments = ride[QStringLiteral("segments")].toObject();
+    QJsonArray segments_segment_list = segments[QStringLiteral("segment_list")].toArray();
 
     for (int i = 0; i < instructor_cues.count(); i++) {
         QJsonObject instructor_cue = instructor_cues.at(i).toObject();
@@ -341,9 +344,41 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             trainrows.last().duration = trainrows.last().duration.addSecs(duration);
         }
     }
+    if(trainrows.empty() && !segments_segment_list.isEmpty()) {
+        foreach (QJsonValue o, segments_segment_list) {
+            QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
+            if (!subsegments_v2.isEmpty()) {
+                foreach (QJsonValue s, subsegments_v2) {
+                    trainrow r;
+                    QString zone = s["display_name"].toString();
+                    int len = s["length"].toInt();
+                    r.duration = QTime(0, len / 60, len % 60, 0);
+                    if(!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
+                        // nothing to do
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.66;
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 3"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.83;
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 4"))) {
+                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.98;
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 5"))) {
+                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.13;
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 6"))) {
+                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.35;
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
+                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
+                    }
+                    trainrows.append(r);
+                    qDebug() << r.duration << "power" << r.power;
+                }
+            }
+        }
+    }
 
     if (log_request) {
-        qDebug() << "peloton::ride_onfinish" << ride;
+        qDebug() << "peloton::ride_onfinish" << trainrows.length() << ride;
     } else {
         qDebug() << "peloton::ride_onfinish" << trainrows.length();
     }
@@ -372,8 +407,6 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     QJsonObject target_performance_metrics = json[QStringLiteral("target_performance_metrics")].toObject();
     QJsonObject target_metrics_performance_data = json[QStringLiteral("target_metrics_performance_data")].toObject();
     QJsonArray segment_list = json[QStringLiteral("segment_list")].toArray();
-    QJsonObject segments = json[QStringLiteral("segments")].toObject();
-    QJsonArray segments_segment_list = segments[QStringLiteral("segment_list")].toArray();
     trainrows.clear();
 
     if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
@@ -431,38 +464,6 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                 r.upper_inclination = inc_upper;
                 trainrows.append(r);
                 qDebug() << i << r.duration << r.speed << r.inclination;
-            }
-        }
-    }
-    else if(!segments_segment_list.isEmpty()) {
-        foreach (QJsonValue o, segments_segment_list) {
-            QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
-            if (!subsegments_v2.isEmpty()) {
-                foreach (QJsonValue s, subsegments_v2) {
-                    trainrow r;
-                    QString zone = s["display_name"].toString();
-                    int len = s["length"].toInt();
-                    r.duration = QTime(0, len / 60, len % 60, 0);
-                    if(!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
-                        // nothing to do
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.66;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 3"))) {
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.83;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 4"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.98;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 5"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.13;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 6"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.35;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
-                    }
-                    trainrows.append(r);
-                    qDebug() << r.duration << "power" << r.power;
-                }
             }
         }
     }
