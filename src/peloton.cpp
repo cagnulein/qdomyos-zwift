@@ -443,7 +443,9 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
                     QString zone = s["display_name"].toString();
                     int len = s["length"].toInt();
                     r.duration = QTime(0, len / 60, len % 60, 0);
-                    if(!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
+                    if(!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
+                        // nothing to do
+                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
                     } else if(!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.66;
