@@ -191,7 +191,7 @@ uint16_t proformwifibike::wattsFromResistance(uint8_t resistance) {
 }
 
 void proformwifibike::forceResistance(int8_t requestResistance) {
-    websocket.sendTextMessage("{ \"set\":{ \"Resistance\":\"" + QString::number(requestResistance + 20) + "\" } }");
+    websocket.sendTextMessage("{ \"set\":{ \"Watt\":\"" + QString::number(requestResistance * 10) + "\" } }");
 }
 
 void proformwifibike::forceIncline(double incline) {
@@ -329,6 +329,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue);
 
@@ -401,6 +402,12 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                                                                   m_pelotonResistance = (100 / 32) * Resistance.value();
                                                                   emit resistanceRead(Resistance.value());    */
 
+    if(!disable_hr_frommachinery && !values[QStringLiteral("Chest Pulse")].isUndefined()) {
+        Heart = values[QStringLiteral("Chest Pulse")].toString().toDouble();
+        // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+        emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+    }
+    
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
@@ -409,7 +416,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        if (disable_hr_frommachinery && heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             lockscreen h;
