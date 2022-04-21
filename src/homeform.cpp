@@ -2462,6 +2462,9 @@ void homeform::update() {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 requestedPerc =
                     (((bike *)bluetoothManager->device())->lastRequestedPower().value() / ftpSetting) * 100.0;
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                requestedPerc =
+                    (((rower *)bluetoothManager->device())->lastRequestedPower().value() / ftpSetting) * 100.0;
             }
         }
         if (ftpPerc < 56) {
