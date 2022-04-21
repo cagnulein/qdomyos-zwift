@@ -191,7 +191,10 @@ uint16_t proformwifibike::wattsFromResistance(uint8_t resistance) {
 }
 
 void proformwifibike::forceResistance(int8_t requestResistance) {
-    websocket.sendTextMessage("{ \"set\":{ \"Watt\":\"" + QString::number(requestResistance * 10) + "\" } }");
+
+    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestResistance) + "\"}}";
+    qDebug() << "forceResistance" << send;
+    websocket.sendTextMessage(send);
 }
 
 void proformwifibike::forceIncline(double incline) {
@@ -236,7 +239,7 @@ void proformwifibike::update() {
             sec1Update = 0;
             // updateDisplay(elapsed);
         }
-        
+
         innerWriteResistance();
 
         if (requestStart != -1) {
@@ -402,12 +405,12 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
                                                                   m_pelotonResistance = (100 / 32) * Resistance.value();
                                                                   emit resistanceRead(Resistance.value());    */
 
-    if(!disable_hr_frommachinery && !values[QStringLiteral("Chest Pulse")].isUndefined()) {
+    if (!disable_hr_frommachinery && !values[QStringLiteral("Chest Pulse")].isUndefined()) {
         Heart = values[QStringLiteral("Chest Pulse")].toString().toDouble();
         // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
         emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
     }
-    
+
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
