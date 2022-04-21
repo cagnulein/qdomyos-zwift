@@ -64,7 +64,8 @@ jobs:
             cd src
             qmake
             make -j8
-            windeployqt src/release/qdomyos-zwift.exe
+            cd release
+            windeployqt qdomyos-zwift.exe
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
