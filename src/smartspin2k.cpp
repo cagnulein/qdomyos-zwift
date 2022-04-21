@@ -96,12 +96,12 @@ void smartspin2k::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
                                       bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
-    
-    if(gattCommunicationChannelService == nullptr || gattCommunicationChannelService == nullptr) {
+
+    if (gattCommunicationChannelService == nullptr || gattCommunicationChannelService == nullptr) {
         qDebug() << "pointer no valid" << gattCommunicationChannelService << gattCommunicationChannelService;
         return;
     }
-    
+
     if (wait_for_response) {
         connect(gattCommunicationChannelService, SIGNAL(characteristicChanged(QLowEnergyCharacteristic, QByteArray)),
                 &loop, SLOT(quit()));
@@ -207,7 +207,8 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
     write[2] = (uint8_t)(requestResistance & 0xFF);
     write[3] = (uint8_t)(requestResistance >> 8);
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance), false, true);
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance),
+                        false, true);
 }
 
 void smartspin2k::update() {
@@ -242,8 +243,8 @@ void smartspin2k::update() {
                 watt[3] = (uint8_t)((uint16_t)(parentDevice->wattsMetric().value()) >> 8);
 
                 writeCharacteristic(watt, sizeof(watt),
-                                    QStringLiteral("watt sync ") +
-                                        QString::number(parentDevice->wattsMetric().value()), false, true);
+                                    QStringLiteral("watt sync ") + QString::number(parentDevice->wattsMetric().value()),
+                                    false, true);
 
                 // cadence sync
                 uint8_t cadence[] = {0x02, 0x05, 0x00, 0x00};
@@ -252,16 +253,17 @@ void smartspin2k::update() {
 
                 writeCharacteristic(cadence, sizeof(cadence),
                                     QStringLiteral("cadence sync ") +
-                                        QString::number(parentDevice->currentCadence().value()), false, true);
+                                        QString::number(parentDevice->currentCadence().value()),
+                                    false, true);
 
                 // hr sync
                 uint8_t heart[] = {0x02, 0x04, 0x00, 0x00};
                 heart[2] = (uint8_t)((uint16_t)(parentDevice->currentHeart().value()) & 0xFF);
                 heart[3] = (uint8_t)((uint16_t)(parentDevice->currentHeart().value()) >> 8);
 
-                writeCharacteristic(heart, sizeof(heart),
-                                    QStringLiteral("heart sync ") +
-                                        QString::number(parentDevice->currentHeart().value()), false, true);
+                writeCharacteristic(
+                    heart, sizeof(heart),
+                    QStringLiteral("heart sync ") + QString::number(parentDevice->currentHeart().value()), false, true);
             }
         }
 
@@ -273,7 +275,8 @@ void smartspin2k::update() {
 
             writeCharacteristicFTMS(write, sizeof(write),
                                     QStringLiteral("forcePower to SS2K ") +
-                                        QString::number(parentDevice->lastRequestedPower().value()), false, true);
+                                        QString::number(parentDevice->lastRequestedPower().value()),
+                                    false, true);
 
             requestResistance = -1;
         }
@@ -443,6 +446,8 @@ void smartspin2k::errorService(QLowEnergyService::ServiceError err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceError>();
     emit debug(QStringLiteral("smartspin2k::errorService") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
+
+    m_control->disconnectFromDevice();
 }
 
 void smartspin2k::error(QLowEnergyController::Error err) {
@@ -450,6 +455,8 @@ void smartspin2k::error(QLowEnergyController::Error err) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyController::Error>();
     emit debug(QStringLiteral("smartspin2k::error") + QString::fromLocal8Bit(metaEnum.valueToKey(err)) +
                m_control->errorString());
+
+    m_control->disconnectFromDevice();
 }
 
 void smartspin2k::deviceDiscovered(const QBluetoothDeviceInfo &device) {
