@@ -401,7 +401,8 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     lastPacket = newValue;
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
-        newValue.at(3) != 0x04 || (nordictrack10 && (newValue.at(4) != 0x02 || newValue.at(5) != 0x31)) ||
+        newValue.at(3) != 0x04 ||
+        (nordictrack10 && (newValue.at(4) != 0x02 || (newValue.at(5) != 0x31 && newValue.at(5) != 0x34))) ||
         ((nordictrack_t65s_treadmill || nordictrack_s30_treadmill) &&
          (newValue.at(4) != 0x02 || newValue.at(5) != 0x2e)) ||
         (((uint8_t)newValue.at(12)) == 0xFF && ((uint8_t)newValue.at(13)) == 0xFF &&
