@@ -39,8 +39,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 int idx = 0;
                 this->uuids.clear();
                 while (this->Length >= idx + 16) {
-                    this->uuids.append((((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8) |
-                                       ((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)));
+                    quint16 uuid = (((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8);
+                    uuid |= ((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                    this->uuids.append(uuid);
                     idx += 16;
                 }
                 return rembuf;
@@ -48,8 +49,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_DISCOVER_CHARACTERISTICS) {
             if (this->Length >= 16) {
-                this->uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8 |
-                             ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0));
+                quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
+                uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                this->uuid = uuid;
                 if (this->Length == 16) {
                     this->isRequest = this->checkIsRequest(last_seq_number);
                     return rembuf;
@@ -58,8 +60,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                     this->additional_data.clear();
                     int idx = 16;
                     while (this->Length >= idx + 17) {
-                        this->uuids.append((((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8) |
-                                           ((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)));
+                        quint16 uuid = (((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8);
+                        uuid |= ((quint16)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                        this->uuids.append(uuid);
                         this->additional_data.append(((quint8)buf.at(idx + DPKT_MESSAGE_HEADER_LENGTH + 16)));
                         idx += 17;
                     }
@@ -70,8 +73,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_READ_CHARACTERISTIC) {
             if (this->Length >= 16) {
-                this->uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8 |
-                             ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0));
+                quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
+                uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                this->uuid = uuid;
                 if (this->Length == 16)
                     this->isRequest = this->checkIsRequest(last_seq_number);
                 else
@@ -82,8 +86,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_WRITE_CHARACTERISTIC) {
             if (this->Length > 16) {
-                this->uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8 |
-                             ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0));
+                quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
+                uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                this->uuid = uuid;
                 this->additional_data =
                     buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, rembuf - (DPKT_MESSAGE_HEADER_LENGTH + 16));
                 this->isRequest = this->checkIsRequest(last_seq_number);
@@ -92,8 +97,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_ENABLE_CHARACTERISTIC_NOTIFICATIONS) {
             if (this->Length == 16 || this->Length == 17) {
-                this->uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8 |
-                             ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0));
+                quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
+                uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                this->uuid = uuid;
                 if (this->Length == 17) {
                     this->isRequest = true;
                     this->additional_data = buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, 1);
@@ -103,8 +109,9 @@ int DirconPacket::parse(const QByteArray &buf, int last_seq_number) {
                 return DPKT_PARSE_ERROR - rembuf;
         } else if (this->Identifier == DPKT_MSGID_UNSOLICITED_CHARACTERISTIC_NOTIFICATION) {
             if (this->Length > 16) {
-                this->uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8 |
-                             ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0));
+                quint16 uuid = ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH8)) << 8;
+                uuid |= ((quint16)buf.at(DPKT_MESSAGE_HEADER_LENGTH + DPKT_POS_SH0)) & 0x00FF;
+                this->uuid = uuid;
                 this->additional_data =
                     buf.mid(DPKT_MESSAGE_HEADER_LENGTH + 16, rembuf - (DPKT_MESSAGE_HEADER_LENGTH + 16));
                 return rembuf;
