@@ -19,11 +19,11 @@
 #include <QObject>
 
 #include <QDebug>
+#include <QUrl>
 
-class PlatformShareUtils : public QObject
-{
+class PlatformShareUtils : public QObject {
     Q_OBJECT
-signals:
+  signals:
     void shareEditDone(int requestCode);
     void shareFinished(int requestCode);
     void shareNoAppAvailable(int requestCode);
@@ -31,33 +31,51 @@ signals:
     void fileUrlReceived(QString url);
     void fileReceivedAndSaved(QString url);
 
-public:
-    PlatformShareUtils(QObject *parent = 0) : QObject(parent){}
+  public:
+    PlatformShareUtils(QObject *parent = 0) : QObject(parent) {}
     virtual ~PlatformShareUtils() {}
-    virtual bool checkMimeTypeView(const QString &mimeType){
+    virtual bool checkMimeTypeView(const QString &mimeType) {
         qDebug() << "check view for " << mimeType;
-        return true;}
-    virtual bool checkMimeTypeEdit(const QString &mimeType){
+        return true;
+    }
+    virtual bool checkMimeTypeEdit(const QString &mimeType) {
         qDebug() << "check edit for " << mimeType;
-        return true;}
-    virtual void share(const QString &text, const QUrl &url){ qDebug() << text << url; }
-    virtual void sendFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId, const bool &altImpl){
-        qDebug() << filePath << " - " << title << "requestId " << requestId << " - " << mimeType << "altImpl? " << altImpl; }
-    virtual void viewFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId, const bool &altImpl){
-        qDebug() << filePath << " - " << title << " requestId: " << requestId << " - " << mimeType << "altImpl? " << altImpl; }
-    virtual void editFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId, const bool &altImpl){
-        qDebug() << filePath << " - " << title << " requestId: " << requestId << " - " << mimeType << "altImpl? " << altImpl; }
+        return true;
+    }
+    virtual void share(const QString &text, const QUrl &url) { qDebug() << text << url; }
+    virtual void sendFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId,
+                          const bool &altImpl) {
+        qDebug() << filePath << " - " << title << "requestId " << requestId << " - " << mimeType << "altImpl? "
+                 << altImpl;
+    }
+    virtual void viewFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId,
+                          const bool &altImpl) {
+        qDebug() << filePath << " - " << title << " requestId: " << requestId << " - " << mimeType << "altImpl? "
+                 << altImpl;
+    }
+    virtual void editFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId,
+                          const bool &altImpl) {
+        qDebug() << filePath << " - " << title << " requestId: " << requestId << " - " << mimeType << "altImpl? "
+                 << altImpl;
+    }
 
-    virtual void checkPendingIntents(const QString workingDirPath){
-        qDebug() << "checkPendingIntents " << workingDirPath; }
+    virtual void checkPendingIntents(const QString workingDirPath) {
+        qDebug() << "checkPendingIntents " << workingDirPath;
+    }
+    virtual void simulateIntentReceived(const QUrl &url, const QString &workingDirPath) {
+        Q_UNUSED(workingDirPath);
+        QString rv = url.toString();
+        if (rv.startsWith("file://")) {
+            rv = rv.right(rv.length() - 7);
+            emit fileUrlReceived(rv);
+        }
+    }
 };
 
-class ShareUtils : public QObject
-{
+class ShareUtils : public QObject {
     Q_OBJECT
 
-
-signals:
+  signals:
     void shareEditDone(int requestCode);
     void shareFinished(int requestCode);
     void shareNoAppAvailable(int requestCode);
@@ -65,7 +83,7 @@ signals:
     void fileUrlReceived(QString url);
     void fileReceivedAndSaved(QString url);
 
-public slots:
+  public slots:
     void onShareEditDone(int requestCode);
     void onShareFinished(int requestCode);
     void onShareNoAppAvailable(int requestCode);
@@ -73,19 +91,22 @@ public slots:
     void onFileUrlReceived(QString url);
     void onFileReceivedAndSaved(QString url);
 
-public:
+  public:
     explicit ShareUtils(QObject *parent = 0);
     Q_INVOKABLE bool checkMimeTypeView(const QString &mimeType);
     Q_INVOKABLE bool checkMimeTypeEdit(const QString &mimeType);
     Q_INVOKABLE void share(const QString &text, const QUrl &url);
-    Q_INVOKABLE void sendFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId, const bool &altImpl);
-    Q_INVOKABLE void viewFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId, const bool &altImpl);
-    Q_INVOKABLE void editFile(const QString &filePath, const QString &title, const QString &mimeType, const int &requestId, const bool &altImpl);
+    Q_INVOKABLE void sendFile(const QString &filePath, const QString &title, const QString &mimeType,
+                              const int &requestId, const bool &altImpl);
+    Q_INVOKABLE void viewFile(const QString &filePath, const QString &title, const QString &mimeType,
+                              const int &requestId, const bool &altImpl);
+    Q_INVOKABLE void editFile(const QString &filePath, const QString &title, const QString &mimeType,
+                              const int &requestId, const bool &altImpl);
     Q_INVOKABLE void checkPendingIntents(const QString workingDirPath);
+    Q_INVOKABLE void simulateIntentReceived(const QUrl &url, const QString &workingDirPath);
 
-private:
-    PlatformShareUtils* mPlatformShareUtils;
-
+  private:
+    PlatformShareUtils *mPlatformShareUtils;
 };
 
-#endif //SHAREUTILS_H
+#endif // SHAREUTILS_H

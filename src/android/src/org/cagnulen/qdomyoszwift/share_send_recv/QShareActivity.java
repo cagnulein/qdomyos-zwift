@@ -106,6 +106,7 @@ public class QShareActivity extends QtActivity
         // if you want to revoke permissions for older OS
         // it makes sense also do this after the delay
         fireActivityResult(requestCode, resultCode);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     // if we are opened from other apps:
@@ -147,7 +148,6 @@ public class QShareActivity extends QtActivity
       Intent intent = getIntent();
 
       Uri intentUri;
-      String intentScheme;
       String intentAction;
       // we are listening to android.intent.action.SEND or VIEW (see Manifest)
       if (intent.getAction().equals("android.intent.action.VIEW")){
@@ -162,6 +162,17 @@ public class QShareActivity extends QtActivity
               return;
       }
       Log.d(TAG, "action: " + intentAction);
+      processIncomingUri(intentUri);
+   }
+
+   public void processIncomingUri(String intentUri, String workingDir) {
+       workingDirPath = workingDir;
+       Log.d(TAG, workingDirPath);
+       processIncomingUri(Uri.parse(intentUri));
+   }
+
+   public void processIncomingUri(Uri intentUri) {
+      String intentScheme;
       if (intentUri == null){
             Log.d(TAG, "Intent URI: is null");
             return;

@@ -81,7 +81,7 @@ ApplicationWindow {
             if (idx > 0) {
                 lastSettingsFileName = qmlString.substring(idx + 1);
                 if (settingsN) {
-                    shareUtils.sendFile(appui.filePathDocumentsLocation(qmlString), "Send Settings file", "text/plain", 13, 0)
+                    shareUtils.sendFile(appui.filePathDocumentsLocation(qmlString), "Send Settings file", "text/plain", Constants.SHARE_REQUEST_CODE, 0)
                 }
                 else {
                     popupLoadSaveFile.labelText = qsTr("Cannot save settings to file\n%1").arg(lastSettingsFileName);
@@ -111,29 +111,41 @@ ApplicationWindow {
     Connections {
         target: shareUtils
         onShareEditDone: {
-            popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + " OK")
-            popupLoadSaveFile.open();
+            console.log("ShareEditDone " + requestCode);
+            if (requestCode == Constants.SHARE_REQUEST_CODE) {
+                popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + " OK")
+                popupLoadSaveFile.open();
+            }
         }
     }
     Connections {
         target: shareUtils
         onShareFinished: {
-            popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + " cancelled")
-            popupLoadSaveFile.open();
+            console.log("ShareFinished " + requestCode);
+            if (requestCode == Constants.SHARE_REQUEST_CODE) {
+                popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + " cancelled")
+                popupLoadSaveFile.open();
+            }
         }
     }
     Connections {
         target: shareUtils
         onShareNoAppAvailable: {
-            popupLoadSaveFile.labelText = qsTr("No app available to share settings file\n" + lastSettingsFileName)
-            popupLoadSaveFile.open();
+            console.log("ShareAppNo " + requestCode);
+            if (requestCode == Constants.SHARE_REQUEST_CODE) {
+                popupLoadSaveFile.labelText = qsTr("No app available to share settings file\n" + lastSettingsFileName)
+                popupLoadSaveFile.open();
+            }
         }
     }
     Connections {
         target: shareUtils
         onShareError: {
-            popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + "\nerror: " + message)
-            popupLoadSaveFile.open();
+            console.log("ShareError " + requestCode);
+            if (requestCode == Constants.SHARE_REQUEST_CODE) {
+                popupLoadSaveFile.labelText = qsTr("Share settings file\n" + lastSettingsFileName + "\nerror: " + message)
+                popupLoadSaveFile.open();
+            }
         }
     }
 
@@ -404,14 +416,15 @@ ApplicationWindow {
             icon.source: "icons/icons/tray-arrow-up.png"
             onClicked: {
                 stackView.push("SettingsList.qml")
-                stackView.currentItem.loadSettings.connect(loadSettings)
                 stackView.currentItem.loadSettings.connect(function(url) {
+                    console.log("Simulating intent " + url);
+                    appui.simulateIntentReceived(url);
                     stackView.pop();
                     if (stackView.depth > 1) {
                         stackView.pop()
                     }
-                    popupLoadSaveFile.labelText = qsTr("Settings has been loaded correctly. Restart the app!")
-                    popupLoadSaveFile.open();
+                    // popupLoadSaveFile.labelText = qsTr("Settings has been loaded correctly. Restart the app!")
+                    // popupLoadSaveFile.open();
                  });
                 drawer.close()
             }

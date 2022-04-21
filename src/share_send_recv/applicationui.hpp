@@ -7,38 +7,40 @@
 
 #include <QObject>
 
-#include <QtQml>
 #include "shareutils.hpp"
+#include <QtQml>
 
-class ApplicationUI : public QObject
-{
+class ApplicationUI : public QObject {
     Q_OBJECT
 
-public:
-     ApplicationUI(QObject *parent = 0);
+  public:
+    ApplicationUI(QObject *parent = 0);
 
-     void addContextProperty(QQmlContext* context);
+    void addContextProperty(QQmlContext *context);
 
-     Q_INVOKABLE
-     QString filePathDocumentsLocation(const QString& sourceFilePath);
+    Q_INVOKABLE
+    void simulateIntentReceived(const QUrl &sourceFilePath);
+
+    Q_INVOKABLE
+    QString filePathDocumentsLocation(const QString &sourceFilePath);
 
 #if defined(Q_OS_ANDROID)
-     Q_INVOKABLE
-     bool checkPermission();
+    Q_INVOKABLE
+    bool checkPermission();
 #endif
 
-signals:
-     void noDocumentsWorkLocation();
+  signals:
+    void noDocumentsWorkLocation();
 
-public slots:
+  public slots:
 #if defined(Q_OS_ANDROID)
-     void onApplicationStateChanged(Qt::ApplicationState applicationState);
+    void onApplicationStateChanged(Qt::ApplicationState applicationState);
 #endif
 
-private:
-     ShareUtils* mShareUtils;
-     QString mAppDataFilesPath;
-     bool mPendingIntentsChecked;
+  private:
+    ShareUtils *mShareUtils;
+    QString mAppDataFilesPath;
+    bool mPendingIntentsChecked;
 };
 
 #endif // APPLICATIONUI_HPP

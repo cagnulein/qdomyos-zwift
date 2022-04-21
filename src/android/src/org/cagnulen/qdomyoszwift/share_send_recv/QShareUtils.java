@@ -204,6 +204,7 @@ public class QShareUtils
         }
         // Verify that the intent will resolve to an activity
         if (chooserIntent.resolveActivity(QtNative.activity().getPackageManager()) != null) {
+            Log.d(TAG, "activity for result " + requestId);
             if(requestId > 0) {
                 QtNative.activity().startActivityForResult(chooserIntent, requestId);
             } else {

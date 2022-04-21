@@ -179,6 +179,7 @@ void AndroidShareUtils::sendFile(const QString &filePath, const QString &title, 
         return;
     }
 
+    qDebug() << "Starting activity" << requestId;
     if (requestId <= 0) {
         // we dont need a result if there's no requestId
         QtAndroid::startActivity(jniIntent, requestId);
@@ -468,6 +469,25 @@ void AndroidShareUtils::checkPendingIntents(const QString workingDirPath) {
         }
         activity.callMethod<void>("checkPendingIntents", "(Ljava/lang/String;)V", jniWorkingDir.object<jstring>());
         qDebug() << "checkPendingIntents: " << workingDirPath;
+        return;
+    }
+    qDebug() << "checkPendingIntents: Activity not valid";
+}
+
+void AndroidShareUtils::simulateIntentReceived(const QUrl &url, const QString &workingDirPath) {
+    QAndroidJniObject activity = QtAndroid::androidActivity();
+    if (activity.isValid()) {
+        // create a Java String for the Working Dir Path
+        QAndroidJniObject jniWorkingDir = QAndroidJniObject::fromString(workingDirPath);
+        QAndroidJniObject jniUrl = QAndroidJniObject::fromString(url.toString());
+        if (!jniWorkingDir.isValid() || !jniUrl.isValid()) {
+            qWarning() << "QAndroidJniObject jniWorkingDir not valid.";
+            emit shareError(0, tr("Share: an Error occured\nWorkingDir not valid"));
+            return;
+        }
+        activity.callMethod<void>("processIncomingUri", "(Ljava/lang/String;Ljava/lang/String;)V",
+                                  jniUrl.object<jstring>(), jniWorkingDir.object<jstring>());
+        qDebug() << "processIncomingUri: " << url.toString() << workingDirPath;
         return;
     }
     qDebug() << "checkPendingIntents: Activity not valid";
