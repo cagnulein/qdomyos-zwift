@@ -17,8 +17,10 @@ WebServerInfoSender::~WebServerInfoSender() { innerStop(); }
 void WebServerInfoSender::ignoreSSLErrors(QNetworkReply *repl, const QList<QSslError> &) { repl->ignoreSslErrors(); }
 
 bool WebServerInfoSender::listen() {
-    if (!innerTcpServer)
+    if (!innerTcpServer) {
         innerTcpServer = new QTcpServer(this);
+        connect(innerTcpServer, SIGNAL(acceptError(QAbstractSocket::SocketError)), this, SLOT(acceptError(QAbstractSocket::SocketError)));
+    }
     if (!innerTcpServer->isListening()) {
         if (innerTcpServer->listen(QHostAddress::Any, port)) {
             if (!port) {
@@ -39,6 +41,7 @@ bool WebServerInfoSender::listen() {
     return false;
 }
 
+void WebServerInfoSender::acceptError(QAbstractSocket::SocketError socketError) {qDebug() << "WebServerInfoSender::acceptError" << socketError;}
 bool WebServerInfoSender::isRunning() const { return innerTcpServer && innerTcpServer->isListening(); }
 bool WebServerInfoSender::send(const QString &data) {
     if (isRunning() && !data.isEmpty()) {
@@ -117,6 +120,8 @@ bool WebServerInfoSender::init() {
 }
 
 void WebServerInfoSender::watchdogEvent() {
+    if(innerTcpServer->serverError() != QAbstractSocket::UnknownSocketError)
+        qDebug() << "WebServerInfoSender is " << innerTcpServer->serverError();
     if(innerTcpServer && !innerTcpServer->isListening()) {
         qDebug() << QStringLiteral("innerTcpServer is not LISTENING!");
     }
