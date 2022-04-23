@@ -14,12 +14,12 @@ class ApplicationUI : public QObject {
     Q_OBJECT
 
   public:
-    ApplicationUI(QObject *parent = 0);
+    ApplicationUI(const QString &pth = QStringLiteral(""), QObject *parent = 0);
 
     void addContextProperty(QQmlContext *context);
 
     Q_INVOKABLE
-    void simulateIntentReceived(const QUrl &sourceFilePath);
+    void simulateIntentReceived(const QString &suffix, const QUrl &sourceFilePath);
 
     Q_INVOKABLE
     QString filePathDocumentsLocation(const QString &sourceFilePath);

@@ -2951,6 +2951,7 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
                 delete trainProgram;
             }
             trainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            emit trainProgramLoaded(file.fileName(), trainProgram->rows.length());
         }
 
         trainProgramSignals();
@@ -2978,6 +2979,7 @@ void homeform::trainprogram_zwo_loaded(const QString &s) {
                 emit infoChanged(m_info);
             }
         }
+        emit trainProgramLoaded(QStringLiteral("/web/json"), trainProgram->rows.length());
     }
     trainProgramSignals();
 }

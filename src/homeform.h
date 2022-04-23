@@ -563,6 +563,7 @@ class homeform : public QObject {
     void stopIconChanged(QString value);
     void stopColorChanged(QString value);
     void infoChanged(QString value);
+    void trainProgramLoaded(QString name, int lines);
     void topBarHeightChanged(int value);
     void bluetoothDevicesChanged(QStringList value);
     void tile_orderChanged(QStringList value);

@@ -16,15 +16,18 @@
 #include <QtAndroid>
 #endif
 
-ApplicationUI::ApplicationUI(QObject *parent) : QObject(parent), mShareUtils(new ShareUtils(this)) {
+ApplicationUI::ApplicationUI(const QString &pth, QObject *parent) : QObject(parent), mShareUtils(new ShareUtils(this)) {
     // this is a demo application where we deal with an Image and a PDF as example
     // Image and PDF are delivered as qrc:/ resources at /data_assets
     // to start the tests as first we must copy these 2 files from assets into APP DATA
     // so we can simulate HowTo view, edit or send files from inside your APP DATA to other APPs
     // in a real life app you'll have your own workflows
     // I made copyAssetsToAPPData() INVOKABLE to be able to reset to origin files
+    mAppDataFilesPath = pth;
     mAppDataFilesPath =
-        QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).value(0).append(QStringLiteral("/settings"));
+        (mAppDataFilesPath.isEmpty() ? QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).value(0)
+                                     : mAppDataFilesPath)
+            .append(QStringLiteral("/settings"));
     if (!QDir(mAppDataFilesPath).exists()) {
         if (QDir("").mkpath(mAppDataFilesPath)) {
             qDebug() << "Created Documents Location work directory. " << mAppDataFilesPath;
@@ -63,8 +66,16 @@ QString ApplicationUI::filePathDocumentsLocation(const QString &sourceFilePath) 
     return destinationFilePath;
 }
 
-void ApplicationUI::simulateIntentReceived(const QUrl &sourceFilePath) {
-    mShareUtils->simulateIntentReceived(sourceFilePath, mAppDataFilesPath);
+void ApplicationUI::simulateIntentReceived(const QString &suffix, const QUrl &sourceFilePath) {
+    QString path = mAppDataFilesPath.left(mAppDataFilesPath.lastIndexOf("/")).append("/") + suffix;
+    if (!QDir(path).exists()) {
+        if (QDir("").mkpath(path)) {
+            qDebug() << "Created Documents Location work directory. " << path;
+        } else {
+            qWarning() << "Failed to create Documents Location work directory. " << path;
+        }
+    }
+    mShareUtils->simulateIntentReceived(sourceFilePath, path);
 }
 
 #if defined(Q_OS_ANDROID)

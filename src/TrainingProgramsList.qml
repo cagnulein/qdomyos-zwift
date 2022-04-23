@@ -61,7 +61,6 @@ ColumnLayout {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                                     if (fileUrl) {
                                         trainprogram_open_clicked(fileUrl);
-                                        popup.open()
                                     }
                                 }
                                 else {

@@ -55,7 +55,30 @@ ApplicationWindow {
                 return
             }
         }
-        loadSettings(url);
+        console.log("notify_load_on_intent: " + url);
+        if (url.endsWith(".qzs"))
+            loadSettings(url);
+        else
+            trainprogram_open_clicked(url);
+    }
+
+    Connections {
+        target: rootItem
+        onTrainProgramLoaded: {
+            let qmlString = name;
+            let idx = qmlString.lastIndexOf('/');
+            if (idx > 0) {
+                lastSettingsFileName = qmlString.substring(idx + 1);
+                if (lines) {
+                    popupLoadSaveFile.labelText = qsTr("Program has been loaded correctly (%1 lines).\nFile name was %2").arg(lines).arg(lastSettingsFileName);
+                    popupLoadSaveFile.open();
+                }
+                else {
+                    popupLoadSaveFile.labelText = qsTr("Cannot save settings to file\n%1").arg(lastSettingsFileName);
+                    popupLoadSaveFile.open();
+                }
+            }
+        }
     }
 
     Connections {
@@ -418,7 +441,7 @@ ApplicationWindow {
                 stackView.push("SettingsList.qml")
                 stackView.currentItem.loadSettings.connect(function(url) {
                     console.log("Simulating intent " + url);
-                    appui.simulateIntentReceived(url);
+                    appui.simulateIntentReceived("settings", url);
                     stackView.pop();
                     if (stackView.depth > 1) {
                         stackView.pop()
@@ -526,10 +549,9 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
-                    stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                        appui.simulateIntentReceived("training", url);
                         stackView.pop();
-                        popup.open();
                      });
                     drawer.close()
                 }
