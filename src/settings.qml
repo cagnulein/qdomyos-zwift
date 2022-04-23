@@ -366,6 +366,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.62
             property string proformtdf4ip: ""
+
+            // from the version 2.10.72
+            property bool fitfiu_mc_v460: false
         }
 
         function paddingZeros(text, limit) {
@@ -4180,6 +4183,31 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.pafers_treadmill = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: runnerTTreadmillAccordion
+                    title: qsTr("RunnerT Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: fitfiuMCV460TreadmillDelegate
+                            text: qsTr("Fitfiu MC-V460")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitfiu_mc_v460
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.fitfiu_mc_v460 = checked
                         }
                     }
                 }

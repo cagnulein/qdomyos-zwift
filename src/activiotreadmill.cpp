@@ -70,11 +70,15 @@ void activiotreadmill::writeCharacteristic(const QLowEnergyCharacteristic charac
 }
 
 void activiotreadmill::forceSpeed(double requestSpeed) {
+    QSettings settings;
     uint8_t writeSpeed[] = {0x03, 0x00, 0x00, 0x00, 0x00, 0x28, 0x00};
 
     writeSpeed[1] = (requestSpeed * 10);
     writeSpeed[5] += writeSpeed[1];
-    writeSpeed[6] = writeSpeed[1] + 1;
+    if(!settings.value(QStringLiteral("fitfiu_mc_v460"), false).toBool())
+        writeSpeed[6] = writeSpeed[1] + 1;
+    else
+        writeSpeed[6] = writeSpeed[1] - 1;
 
     writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
                         QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
@@ -240,7 +244,9 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // lastState = value.at(0);
 
     double speed = GetSpeedFromPacket(value);
-    double incline = GetInclinationFromPacket(value);
+    double incline = 1.0; // "fitfiu_mc_v460" has 1.0 fixed inclination
+    if(!settings.value(QStringLiteral("fitfiu_mc_v460"), false).toBool())
+        incline = GetInclinationFromPacket(value);
     // double kcal = GetKcalFromPacket(value);
     // double distance = GetDistanceFromPacket(value);
 
