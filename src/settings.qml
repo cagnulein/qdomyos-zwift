@@ -369,6 +369,7 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.72
             property bool fitfiu_mc_v460: false
+            property real bike_weight: 0
         }
 
         function paddingZeros(text, limit) {
@@ -1019,6 +1020,30 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.speed_power_based = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelBikeWeight
+                            text: qsTr("Bike Weight") + "(" + (settings.miles_unit?"lbs":"kg") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: bikeweightTextField
+                            text: (settings.miles_unit?settings.bike_weight * 2.20462:settings.bike_weight)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.bike_weight = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okBikeWeightButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text)
+                        }
                     }
                     SwitchDelegate {
                         id: zwiftErgDelegate
