@@ -4222,7 +4222,7 @@ import Qt.labs.settings 1.0
                         spacing: 0
                         SwitchDelegate {
                             id: fitfiuMCV460TreadmillDelegate
-                            text: qsTr("Fitfiu MC-V460")
+                            text: qsTr("Fitfiu MC-460")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
