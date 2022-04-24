@@ -628,7 +628,10 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              ff0fb50200b4002a00580200000000005e00007d
              */
 
-            int resistance = iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value());
+            int resistance = (iFit_LastResistanceRequested == 0 ? iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value()) : iFit_LastResistanceRequested);
+            
+            qDebug() << QStringLiteral("current resistance converted from the bike") << iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value()) << QStringLiteral("last requested resistance") << iFit_LastResistanceRequested << QStringLiteral("resistance sent to ifit") << resistance;
+            
             double odometer = Bike->odometer() * 1000;
             double calories = Bike->calories().value();
             if (resistance > 0x26)
@@ -719,11 +722,11 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             QSettings settings;
             bool force_resistance = settings.value(QStringLiteral("virtualbike_forceresistance"), true).toBool();
 
-            uint8_t resistance = newValue.at(12);
-            qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(resistance);
+            iFit_LastResistanceRequested = newValue.at(12);
+            qDebug() << QStringLiteral("requested iFit resistance ") + QString::number(iFit_LastResistanceRequested);
 
             for (int i = 0; i < 100; i++) {
-                if (iFit_pelotonToBikeResistance(i) == resistance) {
+                if (iFit_pelotonToBikeResistance(i) == iFit_LastResistanceRequested) {
                     if (force_resistance) {
                         // same on the training program
                         Bike->changeResistance(
