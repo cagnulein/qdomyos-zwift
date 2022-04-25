@@ -77,8 +77,59 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
     writeSpeed[5] += writeSpeed[1];
     if(!settings.value(QStringLiteral("fitfiu_mc_v460"), false).toBool())
         writeSpeed[6] = writeSpeed[1] + 1;
-    else
-        writeSpeed[6] = writeSpeed[1] - 1;
+    else {
+        switch(writeSpeed[1] & 0x0F) {
+            case 0x00:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x01:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x02:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x03:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+            case 0x04:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x05:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x06:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x07:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+            case 0x08:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x09:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x0A:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x0B:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+            case 0x0C:
+                writeSpeed[6] = writeSpeed[1] + 5;
+                break;
+            case 0x0D:
+                writeSpeed[6] = writeSpeed[1] + 3;
+                break;
+            case 0x0E:
+                writeSpeed[6] = writeSpeed[1] + 1;
+                break;
+            case 0x0F:
+                writeSpeed[6] = writeSpeed[1] - 1;
+                break;
+
+        }
+    }
 
     writeCharacteristic(gattWriteCharacteristic, writeSpeed, sizeof(writeSpeed),
                         QStringLiteral("forceSpeed speed=") + QString::number(requestSpeed), false, false);
