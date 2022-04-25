@@ -28,7 +28,7 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
-          ref: 6564518cada94b292935efa11f563e6ec79886e9
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
@@ -111,6 +111,7 @@ jobs:
         with:
           repository: bluetiger9/SmtpClient-for-Qt
           path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c          
 
       - uses: actions/checkout@v2
       - name: Checkout submodule repo
