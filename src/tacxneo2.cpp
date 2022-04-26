@@ -213,7 +213,7 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
 
         if (CrankRevsRead != oldCrankRevs && deltaT) {
             double cadence = (((double)CrankRevsRead - (double)oldCrankRevs) / (double)deltaT) * 1024.0 * 60.0;
-            if (cadence >= 0) {
+            if (cadence >= 0 && cadence < 255) {
                 Cadence = cadence;
             }
             lastGoodCadence = QDateTime::currentDateTime();
