@@ -79,6 +79,9 @@ jobs:
         with:
           name: windows-binary
           path: src/release/output
+          
+      - name: Windows Release
+        uses: softprops/action-gh-release@v1          
 
   # This workflow contains a single job called "build"
   build:
