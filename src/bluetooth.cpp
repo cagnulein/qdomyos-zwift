@@ -650,6 +650,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(domyos);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("KS-HD")) ||
                         b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC"))) &&
                        !kingsmithR2Treadmill && filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
@@ -911,7 +912,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 userTemplateManager->start(ftmsBike);
                 innerTemplateManager->start(ftmsBike);
-            } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE")) && !wahooKickrSnapBike && filter) {
+            } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE")) &&
+                       !wahooKickrSnapBike && filter) {
                 discoveryAgent->stop();
                 wahooKickrSnapBike =
                     new wahookickrsnapbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
@@ -1318,7 +1320,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                          (toorx_bike))) &&
                        !trxappgateusb && !trxappgateusbBike && filter) {
                 discoveryAgent->stop();
-                trxappgateusbBike = new trxappgateusbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                trxappgateusbBike =
+                    new trxappgateusbbike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(trxappgateusbBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
