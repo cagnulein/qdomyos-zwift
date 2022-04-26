@@ -80,7 +80,9 @@ class ftmsbike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
+    void init();
     void forceResistance(int8_t requestResistance);
+    void forcePower(int16_t requestPower);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
