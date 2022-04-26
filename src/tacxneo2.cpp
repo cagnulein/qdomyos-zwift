@@ -108,6 +108,9 @@ void tacxneo2::update() {
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                if (virtualBike && !virtualBike->ftmsDeviceConnected() && requestPower == 0) {
+                    requestInclination = requestResistance / 10.0;
+                }
                 // forceResistance(requestResistance);;
             }
             requestResistance = -1;
@@ -229,6 +232,25 @@ void tacxneo2::characteristicChanged(const QLowEnergyCharacteristic &characteris
         // Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
         // (uint16_t)((uint8_t)newValue.at(index)))); debug("Current Resistance: " +
         // QString::number(Resistance.value()));
+
+        double ac = 0.01243107769;
+        double bc = 1.145964912;
+        double cc = -23.50977444;
+
+        double ar = 0.1469553975;
+        double br = -5.841344538;
+        double cr = 97.62165482;
+
+        m_pelotonResistance =
+            (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                       (cr - (m_watt.value() * 132.0 /
+                                              (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+               br) /
+              (2.0 * ar)) *
+             settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+        Resistance = m_pelotonResistance;
+        emit resistanceRead(Resistance.value());
 
         if (watts())
             KCal +=
