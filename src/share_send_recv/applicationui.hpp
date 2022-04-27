@@ -19,7 +19,7 @@ class ApplicationUI : public QObject {
     void addContextProperty(QQmlContext *context);
 
     Q_INVOKABLE
-    void simulateIntentReceived(const QString &suffix, const QUrl &sourceFilePath);
+    void simulateIntentReceived(const QUrl &sourceFilePath);
 
     Q_INVOKABLE
     QString filePathDocumentsLocation(const QString &sourceFilePath);

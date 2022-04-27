@@ -27,7 +27,7 @@ ApplicationUI::ApplicationUI(const QString &pth, QObject *parent) : QObject(pare
     mAppDataFilesPath =
         (mAppDataFilesPath.isEmpty() ? QStandardPaths::standardLocations(QStandardPaths::AppDataLocation).value(0)
                                      : mAppDataFilesPath)
-            .append(QStringLiteral("/settings"));
+            .append(QStringLiteral("/contentresolver"));
     if (!QDir(mAppDataFilesPath).exists()) {
         if (QDir("").mkpath(mAppDataFilesPath)) {
             qDebug() << "Created Documents Location work directory. " << mAppDataFilesPath;
@@ -66,16 +66,8 @@ QString ApplicationUI::filePathDocumentsLocation(const QString &sourceFilePath) 
     return destinationFilePath;
 }
 
-void ApplicationUI::simulateIntentReceived(const QString &suffix, const QUrl &sourceFilePath) {
-    QString path = mAppDataFilesPath.left(mAppDataFilesPath.lastIndexOf("/")).append("/") + suffix;
-    if (!QDir(path).exists()) {
-        if (QDir("").mkpath(path)) {
-            qDebug() << "Created Documents Location work directory. " << path;
-        } else {
-            qWarning() << "Failed to create Documents Location work directory. " << path;
-        }
-    }
-    mShareUtils->simulateIntentReceived(sourceFilePath, path);
+void ApplicationUI::simulateIntentReceived(const QUrl &sourceFilePath) {
+    mShareUtils->simulateIntentReceived(sourceFilePath, mAppDataFilesPath);
 }
 
 #if defined(Q_OS_ANDROID)

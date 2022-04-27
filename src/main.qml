@@ -441,7 +441,7 @@ ApplicationWindow {
                 stackView.push("SettingsList.qml")
                 stackView.currentItem.loadSettings.connect(function(url) {
                     console.log("Simulating intent " + url);
-                    appui.simulateIntentReceived("settings", url);
+                    appui.simulateIntentReceived(url);
                     stackView.pop();
                     if (stackView.depth > 1) {
                         stackView.pop()
@@ -550,7 +550,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
-                        appui.simulateIntentReceived("training", url);
+                        appui.simulateIntentReceived(url);
                         stackView.pop();
                      });
                     drawer.close()
