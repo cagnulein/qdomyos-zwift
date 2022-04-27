@@ -108,7 +108,8 @@ void tacxneo2::update() {
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                if (virtualBike && !virtualBike->ftmsDeviceConnected() && (requestPower == 0 || requestPower == -1)) {
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                    (requestPower == 0 || requestPower == -1)) {
                     requestInclination = requestResistance / 10.0;
                 }
                 // forceResistance(requestResistance);;

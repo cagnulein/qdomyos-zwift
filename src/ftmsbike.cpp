@@ -117,8 +117,9 @@ void ftmsbike::update() {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
-                // FTMS bike
-                if (virtualBike && !virtualBike->ftmsDeviceConnected() && (requestPower == 0 || requestPower == -1)) {
+                // FTMS bike. This condition handles the peloton requests
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                    (requestPower == 0 || requestPower == -1)) {
                     init();
                     forceResistance(requestResistance);
                 }
@@ -254,6 +255,25 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit resistanceRead(Resistance.value());
         index += 2;
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    } else {
+        double ac = 0.01243107769;
+        double bc = 1.145964912;
+        double cc = -23.50977444;
+
+        double ar = 0.1469553975;
+        double br = -5.841344538;
+        double cr = 97.62165482;
+
+        m_pelotonResistance =
+            (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                       (cr - (m_watt.value() * 132.0 /
+                                              (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+               br) /
+              (2.0 * ar)) *
+             settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+        Resistance = m_pelotonResistance;
+        emit resistanceRead(Resistance.value());
     }
 
     if (Flags.instantPower) {
