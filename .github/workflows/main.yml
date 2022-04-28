@@ -37,7 +37,15 @@ jobs:
           repository: cagnulein/qmdnsengine
           path: "src/qmdnsengine/"
           ref: "zwift"
-          
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: microsoft/MSIX-Toolkit
+          path: "src/MSIX-Toolkit/"
+          ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
+
       - uses: msys2/setup-msys2@v2
         with:
           install: mingw-w64-x86_64-toolchain
@@ -67,22 +75,30 @@ jobs:
             make -j8
             cd release
             mkdir output
+            mkdir appx
             cp qdomyos-zwift.exe output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .            
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .     
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .     
+            cp ../../AppxManifest.xml .
+            cd ..
+            cd appx
+            ../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
         
       - name: Archive windows binary
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
           path: src/release/output
-          
-      - name: Windows Release
-        uses: softprops/action-gh-release@v1         
-        if: startsWith(github.ref, 'refs/tags/')
+
+      - name: Archive windows appx
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-appx
+          path: src/release/appx
 
   # This workflow contains a single job called "build"
   build:
