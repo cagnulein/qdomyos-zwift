@@ -3,7 +3,7 @@
    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
-  <Identity Name="QZFitness" Version="2.10.74.0" Publisher="CN=QZ di Roberto Viola, O=QZ di Roberto Viola, L=MO, S=MO, C=IT" ProcessorArchitecture="x64" />
+  <Identity Name="35433QZdiRobertoViola.QZFitness" Version="2.10.74.0" Publisher="CN=CA24F902-6882-40DF-B1E3-2E1B81CD730C, O=QZ di Roberto Viola, L=MO, S=MO, C=IT" ProcessorArchitecture="x64" />
     <Properties>
 	    <DisplayName>QZ Fitness</DisplayName>
 		 <PublisherDisplayName>QZ di Roberto Viola</PublisherDisplayName>
