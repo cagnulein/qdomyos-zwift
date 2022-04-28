@@ -618,6 +618,7 @@ RESOURCES += \
 
 DISTFILES += \
     .clang-format \
+   AppxManifest.xml \
    android/AndroidManifest.xml \
 	android/build.gradle \
 	android/gradle/wrapper/gradle-wrapper.jar \

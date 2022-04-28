@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+  <Identity Name="QZFitness" Version="2.10.74.0" Publisher="CN=QZ di Roberto Viola, O=QZ di Roberto Viola, L=MO, S=MO, C=IT" ProcessorArchitecture="x64" />
+    <Properties>
+	    <DisplayName>QZ Fitness</DisplayName>
+		 <PublisherDisplayName>QZ di Roberto Viola</PublisherDisplayName>
+		    <Description>QZ Fitness syncs fitness bikes, ellipticals, rowers, and treadmills to training apps like Echelon, Peloton, Zwift and Strava providing you with an unparalleled level of connectivity that keeps you informed and in control of your workouts</Description>
+			<Logo>iTunesArtwork@2x.png</Logo>
+		</Properties>
+	 <Resources>
+	   <Resource Language="en" />
+		</Resources>
+	  <Dependencies>
+	  <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14316.0" MaxVersionTested="10.0.15063.0" />
+	  </Dependencies>
+	  <Capabilities>
+	    <rescap:Capability Name="runFullTrust"/>
+	  </Capabilities>
+	  <Applications>
+	    <Application Id="QZ"
+		     Executable="qdomyos-zwift.exe" EntryPoint="Windows.FullTrustApplication">
+			  <uap:VisualElements
+			     BackgroundColor="#464646"
+				  DisplayName="QZ"
+				  Square150x150Logo="iTunesArtwork@2x.png"
+				  Square44x44Logo="iTunesArtwork@2x.png"
+				  Description="QZ Fitness syncs fitness bikes, ellipticals, rowers, and treadmills to training apps like Echelon, Peloton, Zwift and Strava providing you with an unparalleled level of connectivity that keeps you informed and in control of your workouts" />
+			</Application>
+	  </Applications>
+  </Package>
