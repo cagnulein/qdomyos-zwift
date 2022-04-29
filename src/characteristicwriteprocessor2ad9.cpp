@@ -7,9 +7,10 @@
 
 CharacteristicWriteProcessor2AD9::CharacteristicWriteProcessor2AD9(double bikeResistanceGain,
                                                                    uint8_t bikeResistanceOffset, bluetoothdevice *bike,
+                                                                   CharacteristicNotifier2AD9 *notifier,
                                                                    QObject *parent)
     : CharacteristicWriteProcessor(parent), bikeResistanceOffset(bikeResistanceOffset),
-      bikeResistanceGain(bikeResistanceGain), Bike(bike) {}
+    bikeResistanceGain(bikeResistanceGain), Bike(bike), notifier(notifier) {}
 
 int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArray &data, QByteArray &reply) {
     if (data.size()) {
@@ -118,6 +119,9 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
             reply.append((quint8)FTMS_RESPONSE_CODE);
             reply.append((quint8)data.at(0));
             reply.append((quint8)FTMS_SUCCESS);
+        }
+        if(notifier) {
+            notifier->answer = reply;
         }
         return CP_OK;
     } else
