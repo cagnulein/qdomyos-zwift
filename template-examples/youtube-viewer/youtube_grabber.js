@@ -29,7 +29,7 @@ class YoutubeGrabber {
                     console.log('Video ' + value +' is ' + JSON.stringify(video.video));
                     //this.on_grab(this.videos);
                     video.video.meta.uid = video.video.videoID;
-                    video.video.meta.link = 'https://www.youtube.com/watch?v=' + video.video.uid;
+                    video.video.meta.link = 'https://www.youtube.com/watch?v=' + video.video.videoID;
                     if (this.on_grab)
                         this.on_grab([video.video.meta], value, 'youtube');
                 }.bind(this)
