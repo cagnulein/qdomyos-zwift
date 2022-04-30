@@ -219,9 +219,19 @@ void proformwifibike::innerWriteResistance() {
 
         if (requestResistance != currentResistance().value()) {
             emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-            forceResistance(requestResistance);
+            if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                (requestPower == 0 || requestPower == -1)) {
+                forceResistance(requestResistance);
+            }
         }
         requestResistance = -1;
+
+        if (requestInclination != -1) {
+            emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
+            forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
+                                                            // i'm using the gears in the inclination
+            requestInclination = -1;
+        }
     }
 }
 
