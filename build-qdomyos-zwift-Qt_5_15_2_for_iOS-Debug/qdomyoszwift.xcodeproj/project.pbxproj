@@ -290,6 +290,7 @@
 		87958F1B27628D5400124B24 /* moc_elitesterzosmart.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87958F1A27628D5400124B24 /* moc_elitesterzosmart.cpp */; };
 		8798C8872733E103003148B3 /* strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8862733E103003148B3 /* strydrunpowersensor.cpp */; };
 		8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8798C8882733E10E003148B3 /* moc_strydrunpowersensor.cpp */; };
+		879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -986,6 +987,7 @@
 		8798C8852733E103003148B3 /* strydrunpowersensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = strydrunpowersensor.h; path = ../src/strydrunpowersensor.h; sourceTree = "<group>"; };
 		8798C8862733E103003148B3 /* strydrunpowersensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = strydrunpowersensor.cpp; path = ../src/strydrunpowersensor.cpp; sourceTree = "<group>"; };
 		8798C8882733E10E003148B3 /* moc_strydrunpowersensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_strydrunpowersensor.cpp; sourceTree = "<group>"; };
+		879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = characteristicnotifier2ad9.cpp; path = ../src/characteristicnotifier2ad9.cpp; sourceTree = "<group>"; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/cscbike.cpp; sourceTree = "<group>"; };
@@ -1623,6 +1625,7 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */,
 				8719FEDE280A9F1C0099159F /* characteristicnotifier2acc.cpp */,
 				8719FEDD280A9F1C0099159F /* characteristicnotifier2acc.h */,
 				87D91F992800B9970026D43C /* proformwifibike.cpp */,
@@ -2748,6 +2751,7 @@
 				873CD22427EF8E18000131BC /* inappproductqmltype.cpp in Compile Sources */,
 				87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */,
 				BE1D17BBF32F04829E1B3767 /* toorxtreadmill.cpp in Compile Sources */,
+				879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */,
 				4697729B15991E98D6A2533D /* treadmill.cpp in Compile Sources */,
 				87C481FC26DFA7D1006211AD /* moc_eliterizer.cpp in Compile Sources */,
 				20AA270C9F447F42F5DC2FF2 /* trainprogram.cpp in Compile Sources */,

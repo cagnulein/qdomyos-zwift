@@ -52,6 +52,7 @@ class virtualtreadmill : public QObject {
 
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
+    CharacteristicNotifier2AD9 *notif2AD9 = 0;
     CharacteristicNotifier2A53 *notif2A53 = 0;
     CharacteristicNotifier2ACD *notif2ACD = 0;
     CharacteristicNotifier2A37 *notif2A37 = 0;

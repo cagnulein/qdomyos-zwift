@@ -55,6 +55,7 @@ class virtualbike : public QObject {
     bluetoothdevice *Bike;
     CharacteristicWriteProcessor2AD9 *writeP2AD9 = 0;
     CharacteristicNotifier2AD2 *notif2AD2 = 0;
+    CharacteristicNotifier2AD9 *notif2AD9 = 0;
     CharacteristicNotifier2A63 *notif2A63 = 0;
     CharacteristicNotifier2A37 *notif2A37 = 0;
     CharacteristicNotifier2A5B *notif2A5B = 0;

@@ -149,7 +149,7 @@ DirconManager::DirconManager(bluetoothdevice *Bike, uint8_t bikeResistanceOffset
     uint16_t server_base_port = settings.value(QStringLiteral("dircon_server_base_port"), 4810).toUInt();
     bool bike_wheel_revs = settings.value(QStringLiteral("bike_wheel_revs"), false).toBool();
     DM_CHAR_NOTIF_OP(DM_CHAR_NOTIF_BUILD_OP, Bike, 0, 0)
-    writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, this);
+    writeP2AD9 = new CharacteristicWriteProcessor2AD9(bikeResistanceGain, bikeResistanceOffset, Bike, notif2AD9, this);
     DM_CHAR_OP(DM_CHAR_INIT_OP, services, service, 0)
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,

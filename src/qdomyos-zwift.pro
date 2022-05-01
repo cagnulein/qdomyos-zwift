@@ -61,6 +61,7 @@ SOURCES += \
     characteristicnotifier2a5b.cpp \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
+    characteristicnotifier2ad9.cpp \
    nautilusbike.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
@@ -232,6 +233,7 @@ HEADERS += \
     characteristicnotifier2a5b.h \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
+    characteristicnotifier2ad9.h \
    nautilusbike.h \
    proformrower.h \
    proformwifibike.h \
@@ -681,4 +683,4 @@ include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
-VERSION = 2.10.75
+VERSION = 2.10.76

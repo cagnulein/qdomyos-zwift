@@ -21,11 +21,12 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     }
     if (!settings.value("virtual_device_bluetooth", true).toBool())
         return;
+    notif2AD9 = new CharacteristicNotifier2AD9(t, this);
     notif2AD2 = new CharacteristicNotifier2AD2(t, this);
     notif2ACD = new CharacteristicNotifier2ACD(t, this);
     notif2A53 = new CharacteristicNotifier2A53(t, this);
     notif2A37 = new CharacteristicNotifier2A37(t, this);
-    writeP2AD9 = new CharacteristicWriteProcessor2AD9(0, 0, t, this);
+    writeP2AD9 = new CharacteristicWriteProcessor2AD9(0, 0, t, notif2AD9, this);
     connect(writeP2AD9, SIGNAL(changeInclination(double, double)), this, SIGNAL(changeInclination(double, double)));
     connect(writeP2AD9, SIGNAL(slopeChanged()), this, SLOT(slopeChanged()));
 
