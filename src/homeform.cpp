@@ -3789,9 +3789,16 @@ void homeform::sendMail() {
         message.addPart(log);
     }*/
 
-    smtp.connectToHost();
-    smtp.login();
-    smtp.sendMail(message);
+    bool r = false;
+    uint8_t i = 0;
+    while (!r) {
+        qDebug() << "trying to send email #" << i;
+        r = smtp.connectToHost();
+        r = smtp.login();
+        r = smtp.sendMail(message);
+        if (i++ == 3)
+            break;
+    }
     smtp.quit();
 
     // delete image variable TODO
