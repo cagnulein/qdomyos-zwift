@@ -54,7 +54,7 @@ void serialDircon::run() {
             QByteArray requestData = serial.readAll();
             while (serial.waitForReadyRead(10))
                 requestData += serial.readAll();
-            qDebug() << "serial RX:" << requestData;
+            qDebug() << "serial RX:" << requestData.toHex(' ');
         }
         m_mutex.lock();
         if (currentPortName != m_portName) {
