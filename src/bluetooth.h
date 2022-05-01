@@ -98,6 +98,10 @@
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
 
+#if defined(WIN32)
+#include "serialdircon.h"
+#endif
+
 class bluetooth : public QObject, public SignalHandler {
 
     Q_OBJECT
@@ -216,6 +220,10 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
+
+#if defined(WIN32)
+    serialDircon serialdircon;
+#endif
 
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
