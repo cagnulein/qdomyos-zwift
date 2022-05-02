@@ -56,7 +56,11 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     QByteArray encrypted;
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
-        encrypted.append(ENCRYPT_TABLE[idx]);
+        QSettings settings;
+        if (!settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
+            encrypted.append(ENCRYPT_TABLE[idx]);
+        else
+            encrypted.append(ENCRYPT_TABLE_v2[idx]);
     }
     if (!disable_log) {
         emit debug(QStringLiteral(" >> plain: ") + data + QStringLiteral(" // ") + info);
@@ -195,18 +199,18 @@ void kingsmithr2treadmill::update() {
         if (requestFanSpeed != -1) {
             emit debug(QStringLiteral("changing fan speed..."));
 
-            //sendChangeFanSpeed(requestFanSpeed);
+            // sendChangeFanSpeed(requestFanSpeed);
             requestFanSpeed = -1;
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
 
-            //sendChangeFanSpeed(FanSpeed + 1);
+            // sendChangeFanSpeed(FanSpeed + 1);
             requestIncreaseFan = -1;
         } else if (requestDecreaseFan != -1) {
             emit debug(QStringLiteral("decreasing fan speed..."));
 
-            //sendChangeFanSpeed(FanSpeed - 1);
+            // sendChangeFanSpeed(FanSpeed - 1);
             requestDecreaseFan = -1;
         }
     }
@@ -238,7 +242,12 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (ch == '\x0d') {
             continue;
         }
-        int idx = ENCRYPT_TABLE.indexOf(ch);
+        int idx;
+        QSettings settings;
+        if (!settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
+            idx = ENCRYPT_TABLE.indexOf(ch);
+        else
+            idx = ENCRYPT_TABLE_v2.indexOf(ch);
         decrypted.append(PLAINTEXT_TABLE[idx]);
     }
     buffer.clear();
