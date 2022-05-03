@@ -58,6 +58,7 @@ class proformwifibike : public bike {
   private:
     QWebSocket websocket;
     int max_resistance = 100;
+    void connectToDevice();
     uint16_t wattsFromResistance(uint8_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);

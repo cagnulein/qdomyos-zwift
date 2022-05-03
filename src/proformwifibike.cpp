@@ -30,9 +30,12 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     bool ok = connect(&websocket, &QWebSocket::binaryMessageReceived, this, &proformwifibike::binaryMessageReceived);
     ok = connect(&websocket, &QWebSocket::textMessageReceived, this, &proformwifibike::characteristicChanged);
     ok = connect(&websocket, &QWebSocket::connected, [&]() { qDebug() << "connected!"; });
+    ok = connect(&websocket, &QWebSocket::disconnected, [&]() {
+        qDebug() << "disconnected!";
+        connectToDevice();
+    });
 
-    // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
-    websocket.open(QUrl("ws://" + settings.value(QStringLiteral("proformtdf4ip"), "").toString() + "/control"));
+    connectToDevice();
 
     initRequest = true;
     emit connectedAndDiscovered();
@@ -68,6 +71,12 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void proformwifibike::connectToDevice() {
+    QSettings settings;
+    // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
+    websocket.open(QUrl("ws://" + settings.value(QStringLiteral("proformtdf4ip"), "").toString() + "/control"));
 }
 
 /*
@@ -229,7 +238,7 @@ void proformwifibike::innerWriteResistance() {
         if (requestInclination != -1) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceResistance(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
-                                                            // i'm using the gears in the inclination
+                                                           // i'm using the gears in the inclination
             requestInclination = -1;
         }
     }
