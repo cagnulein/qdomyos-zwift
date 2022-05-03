@@ -594,7 +594,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             writeCharacteristic(service, characteristic, reply2);
         } else if (newValue.length() > 8 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(8)) == 0x00) {
             qDebug() << "ifit ans 11";
-            if(iFit_timer == 0)
+            if (iFit_timer == 0)
                 iFit_timer = QDateTime::currentSecsSinceEpoch();
             reply1 = QByteArray::fromHex("fe0233040000302a00000075ffffffffffffffff");
             reply2 = QByteArray::fromHex("00120104022f072f020232021f00530000002100");
@@ -629,10 +629,15 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
              ff0fb50200b4002a00580200000000005e00007d
              */
 
-            int resistance = (iFit_LastResistanceRequested == 0 ? iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value()) : iFit_LastResistanceRequested);
-            
-            qDebug() << QStringLiteral("current resistance converted from the bike") << iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value()) << QStringLiteral("last requested resistance") << iFit_LastResistanceRequested << QStringLiteral("resistance sent to ifit") << resistance;
-            
+            int resistance = (iFit_LastResistanceRequested == 0
+                                  ? iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value())
+                                  : iFit_LastResistanceRequested);
+
+            qDebug() << QStringLiteral("current resistance converted from the bike")
+                     << iFit_pelotonToBikeResistance((uint8_t)((bike *)Bike)->pelotonResistance().value())
+                     << QStringLiteral("last requested resistance") << iFit_LastResistanceRequested
+                     << QStringLiteral("resistance sent to ifit") << resistance;
+
             double odometer = Bike->odometer() * 1000;
             double calories = Bike->calories().value();
             if (resistance > 0x26)
@@ -1005,8 +1010,18 @@ void virtualbike::bikeProvider() {
     Q_UNUSED(erg_mode);
 #endif
 
+    qDebug() << QStringLiteral("bikeProvider") << lastFTMSFrameReceived
+             << (qint64)(lastFTMSFrameReceived + ((qint64)2000)) << erg_mode;
+    // zwift with the last update, seems to sending power request only when it actually wants to change it
+    // so i need to keep this on to the bike
+    if (lastFTMSFrameReceived > 0 &&
+        (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
+        qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
+        writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
+    }
+
     if (leController->state() != QLowEnergyController::ConnectedState) {
-        qDebug() << QStringLiteral("virtual bike not connected");
+        qDebug() << QStringLiteral("virtual bike bluetooth not connected");
 
         return;
     } else {
@@ -1030,16 +1045,6 @@ void virtualbike::bikeProvider() {
     }
 
     QByteArray value;
-
-    qDebug() << QStringLiteral("bikeProvider") << lastFTMSFrameReceived
-             << (qint64)(lastFTMSFrameReceived + ((qint64)2000)) << erg_mode;
-    // zwift with the last update, seems to sending power request only when it actually wants to change it
-    // so i need to keep this on to the bike
-    if (lastFTMSFrameReceived > 0 &&
-        (QDateTime::currentMSecsSinceEpoch() > (qint64)(lastFTMSFrameReceived + ((qint64)2000))) && erg_mode) {
-        qDebug() << QStringLiteral("zwift is not sending the power anymore, let's continue with the last value");
-        writeP2AD9->changePower(((bike *)Bike)->lastRequestedPower().value());
-    }
 
     if (!echelon && !ifit) {
         if (!heart_only) {
