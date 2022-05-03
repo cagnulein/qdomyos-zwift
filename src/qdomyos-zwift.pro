@@ -3,6 +3,8 @@ QT += bluetooth widgets xml positioning quick networkauth websockets
 QT+= charts
 
 windows: QT += serialport
+unix:!android: QT += serialport
+
 unix:android: QT += androidextras gui-private
 qtHaveModule(httpserver) {
     QT += httpserver
