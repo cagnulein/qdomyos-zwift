@@ -2,6 +2,9 @@ QT += bluetooth widgets xml positioning quick networkauth websockets
 
 QT+= charts
 
+windows: QT += serialport
+unix:!android: QT += serialport
+
 unix:android: QT += androidextras gui-private
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -169,6 +172,7 @@ SOURCES += \
    rower.cpp \
 	schwinnic4bike.cpp \
    screencapture.cpp \
+   serialdircon.cpp \
 	sessionline.cpp \
    shuaa5treadmill.cpp \
 	signalhandler.cpp \
@@ -553,6 +557,7 @@ HEADERS += \
    rower.h \
 	schwinnic4bike.h \
    screencapture.h \
+   serialdircon.h \
 	sessionline.h \
    shuaa5treadmill.h \
 	signalhandler.h \
