@@ -205,6 +205,7 @@ SOURCES += \
    stagesbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
+   truetreadmill.cpp \
    trxappgateusbbike.cpp \
    ultrasportbike.cpp \
    virtualrower.cpp \
@@ -594,6 +595,7 @@ HEADERS += \
 	treadmill.h \
 	mainwindow.h \
 	trainprogram.h \
+   truetreadmill.h \
    trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
    ultrasportbike.h \

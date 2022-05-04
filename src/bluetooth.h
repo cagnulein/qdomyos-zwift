@@ -92,6 +92,7 @@
 #include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
 #include "treadmill.h"
+#include "truetreadmill.h"
 #include "trxappgateusbbike.h"
 #include "trxappgateusbtreadmill.h"
 #include "ultrasportbike.h"
@@ -150,6 +151,7 @@ class bluetooth : public QObject, public SignalHandler {
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
 #endif
+    truetreadmill *trueTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
