@@ -683,4 +683,4 @@ include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
-VERSION = 2.10.77
+VERSION = 2.10.78

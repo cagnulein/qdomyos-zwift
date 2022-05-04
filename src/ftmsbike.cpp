@@ -14,6 +14,10 @@
 #include "keepawakehelper.h"
 #include <chrono>
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 using namespace std::chrono_literals;
 
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
@@ -395,6 +399,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
+        qDebug() << QStringLiteral("ignoring this state");
+        return;
+    }
+
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -551,6 +560,10 @@ void ftmsbike::serviceScanDone(void) {
     initRequest = false;
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
+        if (s == (QBluetoothUuid)((quint16)0xFFF0)) {
+            qDebug() << "ignoring service" << s;
+            continue;
+        }
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &ftmsbike::stateChanged);
@@ -575,6 +588,11 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+#ifdef Q_OS_IOS
+        if (device.name().toUpper().startsWith(QStringLiteral("DKN MOTION")))
+            QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);
