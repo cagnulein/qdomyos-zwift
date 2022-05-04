@@ -32,6 +32,8 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
         connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
+                SLOT(dirconFtmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
+        connect(dirconManager, SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)), this,
                 SIGNAL(ftmsCharacteristicChanged(QLowEnergyCharacteristic, QByteArray)));
     }
     if (!settings.value("virtual_device_bluetooth", true).toBool())
@@ -1260,4 +1262,10 @@ void virtualbike::error(QLowEnergyController::Error newError) {
     if (newError != QLowEnergyController::RemoteHostClosedError) {
         reconnect();
     }
+}
+
+void virtualbike::dirconFtmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                                  const QByteArray &newValue) {
+    lastDirconFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+    qDebug() << QStringLiteral("lastDirconFTMSFrameReceived") << lastDirconFTMSFrameReceived;
 }

@@ -206,18 +206,6 @@ void proformwifibike::forceResistance(int8_t requestResistance) {
     websocket.sendTextMessage(send);
 }
 
-void proformwifibike::forceIncline(double incline) {
-    uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x08, 0x09, 0x02, 0x01,
-                       0x02, 0x38, 0xff, 0x00, 0x4d, 0x00, 0x00, 0x00, 0x00, 0x00};
-
-    write[11] = ((uint16_t)(incline * 100)) & 0x00FF;
-    write[12] = ((((uint16_t)(incline * 100)) & 0xFF00) >> 8) & 0x00FF;
-    write[14] = write[6] + write[7] + write[8] + write[9] + write[10] + write[11] + write[12];
-
-    /*writeCharacteristic((uint8_t *)write, sizeof(write), QStringLiteral("incline ") + QString::number(incline), false,
-                        true);*/
-}
-
 void proformwifibike::innerWriteResistance() {
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {

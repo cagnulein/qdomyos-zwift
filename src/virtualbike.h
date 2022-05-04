@@ -35,7 +35,7 @@ class virtualbike : public QObject {
     virtualbike(bluetoothdevice *t, bool noWriteResistance = false, bool noHeartService = false,
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected();
-    bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0; }
+    bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
 
   private:
     QLowEnergyController *leController = nullptr;
@@ -61,6 +61,7 @@ class virtualbike : public QObject {
     CharacteristicNotifier2A5B *notif2A5B = 0;
 
     qint64 lastFTMSFrameReceived = 0;
+    qint64 lastDirconFTMSFrameReceived = 0;
 
     bool noHeartService = false;
     uint8_t bikeResistanceOffset = 4;
@@ -87,6 +88,7 @@ class virtualbike : public QObject {
     void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 
   private slots:
+    void dirconFtmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void bikeProvider();
     void reconnect();
