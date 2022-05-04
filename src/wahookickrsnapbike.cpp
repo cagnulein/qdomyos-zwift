@@ -166,11 +166,14 @@ void wahookickrsnapbike::update() {
     if (initRequest) {
         QSettings settings;
         QByteArray a = unlockCommand();
-        writeCharacteristic((uint8_t *)a.data(), a.length(), "init", false, true);
+        uint8_t b[20];
+        memcpy(b, a.constData(), a.length());
+        writeCharacteristic(b, a.length(), "init", false, true);
 
-        QByteArray b = setSimMode(settings.value(QStringLiteral("weight"), 75.0).toFloat(), 0.004,
+        QByteArray c = setSimMode(settings.value(QStringLiteral("weight"), 75.0).toFloat(), 0.004,
                                   0.4); // wind and rolling should arrive from FTMS
-        writeCharacteristic((uint8_t *)b.data(), b.length(), "setSimMode", false, true);
+        memcpy(b, c.constData(), c.length());
+        writeCharacteristic(b, c.length(), "setSimMode", false, true);
 
         // required to the SS2K only one time
         Resistance = 0;
@@ -201,7 +204,9 @@ void wahookickrsnapbike::update() {
                 ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike)) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 QByteArray a = setResistanceMode(requestResistance);
-                writeCharacteristic((uint8_t *)a.data(), a.length(), "setResistance", false, true);
+                uint8_t b[20];
+                memcpy(b, a.constData(), a.length());
+                writeCharacteristic(b, a.length(), "setResistance", false, true);
             }
             requestResistance = -1;
         }
@@ -366,7 +371,7 @@ void wahookickrsnapbike::characteristicChanged(const QLowEnergyCharacteristic &c
             if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
                 Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
             } else {
-                Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
             }
             emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
@@ -713,5 +718,7 @@ void wahookickrsnapbike::inclinationChanged(double grade, double percentage) {
     Q_UNUSED(percentage);
     emit debug(QStringLiteral("writing inclination ") + QString::number(grade));
     QByteArray a = setSimGrade(grade);
-    writeCharacteristic((uint8_t *)a.data(), a.length(), "setSimGrade", false, true);
+    uint8_t b[20];
+    memcpy(b, a.constData(), a.length());
+    writeCharacteristic(b, a.length(), "setSimGrade", false, true);
 }
