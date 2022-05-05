@@ -73,7 +73,7 @@ jobs:
         run: |         
             cd src
             qmake
-            make -j8 CFLAGS="-DSTRAVA_SECRET_KEY=${{ secrets.strava_secrect_key }}" CXXFLAGS="-DSTRAVA_SECRET_KEY=${{ secrets.strava_secrect_key }}
+            make -j8 CFLAGS="-DSTRAVA_SECRET_KEY=${{ secrets.strava_secrect_key }}" CXXFLAGS="-DSTRAVA_SECRET_KEY=${{ secrets.strava_secrect_key }}"
             cd release
             mkdir output
             mkdir appx

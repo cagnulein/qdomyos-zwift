@@ -355,7 +355,7 @@ import Qt.labs.settings 1.0
             property bool tile_peloton_resistance_color_enabled: false
 
             // from the version 2.10.49
-            property bool dircon_yes: false
+            property bool dircon_yes: true
             property int dircon_server_base_port: 4810
 
             // from the version 2.10.56

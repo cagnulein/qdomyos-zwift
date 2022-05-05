@@ -53,7 +53,7 @@ QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
 bool testResistance = false;
-bool forceQml = false;
+bool forceQml = true;
 bool miles = false;
 bool bluetooth_no_reconnection = false;
 bool bluetooth_relaxed = false;
@@ -89,6 +89,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             nogui = true;
         if (!qstrcmp(argv[i], "-qml"))
             forceQml = true;
+        if (!qstrcmp(argv[i], "-noqml"))
+            forceQml = false;
         if (!qstrcmp(argv[i], "-miles"))
             miles = true;
         if (!qstrcmp(argv[i], "-no-console"))
