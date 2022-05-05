@@ -72,7 +72,7 @@ jobs:
         run: |         
             cd src
             qmake
-            make -j8
+            make -j8 CFLAGS="-DSMTP_USERNAME${{ secrets.smtp_username }}"
             cd release
             mkdir output
             mkdir appx
