@@ -72,7 +72,10 @@ jobs:
         run: |         
             cd src
             qmake
-            echo "#define STRAVA_SECRET_KEY=${{ secrets.strava_secret_key }}\n#define SMTP_USERNAME=${{ secrets.smtp_username }}\n#define SMTP_PASSWORD=${{ secrets.smtp_password }}\n#define SMTP_SERVER=${{ secrets.smtp_server }}\n" > secret.h
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
             make -j8
             cd release
             mkdir output
