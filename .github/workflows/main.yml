@@ -68,12 +68,15 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
       
-# -DSMTP_USERNAME=${{ secrets.smtp_username }}" CXXFLAGS="-DSMTP_USERNAME=${{ secrets.smtp_username }} -DSMTP_PASSWORD=${{ secrets.smtp_password }}" CXXFLAGS="-DSMTP_PASSWORD=${{ secrets.smtp_password }}" -DSMTP_SERVER=${{ secrets.smtp_server }}" CXXFLAGS="-DSMTP_SERVER=${{ secrets.smtp_server }}      
       - name: Build
         run: |         
             cd src
             qmake
-            make -j8 CFLAGS="-DSTRAVA_SECRET_KEY=${{ secrets.strava_secrect_key }}" CXXFLAGS="-DSTRAVA_SECRET_KEY=${{ secrets.strava_secrect_key }}"
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
+            make -j8
             cd release
             mkdir output
             mkdir appx
