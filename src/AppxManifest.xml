@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Package IgnorableNamespaces="build mp uap" xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
-  <Identity Name="35433QZdiRobertoViola.QZFitness" Version="2.10.78.1" Publisher="CN=CA24F902-6882-40DF-B1E3-2E1B81CD730C" ProcessorArchitecture="x64" />
+  <Identity Name="35433QZdiRobertoViola.QZFitness" Version="2.10.79.0" Publisher="CN=CA24F902-6882-40DF-B1E3-2E1B81CD730C" ProcessorArchitecture="x64" />
     <Properties>
 	    <DisplayName>QZ Fitness</DisplayName>
 		 <PublisherDisplayName>QZ di Roberto Viola</PublisherDisplayName>
