@@ -42,7 +42,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
 #if defined(WIN32)
-    serialdircon.open("COM4", 1000);
+    serialdircon.open("/dev/ttyUSB0", 1000);
 #endif
 
 #ifdef TEST
