@@ -334,10 +334,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
-#ifdef TEST
     QBluetoothDeviceInfo b;
     deviceConnected(b);
-#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
