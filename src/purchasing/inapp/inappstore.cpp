@@ -62,7 +62,9 @@
 
 class IAPRegisterMetaTypes {
   public:
+#ifndef Q_OS_WINRT
     IAPRegisterMetaTypes() { qRegisterMetaType<InAppProduct::ProductType>("InAppProduct::ProductType"); }
+#endif
 } _registerIAPMetaTypes;
 
 InAppStore::InAppStore(QObject *parent) : QObject(parent) {
