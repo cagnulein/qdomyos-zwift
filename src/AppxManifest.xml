@@ -1,6 +1,6 @@
 <?xml version=\"1.0\" encoding=\"utf-8\"?>
 <Package xmlns=\"http://schemas.microsoft.com/appx/manifest/foundation/windows10\" xmlns:mp=\"http://schemas.microsoft.com/appx/2014/phone/manifest\" xmlns:uap=\"http://schemas.microsoft.com/appx/manifest/uap/windows10\" xmlns:uap3=\"http://schemas.microsoft.com/appx/manifest/uap/windows10/3\" xmlns:mobile=\"http://schemas.microsoft.com/appx/manifest/mobile/windows10\" xmlns:iot=\"http://schemas.microsoft.com/appx/manifest/iot/windows10\" IgnorableNamespaces=\"uap uap3 mp mobile iot\">
-  <Identity Name=\"35433QZdiRobertoViola.QZFitness\" Version=\"2.10.80.0\" Publisher=\"CN=CA24F902-6882-40DF-B1E3-2E1B81CD730C\" ProcessorArchitecture=\"x64\" />
+  <Identity Name=\"35433QZdiRobertoViola.QZFitness\" Version=\"2.10.81.0\" Publisher=\"CN=CA24F902-6882-40DF-B1E3-2E1B81CD730C\" ProcessorArchitecture=\"x64\" />
     <Properties>
             <DisplayName>QZ Fitness</DisplayName>
                  <PublisherDisplayName>QZ di Roberto Viola</PublisherDisplayName>
@@ -28,8 +28,9 @@
                           <uap:VisualElements
                              BackgroundColor=\"#464646\"
                                   DisplayName=\"QZ\"
-                                  Square150x150Logo=\"iTunesArtwork@2x.png\"
-                                  Square44x44Logo=\"iTunesArtwork@2x.png\"
+                                  Square150x150Logo=\"150.png\"
+                                  Square50x50Logo=\"50.png\"
+                                  Square44x44Logo=\"44.png\"
                                   Description=\"QZ Fitness syncs fitness bikes, ellipticals, rowers, and treadmills to training apps like Echelon, Peloton, Zwift and Strava providing you with an unparalleled level of connectivity that keeps you informed and in control of your workouts\" />
                         </Application>
           </Applications>
