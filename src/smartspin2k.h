@@ -48,7 +48,7 @@ class smartspin2k : public bike {
     void *VirtualDevice();
 
   private:
-    const int max_calibration_samples = 4;
+    #define max_calibration_samples  4
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void writeCharacteristicFTMS(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
