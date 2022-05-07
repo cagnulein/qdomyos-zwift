@@ -56,12 +56,16 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
 }
 
 void renphobike::forcePower(int16_t requestPower) {
+    QSettings settings;
+    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+    double r = ((requestPower * watt_gain) + watt_offset);
     uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
-    write[1] = ((uint16_t)requestPower) & 0xFF;
-    write[2] = ((uint16_t)requestPower) >> 8;
+    write[1] = ((uint16_t)r) & 0xFF;
+    write[2] = ((uint16_t)r) >> 8;
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(r));
 }
 
 void renphobike::forceResistance(int8_t requestResistance) {
