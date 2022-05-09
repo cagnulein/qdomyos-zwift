@@ -41,13 +41,14 @@ void serialDircon::run() {
         if (currentPortNameChanged) {
             serial.close();
             serial.setPortName(currentPortName);
-            serial.setBaudRate(115200);
+            serial.setBaudRate(QSerialPort::Baud115200);
 
             if (!serial.open(QIODevice::ReadWrite)) {
                 qDebug() << tr("Can't open %1, error code %2").arg(m_portName).arg(serial.error());
                 emit error(tr("Can't open %1, error code %2").arg(m_portName).arg(serial.error()));
                 return;
             }
+            qDebug() << "Serial port" << currentPortName << "opened";
         }
 
         if (serial.waitForReadyRead(currentWaitTimeout)) {
