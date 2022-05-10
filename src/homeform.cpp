@@ -3922,7 +3922,7 @@ void homeform::saveProfile(QString profilename) {
 
 void homeform::restart() {
     qApp->quit();
-#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS)
+#if !defined(Q_OS_DARWIN) && !defined(Q_OS_IOS) && !defined(Q_OS_WINRT)
     QProcess::startDetached(qApp->arguments()[0], qApp->arguments());
 #endif
 }

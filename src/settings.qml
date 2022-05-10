@@ -356,7 +356,7 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.49
             property bool dircon_yes: true
-            property int dircon_server_base_port: 4810
+            property int dircon_server_base_port: 36866
 
             // from the version 2.10.56
             property bool ios_cache_heart_device: true
@@ -6041,7 +6041,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Apple Watch Fake Device")
+                        text: qsTr("Fake Device")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
