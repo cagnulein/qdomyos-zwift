@@ -6041,7 +6041,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Apple Watch Fake Device")
+                        text: qsTr("Fake Device")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
