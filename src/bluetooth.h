@@ -219,6 +219,10 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteSterzoSmartAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
+#ifdef Q_OS_WIN
+    QTimer discoveryTimeout;
+#endif
+
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);

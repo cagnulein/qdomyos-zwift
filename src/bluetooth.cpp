@@ -64,10 +64,17 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 
 #endif
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::canceled, this, &bluetooth::canceled);
+#ifndef Q_OS_WIN
         connect(discoveryAgent, &QBluetoothDeviceDiscoveryAgent::finished, this, &bluetooth::finished);
+#else
+        connect(&discoveryTimeout, &QTimer::timeout, this, &bluetooth::finished);
+        discoveryTimeout.start(10000);
+#endif
 
         // Start a discovery
+#ifndef Q_OS_WIN
         discoveryAgent->setLowEnergyDiscoveryTimeout(10000);
+#endif
 
 #ifdef Q_OS_IOS
         // Schwinn bikes on iOS allows to be connected to several instances, so in this way
@@ -119,6 +126,13 @@ bluetooth::~bluetooth() {
 
 void bluetooth::finished() {
     debug(QStringLiteral("BTLE scanning finished"));
+
+#ifdef Q_OS_WIN
+    if(device()) {
+        qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
+        return;
+    }
+#endif
 
     QSettings settings;
     QString heartRateBeltName =
@@ -320,6 +334,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool fake_bike = settings.value(QStringLiteral("applewatch_fakedevice"), false).toBool();
     bool pafers_treadmill = settings.value(QStringLiteral("pafers_treadmill"), false).toBool();
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
+
+#ifdef Q_OS_WIN
+    if(this->device()) {
+        qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
+        return;
+    }
+#endif
 
     if (!heartRateBeltFound) {
 
