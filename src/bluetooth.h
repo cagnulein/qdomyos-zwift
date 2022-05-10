@@ -221,9 +221,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteSterzoSmartAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
-#if defined(WIN32)
     serialDircon serialdircon;
-#endif
 
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);
