@@ -98,9 +98,7 @@
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
 
-#if defined(WIN32)
 #include "serialdircon.h"
-#endif
 
 class bluetooth : public QObject, public SignalHandler {
 
