@@ -352,6 +352,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         QBluetoothDeviceInfo b = i.next();
         if (SAME_BLUETOOTH_DEVICE(b, device) && !b.name().isEmpty()) {
 
+            i.setValue(device); // in order to keep the freshest copy of this struct
             found = true;
             break;
         }
@@ -648,15 +649,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(domyos);
                 innerTemplateManager->start(domyos);
-            } else if ((// KingSmith Walking Pad R2
-                        b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC")) ||
-                        // KingSmith Walking Pad X21
-                        b.name().toUpper().startsWith(QStringLiteral("KS-X21")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KS-HDSC-X21C")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
+            } else if (( // KingSmith Walking Pad R2
+                           b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
+                           b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
+                           b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC")) ||
+                           // KingSmith Walking Pad X21
+                           b.name().toUpper().startsWith(QStringLiteral("KS-X21")) ||
+                           b.name().toUpper().startsWith(QStringLiteral("KS-HDSC-X21C")) ||
+                           b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
+                           b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
                        !kingsmithR2Treadmill && filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
 #ifndef Q_OS_IOS
