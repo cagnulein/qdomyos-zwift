@@ -18,7 +18,86 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  window-build:
+    runs-on: windows-latest
 
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: bluetiger9/SmtpClient-for-Qt
+          path: "src/smtpclient/"
+          ref: 3fa4a0fe5797070339422cf18b5e9ed8dcb91f9c
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: cagnulein/qmdnsengine
+          path: "src/qmdnsengine/"
+          ref: "zwift"
+
+      - uses: actions/checkout@v2
+      - name: Checkout submodule repo
+        uses: actions/checkout@v2
+        with:
+          repository: microsoft/MSIX-Toolkit
+          path: "src/MSIX-Toolkit/"
+          ref: b82af826d29e93e4c85d34fad8a405b6c49905e7
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          install: mingw-w64-x86_64-toolchain
+          msystem: mingw64
+          release: false          
+
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v1.9
+        with:
+          cmake-version: '3.20.x'      
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v2
+        with:
+          version: '5.15.2'
+          host: 'windows'
+          modules: 'qtnetworkauth qtcharts'
+          target: "desktop"
+          arch: win64_mingw81
+          dir: "${{github.workspace}}/qt/"
+          install-deps: "true"          
+
+      - name: Build
+        run: |         
+            cd src
+            qmake
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
+            make -j8
+            cd release
+            mkdir output
+            mkdir appx
+            cp qdomyos-zwift.exe output/
+            cd output
+            windeployqt --qmldir ../../ qdomyos-zwift.exe
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .     
+            cp ../../../icons/iOS/iTunesArtwork@2x.png .     
+            cp ../../AppxManifest.xml .
+            cd ..
+            cd appx
+            ../../MSIX-Toolkit/WindowsSDK/10/10.0.20348.0/x64/makeappx.exe pack /d ../output/ /p qz
+        
+      - name: Archive windows binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-binary
+          path: src/release/output
+          
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
