@@ -60,7 +60,8 @@ void serialDircon::run() {
             if(requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x50 && requestData.at(3) == 0x0b && requestData.at(4) == 0x11 && requestData.length() >= 17) {
                 uint16_t convertedData = (requestData.at(10) << 8) | ((uint8_t)requestData.at(9));
                 double speed = ((double)convertedData) / 100.0;
-                uint8_t cadence = requestData.at(15);
+                convertedData = (requestData.at(8) << 8) | ((uint8_t)requestData.at(7));
+                double cadence = ((double)convertedData) / 2.0;
                 uint16_t watt = (requestData.at(14) << 8) | ((uint8_t)requestData.at(13));
                 
                 qDebug() << "Metrics FROM Serial: Speed" << speed << "Cadence" << cadence << "Watt" << watt;
