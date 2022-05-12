@@ -59,7 +59,7 @@ void renphobike::forcePower(int16_t requestPower) {
     QSettings settings;
     double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
     double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
-    double r = ((requestPower * watt_gain) + watt_offset);
+    double r = ((requestPower / watt_gain) - watt_offset);
     uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
     write[1] = ((uint16_t)r) & 0xFF;
@@ -195,7 +195,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         else
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }
@@ -485,6 +485,22 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ')
                  << lastFTMSPacketReceived.toHex(' ');
+
+        // handling watt gain for erg
+        QSettings settings;
+        double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+        double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+        if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER && (watt_gain != 1.0 || watt_offset != 0)) {
+            uint16_t r = (((uint8_t)lastFTMSPacketReceived.at(1)) + (lastFTMSPacketReceived.at(2) << 8));
+            qDebug() << "applying ERG mod from" << r;
+            r = ((r / watt_gain) - watt_offset);
+            qDebug() << "to" << r;
+            lastFTMSPacketReceived.clear();
+            lastFTMSPacketReceived.append(FTMS_SET_TARGET_POWER);
+            lastFTMSPacketReceived.append(r & 0xFF);
+            lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
+            qDebug() << "sending" << lastFTMSPacketReceived.toHex(' ');
+        }
 
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);
     }
