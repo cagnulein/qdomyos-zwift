@@ -373,6 +373,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.77
             property bool kingsmith_encrypt_v2: false
+
+            // from the version 2.10.81
+            property bool proform_treadmill_9_0: false
         }
 
         function paddingZeros(text, limit) {
@@ -4156,6 +4159,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_s30_treadmill = checked
+                        }                        
+                        SwitchDelegate {
+                            id: proform90IDelegate
+                            text: qsTr("Proform 9.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_9_0
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_9_0 = checked
                         }
                         /*
                         SwitchDelegate {
@@ -6041,7 +6058,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Apple Watch Fake Device")
+                        text: qsTr("Fake Device")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0

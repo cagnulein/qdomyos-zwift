@@ -560,10 +560,6 @@ void ftmsbike::serviceScanDone(void) {
     initRequest = false;
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        if (s == (QBluetoothUuid)((quint16)0xFFF0)) {
-            qDebug() << "ignoring service" << s;
-            continue;
-        }
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &ftmsbike::stateChanged);
@@ -588,11 +584,6 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-
-#ifdef Q_OS_IOS
-        if (device.name().toUpper().startsWith(QStringLiteral("DKN MOTION")))
-            QZ_EnableDiscoveryCharsAndDescripttors = true;
-#endif
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);

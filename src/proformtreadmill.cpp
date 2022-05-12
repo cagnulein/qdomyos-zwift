@@ -52,6 +52,7 @@ void proformtreadmill::forceIncline(double incline) {
     QSettings settings;
     bool nordictrack_t65s_treadmill = settings.value("nordictrack_t65s_treadmill", false).toBool();
     bool nordictrack_s30_treadmill = settings.value("nordictrack_s30_treadmill", false).toBool();
+    bool proform_treadmill_9_0 = settings.value("proform_treadmill_9_0", false).toBool();
 
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
@@ -60,7 +61,7 @@ void proformtreadmill::forceIncline(double incline) {
     write[12] = ((uint16_t)(incline * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(incline * 100) & 0xFF);
 
-    if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill) {
+    if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill && !proform_treadmill_9_0) {
         for (uint8_t i = 0; i < 7; i++) {
             write[14] += write[i + 6];
         }
@@ -77,6 +78,7 @@ void proformtreadmill::forceSpeed(double speed) {
     QSettings settings;
     bool nordictrack_t65s_treadmill = settings.value("nordictrack_t65s_treadmill", false).toBool();
     bool nordictrack_s30_treadmill = settings.value("nordictrack_s30_treadmill", false).toBool();
+    bool proform_treadmill_9_0 = settings.value("proform_treadmill_9_0", false).toBool();
 
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
@@ -85,7 +87,7 @@ void proformtreadmill::forceSpeed(double speed) {
     write[12] = ((uint16_t)(speed * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(speed * 100) & 0xFF);
 
-    if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill) {
+    if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill && !proform_treadmill_9_0) {
         for (uint8_t i = 0; i < 7; i++) {
             write[14] += write[i + 6];
         }

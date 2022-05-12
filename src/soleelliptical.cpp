@@ -235,6 +235,11 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
+    // the elliptical send the speed in miles always
+    double miles = 1;
+    if (settings.value(QStringLiteral("sole_treadmill_miles"), true).toBool())
+        miles = 1.60934;
+
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
@@ -250,8 +255,8 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
-    double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
+    double speed = GetSpeedFromPacket(newValue) *
+                   settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble() * miles;
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
