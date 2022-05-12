@@ -2,6 +2,7 @@
 #define SERIALDIRCON_H
 
 #include <QMutex>
+#include <QSerialPort>
 #include <QThread>
 #include <QWaitCondition>
 
@@ -21,9 +22,11 @@ class serialDircon : public QThread {
 
   private:
     void run() override;
+    void write(char *buffer, int len, QString info);
+    QSerialPort serial;
 
     QString m_portName;
-    int m_waitTimeout = 0;
+    int m_waitTimeout = 1000;
     QMutex m_mutex;
     bool m_quit = false;
 };
