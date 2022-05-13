@@ -20,9 +20,10 @@ void serialDircon::open(const QString &portName, int waitTimeout) {
         start();
 }
 
-void serialDircon::write(char *buffer, int len, QString info) {
-    qDebug() << "serial >> " << QByteArray(buffer).toHex(' ') << "//" << info;
-    serial.write(buffer, len);
+void serialDircon::write(const uint8_t *buffer, int len, QString info) {
+    qDebug() << "serial >> " << QByteArray((const char *)buffer, len).toHex(' ') << "//" << info;
+    qint64 o = serial.write(QByteArray((const char *)buffer, len));
+    qDebug() << "serial byte written" << o;
 }
 
 void serialDircon::run() {
@@ -74,19 +75,19 @@ void serialDircon::run() {
             if (initRequest) {
                 switch (phase) {
                 case 0:
-                    write((char *)init0, sizeof(init0), "init0");
+                    write(init0, sizeof(init0), "init0");
                     break;
                 case 1:
-                    write((char *)init1, sizeof(init1), "init1");
+                    write(init1, sizeof(init1), "init1");
                     break;
                 case 2:
-                    write((char *)init2, sizeof(init2), "init2");
+                    write(init2, sizeof(init2), "init2");
                     break;
                 case 3:
-                    write((char *)init3, sizeof(init3), "init3");
+                    write(init3, sizeof(init3), "init3");
                     break;
                 case 4:
-                    write((char *)init4, sizeof(init4), "init4");
+                    write(init4, sizeof(init4), "init4");
                     break;
                 default:
                     initRequest = false;
@@ -95,13 +96,13 @@ void serialDircon::run() {
             } else {
                 switch (phase) {
                 case 0:
-                    write((char *)run1, sizeof(run1), "run1");
+                    write(run1, sizeof(run1), "run1");
                     break;
                 case 1:
-                    write((char *)run2, sizeof(run2), "run2");
+                    write(run2, sizeof(run2), "run2");
                     break;
                 case 2:
-                    write((char *)force, sizeof(force), "force");
+                    write(force, sizeof(force), "force");
                     break;
                 default:
                     phase = 0;

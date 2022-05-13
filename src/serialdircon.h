@@ -22,7 +22,7 @@ class serialDircon : public QThread {
 
   private:
     void run() override;
-    void write(char *buffer, int len, QString info);
+    void write(const uint8_t *buffer, int len, QString info);
     QSerialPort serial;
 
     QString m_portName;
