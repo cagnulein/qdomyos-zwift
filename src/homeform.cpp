@@ -1457,6 +1457,10 @@ void homeform::sortTilesTimeout() { sortTiles(); }
 
 void homeform::deviceConnected(QBluetoothDeviceInfo b) {
 
+    qDebug() << "deviceConnected" << bluetoothManager << engine;
+    if (bluetoothManager)
+        qDebug() << bluetoothManager->device();
+
     // if the device reconnects in the same session, the tiles shouldn't be created again
     static bool first = false;
     if (first) {
