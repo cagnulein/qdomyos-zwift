@@ -1461,6 +1461,8 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     if (bluetoothManager)
         qDebug() << bluetoothManager->device();
 
+    if(bluetoothManager->device() == nullptr) return;
+  
     // if the device reconnects in the same session, the tiles shouldn't be created again
     static bool first = false;
     if (first) {
