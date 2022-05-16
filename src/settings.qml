@@ -376,6 +376,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.81
             property bool proform_treadmill_9_0: false
+
+            // from the version 2.10.85
+            property bool proform_treadmill_1800i: false
         }
 
         function paddingZeros(text, limit) {
@@ -4159,7 +4162,22 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_s30_treadmill = checked
-                        }                        
+                        }
+                        SwitchDelegate {
+                            id: proform1800iDelegate
+                            text: qsTr("Proform 1800i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_1800i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_1800i = checked
+                        }
+                        /*
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")
@@ -4173,7 +4191,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_9_0 = checked
-                        }
+                        }*/
                         /*
                         SwitchDelegate {
                             id: nordictrackFS5IDelegate
