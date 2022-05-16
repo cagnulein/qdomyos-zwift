@@ -108,7 +108,7 @@ void serialDircon::run() {
 
         if (serial.waitForReadyRead(currentWaitTimeout)) {
             QByteArray requestData = serial.readAll();
-            while (serial.waitForReadyRead(10))
+            while (serial.waitForReadyRead(currentWaitTimeout))
                 requestData += serial.readAll();
             qDebug() << "serial << " << requestData.toHex(' ');
 
