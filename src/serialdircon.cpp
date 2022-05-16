@@ -28,6 +28,7 @@ void serialDircon::write(const uint8_t *buffer, int len, QString info) {
 
 void serialDircon::run() {
 
+    const uint8_t init0[] = {0x02, 0x68, 0x04, 0x00, 0x6c, 0x03};
     const uint8_t init1[] = {0x02, 0x68, 0x50, 0x0b, 0x11, 0x00, 0x00, 0x44, 0x00,
                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x66, 0x03};
     const uint8_t init2[] = {0x02, 0x68, 0x50, 0x13, 0x08, 0x00, 0x00, 0x34, 0x00, 0x00, 0x00, 0xb8, 0x6c,
@@ -74,15 +75,18 @@ void serialDircon::run() {
             if (initRequest) {
                 switch (phase) {
                 case 0:
-                    write(init1, sizeof(init1), "init1");
+                    write(init0, sizeof(init0), "init0");
                     break;
                 case 1:
-                    write(init2, sizeof(init2), "init2");
+                    write(init1, sizeof(init1), "init1");
                     break;
                 case 2:
-                    write(init3, sizeof(init3), "init3");
+                    write(init2, sizeof(init2), "init2");
                     break;
                 case 3:
+                    write(init3, sizeof(init3), "init3");
+                    break;
+                case 4:
                     write(init4, sizeof(init4), "init4");
                     break;
                 default:
