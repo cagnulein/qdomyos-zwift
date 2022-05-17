@@ -1120,10 +1120,10 @@ void virtualbike::bikeProvider() {
     } else if (ifit) {
         // timeout di 500 ms
         qDebug() << QStringLiteral("iFit Last Frame") << iFit_TSLastFrame;
-        if (iFit_TSLastFrame + 500 < QDateTime::currentMSecsSinceEpoch()) {
+        if (iFit_TSLastFrame != 0 && iFit_TSLastFrame + 500 < QDateTime::currentMSecsSinceEpoch()) {
             qDebug() << QStringLiteral("iFit timeout!");
             QLowEnergyCharacteristic characteristic =
-                service->characteristic(QBluetoothUuid(QStringLiteral("00001535-1412-efde-1523-785feabcd123")));
+                service->characteristic(QBluetoothUuid(QStringLiteral("00001534-1412-efde-1523-785feabcd123")));
             characteristicChanged(characteristic, iFit_LastFrameReceived);
         }
     } else {
