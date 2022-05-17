@@ -50,6 +50,30 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fileIdMesg.SetSerialNumber(12345);
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
+    bool gps_data = false;
+    double max_alt = 0;
+    double min_alt = 99999;
+    for (int i = firstRealIndex; i < session.length(); i++) {
+        if (session.at(i).coordinate.isValid()) {
+            gps_data = true;
+            break;
+        }
+    }
+    for (int i = firstRealIndex; i < session.length(); i++) {
+        if (gps_data) {
+            if (session.at(i).coordinate.isValid()) {
+                if (min_alt > session.at(i).coordinate.altitude())
+                    min_alt = session.at(i).coordinate.altitude();
+                if (max_alt < session.at(i).coordinate.altitude())
+                    max_alt = session.at(i).coordinate.altitude();
+            }
+        } else {
+            min_alt = 0;
+            if (max_alt < session.at(i).elevationGain)
+                max_alt = session.at(i).elevationGain;
+        }
+    }
+
     fit::SessionMesg sessionMesg;
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
@@ -59,8 +83,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
-    sessionMesg.SetMinAltitude(0);
-    sessionMesg.SetMaxAltitude(session.last().elevationGain);
+    sessionMesg.SetMinAltitude(min_alt - 500);
+    sessionMesg.SetMaxAltitude(max_alt - 500);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
     sessionMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     sessionMesg.SetFirstLapIndex(0);
@@ -167,6 +191,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
             }
         }
     }
+
     for (int i = firstRealIndex; i < session.length(); i++) {
 
         fit::RecordMesg newRecord;
@@ -180,8 +205,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
 
+        // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
+        // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.
+        if (!sl.coordinate.isValid() && gps_data) {
+            continue;
+        }
+
         if (sl.coordinate.isValid()) {
-            // newRecord.SetAltitude(sl.coordinate.altitude());
+            newRecord.SetAltitude(sl.coordinate.altitude() - 500);
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
