@@ -334,8 +334,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
     deviceConnected(b);
+#endif
 }
 
 void homeform::setActivityDescription(QString desc) { activityDescription = desc; }
@@ -1461,8 +1463,9 @@ void homeform::deviceConnected(QBluetoothDeviceInfo b) {
     if (bluetoothManager)
         qDebug() << bluetoothManager->device();
 
-    if(bluetoothManager->device() == nullptr) return;
-  
+    if (bluetoothManager->device() == nullptr)
+        return;
+
     // if the device reconnects in the same session, the tiles shouldn't be created again
     static bool first = false;
     if (first) {
