@@ -179,7 +179,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         newRecord.SetPower(sl.watt);
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
-        newRecord.SetAltitude(sl.elevationGain);
+
+        if (sl.coordinate.isValid()) {
+            // newRecord.SetAltitude(sl.coordinate.altitude());
+            newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
+            newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
+        } else {
+            newRecord.SetAltitude(sl.elevationGain);
+        }
 
         // using just the start point as reference in order to avoid pause time
         // strava ignore the elapsed field

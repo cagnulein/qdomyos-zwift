@@ -171,7 +171,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         WattKg = 0;
     }
     METS = calculateMETS();
-    if(currentInclination().value() > 0)
+    if (currentInclination().value() > 0)
         elevationAcc += (currentSpeed().value() / 3600.0) * 1000.0 * (currentInclination().value() / 100.0) * deltaTime;
 
     _lastTimeUpdate = current;
@@ -339,8 +339,20 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     return currentHeart().value();
 }
 
-void bluetoothdevice::changeGeoPosition(QGeoCoordinate p) { coordinate = p; }
-QGeoCoordinate bluetoothdevice::currentCordinate() { return coordinate; }
+void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth) {
+    coordinateTS = QDateTime::currentMSecsSinceEpoch();
+    coordinate = p;
+    this->azimuth = azimuth;
+}
+QGeoCoordinate bluetoothdevice::currentCordinate() {
+    if (coordinateTS) {
+        double distance = currentSpeed().value() * ((QDateTime::currentMSecsSinceEpoch() - coordinateTS) / 3600.0);
+        QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance, this->azimuth);
+        qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
+        return c;
+    }
+    return coordinate;
+}
 
 void bluetoothdevice::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) { lastState = state; }
-void bluetoothdevice::setInclination(double inclination) {Inclination = inclination;}
+void bluetoothdevice::setInclination(double inclination) { Inclination = inclination; }
