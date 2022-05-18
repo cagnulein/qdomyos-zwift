@@ -125,6 +125,8 @@ void technogymmyruntreadmillrfcomm::update() {
             }
             requestSpeed = -1;
         } else if (requestInclination != -1) {
+            if(requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 12) {
                 QString force = QStringLiteral("!DEV,025,") + QString::number(requestInclination) +

@@ -184,6 +184,8 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
 
                 if (requestInclination != -1) {
+                    if(requestInclination < 0)
+                        requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -233,6 +235,8 @@ void proformtreadmill::update() {
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 if (requestInclination != -1) {
+                    if(requestInclination < 0)
+                        requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -284,6 +288,8 @@ void proformtreadmill::update() {
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 if (requestInclination != -1) {
+                    if(requestInclination < 0)
+                        requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -344,6 +350,8 @@ void proformtreadmill::update() {
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
                 if (requestInclination != -1) {
+                    if(requestInclination < 0)
+                        requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));

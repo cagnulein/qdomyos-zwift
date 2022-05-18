@@ -306,6 +306,8 @@ void solef80treadmill::update() {
             // requestSpeed = -1;
         }
         if (requestInclination != -1) {
+            if(requestInclination < 0)
+                requestInclination = 0;
             // this treadmill has only 1% step inclination
             if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {

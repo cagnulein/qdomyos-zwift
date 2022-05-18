@@ -312,6 +312,8 @@ void domyostreadmill::update() {
                 requestSpeed = -1;
             }
             if (requestInclination != -1) {
+                if(requestInclination < 0)
+                    requestInclination = 0;
                 // only 0.5 steps ara avaiable
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&

@@ -124,6 +124,8 @@ void bowflext216treadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -1) {
+            if(requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
