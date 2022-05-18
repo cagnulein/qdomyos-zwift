@@ -1124,7 +1124,10 @@ void virtualbike::bikeProvider() {
             qDebug() << QStringLiteral("iFit timeout!");
             QLowEnergyCharacteristic characteristic =
                 service->characteristic(QBluetoothUuid(QStringLiteral("00001534-1412-efde-1523-785feabcd123")));
-            characteristicChanged(characteristic, iFit_LastFrameReceived);
+            QByteArray copy;
+            foreach(uint8_t a, iFit_LastFrameReceived)
+                copy.append(a);
+            characteristicChanged(characteristic, copy);
         }
     } else {
 
