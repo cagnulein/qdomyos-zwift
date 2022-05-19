@@ -9,6 +9,7 @@
         width: 100%;
       }
     </style>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="globals.js"></script>
      <script src="main_ws_manager.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
@@ -36,10 +37,10 @@
     function  process_latlon(msg) {
     let lat = parseFloat(msg.split(",")[0]);
     let lon = parseFloat(msg.split(",")[1]);
-    map.getView().animate({zoom:13, center: ol.proj.fromLonLat([lon, lat])});
-    setTimeout(a,1000);
+    map.getView().animate({center: ol.proj.fromLonLat([lon, lat])});
+	markers.getSource().getFeatures()[0].getGeometry().setCoordinates(ol.proj.fromLonLat([lon, lat]));
+    setTimeout(a,2000);
     }
-
 
       let map = new ol.Map({
         target: 'map',
@@ -50,10 +51,28 @@
         ],
         view: new ol.View({
           center: ol.proj.fromLonLat([37.41, 8.82]),
-          zoom: 4
+          zoom: 16
         })
       });
-      setTimeout(a,1000);
+	  
+	markers = new ol.layer.Vector({
+	  source: new ol.source.Vector(),
+	  style: new ol.style.Style({
+		image: new ol.style.Icon({
+          anchor: [0.5, 0.5],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'fraction',
+		  scale: 0.2,
+		  src: 'marker.png'
+		})
+	  })
+	});
+	map.addLayer(markers);
+
+	let marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([37.41, 8.82])));
+	markers.getSource().addFeature(marker);
+  
+      setTimeout(a,0);
     </script>
   </body>
 </html>
