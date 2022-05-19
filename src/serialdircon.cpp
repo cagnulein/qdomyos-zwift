@@ -137,11 +137,10 @@ void serialDircon::run() {
 
             if (requestData.at(0) == 0x02 && requestData.length() >= 6) {
                 phase++;
-                if(requestData.at(0) == init1[0] && requestData.at(1) == init1[1] && requestData.at(2) == init1[2] &&
-                        requestData.at(3) == init1[3] && requestData.at(4) == init1[4] && requestData.at(5) == init1[5])
-                    phase = 1;
+                if (requestData.at(0) == init1[0] && requestData.at(1) == init1[1] && requestData.at(2) == init1[2] &&
+                    requestData.at(3) == init1[3] && requestData.at(4) == init1[4] && requestData.at(5) == init1[5])
+                    write(init1, sizeof(init1), "init1");
             }
-
 
             if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x50 &&
                 requestData.at(3) == 0x0b && requestData.at(4) == 0x11 && requestData.length() >= 17) {
