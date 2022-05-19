@@ -64,6 +64,10 @@ void sportsplusbike::forceResistance(int8_t requestResistance) {
     */
 }
 
+int sportsplusbike::pelotonToBikeResistance(int pelotonResistance) {
+    return (pelotonResistance * max_resistance) / 100;
+}
+
 void sportsplusbike::update() {
     // qDebug() << bike.isValid() << m_control->state() << gattCommunicationChannelService <<
     // gattWriteCharacteristic.isValid() << gattNotifyCharacteristic.isValid() << initDone;
@@ -96,8 +100,8 @@ void sportsplusbike::update() {
         if (requestResistance < 0) {
             requestResistance = 0;
         }
-        if (requestResistance > 24) {
-            requestResistance = 24;
+        if (requestResistance > max_resistance) {
+            requestResistance = max_resistance;
         }
         noOpData[2] = requestResistance;
         noOpData[4] = (0x21 + requestResistance);
@@ -134,7 +138,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
         }
         lastTimeCharChanged = QDateTime::currentDateTime();
     } else if (newValue.at(1) == 0x30) {

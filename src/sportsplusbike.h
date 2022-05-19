@@ -32,6 +32,7 @@ class sportsplusbike : public bike {
     Q_OBJECT
   public:
     sportsplusbike(bool noWriteResistance, bool noHeartService);
+    int pelotonToBikeResistance(int pelotonResistance);
     bool connected();
 
     void *VirtualBike();
@@ -70,6 +71,8 @@ class sportsplusbike : public bike {
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
+
+    const int max_resistance = 24;
 
   signals:
     void disconnected();
