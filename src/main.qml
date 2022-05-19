@@ -548,6 +548,16 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+
+            ItemDelegate {
+                text: qsTr("Map")
+                width: parent.width
+                onClicked: {
+                    stackView.push("GoogleMap.qml")
+                    drawer.close()
+                }
+            }
+
             ItemDelegate {
                 text: "version 2.10.85"
                 width: parent.width

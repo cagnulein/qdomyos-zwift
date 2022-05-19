@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
+    <style>
+      .map {
+        height: 1000px;
+        width: 100%;
+      }
+    </style>
+    <script src="globals.js"></script>
+     <script src="main_ws_manager.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
+    <title>OpenLayers example</title>
+  </head>
+  <body>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+    function a() {
+    let lat = 0
+    let lon = 0
+    let el = new MainWSQueueElement({
+        msg: 'getlatlon'
+    }, function(msg) {
+        if (msg.msg === 'R_getlatlon') {
+            return msg.content;
+        }
+        return null;
+    }, 15000, 3);
+    el.enqueue().then(process_latlon).catch(function(err) {
+        console.error('Error is ' + err);
+    });
+    }
+
+    function  process_latlon(msg) {
+    let lat = parseFloat(msg.split(",")[0]);
+    let lon = parseFloat(msg.split(",")[1]);
+    map.getView().animate({zoom:13, center: ol.proj.fromLonLat([lon, lat])});
+    setTimeout(a,1000);
+    }
+
+
+      let map = new ol.Map({
+        target: 'map',
+        layers: [
+          new ol.layer.Tile({
+            source: new ol.source.OSM()
+          })
+        ],
+        view: new ol.View({
+          center: ol.proj.fromLonLat([37.41, 8.82]),
+          zoom: 4
+        })
+      });
+      setTimeout(a,1000);
+    </script>
+  </body>
+</html>
