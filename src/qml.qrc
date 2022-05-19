@@ -50,5 +50,6 @@
         <file>inner_templates/googlemaps/maps.htm</file>
         <file>inner_templates/googlemaps/main_ws_manager.js</file>
         <file>inner_templates/googlemaps/globals.js</file>
+        <file>inner_templates/googlemaps/marker.png</file>
     </qresource>
 </RCC>
