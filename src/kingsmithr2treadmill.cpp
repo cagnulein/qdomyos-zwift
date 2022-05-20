@@ -276,6 +276,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     }
 
     double speed = props.value("CurrentSpeed", 0);
+    Cadence = props.value("spm", 0);
+
     // TODO:
     // - RunningDistance (int; meter) : update each 10miters / 0.01 mile
     // - RunningSteps (int) : update 2 steps
