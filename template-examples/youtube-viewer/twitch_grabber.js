@@ -41,7 +41,7 @@ class TwitchGrabber {
 
     identify_query(pls_name) {
         let match;
-        if ((match = /(channel|vod)\s*=\s*([^\s*]+)/i.exec(pls_name))) {
+        if ((match = /(channel|vod|vods)\s*=\s*([^\s*]+)/i.exec(pls_name))) {
             let out = {};
             out[match[1]] = match[2];
             return out;
@@ -84,6 +84,14 @@ class TwitchGrabber {
                 this.on_grab([], this.ajax_settings.raw_query, 'twitch');
         }
         else  {
+            if (query_type.vods) {
+                if (!this.ajax_settings.vods) {
+                    this.ajax_settings.vods = query_type.vods.split(',');
+                    this.ajax_settings.vodsI = 0;
+                    this.ajax_settings.videos = [];
+                }
+                query_type.vod = this.ajax_settings.vods[this.ajax_settings.vodsI++];
+            }
             this.ajax_settings.raw_query = pls_name;
             this.ajax_settings.query = query_type.channel || query_type.vod;
             this.ajax_settings.query_type = query_type;
@@ -130,7 +138,8 @@ class TwitchGrabber {
         for (let d of json_obj.data) {
             d.link = TWITCH_VIDEO_ID_PRE + d.id;
             d.uid = TWITCH_VIDEO_ID_PRE + d.id;
-            d.img = d.thumbnail_url;
+            d.img = d.thumbnail_url.replace('%{width}','500').replace('%{height}','500');
+            d.uploader = {name: this.ajax_settings.query};
             let match = /^(?:([0-9]+)d)?(?:([0-9]+)h)?(?:([0-9]+)m)?(?:([0-9]+)s)?$/.exec(d.duration);
             let dur = 0;
             if (match) {
@@ -146,6 +155,19 @@ class TwitchGrabber {
             d.dur = dur;
         }
         json_obj.data = json_obj.data.reverse();
+        if (this.ajax_settings.vods) {
+            this.ajax_settings.videos = this.ajax_settings.videos.concat(json_obj.data);
+            if (this.ajax_settings.vodsI <this.ajax_settings.vods.length) {
+                this.grab(this.ajax_settings.raw_query);
+                return;
+            }
+            else {
+                json_obj.data = this.ajax_settings.videos;
+                this.ajax_settings.videos.sort(function(a, b) {
+                    return a.published_at.localeCompare(b.published_at);
+                });
+            } 
+        }
         if (this.on_grab) {
             this.on_grab(json_obj.data, this.ajax_settings.raw_query, 'twitch');
         }
