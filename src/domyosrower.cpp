@@ -214,7 +214,7 @@ void domyosrower::update() {
                 forceResistance(requestResistance);
             }
             requestResistance = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
@@ -226,7 +226,7 @@ void domyosrower::update() {
 
                 forceInclination(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));

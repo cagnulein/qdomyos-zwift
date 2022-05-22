@@ -59,7 +59,7 @@ class bike : public bluetoothdevice {
     metric RequestedPower;
 
     int8_t requestResistance = -1;
-    double requestInclination = -1;
+    double requestInclination = -100;
     int16_t requestPower = -1;
 
     bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power

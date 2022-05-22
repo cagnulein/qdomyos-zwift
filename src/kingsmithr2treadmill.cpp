@@ -154,18 +154,18 @@ void kingsmithr2treadmill::update() {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
                 double inc = Inclination.value();
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
 
                     // only 0.5 steps ara avaiable
                     requestInclination = qRound(requestInclination * 2.0) / 2.0;
                     inc = requestInclination;
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
             if(requestInclination < 0)
                 requestInclination = 0;
             // only 0.5 steps ara avaiable
@@ -182,7 +182,7 @@ void kingsmithr2treadmill::update() {
                 }
                 forceSpeedOrIncline(speed, requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));

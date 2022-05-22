@@ -84,7 +84,7 @@ void proformelliptical::update() {
                 break;
             case 3:
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
                     if(requestInclination < 0)
                         requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -92,7 +92,7 @@ void proformelliptical::update() {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                         // forceIncline(requestInclination);
                     }
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 /*
                 if (requestSpeed != -1) {

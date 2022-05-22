@@ -42,7 +42,7 @@ class treadmill : public bluetoothdevice {
   protected:
     volatile double requestSpeed = -1;
     double targetSpeed = -1;
-    double requestInclination = -1;
+    double requestInclination = -100;
     double lastSpeed = 0.0;
     double lastInclination = 0;
     metric RequestedSpeed;

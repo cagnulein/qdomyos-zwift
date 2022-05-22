@@ -305,7 +305,7 @@ void solef80treadmill::update() {
             // i have to do the reset on when the speed is equal to the current
             // requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
             if(requestInclination < 0)
                 requestInclination = 0;
             // this treadmill has only 1% step inclination
@@ -315,10 +315,10 @@ void solef80treadmill::update() {
                 forceIncline(requestInclination);
             } else if((int)requestInclination == (int)currentInclination().value()) {
                 qDebug() << "int inclination match the current one" << requestInclination << currentInclination().value();
-                requestInclination = -1;
+                requestInclination = -100;
             }
             // i have to do the reset on when the inclination is equal to the current
-            // requestInclination = -1;
+            // requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -414,7 +414,7 @@ void solef80treadmill::forceIncline(double requestIncline) {
             requestInclinationState = UP;
         else if (requestInclinationState == DOWN) {
             requestInclinationState = IDLE;
-            this->requestInclination = -1;
+            this->requestInclination = -100;
             return;
         }
         if (gattCustomService)
@@ -424,13 +424,13 @@ void solef80treadmill::forceIncline(double requestIncline) {
             requestInclinationState = DOWN;
         else if (requestInclinationState == UP) {
             requestInclinationState = IDLE;
-            this->requestInclination = -1;
+            this->requestInclination = -100;
             return;
         }
         if (gattCustomService)
             writeCharacteristic(down, sizeof(down), QStringLiteral("Inclination down"), false, true);
     } else {
-        this->requestInclination = -1;
+        this->requestInclination = -100;
         requestInclinationState = IDLE;
     }
 }

@@ -99,7 +99,7 @@ void toorxtreadmill::update() {
                 socket->write((char *)speed, sizeof(speed));
             }
             requestSpeed = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
             if(requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -109,7 +109,7 @@ void toorxtreadmill::update() {
                 incline[3] = requestInclination;
                 socket->write((char *)incline, sizeof(incline));
             }
-            requestInclination = -1;
+            requestInclination = -100;
         } else if (requestStart != -1 && start_phase == -1) {
             emit debug(QStringLiteral("starting..."));
             const uint8_t start[] = {0x55, 0x17, 0x01, 0x01, 0x55, 0xb5, 0x01, 0xff};

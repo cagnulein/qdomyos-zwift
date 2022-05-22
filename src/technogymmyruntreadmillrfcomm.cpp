@@ -124,7 +124,7 @@ void technogymmyruntreadmillrfcomm::update() {
                 socket->write(force.toLocal8Bit());
             }
             requestSpeed = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
             if(requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -134,7 +134,7 @@ void technogymmyruntreadmillrfcomm::update() {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination) + " " + force);
                 socket->write(force.toLocal8Bit());
             }
-            requestInclination = -1;
+            requestInclination = -100;
         } else if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             /*

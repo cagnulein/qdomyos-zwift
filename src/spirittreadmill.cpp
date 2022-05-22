@@ -108,15 +108,15 @@ void spirittreadmill::update() {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 double inc = Inclination.value();
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
                     inc = requestInclination;
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 double speed = currentSpeed().value();
@@ -126,7 +126,7 @@ void spirittreadmill::update() {
                 }
                 forceSpeedOrIncline(speed, requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
