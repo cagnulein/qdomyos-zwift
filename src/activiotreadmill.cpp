@@ -201,13 +201,15 @@ void activiotreadmill::update() {
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -1) {
+            if (requestInclination != -100) {
+                if(requestInclination < 0)
+                    requestInclination = 0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                     forceIncline(requestInclination);
                 }
-                requestInclination = -1;
+                requestInclination = -100;
             }
             if (requestStart != -1) {
                 emit debug(QStringLiteral("starting..."));

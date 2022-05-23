@@ -13,6 +13,7 @@
 #include <QByteArray>
 #include <QDesktopServices>
 #include <QFileInfo>
+#include <QGeoCoordinate>
 #include <QHttpMultiPart>
 #include <QImageWriter>
 #include <QJsonDocument>
@@ -1833,8 +1834,15 @@ void homeform::Start_inner(bool send_event_to_device) {
                 emit instructorNameChanged(instructorName());
             }
             emit workoutEventStateChanged(bluetoothdevice::STARTED);
-        } else
+        } else {
+            // if loading a training program (gpx or xml) directly from the startup of QZ, there is no way to start the
+            // program otherwise
+            if (!trainProgram->isStarted()) {
+                qDebug() << QStringLiteral("starting training program from a resume");
+                trainProgram->restart();
+            }
             emit workoutEventStateChanged(bluetoothdevice::RESUMED);
+        }
 
         paused = false;
         stopped = false;
@@ -3072,20 +3080,46 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
                 delete trainProgram;
             }
+
+            // KML to GPX https://www.gpsvisualizer.com/elevation
             gpx g;
             QList<trainrow> list;
             auto g_list = g.open(file.fileName());
+            gpx_altitude_point_for_treadmill last;
+            quint32 i = 0;
             list.reserve(g_list.size() + 1);
             for (const auto &p : g_list) {
                 trainrow r;
-                r.speed = p.speed;
-                r.duration = QTime(0, 0, 0, 0);
-                r.duration = r.duration.addSecs(p.seconds);
-                r.inclination = p.inclination;
-                r.latitude = p.latitude;
-                r.longitude = p.longitude;
-                r.forcespeed = true;
-                list.append(r);
+                if (p.speed > 0) {
+                    r.speed = p.speed;
+                    r.duration = QTime(0, 0, 0, 0);
+                    r.duration = r.duration.addSecs(p.seconds);
+                    r.forcespeed = true;
+
+                    r.altitude = p.elevation;
+                    r.inclination = p.inclination;
+                    r.latitude = p.latitude;
+                    r.longitude = p.longitude;
+
+                    list.append(r);
+
+                } else {
+                    if (i > 0) {
+                        QGeoCoordinate p1(last.latitude, last.longitude);
+                        QGeoCoordinate p2(p.latitude, p.longitude, p.elevation);
+                        r.azimuth = p1.azimuthTo(p2);
+                        r.distance = last.distance;
+                        r.altitude = last.elevation;
+                        r.inclination = last.inclination;
+                        r.latitude = last.latitude;
+                        r.longitude = last.longitude;
+
+                        list.append(r);
+                    }
+                }
+
+                last = p;
+                i++;
             }
             trainProgram = new trainprogram(list, bluetoothManager);
         }

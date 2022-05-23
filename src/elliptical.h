@@ -34,7 +34,7 @@ class elliptical : public bluetoothdevice {
     metric Resistance;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
-    double requestInclination = -1;
+    double requestInclination = -100;
     double CrankRevs = 0;
 };
 

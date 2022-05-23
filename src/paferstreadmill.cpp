@@ -135,7 +135,9 @@ void paferstreadmill::update() {
                 forceIncline(Inclination.value());
             }
             requestSpeed = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
+            if(requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -143,7 +145,7 @@ void paferstreadmill::update() {
                 QThread::msleep(400);
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         } else if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
             lastStart = QDateTime::currentMSecsSinceEpoch();

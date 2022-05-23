@@ -176,7 +176,7 @@ void soleelliptical::update() {
         }
 
         // Resistance as incline on Sole E95s Elliptical #419
-        if (requestInclination != -1)
+        if (requestInclination != -100)
             requestResistance = requestInclination;
 
         if (requestResistance != -1) {
@@ -192,7 +192,7 @@ void soleelliptical::update() {
                 forceResistanceAndInclination(requestResistance, currentInclination().value());
             }
             requestResistance = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
@@ -204,7 +204,7 @@ void soleelliptical::update() {
 
                 forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
