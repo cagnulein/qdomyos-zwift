@@ -550,7 +550,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: qsTr("Map")
+                text: qsTr("Map (GPX)")
                 width: parent.width
                 onClicked: {
                     stackView.push("GoogleMap.qml")
