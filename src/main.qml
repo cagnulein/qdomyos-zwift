@@ -260,6 +260,46 @@ ApplicationWindow {
          }
     }
 
+    Timer {
+        id: popupLicenseAutoClose
+        interval: 10000; running: rootItem.licensePopupVisible; repeat: false
+        onTriggered: popupLicense.close();
+    }
+
+    Popup {
+        id: popupLicense
+         parent: Overlay.overlay
+         enabled: rootItem.licensePopupVisible
+         onEnabledChanged: { if(rootItem.licensePopupVisible) popupLicense.open() }
+         onClosed: { Qt.openUrlExternally("https://www.patreon.com/bePatron?u=45290147"); Qt.callLater(Qt.quit); }
+
+         x: Math.round((parent.width - width) / 2)
+         y: Math.round((parent.height - height) / 2)
+         width: 580
+         height: 230
+         modal: true
+         focus: true
+         palette.text: "white"
+         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+         enter: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
+         }
+         exit: Transition
+         {
+             NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
+         }
+         Column {
+             anchors.horizontalCenter: parent.horizontalCenter
+         Label {
+             anchors.horizontalCenter: parent.horizontalCenter
+             width: 570
+             height: 220
+             text: qsTr("Trial time expired!<br><br>Please join the QZ Patreon Membership to unlock the full license!<br>https://www.patreon.com/bePatron?u=45290147<br><br>Then add your patreon email in the email field in the general settings.<br>The App will now close.")
+            }
+         }
+    }
+
     header: ToolBar {
         contentHeight: toolButton.implicitHeight
         Material.primary: Material.Purple

@@ -252,6 +252,18 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaPelotonInstructorName = QLatin1String("");
     activityDescription = QLatin1String("");
 
+#ifdef Q_OS_WIN
+    connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
+    QNetworkAccessManager *mgr = new QNetworkAccessManager(this);
+    connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
+    tLicense.start(600000);
+    connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
+    QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
+             settings.value("user_email", "").toString());
+    QNetworkRequest request(url);
+    mgr->get(request);
+#endif
+
     this->bluetoothManager = bl;
     this->engine = engine;
     connect(bluetoothManager, &bluetooth::deviceFound, this, &homeform::deviceFound);
@@ -318,7 +330,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(volumeDown()), this, SLOT(volumeDown()));
 
     if (settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
-
         emit stopIconChanged(stopIcon());     // NOTE: clazy-incorrecrt-emit
         emit stopTextChanged(stopText());     // NOTE: clazy-incorrecrt-emit
         emit startIconChanged(startIcon());   // NOTE: clazy-incorrecrt-emit
@@ -580,8 +591,7 @@ void homeform::trainProgramSignals() {
                     &bike::changeResistance);
             connect(trainProgram, &trainprogram::changeRequestedPelotonResistance, ((bike *)bluetoothManager->device()),
                     &bike::changeRequestedPelotonResistance);
-        }
-        else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
             connect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                     &rower::changePower);
         connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
@@ -3563,6 +3573,14 @@ void homeform::setGeneralPopupVisible(bool value) {
     emit generalPopupVisibleChanged(m_generalPopupVisible);
 }
 
+bool homeform::licensePopupVisible() { return m_LicensePopupVisible; }
+
+void homeform::setLicensePopupVisible(bool value) {
+
+    m_LicensePopupVisible = value;
+    emit licensePopupVisibleChanged(m_generalPopupVisible);
+}
+
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
 
 void homeform::sendMail() {
@@ -3990,3 +4008,14 @@ void homeform::clearFiles() {
         }
     }
 }
+
+#ifdef Q_OS_WIN
+void homeform::licenseReply(QNetworkReply *reply) {
+    QString r = reply->readAll();
+    qDebug() << r;
+    if (r.contains("OK")) {
+        tLicense.stop();
+    }
+}
+void homeform::licenseTimeout() { setLicensePopupVisible(true); }
+#endif

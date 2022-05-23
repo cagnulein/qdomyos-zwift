@@ -111,6 +111,8 @@ class homeform : public QObject {
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
                    setGeneralPopupVisible)
+    Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
+                   setLicensePopupVisible)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -316,6 +318,7 @@ class homeform : public QObject {
     QString pelotonProvider() { return m_pelotonProvider; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
+    bool licensePopupVisible();
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
@@ -328,6 +331,7 @@ class homeform : public QObject {
             bluetoothManager->device()->setAutoResistance(value);
         }
     }
+    void setLicensePopupVisible(bool value);
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
 
@@ -411,6 +415,7 @@ class homeform : public QObject {
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
+    bool m_LicensePopupVisible = false;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
@@ -503,6 +508,10 @@ class homeform : public QObject {
     bool getLap();
     void Start_inner(bool send_event_to_device);
 
+#ifdef Q_OS_WIN
+    QTimer tLicense;
+#endif
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
@@ -551,6 +560,11 @@ class homeform : public QObject {
     void gearUp();
     void gearDown();
 
+#ifdef Q_OS_WIN
+    void licenseReply(QNetworkReply *reply);
+    void licenseTimeout();
+#endif
+
   signals:
 
     void changeOfdevice();
@@ -570,6 +584,7 @@ class homeform : public QObject {
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
+    void licensePopupVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
     void pzpLoginChanged(int ok);
