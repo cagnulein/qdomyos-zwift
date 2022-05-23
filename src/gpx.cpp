@@ -65,10 +65,6 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
             double distance = this->points.at(i).p.distanceTo(pP.p);
             double elevation = this->points.at(i).p.altitude() - pP.p.altitude();
             
-            if(distance < 5) {
-                continue;
-            }
-
             pP = this->points[i];
 
             gpx_altitude_point_for_treadmill g;

@@ -536,6 +536,8 @@ void homeform::trainProgramSignals() {
                    &treadmill::changeSpeed);
         disconnect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeInclination);
+        disconnect(trainProgram, &trainprogram::changeInclination, ((bike *)bluetoothManager->device()),
+                   &bike::changeInclination);
         disconnect(trainProgram, &trainprogram::changeFanSpeed, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeFanSpeed);
         disconnect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
@@ -560,21 +562,25 @@ void homeform::trainProgramSignals() {
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
-        connect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
-                &treadmill::changeSpeed);
-        connect(trainProgram, &trainprogram::changeFanSpeed, ((treadmill *)bluetoothManager->device()),
-                &treadmill::changeFanSpeed);
-        connect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
-                &treadmill::changeInclination);
-        connect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
-                &treadmill::changeSpeedAndInclination);
-        connect(trainProgram, &trainprogram::changeResistance, ((bike *)bluetoothManager->device()),
-                &bike::changeResistance);
-        connect(trainProgram, &trainprogram::changeRequestedPelotonResistance, ((bike *)bluetoothManager->device()),
-                &bike::changeRequestedPelotonResistance);
         connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()), &bike::changeCadence);
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE)
+        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+            connect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
+                    &treadmill::changeSpeed);
+            connect(trainProgram, &trainprogram::changeFanSpeed, ((treadmill *)bluetoothManager->device()),
+                    &treadmill::changeFanSpeed);
+            connect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
+                    &treadmill::changeInclination);
+            connect(trainProgram, &trainprogram::changeSpeedAndInclination, ((treadmill *)bluetoothManager->device()),
+                    &treadmill::changeSpeedAndInclination);
+        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
             connect(trainProgram, &trainprogram::changePower, ((bike *)bluetoothManager->device()), &bike::changePower);
+            connect(trainProgram, &trainprogram::changeInclination, ((bike *)bluetoothManager->device()),
+                    &bike::changeInclination);
+            connect(trainProgram, &trainprogram::changeResistance, ((bike *)bluetoothManager->device()),
+                    &bike::changeResistance);
+            connect(trainProgram, &trainprogram::changeRequestedPelotonResistance, ((bike *)bluetoothManager->device()),
+                    &bike::changeRequestedPelotonResistance);
+        }
         else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
             connect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                     &rower::changePower);
@@ -3108,9 +3114,9 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         QGeoCoordinate p1(last.latitude, last.longitude);
                         QGeoCoordinate p2(p.latitude, p.longitude, p.elevation);
                         r.azimuth = p1.azimuthTo(p2);
-                        r.distance = last.distance;
-                        r.altitude = last.elevation;
-                        r.inclination = last.inclination;
+                        r.distance = p.distance;
+                        r.altitude = p.elevation;
+                        r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
 
