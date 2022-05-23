@@ -191,6 +191,7 @@ void bluetoothdevice::clearStats() {
     m_watt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
+    Cadence.clear(false);
 }
 
 void bluetoothdevice::setPaused(bool p) {
@@ -206,6 +207,7 @@ void bluetoothdevice::setPaused(bool p) {
     m_watt.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
+    Cadence.setPaused(p);
 }
 
 void bluetoothdevice::setLap() {
@@ -220,6 +222,7 @@ void bluetoothdevice::setLap() {
     m_watt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
+    Cadence.setLap(false);
 }
 
 QStringList bluetoothdevice::metrics() {

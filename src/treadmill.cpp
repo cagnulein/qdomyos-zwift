@@ -100,6 +100,7 @@ void treadmill::clearStats() {
     m_watt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
+    Cadence.clear(false);
 
     Inclination.clear(false);
 }
@@ -118,6 +119,7 @@ void treadmill::setPaused(bool p) {
     Inclination.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
+    Cadence.setPaused(p);
 }
 
 void treadmill::setLap() {
@@ -132,6 +134,7 @@ void treadmill::setLap() {
     m_watt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
+    Cadence.setLap(false);
 
     Inclination.setLap(false);
 }
