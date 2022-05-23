@@ -3107,9 +3107,8 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                     if (i > 0) {
                         QGeoCoordinate p1(last.latitude, last.longitude);
                         QGeoCoordinate p2(p.latitude, p.longitude, p.elevation);
-                        r.distance = p1.distanceTo(p2) / 1000.0;
                         r.azimuth = p1.azimuthTo(p2);
-
+                        r.distance = last.distance;
                         r.altitude = last.elevation;
                         r.inclination = last.inclination;
                         r.latitude = last.latitude;

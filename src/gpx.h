@@ -14,6 +14,7 @@ class gpx_altitude_point_for_treadmill {
     float inclination = 0;
     float elevation = 0;
     float speed = 0;
+    double distance = 0;
     double latitude = 0;
     double longitude = 0;
 };
