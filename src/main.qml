@@ -262,7 +262,7 @@ ApplicationWindow {
 
     Timer {
         id: popupLicenseAutoClose
-        interval: 10000; running: rootItem.licensePopupVisible; repeat: false
+        interval: 120000; running: rootItem.licensePopupVisible; repeat: false
         onTriggered: popupLicense.close();
     }
 
