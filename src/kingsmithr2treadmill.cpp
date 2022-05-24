@@ -190,6 +190,13 @@ void kingsmithr2treadmill::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
+            if (props.value("ControlMode", 2) != 0) {
+                writeCharacteristic(QStringLiteral("props ControlMode 0"), QStringLiteral("turn on treadmill to manual mode"),
+                                    false, true);
+            }
+            if (props.value("runState", 0) != 1) {
+                writeCharacteristic(QStringLiteral("props runState 1"), QStringLiteral("starting"), false, true);
+            }
             if (lastSpeed == 0.0) {
 
                 lastSpeed = 0.5;
@@ -200,6 +207,9 @@ void kingsmithr2treadmill::update() {
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
+            if (props.value("runState", 0) != 0) {
+                writeCharacteristic(QStringLiteral("props runState 0"), QStringLiteral("stopping"), false, true);
+            }
             requestStop = -1;
         }
         if (requestFanSpeed != -1) {
@@ -276,6 +286,11 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     QStringList _props = data.split(QStringLiteral(" "), QString::SkipEmptyParts);
     for (int i = 1; i < _props.size(); i += 2) {
         QString key = _props.at(i);
+        // Error key only can have error code
+        // props Error "ErrorCode" -5000
+        if (!key.compare(QStringLiteral("Error"))) {
+            break;
+        }
         // skip string params
         if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
@@ -298,6 +313,9 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
     // - BurnCalories (int) : KCal * 1000
     // - RunningTotalTime (int; sec)
     // - spm (int) : steps per minute
+
+    // TODO: check 'ControlMode' and 'runState' of treadmill side
+    // then update current running status of application.
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
