@@ -114,21 +114,26 @@ void renphobike::update() {
                 requestPower = -1;
                 requestResistance = -1;
             }
-            if (requestResistance != -1) {
-                if (requestResistance > max_resistance)
-                    requestResistance = max_resistance;
-                else if (requestResistance == 0)
-                    requestResistance = 1;
+            // if zwift is connected we have to avoud to send resistance to the bike
+            if ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) {
+                if (requestResistance != -1) {
+                    if (requestResistance > max_resistance)
+                        requestResistance = max_resistance;
+                    else if (requestResistance == 0)
+                        requestResistance = 1;
 
-                lastRequestResistance = lastRawRequestedResistanceValue;
-                debug("writing resistance " + QString::number(requestResistance));
-                forceResistance(requestResistance);
+                    lastRequestResistance = lastRawRequestedResistanceValue;
+                    debug("writing resistance " + QString::number(requestResistance));
+                    forceResistance(requestResistance);
 
-                requestResistance = -1;
-            } else if (lastRequestResistance != -1) {
-                int8_t r = lastRequestResistance * m_difficult + gears();
-                debug("writing resistance for renpho forever " + QString::number(r));
-                forceResistance(r);
+                    requestResistance = -1;
+                } else if (lastRequestResistance != -1) {
+                    int8_t r = lastRequestResistance * m_difficult + gears();
+                    debug("writing resistance for renpho forever " + QString::number(r));
+                    forceResistance(r);
+                }
+            } else if (requestResistance != -1 || lastRequestResistance != -1) {
+                qDebug() << QStringLiteral("ignoring resistance because ftmsDeviceConnected is connected");
             }
         }
         if (requestStart != -1) {
