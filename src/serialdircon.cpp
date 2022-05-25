@@ -148,7 +148,7 @@ void serialDircon::run() {
             qDebug() << "serial << " << requestData.toHex(' ');
 
             if (requestData.at(0) == 0x02 && requestData.length() >= 6) {
-                if(!initRequest || (initRequest && phase != 9)
+                if(!initRequest || (initRequest && phase != 9))
                     phase++;
                 if (requestData.at(0) == init1[0] && requestData.at(1) == init1[1] && requestData.at(2) == init1[2] &&
                     requestData.at(3) == init1[3] && requestData.at(4) == init1[4] && requestData.at(5) == init1[5])
