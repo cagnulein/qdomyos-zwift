@@ -111,19 +111,19 @@ void serialDircon::run() {
                     initRequest = false;
                     phase = 0;
                 }
-            } else {
+            } else {/*
                 switch (phase) {
-                case 0:
+                case 0:*/
                     write(run1, sizeof(run1), "run1");
                     break;
                 /*case 1:
                     write(run2, sizeof(run2), "run2");
                     break;*/
-                case 1:
+                /*case 1:
                     write(force, sizeof(force), "force");
                     break;
                 default:
-                    phase = 0;
+                    phase = 0;*/
                 }
             }
         }
