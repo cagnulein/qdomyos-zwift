@@ -184,7 +184,7 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
 
                 if (requestInclination != -100) {
-                    if(requestInclination < 0)
+                    if (requestInclination < 0)
                         requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
@@ -235,7 +235,7 @@ void proformtreadmill::update() {
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 if (requestInclination != -100) {
-                    if(requestInclination < 0)
+                    if (requestInclination < 0)
                         requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
@@ -288,7 +288,7 @@ void proformtreadmill::update() {
             case 2:
                 writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
                 if (requestInclination != -100) {
-                    if(requestInclination < -3)
+                    if (requestInclination < -3)
                         requestInclination = -3;
                     if (requestInclination != currentInclination().value() && requestInclination >= -3 &&
                         requestInclination <= 15) {
@@ -350,7 +350,7 @@ void proformtreadmill::update() {
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
                 if (requestInclination != -100) {
-                    if(requestInclination < 0)
+                    if (requestInclination < 0)
                         requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
@@ -483,7 +483,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         m_watts = 0;
     } else {
         Inclination =
-            (double)(((uint16_t)((uint8_t)newValue.at(13)) << 8) + (uint16_t)((uint8_t)newValue.at(12))) / 100.0;
+            (double)(((int16_t)((uint8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
         if (watts(weight))
             KCal +=
