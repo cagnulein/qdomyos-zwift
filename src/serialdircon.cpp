@@ -123,12 +123,14 @@ void serialDircon::run() {
                 case 18:        
                 case 19:
                 case 20:        
+                case 21:
+                case 22:
                     write(init9, sizeof(init9), "init9");
                     break;                        
-                case 21:        
+                case 23:        
                     write(init10, sizeof(init10), "init10");
                     break;                                  
-                case 22:        
+                case 24:        
                     write(init11, sizeof(init11), "init11");
                     break;                                                                  
                 default:
