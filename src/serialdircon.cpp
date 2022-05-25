@@ -123,8 +123,8 @@ void serialDircon::run() {
                     write(force, sizeof(force), "force");
                     break;
                 default:
-                    phase = 0;*/
-                }
+                    phase = 0;
+                }*/
             }
         }
 
