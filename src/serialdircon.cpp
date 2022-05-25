@@ -154,7 +154,7 @@ void serialDircon::run() {
                     requestData.at(3) == init1[3] && requestData.at(4) == init1[4] && requestData.at(5) == init1[5])
                     write(init1, sizeof(init1), "init1");
                 else if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x04 &&
-                    requestData.at(3) == 0x00 && requestData.at(4) == 0x6c && requestData.at(5) == 0x03 && initRequest)                   
+                    requestData.at(3) == 0x00 && requestData.at(4) == 0x6c && requestData.at(5) == 0x03 && initRequest && phase == 9)                   
                    phase = 10;
             }
 
