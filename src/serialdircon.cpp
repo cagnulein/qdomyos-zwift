@@ -112,25 +112,12 @@ void serialDircon::run() {
                     write(init8, sizeof(init8), "init8");
                     break;
                 case 9:
-                case 10:        
-                case 11:
-                case 12:        
-                case 13:
-                case 14:        
-                case 15:
-                case 16:        
-                case 17:
-                case 18:        
-                case 19:
-                case 20:        
-                case 21:
-                case 22:
                     write(init9, sizeof(init9), "init9");
                     break;                        
-                case 23:        
+                case 10:        
                     write(init10, sizeof(init10), "init10");
                     break;                                  
-                case 24:        
+                case 11:        
                     write(init11, sizeof(init11), "init11");
                     break;                                                                  
                 default:
@@ -161,10 +148,14 @@ void serialDircon::run() {
             qDebug() << "serial << " << requestData.toHex(' ');
 
             if (requestData.at(0) == 0x02 && requestData.length() >= 6) {
-                phase++;
+                if(!initRequest || (initRequest && phase != 9)
+                    phase++;
                 if (requestData.at(0) == init1[0] && requestData.at(1) == init1[1] && requestData.at(2) == init1[2] &&
                     requestData.at(3) == init1[3] && requestData.at(4) == init1[4] && requestData.at(5) == init1[5])
                     write(init1, sizeof(init1), "init1");
+                else if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x04 &&
+                    requestData.at(3) == 0x00 && requestData.at(4) == 0x6c && requestData.at(5) == 0x03 && initRequest)                   
+                   phase = 10;
             }
 
             if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x50 &&
