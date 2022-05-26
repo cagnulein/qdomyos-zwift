@@ -57,6 +57,7 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+   adbclient.cpp \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
     characteristicnotifier2acc.cpp \
@@ -64,6 +65,7 @@ SOURCES += \
     characteristicnotifier2ad9.cpp \
    kmlworkout.cpp \
    nautilusbike.cpp \
+   nordictrackifitadbtreadmill.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
@@ -231,6 +233,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+   adbclient.h \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \
     characteristicnotifier2acc.h \
@@ -238,6 +241,7 @@ HEADERS += \
     characteristicnotifier2ad9.h \
    kmlworkout.h \
    nautilusbike.h \
+   nordictrackifitadbtreadmill.h \
    proformrower.h \
    proformwifibike.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
