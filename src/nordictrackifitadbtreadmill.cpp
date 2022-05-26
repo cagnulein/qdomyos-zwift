@@ -22,9 +22,11 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
-    refresh->start(200ms);
+    qDebug() << QStringLiteral("starting adb...");
     QString ip = settings.value("nordictrack_2950_ip", "").toString();
     adbClient = new AdbClient(ip);
+    qDebug() << QStringLiteral("adb done") << adbClient->adb_error();
+    refresh->start(200ms);
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike) {

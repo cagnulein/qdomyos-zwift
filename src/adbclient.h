@@ -111,7 +111,6 @@ class AdbClient {
     bool writex(const void *data, qint64 max);
     bool readx(void *data, qint64 max);
     void sync_quit();
-    QString adb_error() { return __adb_error; };
     bool sync_recv(const QString &rpath, const QString &lpath);
     bool do_sync_pull(const char *rpath, const char *lpath);
     void adb_close();
@@ -128,6 +127,8 @@ class AdbClient {
     QTcpSocket *getSock() { return &adbSock; };
     AdbClient(QString ip);
     ~AdbClient();
+
+    QString adb_error() { return __adb_error; };
 
     static QString doAdbShell(const QStringList &cmdAndArgs, QString ip);
     static QString doAdbShell(const QString &cmdLine, QString ip);
