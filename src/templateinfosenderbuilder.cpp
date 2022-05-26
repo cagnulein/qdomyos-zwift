@@ -477,8 +477,11 @@ void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender
 }
 
 void TemplateInfoSenderBuilder::onGetLatLon(TemplateInfoSender *tempSender) {
+    if (!device)
+        return;
     QJsonObject main;
-    main[QStringLiteral("content")] = QString::number(device->currentCordinate().latitude()) + "," + QString::number(device->currentCordinate().longitude());
+    main[QStringLiteral("content")] = QString::number(device->currentCordinate().latitude()) + "," +
+                                      QString::number(device->currentCordinate().longitude());
     main[QStringLiteral("msg")] = QStringLiteral("R_getlatlon");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
@@ -678,7 +681,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
-                } 
+                }
                 if (msg == QStringLiteral("start")) {
                     onStart(sender);
                     return;
