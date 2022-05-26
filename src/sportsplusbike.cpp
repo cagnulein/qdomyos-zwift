@@ -239,9 +239,13 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         // QBluetoothUuid _gattWriteCharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
         QBluetoothUuid _gattNotify1CharacteristicId(QStringLiteral("0000fff1-0000-1000-8000-00805f9b34fb"));
+        QBluetoothUuid _gattNotify2CharacteristicId(QStringLiteral("0000fff2-0000-1000-8000-00805f9b34fb"));
+        QBluetoothUuid _gattNotify3CharacteristicId(QStringLiteral("0000fff3-0000-1000-8000-00805f9b34fb"));
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
         gattNotify1Characteristic = gattCommunicationChannelService->characteristic(_gattNotify1CharacteristicId);
+        gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
+        gattNotify3Characteristic = gattCommunicationChannelService->characteristic(_gattNotify3CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotify1Characteristic.isValid());
 
@@ -270,11 +274,28 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         firstVirtualBike = 1;
         // ********************************************************************************************************
 
+        qDebug() << "gattNotify2Characteristic" << gattNotify2Characteristic.isValid()
+                 << gattNotify2Characteristic.properties();
+        qDebug() << "gattNotify3Characteristic" << gattNotify3Characteristic.isValid()
+                 << gattNotify3Characteristic.properties();
+
         QByteArray descriptor;
         descriptor.append((char)0x01);
         descriptor.append((char)0x00);
         gattCommunicationChannelService->writeDescriptor(
             gattNotify1Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+        if (gattNotify2Characteristic.isValid() &&
+            (gattNotify2Characteristic.properties() & QLowEnergyCharacteristic::Notify) ==
+                QLowEnergyCharacteristic::Notify) {
+            gattCommunicationChannelService->writeDescriptor(
+                gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
+            SP_HT_9600iE = true;
+        }
+        if (gattNotify3Characteristic.isValid() &&
+            (gattNotify3Characteristic.properties() & QLowEnergyCharacteristic::Notify) ==
+                QLowEnergyCharacteristic::Notify)
+            gattCommunicationChannelService->writeDescriptor(
+                gattNotify3Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
 }
 

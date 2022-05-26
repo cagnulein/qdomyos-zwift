@@ -67,12 +67,16 @@ class sportsplusbike : public bike {
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
+    QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     bool initDone = false;
     bool initRequest = false;
     bool readyToStart = false;
 
     const int max_resistance = 24;
+
+    bool SP_HT_9600iE = false;
 
   signals:
     void disconnected();
