@@ -483,7 +483,7 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         m_watts = 0;
     } else {
         Inclination =
-            (double)(((int16_t)((uint8_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
+            (double)(((int16_t)((int16_t)newValue.at(13)) << 8) + (int16_t)((uint8_t)newValue.at(12))) / 100.0;
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(11)) << 8) + (uint16_t)((uint8_t)newValue.at(10))) / 100.0;
         if (watts(weight))
             KCal +=
