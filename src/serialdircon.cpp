@@ -155,7 +155,7 @@ void serialDircon::run() {
                     write(init1, sizeof(init1), "init1");
                 // 02 68 10 03 80 57 ....
                 else if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x10 &&
-                    requestData.at(3) == 0x03 && requestData.at(4) == 0x80 && requestData.at(5) == 0x57 && initRequest && phase == 9)                   
+                    requestData.at(3) == 0x03 && (uint8_t)requestData.at(4) == 0x80 && requestData.at(5) == 0x57 && initRequest && phase == 9)                   
                    phase = 10;
             }
 
