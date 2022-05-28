@@ -76,6 +76,11 @@ class kingsmithr2treadmill : public treadmill {
     QDateTime lastTimeCharacteristicChanged;
     bool firstCharacteristicChanged = true;
 
+    enum KINGSMITH_R2_CONTROL_MODE { AUTOMODE = 0, MANUAL, STANDBY, UNKNOWN_CONTROL_MODE };
+    enum KINGSMITH_R2_RUN_STATE { STOP = 0, START, UNKNOWN_RUN_STATE };
+    KINGSMITH_R2_CONTROL_MODE lastControlMode = UNKNOWN_CONTROL_MODE;
+    KINGSMITH_R2_RUN_STATE lastRunState = UNKNOWN_RUN_STATE;
+
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
     virtualbike *virtualBike = 0;
@@ -100,6 +105,7 @@ class kingsmithr2treadmill : public treadmill {
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
     void searchingStop();
+    virtual bool supportStateMachine() override;
 
   private slots:
 

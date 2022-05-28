@@ -25,6 +25,12 @@ kingsmithr2treadmill::kingsmithr2treadmill(uint32_t pollDeviceTime, bool noConso
     if (forceInitInclination > 0) {
         lastInclination = forceInitInclination;
     }
+    if (lastControlMode != UNKNOWN_CONTROL_MODE) {
+        lastControlMode = UNKNOWN_CONTROL_MODE;
+    }
+    if (lastRunState != UNKNOWN_RUN_STATE) {
+        lastRunState = UNKNOWN_RUN_STATE;
+    }
 
     refresh = new QTimer(this);
     initDone = false;
@@ -186,26 +192,25 @@ void kingsmithr2treadmill::update() {
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
-            if (props.value("ControlMode", 2) != 0) {
-                writeCharacteristic(QStringLiteral("props ControlMode 0"), QStringLiteral("turn on treadmill to manual mode"),
+            if (lastControlMode != MANUAL) {
+                writeCharacteristic(QStringLiteral("props ControlMode 1"), QStringLiteral("turn on treadmill to manual mode"),
                                     false, true);
             }
-            if (props.value("runState", 0) != 1) {
+            if (lastRunState != START) {
                 writeCharacteristic(QStringLiteral("props runState 1"), QStringLiteral("starting"), false, true);
             }
             if (lastSpeed == 0.0) {
-
                 lastSpeed = 0.5;
             }
-            // btinit(true);
             requestStart = -1;
             emit tapeStarted();
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
-            if (props.value("runState", 0) != 0) {
+            if (lastRunState != STOP) {
                 writeCharacteristic(QStringLiteral("props runState 0"), QStringLiteral("stopping"), false, true);
             }
+            // don't go to standby mode automatically
             requestStop = -1;
         }
         if (requestFanSpeed != -1) {
@@ -294,6 +299,8 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
 
     double speed = props.value("CurrentSpeed", 0);
     Cadence = props.value("spm", 0);
+    KINGSMITH_R2_CONTROL_MODE controlMode = (KINGSMITH_R2_CONTROL_MODE)(int)props.value("ControlMode", (double)UNKNOWN_CONTROL_MODE);
+    KINGSMITH_R2_RUN_STATE runState = (KINGSMITH_R2_RUN_STATE)(int)props.value("runState", (double)UNKNOWN_RUN_STATE);
 
     // TODO:
     // - RunningDistance (int; meter) : update each 10miters / 0.01 mile
@@ -370,6 +377,25 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         // lastInclination = incline;
     }
 
+    if (lastControlMode != controlMode) {
+        lastControlMode = controlMode;
+        if (controlMode != UNKNOWN_CONTROL_MODE) {
+            emit debug(QStringLiteral("kingsmith r2 is ready"));
+            initDone = true;
+        }
+    }
+    if (lastRunState != runState) {
+        lastRunState = runState;
+        // TODO define bitflag enums to bluetoothdevice
+        switch (runState) {
+            case STOP:
+                emit deviceStateChanged(1);
+                break;
+            case START:
+                emit deviceStateChanged(2);
+                break;
+        }
+    }
     firstCharacteristicChanged = false;
 }
 
@@ -398,7 +424,7 @@ void kingsmithr2treadmill::btinit(bool startTape) {
     writeCharacteristic(QStringLiteral("servers getProp 1 2 7 12 23 24 31"), QStringLiteral("init"), false, true);
 
     // TODO need reset BurnCalories & RunningDistance
-    initDone = true;
+    // initDone = true;
 }
 
 void kingsmithr2treadmill::stateChanged(QLowEnergyService::ServiceState state) {
@@ -536,3 +562,4 @@ void *kingsmithr2treadmill::VirtualTreadMill() { return virtualTreadMill; }
 void *kingsmithr2treadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void kingsmithr2treadmill::searchingStop() { searchStopped = true; }
+bool kingsmithr2treadmill::supportStateMachine() { return true; }
