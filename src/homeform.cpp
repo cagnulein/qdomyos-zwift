@@ -543,6 +543,7 @@ void homeform::trainProgramSignals() {
     if (bluetoothManager->device()) {
         disconnect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         disconnect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        disconnect(bluetoothManager->device(), &bluetoothdevice::deviceStateChanged, this, &homeform::deviceStateChanged);
         disconnect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeSpeed);
         disconnect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
@@ -573,6 +574,7 @@ void homeform::trainProgramSignals() {
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
+        connect(bluetoothManager->device(), &bluetoothdevice::deviceStateChanged, this, &homeform::deviceStateChanged);
         connect(trainProgram, &trainprogram::changeCadence, ((bike *)bluetoothManager->device()), &bike::changeCadence);
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             connect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
@@ -627,6 +629,10 @@ void homeform::gearUp() {
 void homeform::gearDown() {
     if (autoResistance())
         Minus(QStringLiteral("gears"));
+}
+
+void homeform::deviceStateChanged(uint8_t state) {
+    qDebug() << QStringLiteral("update device state") << state;
 }
 
 void homeform::ftmsAccessoryConnected(smartspin2k *d) {

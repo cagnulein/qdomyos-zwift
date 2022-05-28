@@ -8,6 +8,7 @@ bluetoothdevice::bluetoothdevice() {}
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; }
 void bluetoothdevice::stop() { requestStop = 1; }
+bool bluetoothdevice::supportStateMachine() { return false; }
 metric bluetoothdevice::currentHeart() { return Heart; }
 metric bluetoothdevice::currentSpeed() { return Speed; }
 metric bluetoothdevice::currentInclination() { return Inclination; }

@@ -96,6 +96,7 @@ class bluetoothdevice : public QObject {
     virtual void changeInclination(double grade, double percentage);
     virtual void changeGeoPosition(QGeoCoordinate p, double azimuth);
     virtual void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
+    virtual bool supportStateMachine();
 
   Q_SIGNALS:
     void connectedAndDiscovered();
@@ -104,6 +105,7 @@ class bluetoothdevice : public QObject {
     void powerChanged(uint16_t power);
     void inclinationChanged(double grade, double percentage);
     void fanSpeedChanged(uint8_t speed);
+    void deviceStateChanged(uint8_t state);
 
   protected:
     QLowEnergyController *m_control = nullptr;

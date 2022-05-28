@@ -559,6 +559,7 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void deviceStateChanged(uint8_t state);
 
 #ifdef Q_OS_WIN
     void licenseReply(QNetworkReply *reply);
