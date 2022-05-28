@@ -422,6 +422,7 @@ class homeform : public QObject {
 
     bool paused = false;
     bool stopped = false;
+    bool requestPause = false;
     bool lapTrigger = false;
 
     peloton *pelotonHandler = nullptr;
@@ -522,7 +523,10 @@ class homeform : public QObject {
 
   private slots:
     void Start();
+    void onPaused();
+    void onStarted();
     void Stop();
+    void onStopped();
     void Lap();
     void Minus(const QString &);
     void Plus(const QString &);
