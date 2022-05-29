@@ -72,8 +72,10 @@ class TwitchPlayer {
         if (vid.startsWith(TWITCH_VIDEO_ID_PRE)) {
             this.player.setChannel(null);
             this.player.setVideo(vid.substring(TWITCH_VIDEO_ID_PRE.length),5);
-        }
-        else {
+        } else if (/^[0-9]{7,}$/i.exec(vid)) {
+            this.player.setChannel(null);
+            this.player.setVideo(vid, 5);
+        } else {
             this.player.setVideo(null,5);
             this.player.setChannel(vid);
         }
