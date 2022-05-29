@@ -16,6 +16,7 @@ class TwitchPlayer {
         $('#player').append($vid);
         this.on_play_finished = null;
         this.on_state_changed = null;
+        this.vid = TWITCH_VIDEO_ID_PRE;
         this.state = VIDEO_STATUS_UNSTARTED;
         this.embed = this.player = null;
         this.embed = new Twitch.Embed('twitch-video', options);
@@ -51,7 +52,7 @@ class TwitchPlayer {
     3 (buffering)
     5 (video cued).*/
     onPlayerStateChange(event) {
-        if ((event.type == Twitch.Player.OFFLINE ||  event.type == Twitch.Player.ENDED) && this.on_play_finished) { // ended
+        if (((event.type == Twitch.Player.OFFLINE && !this.vid.startsWith(TWITCH_VIDEO_ID_PRE)) ||  event.type == Twitch.Player.ENDED) && this.on_play_finished) { // ended
             this.on_play_finished(this);
         }
         if (this.on_state_changed) {
@@ -68,11 +69,13 @@ class TwitchPlayer {
     }
 
     play_video_id(vid) {
+        this.vid = vid;
         this.onPlayerStateChange({type: VIDEO_STATUS_PAUSED});
         if (vid.startsWith(TWITCH_VIDEO_ID_PRE)) {
             this.player.setChannel(null);
             this.player.setVideo(vid.substring(TWITCH_VIDEO_ID_PRE.length),5);
         } else if (/^[0-9]{7,}$/i.exec(vid)) {
+            this.vid = TWITCH_VIDEO_ID_PRE + vid;
             this.player.setChannel(null);
             this.player.setVideo(vid, 5);
         } else {
