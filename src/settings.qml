@@ -379,6 +379,10 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.85
             property bool proform_treadmill_1800i: false
+
+            // from the version 2.10.91
+            property real cadence_offset: 0
+            property real cadence_gain: 1
         }
 
         function paddingZeros(text, limit) {
@@ -4963,6 +4967,56 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.speed_gain = speedGainTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcadenceOffset
+                            text: qsTr("Cadence Offset")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceOffsetTextField
+                            text: settings.cadence_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.cadence_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okcadenceOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_offset = cadenceOffsetTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcadenceGain
+                            text: qsTr("Cadence Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceGainTextField
+                            text: settings.cadence_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.cadence_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCadenceGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_gain = speedGainTextField.text
                         }
                     }
 
