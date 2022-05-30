@@ -76,8 +76,6 @@ class sportsplusbike : public bike {
 
     const int max_resistance = 24;
 
-    bool SP_HT_9600iE = false;
-
   signals:
     void disconnected();
     void debug(QString string);

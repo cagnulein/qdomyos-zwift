@@ -117,6 +117,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool sp_ht_9600ie = settings.value(QStringLiteral("sp_ht_9600ie"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     emit packetReceived();
@@ -128,8 +129,48 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
-    if (newValue.at(1) == 0x20) {
-        double speed = GetSpeedFromPacket(newValue);
+    double cadence = 0;
+    double kcal = 0;
+
+    if (!sp_ht_9600ie) {
+        if (newValue.at(1) == 0x20) {
+            double speed = GetSpeedFromPacket(newValue);
+            if (!firstCharChanged) {
+                Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
+            }
+            emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
+
+            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                Speed = speed;
+            } else {
+                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+            }
+            lastTimeCharChanged = QDateTime::currentDateTime();
+        } else if (newValue.at(1) == 0x30) {
+            double watt = GetWattFromPacket(newValue);
+            emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
+
+            if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = watt;
+            // lastTimeWattChanged = QTime::currentTime();
+        }
+
+        cadence = (uint8_t)newValue.at(8);
+        // double resistance = GetResistanceFromPacket(newValue);
+        kcal = GetKcalFromPacket(newValue);
+    } else {
+        double watt = GetWattFromPacket(newValue);
+        emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
+
+        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                .toString()
+                .startsWith(QStringLiteral("Disabled")))
+            m_watt = watt;
+
+        cadence = (uint8_t)newValue.at(8);
+        double speed = cadence * 0.372;
         if (!firstCharChanged) {
             Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
         }
@@ -141,20 +182,8 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
         }
         lastTimeCharChanged = QDateTime::currentDateTime();
-    } else if (newValue.at(1) == 0x30) {
-        double watt = GetWattFromPacket(newValue);
-        emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
-
-        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
-                .toString()
-                .startsWith(QStringLiteral("Disabled")))
-            m_watt = watt;
-        // lastTimeWattChanged = QTime::currentTime();
+        kcal = GetKcalFromPacket(newValue);
     }
-
-    double cadence = (uint8_t)newValue.at(8);
-    // double resistance = GetResistanceFromPacket(newValue);
-    double kcal = GetKcalFromPacket(newValue);
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -208,18 +237,37 @@ double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
-    double data = ((double)(convertedData));
-    return data;
+    QSettings settings;
+    bool sp_ht_9600ie = settings.value(QStringLiteral("sp_ht_9600ie"), false).toBool();
+    if (sp_ht_9600ie) {
+        uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
+        double data = ((double)(convertedData));
+        return data;
+    } else {
+        uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
+        double data = ((double)(convertedData));
+        return data;
+    }
 }
 
 void sportsplusbike::btinit(bool startTape) {
     Q_UNUSED(startTape);
     QSettings settings;
+    bool sp_ht_9600ie = settings.value(QStringLiteral("sp_ht_9600ie"), false).toBool();
 
-    const uint8_t initData1[] = {0x40, 0x00, 0x16, 0x0a, 0x60};
+    if (!sp_ht_9600ie) {
+        const uint8_t initData1[] = {0x40, 0x00, 0x16, 0x0a, 0x60};
 
-    writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    } else {
+        const uint8_t initData1[] = {0x40, 0x00, 0x9a, 0x56, 0x30};
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
@@ -289,7 +337,6 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 QLowEnergyCharacteristic::Notify) {
             gattCommunicationChannelService->writeDescriptor(
                 gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
-            SP_HT_9600iE = true;
         }
         if (gattNotify3Characteristic.isValid() &&
             (gattNotify3Characteristic.properties() & QLowEnergyCharacteristic::Notify) ==

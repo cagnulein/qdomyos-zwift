@@ -383,6 +383,7 @@ import Qt.labs.settings 1.0
             // from the version 2.10.91
             property real cadence_offset: 0
             property real cadence_gain: 1
+            property bool sp_ht_9600ie: false
         }
 
         function paddingZeros(text, limit) {
@@ -1503,6 +1504,27 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.hammer_racer_s = checked
+                    }
+                }
+                AccordionElement {
+                    id: cardioFitBikeAccordion
+                    title: qsTr("CardioFIT Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: spht9600iEBikeDelegate
+                        text: qsTr("SP-HT-9600iE")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.sp_ht_9600ie
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.sp_ht_9600ie = checked
                     }
                 }
                 AccordionElement {
