@@ -17,6 +17,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
+#include <QTextToSpeech>
 
 class DataObject : public QObject {
 
@@ -511,6 +512,8 @@ class homeform : public QObject {
     bool getDevice();
     bool getLap();
     void Start_inner(bool send_event_to_device);
+
+    QTextToSpeech m_speech;
 
 #ifdef Q_OS_WIN
     QTimer tLicense;

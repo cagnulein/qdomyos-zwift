@@ -346,6 +346,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
+    m_speech.setLocale(QLocale::English);
+
 #ifdef TEST
     QBluetoothDeviceInfo b;
     deviceConnected(b);
@@ -1819,6 +1821,8 @@ void homeform::Start() { Start_inner(true); }
 
 void homeform::Start_inner(bool send_event_to_device) {
     qDebug() << QStringLiteral("Start pressed - paused") << paused << QStringLiteral("stopped") << stopped;
+
+    m_speech.say("Start pressed");
 
     if (!paused && !stopped) {
 
