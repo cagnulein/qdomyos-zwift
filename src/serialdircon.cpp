@@ -43,11 +43,13 @@ void serialDircon::run() {
     const uint8_t init9[] = {0x02, 0x68, 0x50, 0x01, 0x00, 0x39, 0x03};
     const uint8_t init10[] = {0x02, 0x68, 0x10, 0x03, 0x01, 0x00, 0x6A, 0x03};
     const uint8_t init11[] = {0x02, 0x68, 0x20, 0x01, 0x00, 0x49, 0x03};
-    
-    const uint8_t run1[] = {0x02, 0x68, 0x04, 0x09, 0x08, 0x17, 0x00, 0x01, 0x00, 0x00, 0x00, 0x10, 0x03, 0x78, 0x03};
 
-    //const uint8_t run1[] = {0x02, 0x68, 0x04, 0x09, 0x08, 0x00, 0x17, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0x69, 0x03};
-    //const uint8_t run2[] = {0x02, 0x68, 0x50, 0x01, 0x00, 0x39, 0x03, 0x02, 0x68, 0x50, 0x01, 0x00, 0x39, 0x03};
+    const uint8_t run1[] = {0x02, 0x68, 0x04, 0x09, 0x08, 0x00, 0x17, 0x00,
+                            0x01, 0x00, 0x00, 0x00, 0x10, 0x03, 0x78, 0x03};
+
+    // const uint8_t run1[] = {0x02, 0x68, 0x04, 0x09, 0x08, 0x00, 0x17, 0x00, 0x01, 0x01, 0x00, 0x00, 0x13, 0x69,
+    // 0x03}; const uint8_t run2[] = {0x02, 0x68, 0x50, 0x01, 0x00, 0x39, 0x03, 0x02, 0x68, 0x50, 0x01, 0x00, 0x39,
+    // 0x03};
 
     const uint8_t force[] = {0x02, 0xe8, 0x60, 0x09, 0x0f, 0x00, 0x11, 0x00, 0x00, 0xd7, 0xff, 0x28, 0x33, 0xac, 0x03};
 
@@ -113,22 +115,23 @@ void serialDircon::run() {
                     break;
                 case 9:
                     write(init9, sizeof(init9), "init9");
-                    break;                        
-                case 10:        
+                    break;
+                case 10:
                     write(init10, sizeof(init10), "init10");
-                    break;                                  
-                case 11:        
+                    break;
+                case 11:
                     write(init11, sizeof(init11), "init11");
-                    break;                                                                  
+                    break;
                 default:
                     initRequest = false;
                     phase = 0;
                 }
-            } else {/*
-                switch (phase) {
-                case 0:*/
-                    write(run1, sizeof(run1), "run1");
-                    //break;
+            }
+            if (!initRequest) { /*
+                  switch (phase) {
+                  case 0:*/
+                write(run1, sizeof(run1), "run1");
+                // break;
                 /*case 1:
                     write(run2, sizeof(run2), "run2");
                     break;*/
@@ -148,15 +151,16 @@ void serialDircon::run() {
             qDebug() << "serial << " << requestData.toHex(' ');
 
             if (requestData.at(0) == 0x02 && requestData.length() >= 6) {
-                if(!initRequest || (initRequest && phase != 9))
+                if (!initRequest || (initRequest && phase != 9))
                     phase++;
                 if (requestData.at(0) == init1[0] && requestData.at(1) == init1[1] && requestData.at(2) == init1[2] &&
                     requestData.at(3) == init1[3] && requestData.at(4) == init1[4] && requestData.at(5) == init1[5])
                     write(init1, sizeof(init1), "init1");
                 // 02 68 10 03 80 57 ....
                 else if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x10 &&
-                    requestData.at(3) == 0x03 && (uint8_t)requestData.at(4) == 0x80 && requestData.at(5) == 0x57 && initRequest && phase == 9)                   
-                   phase = 10;
+                         requestData.at(3) == 0x03 && (uint8_t)requestData.at(4) == 0x80 && requestData.at(5) == 0x57 &&
+                         initRequest && phase == 9)
+                    phase = 10;
             }
 
             if (requestData.at(0) == 0x02 && requestData.at(1) == 0x68 && requestData.at(2) == 0x50 &&
