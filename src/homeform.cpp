@@ -3131,6 +3131,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.longitude = last.longitude;
 
                         list.append(r);
+                        setMapsVisible(true);
                     }
                 }
 
@@ -3578,7 +3579,15 @@ bool homeform::licensePopupVisible() { return m_LicensePopupVisible; }
 void homeform::setLicensePopupVisible(bool value) {
 
     m_LicensePopupVisible = value;
-    emit licensePopupVisibleChanged(m_generalPopupVisible);
+    emit licensePopupVisibleChanged(m_LicensePopupVisible);
+}
+
+bool homeform::mapsVisible() { return m_MapsVisible; }
+
+void homeform::setMapsVisible(bool value) {
+
+    m_MapsVisible = value;
+    emit mapsVisibleChanged(m_MapsVisible);
 }
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }

@@ -64,6 +64,7 @@ SOURCES += \
     characteristicnotifier2ad9.cpp \
    kmlworkout.cpp \
    nautilusbike.cpp \
+   proformellipticaltrainer.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
@@ -238,6 +239,7 @@ HEADERS += \
     characteristicnotifier2ad9.h \
    kmlworkout.h \
    nautilusbike.h \
+   proformellipticaltrainer.h \
    proformrower.h \
    proformwifibike.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
@@ -691,4 +693,4 @@ win32: QMAKE_CXXFLAGS_RELEASE -= -O2
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.10.91
+VERSION = 2.10.92
