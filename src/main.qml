@@ -430,6 +430,14 @@ ApplicationWindow {
         }*/
 
         ToolButton {
+            id: toolButtonMaps
+            icon.source: ( "icons/icons/maps-icon-16.png" )
+            onClicked: { stackView.push("GoogleMap.qml"); }
+            anchors.right: toolButtonLockTiles.left
+            visible: rootItem.mapsVisible
+        }
+
+        ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
@@ -585,15 +593,6 @@ ApplicationWindow {
                 width: parent.width
                 onClicked: {
                     stackView.push("Credits.qml")
-                    drawer.close()
-                }
-            }
-
-            ItemDelegate {
-                text: qsTr("Map (GPX)")
-                width: parent.width
-                onClicked: {
-                    stackView.push("GoogleMap.qml")
                     drawer.close()
                 }
             }

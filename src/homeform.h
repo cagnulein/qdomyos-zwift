@@ -113,6 +113,7 @@ class homeform : public QObject {
                    setGeneralPopupVisible)
     Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
                    setLicensePopupVisible)
+    Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -319,6 +320,7 @@ class homeform : public QObject {
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
     bool licensePopupVisible();
+    bool mapsVisible();
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
@@ -332,6 +334,7 @@ class homeform : public QObject {
         }
     }
     void setLicensePopupVisible(bool value);
+    void setMapsVisible(bool value);
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
 
@@ -416,6 +419,7 @@ class homeform : public QObject {
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
     bool m_LicensePopupVisible = false;
+    bool m_MapsVisible = false;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
@@ -585,6 +589,7 @@ class homeform : public QObject {
     void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
+    void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
     void pzpLoginChanged(int ok);
