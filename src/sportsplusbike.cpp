@@ -169,7 +169,9 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = watt;
 
-        cadence = (uint8_t)newValue.at(8);
+        cadence = ((uint8_t)newValue.at(9)) * 100;
+        uint8_t hexint = ((uint8_t)newValue.at(10));
+        cadence += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
         double speed = cadence * 0.372;
         if (!firstCharChanged) {
             Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
@@ -192,7 +194,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-            // Heart = ((uint8_t)newValue.at(11));
+            Heart = ((uint8_t)newValue.at(8));
         }
     }
     FanSpeed = 0;
@@ -240,8 +242,10 @@ double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
     QSettings settings;
     bool sp_ht_9600ie = settings.value(QStringLiteral("sp_ht_9600ie"), false).toBool();
     if (sp_ht_9600ie) {
-        uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
-        double data = ((double)(convertedData));
+        uint16_t convertedData = (packet.at(2) * 100);
+        uint8_t hexint = ((uint8_t)packet.at(3));
+        convertedData += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
+        double data = ((double)(convertedData / 10));
         return data;
     } else {
         uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
