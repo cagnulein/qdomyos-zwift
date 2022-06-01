@@ -36,7 +36,7 @@ ScrollView {
         property bool tts_act_watt: false
         property bool tts_avg_watt: true
         property bool tts_max_watt: true
-        property bool tts_act_ftp: false
+        property bool tts_act_ftp: true
         property bool tts_avg_ftp: true
         property bool tts_max_ftp: false
         property bool tts_act_heart: true
@@ -390,7 +390,7 @@ ScrollView {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             onClicked: settings.tts_act_ftp = checked
-        }
+        }/*
         SwitchDelegate {
             id: ttsAvgFTPDelegate
             text: qsTr("Average FTP")
@@ -418,7 +418,7 @@ ScrollView {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
             onClicked: settings.tts_max_ftp = checked
-        }
+        }*/
         SwitchDelegate {
             id: ttsActualHeartDelegate
             text: qsTr("Actual Heart")
@@ -531,6 +531,131 @@ ScrollView {
             Layout.fillWidth: true
             onClicked: settings.tts_max_peloton_resistance = checked
         }
-
-    }
+        SwitchDelegate {
+            id: ttsActualTargetPelotonResistanceDelegate
+            text: qsTr("Actual Target Peloton Resistance")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_peloton_resistance
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_peloton_resistance = checked
+        }
+        SwitchDelegate {
+            id: ttsActualTargetCadenceDelegate
+            text: qsTr("Actual Target Cadence")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_cadence
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_cadence = checked
+        }
+        SwitchDelegate {
+            id: ttsActualTargetPowerDelegate
+            text: qsTr("Actual Target Power")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_power
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_power = checked
+        }
+        SwitchDelegate {
+            id: ttsActualTargetZoneDelegate
+            text: qsTr("Actual Target Zone")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_zone
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_zone = checked
+        }
+        SwitchDelegate {
+            id: ttsActualTargetSpeedDelegate
+            text: qsTr("Actual Target Speed")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_speed
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_speed = checked
+        }
+        SwitchDelegate {
+            id: ttsActualTargetInclineDelegate
+            text: qsTr("Actual Target Incline")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_target_incline
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_target_incline = checked
+        }
+        SwitchDelegate {
+            id: ttsActualWattKGDelegate
+            text: qsTr("Actual Watt/KG")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_act_watt_kg
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_act_watt_kg = checked
+        }
+        SwitchDelegate {
+            id: ttsAvgWattKGDelegate
+            text: qsTr("Average Watt/KG")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_avg_watt_kg
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_avg_watt_kg = checked
+        }
+        SwitchDelegate {
+            id: ttsMaxWattKGDelegate
+            text: qsTr("Max Watt/KG")
+            spacing: 0
+            bottomPadding: 0
+            topPadding: 0
+            rightPadding: 0
+            leftPadding: 0
+            clip: false
+            checked: settings.tts_max_watt_kg
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            Layout.fillWidth: true
+            onClicked: settings.tts_max_watt_kg = checked
+        }
+    }  
 }

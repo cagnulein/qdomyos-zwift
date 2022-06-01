@@ -514,6 +514,7 @@ class homeform : public QObject {
     void Start_inner(bool send_event_to_device);
 
     QTextToSpeech m_speech;
+    int tts_summary_count = 0;
 
 #ifdef Q_OS_WIN
     QTimer tLicense;
