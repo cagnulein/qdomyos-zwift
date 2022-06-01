@@ -26,12 +26,16 @@ class elliptical : public bluetoothdevice {
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
     virtual void changeInclination(double grade, double inclination);
+    virtual void changeCadence(int16_t cad);
+    virtual void changeRequestedPelotonResistance(int8_t resistance);
 
   signals:
     void bikeStarted();
 
   protected:
     metric RequestedResistance;
+    metric RequestedCadence;
+    metric RequestedPelotonResistance;
     metric Resistance;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;

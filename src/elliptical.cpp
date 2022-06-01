@@ -121,3 +121,5 @@ void elliptical::setLap() {
 }
 
 int elliptical::pelotonToEllipticalResistance(int pelotonResistance) { return pelotonResistance; }
+void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
