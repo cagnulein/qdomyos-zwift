@@ -206,16 +206,6 @@ void proformellipticaltrainer::update() {
 
             switch (counterPoll) {
             case 0:
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
-                break;
-            case 1:
-                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
-                break;
-            case 2:
-                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
-                break;
-            case 3:
-                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
                 if (requestResistance != -1) {
                     if (requestResistance < 0)
                         requestResistance = 0;
@@ -226,6 +216,16 @@ void proformellipticaltrainer::update() {
                     }
                     requestResistance = -1;
                 }
+                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
+                break;
+            case 1:
+                writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("noOp"));
+                break;
+            case 2:
+                writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("noOp"));
+                break;
+            case 3:
+                writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"));
                 break;
             case 4:
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
