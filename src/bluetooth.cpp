@@ -685,7 +685,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(domyos);
                 innerTemplateManager->start(domyos);
-            } else if (( // KingSmith Walking Pad R2
+            } else if ((
+                           // Xiaomi k12 pro treadmill KS-ST-K12PRO
+                           b.name().toUpper().startsWith(QStringLiteral("KS-ST-K12PRO")) ||
+                           // KingSmith Walking Pad R2
                            b.name().toUpper().startsWith(QStringLiteral("KS-R1AC")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AA")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-HC-R1AC")) ||
