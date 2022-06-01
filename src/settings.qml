@@ -5897,17 +5897,13 @@ import Qt.labs.settings 1.0
                 }
             }
 
-            RowLayout {
-                spacing: 10
-                Label {
-                    id: labelTTSSettings
-                    text: qsTr("TTS (Text to Speech) Settings 🔊  >")
-                    Layout.fillWidth: true
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: { stackView.push("settings-tts.qml") }
-                    }
-                }
+            NewPageElement {
+                id: labelTTSSettings
+                title: qsTr("TTS (Text to Speech) Settings 🔊")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: "settings-tts.qml"
             }
 
             AccordionElement {

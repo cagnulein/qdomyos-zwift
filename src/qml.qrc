@@ -52,5 +52,6 @@
         <file>inner_templates/googlemaps/globals.js</file>
         <file>inner_templates/googlemaps/marker.png</file>
         <file>settings-tts.qml</file>
+        <file>NewPageElement.qml</file>
     </qresource>
 </RCC>
