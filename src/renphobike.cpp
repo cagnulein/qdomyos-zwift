@@ -495,17 +495,19 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
 
         // handling watt gain for erg
         QSettings settings;
+        bool power_sensor = !settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                                 .toString()
+                                 .startsWith(QStringLiteral("Disabled"));
         double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
         double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
-        if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER && (watt_gain != 1.0 || watt_offset != 0)) {
+        if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER &&
+            (watt_gain != 1.0 || watt_offset != 0 || power_sensor)) {
             uint16_t r = (((uint8_t)lastFTMSPacketReceived.at(1)) + (lastFTMSPacketReceived.at(2) << 8));
             qDebug() << QStringLiteral("applying ERG mod from") << r;
             r = ((r / watt_gain) - watt_offset);
             qDebug() << QStringLiteral("to") << r;
 
-            if (!settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
-                     .toString()
-                     .startsWith(QStringLiteral("Disabled"))) {
+            if (power_sensor) {
                 double wattDelta = wattFromBike.value() - m_watt.value();
                 r = r + wattDelta;
                 qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
