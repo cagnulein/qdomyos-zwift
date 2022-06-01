@@ -217,7 +217,7 @@ void proformellipticaltrainer::update() {
                     if (requestResistance < 0)
                         requestResistance = 0;
                     if (requestResistance != currentResistance().value() && requestResistance >= 0 &&
-                        requestResistance <= 100) {
+                        requestResistance <= max_resistance) {
                         emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                         forceResistance(requestResistance);
                     }
@@ -649,4 +649,8 @@ void proformellipticaltrainer::controllerStateChanged(QLowEnergyController::Cont
         initDone = false;
         m_control->connectToDevice();
     }
+}
+
+int proformellipticaltrainer::pelotonToEllipticalResistance(int pelotonResistance) {
+    return (pelotonResistance * max_resistance) / 100;
 }

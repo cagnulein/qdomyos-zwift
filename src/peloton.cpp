@@ -131,7 +131,8 @@ void peloton::workoutlist_onfinish(QNetworkReply *reply) {
     qDebug() << QStringLiteral("peloton::workoutlist_onfinish data") << data;
 
     if (data.isEmpty()) {
-        qDebug() << QStringLiteral("peloton::workoutlist_onfinish Peloton API doens't answer, trying back in 10 seconds...");
+        qDebug() << QStringLiteral(
+            "peloton::workoutlist_onfinish Peloton API doens't answer, trying back in 10 seconds...");
         timer->start(10s);
         return;
     }
@@ -224,9 +225,8 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     if (workout_name.toUpper().contains(QStringLiteral("POWER ZONE"))) {
         qDebug() << QStringLiteral("!!Peloton Power Zone Ride Override!!");
         getPerformance(current_workout_id);
-    } else*/ {
-        getRide(current_ride_id);
-    }
+    } else*/
+    { getRide(current_ride_id); }
 }
 
 void peloton::workout_onfinish(QNetworkReply *reply) {
@@ -280,7 +280,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
     QJsonArray instructor_cues = ride[QStringLiteral("instructor_cues")].toArray();
 
     trainrows.clear();
-    if(instructor_cues.count() > 0)
+    if (instructor_cues.count() > 0)
         trainrows.reserve(instructor_cues.count() + 1);
 
     QSettings settings;
@@ -302,10 +302,19 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         }
 
         if (bluetoothManager && bluetoothManager->device()) {
-            r.lower_resistance =
-                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(resistance_range[QStringLiteral("lower")].toInt());
-            r.upper_resistance =
-                ((bike *)bluetoothManager->device())->pelotonToBikeResistance(resistance_range[QStringLiteral("upper")].toInt());
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+                r.lower_resistance = ((bike *)bluetoothManager->device())
+                                         ->pelotonToBikeResistance(resistance_range[QStringLiteral("lower")].toInt());
+                r.upper_resistance = ((bike *)bluetoothManager->device())
+                                         ->pelotonToBikeResistance(resistance_range[QStringLiteral("upper")].toInt());
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
+                r.lower_resistance =
+                    ((elliptical *)bluetoothManager->device())
+                        ->pelotonToEllipticalResistance(resistance_range[QStringLiteral("lower")].toInt());
+                r.upper_resistance =
+                    ((elliptical *)bluetoothManager->device())
+                        ->pelotonToEllipticalResistance(resistance_range[QStringLiteral("upper")].toInt());
+            }
         }
 
         r.lower_requested_peloton_resistance = resistance_range[QStringLiteral("lower")].toInt();
@@ -316,7 +325,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
 
         // Set for compatibility
         r.average_resistance = (r.lower_resistance + r.upper_resistance) / 2;
-        r.average_requested_peloton_resistance = (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
+        r.average_requested_peloton_resistance =
+            (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
         r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
         if (difficulty == QStringLiteral("average")) {
             r.resistance = r.average_resistance;
@@ -336,15 +346,14 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         if (i == 0 ||
             (r.lower_requested_peloton_resistance != trainrows.last().lower_requested_peloton_resistance ||
              r.upper_requested_peloton_resistance != trainrows.last().upper_requested_peloton_resistance ||
-             r.lower_cadence != trainrows.last().lower_cadence ||
-             r.upper_cadence != trainrows.last().upper_cadence)) {
+             r.lower_cadence != trainrows.last().lower_cadence || r.upper_cadence != trainrows.last().upper_cadence)) {
             r.duration = QTime(0, 0, 0).addSecs(duration);
             trainrows.append(r);
         } else {
             trainrows.last().duration = trainrows.last().duration.addSecs(duration);
         }
     }
-    if(trainrows.empty() && !segments_segment_list.isEmpty()) {
+    if (trainrows.empty() && !segments_segment_list.isEmpty()) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -353,22 +362,22 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     QString zone = s["display_name"].toString();
                     int len = s["length"].toInt();
                     r.duration = QTime(0, len / 60, len % 60, 0);
-                    if(!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
+                    if (!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
                         // nothing to do
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.66;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 3"))) {
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 3"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.83;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 4"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.98;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 5"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.13;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 6"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.35;
-                    } else if(!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
-                       r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 4"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.98;
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 5"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.13;
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 6"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.35;
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
                     }
                     trainrows.append(r);
                     qDebug() << r.duration << "power" << r.power;
@@ -410,7 +419,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     trainrows.clear();
 
     if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
-               bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+        bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
         bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();

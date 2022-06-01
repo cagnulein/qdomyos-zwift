@@ -42,6 +42,7 @@ class proformellipticaltrainer : public elliptical {
 
     void *VirtualTreadmill();
     void *VirtualDevice();
+    int pelotonToEllipticalResistance(int pelotonResistance);
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
@@ -65,6 +66,7 @@ class proformellipticaltrainer : public elliptical {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
+    const int max_resistance = 24;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

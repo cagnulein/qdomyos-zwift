@@ -16,6 +16,7 @@ class elliptical : public bluetoothdevice {
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
+    virtual int pelotonToEllipticalResistance(int pelotonResistance);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setPaused(bool p);
