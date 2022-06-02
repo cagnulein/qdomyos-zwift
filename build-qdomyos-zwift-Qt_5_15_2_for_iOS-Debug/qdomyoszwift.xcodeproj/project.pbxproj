@@ -358,6 +358,7 @@
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
 		87D91F9C2800B9B90026D43C /* moc_proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */; };
+		87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */; };
 		87DAE16326E9FF3A00B0527E /* shuaa5treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE15D26E9FF3900B0527E /* shuaa5treadmill.cpp */; };
 		87DAE16426E9FF3A00B0527E /* kingsmithr2treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE15F26E9FF3A00B0527E /* kingsmithr2treadmill.cpp */; };
 		87DAE16526E9FF3A00B0527E /* solef80treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE16026E9FF3A00B0527E /* solef80treadmill.cpp */; };
@@ -1094,6 +1095,7 @@
 		87D91F982800B9970026D43C /* proformwifibike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifibike.h; path = ../src/proformwifibike.h; sourceTree = "<group>"; };
 		87D91F992800B9970026D43C /* proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifibike.cpp; path = ../src/proformwifibike.cpp; sourceTree = "<group>"; };
 		87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformwifibike.cpp; sourceTree = "<group>"; };
+		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = ../../Qt/5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
 		87DAE15D26E9FF3900B0527E /* shuaa5treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shuaa5treadmill.cpp; path = ../src/shuaa5treadmill.cpp; sourceTree = "<group>"; };
 		87DAE15E26E9FF3900B0527E /* kingsmithr2treadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr2treadmill.h; path = ../src/kingsmithr2treadmill.h; sourceTree = "<group>"; };
 		87DAE15F26E9FF3A00B0527E /* kingsmithr2treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr2treadmill.cpp; path = ../src/kingsmithr2treadmill.cpp; sourceTree = "<group>"; };
@@ -1361,6 +1363,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */,
 				877FE4EC27368F7D006FAB7B /* AVFoundation.framework in Link Binary With Libraries */,
 				87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */,
 				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
@@ -2014,6 +2017,7 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */,
 				873CD22E27EF8EC1000131BC /* StoreKit.framework */,
 				877FE4EB27368F7D006FAB7B /* AVFoundation.framework */,
 				87BB1775269E987000F46A1C /* libQt5HttpServer.a */,
@@ -3280,8 +3284,9 @@
 					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
-					"../src/purchasing/qmltypes\n",
-					"../src/purchasing/ios\n",
+					../src/purchasing/qmltypes,
+					../src/purchasing/ios,
+					../../Qt/5.15.2/ios/include/QtTextToSpeech,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -3430,8 +3435,9 @@
 					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
-					"../src/purchasing/qmltypes\n",
-					"../src/purchasing/ios\n",
+					../src/purchasing/qmltypes,
+					../src/purchasing/ios,
+					../../Qt/5.15.2/ios/include/QtTextToSpeech,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
