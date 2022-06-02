@@ -283,12 +283,14 @@ double proformellipticaltrainer::GetResistanceFromPacket(QByteArray packet) {
         return 3;
     case 6:
         return 4;
+    case 7:
     case 8:
         return 5;
     case 9:
         return 6;
     case 0xb:
         return 7;
+    case 0xc:
     case 0xd:
         return 8;
     case 0xe:
@@ -299,12 +301,14 @@ double proformellipticaltrainer::GetResistanceFromPacket(QByteArray packet) {
         return 11;
     case 0x13:
         return 12;
+    case 0x14:
     case 0x15:
         return 13;
     case 0x16:
         return 14;
     case 0x18:
         return 15;
+    case 0x19:
     case 0x1a:
         return 16;
     case 0x1b:
@@ -321,6 +325,7 @@ double proformellipticaltrainer::GetResistanceFromPacket(QByteArray packet) {
         return 22;
     case 0x25:
         return 23;
+    case 0x26:
     case 0x27:
         return 24;
     }
