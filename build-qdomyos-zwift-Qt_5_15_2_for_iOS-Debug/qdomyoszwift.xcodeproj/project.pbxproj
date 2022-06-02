@@ -224,6 +224,7 @@
 		87473A9627ECA9EE00C203F5 /* proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9527ECA9EE00C203F5 /* proformrower.cpp */; };
 		87473A9827ECAA0500C203F5 /* moc_proformrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */; };
 		8752B4CD27F43D9200E2EC6C /* qz.storekit in Copy Bundle Resources */ = {isa = PBXBuildFile; fileRef = 8752B4CC27F43D9200E2EC6C /* qz.storekit */; };
+		87540FAD2848FD70005E0D44 /* libqtexttospeech_speechios.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */; };
 		8754D24C27F786F0003D7054 /* virtualrower.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8754D24B27F786F0003D7054 /* virtualrower.swift */; };
 		87586A4125B8340E00A243C4 /* proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4025B8340E00A243C4 /* proformbike.cpp */; };
 		87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87586A4225B8341B00A243C4 /* moc_proformbike.cpp */; };
@@ -360,6 +361,7 @@
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
 		87D91F9C2800B9B90026D43C /* moc_proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */; };
+		87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */; };
 		87DAE16326E9FF3A00B0527E /* shuaa5treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE15D26E9FF3900B0527E /* shuaa5treadmill.cpp */; };
 		87DAE16426E9FF3A00B0527E /* kingsmithr2treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE15F26E9FF3A00B0527E /* kingsmithr2treadmill.cpp */; };
 		87DAE16526E9FF3A00B0527E /* solef80treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE16026E9FF3A00B0527E /* solef80treadmill.cpp */; };
@@ -885,6 +887,7 @@
 		87473A9527ECA9EE00C203F5 /* proformrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformrower.cpp; path = ../src/proformrower.cpp; sourceTree = "<group>"; };
 		87473A9727ECAA0500C203F5 /* moc_proformrower.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformrower.cpp; sourceTree = "<group>"; };
 		8752B4CC27F43D9200E2EC6C /* qz.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = qz.storekit; sourceTree = "<group>"; };
+		87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtexttospeech_speechios.a; path = ../../Qt/5.15.2/ios/plugins/texttospeech/libqtexttospeech_speechios.a; sourceTree = "<group>"; };
 		8754D24B27F786F0003D7054 /* virtualrower.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = virtualrower.swift; path = ../src/ios/virtualrower.swift; sourceTree = "<group>"; };
 		87586A3F25B8340D00A243C4 /* proformbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformbike.h; path = ../src/proformbike.h; sourceTree = "<group>"; };
 		87586A4025B8340E00A243C4 /* proformbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformbike.cpp; path = ../src/proformbike.cpp; sourceTree = "<group>"; };
@@ -1099,6 +1102,7 @@
 		87D91F982800B9970026D43C /* proformwifibike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifibike.h; path = ../src/proformwifibike.h; sourceTree = "<group>"; };
 		87D91F992800B9970026D43C /* proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifibike.cpp; path = ../src/proformwifibike.cpp; sourceTree = "<group>"; };
 		87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformwifibike.cpp; sourceTree = "<group>"; };
+		87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5TextToSpeech.a; path = ../../Qt/5.15.2/ios/lib/libQt5TextToSpeech.a; sourceTree = "<group>"; };
 		87DAE15D26E9FF3900B0527E /* shuaa5treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shuaa5treadmill.cpp; path = ../src/shuaa5treadmill.cpp; sourceTree = "<group>"; };
 		87DAE15E26E9FF3900B0527E /* kingsmithr2treadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr2treadmill.h; path = ../src/kingsmithr2treadmill.h; sourceTree = "<group>"; };
 		87DAE15F26E9FF3A00B0527E /* kingsmithr2treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr2treadmill.cpp; path = ../src/kingsmithr2treadmill.cpp; sourceTree = "<group>"; };
@@ -1366,6 +1370,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				87540FAD2848FD70005E0D44 /* libqtexttospeech_speechios.a in Link Binary With Libraries */,
+				87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */,
 				877FE4EC27368F7D006FAB7B /* AVFoundation.framework in Link Binary With Libraries */,
 				87BB1776269E987100F46A1C /* libQt5HttpServer.a in Link Binary With Libraries */,
 				87420DF6269D770F000C5EC6 /* libQt5WebView.a in Link Binary With Libraries */,
@@ -2022,6 +2028,8 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */,
+				87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */,
 				873CD22E27EF8EC1000131BC /* StoreKit.framework */,
 				877FE4EB27368F7D006FAB7B /* AVFoundation.framework */,
 				87BB1775269E987000F46A1C /* libQt5HttpServer.a */,
@@ -3290,8 +3298,9 @@
 					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
-					"../src/purchasing/qmltypes\n",
-					"../src/purchasing/ios\n",
+					../src/purchasing/qmltypes,
+					../src/purchasing/ios,
+					../../Qt/5.15.2/ios/include/QtTextToSpeech,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -3326,6 +3335,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/texttospeech,
 				);
 				MARKETING_VERSION = 2.10;
 				OTHER_CFLAGS = (
@@ -3353,6 +3363,7 @@
 					"-DQ_HTTPSERVER",
 					"-DNS_FORMAT_ARGUMENT(A)=",
 					"-D_Nullable_result=_Nullable",
+					"-DQT_TEXTTOSPEECH_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3383,6 +3394,7 @@
 					"-DCHARTJS",
 					"-D_Nullable_result=_Nullable",
 					"-DNS_FORMAT_ARGUMENT(A)=",
+					"-DQT_TEXTTOSPEECH_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -3440,8 +3452,9 @@
 					../../Qt/5.15.2/ios/include/QtHttpServer,
 					../src/qmdnsengine/src/include,
 					../src/purchasing/inapp,
-					"../src/purchasing/qmltypes\n",
-					"../src/purchasing/ios\n",
+					../src/purchasing/qmltypes,
+					../src/purchasing/ios,
+					../../Qt/5.15.2/ios/include/QtTextToSpeech,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/platforms,
@@ -3476,6 +3489,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtCharts,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/texttospeech,
 				);
 				MARKETING_VERSION = 2.10;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3504,6 +3518,7 @@
 					"-DQ_HTTPSERVER",
 					"-DNS_FORMAT_ARGUMENT(A)=",
 					"-D_Nullable_result=_Nullable",
+					"-DQT_TEXTTOSPEECH_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3534,6 +3549,7 @@
 					"-DCHARTJS",
 					"-D_Nullable_result=_Nullable",
 					"-DNS_FORMAT_ARGUMENT(A)=",
+					"-DQT_TEXTTOSPEECH_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;

@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech
 
 QT+= charts
 
