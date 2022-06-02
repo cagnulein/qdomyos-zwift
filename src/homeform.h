@@ -512,7 +512,7 @@ class homeform : public QObject {
     bool getLap();
     void Start_inner(bool send_event_to_device);
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
 #endif
 
@@ -564,7 +564,7 @@ class homeform : public QObject {
     void gearUp();
     void gearDown();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif

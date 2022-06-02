@@ -252,7 +252,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaPelotonInstructorName = QLatin1String("");
     activityDescription = QLatin1String("");
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
     QNetworkAccessManager *mgr = new QNetworkAccessManager(this);
     connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
@@ -4037,7 +4037,7 @@ void homeform::clearFiles() {
     }
 }
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
 void homeform::licenseReply(QNetworkReply *reply) {
     QString r = reply->readAll();
     qDebug() << r;
