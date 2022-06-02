@@ -37,7 +37,8 @@
 class proformellipticaltrainer : public elliptical {
     Q_OBJECT
   public:
-    proformellipticaltrainer(bool noWriteResistance, bool noHeartService);
+    proformellipticaltrainer(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                             double bikeResistanceGain);
     bool connected();
 
     void *VirtualTreadmill();
@@ -61,6 +62,8 @@ class proformellipticaltrainer : public elliptical {
     virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

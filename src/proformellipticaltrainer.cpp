@@ -13,12 +13,15 @@
 
 using namespace std::chrono_literals;
 
-proformellipticaltrainer::proformellipticaltrainer(bool noWriteResistance, bool noHeartService) {
+proformellipticaltrainer::proformellipticaltrainer(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                                                   double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
+    this->bikeResistanceGain = bikeResistanceGain;
+    this->bikeResistanceOffset = bikeResistanceOffset;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &proformellipticaltrainer::update);
     refresh->start(200ms);
@@ -549,7 +552,7 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
                             &proformellipticaltrainer::changeInclinationRequested);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
                 }

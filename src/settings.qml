@@ -384,6 +384,9 @@ import Qt.labs.settings 1.0
             property real cadence_offset: 0
             property real cadence_gain: 1
             property bool sp_ht_9600ie: false
+
+            // from the version 2.10.96
+            property bool fakedevice_elliptical: false
         }
 
         function paddingZeros(text, limit) {
@@ -6152,7 +6155,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Fake Device")
+                        text: qsTr("Fake Bike")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -6163,6 +6166,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: fakeEllipticalDelegate
+                        text: qsTr("Fake Elliptical")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fakedevice_elliptical = checked
                     }
 
                     SwitchDelegate {
