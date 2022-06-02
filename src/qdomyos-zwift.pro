@@ -39,6 +39,9 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
 macx: CONFIG += static
+macx {
+    QMAKE_INFO_PLIST = macx/Info.plist
+}
 INCLUDEPATH += qmdnsengine/src/include
 
 # The following define makes your compiler emit warnings if you use
@@ -693,4 +696,4 @@ win32: QMAKE_CXXFLAGS_RELEASE -= -O2
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.10.92
+VERSION = 2.10.95

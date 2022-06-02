@@ -516,7 +516,7 @@ class homeform : public QObject {
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
 #endif
 
@@ -568,7 +568,7 @@ class homeform : public QObject {
     void gearUp();
     void gearDown();
 
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);
     void licenseTimeout();
 #endif

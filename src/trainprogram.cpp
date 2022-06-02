@@ -122,7 +122,7 @@ void trainprogram::scheduler() {
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
 
-            if (rows.at(0).inclination != -200) {
+            if (rows.at(0).inclination != -200 && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 // this should be converted in a signal as all the other signals...
                 double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
@@ -131,7 +131,7 @@ void trainprogram::scheduler() {
                 bluetoothManager->device()->changeResistance(
                     (int8_t)(round(rows.at(0).inclination * bikeResistanceGain)) + bikeResistanceOffset +
                     1); // resistance start from 1)
-                if(!((bike*)bluetoothManager->device())->inclinationAvailableByHardware())
+                if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                     bluetoothManager->device()->setInclination(rows.at(0).inclination);
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
@@ -175,13 +175,14 @@ void trainprogram::scheduler() {
     bool distanceStep = (rows.at(currentStep).distance > 0);
     bool distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
     qDebug() << QStringLiteral("currentStepDistance") << currentStepDistance << QStringLiteral("distanceStep")
-             << distanceStep << QStringLiteral("distanceEvaluation") << distanceEvaluation << QStringLiteral("rows distance") << rows.at(currentStep).distance;
+             << distanceStep << QStringLiteral("distanceEvaluation") << distanceEvaluation
+             << QStringLiteral("rows distance") << rows.at(currentStep).distance;
 
     if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
         if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
 
             lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
-            
+
             if (!distanceStep)
                 currentStep = calculatedLine;
             else
@@ -224,7 +225,8 @@ void trainprogram::scheduler() {
                     emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
                 }
 
-                if (rows.at(currentStep).inclination != -200) {
+                if (rows.at(currentStep).inclination != -200 &&
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                     // this should be converted in a signal as all the other signals...
                     double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                     double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
@@ -233,7 +235,7 @@ void trainprogram::scheduler() {
                     bluetoothManager->device()->changeResistance(
                         (int8_t)(round(rows.at(currentStep).inclination * bikeResistanceGain)) + bikeResistanceOffset +
                         1); // resistance start from 1)
-                    if(!((bike*)bluetoothManager->device())->inclinationAvailableByHardware())
+                    if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                         bluetoothManager->device()->setInclination(rows.at(currentStep).inclination);
                     emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
                 }
