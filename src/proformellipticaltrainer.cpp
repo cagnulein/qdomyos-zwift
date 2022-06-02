@@ -345,6 +345,10 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
         Cadence = (newValue.at(2) * cadence_gain) + cadence_offset;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        if (Cadence.value() > 0) {
+            CrankRevs++;
+            LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
+        }
         return;
     }
 
