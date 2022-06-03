@@ -169,7 +169,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             watt += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
             m_watt = watt;
         }
-        emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
+        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
         double speed = GetSpeedFromPacket(newValue);
         if (!firstCharChanged) {
