@@ -56,12 +56,16 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
 }
 
 void renphobike::forcePower(int16_t requestPower) {
+    QSettings settings;
+    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+    double r = ((requestPower / watt_gain) - watt_offset);
     uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
-    write[1] = ((uint16_t)requestPower) & 0xFF;
-    write[2] = ((uint16_t)requestPower) >> 8;
+    write[1] = ((uint16_t)r) & 0xFF;
+    write[2] = ((uint16_t)r) >> 8;
 
-    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(r));
 }
 
 void renphobike::forceResistance(int8_t requestResistance) {
@@ -110,21 +114,26 @@ void renphobike::update() {
                 requestPower = -1;
                 requestResistance = -1;
             }
-            if (requestResistance != -1) {
-                if (requestResistance > max_resistance)
-                    requestResistance = max_resistance;
-                else if (requestResistance == 0)
-                    requestResistance = 1;
+            // if zwift is connected we have to avoud to send resistance to the bike
+            if ((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) {
+                if (requestResistance != -1) {
+                    if (requestResistance > max_resistance)
+                        requestResistance = max_resistance;
+                    else if (requestResistance == 0)
+                        requestResistance = 1;
 
-                lastRequestResistance = lastRawRequestedResistanceValue;
-                debug("writing resistance " + QString::number(requestResistance));
-                forceResistance(requestResistance);
+                    lastRequestResistance = lastRawRequestedResistanceValue;
+                    debug("writing resistance " + QString::number(requestResistance));
+                    forceResistance(requestResistance);
 
-                requestResistance = -1;
-            } else if (lastRequestResistance != -1) {
-                int8_t r = lastRequestResistance * m_difficult + gears();
-                debug("writing resistance for renpho forever " + QString::number(r));
-                forceResistance(r);
+                    requestResistance = -1;
+                } else if (lastRequestResistance != -1) {
+                    int8_t r = lastRequestResistance * m_difficult + gears();
+                    debug("writing resistance for renpho forever " + QString::number(r));
+                    forceResistance(r);
+                }
+            } else if (requestResistance != -1 || lastRequestResistance != -1) {
+                qDebug() << QStringLiteral("ignoring resistance because ftmsDeviceConnected is connected");
             }
         }
         if (requestStart != -1) {
@@ -191,7 +200,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         else
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
         index += 2;
         debug("Current Speed: " + QString::number(Speed.value()));
     }
@@ -247,13 +256,15 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
 
     if (Flags.instantPower) {
+        wattFromBike =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
-            m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                               (uint16_t)((uint8_t)newValue.at(index))));
+            m_watt = wattFromBike.value();
         index += 2;
         debug("Current Watt: " + QString::number(m_watt.value()));
+        debug("Current Watt from the Bike: " + QString::number(wattFromBike.value()));
     }
 
     if (Flags.avgPower) {
@@ -479,8 +490,37 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
         lastFTMSPacketReceived.append(newValue.at(i));
 
     if (gattWriteCharControlPointId.isValid()) {
-        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ')
-                 << lastFTMSPacketReceived.toHex(' ');
+        qDebug() << QStringLiteral("routing FTMS packet to the bike from virtualbike") << characteristic.uuid()
+                 << newValue.toHex(' ') << lastFTMSPacketReceived.toHex(' ');
+
+        // handling watt gain for erg
+        QSettings settings;
+        bool power_sensor = !settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                                 .toString()
+                                 .startsWith(QStringLiteral("Disabled"));
+        double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+        double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+        if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER &&
+            (watt_gain != 1.0 || watt_offset != 0 || power_sensor)) {
+            uint16_t r = (((uint8_t)lastFTMSPacketReceived.at(1)) + (lastFTMSPacketReceived.at(2) << 8));
+            qDebug() << QStringLiteral("applying ERG mod from") << r;
+            r = ((r / watt_gain) - watt_offset);
+            qDebug() << QStringLiteral("to") << r;
+
+            if (power_sensor) {
+                double f = ((double)r * (double)r) / m_watt.value();
+                r = f;
+                qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
+                         << QStringLiteral("reading from power pedal") << m_watt.value() << QStringLiteral("wattDetta")
+                         << r;
+            }
+
+            lastFTMSPacketReceived.clear();
+            lastFTMSPacketReceived.append(FTMS_SET_TARGET_POWER);
+            lastFTMSPacketReceived.append(r & 0xFF);
+            lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
+            qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
+        }
 
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);
     }

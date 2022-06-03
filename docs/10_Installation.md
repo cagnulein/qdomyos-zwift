@@ -8,7 +8,7 @@ Once you've installed QDomyos-Zwift, you can access the [operation guide](30_usa
 
 ```buildoutcfg
 $ sudo apt update && sudo apt upgrade # this is very important on raspberry pi: you need the bluetooth firmware updated!
-$ sudo sudo apt install git qt5quickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev
+$ sudo sudo apt install git qt5quickcontrols2-5-dev libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qml-module*
 $ git clone https://github.com/cagnulein/qdomyos-zwift.git
 $ cd qdomyos-zwift
 $ git submodule update --init src/smtpclient/

@@ -84,13 +84,15 @@ void proformelliptical::update() {
                 break;
             case 3:
                 writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("noOp"), true);
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
+                    if(requestInclination < 0)
+                        requestInclination = 0;
                     if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                         requestInclination <= 15) {
                         emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                         // forceIncline(requestInclination);
                     }
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 /*
                 if (requestSpeed != -1) {
@@ -198,6 +200,8 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double cadence_gain = settings.value(QStringLiteral("cadence_gain"), 1.0).toDouble();
+    double cadence_offset = settings.value(QStringLiteral("cadence_offset"), 0.0).toDouble();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -220,7 +224,7 @@ void proformelliptical::characteristicChanged(const QLowEnergyCharacteristic &ch
     }
 
     Resistance = GetResistanceFromPacket(newValue);
-    Cadence = newValue.at(18);
+    Cadence = (newValue.at(18) * cadence_gain) + cadence_offset;
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(

@@ -16,6 +16,7 @@ class elliptical : public bluetoothdevice {
     virtual double currentCrankRevolutions();
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
+    virtual int pelotonToEllipticalResistance(int pelotonResistance);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
     void setPaused(bool p);
@@ -25,16 +26,20 @@ class elliptical : public bluetoothdevice {
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
     virtual void changeInclination(double grade, double inclination);
+    virtual void changeCadence(int16_t cad);
+    virtual void changeRequestedPelotonResistance(int8_t resistance);
 
   signals:
     void bikeStarted();
 
   protected:
     metric RequestedResistance;
+    metric RequestedCadence;
+    metric RequestedPelotonResistance;
     metric Resistance;
     uint16_t LastCrankEventTime = 0;
     int8_t requestResistance = -1;
-    double requestInclination = -1;
+    double requestInclination = -100;
     double CrankRevs = 0;
 };
 

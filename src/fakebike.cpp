@@ -35,6 +35,10 @@ void fakebike::update() {
 
     update_metrics(true, watts());
 
+    Distance += ((Speed.value() / (double)3600.0) /
+                 ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
+    lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualBike && !noVirtualDevice
 #ifdef Q_OS_IOS
@@ -56,15 +60,15 @@ void fakebike::update() {
         } else
 #endif
 #endif
-        if (virtual_device_enabled) {
+            if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
-            connect(virtualBike, &virtualbike::changeInclination, this,
-                    &fakebike::changeInclinationRequested);
+            connect(virtualBike, &virtualbike::changeInclination, this, &fakebike::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakebike::ftmsCharacteristicChanged);
         }
     }
-    if(!firstStateChanged) emit connectedAndDiscovered();
+    if (!firstStateChanged)
+        emit connectedAndDiscovered();
     firstStateChanged = 1;
     // ********************************************************************************************************
 
@@ -88,16 +92,16 @@ void fakebike::update() {
 #endif
         }
 
-    #ifdef Q_OS_IOS
-    #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
-            if (ios_peloton_workaround && cadence && h && firstStateChanged) {
-                h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
-                h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
-            }
-    #endif
-    #endif
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        if (ios_peloton_workaround && cadence && h && firstStateChanged) {
+            h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
+            h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
+        }
+#endif
+#endif
     }
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
@@ -107,7 +111,7 @@ void fakebike::update() {
 }
 
 void fakebike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
-    QByteArray b = newValue;    
+    QByteArray b = newValue;
     qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 }
 
@@ -117,9 +121,7 @@ void fakebike::changeInclinationRequested(double grade, double percentage) {
     changeInclination(grade, percentage);
 }
 
-bool fakebike::connected() {
-    return true;
-}
+bool fakebike::connected() { return true; }
 
 void *fakebike::VirtualBike() { return virtualBike; }
 

@@ -508,6 +508,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
         static bool answer_13 = false;
 
+        iFit_TSLastFrame = QDateTime::currentMSecsSinceEpoch();
+
+        iFit_LastFrameReceived.clear();
+        foreach (uint8_t a, newValue)
+            iFit_LastFrameReceived.append(a);
+
         if (answer_13) {
             answer_13 = false;
 
@@ -1112,7 +1118,19 @@ void virtualbike::bikeProvider() {
             }
         }
     } else if (ifit) {
-
+        // timeout di 500 ms
+        qDebug() << QStringLiteral("iFit Last Frame") << iFit_TSLastFrame;
+        if (iFit_TSLastFrame != 0 && iFit_TSLastFrame + 500 < QDateTime::currentMSecsSinceEpoch()) {
+            qDebug() << QStringLiteral("iFit timeout!");
+            /*
+            QLowEnergyCharacteristic characteristic =
+                service->characteristic(QBluetoothUuid(QStringLiteral("00001534-1412-efde-1523-785feabcd123")));
+            QByteArray copy;
+            foreach(uint8_t a, iFit_LastFrameReceived)
+                copy.append(a);
+            characteristicChanged(characteristic, copy);
+*/
+        }
     } else {
 
         if (echelonInitDone) {

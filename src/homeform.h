@@ -17,6 +17,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QQuickItemGrabResult>
+#include <QTextToSpeech>
 
 class DataObject : public QObject {
 
@@ -111,6 +112,9 @@ class homeform : public QObject {
     Q_PROPERTY(QStringList tile_order READ tile_order NOTIFY tile_orderChanged)
     Q_PROPERTY(bool generalPopupVisible READ generalPopupVisible NOTIFY generalPopupVisibleChanged WRITE
                    setGeneralPopupVisible)
+    Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
+                   setLicensePopupVisible)
+    Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -316,6 +320,8 @@ class homeform : public QObject {
     QString pelotonProvider() { return m_pelotonProvider; }
     void setPelotonProvider(const QString &value) { m_pelotonProvider = value; }
     bool generalPopupVisible();
+    bool licensePopupVisible();
+    bool mapsVisible();
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
@@ -328,6 +334,8 @@ class homeform : public QObject {
             bluetoothManager->device()->setAutoResistance(value);
         }
     }
+    void setLicensePopupVisible(bool value);
+    void setMapsVisible(bool value);
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
 
@@ -411,6 +419,8 @@ class homeform : public QObject {
     QString m_info = QStringLiteral("Connecting...");
     bool m_labelHelp = true;
     bool m_generalPopupVisible = false;
+    bool m_LicensePopupVisible = false;
+    bool m_MapsVisible = false;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
@@ -503,6 +513,13 @@ class homeform : public QObject {
     bool getLap();
     void Start_inner(bool send_event_to_device);
 
+    QTextToSpeech m_speech;
+    int tts_summary_count = 0;
+
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    QTimer tLicense;
+#endif
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
@@ -551,6 +568,11 @@ class homeform : public QObject {
     void gearUp();
     void gearDown();
 
+#if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
+    void licenseReply(QNetworkReply *reply);
+    void licenseTimeout();
+#endif
+
   signals:
 
     void changeOfdevice();
@@ -570,6 +592,8 @@ class homeform : public QObject {
     void changePelotonAskStart(bool value);
     void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
+    void licensePopupVisibleChanged(bool value);
+    void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
     void pzpLoginChanged(int ok);

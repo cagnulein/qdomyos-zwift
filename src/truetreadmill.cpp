@@ -91,14 +91,16 @@ void truetreadmill::update() {
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -1) {
+            if (requestInclination != -100) {
+                if(requestInclination < 0)
+                    requestInclination = 0;
                 // only 0.5 steps ara avaiable
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 }
-                requestInclination = -1;
+                requestInclination = -100;
             }
             if (requestStart != -1) {
                 emit debug(QStringLiteral("starting..."));
@@ -143,6 +145,9 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 
     emit debug(QStringLiteral(" << ") + QString::number(avalue.length()) + QStringLiteral(" ") + avalue.toHex(' '));
 
+    if(avalue.length() != 16)
+        return;
+
     bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
 #ifdef Q_OS_ANDROID
@@ -184,8 +189,9 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 #endif
 #endif
 
-    double speed = 0;
-    double incline = 0;
+    uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
+    double speed = ((double)convertedData) / 100.0;
+    double incline = ((double)(avalue.at(14))) / 10.0;
 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))

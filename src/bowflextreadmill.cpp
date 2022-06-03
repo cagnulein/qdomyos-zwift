@@ -117,15 +117,17 @@ void bowflextreadmill::update() {
             if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 // double inc = Inclination.value(); // NOTE: clang-analyzer-deadcode.DeadStores
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
                     //                        inc = requestInclination;
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
+            if(requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -136,7 +138,7 @@ void bowflextreadmill::update() {
                 }
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
 
         if (requestStart != -1) {

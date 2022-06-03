@@ -49,6 +49,8 @@ QString trainrow::toString() const {
     rv += QStringLiteral(" mets = %1").arg(mets);
     rv += QStringLiteral(" latitude = %1").arg(latitude);
     rv += QStringLiteral(" longitude = %1").arg(longitude);
+    rv += QStringLiteral(" altitude = %1").arg(altitude);
+    rv += QStringLiteral(" azimuth = %1").arg(azimuth);
     return rv;
 }
 
@@ -120,7 +122,7 @@ void trainprogram::scheduler() {
                 emit changeRequestedPelotonResistance(rows.at(0).requested_peloton_resistance);
             }
 
-            if (rows.at(0).inclination != -200) {
+            if (rows.at(0).inclination != -200 && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 // this should be converted in a signal as all the other signals...
                 double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
@@ -129,6 +131,9 @@ void trainprogram::scheduler() {
                 bluetoothManager->device()->changeResistance(
                     (int8_t)(round(rows.at(0).inclination * bikeResistanceGain)) + bikeResistanceOffset +
                     1); // resistance start from 1)
+                if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
+                    bluetoothManager->device()->setInclination(rows.at(0).inclination);
+                emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
             }
         }
 
@@ -137,13 +142,15 @@ void trainprogram::scheduler() {
             emit changeFanSpeed(rows.at(0).fanspeed);
         }
 
-        if (rows.at(0).latitude != NAN || rows.at(0).longitude != NAN) {
+        if (rows.at(0).latitude != NAN || rows.at(0).longitude != NAN || rows.at(0).altitude != NAN) {
             qDebug() << QStringLiteral("trainprogram change GEO position") + QString::number(rows.at(0).latitude) +
-                            " " + QString::number(rows.at(0).longitude);
+                            " " + QString::number(rows.at(0).longitude) + " " + QString::number(rows.at(0).altitude) +
+                            " " + QString::number(rows.at(0).azimuth);
             QGeoCoordinate p;
+            p.setAltitude(rows.at(0).altitude);
             p.setLatitude(rows.at(0).latitude);
             p.setLongitude(rows.at(0).longitude);
-            emit changeGeoPosition(p);
+            emit changeGeoPosition(p, rows.at(0).azimuth);
         }
     }
 
@@ -168,10 +175,13 @@ void trainprogram::scheduler() {
     bool distanceStep = (rows.at(currentStep).distance > 0);
     bool distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
     qDebug() << QStringLiteral("currentStepDistance") << currentStepDistance << QStringLiteral("distanceStep")
-             << distanceStep << QStringLiteral("distanceEvaluation") << distanceEvaluation;
+             << distanceStep << QStringLiteral("distanceEvaluation") << distanceEvaluation
+             << QStringLiteral("rows distance") << rows.at(currentStep).distance;
 
     if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
         if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
+
+            lastOdometer -= (currentStepDistance - rows.at(currentStep).distance);
 
             if (!distanceStep)
                 currentStep = calculatedLine;
@@ -215,7 +225,8 @@ void trainprogram::scheduler() {
                     emit changeRequestedPelotonResistance(rows.at(currentStep).requested_peloton_resistance);
                 }
 
-                if (rows.at(currentStep).inclination != -200) {
+                if (rows.at(currentStep).inclination != -200 &&
+                    bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                     // this should be converted in a signal as all the other signals...
                     double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                     double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
@@ -224,6 +235,9 @@ void trainprogram::scheduler() {
                     bluetoothManager->device()->changeResistance(
                         (int8_t)(round(rows.at(currentStep).inclination * bikeResistanceGain)) + bikeResistanceOffset +
                         1); // resistance start from 1)
+                    if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
+                        bluetoothManager->device()->setInclination(rows.at(currentStep).inclination);
+                    emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
                 }
             }
 
@@ -233,14 +247,18 @@ void trainprogram::scheduler() {
                 emit changeFanSpeed(rows.at(currentStep).fanspeed);
             }
 
-            if (rows.at(currentStep).latitude != NAN || rows.at(currentStep).longitude != NAN) {
+            if (rows.at(currentStep).latitude != NAN || rows.at(currentStep).longitude != NAN ||
+                rows.at(currentStep).altitude != NAN) {
                 qDebug() << QStringLiteral("trainprogram change GEO position") +
                                 QString::number(rows.at(currentStep).latitude) + " " +
-                                QString::number(rows.at(currentStep).longitude);
+                                QString::number(rows.at(currentStep).longitude) + " " +
+                                QString::number(rows.at(currentStep).altitude) + " " +
+                                QString::number(rows.at(currentStep).azimuth);
                 QGeoCoordinate p;
+                p.setAltitude(rows.at(currentStep).altitude);
                 p.setLatitude(rows.at(currentStep).latitude);
                 p.setLongitude(rows.at(currentStep).longitude);
-                emit changeGeoPosition(p);
+                emit changeGeoPosition(p, rows.at(currentStep).azimuth);
             }
         } else {
             qDebug() << QStringLiteral("trainprogram ends!");
@@ -309,6 +327,12 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             }
             if (row.mets >= 0) {
                 stream.writeAttribute(QStringLiteral("mets"), QString::number(row.mets));
+            }
+            if (row.altitude != NAN) {
+                stream.writeAttribute(QStringLiteral("altitude"), QString::number(row.altitude));
+            }
+            if (row.azimuth != NAN) {
+                stream.writeAttribute(QStringLiteral("azimuth"), QString::number(row.azimuth));
             }
             if (row.latitude != NAN) {
                 stream.writeAttribute(QStringLiteral("latitude"), QString::number(row.latitude));
@@ -415,10 +439,16 @@ QList<trainrow> trainprogram::loadXML(const QString &filename) {
                 row.mets = atts.value(QStringLiteral("mets")).toInt();
             }
             if (atts.hasAttribute(QStringLiteral("latitude"))) {
-                row.latitude = atts.value(QStringLiteral("latitude")).toInt();
+                row.latitude = atts.value(QStringLiteral("latitude")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("longitude"))) {
-                row.longitude = atts.value(QStringLiteral("longitude")).toInt();
+                row.longitude = atts.value(QStringLiteral("longitude")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("altitude"))) {
+                row.longitude = atts.value(QStringLiteral("altitude")).toDouble();
+            }
+            if (atts.hasAttribute(QStringLiteral("azimuth"))) {
+                row.azimuth = atts.value(QStringLiteral("azimuth")).toDouble();
             }
             if (atts.hasAttribute(QStringLiteral("upper_resistance"))) {
                 row.upper_resistance = atts.value(QStringLiteral("upper_resistance")).toInt();
@@ -503,10 +533,10 @@ QTime trainprogram::currentRowElapsedTime() {
         uint32_t rampElapsed = 0;
 
         if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
-            if(rows.at(calculatedLine).rampElapsed != QTime(0,0,0)) {
+            if (rows.at(calculatedLine).rampElapsed != QTime(0, 0, 0)) {
                 rampElapsed = (rows.at(calculatedLine).rampElapsed.second() +
-                                          (rows.at(calculatedLine).rampElapsed.minute() * 60) +
-                                          (rows.at(calculatedLine).rampElapsed.hour() * 3600));
+                               (rows.at(calculatedLine).rampElapsed.minute() * 60) +
+                               (rows.at(calculatedLine).rampElapsed.hour() * 3600));
             }
             return QTime(0, 0, 0).addSecs(rampElapsed + ticks - (calculatedElapsedTime - currentLine));
         }
@@ -536,10 +566,11 @@ QTime trainprogram::currentRowRemainingTime() {
             calculatedElapsedTime += currentLine;
 
             if (calculatedElapsedTime > static_cast<uint32_t>(ticks)) {
-                if(rows.at(calculatedLine).rampDuration != QTime(0,0,0)) {
+                if (rows.at(calculatedLine).rampDuration != QTime(0, 0, 0)) {
                     calculatedElapsedTime += ((rows.at(calculatedLine).rampDuration.second() +
-                                              (rows.at(calculatedLine).rampDuration.minute() * 60) +
-                                              (rows.at(calculatedLine).rampDuration.hour() * 3600))) - 1;
+                                               (rows.at(calculatedLine).rampDuration.minute() * 60) +
+                                               (rows.at(calculatedLine).rampDuration.hour() * 3600))) -
+                                             1;
                 }
                 int seconds = calculatedElapsedTime - ticks;
                 int hours = seconds / 3600;

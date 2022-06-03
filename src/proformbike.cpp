@@ -383,7 +383,7 @@ void proformbike::update() {
             if (!proform_studio && !proform_tdf_10) {
                 innerWriteResistance();
             }
-            if (requestInclination != -1 && (proform_studio || proform_tdf_10)) {
+            if (requestInclination != -100 && (proform_studio || proform_tdf_10)) {
                 // only 0.5 steps ara avaiable
                 double inc = qRound(requestInclination * 2.0) / 2.0;
                 if (inc != currentInclination().value()) {
@@ -391,7 +391,7 @@ void proformbike::update() {
                                " rounded " + QString::number(inc));
                     forceIncline(inc);
                 }
-                requestInclination = -1;
+                requestInclination = -100;
             }
             break;
         }

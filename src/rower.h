@@ -48,7 +48,7 @@ class rower : public bluetoothdevice {
     metric Resistance;
     metric RequestedResistance;
     metric RequestedPelotonResistance;
-    double requestInclination = -1;
+    double requestInclination = -100;
     metric RequestedCadence;
     metric RequestedPower;
     metric StrokesLength;

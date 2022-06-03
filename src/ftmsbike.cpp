@@ -268,16 +268,18 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         double br = -5.841344538;
         double cr = 97.62165482;
 
-        m_pelotonResistance =
-            (((sqrt(pow(br, 2.0) - 4.0 * ar *
-                                       (cr - (m_watt.value() * 132.0 /
-                                              (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
-               br) /
-              (2.0 * ar)) *
-             settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
-            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
-        Resistance = m_pelotonResistance;
-        emit resistanceRead(Resistance.value());
+        if (Cadence.value() && m_watt.value()) {
+            m_pelotonResistance =
+                (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                           (cr - (m_watt.value() * 132.0 /
+                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                   br) /
+                  (2.0 * ar)) *
+                 settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+                settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+            Resistance = m_pelotonResistance;
+            emit resistanceRead(Resistance.value());
+        }
     }
 
     if (Flags.instantPower) {
@@ -560,10 +562,6 @@ void ftmsbike::serviceScanDone(void) {
     initRequest = false;
     auto services_list = m_control->services();
     for (const QBluetoothUuid &s : qAsConst(services_list)) {
-        if (s == (QBluetoothUuid)((quint16)0xFFF0)) {
-            qDebug() << "ignoring service" << s;
-            continue;
-        }
         gattCommunicationChannelService.append(m_control->createServiceObject(s));
         connect(gattCommunicationChannelService.constLast(), &QLowEnergyService::stateChanged, this,
                 &ftmsbike::stateChanged);
@@ -588,11 +586,6 @@ void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
-
-#ifdef Q_OS_IOS
-        if (device.name().toUpper().startsWith(QStringLiteral("DKN MOTION")))
-            QZ_EnableDiscoveryCharsAndDescripttors = true;
-#endif
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);

@@ -176,7 +176,7 @@ void soleelliptical::update() {
         }
 
         // Resistance as incline on Sole E95s Elliptical #419
-        if (requestInclination != -1)
+        if (requestInclination != -100)
             requestResistance = requestInclination;
 
         if (requestResistance != -1) {
@@ -192,7 +192,7 @@ void soleelliptical::update() {
                 forceResistanceAndInclination(requestResistance, currentInclination().value());
             }
             requestResistance = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
@@ -204,7 +204,7 @@ void soleelliptical::update() {
 
                 forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -235,6 +235,11 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
+    // the elliptical send the speed in miles always
+    double miles = 1;
+    if (settings.value(QStringLiteral("sole_treadmill_miles"), true).toBool())
+        miles = 1.60934;
+
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
@@ -250,8 +255,8 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
-    double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
+    double speed = GetSpeedFromPacket(newValue) *
+                   settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble() * miles;
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();

@@ -116,11 +116,11 @@ void tacxneo2::update() {
             }
             requestResistance = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
             emit debug(QStringLiteral("writing inclination ") + QString::number(requestInclination));
             forceInclination(requestInclination + gears()); // since this bike doesn't have the concept of resistance,
                                                             // i'm using the gears in the inclination
-            requestInclination = -1;
+            requestInclination = -100;
         }
 
         if (requestPower != -1) {

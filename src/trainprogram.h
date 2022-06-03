@@ -42,6 +42,8 @@ class trainrow {
     QTime rampElapsed = QTime(0, 0, 0, 0);
     double latitude = NAN;
     double longitude = NAN;
+    double altitude = NAN;
+    double azimuth = NAN;
     QString toString() const;
 };
 
@@ -72,6 +74,7 @@ class trainprogram : public QObject {
     bool enabled = true;
 
     void restart();
+    bool isStarted() { return started; }
     void scheduler(int tick);
 
   public slots:
@@ -89,7 +92,7 @@ class trainprogram : public QObject {
     void changeCadence(int16_t cadence);
     void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
-    void changeGeoPosition(QGeoCoordinate p);
+    void changeGeoPosition(QGeoCoordinate p, double azimuth);
 
   private:
     uint32_t calculateTimeForRow(int32_t row);

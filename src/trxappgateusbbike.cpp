@@ -41,8 +41,12 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
         timeout.singleShot(300ms, &loop, &QEventLoop::quit);
     }
 
-    gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
-                                                         QByteArray((const char *)data, data_len));
+    if (gattWriteCharacteristic.properties() & QLowEnergyCharacteristic::WriteNoResponse)
+        gattCommunicationChannelService->writeCharacteristic(
+            gattWriteCharacteristic, QByteArray((const char *)data, data_len), QLowEnergyService::WriteWithoutResponse);
+    else
+        gattCommunicationChannelService->writeCharacteristic(gattWriteCharacteristic,
+                                                             QByteArray((const char *)data, data_len));
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -323,7 +327,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
     }
     KCal = kcal;
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
@@ -731,7 +735,8 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
 
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                virtualBike =
+                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::changeInclination);
             }

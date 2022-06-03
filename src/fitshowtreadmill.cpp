@@ -177,7 +177,7 @@ void fitshowtreadmill::update() {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                 double inc = currentInclination().value();
-                if (requestInclination != -1) {
+                if (requestInclination != -100) {
                     int diffInc = (int)(requestInclination - inc);
                     if (!diffInc) {
                         if (requestInclination > inc) {
@@ -188,14 +188,14 @@ void fitshowtreadmill::update() {
                     } else {
                         inc = (int)requestInclination;
                     }
-                    requestInclination = -1;
+                    requestInclination = -100;
                 }
                 forceSpeedOrIncline(requestSpeed, inc);
             }
             requestSpeed = -1;
         }
 
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
             double inc = currentInclination().value();
             if (requestInclination != inc) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -216,7 +216,7 @@ void fitshowtreadmill::update() {
                 }
                 forceSpeedOrIncline(speed, inc);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));

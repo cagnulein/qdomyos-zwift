@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech
 
 QT+= charts
 
@@ -39,6 +39,9 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
 macx: CONFIG += static
+macx {
+    QMAKE_INFO_PLIST = macx/Info.plist
+}
 INCLUDEPATH += qmdnsengine/src/include
 
 # The following define makes your compiler emit warnings if you use
@@ -62,7 +65,10 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
+    fakeelliptical.cpp \
+   kmlworkout.cpp \
    nautilusbike.cpp \
+   proformellipticaltrainer.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
@@ -235,7 +241,10 @@ HEADERS += \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
+    fakeelliptical.h \
+   kmlworkout.h \
    nautilusbike.h \
+   proformellipticaltrainer.h \
    proformrower.h \
    proformwifibike.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
@@ -685,4 +694,8 @@ include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
-VERSION = 2.10.78
+win32: QMAKE_CXXFLAGS_RELEASE -= -O2
+
+WINRT_MANIFEST = AppxManifest.xml
+
+VERSION = 2.10.96
