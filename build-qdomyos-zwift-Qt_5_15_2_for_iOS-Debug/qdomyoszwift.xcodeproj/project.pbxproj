@@ -360,6 +360,8 @@
 		87D5DC4228230496008CCDE7 /* moc_truetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */; };
 		87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F992800B9970026D43C /* proformwifibike.cpp */; };
 		87D91F9C2800B9B90026D43C /* moc_proformwifibike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */; };
+		87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8464284933D200B550E9 /* fakeelliptical.cpp */; };
+		87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */; };
 		87DAE16326E9FF3A00B0527E /* shuaa5treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE15D26E9FF3900B0527E /* shuaa5treadmill.cpp */; };
 		87DAE16426E9FF3A00B0527E /* kingsmithr2treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE15F26E9FF3A00B0527E /* kingsmithr2treadmill.cpp */; };
 		87DAE16526E9FF3A00B0527E /* solef80treadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DAE16026E9FF3A00B0527E /* solef80treadmill.cpp */; };
@@ -1099,6 +1101,9 @@
 		87D91F982800B9970026D43C /* proformwifibike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformwifibike.h; path = ../src/proformwifibike.h; sourceTree = "<group>"; };
 		87D91F992800B9970026D43C /* proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformwifibike.cpp; path = ../src/proformwifibike.cpp; sourceTree = "<group>"; };
 		87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformwifibike.cpp; sourceTree = "<group>"; };
+		87DA8463284933D200B550E9 /* fakeelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fakeelliptical.h; path = ../src/fakeelliptical.h; sourceTree = "<group>"; };
+		87DA8464284933D200B550E9 /* fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fakeelliptical.cpp; path = ../src/fakeelliptical.cpp; sourceTree = "<group>"; };
+		87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_fakeelliptical.cpp; sourceTree = "<group>"; };
 		87DAE15D26E9FF3900B0527E /* shuaa5treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = shuaa5treadmill.cpp; path = ../src/shuaa5treadmill.cpp; sourceTree = "<group>"; };
 		87DAE15E26E9FF3900B0527E /* kingsmithr2treadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr2treadmill.h; path = ../src/kingsmithr2treadmill.h; sourceTree = "<group>"; };
 		87DAE15F26E9FF3A00B0527E /* kingsmithr2treadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr2treadmill.cpp; path = ../src/kingsmithr2treadmill.cpp; sourceTree = "<group>"; };
@@ -1492,6 +1497,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */,
 				879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */,
 				87D5DC4128230496008CCDE7 /* moc_truetreadmill.cpp */,
 				87D91F9B2800B9B90026D43C /* moc_proformwifibike.cpp */,
@@ -1637,6 +1643,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87DA8464284933D200B550E9 /* fakeelliptical.cpp */,
+				87DA8463284933D200B550E9 /* fakeelliptical.h */,
 				879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */,
 				879F16452847E55C00CE4945 /* proformellipticaltrainer.h */,
 				87D5DC3E2823047D008CCDE7 /* truetreadmill.cpp */,
@@ -2713,6 +2721,7 @@
 				873824E227E647A8004F1B46 /* dns.cpp in Compile Sources */,
 				87A3BC27265642A300D302E3 /* moc_echelonrower.cpp in Compile Sources */,
 				87EFB56E25BD703D0039DD5A /* proformtreadmill.cpp in Compile Sources */,
+				87DA8465284933D200B550E9 /* fakeelliptical.cpp in Compile Sources */,
 				87FE5BAF2692F3130056EFC8 /* tacxneo2.cpp in Compile Sources */,
 				8718CBAC263063CE004BF4EE /* moc_tcpclientinfosender.cpp in Compile Sources */,
 				873824B527E64707004F1B46 /* moc_provider_p.cpp in Compile Sources */,
@@ -2861,6 +2870,7 @@
 				87586A4325B8341B00A243C4 /* moc_proformbike.cpp in Compile Sources */,
 				87CC3BA325A0885F001EC5A8 /* domyoselliptical.cpp in Compile Sources */,
 				87B617F325F260150094A1CB /* moc_snodebike.cpp in Compile Sources */,
+				87DA8467284933DE00B550E9 /* moc_fakeelliptical.cpp in Compile Sources */,
 				87C5F0D726285E7E0067A1B5 /* moc_mimefile.cpp in Compile Sources */,
 				877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */,
 				8762D5102601F7EA00F6F049 /* M3iNSQT.cpp in Compile Sources */,
