@@ -332,6 +332,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     bool fake_bike = settings.value(QStringLiteral("applewatch_fakedevice"), false).toBool();
+    bool fakedevice_elliptical = settings.value(QStringLiteral("fakedevice_elliptical"), false).toBool();
     bool pafers_treadmill = settings.value(QStringLiteral("pafers_treadmill"), false).toBool();
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
 
@@ -433,6 +434,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(fakeBike);
                 innerTemplateManager->start(fakeBike);
+            } else if (fakedevice_elliptical && !fakeElliptical) {
+                discoveryAgent->stop();
+                fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
+                emit deviceConnected(b);
+                connect(fakeElliptical, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(fakeElliptical, &fakeelliptical::inclinationChanged, this, &bluetooth::inclinationChanged);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
+                // #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(fakeElliptical);
+                innerTemplateManager->start(fakeElliptical);
             } else if (!proformtdf4ip.isEmpty() && !proformWifiBike) {
                 discoveryAgent->stop();
                 proformWifiBike =
@@ -594,7 +609,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(proformElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_VE"))) && !proformEllipticalTrainer && filter) {
                 discoveryAgent->stop();
-                proformEllipticalTrainer = new proformellipticaltrainer(noWriteResistance, noHeartService);
+                proformEllipticalTrainer = new proformellipticaltrainer(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(proformEllipticalTrainer, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
@@ -1966,6 +1981,11 @@ void bluetooth::restart() {
         delete fakeBike;
         fakeBike = nullptr;
     }
+    if (fakeElliptical) {
+
+        delete fakeElliptical;
+        fakeElliptical = nullptr;
+    }
     if (npeCableBike) {
 
         delete npeCableBike;
@@ -2270,6 +2290,8 @@ bluetoothdevice *bluetooth::device() {
         return powerTreadmill;
     } else if (fakeBike) {
         return fakeBike;
+    } else if (fakeElliptical) {
+        return fakeElliptical;
     } else if (npeCableBike) {
         return npeCableBike;
     } else if (tacxneo2Bike) {
