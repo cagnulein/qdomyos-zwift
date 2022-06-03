@@ -27,10 +27,10 @@ jobs:
       - name: Compile Linux Desktop
         run: |
             cd ../../; rm src/secret.h; git reset --hard; git pull
-            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
-            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
-            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
-            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
+            echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > src/secret.h
+            echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> src/secret.h 
+            echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> src/secret.h 
+            echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> src/secret.h 
             "/Users/cagnulein/Qt/5.15.0/android/bin/qmake" src/qdomyos-zwift.pro -spec android-clang CONFIG-=qtquickcompiler 'ANDROID_ABIS=armeabi-v7a arm64-v8a x86 x86_64'
             "/Users/cagnulein/Library/Android/sdk/ndk/21.1.6352462/prebuilt/darwin-x86_64/bin/make" -f build-qdomyos-zwift-Android_Qt_5_15_0_android_Clang_Multi_Abi-Release/Makefile qmake_all
             "/Users/cagnulein/Library/Android/sdk/ndk/21.1.6352462/prebuilt/darwin-x86_64/bin/make" -j8
