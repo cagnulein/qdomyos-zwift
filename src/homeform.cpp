@@ -348,7 +348,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     m_speech.setLocale(QLocale::English);
 
-#ifdef TEST
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
     deviceConnected(b);
 #endif
@@ -1499,6 +1499,13 @@ void homeform::moveTile(QString name, int newIndex, int oldIndex) {
 void homeform::sortTilesTimeout() { sortTiles(); }
 
 void homeform::deviceConnected(QBluetoothDeviceInfo b) {
+
+    qDebug() << "deviceConnected" << bluetoothManager << engine;
+    if (bluetoothManager)
+        qDebug() << bluetoothManager->device();
+
+    if (bluetoothManager->device() == nullptr)
+        return;
 
     // if the device reconnects in the same session, the tiles shouldn't be created again
     static bool first = false;
