@@ -26,7 +26,7 @@ jobs:
     steps:
       - name: Compile Linux Desktop
         run: |
-            pwd; rm src/secret.h; git reset --hard; git pull
+            cd ../../; rm src/secret.h; git reset --hard; git pull
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
             echo "#define SMTP_USERNAME ${{ secrets.smtp_username }}" >> secret.h 
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
