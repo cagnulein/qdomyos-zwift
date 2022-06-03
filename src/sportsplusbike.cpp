@@ -161,18 +161,17 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         // double resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
     } else {
-        double watt = GetWattFromPacket(newValue);
-        emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
-
         if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
                 .toString()
-                .startsWith(QStringLiteral("Disabled")))
+                .startsWith(QStringLiteral("Disabled"))) {
+            double watt = ((uint8_t)newValue.at(9)) * 100;
+            uint8_t hexint = ((uint8_t)newValue.at(10));
+            watt += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
             m_watt = watt;
+        }
+        emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
-        cadence = ((uint8_t)newValue.at(9)) * 100;
-        uint8_t hexint = ((uint8_t)newValue.at(10));
-        cadence += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
-        double speed = cadence * 0.372;
+        double speed = GetSpeedFromPacket(newValue);
         if (!firstCharChanged) {
             Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
         }
@@ -228,17 +227,6 @@ uint16_t sportsplusbike::GetElapsedFromPacket(const QByteArray &packet) {
 }
 
 double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
-    double data = (double)(convertedData) / 100.0f;
-    return data;
-}
-
-double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
-    return (double)(convertedData);
-}
-
-double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
     QSettings settings;
     bool sp_ht_9600ie = settings.value(QStringLiteral("sp_ht_9600ie"), false).toBool();
     if (sp_ht_9600ie) {
@@ -248,10 +236,21 @@ double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
         double data = ((double)(convertedData / 10));
         return data;
     } else {
-        uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
-        double data = ((double)(convertedData));
+        uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
+        double data = (double)(convertedData) / 100.0f;
         return data;
     }
+}
+
+double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
+    uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(7));
+    return (double)(convertedData);
+}
+
+double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
+    uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
+    double data = ((double)(convertedData));
+    return data;
 }
 
 void sportsplusbike::btinit(bool startTape) {

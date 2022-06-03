@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech
 
 QT+= charts
 
@@ -698,4 +698,4 @@ win32: QMAKE_CXXFLAGS_RELEASE -= -O2
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.10.95
+VERSION = 2.10.96

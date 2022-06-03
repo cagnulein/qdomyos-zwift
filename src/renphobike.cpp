@@ -508,11 +508,11 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
             qDebug() << QStringLiteral("to") << r;
 
             if (power_sensor) {
-                double wattDelta = wattFromBike.value() - m_watt.value();
-                r = r + wattDelta;
+                double f = ((double)r * (double)r) / m_watt.value();
+                r = f;
                 qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
                          << QStringLiteral("reading from power pedal") << m_watt.value() << QStringLiteral("wattDetta")
-                         << wattDelta << r;
+                         << r;
             }
 
             lastFTMSPacketReceived.clear();

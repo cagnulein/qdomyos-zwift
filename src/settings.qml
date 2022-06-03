@@ -385,6 +385,49 @@ import Qt.labs.settings 1.0
             property real cadence_gain: 1
             property bool sp_ht_9600ie: false
 
+            // from the version 2.10.92
+            property bool tts_enabled: false
+            property int tts_summary_sec: 120
+            property bool tts_act_speed: false
+            property bool tts_avg_speed: true
+            property bool tts_max_speed: false
+            property bool tts_act_inclination: false
+            property bool tts_act_cadence: false
+            property bool tts_avg_cadence: true
+            property bool tts_max_cadence: false
+            property bool tts_act_elevation: true
+            property bool tts_act_calories: true
+            property bool tts_act_odometer: true
+            property bool tts_act_pace: false
+            property bool tts_avg_pace: true
+            property bool tts_max_pace: false
+            property bool tts_act_resistance: true
+            property bool tts_avg_resistance: true
+            property bool tts_max_resistance: false
+            property bool tts_act_watt: false
+            property bool tts_avg_watt: true
+            property bool tts_max_watt: true
+            property bool tts_act_ftp: false
+            property bool tts_avg_ftp: true
+            property bool tts_max_ftp: false
+            property bool tts_act_heart: true
+            property bool tts_avg_heart: true
+            property bool tts_max_heart: false
+            property bool tts_act_jouls: true
+            property bool tts_act_elapsed: true
+            property bool tts_act_peloton_resistance: false
+            property bool tts_avg_peloton_resistance: false
+            property bool tts_max_peloton_resistance: false
+            property bool tts_act_target_peloton_resistance: true
+            property bool tts_act_target_cadence: true
+            property bool tts_act_target_power: true
+            property bool tts_act_target_zone: true
+            property bool tts_act_target_speed: true
+            property bool tts_act_target_incline: true
+            property bool tts_act_watt_kg: false
+            property bool tts_avg_watt_kg: false
+            property bool tts_max_watt_kg: false
+
             // from the version 2.10.96
             property bool fakedevice_elliptical: false
         }
@@ -5855,6 +5898,15 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+            }
+
+            NewPageElement {
+                id: labelTTSSettings
+                title: qsTr("TTS (Text to Speech) Settings 🔊")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: "settings-tts.qml"
             }
 
             AccordionElement {
