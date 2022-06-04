@@ -59,7 +59,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams()
     qDebug() << "in !";
     QHostAddress sender;
     QSettings settings;
-    u_int16_t port;
+    uint16_t port;
     while (socket->hasPendingDatagrams())
     {
          QByteArray datagram;
