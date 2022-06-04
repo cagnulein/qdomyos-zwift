@@ -696,7 +696,7 @@ include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
-win32: QMAKE_CXXFLAGS_RELEASE -= -O2
+win32: CONFIG += debug
 
 WINRT_MANIFEST = AppxManifest.xml
 
