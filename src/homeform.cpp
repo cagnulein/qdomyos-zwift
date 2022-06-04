@@ -1441,6 +1441,18 @@ void homeform::sortTiles() {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
             }
+
+            if (settings.value(QStringLiteral("tile_target_cadence_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_cadence_order"), 19).toInt() == i) {
+                target_cadence->setGridId(i);
+                dataList.append(target_cadence);
+            }
+
+            if (settings.value(QStringLiteral("tile_target_speed_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_target_speed_order"), 28).toInt() == i) {
+                target_speed->setGridId(i);
+                dataList.append(target_speed);
+            }
         }
     }
 
@@ -2361,55 +2373,7 @@ void homeform::update() {
             elevation->setSecondLine(QString::number(((bike *)bluetoothManager->device())->elevationGain().rate1s() *
                                                          60.0 * meter_feet_conversion,
                                                      'f', (miles ? 0 : 1)) +
-                                     " /min");
-
-            if (trainProgram) {
-                int8_t lower_requested_peloton_resistance =
-                    trainProgram->currentRow().lower_requested_peloton_resistance;
-                int8_t upper_requested_peloton_resistance =
-                    trainProgram->currentRow().upper_requested_peloton_resistance;
-                if (lower_requested_peloton_resistance != -1) {
-                    this->target_peloton_resistance->setSecondLine(
-                        QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
-                        QStringLiteral(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
-                } else {
-                    this->target_peloton_resistance->setSecondLine(QLatin1String(""));
-                }
-
-                if (settings.value(QStringLiteral("tile_peloton_resistance_color_enabled"), false).toBool()) {
-                    if (lower_requested_peloton_resistance == -1) {
-                        this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
-                    } else if (peloton_resistance < lower_requested_peloton_resistance) {
-                        this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
-                    } else if (peloton_resistance <= upper_requested_peloton_resistance) {
-                        this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
-                    } else {
-                        this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
-                    }
-                }
-
-                int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
-                int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
-                if (lower_cadence != -1) {
-                    this->target_cadence->setSecondLine(
-                        QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) + QStringLiteral(" MAX: ") +
-                        QString::number(upper_cadence, 'f', 0));
-                } else {
-                    this->target_cadence->setSecondLine(QLatin1String(""));
-                }
-
-                if (settings.value(QStringLiteral("tile_cadence_color_enabled"), false).toBool()) {
-                    if (lower_cadence == -1) {
-                        this->cadence->setValueFontColor(QStringLiteral("white"));
-                    } else if (cadence < lower_cadence) {
-                        this->cadence->setValueFontColor(QStringLiteral("red"));
-                    } else if (cadence <= upper_cadence) {
-                        this->cadence->setValueFontColor(QStringLiteral("limegreen"));
-                    } else {
-                        this->cadence->setValueFontColor(QStringLiteral("orange"));
-                    }
-                }
-            }
+                                     " /min");       
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -2519,10 +2483,63 @@ void homeform::update() {
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
+            this->target_speed->setValue(QString::number(
+                ((elliptical *)bluetoothManager->device())->lastRequestedSpeed().value() * unit_conversion, 'f', 1));
+
+            this->target_cadence->setValue(
+                QString::number(((elliptical *)bluetoothManager->device())->lastRequestedCadence().value(), 'f', 0));
         }
         watt->setSecondLine(
             QStringLiteral("AVG: ") + QString::number((bluetoothManager->device())->wattsMetric().average(), 'f', 0) +
             QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
+
+        if (trainProgram) {
+            int8_t lower_requested_peloton_resistance =
+                trainProgram->currentRow().lower_requested_peloton_resistance;
+            int8_t upper_requested_peloton_resistance =
+                trainProgram->currentRow().upper_requested_peloton_resistance;
+            if (lower_requested_peloton_resistance != -1) {
+                this->target_peloton_resistance->setSecondLine(
+                    QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
+                    QStringLiteral(" MAX: ") + QString::number(upper_requested_peloton_resistance, 'f', 0));
+            } else {
+                this->target_peloton_resistance->setSecondLine(QLatin1String(""));
+            }
+
+            if (settings.value(QStringLiteral("tile_peloton_resistance_color_enabled"), false).toBool()) {
+                if (lower_requested_peloton_resistance == -1) {
+                    this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
+                } else if (peloton_resistance < lower_requested_peloton_resistance) {
+                    this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
+                } else if (peloton_resistance <= upper_requested_peloton_resistance) {
+                    this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
+                } else {
+                    this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));
+                }
+            }
+
+            int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
+            int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
+            if (lower_cadence != -1) {
+                this->target_cadence->setSecondLine(
+                    QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) + QStringLiteral(" MAX: ") +
+                    QString::number(upper_cadence, 'f', 0));
+            } else {
+                this->target_cadence->setSecondLine(QLatin1String(""));
+            }
+
+            if (settings.value(QStringLiteral("tile_cadence_color_enabled"), false).toBool()) {
+                if (lower_cadence == -1) {
+                    this->cadence->setValueFontColor(QStringLiteral("white"));
+                } else if (cadence < lower_cadence) {
+                    this->cadence->setValueFontColor(QStringLiteral("red"));
+                } else if (cadence <= upper_cadence) {
+                    this->cadence->setValueFontColor(QStringLiteral("limegreen"));
+                } else {
+                    this->cadence->setValueFontColor(QStringLiteral("orange"));
+                }
+            }
+        }
 
         double ftpPerc = 0;
         QString ftpMinW = QStringLiteral("0");
