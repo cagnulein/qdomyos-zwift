@@ -16,12 +16,11 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
+#include <QUdpSocket>
 
 #include "treadmill.h"
 #include "virtualbike.h"
 #include "virtualtreadmill.h"
-
-#include "adbclient.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -55,7 +54,7 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    AdbClient *adbClient = nullptr;
+    QUdpSocket *socket;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -67,6 +66,7 @@ class nordictrackifitadbtreadmill : public treadmill {
 
   private slots:
 
+    void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
 
     void update();
