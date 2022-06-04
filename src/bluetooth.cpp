@@ -858,8 +858,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
                         b.name().toUpper().startsWith(QStringLiteral("T318_")) ||     // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("T218_")) ||     // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||   // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) || // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||   // FTMS                        
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
@@ -890,6 +889,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(horizonTreadmill);
                 innerTemplateManager->start(horizonTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("MYRUN ")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("MERACH-U3")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("TREADMILL "))) &&
                        !technogymmyrunTreadmill && filter) {
                 discoveryAgent->stop();
