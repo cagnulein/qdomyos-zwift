@@ -35,8 +35,6 @@ void fakeelliptical::update() {
 
     update_metrics(true, watts());
 
-    Cadence = 40;
-
     if (Cadence.value() > 0) {
         CrankRevs++;
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));

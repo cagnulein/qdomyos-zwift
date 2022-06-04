@@ -345,6 +345,7 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
     double cadence_gain = settings.value(QStringLiteral("cadence_gain"), 1.0).toDouble();
     double cadence_offset = settings.value(QStringLiteral("cadence_offset"), 0.0).toDouble();
+    const double miles = 1.60934;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -357,15 +358,18 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
+        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(12)) << 8) + (uint16_t)((uint8_t)newValue.at(11))) / 100.0) * miles;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
     }
 
+    /*
     if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x10 &&
         newValue.at(2) == 0x01) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) + (uint16_t)((uint8_t)newValue.at(3))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
-    }
+    }*/
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
         newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30) ||
