@@ -19,6 +19,13 @@ homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(par
     retry.setInterval(10s);
     connect(&retry, &QTimer::timeout, this, &homefitnessbuddy::startEngine);
 
+    if (!settings.value(QStringLiteral("peloton_username"), QStringLiteral("username"))
+             .toString()
+             .compare(QStringLiteral("username"))) {
+        qDebug() << QStringLiteral("invalid peloton credentials");
+        return;
+    }
+
     startEngine();
 }
 
@@ -112,8 +119,12 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
         QDate d = QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
         d = d.addYears(100);
         bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
-        qDebug() << coach.contains('&') << r.toObject().value(QStringLiteral("Coach")).toString() << r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors")) << d << date;
-        c |= coach.contains('&') && r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
+        qDebug()
+            << coach.contains('&') << r.toObject().value(QStringLiteral("Coach")).toString()
+            << r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"))
+            << d << date;
+        c |= coach.contains('&') &&
+             r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
         if (d == date && c) {
             found++;
         }
@@ -125,7 +136,9 @@ void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedal
                 QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
             d = d.addYears(100);
             bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
-            c |= coach.contains('&') && r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
+            c |=
+                coach.contains('&') &&
+                r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
             if (d == date && c) {
                 connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
                 QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));

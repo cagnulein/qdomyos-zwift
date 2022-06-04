@@ -1,5 +1,5 @@
-#ifndef SPORTSPLUSBIKE_H
-#define SPORTSPLUSBIKE_H
+#ifndef PROFORMELLIPTICALTRAINER_H
+#define PROFORMELLIPTICALTRAINER_H
 
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QtBluetooth/qlowenergyadvertisingdata.h>
@@ -22,64 +22,73 @@
 #include <QtCore/qscopedpointer.h>
 #include <QtCore/qtimer.h>
 
+#include <QDateTime>
 #include <QObject>
-#include <QTime>
+#include <QString>
 
-#include "bike.h"
+#include "elliptical.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 
-class sportsplusbike : public bike {
+#ifdef Q_OS_IOS
+#include "ios/lockscreen.h"
+#endif
+
+class proformellipticaltrainer : public elliptical {
     Q_OBJECT
   public:
-    sportsplusbike(bool noWriteResistance, bool noHeartService);
-    int pelotonToBikeResistance(int pelotonResistance);
+    proformellipticaltrainer(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                             double bikeResistanceGain);
     bool connected();
 
-    void *VirtualBike();
+    void *VirtualTreadmill();
     void *VirtualDevice();
+    int pelotonToEllipticalResistance(int pelotonResistance);
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
-    double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
-    uint16_t GetElapsedFromPacket(const QByteArray &packet);
+    QTime GetElapsedFromPacket(QByteArray packet);
+    double GetResistanceFromPacket(QByteArray packet);
+    void btinit();
+    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
+                             bool wait_for_response = false);
     void forceResistance(int8_t requestResistance);
-    void updateDisplay(uint16_t elapsed);
-    void btinit(bool startTape);
-    void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
-                             bool wait_for_response);
     void startDiscover();
-    uint16_t watts();
-    double GetWattFromPacket(const QByteArray &packet);
+    void sendPoll();
+    void forceIncline(double incline);
+    void forceSpeed(double speed);
 
     QTimer *refresh;
+    virtualtreadmill *virtualTreadmill = nullptr;
     virtualbike *virtualBike = nullptr;
-
-    bool noWriteResistance = false;
-    bool noHeartService = false;
-
-    uint8_t firstVirtualBike = 0;
-    bool firstCharChanged = true;
-    QDateTime lastTimeCharChanged;
-    uint8_t sec1update = 0;
-    QByteArray lastPacket;
+    uint8_t counterPoll = 0;
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
-    QLowEnergyCharacteristic gattNotify2Characteristic;
-    QLowEnergyCharacteristic gattNotify3Characteristic;
+
+    const int max_resistance = 24;
+    uint8_t sec1Update = 0;
+    QByteArray lastPacket;
+    QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    uint8_t firstStateChanged = 0;
+    uint16_t m_watts = 0;
 
     bool initDone = false;
     bool initRequest = false;
-    bool readyToStart = false;
 
-    const int max_resistance = 24;
+    bool noWriteResistance = false;
+    bool noHeartService = false;
+
+#ifdef Q_OS_IOS
+    lockscreen *h = 0;
+#endif
 
   signals:
     void disconnected();
     void debug(QString string);
-    void packetReceived();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
@@ -91,6 +100,7 @@ class sportsplusbike : public bike {
     void descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
     void controllerStateChanged(QLowEnergyController::ControllerState state);
+    void changeInclinationRequested(double grade, double percentage);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);
@@ -99,4 +109,4 @@ class sportsplusbike : public bike {
     void errorService(QLowEnergyService::ServiceError);
 };
 
-#endif // SPORTSPLUSBIKE_H
+#endif // PROFORMELLIPTICALTRAINER_H

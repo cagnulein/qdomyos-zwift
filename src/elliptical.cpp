@@ -119,3 +119,14 @@ void elliptical::setLap() {
 
     Inclination.setLap(false);
 }
+
+int elliptical::pelotonToEllipticalResistance(int pelotonResistance) { return pelotonResistance; }
+void elliptical::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
+void elliptical::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
+double elliptical::requestedSpeed() { return requestSpeed; }
+void elliptical::changeSpeed(double speed) {
+    RequestedSpeed = speed;
+    if (autoResistanceEnable)
+        requestSpeed = speed;
+}
+metric elliptical::lastRequestedCadence() { return RequestedCadence; }

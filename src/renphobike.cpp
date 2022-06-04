@@ -256,13 +256,15 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
 
     if (Flags.instantPower) {
+        wattFromBike =
+            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
-            m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                               (uint16_t)((uint8_t)newValue.at(index))));
+            m_watt = wattFromBike.value();
         index += 2;
         debug("Current Watt: " + QString::number(m_watt.value()));
+        debug("Current Watt from the Bike: " + QString::number(wattFromBike.value()));
     }
 
     if (Flags.avgPower) {
@@ -488,23 +490,36 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
         lastFTMSPacketReceived.append(newValue.at(i));
 
     if (gattWriteCharControlPointId.isValid()) {
-        qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ')
-                 << lastFTMSPacketReceived.toHex(' ');
+        qDebug() << QStringLiteral("routing FTMS packet to the bike from virtualbike") << characteristic.uuid()
+                 << newValue.toHex(' ') << lastFTMSPacketReceived.toHex(' ');
 
         // handling watt gain for erg
         QSettings settings;
+        bool power_sensor = !settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                                 .toString()
+                                 .startsWith(QStringLiteral("Disabled"));
         double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
         double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
-        if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER && (watt_gain != 1.0 || watt_offset != 0)) {
+        if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER &&
+            (watt_gain != 1.0 || watt_offset != 0 || power_sensor)) {
             uint16_t r = (((uint8_t)lastFTMSPacketReceived.at(1)) + (lastFTMSPacketReceived.at(2) << 8));
-            qDebug() << "applying ERG mod from" << r;
+            qDebug() << QStringLiteral("applying ERG mod from") << r;
             r = ((r / watt_gain) - watt_offset);
-            qDebug() << "to" << r;
+            qDebug() << QStringLiteral("to") << r;
+
+            if (power_sensor) {
+                double f = ((double)r * (double)r) / m_watt.value();
+                r = f;
+                qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
+                         << QStringLiteral("reading from power pedal") << m_watt.value() << QStringLiteral("wattDetta")
+                         << r;
+            }
+
             lastFTMSPacketReceived.clear();
             lastFTMSPacketReceived.append(FTMS_SET_TARGET_POWER);
             lastFTMSPacketReceived.append(r & 0xFF);
             lastFTMSPacketReceived.append(((r & 0xFF00) >> 8) & 0x00FF);
-            qDebug() << "sending" << lastFTMSPacketReceived.toHex(' ');
+            qDebug() << QStringLiteral("sending") << lastFTMSPacketReceived.toHex(' ');
         }
 
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, lastFTMSPacketReceived);

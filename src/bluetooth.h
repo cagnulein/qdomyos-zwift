@@ -36,6 +36,7 @@
 #include "elitesterzosmart.h"
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
+#include "fakeelliptical.h"
 #include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
 
@@ -62,6 +63,7 @@
 #include "paferstreadmill.h"
 #include "proformbike.h"
 #include "proformelliptical.h"
+#include "proformellipticaltrainer.h"
 #include "proformrower.h"
 #include "proformtreadmill.h"
 #include "proformwifibike.h"
@@ -147,6 +149,7 @@ class bluetooth : public QObject, public SignalHandler {
     proformbike *proformBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
     proformelliptical *proformElliptical = nullptr;
+    proformellipticaltrainer *proformEllipticalTrainer = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
@@ -197,6 +200,7 @@ class bluetooth : public QObject, public SignalHandler {
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
     fakebike *fakeBike = nullptr;
+    fakeelliptical *fakeElliptical = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
 

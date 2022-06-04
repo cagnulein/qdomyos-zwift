@@ -380,8 +380,61 @@ import Qt.labs.settings 1.0
             // from the version 2.10.85
             property bool proform_treadmill_1800i: false
 
+
             // from the version 2.10.90
             property string nordictrack_2950_ip: ""
+
+            // from the version 2.10.91
+            property real cadence_offset: 0
+            property real cadence_gain: 1
+            property bool sp_ht_9600ie: false
+
+            // from the version 2.10.92
+            property bool tts_enabled: false
+            property int tts_summary_sec: 120
+            property bool tts_act_speed: false
+            property bool tts_avg_speed: true
+            property bool tts_max_speed: false
+            property bool tts_act_inclination: false
+            property bool tts_act_cadence: false
+            property bool tts_avg_cadence: true
+            property bool tts_max_cadence: false
+            property bool tts_act_elevation: true
+            property bool tts_act_calories: true
+            property bool tts_act_odometer: true
+            property bool tts_act_pace: false
+            property bool tts_avg_pace: true
+            property bool tts_max_pace: false
+            property bool tts_act_resistance: true
+            property bool tts_avg_resistance: true
+            property bool tts_max_resistance: false
+            property bool tts_act_watt: false
+            property bool tts_avg_watt: true
+            property bool tts_max_watt: true
+            property bool tts_act_ftp: false
+            property bool tts_avg_ftp: true
+            property bool tts_max_ftp: false
+            property bool tts_act_heart: true
+            property bool tts_avg_heart: true
+            property bool tts_max_heart: false
+            property bool tts_act_jouls: true
+            property bool tts_act_elapsed: true
+            property bool tts_act_peloton_resistance: false
+            property bool tts_avg_peloton_resistance: false
+            property bool tts_max_peloton_resistance: false
+            property bool tts_act_target_peloton_resistance: true
+            property bool tts_act_target_cadence: true
+            property bool tts_act_target_power: true
+            property bool tts_act_target_zone: true
+            property bool tts_act_target_speed: true
+            property bool tts_act_target_incline: true
+            property bool tts_act_watt_kg: false
+            property bool tts_avg_watt_kg: false
+            property bool tts_max_watt_kg: false
+
+            // from the version 2.10.96
+            property bool fakedevice_elliptical: false
+
         }
 
         function paddingZeros(text, limit) {
@@ -1502,6 +1555,27 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.hammer_racer_s = checked
+                    }
+                }
+                AccordionElement {
+                    id: cardioFitBikeAccordion
+                    title: qsTr("CardioFIT Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: spht9600iEBikeDelegate
+                        text: qsTr("SP-HT-9600iE")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.sp_ht_9600ie
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.sp_ht_9600ie = checked
                     }
                 }
                 AccordionElement {
@@ -4993,6 +5067,56 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcadenceOffset
+                            text: qsTr("Cadence Offset")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceOffsetTextField
+                            text: settings.cadence_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.cadence_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okcadenceOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_offset = cadenceOffsetTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcadenceGain
+                            text: qsTr("Cadence Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceGainTextField
+                            text: settings.cadence_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.cadence_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCadenceGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_gain = speedGainTextField.text
+                        }
+                    }
+
                     Label {
                         id: stravaLabel
                         text: qsTr("Strava")
@@ -5805,6 +5929,15 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            NewPageElement {
+                id: labelTTSSettings
+                title: qsTr("TTS (Text to Speech) Settings 🔊")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: "settings-tts.qml"
+            }
+
             AccordionElement {
                 id: experimentalFeatureAccordion
                 title: qsTr("Experimental Features")
@@ -6103,7 +6236,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Fake Device")
+                        text: qsTr("Fake Bike")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -6114,6 +6247,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: fakeEllipticalDelegate
+                        text: qsTr("Fake Elliptical")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fakedevice_elliptical = checked
                     }
 
                     SwitchDelegate {

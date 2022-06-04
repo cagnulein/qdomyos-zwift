@@ -53,6 +53,17 @@ void proformtreadmill::forceIncline(double incline) {
     bool nordictrack_t65s_treadmill = settings.value("nordictrack_t65s_treadmill", false).toBool();
     bool nordictrack_s30_treadmill = settings.value("nordictrack_s30_treadmill", false).toBool();
     bool proform_treadmill_9_0 = settings.value("proform_treadmill_9_0", false).toBool();
+    bool proform_treadmill_1800i = settings.value("proform_treadmill_1800i", false).toBool();
+
+    if (proform_treadmill_1800i) {
+        uint8_t i = abs(incline * 10);
+        uint8_t r = i % 5;
+        i = i - r;
+        if (incline > 0)
+            incline = (double)i / 10.0;
+        else
+            incline = -((double)i / 10.0);
+    }
 
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
     uint8_t write[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x04, 0x09, 0x02, 0x01,
