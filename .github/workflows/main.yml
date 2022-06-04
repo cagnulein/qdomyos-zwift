@@ -77,7 +77,7 @@ jobs:
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
             make -j8
-            cd release
+            cd debug
             mkdir output
             mkdir appx
             cp qdomyos-zwift.exe output/
