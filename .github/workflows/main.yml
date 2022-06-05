@@ -77,7 +77,7 @@ jobs:
             echo "#define SMTP_PASSWORD ${{ secrets.smtp_password }}" >> secret.h 
             echo "#define SMTP_SERVER ${{ secrets.smtp_server }}" >> secret.h 
             make -j8
-            cd release
+            cd debug
             mkdir output
             mkdir appx
             cp qdomyos-zwift.exe output/
@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: src/release/output
+          path: src/debug/output
           
   # This workflow contains a single job called "build"
   build:
