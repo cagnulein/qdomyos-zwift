@@ -96,7 +96,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: windows-binary
-          path: src/release/output
+          path: src/debug/output
           
   # This workflow contains a single job called "build"
   build:
