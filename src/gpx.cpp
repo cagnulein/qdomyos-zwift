@@ -60,19 +60,25 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
     }
     if (inclinationList.empty()) {
         gpx_point pP = this->points.constFirst();
-
+        double totDistance = 0;
         for (int32_t i = 1; i < this->points.count(); i++) {
             double distance = this->points.at(i).p.distanceTo(pP.p);
             double elevation = this->points.at(i).p.altitude() - pP.p.altitude();
+            
+            if(distance == 0) {
+                continue;
+            }
             
             pP = this->points[i];
 
             gpx_altitude_point_for_treadmill g;
             g.distance = distance / 1000.0;
+            totDistance += g.distance;
             g.inclination = (elevation / distance) * 100;
             g.elevation = this->points.at(i).p.altitude();
             g.latitude = pP.p.latitude();
             g.longitude = pP.p.longitude();
+            qDebug() << i << g.distance << g.inclination << g.elevation << g.latitude << g.longitude << totDistance;
             inclinationList.append(g);
         }
     }    
