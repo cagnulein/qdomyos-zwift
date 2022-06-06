@@ -87,7 +87,7 @@ metric bike::pelotonResistance() { return m_pelotonResistance; }
 int bike::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
 uint8_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void bike::powerSensor(uint16_t power) { m_watt.setValue(power); }
+void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
 bluetoothdevice::BLUETOOTH_TYPE bike::deviceType() { return bluetoothdevice::BIKE; }
 
@@ -240,4 +240,4 @@ uint8_t bike::metrics_override_heartrate() {
     return qRound(currentHeart().value());
 }
 
-bool bike::inclinationAvailableByHardware() {return false;}
+bool bike::inclinationAvailableByHardware() { return false; }
