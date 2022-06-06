@@ -130,3 +130,5 @@ void elliptical::changeSpeed(double speed) {
         requestSpeed = speed;
 }
 metric elliptical::lastRequestedCadence() { return RequestedCadence; }
+metric elliptical::pelotonResistance() { return m_pelotonResistance; }
+metric elliptical::lastRequestedPelotonResistance() { return RequestedPelotonResistance; }

@@ -13,8 +13,8 @@
 
 using namespace std::chrono_literals;
 
-proformellipticaltrainer::proformellipticaltrainer(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                                                   double bikeResistanceGain) {
+proformellipticaltrainer::proformellipticaltrainer(bool noWriteResistance, bool noHeartService,
+                                                   uint8_t bikeResistanceOffset, double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -358,7 +358,8 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(12)) << 8) + (uint16_t)((uint8_t)newValue.at(11))) / 100.0) * miles;
+        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(12)) << 8) + (uint16_t)((uint8_t)newValue.at(11))) / 100.0) *
+                miles;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
     }
@@ -381,6 +382,7 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     }
 
     Resistance = GetResistanceFromPacket(newValue);
+    m_pelotonResistance = (100 / max_resistance) * Resistance.value();
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -556,7 +558,8 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
                             &proformellipticaltrainer::changeInclinationRequested);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                  bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
                 }

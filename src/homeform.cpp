@@ -2373,7 +2373,7 @@ void homeform::update() {
             elevation->setSecondLine(QString::number(((bike *)bluetoothManager->device())->elevationGain().rate1s() *
                                                          60.0 * meter_feet_conversion,
                                                      'f', (miles ? 0 : 1)) +
-                                     " /min");       
+                                     " /min");
 
             this->steeringAngle->setValue(
                 QString::number(((bike *)bluetoothManager->device())->currentSteeringAngle().value(), 'f', 1));
@@ -2465,9 +2465,24 @@ void homeform::update() {
 
             odometer->setValue(QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 2));
             resistance = ((elliptical *)bluetoothManager->device())->currentResistance().value();
-            // this->peloton_resistance->setValue(QString::number(((elliptical*)bluetoothManager->device())->pelotonResistance(),
-            // 'f', 0));
+            peloton_resistance = ((elliptical *)bluetoothManager->device())->pelotonResistance().value();
+            this->peloton_resistance->setValue(QString::number(peloton_resistance, 'f', 0));
+            this->target_resistance->setValue(
+                QString::number(((elliptical *)bluetoothManager->device())->lastRequestedResistance().value(), 'f', 0));
+            this->target_peloton_resistance->setValue(QString::number(
+                ((elliptical *)bluetoothManager->device())->lastRequestedPelotonResistance().value(), 'f', 0));
             this->resistance->setValue(QString::number(resistance));
+            this->peloton_resistance->setSecondLine(
+                QStringLiteral("AVG: ") +
+                QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().average(), 'f', 0) +
+                QStringLiteral(" MAX: ") +
+                QString::number(((elliptical *)bluetoothManager->device())->pelotonResistance().max(), 'f', 0));
+            this->target_resistance->setSecondLine(
+                QString::number(bluetoothManager->device()->difficult() * 100.0, 'f', 0) + QStringLiteral("% @0%=") +
+                QString::number(bluetoothManager->device()->difficult() *
+                                    settings.value(QStringLiteral("bike_resistance_gain_f"), 1.0).toDouble() *
+                                    settings.value(QStringLiteral("bike_resistance_offset"), 4.0).toDouble(),
+                                'f', 0));
             inclination = ((elliptical *)bluetoothManager->device())->currentInclination().value();
             this->inclination->setValue(QString::number(inclination, 'f', 1));
             this->inclination->setSecondLine(
@@ -2494,10 +2509,8 @@ void homeform::update() {
             QStringLiteral(" MAX: ") + QString::number((bluetoothManager->device())->wattsMetric().max(), 'f', 0));
 
         if (trainProgram) {
-            int8_t lower_requested_peloton_resistance =
-                trainProgram->currentRow().lower_requested_peloton_resistance;
-            int8_t upper_requested_peloton_resistance =
-                trainProgram->currentRow().upper_requested_peloton_resistance;
+            int8_t lower_requested_peloton_resistance = trainProgram->currentRow().lower_requested_peloton_resistance;
+            int8_t upper_requested_peloton_resistance = trainProgram->currentRow().upper_requested_peloton_resistance;
             if (lower_requested_peloton_resistance != -1) {
                 this->target_peloton_resistance->setSecondLine(
                     QStringLiteral("MIN: ") + QString::number(lower_requested_peloton_resistance, 'f', 0) +
@@ -2521,9 +2534,8 @@ void homeform::update() {
             int16_t lower_cadence = trainProgram->currentRow().lower_cadence;
             int16_t upper_cadence = trainProgram->currentRow().upper_cadence;
             if (lower_cadence != -1) {
-                this->target_cadence->setSecondLine(
-                    QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) + QStringLiteral(" MAX: ") +
-                    QString::number(upper_cadence, 'f', 0));
+                this->target_cadence->setSecondLine(QStringLiteral("MIN: ") + QString::number(lower_cadence, 'f', 0) +
+                                                    QStringLiteral(" MAX: ") + QString::number(upper_cadence, 'f', 0));
             } else {
                 this->target_cadence->setSecondLine(QLatin1String(""));
             }
