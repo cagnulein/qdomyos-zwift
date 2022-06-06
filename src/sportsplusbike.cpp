@@ -172,6 +172,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current watt: ") + QString::number(m_watt.value()));
 
         double speed = GetSpeedFromPacket(newValue);
+        cadence = speed * 2.685185;
         if (!firstCharChanged) {
             Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QDateTime::currentDateTime()))));
         }
