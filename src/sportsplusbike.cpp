@@ -233,7 +233,7 @@ double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
         uint16_t convertedData = (packet.at(2) * 100);
         uint8_t hexint = ((uint8_t)packet.at(3));
         convertedData += (((hexint & 0xF0) >> 4) * 10) + (hexint & 0x0F);
-        double data = ((double)(convertedData / 10));
+        double data = (((double)(convertedData)) / 10.0);
         return data;
     } else {
         uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
