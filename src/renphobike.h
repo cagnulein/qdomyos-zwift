@@ -52,6 +52,7 @@ class renphobike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    uint16_t ergModificator(uint16_t powerRequested);
     uint16_t watts();
     void forceResistance(int8_t requestResistance);
     void forcePower(int16_t requestPower);

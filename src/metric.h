@@ -18,7 +18,7 @@ class metric {
 
     metric();
     void setType(_metric_type t);
-    void setValue(double value);
+    void setValue(double value, bool applyGainAndOffset = true);
     double value();
     double average();
     double average5s();

@@ -13,8 +13,8 @@
 
 using namespace std::chrono_literals;
 
-proformellipticaltrainer::proformellipticaltrainer(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
-                                                   double bikeResistanceGain) {
+proformellipticaltrainer::proformellipticaltrainer(bool noWriteResistance, bool noHeartService,
+                                                   uint8_t bikeResistanceOffset, double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -352,14 +352,16 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     lastPacket = newValue;
 
     if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x2C) {
-        Cadence = (newValue.at(2) * cadence_gain) + cadence_offset;
+        uint8_t c = newValue.at(2);
+        if (c > 0)
+            Cadence = (c * cadence_gain) + cadence_offset;
+        else
+            Cadence = 0;
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         if (Cadence.value() > 0) {
             CrankRevs++;
             LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
         }
-        Speed = ((double)(((uint16_t)((uint8_t)newValue.at(12)) << 8) + (uint16_t)((uint8_t)newValue.at(11))) / 100.0) * miles;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         return;
     }
 
@@ -380,7 +382,15 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
         return;
     }
 
+    Speed = ((double)((uint8_t)newValue.at(14)) / 10.0) * miles;
+    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     Resistance = GetResistanceFromPacket(newValue);
+
+    uint16_t p = (100 / max_resistance) * (Resistance.value() + 1);
+    if (p > 100)
+        p = 100;
+    m_pelotonResistance = p;
+
     if (watts())
         KCal += ((((0.048 * ((double)watts()) + 1.19) * weight * 3.5) / 200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -556,7 +566,8 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
                             &proformellipticaltrainer::changeInclinationRequested);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                  bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
                 }
@@ -671,5 +682,5 @@ void proformellipticaltrainer::controllerStateChanged(QLowEnergyController::Cont
 }
 
 int proformellipticaltrainer::pelotonToEllipticalResistance(int pelotonResistance) {
-    return (pelotonResistance * max_resistance) / 100;
+    return ((pelotonResistance * max_resistance) / 100) - 1;
 }

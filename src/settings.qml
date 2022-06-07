@@ -3621,21 +3621,6 @@ import Qt.labs.settings 1.0
                         }
                     }*/
 
-                    SwitchDelegate {
-                        id: treadmillForceSpeedDelegate
-                        text: qsTr("Treadmill Speed Forcing")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.treadmill_force_speed
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.treadmill_force_speed = checked
-                    }
-
                     RowLayout {
                         spacing: 10
                         Label {
@@ -4125,6 +4110,21 @@ import Qt.labs.settings 1.0
                 }
 
                 SwitchDelegate {
+                    id: treadmillForceSpeedDelegate
+                    text: qsTr("Treadmill Speed Forcing")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.treadmill_force_speed
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.treadmill_force_speed = checked
+                }
+
+                SwitchDelegate {
                     id: pauseOnStartTreadmillDelegate
                     text: qsTr("Pause when App Starts")
                     spacing: 0
@@ -4278,7 +4278,6 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.nordictrack_2950_ip = nordictrack2950IPTextField.text
                             }
                         }
-                        /*
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")
@@ -4292,7 +4291,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_9_0 = checked
-                        }*/
+                        }
                         /*
                         SwitchDelegate {
                             id: nordictrackFS5IDelegate

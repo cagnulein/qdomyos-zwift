@@ -38,6 +38,8 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
+macx: CONFIG += debug
+win32: CONFIG += debug
 macx: CONFIG += static
 macx {
     QMAKE_INFO_PLIST = macx/Info.plist
@@ -700,4 +702,4 @@ win32: CONFIG += debug
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.10.97
+VERSION = 2.10.98
