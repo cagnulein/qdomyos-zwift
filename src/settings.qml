@@ -4249,7 +4249,6 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_1800i = checked
                         }
-                        /*
                         SwitchDelegate {
                             id: proform90IDelegate
                             text: qsTr("Proform 9.0")
@@ -4263,7 +4262,7 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_9_0 = checked
-                        }*/
+                        }
                         /*
                         SwitchDelegate {
                             id: nordictrackFS5IDelegate
