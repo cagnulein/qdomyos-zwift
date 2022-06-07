@@ -696,8 +696,6 @@ include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
 
-win32: CONFIG += debug
-
 WINRT_MANIFEST = AppxManifest.xml
 
 VERSION = 2.10.97

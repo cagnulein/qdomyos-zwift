@@ -380,10 +380,6 @@ import Qt.labs.settings 1.0
             // from the version 2.10.85
             property bool proform_treadmill_1800i: false
 
-
-            // from the version 2.10.90
-            property string nordictrack_2950_ip: ""
-
             // from the version 2.10.91
             property real cadence_offset: 0
             property real cadence_gain: 1
@@ -435,6 +431,8 @@ import Qt.labs.settings 1.0
             // from the version 2.10.96
             property bool fakedevice_elliptical: false
 
+            // from the version 2.10.99
+            property string nordictrack_2950_ip: ""
         }
 
         function paddingZeros(text, limit) {
