@@ -29,7 +29,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     bool result = socket->bind(QHostAddress::AnyIPv4, 8002);
     qDebug() << result;
     processPendingDatagrams();
-    connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()),Qt::QueuedConnection);
+    connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
@@ -54,20 +54,18 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     // ********************************************************************************************************
 }
 
-void nordictrackifitadbtreadmill::processPendingDatagrams()
- {
+void nordictrackifitadbtreadmill::processPendingDatagrams() {
     qDebug() << "in !";
     QHostAddress sender;
     QSettings settings;
     uint16_t port;
-    while (socket->hasPendingDatagrams())
-    {
-         QByteArray datagram;
-         datagram.resize(socket->pendingDatagramSize());
-         socket->readDatagram(datagram.data(),datagram.size(),&sender,&port);
-        qDebug() <<"Message From :: " << sender.toString();
-        qDebug() <<"Port From :: "<< port;
-        qDebug() <<"Message :: " << datagram;
+    while (socket->hasPendingDatagrams()) {
+        QByteArray datagram;
+        datagram.resize(socket->pendingDatagramSize());
+        socket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
+        qDebug() << "Message From :: " << sender.toString();
+        qDebug() << "Port From :: " << port;
+        qDebug() << "Message :: " << datagram;
 
         QString ip = settings.value("nordictrack_2950_ip", "").toString();
         QString heartRateBeltName =
@@ -77,47 +75,52 @@ void nordictrackifitadbtreadmill::processPendingDatagrams()
         double speed = 0;
         double incline = 0;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
-        foreach(QString line, lines) {
+        foreach (QString line, lines) {
             qDebug() << line;
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
-                speed = aValues.last().toDouble();
-                Speed = speed;
+                if (aValues.length()) {
+                    speed = aValues.last().toDouble();
+                    Speed = speed;
+                }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
-                incline = aValues.last().toDouble();
-                Inclination = incline;
+                if (aValues.length()) {
+                    incline = aValues.last().toDouble();
+                    Inclination = incline;
+                }
             }
         }
 
         if (watts(weight))
-            KCal += ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
-                     (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
-                                    QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
-                                                                      // kg * 3.5) / 200 ) / 60
+            KCal +=
+                ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
+                 (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
+                                QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                  // kg * 3.5) / 200 ) / 60
         // KCal = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t) newValue.at(14)));
         Distance += ((Speed.value() / 3600000.0) *
                      ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
-    #ifdef Q_OS_ANDROID
+#ifdef Q_OS_ANDROID
         if (settings.value("ant_heart", false).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
-    #endif
+#endif
         {
             if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-    #ifdef Q_OS_IOS
-    #ifndef IO_UNDER_QT
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
                 lockscreen h;
                 long appleWatchHeartRate = h.heartRate();
                 h.setKcal(KCal.value());
                 h.setDistance(Distance.value());
                 Heart = appleWatchHeartRate;
                 debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
-    #endif
-    #endif
+#endif
+#endif
             }
         }
 
