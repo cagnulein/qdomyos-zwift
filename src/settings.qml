@@ -430,6 +430,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.96
             property bool fakedevice_elliptical: false
+
+            // from the version 2.10.99
+            property string nordictrack_2950_ip: ""
         }
 
         function paddingZeros(text, limit) {
@@ -4248,6 +4251,30 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_1800i = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelnordictrack2950IP
+                                text: qsTr("Nordictrack 2950 IP:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: nordictrack2950IPTextField
+                                text: settings.nordictrack_2950_ip
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.nordictrack_2950_ip = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: oknordictrack2950IPButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.nordictrack_2950_ip = nordictrack2950IPTextField.text
+                            }
                         }
                         SwitchDelegate {
                             id: proform90IDelegate

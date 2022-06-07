@@ -70,6 +70,7 @@ SOURCES += \
     fakeelliptical.cpp \
    kmlworkout.cpp \
    nautilusbike.cpp \
+   nordictrackifitadbtreadmill.cpp \
    proformellipticaltrainer.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
@@ -246,6 +247,7 @@ HEADERS += \
     fakeelliptical.h \
    kmlworkout.h \
    nautilusbike.h \
+   nordictrackifitadbtreadmill.h \
    proformellipticaltrainer.h \
    proformrower.h \
    proformwifibike.h \
@@ -695,8 +697,6 @@ ios {
 include($$PWD/purchasing/purchasing.pri)
 INCLUDEPATH += purchasing/qmltypes
 INCLUDEPATH += purchasing/inapp
-
-win32: QMAKE_CXXFLAGS_RELEASE -= -O2
 
 WINRT_MANIFEST = AppxManifest.xml
 
