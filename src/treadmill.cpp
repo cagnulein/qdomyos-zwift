@@ -151,5 +151,5 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power); }
+void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }

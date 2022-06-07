@@ -107,10 +107,15 @@ void renphobike::update() {
         } else {
             if (requestPower != -1) {
                 debug("writing power request " + QString::number(requestPower));
+                QSettings settings;
+                bool power_sensor = !settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                                         .toString()
+                                         .startsWith(QStringLiteral("Disabled"));
                 // if zwift is connected, QZ routes the ftms packets directly to the bike.
-                // if peloton is connected, the power request is handled by QZ
-                if (virtualBike && !virtualBike->ftmsDeviceConnected() && requestPower != 0)
-                    forcePower(requestPower);
+                // but if zwift is connected and there is also a power sensor attached, we need to change the erg mode
+                // dinamically if peloton is connected, the power request is handled by QZ
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || power_sensor) && requestPower != 0)
+                    forcePower(ergModificator(requestPower));
                 requestPower = -1;
                 requestResistance = -1;
             }
@@ -477,6 +482,28 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
     // ********************************************************************************************************
 }
 
+uint16_t renphobike::ergModificator(uint16_t powerRequested) {
+    QSettings settings;
+    bool power_sensor = !settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                             .toString()
+                             .startsWith(QStringLiteral("Disabled"));
+    double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+    double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+
+    qDebug() << QStringLiteral("applying ERG mod from") << powerRequested;
+    powerRequested = ((powerRequested / watt_gain) - watt_offset);
+    qDebug() << QStringLiteral("to") << powerRequested;
+
+    if (power_sensor) {
+        double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
+        powerRequested = f;
+        qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
+                 << QStringLiteral("reading from power pedal") << m_watt.value() << QStringLiteral("wattDetta")
+                 << powerRequested;
+    }
+    return powerRequested;
+}
+
 void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
 
     if (!autoResistanceEnable) {
@@ -503,17 +530,7 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
         if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER &&
             (watt_gain != 1.0 || watt_offset != 0 || power_sensor)) {
             uint16_t r = (((uint8_t)lastFTMSPacketReceived.at(1)) + (lastFTMSPacketReceived.at(2) << 8));
-            qDebug() << QStringLiteral("applying ERG mod from") << r;
-            r = ((r / watt_gain) - watt_offset);
-            qDebug() << QStringLiteral("to") << r;
-
-            if (power_sensor) {
-                double f = ((double)r * (double)r) / m_watt.value();
-                r = f;
-                qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
-                         << QStringLiteral("reading from power pedal") << m_watt.value() << QStringLiteral("wattDetta")
-                         << r;
-            }
+            r = ergModificator(r);
 
             lastFTMSPacketReceived.clear();
             lastFTMSPacketReceived.append(FTMS_SET_TARGET_POWER);
