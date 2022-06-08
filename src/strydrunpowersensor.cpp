@@ -85,14 +85,12 @@ void strydrunpowersensor::serviceDiscovered(const QBluetoothUuid &gatt) {
 
 void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
                                                 const QByteArray &newValue) {
-    // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
+    qDebug() << "characteristicChanged" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid::CyclingPowerMeasurement) {
         lastPacket = newValue;
@@ -157,6 +155,11 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         uint16_t speedMs = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
         double speed = (((double)speedMs) / 256.0) * 3.6; // km/h
         double cadence = (uint8_t)newValue.at(3)  * cadence_multiplier;
+        double InstantaneousStrideLengthCM = 0;
+        if(newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
+            InstantaneousStrideLengthCM = (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
+            qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM;
+        }
 
         Cadence = cadence;
         emit cadenceChanged(cadence);
