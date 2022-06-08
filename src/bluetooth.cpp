@@ -672,6 +672,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("E55")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E95")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E98")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("XG400")) ||
                         b.name().toUpper().startsWith(QStringLiteral("E98S"))) &&
                        !soleElliptical && filter) {
                 discoveryAgent->stop();
