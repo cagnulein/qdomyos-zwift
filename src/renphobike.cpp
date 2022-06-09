@@ -494,12 +494,14 @@ uint16_t renphobike::ergModificator(uint16_t powerRequested) {
     powerRequested = ((powerRequested / watt_gain) - watt_offset);
     qDebug() << QStringLiteral("to") << powerRequested;
 
-    if (power_sensor) {
+    if (power_sensor && virtualBike &&
+        QDateTime::currentMSecsSinceEpoch() > (virtualBike->whenLastFTMSFrameReceived() + 5000)) {
         double f = ((double)powerRequested * (double)powerRequested) / m_watt.average5s();
         powerRequested = f;
         qDebug() << QStringLiteral("power sensor detected, reading from the bike") << wattFromBike.value()
-                 << QStringLiteral("reading from power pedal") << m_watt.value() << QStringLiteral("wattDetta")
-                 << powerRequested;
+                 << QStringLiteral("reading from power pedal") << m_watt.value()
+                 << QStringLiteral("reading from power pedal (avg 5s)") << m_watt.average5s()
+                 << QStringLiteral("powerRequested") << powerRequested;
     }
     return powerRequested;
 }

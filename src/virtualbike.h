@@ -36,6 +36,12 @@ class virtualbike : public QObject {
                 uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     bool connected();
     bool ftmsDeviceConnected() { return lastFTMSFrameReceived != 0 || lastDirconFTMSFrameReceived != 0; }
+    qint64 whenLastFTMSFrameReceived() {
+        if (lastFTMSFrameReceived != 0)
+            return lastFTMSFrameReceived;
+        else
+            return lastDirconFTMSFrameReceived;
+    }
 
   private:
     QLowEnergyController *leController = nullptr;
