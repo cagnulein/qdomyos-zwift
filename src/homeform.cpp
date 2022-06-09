@@ -239,6 +239,14 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
                            QStringLiteral("0"), true, QStringLiteral("pid_hr"), 48, labelFontSize);
     extIncline = new DataObject(QStringLiteral("Ext.Inclin.(%)"), QStringLiteral("icons/icons/inclination.png"),
                                 QStringLiteral("0.0"), true, QStringLiteral("external_inclination"), 48, labelFontSize);
+    instantaneousStrideLengthCM =
+        new DataObject(QStringLiteral("Stride L.(cm)"), QStringLiteral("icons/icons/inclination.png"),
+                       QStringLiteral("0"), false, QStringLiteral("stride_length"), 48, labelFontSize);
+    groundContactMS = new DataObject(QStringLiteral("Ground Cont.(ms)"), QStringLiteral("icons/icons/inclination.png"),
+                                     QStringLiteral("0"), false, QStringLiteral("ground_contact"), 48, labelFontSize);
+    verticalOscillationMM =
+        new DataObject(QStringLiteral("Vert.Osc.(mm)"), QStringLiteral("icons/icons/inclination.png"),
+                       QStringLiteral("0"), false, QStringLiteral("vertical_oscillation"), 48, labelFontSize);
 
     if (!settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
 
@@ -635,8 +643,8 @@ void homeform::trainProgramSignals() {
 QStringList homeform::tile_order() {
 
     QStringList r;
-    r.reserve(39);
-    for (int i = 0; i < 39; i++) {
+    r.reserve(42);
+    for (int i = 0; i < 42; i++) {
         r.append(QString::number(i));
     }
     return r;
@@ -841,6 +849,24 @@ void homeform::sortTiles() {
                 settings.value(QStringLiteral("tile_pid_hr_order"), 31).toInt() == i) {
                 pidHR->setGridId(i);
                 dataList.append(pidHR);
+            }
+
+            if (settings.value(QStringLiteral("tile_instantaneous_stride_length_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_instantaneous_stride_length_order"), 32).toInt() == i) {
+                instantaneousStrideLengthCM->setGridId(i);
+                dataList.append(instantaneousStrideLengthCM);
+            }
+
+            if (settings.value(QStringLiteral("tile_ground_contact_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_ground_contact_order"), 33).toInt() == i) {
+                groundContactMS->setGridId(i);
+                dataList.append(groundContactMS);
+            }
+
+            if (settings.value(QStringLiteral("tile_vertical_oscillation_enabled"), false).toBool() &&
+                settings.value(QStringLiteral("tile_vertical_oscillation_order"), 34).toInt() == i) {
+                verticalOscillationMM->setGridId(i);
+                dataList.append(verticalOscillationMM);
             }
         }
     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -2071,6 +2097,9 @@ void homeform::update() {
         double avgStrokesRate = 0;
         double maxStrokesRate = 0;
         double avgStrokesLength = 0;
+        double strideLength = 0;
+        double groundContact = 0;
+        double verticalOscillation = 0;
 
         bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
         double ftpSetting = settings.value(QStringLiteral("ftp"), 200.0).toDouble();
@@ -2254,6 +2283,9 @@ void homeform::update() {
 
                 pace = 0;
             }
+            strideLength = ((treadmill *)bluetoothManager->device())->currentStrideLength().value();
+            groundContact = ((treadmill *)bluetoothManager->device())->currentGroundContact().value();
+            verticalOscillation = ((treadmill *)bluetoothManager->device())->currentVerticalOscillation().value();
             inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
             this->pace->setValue(
                 ((treadmill *)bluetoothManager->device())->currentPace().toString(QStringLiteral("m:ss")));
@@ -2276,6 +2308,27 @@ void homeform::update() {
                                     meter_feet_conversion,
                                 'f', (miles ? 0 : 1)) +
                 " /min");
+            this->instantaneousStrideLengthCM->setValue(QString::number(strideLength, 'f', 0));
+            this->instantaneousStrideLengthCM->setSecondLine(
+                QStringLiteral("AVG: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().average(), 'f', 0) +
+                QStringLiteral(" MAX: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentStrideLength().max(), 'f', 0));
+
+            this->groundContactMS->setValue(QString::number(groundContact, 'f', 0));
+            this->groundContactMS->setSecondLine(
+                QStringLiteral("AVG: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().average(), 'f', 0) +
+                QStringLiteral(" MAX: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentGroundContact().max(), 'f', 0));
+
+            this->verticalOscillationMM->setValue(QString::number(verticalOscillation, 'f', 0));
+            this->verticalOscillationMM->setSecondLine(
+                QStringLiteral("AVG: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().average(), 'f',
+                                0) +
+                QStringLiteral(" MAX: ") +
+                QString::number(((treadmill *)bluetoothManager->device())->currentVerticalOscillation().max(), 'f', 0));
 
             if (bluetoothManager->device()->currentSpeed().value() < 9) {
                 speed->setValueFontColor(QStringLiteral("white"));
@@ -3197,17 +3250,17 @@ void homeform::update() {
                 }
             }
 
-            SessionLine s(bluetoothManager->device()->currentSpeed().value(), inclination,
-                          bluetoothManager->device()->odometer(), watts, resistance, peloton_resistance,
-                          (uint8_t)bluetoothManager->device()->currentHeart().value(), pace, cadence,
-                          bluetoothManager->device()->calories().value(),
-                          bluetoothManager->device()->elevationGain().value(),
-                          bluetoothManager->device()->elapsedTime().second() +
-                              (bluetoothManager->device()->elapsedTime().minute() * 60) +
-                              (bluetoothManager->device()->elapsedTime().hour() * 3600),
+            SessionLine s(
+                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->odometer(),
+                watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
+                pace, cadence, bluetoothManager->device()->calories().value(),
+                bluetoothManager->device()->elevationGain().value(),
+                bluetoothManager->device()->elapsedTime().second() +
+                    (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                    (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
-                          lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                          bluetoothManager->device()->currentCordinate());
+                lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
+                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation);
 
             Session.append(s);
 

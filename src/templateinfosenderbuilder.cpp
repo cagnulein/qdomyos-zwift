@@ -830,8 +830,18 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
             obj.setProperty(QStringLiteral("cranktime"), ((rower *)device)->lastCrankEventTime());
             obj.setProperty(QStringLiteral("strokescount"), ((rower *)device)->currentStrokesCount().value());
             obj.setProperty(QStringLiteral("strokeslength"), ((rower *)device)->currentStrokesLength().value());
-        } else {
+        } else if (tp == bluetoothdevice::TREADMILL) {
             obj.setProperty(QStringLiteral("inclination"), (dep = ((treadmill *)device)->currentInclination()).value());
+            obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
+            obj.setProperty(QStringLiteral("stridelength"),
+                            (dep = ((treadmill *)device)->currentStrideLength()).value());
+            obj.setProperty(QStringLiteral("groundcontact"),
+                            (dep = ((treadmill *)device)->currentGroundContact()).value());
+            obj.setProperty(QStringLiteral("verticaloscillation"),
+                            (dep = ((treadmill *)device)->currentVerticalOscillation()).value());
+        } else if (tp == bluetoothdevice::ELLIPTICAL) {
+            obj.setProperty(QStringLiteral("inclination"),
+                            (dep = ((elliptical *)device)->currentInclination()).value());
             obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         }
         if (!device->isPaused()) {

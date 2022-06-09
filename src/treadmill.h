@@ -18,6 +18,9 @@ class treadmill : public bluetoothdevice {
     virtual double requestedInclination();
     virtual double minStepInclination();
     virtual double minStepSpeed();
+    metric currentStrideLength() { return InstantaneousStrideLengthCM; }
+    metric currentGroundContact() { return GroundContactMS; }
+    metric currentVerticalOscillation() { return VerticalOscillationMM; }
     uint16_t watts(double weight);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     void clearStats();
@@ -47,6 +50,9 @@ class treadmill : public bluetoothdevice {
     double lastInclination = 0;
     metric RequestedSpeed;
     metric RequestedInclination;
+    metric InstantaneousStrideLengthCM;
+    metric GroundContactMS;
+    metric VerticalOscillationMM;
 };
 
 #endif // TREADMILL_H

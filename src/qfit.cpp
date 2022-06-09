@@ -204,6 +204,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         newRecord.SetPower(sl.watt);
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
+        if (type == bluetoothdevice::TREADMILL) {
+            if (sl.instantaneousStrideLengthCM)
+                newRecord.SetStepLength(sl.instantaneousStrideLengthCM * 10);
+            if (sl.verticalOscillationMM)
+                newRecord.SetVerticalOscillation(sl.verticalOscillationMM);
+            if (sl.groundContactMS)
+                newRecord.SetStanceTime(sl.groundContactMS);
+        }
 
         // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
         // structure is corrupted and 2 tracks are saved in the FIT file causing mapping issue.

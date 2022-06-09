@@ -433,6 +433,14 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.99
             property string nordictrack_2950_ip: ""
+
+            // from the version 2.10.102
+            property bool tile_instantaneous_stride_length_enabled: false
+            property int  tile_instantaneous_stride_length_order: 32
+            property bool tile_ground_contact_enabled: false
+            property int  tile_ground_contact_order: 33
+            property bool tile_vertical_oscillation_enabled: false
+            property int  tile_vertical_oscillation_order: 34
         }
 
         function paddingZeros(text, limit) {
@@ -3357,6 +3365,102 @@ import Qt.labs.settings 1.0
                                 text: "OK"
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                 onClicked: settings.tile_ext_incline_order = extInclineOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: strideLength
+                        title: qsTr("Stride Length")
+                        linkedBoolSetting: "tile_instantaneous_stride_length_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelStrideLengthOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: strideLengthOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_instantaneous_stride_length_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = strideLengthOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okStrideLengthOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: groundContact
+                        title: qsTr("Ground Contact")
+                        linkedBoolSetting: "tile_ground_contact_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelGroundContactOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: groundContactOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_ground_contact_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = groundContactOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okGroundContactOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_ground_contact_order = groundContactOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: verticalOscillation
+                        title: qsTr("Vertical Oscillation")
+                        linkedBoolSetting: "tile_vertical_oscillation_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelVerticalOscillationOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: verticalOscillationOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_vertical_oscillation_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = verticalOscillationOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okVerticalOscillationOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText
                             }
                         }
                     }

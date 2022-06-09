@@ -489,6 +489,9 @@ class homeform : public QObject {
     DataObject *steeringAngle;
     DataObject *pidHR;
     DataObject *extIncline;
+    DataObject *instantaneousStrideLengthCM;
+    DataObject *groundContactMS;
+    DataObject *verticalOscillationMM;
 
     QTimer *timer;
     QTimer *backupTimer;
