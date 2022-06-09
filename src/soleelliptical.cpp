@@ -244,7 +244,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     lastPacket = newValue;
 
-    if (newValue.length() == 5 && newValue.at(1) == 0x02) {
+    if (newValue.length() == 5 && newValue.at(1) == 0x02 && newValue.at(2) == 0x13) {
 
         Resistance = newValue.at(3) + 1;
         emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
