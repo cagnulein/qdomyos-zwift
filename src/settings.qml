@@ -572,7 +572,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelSex
-                            text: qsTr("Sex:")
+                            text: qsTr("Gender:")
                             Layout.fillWidth: true
                         }
                         ComboBox {
