@@ -2522,7 +2522,7 @@ void homeform::update() {
             if (settings.value(QStringLiteral("tile_peloton_resistance_color_enabled"), false).toBool()) {
                 if (lower_requested_peloton_resistance == -1) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
-                } else if (peloton_resistance < lower_requested_peloton_resistance) {
+                } else if (peloton_resistance <= lower_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
                 } else if (peloton_resistance <= upper_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
