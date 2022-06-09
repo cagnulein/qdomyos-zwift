@@ -337,13 +337,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
 
-#ifdef Q_OS_WIN
-    if (this->device()) {
-        qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
-        return;
-    }
-#endif
-
     if (!heartRateBeltFound) {
 
         heartRateBeltFound = heartRateBeltAvaiable();
@@ -394,6 +387,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if (onlyDiscover)
         return;
 
+#ifdef Q_OS_WIN
+    if (this->device()) {
+        qDebug() << QStringLiteral("bluetooth::finished but discoveryAgent is not active");
+        return;
+    }
+#endif
+
     if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
          eliteSterzoSmartFound) ||
         forceHeartBeltOffForTimeout) {
@@ -439,7 +439,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 discoveryAgent->stop();
                 fakeElliptical = new fakeelliptical(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
-                connect(fakeElliptical, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                connect(fakeElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
                 connect(fakeElliptical, &fakeelliptical::inclinationChanged, this, &bluetooth::inclinationChanged);
                 // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
                 // connect(this, SIGNAL(searchingStop()), fakeBike, SLOT(searchingStop())); //NOTE: Commented due to
@@ -624,7 +625,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 innerTemplateManager->start(proformElliptical);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_VE"))) && !proformEllipticalTrainer && filter) {
                 discoveryAgent->stop();
-                proformEllipticalTrainer = new proformellipticaltrainer(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                proformEllipticalTrainer = new proformellipticaltrainer(noWriteResistance, noHeartService,
+                                                                        bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(proformEllipticalTrainer, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
@@ -760,8 +762,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         !b.name().toUpper().compare(QStringLiteral("RE")) || // just "RE"
                         b.name().toUpper().startsWith(
                             QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
-                       !kingsmithR1ProTreadmill && !kingsmithR2Treadmill &&
-                       filter) {
+                       !kingsmithR1ProTreadmill &&
+                       !kingsmithR2Treadmill && filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
 #ifndef Q_OS_IOS
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
@@ -872,9 +874,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         b.name().toUpper().startsWith(QStringLiteral("AFG SPORT")) ||
                         b.name().toUpper().startsWith(QStringLiteral("WLT2541")) ||
                         b.name().toUpper().startsWith(QStringLiteral("S77")) ||
-                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||     // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||     // FTMS
-                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) ||   // FTMS                        
+                        b.name().toUpper().startsWith(QStringLiteral("T318_")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("T218_")) ||   // FTMS
+                        b.name().toUpper().startsWith(QStringLiteral("TRX3500")) || // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("JFTMPARAGON")) ||
                         b.name().toUpper().startsWith(QStringLiteral("JFTM")) ||    // FTMS
                         b.name().toUpper().startsWith(QStringLiteral("CT800")) ||   // FTMS
