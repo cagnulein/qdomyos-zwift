@@ -441,6 +441,7 @@ import Qt.labs.settings 1.0
             property int  tile_ground_contact_order: 33
             property bool tile_vertical_oscillation_enabled: false
             property int  tile_vertical_oscillation_order: 34
+            property string sex: "Male"
         }
 
         function paddingZeros(text, limit) {
@@ -564,6 +565,33 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.age = ageTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelSex
+                            text: qsTr("Sex:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: sexTextField
+                            model: [ "Male", "Female" ]
+                            displayText: settings.sex
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + sexTextField.currentIndex)
+                                displayText = sexTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okSex
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.sex = sexTextField.displayText
                         }
                     }
 
@@ -6337,7 +6365,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Fake Bike")
+                        text: qsTr("Fake Device")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
