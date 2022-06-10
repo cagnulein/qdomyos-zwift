@@ -167,6 +167,14 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
                 (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
             qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
+            if(InstantaneousStrideLengthCM.value() == 0) {
+                GroundContactMS.setValue(0);
+                VerticalOscillationMM.setValue(0);
+                emit groundContactChanged(GroundContactMS.value());
+                emit verticalOscillationChanged(VerticalOscillationMM.value());
+                qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
+                qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
+            }
         }
 
         Cadence = cadence;
