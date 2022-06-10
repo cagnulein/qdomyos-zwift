@@ -242,7 +242,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     instantaneousStrideLengthCM =
         new DataObject(QStringLiteral("Stride L.(cm)"), QStringLiteral("icons/icons/inclination.png"),
                        QStringLiteral("0"), false, QStringLiteral("stride_length"), 48, labelFontSize);
-    groundContactMS = new DataObject(QStringLiteral("Ground Cont.(ms)"), QStringLiteral("icons/icons/inclination.png"),
+    groundContactMS = new DataObject(QStringLiteral("Ground C.(ms)"), QStringLiteral("icons/icons/inclination.png"),
                                      QStringLiteral("0"), false, QStringLiteral("ground_contact"), 48, labelFontSize);
     verticalOscillationMM =
         new DataObject(QStringLiteral("Vert.Osc.(mm)"), QStringLiteral("icons/icons/inclination.png"),
