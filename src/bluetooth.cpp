@@ -1772,6 +1772,12 @@ void bluetooth::connectedAndDiscovered() {
                             &bluetoothdevice::cadenceSensor);
                     connect(powerSensorRun, &bluetoothdevice::speedChanged, this->device(),
                             &bluetoothdevice::speedSensor);
+                    connect(powerSensorRun, &bluetoothdevice::instantaneousStrideLengthChanged, this->device(),
+                            &bluetoothdevice::instantaneousStrideLengthSensor);
+                    connect(powerSensorRun, &bluetoothdevice::groundContactChanged, this->device(),
+                            &bluetoothdevice::groundContactSensor);
+                    connect(powerSensorRun, &bluetoothdevice::verticalOscillationChanged, this->device(),
+                            &bluetoothdevice::verticalOscillationSensor);
                     powerSensorRun->deviceDiscovered(b);
                 }
                 break;

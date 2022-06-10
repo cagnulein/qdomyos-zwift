@@ -16,7 +16,14 @@
 
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 strydrunpowersensor::strydrunpowersensor(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
+#ifdef Q_OS_IOS
+    QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     refresh = new QTimer(this);
@@ -158,6 +165,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
             InstantaneousStrideLengthCM =
                 (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
+            emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
             qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
         }
 
@@ -177,7 +185,9 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000ff00-0000-1000-8000-00805f9b34fb"))) {
         if (newValue.length() == 5 && newValue.at(0) == 0x0f) {
             GroundContactMS = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));
+            emit groundContactChanged(GroundContactMS.value());
             VerticalOscillationMM = (((uint16_t)((uint8_t)newValue.at(4)) << 8) | (uint16_t)((uint8_t)newValue.at(3)));
+            emit verticalOscillationChanged(VerticalOscillationMM.value());
             qDebug() << QStringLiteral("Current GroundContactMS:") << GroundContactMS.value();
             qDebug() << QStringLiteral("Current VerticalOscillationMM:") << VerticalOscillationMM.value();
         }
