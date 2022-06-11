@@ -50,6 +50,7 @@ class bluetoothdevice : public QObject {
     virtual metric currentCadence();
     virtual double currentCrankRevolutions();
     virtual QGeoCoordinate currentCordinate();
+    virtual double currentAzimuth() {qDebug() << azimuth; return azimuth;}
     virtual uint16_t lastCrankEventTime();
     virtual void *VirtualDevice();
     uint16_t watts(double weight);
