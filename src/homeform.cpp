@@ -464,6 +464,10 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
             pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
             pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
             stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
+        else if(pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+            stravaPelotonWorkoutType = FIT_SPORT_WALKING;
+        else if(pelotonHandler->current_workout_type.toLower().startsWith("running"))
+            stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
         else
             stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     } else {
