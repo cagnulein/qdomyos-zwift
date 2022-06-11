@@ -36,7 +36,7 @@
     // Add Cesium OSM Buildings, a global 3D buildings layer.
     //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
     viewer.camera.flyTo({
-      destination : Cesium.Cartesian3.fromDegrees(10.855092, 44.508273,  180 + 60),
+      destination : Cesium.Cartesian3.fromDegrees(10.855092, 44.508273,  180 + 50),
       orientation : {
         heading : Cesium.Math.toRadians(24.0),
         pitch : Cesium.Math.toRadians(-5.0),
@@ -48,7 +48,6 @@
   <body>
     <div id="cesiumContainer" class="cesiumContainer"></div>
     <script type="text/javascript">
-    let lastAzimuth = 0
     let cameraComplete = true
 
     function a() {
@@ -81,29 +80,17 @@
     let lon = parseFloat(msg.split(",")[1]);
     let alt = parseFloat(msg.split(",")[2]);
     let azimuth = parseFloat(msg.split(",")[3]);
-    if(lastAzimuth != azimuth) {
-        lastAzimuth = azimuth;
-        viewer.camera.flyTo({
-          destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
-          duration: 2,
-          orientation : {
-            heading : Cesium.Math.toRadians(azimuth),
-            pitch : Cesium.Math.toRadians(-5.0),
-          },
-          easingFunction: easing_function,
-          complete: camera_complete
-          });
-    } else {
-        viewer.camera.flyTo({
-          destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
-          duration: 2,
-          orientation : {
-            pitch : Cesium.Math.toRadians(-5.0),
-          },
-          easingFunction: easing_function,
-          complete: camera_complete
-          });
-    }
+    console.log("azimuth " + azimuth);
+    viewer.camera.flyTo({
+      destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
+      duration: 2,
+      orientation : {
+        heading : Cesium.Math.toRadians(azimuth),
+        pitch : Cesium.Math.toRadians(-5.0),
+      },
+      easingFunction: easing_function,
+      complete: camera_complete
+      });
     }
   
       setTimeout(a,0);
