@@ -164,7 +164,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
             InstantaneousStrideLengthCM =
-                (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
+                (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
             qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
             if(InstantaneousStrideLengthCM.value() == 0) {
