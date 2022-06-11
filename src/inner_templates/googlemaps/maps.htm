@@ -1,26 +1,57 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/css/ol.css" type="text/css">
-    <style>
-      .map {
-        height: 1000px;
-        width: 100%;
-      }
-    </style>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="globals.js"></script>
-     <script src="main_ws_manager.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.14.1/build/ol.js"></script>
-    <title>OpenLayers example</title>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Include the CesiumJS JavaScript and CSS files -->
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.94/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.94/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <script src="globals.js"></script>
+  <script src="main_ws_manager.js"></script>
+  <style>
+  canvas{
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+  }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer" style="display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: none;
+  width: 100%;
+  height: 100%;"></div>
+  <script>
+    // Your access token can be found at: https://cesium.com/ion/tokens.
+    // Replace `your_access_token` with your Cesium ion access token.
+
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMDBiZDVkYy0wNmM1LTRlMzMtOTM4Yi1jYWZjMmM1MmQ1MWIiLCJpZCI6OTY0NDEsImlhdCI6MTY1NDUwNjc0MH0.iOmEZOXN3XKdl7WsUAvPdjf2M_2OVUUtYLD5Lo3UOUQ';
+
+    // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
+    const viewer = new Cesium.Viewer('cesiumContainer', {
+      terrainProvider: Cesium.createWorldTerrain()
+    });
+    // Add Cesium OSM Buildings, a global 3D buildings layer.
+    //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
+    viewer.camera.flyTo({
+      destination : Cesium.Cartesian3.fromDegrees(10.855092, 44.508273,  180 + 60),
+      orientation : {
+        heading : Cesium.Math.toRadians(24.0),
+        pitch : Cesium.Math.toRadians(-5.0),
+      },
+      });
+  </script>
+ </div>
+</body>
   <body>
-    <div id="map" class="map"></div>
+    <div id="cesiumContainer" class="cesiumContainer"></div>
     <script type="text/javascript">
+    let lastAzimuth = 0
+    let cameraComplete = true
+
     function a() {
-    let lat = 0
-    let lon = 0
     let el = new MainWSQueueElement({
         msg: 'getlatlon'
     }, function(msg) {
@@ -34,43 +65,46 @@
     });
     }
 
-    function  process_latlon(msg) {
-    let lat = parseFloat(msg.split(",")[0]);
-    let lon = parseFloat(msg.split(",")[1]);
-    map.getView().animate({center: ol.proj.fromLonLat([lon, lat])});
-	markers.getSource().getFeatures()[0].getGeometry().setCoordinates(ol.proj.fromLonLat([lon, lat]));
-    setTimeout(a,2000);
+    function camera_complete() {
+        cameraComplete = true;
     }
 
-      let map = new ol.Map({
-        target: 'map',
-        layers: [
-          new ol.layer.Tile({
-            source: new ol.source.OSM()
-          })
-        ],
-        view: new ol.View({
-          center: ol.proj.fromLonLat([37.41, 8.82]),
-          zoom: 16
-        })
-      });
-	  
-	markers = new ol.layer.Vector({
-	  source: new ol.source.Vector(),
-	  style: new ol.style.Style({
-		image: new ol.style.Icon({
-          anchor: [0.5, 0.5],
-          anchorXUnits: 'fraction',
-          anchorYUnits: 'fraction',
-		  scale: 0.2,
-		  src: 'marker.png'
-		})
-	  })
-	});
-	map.addLayer(markers);
+    function easing_function(time) {
+        return time;
+    }
 
-	let marker = new ol.Feature(new ol.geom.Point(ol.proj.fromLonLat([37.41, 8.82])));
-	markers.getSource().addFeature(marker);
+    function  process_latlon(msg) {
+    setTimeout(a,100);
+    if(!cameraComplete) return;
+    cameraComplete = false;
+    let lat = parseFloat(msg.split(",")[0]);
+    let lon = parseFloat(msg.split(",")[1]);
+    let alt = parseFloat(msg.split(",")[2]);
+    let azimuth = parseFloat(msg.split(",")[3]);
+    if(lastAzimuth != azimuth) {
+        lastAzimuth = azimuth;
+        viewer.camera.flyTo({
+          destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
+          duration: 2,
+          orientation : {
+            heading : Cesium.Math.toRadians(azimuth),
+            pitch : Cesium.Math.toRadians(-5.0),
+          },
+          easingFunction: easing_function,
+          complete: camera_complete
+          });
+    } else {
+        viewer.camera.flyTo({
+          destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
+          duration: 2,
+          orientation : {
+            pitch : Cesium.Math.toRadians(-5.0),
+          },
+          easingFunction: easing_function,
+          complete: camera_complete
+          });
+    }
+    }
   
       setTimeout(a,0);
     </script>
