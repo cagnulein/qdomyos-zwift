@@ -73,14 +73,18 @@
     }
 
     function  process_latlon(msg) {
-    setTimeout(a,100);
-    if(!cameraComplete) return;
+	 setTimeout(a,100);
+	 /*if(!cameraComplete) return;*/
     cameraComplete = false;
     let lat = parseFloat(msg.split(",")[0]);
     let lon = parseFloat(msg.split(",")[1]);
     let alt = parseFloat(msg.split(",")[2]);
     let azimuth = parseFloat(msg.split(",")[3]);
     console.log("azimuth " + azimuth);
+	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
+	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/4, 300));
+	 /*
     viewer.camera.flyTo({
       destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
       duration: 2,
@@ -91,7 +95,7 @@
       easingFunction: easing_function,
       complete: camera_complete
       });
-    }
+		}*/
   
       setTimeout(a,0);
     </script>

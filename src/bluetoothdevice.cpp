@@ -122,9 +122,9 @@ double bluetoothdevice::difficult() { return m_difficult; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
-void bluetoothdevice::instantaneousStrideLengthSensor(double length) {Q_UNUSED(length);}
-void bluetoothdevice::groundContactSensor(double groundContact) {Q_UNUSED(groundContact);}
-void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) {Q_UNUSED(verticalOscillation);}
+void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(length); }
+void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
+void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
@@ -354,7 +354,7 @@ QGeoCoordinate bluetoothdevice::currentCordinate() {
     if (coordinateTS) {
         double distance = currentSpeed().value() * ((QDateTime::currentMSecsSinceEpoch() - coordinateTS) / 3600.0);
         QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance, this->azimuth);
-        qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
+        // qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
         return c;
     }
     return coordinate;
