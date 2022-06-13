@@ -267,7 +267,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    m_watt = watt;
+    // m_watt = watt;
 
     // Inclination = newValue.at(21);
     if (Resistance.value() < 1) {
@@ -490,7 +490,25 @@ void *soleelliptical::VirtualTreadmill() { return virtualTreadmill; }
 
 void *soleelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
-uint16_t soleelliptical::watts() { return m_watt.value(); }
+uint16_t soleelliptical::watts() {
+
+    QSettings settings;
+
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+
+    uint16_t watts = 0;
+    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    if (currentSpeed().value() > 0) {
+
+        double pace = 60 / currentSpeed().value();
+        double VO2R = 210.0 / pace;
+        double VO2A = (VO2R * weight) / 1000.0;
+        double hwatts = 75 * VO2A;
+        double vwatts = ((9.8 * weight) * (currentResistance().value() / 2 / 100.0));
+        watts = hwatts + vwatts;
+    }
+    return watts;
+}
 
 void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;
