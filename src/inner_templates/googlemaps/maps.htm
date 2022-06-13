@@ -35,13 +35,18 @@
     });
     // Add Cesium OSM Buildings, a global 3D buildings layer.
     //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
-    viewer.camera.flyTo({
-      destination : Cesium.Cartesian3.fromDegrees(10.855092, 44.508273,  180 + 50),
-      orientation : {
-        heading : Cesium.Math.toRadians(24.0),
-        pitch : Cesium.Math.toRadians(-5.0),
-      },
-      });
+	 var center = Cesium.Cartesian3.fromDegrees(10.855092, 44.508273, 180);
+	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
+	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), -Math.PI/4, 300));
+	 const blueBox = viewer.entities.add({
+	   name: "Blue box",
+		position: Cesium.Cartesian3.fromDegrees(10.855092, 44.508273, 180),
+		box: {
+		  dimensions: new Cesium.Cartesian3(6.0, 6.0, 100.0),
+		  material: Cesium.Color.PURPLE.withAlpha(0.5),
+		  outline: false,
+		},
+	 });
   </script>
  </div>
 </body>
@@ -84,6 +89,7 @@
 	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/4, 300));
+	 blueBox.position = Cesium.Cartesian3.fromDegrees(lon, lat, alt)
 	 /*
     viewer.camera.flyTo({
       destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
