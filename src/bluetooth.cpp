@@ -817,7 +817,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(shuaA5Treadmill);
                 innerTemplateManager->start(shuaA5Treadmill);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE"))) && !trueTreadmill && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) &&
+                       !trueTreadmill && filter) {
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
 #ifndef Q_OS_IOS
                 settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
