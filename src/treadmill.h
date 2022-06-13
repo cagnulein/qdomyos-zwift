@@ -38,6 +38,9 @@ class treadmill : public bluetoothdevice {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
+    virtual void instantaneousStrideLengthSensor(double length);
+    virtual void groundContactSensor(double groundContact);
+    virtual void verticalOscillationSensor(double verticalOscillation);
 
   signals:
     void tapeStarted();
