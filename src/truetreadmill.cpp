@@ -185,19 +185,31 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 #endif
 
     double speed = 0;
-    double incline = 0;
-
-    if (avalue.length() != 16 && avalue.length() != 19)
-        return;
 
     if (avalue.length() == 16) {
         uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
         speed = ((double)convertedData) / 100.0;
-        incline = ((double)(avalue.at(14))) / 10.0;
+        double incline = ((double)(avalue.at(14))) / 10.0;
+
+        if (Inclination.value() != incline) {
+
+            emit inclinationChanged(0, incline);
+        }
+        Inclination = incline;
+        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+
     } else if (avalue.length() == 19) {
         uint16_t convertedData = (avalue.at(8) << 8) | ((uint8_t)avalue.at(7));
         speed = ((double)convertedData) / 100.0;
-        incline = ((double)(avalue.at(16)));
+    } else if (avalue.length() == 4) {
+        double incline = ((double)(avalue.at(2))) / 10.0;
+        if (Inclination.value() != incline) {
+
+            emit inclinationChanged(0, incline);
+        }
+        Inclination = incline;
+        emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
+        return;
     }
 
     if (!firstCharacteristicChanged) {
@@ -215,7 +227,6 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     }
 
     emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current incline: ") + QString::number(incline));
     emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
     emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
     emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
@@ -229,16 +240,11 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
         emit speedChanged(speed);
     }
     Speed = speed;
-    if (Inclination.value() != incline) {
-
-        emit inclinationChanged(0, incline);
-    }
-    Inclination = incline;
 
     if (speed > 0) {
 
         lastSpeed = speed;
-        lastInclination = incline;
+        lastInclination = Inclination.value();
     }
 
     firstCharacteristicChanged = false;
