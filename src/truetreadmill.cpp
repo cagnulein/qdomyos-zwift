@@ -92,7 +92,7 @@ void truetreadmill::update() {
                 requestSpeed = -1;
             }
             if (requestInclination != -100) {
-                if(requestInclination < 0)
+                if (requestInclination < 0)
                     requestInclination = 0;
                 // only 0.5 steps ara avaiable
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
@@ -139,16 +139,11 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    bool domyos_treadmill_buttons = settings.value(QStringLiteral("domyos_treadmill_buttons"), false).toBool();
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
     Q_UNUSED(characteristic);
     QByteArray avalue = newValue;
 
     emit debug(QStringLiteral(" << ") + QString::number(avalue.length()) + QStringLiteral(" ") + avalue.toHex(' '));
-
-    if(avalue.length() != 16)
-        return;
-
-    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -189,9 +184,18 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
 #endif
 #endif
 
-    uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
-    double speed = ((double)convertedData) / 100.0;
-    double incline = ((double)(avalue.at(14))) / 10.0;
+    double speed = 0;
+    double incline = 0;
+
+    if (avalue.length() == 16) {
+        uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
+        speed = ((double)convertedData) / 100.0;
+        incline = ((double)(avalue.at(14))) / 10.0;
+    } else if (avalue.length() == 19) {
+        uint16_t convertedData = (avalue.at(8) << 8) | ((uint8_t)avalue.at(7));
+        speed = ((double)convertedData) / 100.0;
+        incline = ((double)(avalue.at(16)));
+    }
 
     if (!firstCharacteristicChanged) {
         if (watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()))
