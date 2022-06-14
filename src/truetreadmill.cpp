@@ -187,6 +187,9 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     double speed = 0;
     double incline = 0;
 
+    if (avalue.length() != 16 && avalue.length() != 19)
+        return;
+
     if (avalue.length() == 16) {
         uint16_t convertedData = (avalue.at(7) << 8) | ((uint8_t)avalue.at(6));
         speed = ((double)convertedData) / 100.0;
