@@ -161,7 +161,7 @@
 	  viewer.dataSources
 	            .add(
 					  Cesium.GpxDataSource.load(
-					    msg.content,
+                                            msg,
 						 {
 						   clampToGround: true,
 							}
@@ -171,7 +171,7 @@
 let el = new MainWSQueueElement({
 msg: 'getgpxbase64'
 }, function(msg) {
-if (msg.msg === 'R_gpxbase64') {
+if (msg.msg === 'R_getgpxbase64') {
 return msg.content;
 }
 return null;
