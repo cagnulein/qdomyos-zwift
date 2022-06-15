@@ -1,5 +1,6 @@
 #include "bluetoothdevice.h"
 
+#include <QFile>
 #include <QSettings>
 #include <QTime>
 
@@ -362,3 +363,13 @@ QGeoCoordinate bluetoothdevice::currentCordinate() {
 
 void bluetoothdevice::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) { lastState = state; }
 void bluetoothdevice::setInclination(double inclination) { Inclination = inclination; }
+void bluetoothdevice::setGPXFile(QString filename) {
+    gpxFileName = filename;
+    QFile input("output.txt");
+    if (input.open(QIODevice::ReadOnly)) {
+        QByteArray asSaved = input.readAll();
+        gpxBase64 = "data:@file/xml;base64," + asSaved.toBase64();
+        qDebug() << gpxBase64;
+        input.close();
+    }
+}

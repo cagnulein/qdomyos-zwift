@@ -464,9 +464,9 @@ void homeform::pelotonWorkoutChanged(const QString &name, const QString &instruc
             pelotonHandler->current_workout_type.toLower().startsWith("stretching") ||
             pelotonHandler->current_workout_type.toLower().startsWith("yoga"))
             stravaPelotonWorkoutType = FIT_SPORT_GENERIC;
-        else if(pelotonHandler->current_workout_type.toLower().startsWith("walking"))
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("walking"))
             stravaPelotonWorkoutType = FIT_SPORT_WALKING;
-        else if(pelotonHandler->current_workout_type.toLower().startsWith("running"))
+        else if (pelotonHandler->current_workout_type.toLower().startsWith("running"))
             stravaPelotonWorkoutType = FIT_SPORT_RUNNING;
         else
             stravaPelotonWorkoutType = FIT_SPORT_INVALID;
@@ -3394,6 +3394,8 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             gpx g;
             QList<trainrow> list;
             auto g_list = g.open(file.fileName());
+            if (bluetoothManager->device())
+                bluetoothManager->device()->setGPXFile(file.fileName());
             gpx_altitude_point_for_treadmill last;
             quint32 i = 0;
             list.reserve(g_list.size() + 1);

@@ -50,7 +50,10 @@ class bluetoothdevice : public QObject {
     virtual metric currentCadence();
     virtual double currentCrankRevolutions();
     virtual QGeoCoordinate currentCordinate();
-    virtual double currentAzimuth() {qDebug() << azimuth; return azimuth;}
+    virtual double currentAzimuth() {
+        qDebug() << azimuth;
+        return azimuth;
+    }
     virtual uint16_t lastCrankEventTime();
     virtual void *VirtualDevice();
     uint16_t watts(double weight);
@@ -72,6 +75,8 @@ class bluetoothdevice : public QObject {
     metric currentMETS() { return METS; }
     metric currentHeartZone() { return HeartZone; }
     metric currentPowerZone() { return PowerZone; }
+    void setGPXFile(QString filename);
+    QString currentGPXBase64() { return gpxBase64; }
 
     // in the future these 2 should be calculated inside the update_metrics()
     void setHeartZone(double hz) { HeartZone = hz; }
@@ -140,6 +145,8 @@ class bluetoothdevice : public QObject {
     QGeoCoordinate coordinate;
     double azimuth;
     quint64 coordinateTS = 0;
+    QString gpxBase64 = "";
+    QString gpxFileName = "";
 
     metric Inclination;
     metric HeartZone;

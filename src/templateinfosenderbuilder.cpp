@@ -476,6 +476,16 @@ void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetGPXBase64(TemplateInfoSender *tempSender) {
+    if (!device)
+        return;
+    QJsonObject main;
+    main[QStringLiteral("content")] = device->currentGPXBase64();
+    main[QStringLiteral("msg")] = QStringLiteral("R_getgpxbase64");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onGetLatLon(TemplateInfoSender *tempSender) {
     if (!device)
         return;
@@ -646,6 +656,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("getlatlon")) {
                     onGetLatLon(sender);
+                    return;
+                } else if (msg == QStringLiteral("getgpxbase64")) {
+                    onGetGPXBase64(sender);
                     return;
                 } else if (msg == QStringLiteral("setresistance")) {
                     onSetResistance(jsonObject[QStringLiteral("content")], sender);

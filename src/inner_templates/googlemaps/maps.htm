@@ -157,7 +157,28 @@
       complete: camera_complete
       });*/
                 }
+					function process_gpxbase64(msg) {
+	  viewer.dataSources
+	            .add(
+					  Cesium.GpxDataSource.load(
+					    msg.content,
+						 {
+						   clampToGround: true,
+							}
+						))
+	  }
 
+let el = new MainWSQueueElement({
+msg: 'getgpxbase64'
+}, function(msg) {
+if (msg.msg === 'R_gpxbase64') {
+return msg.content;
+}
+return null;
+}, 15000, 3);
+el.enqueue().then(process_gpxbase64).catch(function(err) {
+console.error('Error is ' + err);
+});
       setTimeout(a,0);
     </script>
   </body>
