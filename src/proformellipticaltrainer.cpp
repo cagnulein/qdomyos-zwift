@@ -386,7 +386,7 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
     Resistance = GetResistanceFromPacket(newValue);
 
-    uint16_t p = (100 / max_resistance) * (Resistance.value() + 1);
+    uint16_t p = qCeil((100.0 / (double)(max_resistance)) * (Resistance.value() + 1.0));
     if (p > 100)
         p = 100;
     m_pelotonResistance = p;

@@ -330,16 +330,16 @@ void virtualtreadmill::treadmillProvider() {
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
     bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
-    double cadence_multiplier = 1.0;
+    double cadence_multiplier = 2.0;
     if (double_cadence)
-        cadence_multiplier = 2.0;
-    
+        cadence_multiplier = 1.0;
+
     if (h) {
         uint16_t normalizeSpeed = (uint16_t)qRound(treadMill->currentSpeed().value() * 100);
         // really connected to a device
-        if (h->virtualtreadmill_updateFTMS(normalizeSpeed, 0,
-                                           (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
-                                           (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
+        if (h->virtualtreadmill_updateFTMS(
+                normalizeSpeed, 0, (uint16_t)((treadmill *)treadMill)->currentCadence().value() * cadence_multiplier,
+                (uint16_t)((treadmill *)treadMill)->wattsMetric().value())) {
             h->virtualtreadmill_setHeartRate(((treadmill *)treadMill)->currentHeart().value());
             lastSlopeChanged = h->virtualtreadmill_lastChangeCurrentSlope();
             if ((uint64_t)QDateTime::currentSecsSinceEpoch() < lastSlopeChanged + slopeTimeoutSecs)

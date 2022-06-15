@@ -70,6 +70,8 @@ class strydrunpowersensor : public treadmill {
 
     uint16_t oldLastCrankEventTime = 0;
     uint16_t oldCrankRevs = 0;
+    uint16_t LastCrankEventTime = 0;
+    double CrankRevs = 0;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
