@@ -164,7 +164,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         double cadence = (uint8_t)newValue.at(3) * cadence_multiplier;
         if (newValue.length() >= 6 && InstantaneousStrideLengthPresent) {
             InstantaneousStrideLengthCM =
-                (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4)));
+                (((uint16_t)((uint8_t)newValue.at(5)) << 8) | (uint16_t)((uint8_t)newValue.at(4))) / 2;
             emit instantaneousStrideLengthChanged(InstantaneousStrideLengthCM.value());
             qDebug() << QStringLiteral("Current InstantaneousStrideLengthCM:") << InstantaneousStrideLengthCM.value();
             if(InstantaneousStrideLengthCM.value() == 0) {
@@ -190,6 +190,55 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         }
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(cadence));
         lastRefreshCadenceChanged = QDateTime::currentDateTime();
+    } else if (characteristic.uuid() == QBluetoothUuid::CSCMeasurement) {
+        uint8_t index = 1;
+        if (newValue.at(0) == 0x02) {
+            CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+        } else {
+            CrankRevs =
+                (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) | ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                 ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
+        }
+        if (newValue.at(0) == 0x01) {
+            index += 4;
+        } else {
+            index += 2;
+        }
+        LastCrankEventTime = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+
+        int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
+        if (deltaT < 0) {
+            if (newValue.at(0) == 0x01) {
+                deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
+            } else {
+                deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
+            }
+        }
+
+        if (CrankRevs != oldCrankRevs && deltaT) {
+            double cadence = ((CrankRevs - oldCrankRevs) / deltaT) * 1024 * 60;
+            if (cadence >= 0 && cadence < 256)
+                Cadence = cadence;
+            lastGoodCadence = QDateTime::currentDateTime();
+        } else if (lastGoodCadence.msecsTo(QDateTime::currentDateTime()) > 2000) {
+            Cadence = 0;
+        }
+        emit cadenceChanged(Cadence.value());
+        emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+
+        oldLastCrankEventTime = LastCrankEventTime;
+        oldCrankRevs = CrankRevs;
+        if (power_as_treadmill) {
+            Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+
+            emit speedChanged(Speed.value());
+            Distance += ((Speed.value() / 3600000.0) *
+                         ((double)lastRefreshCadenceChanged.msecsTo(QDateTime::currentDateTime())));
+            emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+        lastRefreshCadenceChanged = QDateTime::currentDateTime();
+
     } else if (characteristic.uuid() == QBluetoothUuid(QStringLiteral("0000ff00-0000-1000-8000-00805f9b34fb"))) {
         if (newValue.length() == 5 && newValue.at(0) == 0x0f) {
             GroundContactMS = (((uint16_t)((uint8_t)newValue.at(2)) << 8) | (uint16_t)((uint8_t)newValue.at(1)));

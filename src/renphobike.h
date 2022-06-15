@@ -70,6 +70,7 @@ class renphobike : public bike {
     uint8_t firstStateChanged = 0;
     QByteArray lastFTMSPacketReceived;
     int8_t lastRequestResistance = -1;
+    double lastPowerRequestedFactor = 1;
 
     bool initDone = false;
     bool initRequest = false;

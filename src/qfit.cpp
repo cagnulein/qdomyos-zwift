@@ -205,12 +205,9 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         newRecord.SetResistance(sl.resistance);
         newRecord.SetCalories(sl.calories);
         if (type == bluetoothdevice::TREADMILL) {
-            if (sl.instantaneousStrideLengthCM)
-                newRecord.SetStepLength(sl.instantaneousStrideLengthCM * 10);
-            if (sl.verticalOscillationMM)
-                newRecord.SetVerticalOscillation(sl.verticalOscillationMM);
-            if (sl.groundContactMS)
-                newRecord.SetStanceTime(sl.groundContactMS);
+            newRecord.SetStepLength(sl.instantaneousStrideLengthCM * 10);
+            newRecord.SetVerticalOscillation(sl.verticalOscillationMM);
+            newRecord.SetStanceTime(sl.groundContactMS);
         }
 
         // if a gps track contains a point without the gps information, it has to be discarded, otherwise the database
