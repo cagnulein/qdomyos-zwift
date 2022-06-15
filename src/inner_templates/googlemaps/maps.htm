@@ -56,6 +56,7 @@
     let cameraComplete = true
 
     function a() {
+    onWorkout = false;
     let el = new MainWSQueueElement({
         msg: 'getlatlon'
     }, function(msg) {
@@ -67,11 +68,9 @@
     el.enqueue().then(process_latlon).catch(function(err) {
         console.error('Error is ' + err);
     });
-	 let el = new MainWSQueueElement({
+    keys_arr = ['speed', 'cadence', 'heart', 'calories', 'distance', 'watts', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'inclination', 'resistance', 'elevation']
+         let ell = new MainWSQueueElement({
 	     msg: null,
-		  content: {
-		      keys: keys_arr
-				}
 		}, function(msg) {
 		  if (msg.msg === 'workout') {
 		      var speed = 0;
@@ -88,39 +87,39 @@
 				var elevation = 0;
 				for (let key of keys_arr) {
 				    if (msg.content[key] === undefined)
-					     return null;
+                                             continue;
 						if (key === 'speed') {
 						  speed = msg.content[key];
 						} else if (key === 'cadence') {
 						  cadence = msg.content[key];
 						} else if (key === 'heart') {
-						  hr = msg.content[heart];
+                                                  hr = msg.content[key];
 						} else if (key === 'calories') {
-						  calories = msg.content[calories];
+                                                  calories = msg.content[key];
 						} else if (key === 'distance') {
-						  odometer = msg.content[distance];
+                                                  odometer = msg.content[key];
 						} else if (key === 'watts') {
-						  watt = msg.content[watts];
+                                                  watt = msg.content[key];
 						} else if (key === 'elapsed_h') {
-						  elapsed_h = msg.content[elapsed_h];
+                                                  elapsed_h = msg.content[key];
 						} else if (key === 'elapsed_m') {
-						  elapsed_m = msg.content[elapsed_m];
+                                                  elapsed_m = msg.content[key];
 						} else if (key === 'elapsed_s') {
-						  elapsed_s = msg.content[elapsed_s];
+                                                  elapsed_s = msg.content[key];
 						} else if (key === 'inclination') {
-						  inclination = msg.content[inclination];
+                                                  inclination = msg.content[key];
 						} else if (key === 'resistance') {
-						  resistance = msg.content[resistance];
+                                                  resistance = msg.content[key];
 						} else if (key === 'elevation') {
-						  elevation = msg.content[elevation];
+                                                  elevation = msg.content[key];
 						}
 				}
 
-            $('.metrics').text("Speed: " + speed + "<br>Cadence:" + cadence + "<br>Heart:"+ hr + "<br>Calories:"+ calories + "<br>Odometer:"+ odometer + "<br>Watt:"+ watt + "<br>Elapsed:"+ elapsed_h + ":" + elapsed_m + ":"+ elapsed_s + "<br>Inclination:"+ inclination + "<br>Resistance:"+ resistance + "<br>Elevation:"+ elevation);
+            $('.metrics').html("Speed: " + speed + "<br>Cadence:" + cadence + "<br>Heart:"+ hr + "<br>Calories:"+ calories + "<br>Odometer:"+ odometer + "<br>Watt:"+ watt + "<br>Elapsed:"+ elapsed_h + ":" + elapsed_m + ":"+ elapsed_s + "<br>Inclination:"+ inclination + "<br>Resistance:"+ resistance + "<br>Elevation:"+ elevation);
 		  }
 		  return null;
 		}, 15000, 3);
-	 el.enqueue().then(process_workout).catch(function(err) {
+         ell.enqueue().then(onWorkout).catch(function(err) {
 	     console.error('Error is ' + err);
 		});
     }
@@ -134,7 +133,6 @@
     }
 
     function  process_latlon(msg) {
-	 setTimeout(a,100);
 	 /*if(!cameraComplete) return;*/
     cameraComplete = false;
     let lat = parseFloat(msg.split(",")[0]);
@@ -146,6 +144,7 @@
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/8, 300));
 	 billboard.position = Cesium.Cartesian3.fromDegrees(lon, lat, alt + 50);
+         setTimeout(a,300);
 	 /*
     viewer.camera.flyTo({
       destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
