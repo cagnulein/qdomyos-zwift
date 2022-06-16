@@ -115,7 +115,7 @@
 						}
 				}
 
-            $('.metrics').html("🏃💨Speed: " + speed + "<br>🚴Cadence:" + cadence + "<br>💓Heart:"+ hr + "<br>🔥Calories:"+ calories + "<br>📏Odometer:"+ odometer + "<br>⚡Watt:"+ watt + "<br>⏲️Elapsed:"+ elapsed_h + ":" + elapsed_m + ":"+ elapsed_s + "<br>📐Inclination:"+ inclination + "<br>🧲Resistance:"+ resistance + "<br>⛰️Elevation:"+ elevation);
+            $('.metrics').html("🏃Speed: " + speed.toFixed(2) + "<br>🚴Cadence:" + cadence.toFixed(0) + "<br>💓Heart:"+ hr.toFixed(0) + "<br>🔥Calories:"+ calories.toFixed(1) + "<br>📏Odometer:"+ odometer.toFixed(2) + "<br>⚡Watt:"+ watt.toFixed(0) + "<br>⏲️Elapsed:"+ elapsed_h.toString().padStart(2, "0") + ":" + elapsed_m.toString().padStart(2, "0") + ":"+ elapsed_s.toString().padStart(2, "0") + "<br>📐Inclination:"+ inclination.toFixed(1) + "<br>🧲Resistance:"+ resistance.toFixed(0) + "<br>⛰️Elevation:"+ elevation.toFixed(2));
 		  }
 		  return null;
 		}, 15000, 3);
