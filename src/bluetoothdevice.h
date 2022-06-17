@@ -54,6 +54,8 @@ class bluetoothdevice : public QObject {
         qDebug() << azimuth;
         return azimuth;
     }
+    virtual double averageAzimuthNext300m() {return azimuthAvgNext300m;}
+    virtual void setAverageAzimuthNext300m(double azimuth) {azimuthAvgNext300m = azimuth;}
     virtual uint16_t lastCrankEventTime();
     virtual void *VirtualDevice();
     uint16_t watts(double weight);
@@ -100,7 +102,7 @@ class bluetoothdevice : public QObject {
     virtual void changeResistance(int8_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
-    virtual void changeGeoPosition(QGeoCoordinate p, double azimuth);
+    virtual void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
     virtual void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
     virtual void instantaneousStrideLengthSensor(double length);
     virtual void groundContactSensor(double groundContact);
@@ -144,6 +146,7 @@ class bluetoothdevice : public QObject {
 
     QGeoCoordinate coordinate;
     double azimuth;
+    double azimuthAvgNext300m;
     quint64 coordinateTS = 0;
     QString gpxBase64 = "";
     QString gpxFileName = "";

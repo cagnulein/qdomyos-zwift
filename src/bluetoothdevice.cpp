@@ -346,9 +346,10 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     return currentHeart().value();
 }
 
-void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth) {
+void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters) {
     coordinateTS = QDateTime::currentMSecsSinceEpoch();
     coordinate = p;
+    this->setAverageAzimuthNext300m(avgAzimuthNext300Meters);
     this->azimuth = azimuth;
 }
 QGeoCoordinate bluetoothdevice::currentCordinate() {

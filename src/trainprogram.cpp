@@ -75,6 +75,50 @@ double trainprogram::calculateDistanceForRow(int32_t row) {
         return rows.at(row).distance;
 }
 
+double trainprogram::avgAzimuthNext300Meters() {
+    int c = currentStep;
+    double km = 0;
+    double sinTotal = 0;
+    double cosTotal = 0;
+
+    if(rows.at(c).latitude != 0 || rows.at(c).longitude != 0) {
+        while(1) {
+            if(c < rows.length()) {
+                if(km > 0.3) {
+                    double averageDirection = atan(sinTotal / cosTotal) * (180 / M_PI);
+
+                    if (cosTotal < 0) {
+                        averageDirection += 180;
+                    } else if (sinTotal < 0) {
+                        averageDirection += 360;
+                    }
+                    return averageDirection;
+                }
+                qDebug() << rows.at(c).azimuth << rows.at(c).distance;
+                
+                for (double i = 0; i < rows.at(c).distance; i+=0.001) {
+                    sinTotal += sin(rows.at(c).azimuth * (M_PI / 180));
+                    cosTotal += cos(rows.at(c).azimuth * (M_PI / 180));
+                }
+
+                km+=rows.at(c).distance;
+                
+            } else {
+                double averageDirection = atan(sinTotal / cosTotal) * (180 / M_PI);
+
+                if (cosTotal < 0) {
+                    averageDirection += 180;
+                } else if (sinTotal < 0) {
+                    averageDirection += 360;
+                }
+                return averageDirection;
+            }
+            c++;
+        }
+    }
+    return 0;
+}
+
 void trainprogram::scheduler() {
 
     QSettings settings;
@@ -151,7 +195,7 @@ void trainprogram::scheduler() {
             p.setAltitude(rows.at(0).altitude);
             p.setLatitude(rows.at(0).latitude);
             p.setLongitude(rows.at(0).longitude);
-            emit changeGeoPosition(p, rows.at(0).azimuth);
+            emit changeGeoPosition(p, rows.at(0).azimuth, avgAzimuthNext300Meters());
         }
     }
 
@@ -267,7 +311,7 @@ void trainprogram::scheduler() {
                     p.setAltitude(rows.at(currentStep).altitude);
                     p.setLatitude(rows.at(currentStep).latitude);
                     p.setLongitude(rows.at(currentStep).longitude);
-                    emit changeGeoPosition(p, rows.at(currentStep).azimuth);
+                    emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");

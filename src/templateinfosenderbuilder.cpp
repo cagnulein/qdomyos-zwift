@@ -493,7 +493,7 @@ void TemplateInfoSenderBuilder::onGetLatLon(TemplateInfoSender *tempSender) {
     main[QStringLiteral("content")] = QString::number(device->currentCordinate().latitude(), 'g', 9) + "," +
                                       QString::number(device->currentCordinate().longitude(), 'g', 9) + "," +
                                       QString::number(device->currentCordinate().altitude(), 'g', 9) + "," +
-                                      QString::number(device->currentAzimuth());
+                                      QString::number(device->averageAzimuthNext300m());
     main[QStringLiteral("msg")] = QStringLiteral("R_getlatlon");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
@@ -712,7 +712,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
             }
         }
     }
-    qDebug() << QStringLiteral("Unrecognized message") << data;
+    //qDebug() << QStringLiteral("Unrecognized message") << data;
 }
 
 void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {

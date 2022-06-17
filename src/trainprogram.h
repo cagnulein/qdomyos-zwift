@@ -92,9 +92,10 @@ class trainprogram : public QObject {
     void changeCadence(int16_t cadence);
     void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
-    void changeGeoPosition(QGeoCoordinate p, double azimuth);
+    void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
 
   private:
+    double avgAzimuthNext300Meters();
     uint32_t calculateTimeForRow(int32_t row);
     uint32_t calculateTimeForRowMergingRamps(int32_t row);
     double calculateDistanceForRow(int32_t row);
