@@ -114,7 +114,7 @@
 		}, 15000, 3);
          ell.enqueue().then(onWorkout).catch(function(err) {
 	     console.error('Error is ' + err);
-		});
+                });
     }
 
     function camera_complete() {
@@ -132,11 +132,11 @@
     let lon = parseFloat(msg.split(",")[1]);
     let alt = parseFloat(msg.split(",")[2]);
     let azimuth = parseFloat(msg.split(",")[3]);
-    console.log("azimuth " + azimuth);
+    console.log("azimuth " + azimuth + " " + lat + " " + lon);
 	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/8, 300));
-         setTimeout(a,300);
+         setTimeout(a,0);
 	 /*
     viewer.camera.flyTo({
       destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
