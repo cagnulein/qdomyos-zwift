@@ -47,6 +47,8 @@
 	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; top: 80px; right: 0;">Speed: --<br>Cadence: --</p></div>
     <script type="text/javascript">
     let cameraComplete = true
+    let lastAzimuth = 0
+    let lastAlt = 0
 
     function a() {
     onWorkout = false;
@@ -132,11 +134,36 @@
     let lon = parseFloat(msg.split(",")[1]);
     let alt = parseFloat(msg.split(",")[2]);
     let azimuth = parseFloat(msg.split(",")[3]);
+    if(lastAzimuth != azimuth) {
+        if((lastAzimuth > azimuth && Math.abs(lastAzimuth - azimuth) < 180) ||
+           (lastAzimuth < azimuth && Math.abs(lastAzimuth - azimuth) > 180)) {
+            lastAzimuth = azimuth = lastAzimuth - 0.01;
+            if(azimuth < 0)
+                lastAzimuth = azimuth = 359.99;
+        }
+        else {
+            lastAzimuth = azimuth = lastAzimuth + 0.01;
+            if(azimuth >= 360)
+                lastAzimuth = azimuth = 0;
+        }
+    }
+    if(Math.abs(lastAzimuth - azimuth) < 0.01)
+        lastAzimuth = azimuth;
+    if(lastAlt != alt && Math.abs(lastAlt-alt) < 30) {
+        if(lastAlt > alt)
+            lastAlt = alt = lastAlt - 0.01;
+        else
+            lastAlt = alt = lastAlt + 0.01;
+    } else {
+        lastAlt = alt;
+    }
+    if(Math.abs(lastAlt - alt) < 0.01)
+        lastAlt = alt;
     console.log("azimuth " + azimuth + " " + lat + " " + lon);
 	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/8, 300));
-         setTimeout(a,0);
+         setTimeout(a,25);
 	 /*
     viewer.camera.flyTo({
       destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
