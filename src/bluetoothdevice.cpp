@@ -348,13 +348,14 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
 
 void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters) {
     coordinateTS = QDateTime::currentMSecsSinceEpoch();
+    coordinateOdometer = odometer();
     coordinate = p;
     this->setAverageAzimuthNext300m(avgAzimuthNext300Meters);
     this->azimuth = azimuth;
 }
 QGeoCoordinate bluetoothdevice::currentCordinate() {
     if (coordinateTS) {
-        double distance = currentSpeed().value() * ((QDateTime::currentMSecsSinceEpoch() - coordinateTS) / 3600.0);
+        double distance = odometer() - coordinateOdometer;
         QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance, this->azimuth);
         // qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
         return c;

@@ -306,11 +306,17 @@ void trainprogram::scheduler() {
                                     QString::number(rows.at(currentStep).latitude) + " " +
                                     QString::number(rows.at(currentStep).longitude) + " " +
                                     QString::number(rows.at(currentStep).altitude) + " " +
+                                    QString::number(rows.at(currentStep).distance) + " " +
                                     QString::number(rows.at(currentStep).azimuth);
+                    
                     QGeoCoordinate p;
-                    p.setAltitude(rows.at(currentStep).altitude);
                     p.setLatitude(rows.at(currentStep).latitude);
                     p.setLongitude(rows.at(currentStep).longitude);
+                    p.setAltitude(rows.at(currentStep).altitude);
+                    //qDebug() << c << rows.at(currentStep+1).latitude << rows.at(currentStep + 1).longitude << c.distanceTo(p) << rows.at(currentStep).distance;
+                    
+                    if(bluetoothManager->device()->odometer() - lastOdometer > 0)
+                        p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer), rows.at(currentStep).azimuth);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
                 }
             } else {

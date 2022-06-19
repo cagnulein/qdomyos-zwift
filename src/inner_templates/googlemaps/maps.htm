@@ -49,6 +49,11 @@
     let cameraComplete = true
     let lastAzimuth = 0
     let lastAlt = 0
+    let lastLat = 0
+    let lastLon = 0
+    let refreshRate = 25
+    let currentSpeed = 0
+    let lastCoordinateTS = 0
 
     function a() {
     onWorkout = false;
@@ -84,7 +89,7 @@
 				    if (msg.content[key] === undefined)
                                              continue;
 						if (key === 'speed') {
-						  speed = msg.content[key];
+                                                  currentSpeed = speed = msg.content[key];
 						} else if (key === 'cadence') {
 						  cadence = msg.content[key];
 						} else if (key === 'heart') {
@@ -159,11 +164,39 @@
     }
     if(Math.abs(lastAlt - alt) < 0.01)
         lastAlt = alt;
+
+    var p1 = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
+    var p2 = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
+    var distance = Cesium.Cartesian3.distance(p1, p2);
+    var tick = (Date.now() - lastCoordinateTS)
+    let deltaT = (currentSpeed / 3.6) / (1000 / (tick - 1));
+    if(distance < 30)
+        deltaT = deltaT / 2;
+    lastCoordinateTS = Date.now()
+    deltaT = distance / deltaT;
+    console.log(Date.now() + " distance delta " + distance + " " + tick);
+    if(Math.abs(lat - lastLat) > 0.1 || Math.abs(lon - lastLon) > 0.1) {
+        lastLat = lat;
+        lastLon = lon;
+        lastCoordinateTS = Date.now()
+    } else if(lat != lastLat || lon != lastLon) {
+        if(lat > lastLat) {
+            lastLat = lat = lastLat + ((lat-lastLat) / deltaT);
+        } else {
+            lastLat = lat = lastLat - ((lastLat - lat) / deltaT);
+        }
+        if(lon > lastLon) {
+            lastLon = lon = lastLon + ((lon-lastLon) / deltaT);
+        } else {
+            lastLon = lon = lastLon - ((lastLon-lon) / deltaT);
+        }
+    }
+
     console.log("azimuth " + azimuth + " " + lat + " " + lon);
 	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/8, 300));
-         setTimeout(a,25);
+         setTimeout(a,refreshRate);
 	 /*
     viewer.camera.flyTo({
       destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),

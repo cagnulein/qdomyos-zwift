@@ -148,6 +148,7 @@ class bluetoothdevice : public QObject {
     double azimuth;
     double azimuthAvgNext300m;
     quint64 coordinateTS = 0;
+    double coordinateOdometer = 0;
     QString gpxBase64 = "";
     QString gpxFileName = "";
 
