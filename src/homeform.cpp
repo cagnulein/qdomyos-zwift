@@ -3340,6 +3340,8 @@ void homeform::trainprogram_preview(const QUrl &fileName) {
             }
             previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
             emit previewWorkoutPointsChanged(preview_workout_points());
+            emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
+            emit previewWorkoutTagsChanged(previewWorkoutTags());
         }
     }
 }

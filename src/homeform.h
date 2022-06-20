@@ -121,7 +121,6 @@ class homeform : public QObject {
     Q_PROPERTY(QString workoutName READ workoutName)
     Q_PROPERTY(QString instructorName READ instructorName)
     Q_PROPERTY(int workout_sample_points READ workout_sample_points)
-    Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
     Q_PROPERTY(QList<double> workout_watt_points READ workout_watt_points)
     Q_PROPERTY(QList<double> workout_heart_points READ workout_heart_points)
     Q_PROPERTY(QList<double> workout_cadence_points READ workout_cadence_points)
@@ -131,7 +130,10 @@ class homeform : public QObject {
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
 
     // workout preview
+    Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
     Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
+    Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
+    Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
 
   public:
     Q_INVOKABLE void save_screenshot() {
@@ -423,6 +425,20 @@ class homeform : public QObject {
         return l;
     }
 
+    QString previewWorkoutDescription() {
+        if (previewTrainProgram) {
+            return previewTrainProgram->description;
+        }
+        return "";
+    }
+
+    QString previewWorkoutTags() {
+        if (previewTrainProgram) {
+            return previewTrainProgram->tags;
+        }
+        return "";
+    }
+
   private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
@@ -626,6 +642,8 @@ class homeform : public QObject {
     void instructorNameChanged(QString name);
 
     void previewWorkoutPointsChanged(int value);
+    void previewWorkoutDescriptionChanged(QString value);
+    void previewWorkoutTagsChanged(QString value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };

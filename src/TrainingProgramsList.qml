@@ -28,6 +28,7 @@ ColumnLayout {
     RowLayout{
         spacing: 2
         anchors.top: parent.top
+        anchors.fill: parent
 
         ListView {
             Layout.fillWidth: true
@@ -35,8 +36,9 @@ ColumnLayout {
             Layout.preferredWidth: 100
             Layout.maximumWidth: 300
             Layout.minimumHeight: 150
+            Layout.preferredHeight: parent.height
+            ScrollBar.vertical: ScrollBar {}
             id: list
-            anchors.fill: parent
             FolderListModel {
                 id: folderModel
                 nameFilters: ["*.xml", "*.zwo"]
@@ -118,6 +120,7 @@ ColumnLayout {
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
             Layout.preferredHeight: 100
+            anchors.top: parent.top
 
             property alias powerSeries: powerSeries
             property alias powerChart: powerChart
@@ -133,9 +136,11 @@ ColumnLayout {
 
                 Text {
                     id: date
-                    text: rootItem.workoutStartDate
-                    font.pixelSize: 16
+                    width: parent.width
+                    text: rootItem.previewWorkoutDescription
+                    font.pixelSize: 14
                     color: "white"
+                    wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -143,19 +148,11 @@ ColumnLayout {
 
                 Text {
                     anchors.top: date.bottom
-                    id: title
-                    text: rootItem.workoutName
-                    font.pixelSize: 24
-                    color: "yellow"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Text {
-                    anchors.top: title.bottom
                     id: description
-                    text: rootItem.instructorName
-                    font.pixelSize: 18
+                    width: parent.width
+                    text: rootItem.previewWorkoutTags
+                    font.pixelSize: 10
+                    wrapMode: Text.WordWrap
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
@@ -167,7 +164,7 @@ ColumnLayout {
                     ScrollBar.vertical.policy: ScrollBar.AlwaysOff
                     anchors.left: parent.left
                     anchors.right: parent.right
-                    anchors.top: instructor.bottom
+                    anchors.top: description.bottom
                     anchors.bottom: parent.bottom
                     contentHeight: powerChart.height
 
