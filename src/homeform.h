@@ -121,6 +121,7 @@ class homeform : public QObject {
     Q_PROPERTY(QString workoutName READ workoutName)
     Q_PROPERTY(QString instructorName READ instructorName)
     Q_PROPERTY(int workout_sample_points READ workout_sample_points)
+    Q_PROPERTY(int preview_workout_points READ preview_workout_points NOTIFY previewWorkoutPointsChanged)
     Q_PROPERTY(QList<double> workout_watt_points READ workout_watt_points)
     Q_PROPERTY(QList<double> workout_heart_points READ workout_heart_points)
     Q_PROPERTY(QList<double> workout_cadence_points READ workout_cadence_points)
@@ -128,6 +129,9 @@ class homeform : public QObject {
     Q_PROPERTY(QList<double> workout_resistance_points READ workout_resistance_points)
     Q_PROPERTY(double wattMaxChart READ wattMaxChart)
     Q_PROPERTY(bool autoResistance READ autoResistance NOTIFY autoResistanceChanged WRITE setAutoResistance)
+
+    // workout preview
+    Q_PROPERTY(QList<double> preview_workout_watt READ preview_workout_watt)
 
   public:
     Q_INVOKABLE void save_screenshot() {
@@ -338,6 +342,7 @@ class homeform : public QObject {
     void setMapsVisible(bool value);
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
+    int preview_workout_points();
 
 #if defined(Q_OS_ANDROID)
     static QString getAndroidDataAppDir();
@@ -404,12 +409,27 @@ class homeform : public QObject {
         return l;
     }
 
+    QList<double> preview_workout_watt() {
+        QList<double> l;
+        if (!previewTrainProgram)
+            return l;
+        QTime d = previewTrainProgram->duration();
+        l.reserve((d.hour() * 3600) + (d.minute() * 60) + d.second() + 1);
+        foreach (trainrow r, previewTrainProgram->loadedRows) {
+            for (int i = 0; i < (r.duration.hour() * 3600) + (r.duration.minute() * 60) + r.duration.second(); i++) {
+                l.append(r.power);
+            }
+        }
+        return l;
+    }
+
   private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;
     bluetooth *bluetoothManager;
     QQmlApplicationEngine *engine;
     trainprogram *trainProgram = nullptr;
+    trainprogram *previewTrainProgram = nullptr;
     QString backupFitFileName =
         QStringLiteral("QZ-backup-") +
         QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
@@ -543,6 +563,7 @@ class homeform : public QObject {
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
+    void trainprogram_preview(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
@@ -603,6 +624,8 @@ class homeform : public QObject {
     void workoutNameChanged(QString name);
     void workoutStartDateChanged(QString name);
     void instructorNameChanged(QString name);
+
+    void previewWorkoutPointsChanged(int value);
 
     void workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state);
 };

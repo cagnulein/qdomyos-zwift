@@ -17,6 +17,7 @@ ApplicationWindow {
 
     signal gpx_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
     signal gpx_save_clicked()
     signal fit_save_clicked()
@@ -525,6 +526,7 @@ ApplicationWindow {
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
                     stackView.currentItem.trainprogram_open_clicked.connect(trainprogram_open_clicked)
+                    stackView.currentItem.trainprogram_preview.connect(trainprogram_preview)
                     stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
                         stackView.pop();
                         popup.open();
