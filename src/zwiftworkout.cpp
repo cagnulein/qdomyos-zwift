@@ -5,12 +5,12 @@
 #include <QXmlStreamReader>
 #include <cstdarg>
 
-QList<trainrow> zwiftworkout::load(const QString &filename) {
+QList<trainrow> zwiftworkout::load(const QString &filename, QString *description, QString *tags) {
     QSettings settings;
     // QList<trainrow> list; //NOTE: clazy-unuzed-non-trivial-variable
     QFile input(filename);
     input.open(QIODevice::ReadOnly);
-    return load(input.readAll());
+    return load(input.readAll(), description, tags);
 }
 
 bool zwiftworkout::durationAsDistance(QString sportType, QString durationType) {
@@ -188,7 +188,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
     va_end(args);
 }
 
-QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
+QList<trainrow> zwiftworkout::loadJSON(const QString &input, QString *description, QString *tags) {
     QList<trainrow> list;
     QJsonDocument doc = QJsonDocument::fromJson(input.toUtf8());
     if (doc.isObject()) {
@@ -202,6 +202,21 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
         }
         if (obj.contains(QStringLiteral("sportType"))) {
             sportType = obj[QStringLiteral("sportType")].toString();
+        }
+        if (description != nullptr && obj.contains(QStringLiteral("description"))) {
+            *description = obj[QStringLiteral("description")].toString();
+        }
+
+        if (tags) {
+            tags->clear();
+            arr = obj[QStringLiteral("tags")].toArray();
+            for (int k = 0; k < arr.count(); k++) {
+                QJsonObject element = arr.at(k).toObject();
+                if (element.contains(QStringLiteral("name"))) {
+                    QString tag = element[QStringLiteral("name")].toString();
+                    tags->append("#" + tag + " ");
+                }
+            }
         }
         arr = obj[QStringLiteral("workout")].toArray();
         for (int k = 0; k < arr.count(); k++) {
@@ -218,8 +233,8 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
                     repeat = element[QStringLiteral("Repeat")].toInt();
                     if (!repeat)
                         repeat = 1;
-                    OnDuration = element[QStringLiteral("OnDuration")].toInt();
-                    OffDuration = element[QStringLiteral("OffDuration")].toInt();
+                    OnDuration = element[QStringLiteral("OnDuration")].toDouble();
+                    OffDuration = element[QStringLiteral("OffDuration")].toDouble();
                     OnPower = element[QStringLiteral("OnPower")].toDouble();
                     OffPower = element[QStringLiteral("OffPower")].toDouble();
                     if (element.contains(QStringLiteral("pace"))) {
@@ -230,7 +245,7 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
                 } else if (type == QStringLiteral("FreeRide")) {
                     uint32_t Duration = 1;
                     // double FlatRoad = 1;
-                    Duration = element[QStringLiteral("Duration")].toInt();
+                    Duration = element[QStringLiteral("Duration")].toDouble();
 
                     convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration);
                 } else if (type == QStringLiteral("Ramp") || type == QStringLiteral("Warmup") ||
@@ -239,7 +254,7 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
                     double PowerLow = 1;
                     double PowerHigh = 1;
                     int Pace = -1;
-                    Duration = element[QStringLiteral("Duration")].toInt();
+                    Duration = element[QStringLiteral("Duration")].toDouble();
                     PowerLow = element[QStringLiteral("PowerLow")].toDouble();
                     PowerHigh = element[QStringLiteral("PowerHigh")].toDouble();
                     if (element.contains(QStringLiteral("pace"))) {
@@ -252,11 +267,14 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
                     double Power = 1;
                     int Pace = -1;
 
-                    Duration = element[QStringLiteral("Duration")].toInt();
+                    Duration = element[QStringLiteral("Duration")].toDouble();
                     if (element.contains(QStringLiteral("pace"))) {
                         Pace = element[QStringLiteral("pace")].toInt();
                     }
                     Power = element[QStringLiteral("Power")].toDouble();
+                    if (Power == 1) {
+                        Power = element[QStringLiteral("PowerLow")].toDouble();
+                    }
                     convertTag(0.0, sportType, durationType, list, type.toUtf8().constData(), Duration, Power, Pace);
                 }
             }
@@ -265,13 +283,18 @@ QList<trainrow> zwiftworkout::loadJSON(const QString &input) {
     return list;
 }
 
-QList<trainrow> zwiftworkout::load(const QByteArray &input) {
+QList<trainrow> zwiftworkout::load(const QByteArray &input, QString *description, QString *tags) {
     QSettings settings;
     QList<trainrow> list;
     QXmlStreamReader stream(input);
     double thresholdSecPerKm = 0;
     QString sportType = QStringLiteral("");
     QString durationType = QStringLiteral("");
+    if (description != nullptr)
+        description->clear();
+    if (tags != nullptr)
+        tags->clear();
+
     while (!stream.atEnd()) {
         stream.readNext();
         QString name = stream.name().toString();
@@ -283,6 +306,14 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
         } else if (name.toLower().contains(QStringLiteral("sporttype")) && sportType.length() == 0) {
             stream.readNext();
             sportType = stream.text().toString();
+        } else if (description != nullptr && name.toLower().contains(QStringLiteral("description")) &&
+                   description->length() == 0) {
+            stream.readNext();
+            *description = stream.text().toString();
+        } else if (tags != nullptr && name.toLower().contains(QStringLiteral("tag")) && name.length() == 3) {
+            if (atts.hasAttribute(QStringLiteral("name"))) {
+                tags->append("#" + atts.value(QStringLiteral("name")).toString() + " ");
+            }
         } else if (name.toLower().contains(QStringLiteral("durationtype")) && durationType.length() == 0) {
             stream.readNext();
             durationType = stream.text().toString();
@@ -298,10 +329,10 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                     repeat = atts.value(QStringLiteral("Repeat")).toUInt();
                 }
                 if (atts.hasAttribute(QStringLiteral("OnDuration"))) {
-                    OnDuration = atts.value(QStringLiteral("OnDuration")).toUInt();
+                    OnDuration = atts.value(QStringLiteral("OnDuration")).toDouble();
                 }
                 if (atts.hasAttribute(QStringLiteral("OffDuration"))) {
-                    OffDuration = atts.value(QStringLiteral("OffDuration")).toUInt();
+                    OffDuration = atts.value(QStringLiteral("OffDuration")).toDouble();
                 }
                 if (atts.hasAttribute(QStringLiteral("OnPower"))) {
                     OnPower = atts.value(QStringLiteral("OnPower")).toDouble();
@@ -319,7 +350,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                 uint32_t Duration = 1;
                 // double FlatRoad = 1;
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
-                    Duration = atts.value(QStringLiteral("Duration")).toUInt();
+                    Duration = atts.value(QStringLiteral("Duration")).toDouble();
                 }
                 if (atts.hasAttribute(QStringLiteral("FlatRoad"))) {
                     // NOTE: Value stored to FlatRoad is never read clang-analyzer-deadcode.DeadStores
@@ -335,7 +366,7 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                 double PowerHigh = 1;
                 int Pace = -1;
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
-                    Duration = atts.value(QStringLiteral("Duration")).toUInt();
+                    Duration = atts.value(QStringLiteral("Duration")).toDouble();
                 }
                 if (atts.hasAttribute(QStringLiteral("PowerLow"))) {
                     PowerLow = atts.value(QStringLiteral("PowerLow")).toDouble();
@@ -355,13 +386,16 @@ QList<trainrow> zwiftworkout::load(const QByteArray &input) {
                 int Pace = -1;
 
                 if (atts.hasAttribute(QStringLiteral("Duration"))) {
-                    Duration = atts.value(QStringLiteral("Duration")).toUInt();
+                    Duration = atts.value(QStringLiteral("Duration")).toDouble();
                 }
                 if (atts.hasAttribute(QStringLiteral("pace"))) {
                     Pace = atts.value(QStringLiteral("pace")).toUInt();
                 }
                 if (atts.hasAttribute(QStringLiteral("Power"))) {
                     Power = atts.value(QStringLiteral("Power")).toDouble();
+                }
+                if (Power == 1 && atts.hasAttribute(QStringLiteral("PowerLow"))) {
+                    Power = atts.value(QStringLiteral("PowerLow")).toDouble();
                 }
                 convertTag(thresholdSecPerKm, sportType, durationType, list, name.toUtf8().constData(), Duration, Power,
                            Pace);

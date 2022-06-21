@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>Tabata with sweet spot</name>
+    <description>A warm up followed by Tabata intervals (a type of high intensity interval training, HIIT). Another anaerobic target and then straight into tempo and short sweet spot/threshold sessions.
+	
+	Tabata intervals work initially on your anaerobic exercise capacity, but over a 4 minute duration with only short rest periods, it can be expected that aerobic capacity is trained (as Tabata originally demonstrated using only a single set 5 times a week for 5 weeks). Including Tabata in a workout isn’t how it was originally tested, but is useful.
+
+References:
+
+1. Tabata I, Nishimura K, Kouzaki M, Hirai Y, Ogita F, Miyachi M, Yamamoto K. Effects of moderate-intensity endurance and high-intensity intermittent training on anaerobic capacity and VO2max. Med Sci Sports Exerc. 1996 Oct;28(10):1327-30.
+	</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="INTERVALS"/>
+        <tag name="Tabata"/>
+        <tag name="JonathanC"/>
+        <tag name="Threshold"/>
+		<tag name="Sweet"/>
+    </tags>
+    <workout>
+        <SteadyState Duration="150" Power="0.55908674" pace="0"/>
+        <SteadyState Duration="300" Power="0.65000004" pace="0"/>
+        <SteadyState Duration="150" PowerLow="0.79126954" PowerHigh="0.79173243" pace="1128505344">
+            <textevent timeoffset="91" message="Keep cadence high in intervals"/>
+        </SteadyState>
+        <SteadyState Duration="10" Power="0.5" pace="1128505344"/>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.49982077" pace="1128505344"/>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.49982077" pace="1128505344"/>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.5" pace="1128505344">
+            <textevent timeoffset="0" message="Halfway!"/>
+        </SteadyState>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.49982077" pace="1128505344"/>
+        <SteadyState Duration="20" Power="1.4353052" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.49982077" pace="1128505344"/>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.49982077" pace="1128505344">
+            <textevent timeoffset="2" message="Only one left!"/>
+        </SteadyState>
+        <SteadyState Duration="20" Power="1.4353048" pace="1128505344"/>
+        <SteadyState Duration="10" Power="0.49982077" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.65000004" pace="1128505344"/>
+        <SteadyState Duration="60" Power="1.2560933" pace="1128505344"/>
+        <SteadyState Duration="600" Power="0.80806452" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.95501798" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.80806452" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.95565373" pace="1128505344"/>
+    </workout>
+</workout_file>
