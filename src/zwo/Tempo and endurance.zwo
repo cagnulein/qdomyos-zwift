@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>Tempo and endurance</name>
+    <description>A bit of tempo, but you should settle into your endurance zone and carry on as a free ride after the workout stops. If you are the type of person who needs a workout to force you to stick to an easier power zone, then this is the workout for you. Don't stop when the workout stops, but don't be tempted to push up a zone, even if it does make it more interesting. Perhaps try this without erg mode, on a course with gentle gradients to ease the boredom, without encouraging you to increase the power.
+</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="RECOVERY"/>
+        <tag name="Tempo"/>
+        <tag name="JonathanC"/>		
+    </tags>
+    <workout>
+        <SteadyState Duration="60" Power="0.67000002" pace="1128505344"/>
+        <SteadyState Duration="120" Power="0.75" pace="1128505344"/>
+        <SteadyState Duration="120" Power="0.80000001" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.70999998" pace="1128505344"/>
+        <SteadyState Duration="210" Power="0.80000001" pace="1128505344"/>
+        <SteadyState Duration="60" Power="0.76999998" pace="1128505344"/>
+        <SteadyState Duration="90" Power="0.70999998" pace="1128505344"/>
+        <SteadyState Duration="60" Power="0.76999998" pace="1128505344"/>
+        <SteadyState Duration="90" Power="0.70999998" pace="1128505344"/>
+        <SteadyState Duration="60" Power="0.76999998" pace="1128505344"/>
+        <SteadyState Duration="90" Power="0.70999998" pace="1128505344"/>
+        <SteadyState Duration="60" Power="0.76999998" pace="1128505344"/>
+        <SteadyState Duration="90" Power="0.70999998" pace="1128505344"/>
+        <SteadyState Duration="300" Power="0.75" pace="1128505344"/>
+        <SteadyState Duration="600" Power="0.76999998" pace="1128505344"/>
+        <SteadyState Duration="60" Power="1.1" pace="1128505344"/>
+        <SteadyState Duration="90" Power="0.70999998" pace="1128505344"/>
+        <SteadyState Duration="600" Power="0.75" pace="1128505344"/>
+    </workout>
+</workout_file>

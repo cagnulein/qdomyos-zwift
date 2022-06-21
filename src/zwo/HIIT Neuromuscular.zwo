@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<workout_file>
+<author>Jonathan Colledge</author>
+<name>HIIT Neuromuscular</name>
+<description>Moderate power intervals with efforts targeting neuromuscular power.
+</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="INTERVALS"/>
+        <tag name="Anaerobic"/>
+		<tag name="Neuromuscular"/>
+        <tag name="JonathanC"/>		
+    </tags>
+    <workout>
+        <SteadyState Duration="60.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="60.0" PowerLow="0.600" PowerHigh="0.600"/>
+        <SteadyState Duration="60.0" PowerLow="0.650" PowerHigh="0.650"/>
+        <SteadyState Duration="60.0" PowerLow="0.700" PowerHigh="0.700"/>
+        <SteadyState Duration="60.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="300.0" PowerLow="0.820" PowerHigh="0.820"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="10.0" PowerLow="2.510" PowerHigh="2.510"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="120.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="10.0" PowerLow="2.510" PowerHigh="2.510"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="120.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="10.0" PowerLow="2.510" PowerHigh="2.510"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="120.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="10.0" PowerLow="2.510" PowerHigh="2.510"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="120.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="10.0" PowerLow="2.510" PowerHigh="2.510"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="120.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="10.0" PowerLow="2.510" PowerHigh="2.510"/>
+        <SteadyState Duration="20.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="150.0" PowerLow="0.530" PowerHigh="0.530"/>
+        <SteadyState Duration="300.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950"/>
+        <SteadyState Duration="300.0" PowerLow="0.810" PowerHigh="0.810"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950"/>
+        <SteadyState Duration="300.0" PowerLow="0.530" PowerHigh="0.530"/>
+    </workout>
+</workout_file>
+
