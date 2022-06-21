@@ -3471,6 +3471,7 @@ QStringList homeform::bluetoothDevices() {
 
     QStringList r;
     r.append(QStringLiteral("Disabled"));
+    r.append(QStringLiteral("Wifi"));
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
         if (!b.name().trimmed().isEmpty()) {
 
