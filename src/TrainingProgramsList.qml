@@ -30,88 +30,115 @@ ColumnLayout {
         anchors.top: parent.top
         anchors.fill: parent
 
-        ListView {
-            Layout.fillWidth: true
-            Layout.minimumWidth: 50
-            Layout.preferredWidth: 100
-            Layout.maximumWidth: 300
-            Layout.minimumHeight: 150
-            Layout.preferredHeight: parent.height
-            ScrollBar.vertical: ScrollBar {}
-            id: list
-            FolderListModel {
-                id: folderModel
-                nameFilters: ["*.xml", "*.zwo"]
-                folder: "file://" + rootItem.getWritableAppDir() + 'training'
-                showDotAndDotDot: false
-                showDirs: true
-            }
-            model: folderModel
-            delegate: Component {
-                Rectangle {
-                    property alias textColor: fileTextBox.color
-                    width: parent.width
-                    height: 40
-                    color: Material.backgroundColor
-                    z: 1
-                    Text {
-                        id: fileTextBox
-                        color: Material.color(Material.Grey)
-                        font.pixelSize: Qt.application.font.pixelSize * 1.6
-                        text: fileName.substring(0, fileName.length-4)
+        ColumnLayout {
+            spacing: 0
+            anchors.top: parent.top
+            anchors.fill: parent
+
+            Row
+            {
+                spacing: 5
+                Text {text:"Filter"}
+                TextField
+                {
+                    function updateFilter()
+                    {
+                        var text = filterField.text
+                        var filter = "*"
+                        for(var i = 0; i<text.length; i++)
+                           filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
+                        filter+="*"
+                        print(filter)
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
                     }
-                    MouseArea {
-                        anchors.fill: parent
-                        z: 100
-                        onClicked: {
-                            console.log('onclicked ' + index+ " count "+list.count);
-                            if (index == list.currentIndex) {
-                                let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                                if (fileUrl) {
-                                    trainprogram_open_clicked(fileUrl);
-                                    popup.open()
+                    id: filterField
+                    onTextChanged: updateFilter()
+                }
+            }
+
+            ListView {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 50
+                Layout.preferredWidth: 100
+                Layout.maximumWidth: 300
+                Layout.minimumHeight: 150
+                Layout.preferredHeight: parent.height
+                ScrollBar.vertical: ScrollBar {}
+                id: list
+                FolderListModel {
+                    id: folderModel
+                    nameFilters: ["*.xml", "*.zwo"]
+                    folder: "file://" + rootItem.getWritableAppDir() + 'training'
+                    showDotAndDotDot: false
+                    showDirs: true
+                }
+                model: folderModel
+                delegate: Component {
+                    Rectangle {
+                        property alias textColor: fileTextBox.color
+                        width: parent.width
+                        height: 40
+                        color: Material.backgroundColor
+                        z: 1
+                        Text {
+                            id: fileTextBox
+                            color: Material.color(Material.Grey)
+                            font.pixelSize: Qt.application.font.pixelSize * 1.6
+                            text: fileName.substring(0, fileName.length-4)
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 100
+                            onClicked: {
+                                console.log('onclicked ' + index+ " count "+list.count);
+                                if (index == list.currentIndex) {
+                                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                                    if (fileUrl) {
+                                        trainprogram_open_clicked(fileUrl);
+                                        popup.open()
+                                    }
                                 }
-                            }
-                            else {
-                                if (list.currentItem)
-                                    list.currentItem.textColor = Material.color(Material.Grey)
-                                list.currentIndex = index
+                                else {
+                                    if (list.currentItem)
+                                        list.currentItem.textColor = Material.color(Material.Grey)
+                                    list.currentIndex = index
+                                }
                             }
                         }
                     }
                 }
-            }
-            highlight: Rectangle {
-                color: Material.color(Material.Green)
-                z:3
-                radius: 5
-                opacity: 0.4
-                focus: true
-                /*Text {
+                highlight: Rectangle {
+                    color: Material.color(Material.Green)
+                    z:3
+                    radius: 5
+                    opacity: 0.4
+                    focus: true
+                    /*Text {
                         anchors.centerIn: parent
                         text: 'Selected ' + folderModel.get(list.currentIndex, "fileName")
                         color: "white"
                     }*/
-            }
-            focus: true
-            onCurrentItemChanged: {
-                let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
-                if (fileUrl) {
-                    list.currentItem.textColor = Material.color(Material.Yellow)
-                    console.log(fileUrl + ' selected');
-                    trainprogram_preview(fileUrl)
-                    powerSeries.clear();
-                    for(var i=0;i<rootItem.preview_workout_points;i+=10)
-                    {
-                        powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
-                    }
-                    rootItem.update_chart_power(powerChart);
-                    //trainprogram_open_clicked(fileUrl);
-                    //popup.open()
                 }
-            }
-            Component.onCompleted: {
+                focus: true
+                onCurrentItemChanged: {
+                    let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
+                    if (fileUrl) {
+                        list.currentItem.textColor = Material.color(Material.Yellow)
+                        console.log(fileUrl + ' selected');
+                        trainprogram_preview(fileUrl)
+                        powerSeries.clear();
+                        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+                        {
+                            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+                        }
+                        rootItem.update_chart_power(powerChart);
+                        //trainprogram_open_clicked(fileUrl);
+                        //popup.open()
+                    }
+                }
+                Component.onCompleted: {
 
+                }
             }
         }
 
