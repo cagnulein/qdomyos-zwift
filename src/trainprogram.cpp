@@ -98,7 +98,6 @@ double trainprogram::avgAzimuthNext300Meters() {
                     }
                     return averageDirection;
                 }
-                qDebug() << rows.at(c).azimuth << rows.at(c).distance;
                 
                 for (double i = 0; i < rows.at(c).distance; i+=0.001) {
                     sinTotal += sin(rows.at(c).azimuth * (M_PI / 180));
