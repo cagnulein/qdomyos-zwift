@@ -464,12 +464,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     //    double erg_filter_lower = settings.value(QStringLiteral("zwift_erg_filter_down"), 0.0)
     //                                  .toDouble(); // NOTE:clang-analyzer-deadcode.DeadStores
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
-                    QStringLiteral(" ") + newValue.toHex(' ');
+                    QStringLiteral(" ") + newValue.toHex(' ');    
 
-    lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
-
-    if (!echelon && !ifit)
+    if (!echelon && !ifit) {
+        lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
         emit ftmsCharacteristicChanged(characteristic, newValue);
+    }
 
     switch (characteristic.uuid().toUInt16()) {
 

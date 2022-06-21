@@ -6,10 +6,14 @@
 
 using namespace std::chrono_literals;
 
-trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b) {
+trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *description, QString *tags) {
     this->bluetoothManager = b;
     this->rows = rows;
     this->loadedRows = rows;
+    if (description)
+        this->description = *description;
+    if (tags)
+        this->tags = *tags;
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
     timer.start();
@@ -458,7 +462,9 @@ void trainprogram::save(const QString &filename) { saveXML(filename, rows); }
 trainprogram *trainprogram::load(const QString &filename, bluetooth *b) {
     if (!filename.right(3).toUpper().compare(QStringLiteral("ZWO"))) {
 
-        return new trainprogram(zwiftworkout::load(filename), b);
+        QString description = "";
+        QString tags = "";
+        return new trainprogram(zwiftworkout::load(filename, &description, &tags), b, &description, &tags);
     } else {
 
         return new trainprogram(loadXML(filename), b);

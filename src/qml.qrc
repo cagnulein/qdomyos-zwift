@@ -55,5 +55,16 @@
         <file>NewPageElement.qml</file>
         <file>inner_templates/googlemaps/jquery-3.6.0.min.js</file>
         <file>inner_templates/googlemaps/bike.js</file>
+        <file>zwo/Easy intervals.zwo</file>
+        <file>zwo/HIIT Aerobic.zwo</file>
+        <file>zwo/HIIT Anaerobic Sprint.zwo</file>
+        <file>zwo/HIIT Anaerobic.zwo</file>
+        <file>zwo/HIIT Neuromuscular.zwo</file>
+        <file>zwo/Short Mix by Jonathan.zwo</file>
+        <file>zwo/Tabata plus 2 with sweet spot and threshold.zwo</file>
+        <file>zwo/Tabata with sweet spot.zwo</file>
+        <file>zwo/Tempo and endurance.zwo</file>
+        <file>zwo/VO2max with recovery.zwo</file>
+        <file>zwo/VO2max with sweet spot.zwo</file>
     </qresource>
 </RCC>

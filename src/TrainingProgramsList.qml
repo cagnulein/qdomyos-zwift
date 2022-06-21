@@ -4,9 +4,12 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import QtQuick.Dialogs 1.0
+import QtCharts 2.2
+import Qt.labs.settings 1.0
 
 ColumnLayout {
     signal trainprogram_open_clicked(url name)
+    signal trainprogram_preview(url name)
     FileDialog {
         id: fileDialogTrainProgram
         title: "Please choose a file"
@@ -22,15 +25,46 @@ ColumnLayout {
         }
     }
 
-    AccordionElement {
-        title: qsTr("Application Training folder")
-        indicatRectColor: Material.color(Material.Grey)
-        textColor: Material.color(Material.Grey)
-        color: Material.backgroundColor
-        accordionContent: ColumnLayout {
+    RowLayout{
+        spacing: 2
+        anchors.top: parent.top
+        anchors.fill: parent
+
+        ColumnLayout {
+            spacing: 0
+            anchors.top: parent.top
+            anchors.fill: parent
+
+            Row
+            {
+                spacing: 5
+                Text {text:"Filter"}
+                TextField
+                {
+                    function updateFilter()
+                    {
+                        var text = filterField.text
+                        var filter = "*"
+                        for(var i = 0; i<text.length; i++)
+                           filter+= "[%1%2]".arg(text[i].toUpperCase()).arg(text[i].toLowerCase())
+                        filter+="*"
+                        print(filter)
+                        folderModel.nameFilters = [filter + ".zwo", filter + ".xml"]
+                    }
+                    id: filterField
+                    onTextChanged: updateFilter()
+                }
+            }
+
             ListView {
+                Layout.fillWidth: true
+                Layout.minimumWidth: 50
+                Layout.preferredWidth: 100
+                Layout.maximumWidth: 300
+                Layout.minimumHeight: 150
+                Layout.preferredHeight: parent.height
+                ScrollBar.vertical: ScrollBar {}
                 id: list
-                anchors.fill: parent
                 FolderListModel {
                     id: folderModel
                     nameFilters: ["*.xml", "*.zwo"]
@@ -91,14 +125,125 @@ ColumnLayout {
                     if (fileUrl) {
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
+                        trainprogram_preview(fileUrl)
+                        powerSeries.clear();
+                        for(var i=0;i<rootItem.preview_workout_points;i+=10)
+                        {
+                            powerSeries.append(i * 1000, rootItem.preview_workout_watt[i]);
+                        }
+                        rootItem.update_chart_power(powerChart);
                         //trainprogram_open_clicked(fileUrl);
                         //popup.open()
+                    }
+                }
+                Component.onCompleted: {
+
+                }
+            }
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.minimumWidth: 100
+            Layout.preferredWidth: 200
+            Layout.preferredHeight: 100
+            anchors.top: parent.top
+
+            property alias powerSeries: powerSeries
+            property alias powerChart: powerChart
+
+            Settings {
+                id: settings
+                property real ftp: 200.0
+            }
+
+            Row {
+                id: row
+                anchors.fill: parent
+
+                Text {
+                    id: date
+                    width: parent.width
+                    text: rootItem.previewWorkoutDescription
+                    font.pixelSize: 14
+                    color: "white"
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                Text {
+                    anchors.top: date.bottom
+                    id: description
+                    width: parent.width
+                    text: rootItem.previewWorkoutTags
+                    font.pixelSize: 10
+                    wrapMode: Text.WordWrap
+                    color: "white"
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
+                ScrollView {
+                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                    ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: description.bottom
+                    anchors.bottom: parent.bottom
+                    contentHeight: powerChart.height
+
+                    ChartView {
+                        id: powerChart
+                        objectName: "powerChart"
+                        antialiasing: true
+                        legend.visible: false
+                        height: 400
+                        width: parent.width
+                        title: "Power"
+                        titleFont.pixelSize: 20
+
+                        DateTimeAxis {
+                            id: valueAxisX
+                            tickCount: 7
+                            min: new Date(0)
+                            max: new Date(rootItem.preview_workout_points * 1000)
+                            format: "mm:ss"
+                            //labelsVisible: false
+                            gridVisible: false
+                            //lineVisible: false
+                            labelsFont.pixelSize: 10
+                        }
+
+                        ValueAxis {
+                            id: valueAxisY
+                            min: 0
+                            max: rootItem.wattMaxChart
+                            //tickCount: 60
+                            tickCount: 8
+                            labelFormat: "%.0f"
+                            //labelsVisible: false
+                            //gridVisible: false
+                            //lineVisible: false
+                            labelsFont.pixelSize: 10
+                        }
+
+                        LineSeries {
+                            //name: "Power"
+                            id: powerSeries
+                            visible: true
+                            axisX: valueAxisX
+                            axisY: valueAxisY
+                            color: "black"
+                            width: 1
+                        }
                     }
                 }
             }
         }
     }
-    spacing: 10
 
     Button {
         id: searchButton

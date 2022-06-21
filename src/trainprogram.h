@@ -51,7 +51,7 @@ class trainprogram : public QObject {
     Q_OBJECT
 
   public:
-    trainprogram(const QList<trainrow> &, bluetooth *b);
+    trainprogram(const QList<trainrow> &, bluetooth *b, QString *description = nullptr, QString *tags = nullptr);
     void save(const QString &filename);
     static trainprogram *load(const QString &filename, bluetooth *b);
     static QList<trainrow> loadXML(const QString &filename);
@@ -71,6 +71,8 @@ class trainprogram : public QObject {
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
+    QString description = "";
+    QString tags = "";
     bool enabled = true;
 
     void restart();

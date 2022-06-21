@@ -318,6 +318,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
@@ -353,6 +354,15 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::workoutChanged, this, &homeform::pelotonWorkoutChanged);
     connect(pelotonHandler, &peloton::loginState, this, &homeform::pelotonLoginState);
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
+
+    // copying bundles zwo files in the right path if necessesary
+    QDirIterator it(":/zwo/");
+    while (it.hasNext()) {
+        qDebug() << it.next() << it.fileName();
+        if (!QFile(getWritableAppDir() + it.fileName()).exists()) {
+            QFile::copy(":/zwo/" + it.fileName(), getWritableAppDir() + it.fileName());
+        }
+    }
 
     m_speech.setLocale(QLocale::English);
 
@@ -3317,6 +3327,25 @@ void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     }
 }
 
+void homeform::trainprogram_preview(const QUrl &fileName) {
+    qDebug() << QStringLiteral("trainprogram_preview") << fileName;
+
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    qDebug() << file.fileName();
+    if (!file.fileName().isEmpty()) {
+        {
+            if (previewTrainProgram) {
+
+                delete previewTrainProgram;
+            }
+            previewTrainProgram = trainprogram::load(file.fileName(), bluetoothManager);
+            emit previewWorkoutPointsChanged(preview_workout_points());
+            emit previewWorkoutDescriptionChanged(previewWorkoutDescription());
+            emit previewWorkoutTagsChanged(previewWorkoutTags());
+        }
+    }
+}
+
 void homeform::trainprogram_zwo_loaded(const QString &s) {
     qDebug() << QStringLiteral("trainprogram_zwo_loaded") << s;
     trainProgram = new trainprogram(zwiftworkout::loadJSON(s), bluetoothManager);
@@ -3444,6 +3473,7 @@ QStringList homeform::bluetoothDevices() {
 
     QStringList r;
     r.append(QStringLiteral("Disabled"));
+    r.append(QStringLiteral("Wifi"));
     for (const QBluetoothDeviceInfo &b : qAsConst(bluetoothManager->devices)) {
         if (!b.name().trimmed().isEmpty()) {
 
@@ -4311,6 +4341,14 @@ void homeform::clearFiles() {
             QFile::remove(f.filePath());
         }
     }
+}
+
+int homeform::preview_workout_points() {
+    if (previewTrainProgram) {
+        QTime d = previewTrainProgram->duration();
+        return (d.hour() * 3600) + (d.minute() * 60) + d.second();
+    }
+    return 0;
 }
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
