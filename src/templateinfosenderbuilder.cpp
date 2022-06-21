@@ -712,7 +712,7 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
             }
         }
     }
-    //qDebug() << QStringLiteral("Unrecognized message") << data;
+    // qDebug() << QStringLiteral("Unrecognized message") << data;
 }
 
 void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
@@ -812,6 +812,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("instructorName"), instructorName);
         obj.setProperty(QStringLiteral("latitude"), device->currentCordinate().latitude());
         obj.setProperty(QStringLiteral("longitude"), device->currentCordinate().longitude());
+        obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(
             QStringLiteral("nickName"),
             (nickName = settings.value(QStringLiteral("user_nickname"), QStringLiteral("")).toString()).isEmpty()
