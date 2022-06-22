@@ -25,6 +25,12 @@
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.address() == d2.address())
 #endif
 
+class MetersByInclination {
+  public:
+    double meters;
+    double inclination;
+};
+
 class bluetoothdevice : public QObject {
 
     Q_OBJECT
@@ -50,12 +56,10 @@ class bluetoothdevice : public QObject {
     virtual metric currentCadence();
     virtual double currentCrankRevolutions();
     virtual QGeoCoordinate currentCordinate();
-    virtual double currentAzimuth() {
-        qDebug() << azimuth;
-        return azimuth;
-    }
-    virtual double averageAzimuthNext300m() {return azimuthAvgNext300m;}
-    virtual void setAverageAzimuthNext300m(double azimuth) {azimuthAvgNext300m = azimuth;}
+    virtual double currentAzimuth() { return azimuth; }
+    virtual QList<MetersByInclination> nextInclination300Meters() { return NextInclination300Meters; }
+    virtual double averageAzimuthNext300m() { return azimuthAvgNext300m; }
+    virtual void setAverageAzimuthNext300m(double azimuth) { azimuthAvgNext300m = azimuth; }
     virtual uint16_t lastCrankEventTime();
     virtual void *VirtualDevice();
     uint16_t watts(double weight);
@@ -107,6 +111,7 @@ class bluetoothdevice : public QObject {
     virtual void instantaneousStrideLengthSensor(double length);
     virtual void groundContactSensor(double groundContact);
     virtual void verticalOscillationSensor(double verticalOscillation);
+    virtual void changeNextInclination300Meters(QList<MetersByInclination> i) { NextInclination300Meters = i; }
 
   Q_SIGNALS:
     void connectedAndDiscovered();
@@ -151,6 +156,7 @@ class bluetoothdevice : public QObject {
     double coordinateOdometer = 0;
     QString gpxBase64 = "";
     QString gpxFileName = "";
+    QList<MetersByInclination> NextInclination300Meters;
 
     metric Inclination;
     metric HeartZone;

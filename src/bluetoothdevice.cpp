@@ -372,7 +372,6 @@ void bluetoothdevice::setGPXFile(QString filename) {
     if (input.open(QIODevice::ReadOnly)) {
         QByteArray asSaved = input.readAll();
         gpxBase64 = "data:@file/xml;base64," + asSaved.toBase64();
-        qDebug() << gpxBase64;
         input.close();
     }
 }

@@ -79,16 +79,41 @@ double trainprogram::calculateDistanceForRow(int32_t row) {
         return rows.at(row).distance;
 }
 
+// meters, inclination
+QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
+    int c = currentStep;
+    double km = 0;
+    QList<MetersByInclination> next300;
+
+    while (1) {
+        if (c < rows.length()) {
+            if (km > 0.3) {
+                return next300;
+            }
+            MetersByInclination p;
+            p.meters = rows.at(c).distance * 1000.0;
+            p.inclination = rows.at(c).inclination;
+            next300.append(p);
+            km += rows.at(c).distance;
+
+        } else {
+            return next300;
+        }
+        c++;
+    }
+    return next300;
+}
+
 double trainprogram::avgAzimuthNext300Meters() {
     int c = currentStep;
     double km = 0;
     double sinTotal = 0;
     double cosTotal = 0;
 
-    if(rows.at(c).latitude != 0 || rows.at(c).longitude != 0) {
-        while(1) {
-            if(c < rows.length()) {
-                if(km > 0.3) {
+    if (rows.at(c).latitude != 0 || rows.at(c).longitude != 0) {
+        while (1) {
+            if (c < rows.length()) {
+                if (km > 0.3) {
                     double averageDirection = atan(sinTotal / cosTotal) * (180 / M_PI);
 
                     if (cosTotal < 0) {
@@ -98,14 +123,14 @@ double trainprogram::avgAzimuthNext300Meters() {
                     }
                     return averageDirection;
                 }
-                
-                for (double i = 0; i < rows.at(c).distance; i+=0.001) {
+
+                for (double i = 0; i < rows.at(c).distance; i += 0.001) {
                     sinTotal += sin(rows.at(c).azimuth * (M_PI / 180));
                     cosTotal += cos(rows.at(c).azimuth * (M_PI / 180));
                 }
 
-                km+=rows.at(c).distance;
-                
+                km += rows.at(c).distance;
+
             } else {
                 double averageDirection = atan(sinTotal / cosTotal) * (180 / M_PI);
 
@@ -147,6 +172,7 @@ void trainprogram::scheduler() {
             if (rows.at(0).inclination != -200) {
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(rows.at(0).inclination);
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
+                emit changeNextInclination300Meters(inclinationNext300Meters());
             }
         } else {
             if (rows.at(0).resistance != -1) {
@@ -182,6 +208,7 @@ void trainprogram::scheduler() {
                 if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                     bluetoothManager->device()->setInclination(rows.at(0).inclination);
                 emit changeInclination(rows.at(0).inclination, rows.at(0).inclination);
+                emit changeNextInclination300Meters(inclinationNext300Meters());
             }
         }
 
@@ -253,6 +280,7 @@ void trainprogram::scheduler() {
                         qDebug() << QStringLiteral("trainprogram change inclination ") +
                                         QString::number(rows.at(currentStep).inclination);
                         emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
+                        emit changeNextInclination300Meters(inclinationNext300Meters());
                     }
                 } else {
                     if (rows.at(currentStep).resistance != -1) {
@@ -294,6 +322,7 @@ void trainprogram::scheduler() {
                         if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                             bluetoothManager->device()->setInclination(rows.at(currentStep).inclination);
                         emit changeInclination(rows.at(currentStep).inclination, rows.at(currentStep).inclination);
+                        emit changeNextInclination300Meters(inclinationNext300Meters());
                     }
                 }
 
@@ -311,15 +340,17 @@ void trainprogram::scheduler() {
                                     QString::number(rows.at(currentStep).altitude) + " " +
                                     QString::number(rows.at(currentStep).distance) + " " +
                                     QString::number(rows.at(currentStep).azimuth);
-                    
+
                     QGeoCoordinate p;
                     p.setLatitude(rows.at(currentStep).latitude);
                     p.setLongitude(rows.at(currentStep).longitude);
                     p.setAltitude(rows.at(currentStep).altitude);
-                    //qDebug() << c << rows.at(currentStep+1).latitude << rows.at(currentStep + 1).longitude << c.distanceTo(p) << rows.at(currentStep).distance;
-                    
-                    if(bluetoothManager->device()->odometer() - lastOdometer > 0)
-                        p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer), rows.at(currentStep).azimuth);
+                    // qDebug() << c << rows.at(currentStep+1).latitude << rows.at(currentStep + 1).longitude <<
+                    // c.distanceTo(p) << rows.at(currentStep).distance;
+
+                    if (bluetoothManager->device()->odometer() - lastOdometer > 0)
+                        p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer),
+                                                   rows.at(currentStep).azimuth);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
                 }
             } else {

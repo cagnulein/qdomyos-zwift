@@ -571,6 +571,8 @@ void homeform::trainProgramSignals() {
                    &treadmill::changeSpeed);
         disconnect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeInclination);
+        disconnect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
+                   &bluetoothdevice::changeNextInclination300Meters);
         disconnect(trainProgram, &trainprogram::changeInclination, ((bike *)bluetoothManager->device()),
                    &bike::changeInclination);
         disconnect(trainProgram, &trainprogram::changeFanSpeed, ((treadmill *)bluetoothManager->device()),
@@ -640,6 +642,8 @@ void homeform::trainProgramSignals() {
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
             connect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                     &rower::changePower);
+        connect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
+                &bluetoothdevice::changeNextInclination300Meters);
         connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                 &trainprogram::onTapeStarted);
         connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram, &trainprogram::onTapeStarted);

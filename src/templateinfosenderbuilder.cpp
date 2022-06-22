@@ -499,6 +499,20 @@ void TemplateInfoSenderBuilder::onGetLatLon(TemplateInfoSender *tempSender) {
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onNextInclination300Meters(TemplateInfoSender *tempSender) {
+    if (!device)
+        return;
+    QJsonObject main;
+    QList<MetersByInclination> ii = device->nextInclination300Meters();
+    for (int i = 0; i < ii.length(); i++) {
+        main[QStringLiteral("content")] =
+            QString::number(ii.at(i).meters, 'g', 0) + "," + QString::number(ii.at(i).inclination, 'g', 1) + ",";
+    }
+    main[QStringLiteral("msg")] = QStringLiteral("R_getnextinclination");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
     if (!device->isPaused()) {
         device->clearStats();
@@ -656,6 +670,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                     return;
                 } else if (msg == QStringLiteral("getlatlon")) {
                     onGetLatLon(sender);
+                    return;
+                } else if (msg == QStringLiteral("getnextinclination")) {
+                    onNextInclination300Meters(sender);
                     return;
                 } else if (msg == QStringLiteral("getgpxbase64")) {
                     onGetGPXBase64(sender);
