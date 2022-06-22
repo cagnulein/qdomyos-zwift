@@ -56,10 +56,10 @@ let ctx = document.getElementById('canvasChart').getContext('2d');
 canvasChart = new Chart(ctx, config);
     canvasChart.canvas.parentNode.style.height = '75px';
     canvasChart.canvas.parentNode.style.width = '150px';
-    setTimeout(a, 500);
+    setTimeout(chartRefresh, 500);
 });
 
-function a() {
+function chartRefresh() {
 onWorkout = false;
 let el = new MainWSQueueElement({
     msg: 'getnextinclination'
@@ -86,5 +86,5 @@ function process_nextinclination(msg) {
     }
     canvasChart.data.datasets[0].data = inclinationArray;
     canvasChart.update();
-    setTimeout(a, 500);
+    setTimeout(chartRefresh, 500);
 }

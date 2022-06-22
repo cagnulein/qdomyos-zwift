@@ -68,7 +68,7 @@ var bike = viewer.scene.primitives.add(
   <body>
     <div id="cesiumContainer" class="cesiumContainer"></div>
 	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; top: 80px; right: 0;">Speed: --<br>Cadence: --</p></div>
-	 <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; top: 300px; right: 0; width=150px; height=75px">
+         <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; top: 330px; right: 0; width=150px; height=75px">
 	    <canvas id="canvasChart" style="width=150px; height=75px"></canvas>
 	 </div>
     <script type="text/javascript">
@@ -95,7 +95,7 @@ var bike = viewer.scene.primitives.add(
     el.enqueue().then(process_latlon).catch(function(err) {
         console.error('Error is ' + err);
     });
-    keys_arr = ['speed', 'cadence', 'heart', 'calories', 'distance', 'watts', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'inclination', 'resistance', 'elevation']
+    keys_arr = ['speed', 'cadence', 'heart', 'calories', 'distance', 'watts', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'inclination', 'resistance', 'elevation', 'altitude']
          let ell = new MainWSQueueElement({
 	     msg: null,
 		}, function(msg) {
@@ -288,7 +288,7 @@ Promise.resolve(
   //console.log(camera_height + " " + terrain_height)
  //Unburrow code
  if (edist - altOffset < 50) {
-    altOffset = 50
+    altOffset = 70 - edist
  } else {
     altOffset = 0;
   }

@@ -504,10 +504,12 @@ void TemplateInfoSenderBuilder::onNextInclination300Meters(TemplateInfoSender *t
         return;
     QJsonObject main;
     QList<MetersByInclination> ii = device->nextInclination300Meters();
+    QString values = "";
     for (int i = 0; i < ii.length(); i++) {
-        main[QStringLiteral("content")] =
+        values +=
             QString::number(ii.at(i).meters, 'g', 0) + "," + QString::number(ii.at(i).inclination, 'g', 1) + ",";
     }
+    main[QStringLiteral("content")] = values;
     main[QStringLiteral("msg")] = QStringLiteral("R_getnextinclination");
     QJsonDocument out(main);
     tempSender->send(out.toJson());
