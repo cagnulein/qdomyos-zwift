@@ -26,8 +26,6 @@
   width: 100%;
   height: 100%;"></div>
   <script>
-    // Your access token can be found at: https://cesium.com/ion/tokens.
-    // Replace `your_access_token` with your Cesium ion access token.
 
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMDBiZDVkYy0wNmM1LTRlMzMtOTM4Yi1jYWZjMmM1MmQ1MWIiLCJpZCI6OTY0NDEsImlhdCI6MTY1NDUwNjc0MH0.iOmEZOXN3XKdl7WsUAvPdjf2M_2OVUUtYLD5Lo3UOUQ';
 
@@ -35,13 +33,20 @@
     const viewer = new Cesium.Viewer('cesiumContainer', {
       terrainProvider: Cesium.createWorldTerrain()
     });
-	 viewer.scene.globe.depthTestAgainstTerrain = true;
+
+    $('.cesium-viewer-animationContainer').css("visibility", "hidden");
+	 $('.cesium-viewer-bottom').css("visibility", "hidden");
+	 $('.cesium-viewer-timelineContainer').css("visibility", "hidden");
+	 $('.cesium-viewer-fullscreenContainer').css("visibility", "hidden");
+
+
+    viewer.scene.globe.depthTestAgainstTerrain = true;
     // Add Cesium OSM Buildings, a global 3D buildings layer.
     //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
 	 var center = Cesium.Cartesian3.fromDegrees(10.855092, 44.508273, 180);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 let map = viewer;
-	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), -Math.PI/8, 200));
+	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), -Math.PI/8, 100));
 
 var bike = viewer.scene.primitives.add(
    Cesium.ModelExperimental.fromGltf({
@@ -70,6 +75,7 @@ var bike = viewer.scene.primitives.add(
     let refreshRate = 25
     let currentSpeed = 0
     let lastCoordinateTS = 0
+	 let altOffset = 0
 
     function a() {
     onWorkout = false;
@@ -130,7 +136,7 @@ var bike = viewer.scene.primitives.add(
 						} else if (key === 'elevation') {
                                                   elevation = msg.content[key];
 																} else if (key === 'altitude') {
-						                                altitude = msg.content[key];
+																  altitude = msg.content[key];
 																}
 				}
 
@@ -156,7 +162,7 @@ var bike = viewer.scene.primitives.add(
     cameraComplete = false;
     let lat = parseFloat(msg.split(",")[0]);
     let lon = parseFloat(msg.split(",")[1]);
-    let alt = parseFloat(msg.split(",")[2]);
+	 let alt = parseFloat(msg.split(",")[2]) + altOffset;
     let azimuth = parseFloat(msg.split(",")[3]);
     if(lastAzimuth != azimuth) {
         if((lastAzimuth > azimuth && Math.abs(lastAzimuth - azimuth) < 180) ||
@@ -215,16 +221,6 @@ var bike = viewer.scene.primitives.add(
 	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/8, 300));
-	 let terrain_height = map.scene.globe.ellipsoid.cartesianToCartographic(center).height;
-	 let camera_height = viewer.scene.camera.positionCartographic.height;
-
-    //Determine terrain relative height (edist)
-	 let edist = camera_height - terrain_height;
-
-    //Unburrow code
-	 if (edist < 50) {
-	   viewer.scene.camera.moveUp(50 + edist)
-	 }
 
    const length = 2;
 
@@ -257,6 +253,47 @@ var bike = viewer.scene.primitives.add(
 	  );
 	      bike.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(lon, lat, samples[0].height));
 	  });
+
+const startLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude));
+const endLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude) + 0.000001);
+const startLatCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.latitude));
+
+const terrainSamplePositionsCamera = [];
+for (let i = 0; i < length; ++i) {
+  const lonLCamera = Cesium.Math.lerp(
+    endLonCamera,
+	 startLonCamera,
+	 i / (length - 1)
+  );
+  const positionCamera = new Cesium.Cartographic(lonLCamera, startLatCamera);
+  terrainSamplePositionsCamera.push(positionCamera);
+  }
+
+Promise.resolve(
+  Cesium.sampleTerrainMostDetailed(
+    viewer.terrainProvider,
+	 terrainSamplePositionsCamera
+  )
+  ).then(function (samples) {
+  const hpr = new Cesium.HeadingPitchRoll(
+    Cesium.Math.toRadians(azimuth),
+	 0,
+	 0
+  );
+ let terrain_height = samples[0].height;
+ let camera_height = viewer.scene.camera.positionCartographic.height;
+
+ //Determine terrain relative height (edist)
+ let edist = camera_height - terrain_height;
+  //console.log(camera_height + " " + terrain_height)
+ //Unburrow code
+ if (edist - altOffset < 50) {
+    altOffset = 50
+	//viewer.scene.camera.moveUp(150 + edist)
+ } else {
+    altOffset = 0;
+  }
+});
 
          setTimeout(a,refreshRate);
 	 /*
