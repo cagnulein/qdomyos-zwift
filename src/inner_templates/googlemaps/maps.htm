@@ -251,7 +251,7 @@ var bike = viewer.scene.primitives.add(
 		 0,
 		 0
 	  );
-	      bike.modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(Cesium.Cartesian3.fromDegrees(lon, lat, samples[0].height));
+	      bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(lon, lat, samples[0].height), hpr);
 	  });
 
 const startLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude));
@@ -275,11 +275,6 @@ Promise.resolve(
 	 terrainSamplePositionsCamera
   )
   ).then(function (samples) {
-  const hpr = new Cesium.HeadingPitchRoll(
-    Cesium.Math.toRadians(azimuth),
-	 0,
-	 0
-  );
  let terrain_height = samples[0].height;
  let camera_height = viewer.scene.camera.positionCartographic.height;
 
