@@ -442,6 +442,9 @@ import Qt.labs.settings 1.0
             property bool tile_vertical_oscillation_enabled: false
             property int  tile_vertical_oscillation_order: 34
             property string sex: "Male"
+
+            // from the version 2.10.111
+            property string maps_type: "3D"
         }
 
         function paddingZeros(text, limit) {
@@ -6065,6 +6068,46 @@ import Qt.labs.settings 1.0
                 textColor: Material.color(Material.Grey)
                 color: Material.backgroundColor
                 accordionContent: "settings-tts.qml"
+            }
+
+            AccordionElement {
+                id: mapsAccordion
+                title: qsTr("Maps 🗺️")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelMapsType
+                            text: qsTr("Maps Type:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: mapsTypeTextField
+                            model: [ "2D", "3D" ]
+                            displayText: settings.maps_type
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + mapsTypeTextField.currentIndex)
+                                displayText = mapsTypeTextField.currentValue
+                            }
+
+                        }
+                        Button {
+                            id: okMapsType
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.maps_type = mapsTypeTextField.displayText
+                        }
+                    }
+                }
             }
 
             AccordionElement {

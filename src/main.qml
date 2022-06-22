@@ -512,7 +512,7 @@ ApplicationWindow {
             }
             ItemDelegate {
                 id: gpx_open
-                text: qsTr("Open GPX")
+                text: qsTr("🗺️ Open GPX")
                 width: parent.width
                 onClicked: {
 					     fileDialogGPX.visible = true
@@ -521,7 +521,7 @@ ApplicationWindow {
             }
             ItemDelegate {
                 id: trainprogram_open
-                text: qsTr("Open Train Program")
+                text: qsTr("📈 Open Train Program")
                 width: parent.width
                 onClicked: {
                     stackView.push("TrainingProgramsList.qml")
