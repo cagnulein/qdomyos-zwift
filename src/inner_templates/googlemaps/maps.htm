@@ -40,6 +40,8 @@
 	 $('.cesium-viewer-fullscreenContainer').css("visibility", "hidden");
 
 
+    viewer.scene.globe.enableLighting = true;
+	 viewer.scene.fog.enabled = true;
     viewer.scene.globe.depthTestAgainstTerrain = true;
     // Add Cesium OSM Buildings, a global 3D buildings layer.
     //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
