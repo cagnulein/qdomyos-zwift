@@ -493,6 +493,7 @@ void TemplateInfoSenderBuilder::onGetLatLon(TemplateInfoSender *tempSender) {
     main[QStringLiteral("content")] = QString::number(device->currentCordinate().latitude(), 'g', 9) + "," +
                                       QString::number(device->currentCordinate().longitude(), 'g', 9) + "," +
                                       QString::number(device->currentCordinate().altitude(), 'g', 9) + "," +
+                                      QString::number(device->currentAzimuth(), 'g', 9) + "," +
                                       QString::number(device->averageAzimuthNext300m());
     main[QStringLiteral("msg")] = QStringLiteral("R_getlatlon");
     QJsonDocument out(main);
@@ -506,8 +507,7 @@ void TemplateInfoSenderBuilder::onNextInclination300Meters(TemplateInfoSender *t
     QList<MetersByInclination> ii = device->nextInclination300Meters();
     QString values = "";
     for (int i = 0; i < ii.length(); i++) {
-        values +=
-            QString::number(ii.at(i).meters, 'g', 0) + "," + QString::number(ii.at(i).inclination, 'g', 1) + ",";
+        values += QString::number(ii.at(i).meters, 'g', 0) + "," + QString::number(ii.at(i).inclination, 'g', 1) + ",";
     }
     main[QStringLiteral("content")] = values;
     main[QStringLiteral("msg")] = QStringLiteral("R_getnextinclination");

@@ -166,7 +166,10 @@ var bike = viewer.scene.primitives.add(
     let lat = parseFloat(msg.split(",")[0]);
     let lon = parseFloat(msg.split(",")[1]);
 	 let alt = parseFloat(msg.split(",")[2]) + altOffset;
-    let azimuth = parseFloat(msg.split(",")[3]);
+	 let realAzimuth = parseFloat(msg.split(",")[3]);
+	 let azimuth = parseFloat(msg.split(",")[4]);
+	 let realLat = lat
+	 let realLon = lon
     if(lastAzimuth != azimuth) {
         if((lastAzimuth > azimuth && Math.abs(lastAzimuth - azimuth) < 180) ||
            (lastAzimuth < azimuth && Math.abs(lastAzimuth - azimuth) > 180)) {
@@ -227,10 +230,10 @@ var bike = viewer.scene.primitives.add(
 
    const length = 2;
 
-   const startLon = Cesium.Math.toRadians(lon);
-	const endLon = Cesium.Math.toRadians(lon + 0.000001);
+   const startLon = Cesium.Math.toRadians(realLon);
+	const endLon = Cesium.Math.toRadians(realLon + 0.000001);
 
-   const startLat = Cesium.Math.toRadians(lat);
+   const startLat = Cesium.Math.toRadians(realLat);
 
    const terrainSamplePositions = [];
 	for (let i = 0; i < length; ++i) {
@@ -250,11 +253,11 @@ var bike = viewer.scene.primitives.add(
 	  )
 	  ).then(function (samples) {
 	  const hpr = new Cesium.HeadingPitchRoll(
-	    Cesium.Math.toRadians(azimuth),
+	    Cesium.Math.toRadians(realAzimuth),
 		 0,
 		 0
 	  );
-	      bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(lon, lat, samples[0].height), hpr);
+	      bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, samples[0].height), hpr);
 	  });
 
 const startLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude));
