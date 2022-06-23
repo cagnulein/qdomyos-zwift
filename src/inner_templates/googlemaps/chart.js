@@ -31,6 +31,8 @@ let config = {
             responsive: true,
             scales: {
               x: {
+                    min: 0,
+                    max: 3000,
                 ticks: {
                   callback: () => ('')
                 },

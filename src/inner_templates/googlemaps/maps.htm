@@ -53,7 +53,7 @@
 var bike = viewer.scene.primitives.add(
    Cesium.ModelExperimental.fromGltf({
 	  url: bikeUri,
-	  minimumPixelSize: 32,
+	  minimumPixelSize: 48,
 	  scale: 1,
 	  scene : viewer.scene,
 	  color: Cesium.Color.ORANGE,
@@ -67,10 +67,7 @@ var bike = viewer.scene.primitives.add(
 </body>
   <body>
     <div id="cesiumContainer" class="cesiumContainer"></div>
-	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; top: 80px; right: 0;">Speed: --<br>Cadence: --</p></div>
-         <div style="background-color:white; border: 0px solid #aaa; border-radius: 10px; overflow: hidden; position:absolute; top: 330px; right: 0; width=150px; height=75px">
-	    <canvas id="canvasChart" style="width=150px; height=75px"></canvas>
-	 </div>
+	 <div><p class="metrics" style="color: #FFFFFF; position: absolute; top: 80px; right: 0;">Speed: --<br>Cadence: --</p><canvas id="canvasChart" style="width=150px; height=75px"></canvas></div>
     <script type="text/javascript">
     let cameraComplete = true
     let lastAzimuth = 0
