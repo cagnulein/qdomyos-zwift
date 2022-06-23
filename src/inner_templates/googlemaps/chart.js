@@ -30,13 +30,14 @@ let config = {
             maintainAspectRatio: false,
             responsive: true,
             scales: {
-              x: {
+              x: {                    
                     min: 0,
                     max: 3000,
                 ticks: {
                   callback: () => ('')
                 },
                     grid: {
+                               display: false,
                                drawOnChartArea:false,
                                drawBorder: false, // <-- this removes y-axis line
                              }
@@ -46,6 +47,7 @@ let config = {
                     callback: () => ('')
                   },
                     grid: {
+                               display: false,
                                drawOnChartArea:false,
                                drawBorder: false, // <-- this removes y-axis line
                              }
