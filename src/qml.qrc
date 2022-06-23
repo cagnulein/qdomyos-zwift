@@ -75,5 +75,6 @@
         <file>inner_templates/maps2d/main_ws_manager.js</file>
         <file>inner_templates/maps2d/maps.htm</file>
         <file>inner_templates/maps2d/marker.png</file>
+        <file>gpx/Italy - Passo dello Stelvio.gpx</file>
     </qresource>
 </RCC>

@@ -356,11 +356,21 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
     // copying bundles zwo files in the right path if necessesary
-    QDirIterator it(":/zwo/");
-    while (it.hasNext()) {
-        qDebug() << it.next() << it.fileName();
-        if (!QFile(getWritableAppDir() + it.fileName()).exists()) {
-            QFile::copy(":/zwo/" + it.fileName(), getWritableAppDir() + it.fileName());
+    QDirIterator itZwo(":/zwo/");
+    QDir().mkdir(getWritableAppDir() + "training/");
+    while (itZwo.hasNext()) {
+        qDebug() << itZwo.next() << itZwo.fileName();
+        if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
+            QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
+        }
+    }
+
+    QDirIterator itGpx(":/gpx/");
+    QDir().mkdir(getWritableAppDir() + "gpx/");
+    while (itGpx.hasNext()) {
+        qDebug() << itGpx.next() << itGpx.fileName();
+        if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
+            QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
     }
 

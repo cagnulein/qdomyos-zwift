@@ -606,7 +606,7 @@ ApplicationWindow {
 				FileDialog {
 				    id: fileDialogGPX
 					 title: "Please choose a file"
-					 folder: shortcuts.home
+                     folder: "file://" + rootItem.getWritableAppDir() + 'gpx'
 					 onAccepted: {
 					     console.log("You chose: " + fileDialogGPX.fileUrl)
 						  gpx_open_clicked(fileDialogGPX.fileUrl)
