@@ -89,14 +89,17 @@ class trainprogram : public QObject {
     void changeSpeed(double speed);
     bool changeFanSpeed(uint8_t speed);
     void changeInclination(double grade, double inclination);
+    void changeNextInclination300Meters(QList<MetersByInclination>);
     void changeResistance(int8_t resistance);
     void changeRequestedPelotonResistance(int8_t resistance);
     void changeCadence(int16_t cadence);
     void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
-    void changeGeoPosition(QGeoCoordinate p, double azimuth);
+    void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
 
   private:
+    double avgAzimuthNext300Meters();
+    QList<MetersByInclination> inclinationNext300Meters();
     uint32_t calculateTimeForRow(int32_t row);
     uint32_t calculateTimeForRowMergingRamps(int32_t row);
     double calculateDistanceForRow(int32_t row);

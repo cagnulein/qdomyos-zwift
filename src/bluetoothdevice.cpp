@@ -1,5 +1,6 @@
 #include "bluetoothdevice.h"
 
+#include <QFile>
 #include <QSettings>
 #include <QTime>
 
@@ -122,9 +123,9 @@ double bluetoothdevice::difficult() { return m_difficult; }
 void bluetoothdevice::cadenceSensor(uint8_t cadence) { Q_UNUSED(cadence) }
 void bluetoothdevice::powerSensor(uint16_t power) { Q_UNUSED(power) }
 void bluetoothdevice::speedSensor(double speed) { Q_UNUSED(speed) }
-void bluetoothdevice::instantaneousStrideLengthSensor(double length) {Q_UNUSED(length);}
-void bluetoothdevice::groundContactSensor(double groundContact) {Q_UNUSED(groundContact);}
-void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) {Q_UNUSED(verticalOscillation);}
+void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(length); }
+void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
+void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
@@ -345,16 +346,19 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
     return currentHeart().value();
 }
 
-void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth) {
+void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters) {
     coordinateTS = QDateTime::currentMSecsSinceEpoch();
+    coordinateOdometer = odometer();
     coordinate = p;
+    this->setAverageAzimuthNext300m(avgAzimuthNext300Meters);
     this->azimuth = azimuth;
 }
 QGeoCoordinate bluetoothdevice::currentCordinate() {
     if (coordinateTS) {
-        double distance = currentSpeed().value() * ((QDateTime::currentMSecsSinceEpoch() - coordinateTS) / 3600.0);
+        double distance = odometer() - coordinateOdometer;
         QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance, this->azimuth);
-        qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
+        c.setAltitude(coordinate.altitude());
+        // qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
         return c;
     }
     return coordinate;
@@ -362,3 +366,12 @@ QGeoCoordinate bluetoothdevice::currentCordinate() {
 
 void bluetoothdevice::workoutEventStateChanged(bluetoothdevice::WORKOUT_EVENT_STATE state) { lastState = state; }
 void bluetoothdevice::setInclination(double inclination) { Inclination = inclination; }
+void bluetoothdevice::setGPXFile(QString filename) {
+    gpxFileName = filename;
+    QFile input(filename);
+    if (input.open(QIODevice::ReadOnly)) {
+        QByteArray asSaved = input.readAll();
+        gpxBase64 = "data:@file/xml;base64," + asSaved.toBase64();
+        input.close();
+    }
+}

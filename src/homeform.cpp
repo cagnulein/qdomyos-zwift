@@ -356,11 +356,21 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     connect(pelotonHandler, &peloton::pzpLoginState, this, &homeform::pzpLoginState);
 
     // copying bundles zwo files in the right path if necessesary
-    QDirIterator it(":/zwo/");
-    while (it.hasNext()) {
-        qDebug() << it.next() << it.fileName();
-        if (!QFile(getWritableAppDir() + it.fileName()).exists()) {
-            QFile::copy(":/zwo/" + it.fileName(), getWritableAppDir() + it.fileName());
+    QDirIterator itZwo(":/zwo/");
+    QDir().mkdir(getWritableAppDir() + "training/");
+    while (itZwo.hasNext()) {
+        qDebug() << itZwo.next() << itZwo.fileName();
+        if (!QFile(getWritableAppDir() + "training/" + itZwo.fileName()).exists()) {
+            QFile::copy(":/zwo/" + itZwo.fileName(), getWritableAppDir() + "training/" + itZwo.fileName());
+        }
+    }
+
+    QDirIterator itGpx(":/gpx/");
+    QDir().mkdir(getWritableAppDir() + "gpx/");
+    while (itGpx.hasNext()) {
+        qDebug() << itGpx.next() << itGpx.fileName();
+        if (!QFile(getWritableAppDir() + "gpx/" + itGpx.fileName()).exists()) {
+            QFile::copy(":/gpx/" + itGpx.fileName(), getWritableAppDir() + "gpx/" + itGpx.fileName());
         }
     }
 
@@ -571,6 +581,8 @@ void homeform::trainProgramSignals() {
                    &treadmill::changeSpeed);
         disconnect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeInclination);
+        disconnect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
+                   &bluetoothdevice::changeNextInclination300Meters);
         disconnect(trainProgram, &trainprogram::changeInclination, ((bike *)bluetoothManager->device()),
                    &bike::changeInclination);
         disconnect(trainProgram, &trainprogram::changeFanSpeed, ((treadmill *)bluetoothManager->device()),
@@ -640,6 +652,8 @@ void homeform::trainProgramSignals() {
         } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING)
             connect(trainProgram, &trainprogram::changePower, ((rower *)bluetoothManager->device()),
                     &rower::changePower);
+        connect(trainProgram, &trainprogram::changeNextInclination300Meters, bluetoothManager->device(),
+                &bluetoothdevice::changeNextInclination300Meters);
         connect(((treadmill *)bluetoothManager->device()), &treadmill::tapeStarted, trainProgram,
                 &trainprogram::onTapeStarted);
         connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram, &trainprogram::onTapeStarted);
@@ -3423,6 +3437,8 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             gpx g;
             QList<trainrow> list;
             auto g_list = g.open(file.fileName());
+            if (bluetoothManager->device())
+                bluetoothManager->device()->setGPXFile(file.fileName());
             gpx_altitude_point_for_treadmill last;
             quint32 i = 0;
             list.reserve(g_list.size() + 1);

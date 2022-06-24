@@ -59,6 +59,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
     void onGetLatLon(TemplateInfoSender *tempSender);
+    void onNextInclination300Meters(TemplateInfoSender *tempSender);
+    void onGetGPXBase64(TemplateInfoSender *tempSender);
     void onStart(TemplateInfoSender *tempSender);
     void onPause(TemplateInfoSender *tempSender);
     void onStop(TemplateInfoSender *tempSender);

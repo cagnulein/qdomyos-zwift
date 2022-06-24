@@ -53,6 +53,8 @@
         <file>inner_templates/googlemaps/marker.png</file>
         <file>settings-tts.qml</file>
         <file>NewPageElement.qml</file>
+        <file>inner_templates/googlemaps/jquery-3.6.0.min.js</file>
+        <file>inner_templates/googlemaps/bike.js</file>
         <file>zwo/Easy intervals.zwo</file>
         <file>zwo/HIIT Aerobic.zwo</file>
         <file>zwo/HIIT Anaerobic Sprint.zwo</file>
@@ -64,5 +66,15 @@
         <file>zwo/Tempo and endurance.zwo</file>
         <file>zwo/VO2max with recovery.zwo</file>
         <file>zwo/VO2max with sweet spot.zwo</file>
+        <file>inner_templates/googlemaps/chart.js</file>
+        <file>inner_templates/googlemaps/chartjs.3.4.1.min.js</file>
+        <file>inner_templates/googlemaps/chartjs-adapter-moment.js</file>
+        <file>inner_templates/googlemaps/chartjs-plugin-annotation.min.js</file>
+        <file>inner_templates/googlemaps/cesium-key.js</file>
+        <file>inner_templates/maps2d/globals.js</file>
+        <file>inner_templates/maps2d/main_ws_manager.js</file>
+        <file>inner_templates/maps2d/maps.htm</file>
+        <file>inner_templates/maps2d/marker.png</file>
+        <file>gpx/Italy - Passo dello Stelvio.gpx</file>
     </qresource>
 </RCC>
