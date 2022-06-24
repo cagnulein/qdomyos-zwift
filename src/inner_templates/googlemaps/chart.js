@@ -1,3 +1,32 @@
+window.chartColors = {
+    red: 'rgb(255, 29, 0)',
+    redt: 'rgb(255, 29, 0, 0.25)',
+    orange: 'rgb(255, 159, 64)',
+    oranget: 'rgb(255, 159, 64, 0.25)',
+    darkorange: 'rgb(255, 140, 0)',
+    darkoranget: 'rgb(255, 140, 0, 0.25)',
+    orangered: 'rgb(255, 69, 0)',
+    orangeredt: 'rgb(255, 69, 0, 0.25)',
+    yellow: 'rgb(255, 205, 86)',
+    yellowt: 'rgb(255, 205, 86, 0.25)',
+    green: 'rgb(75, 192, 192)',
+    greent: 'rgb(75, 192, 192, 0.25)',
+    blue: 'rgb(54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey: 'rgb(201, 203, 207)',
+    greyt: 'rgb(201, 203, 207, 0.25)',
+    white: 'rgb(255, 255, 255)',
+    whitet: 'rgb(255, 255, 255, 0.25)',
+    limegreen: 'rgb(50, 205, 50)',
+    limegreent: 'rgb(50, 205, 50, 0.25)',
+    gold: 'rgb(255, 215, 0)',
+    goldt: 'rgb(255, 215, 0, 0.25)',
+    black: 'rgb(0, 0, 0)',
+    blackt: 'rgb(0, 0, 0, 0.25)',
+    lightsteelblue: 'rgb(176,192,222)',
+    lightsteelbluet: 'rgb(176,192,222, 0.25)',
+};
+
 var inclinationArray = []
 
 const range = ({from = 0, to, step = 1, length = Math.ceil((to - from) / step)}) =>
@@ -74,7 +103,7 @@ let config = {
 
 let ctx = document.getElementById('canvasChart').getContext('2d');
 canvasChart = new Chart(ctx, config);
-    canvasChart.canvas.parentNode.style.height = '75px';
+    canvasChart.canvas.parentNode.style.height = '150px';
     canvasChart.canvas.parentNode.style.width = '150px';
     setTimeout(chartRefresh, 500);
 });
