@@ -85,11 +85,35 @@ ColumnLayout {
                         height: 40
                         color: Material.backgroundColor
                         z: 1
-                        Text {
-                            id: fileTextBox
-                            color: Material.color(Material.Grey)
-                            font.pixelSize: Qt.application.font.pixelSize * 1.6
-                            text: fileName.substring(0, fileName.length-4)
+                        Item {
+                            id: root
+                            property alias text: fileTextBox.text
+                            property int spacing: 30
+                            width: fileTextBox.width + spacing
+                            height: fileTextBox.height
+                            clip: true
+                            Text {
+                                id: fileTextBox
+                                color: Material.color(Material.Grey)
+                                font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                text: fileName.substring(0, fileName.length-4)
+                                NumberAnimation on x {
+                                    Component.onCompleted: {
+                                        if(fileName.length > 30) {
+                                            running: true;
+                                        } else {
+                                            stop();
+                                        }
+                                    }
+                                    from: 0; to: -root.width; duration: 20000; loops: Animation.Infinite
+                                }
+                                Text {
+                                  x: root.width
+                                  text: fileTextBox.text
+                                  color: Material.color(Material.Grey)
+                                  font.pixelSize: Qt.application.font.pixelSize * 1.6
+                                }
+                            }
                         }
                         MouseArea {
                             anchors.fill: parent
