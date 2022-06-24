@@ -199,6 +199,7 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
         double fp = aeroEff * (3.0 * vel + hw) * tv + tr;     // the derivative
         double vNew = vel - f / fp;
         if (qAbs(vNew - vel) < TOL) {
+            if(vNew < 0) return 0;
             return vNew * 3.6;
         } // success
         vel = vNew;

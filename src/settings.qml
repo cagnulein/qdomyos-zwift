@@ -445,6 +445,10 @@ import Qt.labs.settings 1.0
 
             // from the version 2.10.111
             property string maps_type: "3D"
+
+            // from the version 2.10.112
+            property real ss2k_max_resistance: 100
+            property real ss2k_min_resistance: 0
         }
 
         function paddingZeros(text, limit) {
@@ -5757,6 +5761,55 @@ import Qt.labs.settings 1.0
                                     onClicked: settings.ss2k_shift_step = ss2kShiftStepTextField.text
                                 }
                             }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelSS2KMaxResistance
+                                    text: qsTr("Max Resistance")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: ss2kMaxResistanceTextField
+                                    text: settings.ss2k_max_resistance
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ss2k_max_resistance = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okSS2kMaxResistance
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelSS2KMinResistance
+                                    text: qsTr("Min Resistance")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: ss2kMinResistanceTextField
+                                    text: settings.ss2k_min_resistance
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ss2k_min_resistance = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okSS2kMinResistance
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.ss2k_min_resistance = ss2kMinResistanceTextField.text
+                                }
+                            }
+
                             AccordionElement {
                                 id: ftmsAccessoryAdvancedOptionsAccordion
                                 title: qsTr("Advanced SmartSpin2k Calibration")

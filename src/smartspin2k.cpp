@@ -196,6 +196,12 @@ void smartspin2k::forceResistance(int8_t requestResistance) {
 
     QSettings settings;
 
+    double ss2k_min_resistance = settings.value(QStringLiteral("ss2k_min_resistance"), 0).toDouble();
+    double ss2k_max_resistance = settings.value(QStringLiteral("ss2k_max_resistance"), 100).toDouble();
+
+    if(requestResistance > ss2k_max_resistance) requestResistance = ss2k_max_resistance;
+    if(requestResistance < ss2k_min_resistance) requestResistance = ss2k_min_resistance;
+
     // if not calibrated, slope=0 and intercept is the configured shift step
     uint16_t steps = slope * requestResistance + intercept;
 
