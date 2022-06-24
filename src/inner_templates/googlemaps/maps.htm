@@ -48,7 +48,7 @@
 	 var center = Cesium.Cartesian3.fromDegrees(10.855092, 44.508273, 180);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 let map = viewer;
-	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), -Math.PI/8, 100));
+	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), -Math.PI/8, 400));
 
 var bike = viewer.scene.primitives.add(
    Cesium.ModelExperimental.fromGltf({
