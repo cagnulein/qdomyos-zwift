@@ -38,7 +38,12 @@ ColumnLayout {
             Row
             {
                 spacing: 5
-                Text {text:"Filter"}
+                Text
+                {
+                    text:"Filter"
+                    color: "white"
+                    verticalAlignment: Text.AlignVCenter
+                }
                 TextField
                 {
                     function updateFilter()
@@ -60,7 +65,7 @@ ColumnLayout {
                 Layout.fillWidth: true
                 Layout.minimumWidth: 50
                 Layout.preferredWidth: 100
-                Layout.maximumWidth: 300
+                Layout.maximumWidth: row.left
                 Layout.minimumHeight: 150
                 Layout.preferredHeight: parent.height
                 ScrollBar.vertical: ScrollBar {}
@@ -142,12 +147,14 @@ ColumnLayout {
             }
         }
 
-        Item {
+        ScrollView {
+            anchors.top: parent.top
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            contentHeight: date.height + description.height + powerChart.height
+            Layout.preferredHeight: parent.height
             Layout.fillWidth: true
             Layout.minimumWidth: 100
             Layout.preferredWidth: 200
-            Layout.preferredHeight: 100
-            anchors.top: parent.top
 
             property alias powerSeries: powerSeries
             property alias powerChart: powerChart
@@ -186,14 +193,11 @@ ColumnLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
 
-                ScrollView {
-                    ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                    ScrollBar.vertical.policy: ScrollBar.AlwaysOff
+                Item {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     anchors.top: description.bottom
                     anchors.bottom: parent.bottom
-                    contentHeight: powerChart.height
 
                     ChartView {
                         id: powerChart
