@@ -259,6 +259,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaPelotonActivityName = QLatin1String("");
     stravaPelotonInstructorName = QLatin1String("");
     activityDescription = QLatin1String("");
+    stravaWorkoutName = QLatin1String("");
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -1943,6 +1944,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
                 stravaPelotonActivityName = QLatin1String("");
                 stravaPelotonInstructorName = QLatin1String("");
+                stravaWorkoutName = QLatin1String("");
                 stravaPelotonWorkoutType = FIT_SPORT_INVALID;
                 emit workoutNameChanged(workoutName());
                 emit instructorNameChanged(instructorName());
@@ -3325,6 +3327,7 @@ bool homeform::getLap() {
 
 void homeform::trainprogram_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("trainprogram_open_clicked") << fileName;
+    stravaWorkoutName = QFileInfo(fileName.fileName()).baseName();
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     qDebug() << file.fileName();
@@ -3426,6 +3429,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
     QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
     qDebug() << file.fileName();
+    stravaWorkoutName = QFileInfo(file.fileName()).baseName();
     if (!file.fileName().isEmpty()) {
         {
             if (trainProgram) {

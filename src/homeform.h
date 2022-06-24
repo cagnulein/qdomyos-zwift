@@ -307,6 +307,8 @@ class homeform : public QObject {
     QString workoutName() {
         if (!stravaPelotonActivityName.isEmpty()) {
             return stravaPelotonActivityName;
+        } else if(!stravaWorkoutName.isEmpty()) {
+            return stravaWorkoutName;
         } else {
             if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 return QStringLiteral("Ride");
@@ -472,6 +474,7 @@ class homeform : public QObject {
     int m_pzpLoginState = -1;
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
+    QString stravaWorkoutName = "";
     FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
     QString pelotonAskedName = QStringLiteral("");
