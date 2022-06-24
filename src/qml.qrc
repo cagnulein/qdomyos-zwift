@@ -76,5 +76,12 @@
         <file>inner_templates/maps2d/maps.htm</file>
         <file>inner_templates/maps2d/marker.png</file>
         <file>gpx/Italy - Passo dello Stelvio.gpx</file>
+        <file>gpx/Box Hill.gpx</file>
+        <file>gpx/Butterfield Canyon Road.gpx</file>
+        <file>gpx/Crater Lake.gpx</file>
+        <file>gpx/Govi to Hood.gpx</file>
+        <file>gpx/Pittenweem to St Andrews.gpx</file>
+        <file>gpx/Richmond Park.gpx</file>
+        <file>gpx/St Andrews to Pittenweem.gpx</file>
     </qresource>
 </RCC>
