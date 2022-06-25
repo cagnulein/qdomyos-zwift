@@ -91,7 +91,7 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
                 return next300;
             }
             MetersByInclination p;
-            p.meters = rows.at(c).distance * 1000.0;
+            p.meters = (rows.at(c).distance - currentStepDistance) * 1000.0;
             p.inclination = rows.at(c).inclination;
             next300.append(p);
             km += rows.at(c).distance;
@@ -368,6 +368,10 @@ void trainprogram::scheduler() {
                                     QString::number(rows.at(currentStep).power);
                     emit changePower(rows.at(currentStep).power);
                 }
+            }
+
+            if (rows.at(currentStep).inclination != -200) {
+                emit changeNextInclination300Meters(inclinationNext300Meters());
             }
         }
         sameIteration++;
