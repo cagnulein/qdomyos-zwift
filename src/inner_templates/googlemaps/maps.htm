@@ -78,7 +78,8 @@ var bike = viewer.scene.primitives.add(
     let refreshRate = 25
     let currentSpeed = 0
     let lastCoordinateTS = 0
-	 let altOffset = 0
+    let altOffset = 0
+    let lastBikeHeight = 0
 
     function a() {
     onWorkout = false;
@@ -90,9 +91,7 @@ var bike = viewer.scene.primitives.add(
         }
         return null;
     }, 15000, 3);
-    el.enqueue().then(process_latlon).catch(function(err) {
-        console.error('Error is ' + err);
-    });
+    el.enqueue().then(process_latlon);
     keys_arr = ['speed', 'cadence', 'heart', 'calories', 'distance', 'watts', 'elapsed_h', 'elapsed_m', 'elapsed_s', 'inclination', 'resistance', 'elevation', 'altitude']
          let ell = new MainWSQueueElement({
 	     msg: null,
@@ -236,7 +235,8 @@ var bike = viewer.scene.primitives.add(
    const startLat = Cesium.Math.toRadians(realLat);
 
    const terrainSamplePositions = [];
-	for (let i = 0; i < length; ++i) {
+   let i
+        for (i = 0; i < length; ++i) {
 	  const lonL = Cesium.Math.lerp(
 	    endLon,
 		 startLon,
@@ -245,6 +245,15 @@ var bike = viewer.scene.primitives.add(
 	  const position = new Cesium.Cartographic(lonL, startLat);
 	  terrainSamplePositions.push(position);
 	  }
+
+    const hpr = new Cesium.HeadingPitchRoll(
+      Cesium.Math.toRadians(realAzimuth),
+           0,
+           0
+    );
+
+    console.log("real "  + realLat + " " + realLon);
+    bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
 
    Promise.resolve(
 	  Cesium.sampleTerrainMostDetailed(
@@ -257,7 +266,8 @@ var bike = viewer.scene.primitives.add(
 		 0,
 		 0
 	  );
-	      bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, samples[0].height), hpr);
+              lastBikeHeight = samples[0].height
+              //bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
 	  });
 
 const startLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude));
@@ -265,7 +275,7 @@ const endLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.ca
 const startLatCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.latitude));
 
 const terrainSamplePositionsCamera = [];
-for (let i = 0; i < length; ++i) {
+for (i = 0; i < length; ++i) {
   const lonLCamera = Cesium.Math.lerp(
     endLonCamera,
 	 startLonCamera,

@@ -356,7 +356,7 @@ void bluetoothdevice::changeGeoPosition(QGeoCoordinate p, double azimuth, double
 QGeoCoordinate bluetoothdevice::currentCordinate() {
     if (coordinateTS) {
         double distance = odometer() - coordinateOdometer;
-        QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance, this->azimuth);
+        QGeoCoordinate c = coordinate.atDistanceAndAzimuth(distance * 1000.0, this->azimuth);
         c.setAltitude(coordinate.altitude());
         // qDebug() << "currentCordinate" << c << distance << currentSpeed().value();
         return c;

@@ -490,10 +490,10 @@ void TemplateInfoSenderBuilder::onGetLatLon(TemplateInfoSender *tempSender) {
     if (!device)
         return;
     QJsonObject main;
-    main[QStringLiteral("content")] = QString::number(device->currentCordinate().latitude(), 'g', 9) + "," +
-                                      QString::number(device->currentCordinate().longitude(), 'g', 9) + "," +
-                                      QString::number(device->currentCordinate().altitude(), 'g', 9) + "," +
-                                      QString::number(device->currentAzimuth(), 'g', 9) + "," +
+    main[QStringLiteral("content")] = QString::number(device->currentCordinate().latitude(), 'g', 18) + "," +
+                                      QString::number(device->currentCordinate().longitude(), 'g', 18) + "," +
+                                      QString::number(device->currentCordinate().altitude(), 'g', 18) + "," +
+                                      QString::number(device->currentAzimuth(), 'g', 18) + "," +
                                       QString::number(device->averageAzimuthNext300m());
     main[QStringLiteral("msg")] = QStringLiteral("R_getlatlon");
     QJsonDocument out(main);
