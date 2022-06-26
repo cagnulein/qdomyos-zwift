@@ -45,22 +45,26 @@
     viewer.scene.globe.depthTestAgainstTerrain = true;
     // Add Cesium OSM Buildings, a global 3D buildings layer.
     //const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
-	 var center = Cesium.Cartesian3.fromDegrees(10.855092, 44.508273, 180);
+         var center = Cesium.Cartesian3.fromDegrees(10.855092, 44.508273);
 	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
 	 let map = viewer;
-	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(0), -Math.PI/8, 400));
 
-var bike = viewer.scene.primitives.add(
-   Cesium.ModelExperimental.fromGltf({
-	  url: bikeUri,
-	  minimumPixelSize: 48,
-	  scale: 1,
-	  scene : viewer.scene,
-	  color: Cesium.Color.ORANGE,
-	  silhouetteColor: Cesium.Color.ORANGE,
-	  silhouetteSize: 2,
-	  })
-  );
+// Add our vehicle model.
+const bike = viewer.entities.add({
+  position: center,
+  model: {
+    uri: bikeUri,
+    runAnimations: false,
+          minimumPixelSize: 32,
+          scale: 1,
+          color: Cesium.Color.ORANGE,
+          silhouetteColor: Cesium.Color.ORANGE,
+          silhouetteSize: 1,
+  },
+
+});
+
+viewer.trackedEntity = bike;
 
   </script>
  </div>
@@ -80,6 +84,7 @@ var bike = viewer.scene.primitives.add(
     let lastCoordinateTS = 0
     let altOffset = 0
     let lastBikeHeight = 0
+    let firstTime = 0
 
     function a() {
     onWorkout = false;
@@ -160,6 +165,12 @@ var bike = viewer.scene.primitives.add(
     }
 
     function  process_latlon(msg) {
+
+    if(firstTime==0)
+        viewer.camera.zoomOut(200);
+    firstTime=1;
+
+
 	 /*if(!cameraComplete) return;*/
     cameraComplete = false;
     let lat = parseFloat(msg.split(",")[0]);
@@ -169,21 +180,7 @@ var bike = viewer.scene.primitives.add(
 	 let azimuth = parseFloat(msg.split(",")[4]);
 	 let realLat = lat
 	 let realLon = lon
-    if(lastAzimuth != azimuth) {
-        if((lastAzimuth > azimuth && Math.abs(lastAzimuth - azimuth) < 180) ||
-           (lastAzimuth < azimuth && Math.abs(lastAzimuth - azimuth) > 180)) {
-            lastAzimuth = azimuth = lastAzimuth - 0.01;
-            if(azimuth < 0)
-                lastAzimuth = azimuth = 359.99;
-        }
-        else {
-            lastAzimuth = azimuth = lastAzimuth + 0.01;
-            if(azimuth >= 360)
-                lastAzimuth = azimuth = 0;
-        }
-    }
-    if(Math.abs(lastAzimuth - azimuth) < 0.01)
-        lastAzimuth = azimuth;
+
     if(lastAlt != alt && Math.abs(lastAlt-alt) < 30) {
         if(lastAlt > alt)
             lastAlt = alt = lastAlt - 0.01;
@@ -195,37 +192,6 @@ var bike = viewer.scene.primitives.add(
     if(Math.abs(lastAlt - alt) < 0.01)
         lastAlt = alt;
 
-    var p1 = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
-    var p2 = Cesium.Cartesian3.fromDegrees(lastLon, lastLat, lastAlt);
-    var distance = Cesium.Cartesian3.distance(p1, p2);
-    var tick = (Date.now() - lastCoordinateTS)
-    let deltaT = (currentSpeed / 3.6) / (1000 / (tick - 1));
-    if(distance < 30)
-        deltaT = deltaT / 2;
-    lastCoordinateTS = Date.now()
-    deltaT = distance / deltaT;
-    console.log(Date.now() + " distance delta " + distance + " " + tick);
-    if(Math.abs(lat - lastLat) > 0.1 || Math.abs(lon - lastLon) > 0.1) {
-        lastLat = lat;
-        lastLon = lon;
-        lastCoordinateTS = Date.now()
-    } else if(lat != lastLat || lon != lastLon) {
-        if(lat > lastLat) {
-            lastLat = lat = lastLat + ((lat-lastLat) / deltaT);
-        } else {
-            lastLat = lat = lastLat - ((lastLat - lat) / deltaT);
-        }
-        if(lon > lastLon) {
-            lastLon = lon = lastLon + ((lon-lastLon) / deltaT);
-        } else {
-            lastLon = lon = lastLon - ((lastLon-lon) / deltaT);
-        }
-    }
-
-    console.log("azimuth " + azimuth + " " + lat + " " + lon);
-	 var center = Cesium.Cartesian3.fromDegrees(lon, lat, alt);
-	 var transform = Cesium.Transforms.eastNorthUpToFixedFrame(center);
-	 viewer.scene.camera.lookAtTransform(transform, new Cesium.HeadingPitchRange(Cesium.Math.toRadians(azimuth), -Math.PI/8, 300));
 
    const length = 2;
 
@@ -246,77 +212,27 @@ var bike = viewer.scene.primitives.add(
 	  terrainSamplePositions.push(position);
 	  }
 
-    const hpr = new Cesium.HeadingPitchRoll(
-      Cesium.Math.toRadians(realAzimuth),
-           0,
-           0
-    );
-
-    console.log("real "  + realLat + " " + realLon);
-    bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
-
-   Promise.resolve(
-	  Cesium.sampleTerrainMostDetailed(
-	    viewer.terrainProvider,
-		 terrainSamplePositions
-	  )
-	  ).then(function (samples) {
-	  const hpr = new Cesium.HeadingPitchRoll(
-	    Cesium.Math.toRadians(realAzimuth),
-		 0,
-		 0
-	  );
-              lastBikeHeight = samples[0].height
-              //bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
-	  });
-
-const startLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude));
-const endLonCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.longitude) + 0.000001);
-const startLatCamera = Cesium.Math.toRadians(Cesium.Math.toDegrees(viewer.scene.camera.positionCartographic.latitude));
-
-const terrainSamplePositionsCamera = [];
-for (i = 0; i < length; ++i) {
-  const lonLCamera = Cesium.Math.lerp(
-    endLonCamera,
-	 startLonCamera,
-	 i / (length - 1)
-  );
-  const positionCamera = new Cesium.Cartographic(lonLCamera, startLatCamera);
-  terrainSamplePositionsCamera.push(positionCamera);
-  }
+    bike.position = Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight);
+    bike.orientation = Cesium.Transforms.headingPitchRollQuaternion(Cesium.Cartesian3.fromDegrees(realLon, realLat), new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(realAzimuth), 0, 0));
 
 Promise.resolve(
-  Cesium.sampleTerrainMostDetailed(
-    viewer.terrainProvider,
-	 terrainSamplePositionsCamera
-  )
-  ).then(function (samples) {
- let terrain_height = samples[0].height;
- let camera_height = viewer.scene.camera.positionCartographic.height;
+       Cesium.sampleTerrainMostDetailed(
+         viewer.terrainProvider,
+              terrainSamplePositions
+       )
+       ).then(function (samples) {
+       const hpr = new Cesium.HeadingPitchRoll(
+         Cesium.Math.toRadians(realAzimuth),
+              0,
+              0
+       );
+           lastBikeHeight = samples[0].height
+           //bike.modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(Cesium.Cartesian3.fromDegrees(realLon, realLat, lastBikeHeight), hpr);
+       });
 
- //Determine terrain relative height (edist)
- let edist = camera_height - terrain_height;
-  //console.log(camera_height + " " + terrain_height)
- //Unburrow code
- if (edist - altOffset < 50) {
-    altOffset = 70 - edist
- } else {
-    altOffset = 0;
-  }
-});
 
          setTimeout(a,refreshRate);
-	 /*
-    viewer.camera.flyTo({
-      destination : Cesium.Cartesian3.fromDegrees(lon, lat, alt + 60),
-      duration: 2,
-      orientation : {
-        heading : Cesium.Math.toRadians(azimuth),
-        pitch : Cesium.Math.toRadians(-5.0),
-      },
-      easingFunction: easing_function,
-      complete: camera_complete
-      });*/
+
                 }
 					function process_gpxbase64(msg) {
 	  viewer.dataSources
