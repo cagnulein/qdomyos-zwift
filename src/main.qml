@@ -42,6 +42,11 @@ ApplicationWindow {
         id: iapStore
     }
 
+    Loader {
+      id: googleMapUI
+      source:"GoogleMap.qml";
+    }
+
     // here in order to cache everything for the SwagBagView
     Product {
         id: productUnlockVowels
@@ -433,7 +438,7 @@ ApplicationWindow {
         ToolButton {
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
-            onClicked: { stackView.push("GoogleMap.qml"); }
+            onClicked: { stackView.push(googleMapUI.item); }
             anchors.right: toolButtonLockTiles.left
             visible: rootItem.mapsVisible
         }
@@ -484,7 +489,7 @@ ApplicationWindow {
                 onClicked: {
                     toolButtonLoadSettings.visible = true;
                     toolButtonSaveSettings.visible = true;
-                    stackView.push("settings.qml")                    
+                    stackView.push("settings.qml")
                     drawer.close()                    
                 }
             }
