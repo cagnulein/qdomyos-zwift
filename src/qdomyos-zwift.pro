@@ -62,6 +62,7 @@ android: include(../android_openssl/openssl.pri)
 # include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+   PathController.cpp \
     characteristicnotifier2a53.cpp \
     characteristicnotifier2a5b.cpp \
     characteristicnotifier2acc.cpp \
@@ -239,6 +240,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+   PathController.h \
     characteristicnotifier2a53.h \
     characteristicnotifier2a5b.h \
     characteristicnotifier2acc.h \
@@ -617,6 +619,8 @@ HEADERS += \
 	virtualtreadmill.h \
 	 domyosbike.h \
    wahookickrsnapbike.h \
+   wobjectdefs.h \
+   wobjectimpl.h \
         yesoulbike.h \
         scanrecordresult.h \
    zwiftworkout.h

@@ -1,5 +1,4 @@
 #include "homeform.h"
-#include "gpx.h"
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "material.h"
@@ -316,10 +315,12 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
     QObject *stack = rootObject;
+    engine->rootContext()->setContextProperty("pathController", &pathController);
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
     QObject::connect(home, SIGNAL(stop_clicked()), this, SLOT(Stop()));
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
+    QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
@@ -3484,6 +3485,24 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
         }
 
         trainProgramSignals();
+    }
+}
+
+void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
+    qDebug() << QStringLiteral("gpxpreview_open_clicked") << fileName;
+
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    qDebug() << file.fileName();
+
+    if (!file.fileName().isEmpty()) {
+        gpx g;
+        auto g_list = g.open(file.fileName());
+        gpx_preview.clearPath();
+        for (const auto &p : g_list) {
+            gpx_preview.addCoordinate(QGeoCoordinate(p.latitude, p.longitude, p.elevation));
+        }
+        pathController.setGeoPath(gpx_preview);
+        pathController.setCenter(gpx_preview.center());
     }
 }
 

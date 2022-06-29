@@ -1,9 +1,10 @@
 #ifndef HOMEFORM_H
 #define HOMEFORM_H
 
+#include "PathController.h"
 #include "bluetooth.h"
-
 #include "fit_profile.hpp"
+#include "gpx.h"
 #include "peloton.h"
 #include "screencapture.h"
 #include "sessionline.h"
@@ -307,7 +308,7 @@ class homeform : public QObject {
     QString workoutName() {
         if (!stravaPelotonActivityName.isEmpty()) {
             return stravaPelotonActivityName;
-        } else if(!stravaWorkoutName.isEmpty()) {
+        } else if (!stravaWorkoutName.isEmpty()) {
             return stravaWorkoutName;
         } else {
             if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
@@ -562,6 +563,9 @@ class homeform : public QObject {
     QTimer tLicense;
 #endif
 
+    QGeoPath gpx_preview;
+    PathController pathController;
+
   public slots:
     void aboutToQuit();
     void saveSettings(const QUrl &filename);
@@ -583,6 +587,7 @@ class homeform : public QObject {
     void ftmsAccessoryConnected(smartspin2k *d);
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
+    void gpxpreview_open_clicked(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
