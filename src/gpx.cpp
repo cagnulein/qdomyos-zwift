@@ -83,7 +83,7 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
             g.elevation = this->points.at(i).p.altitude();
             g.latitude = pP.p.latitude();
             g.longitude = pP.p.longitude();
-            qDebug() << i << g.distance << g.inclination << g.elevation << g.latitude << g.longitude << totDistance;
+            // qDebug() << i << g.distance << g.inclination << g.elevation << g.latitude << g.longitude << totDistance;
             inclinationList.append(g);
         }
     }

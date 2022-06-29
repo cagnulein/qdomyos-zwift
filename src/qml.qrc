@@ -83,5 +83,6 @@
         <file>gpx/Pittenweem to St Andrews.gpx</file>
         <file>gpx/Richmond Park.gpx</file>
         <file>gpx/St Andrews to Pittenweem.gpx</file>
+        <file>GPXList.qml</file>
     </qresource>
 </RCC>

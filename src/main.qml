@@ -16,6 +16,7 @@ ApplicationWindow {
     title: qsTr("Stack")
 
     signal gpx_open_clicked(url name)
+    signal gpxpreview_open_clicked(url name)
     signal trainprogram_open_clicked(url name)
     signal trainprogram_preview(url name)
     signal trainprogram_zwo_loaded(string s)
@@ -520,7 +521,13 @@ ApplicationWindow {
                 text: qsTr("🗺️ Open GPX")
                 width: parent.width
                 onClicked: {
-					     fileDialogGPX.visible = true
+                    stackView.push("GPXList.qml")
+                    stackView.currentItem.trainprogram_open_clicked.connect(gpx_open_clicked)
+                    stackView.currentItem.trainprogram_preview.connect(gpxpreview_open_clicked)
+                    stackView.currentItem.trainprogram_open_clicked.connect(function(url) {
+                        stackView.pop();
+                        popup.open();
+                     });
                     drawer.close()
                 }
             }
