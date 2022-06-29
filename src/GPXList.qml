@@ -174,6 +174,18 @@ ColumnLayout {
                 id: row
                 anchors.fill: parent
 
+                Text {
+                    id: distance
+                    width: parent.width
+                    text: rootItem.previewWorkoutDescription
+                    font.pixelSize: 22
+                    color: "white"
+                    wrapMode: Text.WordWrap
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+
                 Plugin {
                     id: osmMapPlugin
                     name: "osm"
@@ -181,10 +193,10 @@ ColumnLayout {
                 }
 
                 Map {
-                    height: parent.height
+                    height: parent.height - distance.height
                     width: parent.width
                     id: map
-                    anchors.fill: parent
+                    anchors.top: distance.bottom
                     plugin: osmMapPlugin
                     zoomLevel: 14
                     center: pathController.center
@@ -202,9 +214,14 @@ ColumnLayout {
 
                 function loadPath(){
                     var lines = []
+                    var elevationGain = 0
+                    var offsetElevation = 0
                     for(var i = 0; i < pathController.geopath.size(); i++){
+                        if(i > 0 && pathController.geopath.coordinateAt(i).altitude > pathController.geopath.coordinateAt(i-1).altitude)
+                            elevationGain = elevationGain + (pathController.geopath.coordinateAt(i).altitude - pathController.geopath.coordinateAt(i-1).altitude)
                         lines[i] = pathController.geopath.coordinateAt(i)
                     }
+                    distance.text = "Distance " + (pathController.geopath.length() / 1000.0).toFixed(1) + " km Elevation Gain: " + elevationGain.toFixed(1) + " meters"
                     return lines;
                 }
 
