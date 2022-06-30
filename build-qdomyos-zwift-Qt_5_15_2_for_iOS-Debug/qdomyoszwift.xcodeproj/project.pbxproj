@@ -116,6 +116,16 @@
 		868B65D0AB5114A4A0D5479E /* qmldbg_messages in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 008F20821C7E4D5F7DB55754 /* qmldbg_messages */; };
 		8703BAEB273C67A90058E206 /* pafersbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8703BAE9273C67A90058E206 /* pafersbike.cpp */; };
 		8703BAED273C67B60058E206 /* moc_pafersbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */; };
+		87061390286D8B4F00D2446E /* libQt5PositioningQuick.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */; };
+		87061394286D8C9900D2446E /* libdeclarative_positioning.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 87061393286D8C9900D2446E /* libdeclarative_positioning.a */; };
+		87061397286D8CFE00D2446E /* PathController.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87061395286D8CFE00D2446E /* PathController.cpp */; };
+		87061399286D8D6500D2446E /* moc_wobjectdefs.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */; };
+		8706139B286D8DA300D2446E /* libdeclarative_location.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706139A286D8DA200D2446E /* libdeclarative_location.a */; };
+		8706139D286D8E7300D2446E /* libqtgeoservices_osm.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */; };
+		870613A0286D8F1200D2446E /* libqtposition_positionpoll.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */; };
+		870613A1286D8F1200D2446E /* libqtposition_cl.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706139F286D8F1200D2446E /* libqtposition_cl.a */; };
+		870613A4286D917700D2446E /* libQt5Location.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613A2286D917600D2446E /* libQt5Location.a */; };
+		870613A5286D917700D2446E /* libQt5Positioning.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613A3286D917700D2446E /* libQt5Positioning.a */; };
 		87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E52259479EE00BD5714 /* AppDelegate.swift */; };
 		87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4E259479EE00BD5714 /* APIFetcher.swift */; };
 		87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4D259479ED00BD5714 /* LocalNotificationHelper.swift */; };
@@ -736,6 +746,18 @@
 		8703BAE9273C67A90058E206 /* pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pafersbike.cpp; path = ../src/pafersbike.cpp; sourceTree = "<group>"; };
 		8703BAEA273C67A90058E206 /* pafersbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pafersbike.h; path = ../src/pafersbike.h; sourceTree = "<group>"; };
 		8703BAEC273C67B50058E206 /* moc_pafersbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_pafersbike.cpp; sourceTree = "<group>"; };
+		8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5PositioningQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5PositioningQuick.a; sourceTree = "<group>"; };
+		87061391286D8C4200D2446E /* Qt */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Qt; path = ../../Qt; sourceTree = "<group>"; };
+		87061393286D8C9900D2446E /* libdeclarative_positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_positioning.a; path = ../../Qt/5.15.2/ios/qml/QtPositioning/libdeclarative_positioning.a; sourceTree = "<group>"; };
+		87061395286D8CFE00D2446E /* PathController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PathController.cpp; path = ../src/PathController.cpp; sourceTree = "<group>"; };
+		87061396286D8CFE00D2446E /* PathController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PathController.h; path = ../src/PathController.h; sourceTree = "<group>"; };
+		87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_wobjectdefs.cpp; sourceTree = "<group>"; };
+		8706139A286D8DA200D2446E /* libdeclarative_location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_location.a; path = ../../Qt/5.15.2/ios/qml/QtLocation/libdeclarative_location.a; sourceTree = "<group>"; };
+		8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_osm.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_osm.a; sourceTree = "<group>"; };
+		8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_positionpoll.a; path = ../../Qt/5.15.2/ios/plugins/position/libqtposition_positionpoll.a; sourceTree = "<group>"; };
+		8706139F286D8F1200D2446E /* libqtposition_cl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_cl.a; path = ../../Qt/5.15.2/ios/plugins/position/libqtposition_cl.a; sourceTree = "<group>"; };
+		870613A2286D917600D2446E /* libQt5Location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Location.a; path = ../../Qt/5.15.2/ios/lib/libQt5Location.a; sourceTree = "<group>"; };
+		870613A3286D917700D2446E /* libQt5Positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Positioning.a; path = ../../Qt/5.15.2/ios/lib/libQt5Positioning.a; sourceTree = "<group>"; };
 		87083D9426678EFA0072410D /* zwiftworkout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftworkout.h; path = ../src/zwiftworkout.h; sourceTree = "<group>"; };
 		87083D9526678EFA0072410D /* zwiftworkout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = zwiftworkout.cpp; path = ../src/zwiftworkout.cpp; sourceTree = "<group>"; };
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/sportsplusbike.cpp; sourceTree = "<group>"; };
@@ -1380,6 +1402,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				870613A4286D917700D2446E /* libQt5Location.a in Link Binary With Libraries */,
+				870613A5286D917700D2446E /* libQt5Positioning.a in Link Binary With Libraries */,
+				87061390286D8B4F00D2446E /* libQt5PositioningQuick.a in Link Binary With Libraries */,
+				870613A0286D8F1200D2446E /* libqtposition_positionpoll.a in Link Binary With Libraries */,
+				870613A1286D8F1200D2446E /* libqtposition_cl.a in Link Binary With Libraries */,
+				8706139D286D8E7300D2446E /* libqtgeoservices_osm.a in Link Binary With Libraries */,
+				8706139B286D8DA300D2446E /* libdeclarative_location.a in Link Binary With Libraries */,
+				87061394286D8C9900D2446E /* libdeclarative_positioning.a in Link Binary With Libraries */,
 				87540FAD2848FD70005E0D44 /* libqtexttospeech_speechios.a in Link Binary With Libraries */,
 				87DA76502848F98200A71B64 /* libQt5TextToSpeech.a in Link Binary With Libraries */,
 				877FE4EC27368F7D006FAB7B /* AVFoundation.framework in Link Binary With Libraries */,
@@ -1508,6 +1538,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */,
 				8768D1FC2850820B00F58E3A /* moc_nordictrackifitadbtreadmill.cpp */,
 				87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */,
 				879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */,
@@ -1655,6 +1686,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87061395286D8CFE00D2446E /* PathController.cpp */,
+				87061396286D8CFE00D2446E /* PathController.h */,
 				8768D1F9285081FE00F58E3A /* nordictrackifitadbtreadmill.cpp */,
 				8768D1FA285081FE00F58E3A /* nordictrackifitadbtreadmill.h */,
 				87DA8464284933D200B550E9 /* fakeelliptical.cpp */,
@@ -2044,6 +2077,15 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				870613A2286D917600D2446E /* libQt5Location.a */,
+				870613A3286D917700D2446E /* libQt5Positioning.a */,
+				8706139F286D8F1200D2446E /* libqtposition_cl.a */,
+				8706139E286D8F1100D2446E /* libqtposition_positionpoll.a */,
+				8706139C286D8E7300D2446E /* libqtgeoservices_osm.a */,
+				8706139A286D8DA200D2446E /* libdeclarative_location.a */,
+				87061393286D8C9900D2446E /* libdeclarative_positioning.a */,
+				87061391286D8C4200D2446E /* Qt */,
+				8706138F286D8B4F00D2446E /* libQt5PositioningQuick.a */,
 				87540FAC2848FD70005E0D44 /* libqtexttospeech_speechios.a */,
 				87DA764F2848F8F200A71B64 /* libQt5TextToSpeech.a */,
 				873CD22E27EF8EC1000131BC /* StoreKit.framework */,
@@ -2766,6 +2808,7 @@
 				23191C28CB29474279752FD3 /* fit_protocol_validator.cpp in Compile Sources */,
 				275D55B5D956B2E5F1B7E46E /* fit_unicode.cpp in Compile Sources */,
 				8703BAEB273C67A90058E206 /* pafersbike.cpp in Compile Sources */,
+				87061399286D8D6500D2446E /* moc_wobjectdefs.cpp in Compile Sources */,
 				873824BA27E64707004F1B46 /* moc_server_p.cpp in Compile Sources */,
 				87958F1927628D4500124B24 /* elitesterzosmart.cpp in Compile Sources */,
 				87EB917627EE5FB3002535E1 /* nautilusbike.cpp in Compile Sources */,
@@ -2914,6 +2957,7 @@
 				8791A8AB25C861BD003B50B2 /* inspirebike.cpp in Compile Sources */,
 				876BFC9D27BE35C5001D7645 /* bowflext216treadmill.cpp in Compile Sources */,
 				871235C126B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp in Compile Sources */,
+				87061397286D8CFE00D2446E /* PathController.cpp in Compile Sources */,
 				87D44181269DE979003263D5 /* webserverinfosender.cpp in Compile Sources */,
 				87062647259480B400D06586 /* WatchKitConnection.swift in Compile Sources */,
 				876F45FD279350CC003CDA5A /* concept2skierg.cpp in Compile Sources */,
@@ -3356,6 +3400,10 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/texttospeech,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtPositioning,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtLocation,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 				);
 				MARKETING_VERSION = 2.10;
 				OTHER_CFLAGS = (
@@ -3510,6 +3558,10 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/webview,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtWebView,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/texttospeech,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtPositioning,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtLocation,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 				);
 				MARKETING_VERSION = 2.10;
 				ONLY_ACTIVE_ARCH = YES;
