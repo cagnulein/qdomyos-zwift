@@ -178,7 +178,7 @@ ColumnLayout {
                     id: distance
                     width: parent.width
                     text: rootItem.previewWorkoutDescription
-                    font.pixelSize: 22
+                    font.pixelSize: 16
                     color: "white"
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter

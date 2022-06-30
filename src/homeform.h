@@ -136,6 +136,8 @@ class homeform : public QObject {
     Q_PROPERTY(QString previewWorkoutDescription READ previewWorkoutDescription NOTIFY previewWorkoutDescriptionChanged)
     Q_PROPERTY(QString previewWorkoutTags READ previewWorkoutTags NOTIFY previewWorkoutTagsChanged)
 
+    Q_PROPERTY(bool currentCoordinateValid READ currentCoordinateValid)
+
   public:
     Q_INVOKABLE void save_screenshot() {
 
@@ -440,6 +442,13 @@ class homeform : public QObject {
             return previewTrainProgram->tags;
         }
         return "";
+    }
+
+    bool currentCoordinateValid() {
+        if (bluetoothManager && bluetoothManager->device()) {
+            return bluetoothManager->device()->currentCordinate().isValid();
+        }
+        return false;
     }
 
   private:

@@ -46,6 +46,8 @@ ApplicationWindow {
     Loader {
       id: googleMapUI
       source:"GoogleMap.qml";
+      active: false
+      onLoaded: { console.log("googleMapUI loaded"); stackView.push(googleMapUI.item); }
     }
 
     // here in order to cache everything for the SwagBagView
@@ -437,9 +439,21 @@ ApplicationWindow {
         }*/
 
         ToolButton {
+            function loadMaps() {
+                if(rootItem.currentCoordinateValid) {
+                    console.log("coordinate is valid for map");
+                    if(googleMapUI.status === Loader.Ready)
+                        stackView.push(googleMapUI.item);
+                    else
+                        googleMapUI.active = true;
+
+                } else {
+                    console.log("coordinate is NOT valid for map");
+                }
+            }
             id: toolButtonMaps
             icon.source: ( "icons/icons/maps-icon-16.png" )
-            onClicked: { stackView.push(googleMapUI.item); }
+            onClicked: { loadMaps(); }
             anchors.right: toolButtonLockTiles.left
             visible: rootItem.mapsVisible
         }
