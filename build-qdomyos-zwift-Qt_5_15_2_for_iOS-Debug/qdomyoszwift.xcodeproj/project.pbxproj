@@ -126,6 +126,14 @@
 		870613A1286D8F1200D2446E /* libqtposition_cl.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 8706139F286D8F1200D2446E /* libqtposition_cl.a */; };
 		870613A4286D917700D2446E /* libQt5Location.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613A2286D917600D2446E /* libQt5Location.a */; };
 		870613A5286D917700D2446E /* libQt5Positioning.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613A3286D917700D2446E /* libQt5Positioning.a */; };
+		870613B1286D969500D2446E /* libqtgeoservices_itemsoverlay.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */; };
+		870613B3286D969500D2446E /* libqtgeoservices_esri.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613AE286D969400D2446E /* libqtgeoservices_esri.a */; };
+		870613B4286D969500D2446E /* libqtgeoservices_nokia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613AF286D969400D2446E /* libqtgeoservices_nokia.a */; };
+		870613B5286D969500D2446E /* libqtgeoservices_mapbox.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */; };
+		870613B6286D96DF00D2446E /* libqtgeoservices_mapboxgl.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */; };
+		870613B8286D973C00D2446E /* libqsqlite.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613B7286D973B00D2446E /* libqsqlite.a */; };
+		870613BA286D979100D2446E /* libqmapboxgl.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613B9286D979000D2446E /* libqmapboxgl.a */; };
+		870613BC286D97D200D2446E /* libQt5Sql.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 870613BB286D97D100D2446E /* libQt5Sql.a */; };
 		87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E52259479EE00BD5714 /* AppDelegate.swift */; };
 		87062644259480A600D06586 /* APIFetcher.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4E259479EE00BD5714 /* APIFetcher.swift */; };
 		87062645259480AB00D06586 /* LocalNotificationHelper.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876E4E4D259479ED00BD5714 /* LocalNotificationHelper.swift */; };
@@ -758,6 +766,14 @@
 		8706139F286D8F1200D2446E /* libqtposition_cl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtposition_cl.a; path = ../../Qt/5.15.2/ios/plugins/position/libqtposition_cl.a; sourceTree = "<group>"; };
 		870613A2286D917600D2446E /* libQt5Location.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Location.a; path = ../../Qt/5.15.2/ios/lib/libQt5Location.a; sourceTree = "<group>"; };
 		870613A3286D917700D2446E /* libQt5Positioning.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Positioning.a; path = ../../Qt/5.15.2/ios/lib/libQt5Positioning.a; sourceTree = "<group>"; };
+		870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_itemsoverlay.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_itemsoverlay.a; sourceTree = "<group>"; };
+		870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapboxgl.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapboxgl.a; sourceTree = "<group>"; };
+		870613AE286D969400D2446E /* libqtgeoservices_esri.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_esri.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_esri.a; sourceTree = "<group>"; };
+		870613AF286D969400D2446E /* libqtgeoservices_nokia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_nokia.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_nokia.a; sourceTree = "<group>"; };
+		870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtgeoservices_mapbox.a; path = ../../Qt/5.15.2/ios/plugins/geoservices/libqtgeoservices_mapbox.a; sourceTree = "<group>"; };
+		870613B7286D973B00D2446E /* libqsqlite.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqsqlite.a; path = ../../Qt/5.15.2/ios/plugins/sqldrivers/libqsqlite.a; sourceTree = "<group>"; };
+		870613B9286D979000D2446E /* libqmapboxgl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqmapboxgl.a; path = ../../Qt/5.15.2/ios/lib/libqmapboxgl.a; sourceTree = "<group>"; };
+		870613BB286D97D100D2446E /* libQt5Sql.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Sql.a; path = ../../Qt/5.15.2/ios/lib/libQt5Sql.a; sourceTree = "<group>"; };
 		87083D9426678EFA0072410D /* zwiftworkout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = zwiftworkout.h; path = ../src/zwiftworkout.h; sourceTree = "<group>"; };
 		87083D9526678EFA0072410D /* zwiftworkout.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = zwiftworkout.cpp; path = ../src/zwiftworkout.cpp; sourceTree = "<group>"; };
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/sportsplusbike.cpp; sourceTree = "<group>"; };
@@ -1402,6 +1418,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				870613BC286D97D200D2446E /* libQt5Sql.a in Link Binary With Libraries */,
+				870613BA286D979100D2446E /* libqmapboxgl.a in Link Binary With Libraries */,
+				870613B8286D973C00D2446E /* libqsqlite.a in Link Binary With Libraries */,
+				870613B6286D96DF00D2446E /* libqtgeoservices_mapboxgl.a in Link Binary With Libraries */,
+				870613B1286D969500D2446E /* libqtgeoservices_itemsoverlay.a in Link Binary With Libraries */,
+				870613B3286D969500D2446E /* libqtgeoservices_esri.a in Link Binary With Libraries */,
+				870613B4286D969500D2446E /* libqtgeoservices_nokia.a in Link Binary With Libraries */,
+				870613B5286D969500D2446E /* libqtgeoservices_mapbox.a in Link Binary With Libraries */,
 				870613A4286D917700D2446E /* libQt5Location.a in Link Binary With Libraries */,
 				870613A5286D917700D2446E /* libQt5Positioning.a in Link Binary With Libraries */,
 				87061390286D8B4F00D2446E /* libQt5PositioningQuick.a in Link Binary With Libraries */,
@@ -2077,6 +2101,14 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				870613BB286D97D100D2446E /* libQt5Sql.a */,
+				870613B9286D979000D2446E /* libqmapboxgl.a */,
+				870613B7286D973B00D2446E /* libqsqlite.a */,
+				870613AE286D969400D2446E /* libqtgeoservices_esri.a */,
+				870613AC286D969300D2446E /* libqtgeoservices_itemsoverlay.a */,
+				870613B0286D969500D2446E /* libqtgeoservices_mapbox.a */,
+				870613AD286D969300D2446E /* libqtgeoservices_mapboxgl.a */,
+				870613AF286D969400D2446E /* libqtgeoservices_nokia.a */,
 				870613A2286D917600D2446E /* libQt5Location.a */,
 				870613A3286D917700D2446E /* libQt5Positioning.a */,
 				8706139F286D8F1200D2446E /* libqtposition_cl.a */,
@@ -3404,6 +3436,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtLocation,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
 				);
 				MARKETING_VERSION = 2.10;
 				OTHER_CFLAGS = (
@@ -3432,6 +3465,8 @@
 					"-DNS_FORMAT_ARGUMENT(A)=",
 					"-D_Nullable_result=_Nullable",
 					"-DQT_TEXTTOSPEECH_LIB",
+					"-DQT_POSITIONINGQUICK_LIB",
+					"-DQT_LOCATION_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3463,6 +3498,8 @@
 					"-D_Nullable_result=_Nullable",
 					"-DNS_FORMAT_ARGUMENT(A)=",
 					"-DQT_TEXTTOSPEECH_LIB",
+					"-DQT_LOCATION_LIB",
+					"-DQT_POSITIONINGQUICK_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -3562,6 +3599,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtLocation,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
 				);
 				MARKETING_VERSION = 2.10;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3591,6 +3629,8 @@
 					"-DNS_FORMAT_ARGUMENT(A)=",
 					"-D_Nullable_result=_Nullable",
 					"-DQT_TEXTTOSPEECH_LIB",
+					"-DQT_POSITIONINGQUICK_LIB",
+					"-DQT_LOCATION_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3622,6 +3662,8 @@
 					"-D_Nullable_result=_Nullable",
 					"-DNS_FORMAT_ARGUMENT(A)=",
 					"-DQT_TEXTTOSPEECH_LIB",
+					"-DQT_LOCATION_LIB",
+					"-DQT_POSITIONINGQUICK_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
