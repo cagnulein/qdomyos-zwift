@@ -379,8 +379,10 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
                     }
-                    trainrows.append(r);
-                    qDebug() << r.duration << "power" << r.power;
+                    if(r.power != -1) {
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
+                    }
                 }
             }
         }
