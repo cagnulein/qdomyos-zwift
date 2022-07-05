@@ -75,6 +75,8 @@ void ftmsrower::update() {
     }
 
     if (initRequest) {
+        uint8_t write[] = {FTMS_START_RESUME};
+        writeCharacteristic(write, sizeof(write), "start simulation", false, true);
 
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
