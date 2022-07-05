@@ -2023,7 +2023,7 @@ void homeform::Stop() {
     }
 
     if (trainProgram) {
-        trainProgram->rows.clear();
+        trainProgram->clearRows();
     }
 }
 

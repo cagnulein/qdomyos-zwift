@@ -1,6 +1,7 @@
 #include "trainprogram.h"
 #include "zwiftworkout.h"
 #include <QFile>
+#include <QMutexLocker>
 #include <QtXml/QtXml>
 #include <chrono>
 
@@ -91,11 +92,10 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
                 return next300;
             }
             MetersByInclination p;
-            if(c == currentStep) {
+            if (c == currentStep) {
                 p.meters = (rows.at(c).distance - currentStepDistance) * 1000.0;
                 km += (rows.at(c).distance - currentStepDistance);
-            }
-            else {
+            } else {
                 p.meters = (rows.at(c).distance) * 1000.0;
                 km += (rows.at(c).distance);
             }
@@ -121,7 +121,7 @@ double trainprogram::avgInclinationNext100Meters() {
             if (km > 0.1) {
                 return avg / (double)sum;
             }
-            if(c == currentStep)
+            if (c == currentStep)
                 km += (rows.at(c).distance - currentStepDistance);
             else
                 km += (rows.at(c).distance);
@@ -179,8 +179,14 @@ double trainprogram::avgAzimuthNext300Meters() {
     return 0;
 }
 
+void trainprogram::clearRows() {
+    QMutexLocker(&this->schedulerMutex);
+    rows.clear();
+}
+
 void trainprogram::scheduler() {
 
+    QMutexLocker(&this->schedulerMutex);
     QSettings settings;
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
@@ -203,7 +209,7 @@ void trainprogram::scheduler() {
             }
             if (rows.at(0).inclination != -200) {
                 double inc;
-                if(rows.at(0).latitude != NAN && rows.at(0).longitude != NAN) {
+                if (rows.at(0).latitude != NAN && rows.at(0).longitude != NAN) {
                     inc = avgInclinationNext100Meters();
                 } else {
                     inc = rows.at(0).inclination;
@@ -240,14 +246,13 @@ void trainprogram::scheduler() {
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                 double inc;
-                if(rows.at(0).latitude != NAN && rows.at(0).longitude != NAN) {
+                if (rows.at(0).latitude != NAN && rows.at(0).longitude != NAN) {
                     inc = avgInclinationNext100Meters();
                 } else {
                     inc = rows.at(0).inclination;
                 }
-                bluetoothManager->device()->changeResistance(
-                    (int8_t)(round(inc * bikeResistanceGain)) + bikeResistanceOffset +
-                    1); // resistance start from 1)
+                bluetoothManager->device()->changeResistance((int8_t)(round(inc * bikeResistanceGain)) +
+                                                             bikeResistanceOffset + 1); // resistance start from 1)
                 if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                     bluetoothManager->device()->setInclination(inc);
                 qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
@@ -320,9 +325,9 @@ void trainprogram::scheduler() {
                                         QString::number(rows.at(currentStep).speed);
                         emit changeSpeed(rows.at(currentStep).speed);
                     }
-                    if (rows.at(currentStep).inclination != -200) {                        
+                    if (rows.at(currentStep).inclination != -200) {
                         double inc;
-                        if(rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN) {
+                        if (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN) {
                             inc = avgInclinationNext100Meters();
                         } else {
                             inc = rows.at(currentStep).inclination;
@@ -359,18 +364,20 @@ void trainprogram::scheduler() {
                     if (rows.at(currentStep).inclination != -200 &&
                         bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                         // this should be converted in a signal as all the other signals...
-                        double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
-                        double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+                        double bikeResistanceOffset =
+                            settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
+                        double bikeResistanceGain =
+                            settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                         double inc;
-                        if(rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN) {
+                        if (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN) {
                             inc = avgInclinationNext100Meters();
                         } else {
                             inc = rows.at(currentStep).inclination;
                         }
-                        bluetoothManager->device()->changeResistance(
-                            (int8_t)(round(inc * bikeResistanceGain)) + bikeResistanceOffset +
-                            1); // resistance start from 1)
+                        bluetoothManager->device()->changeResistance((int8_t)(round(inc * bikeResistanceGain)) +
+                                                                     bikeResistanceOffset +
+                                                                     1); // resistance start from 1)
                         if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                             bluetoothManager->device()->setInclination(inc);
                         qDebug() << QStringLiteral("trainprogram change inclination") + QString::number(inc);
@@ -428,15 +435,15 @@ void trainprogram::scheduler() {
                 }
             }
 
-            if (rows.at(currentStep).inclination != -200 && (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN)) {
+            if (rows.at(currentStep).inclination != -200 &&
+                (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN)) {
                 double inc = avgInclinationNext100Meters();
                 double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                    bluetoothManager->device()->changeResistance(
-                        (int8_t)(round(inc * bikeResistanceGain)) + bikeResistanceOffset +
-                        1); // resistance start from 1)
+                    bluetoothManager->device()->changeResistance((int8_t)(round(inc * bikeResistanceGain)) +
+                                                                 bikeResistanceOffset + 1); // resistance start from 1)
                     if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                         bluetoothManager->device()->setInclination(inc);
                 }

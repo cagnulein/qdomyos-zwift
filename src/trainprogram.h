@@ -2,7 +2,9 @@
 #define TRAINPROGRAM_H
 #include "bluetooth.h"
 #include <QGeoCoordinate>
+#include <QMutex>
 #include <QObject>
+#include <QSet>
 #include <QTime>
 #include <QTimer>
 
@@ -68,6 +70,7 @@ class trainprogram : public QObject {
     void increaseElapsedTime(uint32_t i);
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }
+    void clearRows();
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -98,6 +101,7 @@ class trainprogram : public QObject {
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
 
   private:
+    mutable QRecursiveMutex schedulerMutex;
     double avgAzimuthNext300Meters();
     QList<MetersByInclination> inclinationNext300Meters();
     double avgInclinationNext100Meters();
