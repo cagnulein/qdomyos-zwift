@@ -415,6 +415,7 @@ void trainprogram::scheduler() {
 
                 started = false;
                 emit stop();
+                distanceEvaluation = false;
             }
         } else {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
