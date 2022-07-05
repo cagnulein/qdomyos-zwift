@@ -1022,7 +1022,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                " " + newValue.toHex(' '));
 
     if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4)) {
-        if (newValue.at(0) == 0x55) {
+        if (newValue.at(0) == 0x55 && newValue.length() > 7) {
             lastPacketComplete.clear();
             customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
             qDebug() << "new custom packet received. Len expected: " << customRecv;
