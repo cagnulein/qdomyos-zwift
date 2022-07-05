@@ -99,7 +99,7 @@ void spirittreadmill::update() {
                 break;
             }
             counterPoll++;
-            if (counterPoll > 1) {
+            if (counterPoll > 1 || XT385) {
                 counterPoll = 0;
             }
         }
@@ -237,33 +237,69 @@ double spirittreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
 void spirittreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
-    // set speed and incline to 0
-    uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
-    uint8_t initData2[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-    uint8_t initData3[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
-    uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
-    uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x00, 0x23, 0x00, 0x84, 0x40, 0x5d};
-    uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
-    uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
-    uint8_t initData8[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
-    uint8_t initData9[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+    if (!XT385) {
+        // set speed and incline to 0
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x00, 0x23, 0x00, 0x84, 0x40, 0x5d};
+        uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData8[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
+        uint8_t initData9[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
 
-    writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
-    writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
-    writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+    } else {
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
+        uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData8[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
+        uint8_t initData9[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+    }
 
     initDone = true;
 }
@@ -366,6 +402,10 @@ void spirittreadmill::error(QLowEnergyController::Error err) {
 void spirittreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + " (" + device.address().toString() + ')');
     {
+        if (device.name().toUpper().startsWith(QStringLiteral("XT385"))) {
+            XT385 = true;
+            qDebug() << QStringLiteral("XT385 mod enabled");
+        }
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &spirittreadmill::serviceDiscovered);

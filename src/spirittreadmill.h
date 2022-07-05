@@ -68,6 +68,8 @@ class spirittreadmill : public treadmill {
     bool initRequest = false;
     bool readyToStart = false;
 
+    bool XT385 = false;
+
   signals:
     void disconnected();
     void debug(QString string);
