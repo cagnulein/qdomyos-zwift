@@ -209,7 +209,7 @@ void trainprogram::scheduler() {
             }
             if (rows.at(0).inclination != -200) {
                 double inc;
-                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude) {
+                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
                     inc = avgInclinationNext100Meters();
                 } else {
                     inc = rows.at(0).inclination;
@@ -246,7 +246,7 @@ void trainprogram::scheduler() {
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                 double inc;
-                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude) {
+                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
                     inc = avgInclinationNext100Meters();
                 } else {
                     inc = rows.at(0).inclination;
