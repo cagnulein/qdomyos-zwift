@@ -354,9 +354,8 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         }
     }
 
-    // TREADMILLs doesn't have to enter here because their metrics are in the fallback
-    if (trainrows.empty() && !segments_segment_list.isEmpty() &&
-        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
+    bool atLeastOnePower = false;
+    if (trainrows.empty() && !segments_segment_list.isEmpty()) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -383,10 +382,17 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
                     }
 
+                    if (r.power != -1) {
+                        atLeastOnePower = true;
+                    }
                     trainrows.append(r);
                     qDebug() << r.duration << "power" << r.power;
                 }
             }
+        }
+        // this list doesn't have nothing useful for this session
+        if (!atLeastOnePower) {
+            trainrows.clear();
         }
     }
 
