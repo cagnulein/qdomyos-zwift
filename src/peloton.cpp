@@ -353,7 +353,10 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             trainrows.last().duration = trainrows.last().duration.addSecs(duration);
         }
     }
-    if (trainrows.empty() && !segments_segment_list.isEmpty()) {
+
+    // TREADMILLs doesn't have to enter here because their metrics are in the fallback
+    if (trainrows.empty() && !segments_segment_list.isEmpty() &&
+        bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         foreach (QJsonValue o, segments_segment_list) {
             QJsonArray subsegments_v2 = o["subsegments_v2"].toArray();
             if (!subsegments_v2.isEmpty()) {
@@ -379,10 +382,9 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
                     }
-                    if(r.power != -1) {
-                        trainrows.append(r);
-                        qDebug() << r.duration << "power" << r.power;
-                    }
+
+                    trainrows.append(r);
+                    qDebug() << r.duration << "power" << r.power;
                 }
             }
         }
