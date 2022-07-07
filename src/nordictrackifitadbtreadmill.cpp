@@ -63,6 +63,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         QByteArray datagram;
         datagram.resize(socket->pendingDatagramSize());
         socket->readDatagram(datagram.data(), datagram.size(), &sender, &port);
+        lastSender = sender;
         qDebug() << "Message From :: " << sender.toString();
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
@@ -165,6 +166,12 @@ void nordictrackifitadbtreadmill::update() {
     // updating the treadmill console every second
     if (sec1Update++ == (500 / refresh->interval())) {
         sec1Update = 0;
+        if (socket) {
+            QByteArray message =
+                (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
+            int ret = udpSocketSend->writeDatagram(message, message.size(), QHostAddress::Broadcast, 8003);
+            qDebug() << QString::number(ret) + " >> " + message;
+        }
         // updateDisplay(elapsed);
     }
 

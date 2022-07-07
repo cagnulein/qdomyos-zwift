@@ -54,7 +54,9 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    QUdpSocket *socket;
+    QUdpSocket *socket = nullptr;
+    QUdpSocket *udpSocketSend = new QUdpSocket(this);
+    QHostAddress lastSender;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
