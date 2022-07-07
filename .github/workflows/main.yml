@@ -86,6 +86,9 @@ jobs:
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
             cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .     
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libGLESv2.dll" . 
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/opengl32sw.dll" . 
+            ls "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/*.dll"
             cp ../../../icons/iOS/iTunesArtwork@2x.png .     
             cp ../../AppxManifest.xml .
             cd ..
