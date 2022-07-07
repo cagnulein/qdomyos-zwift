@@ -209,7 +209,7 @@ void trainprogram::scheduler() {
             }
             if (rows.at(0).inclination != -200) {
                 double inc;
-                if (rows.at(0).latitude != NAN && rows.at(0).longitude != NAN) {
+                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude) {
                     inc = avgInclinationNext100Meters();
                 } else {
                     inc = rows.at(0).inclination;
@@ -246,7 +246,7 @@ void trainprogram::scheduler() {
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                 double inc;
-                if (rows.at(0).latitude != NAN && rows.at(0).longitude != NAN) {
+                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude) {
                     inc = avgInclinationNext100Meters();
                 } else {
                     inc = rows.at(0).inclination;
@@ -266,7 +266,7 @@ void trainprogram::scheduler() {
             emit changeFanSpeed(rows.at(0).fanspeed);
         }
 
-        if (rows.at(0).latitude != NAN || rows.at(0).longitude != NAN || rows.at(0).altitude != NAN) {
+        if (!isnan(rows.at(0).latitude) || !isnan(rows.at(0).longitude) || !isnan(rows.at(0).altitude)) {
             qDebug() << QStringLiteral("trainprogram change GEO position") + QString::number(rows.at(0).latitude) +
                             " " + QString::number(rows.at(0).longitude) + " " + QString::number(rows.at(0).altitude) +
                             " " + QString::number(rows.at(0).azimuth);
@@ -327,7 +327,7 @@ void trainprogram::scheduler() {
                     }
                     if (rows.at(currentStep).inclination != -200) {
                         double inc;
-                        if (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN) {
+                        if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
                             inc = avgInclinationNext100Meters();
                         } else {
                             inc = rows.at(currentStep).inclination;
@@ -370,7 +370,7 @@ void trainprogram::scheduler() {
                             settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                         double inc;
-                        if (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN) {
+                        if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
                             inc = avgInclinationNext100Meters();
                         } else {
                             inc = rows.at(currentStep).inclination;
@@ -392,8 +392,8 @@ void trainprogram::scheduler() {
                     emit changeFanSpeed(rows.at(currentStep).fanspeed);
                 }
 
-                if (rows.at(currentStep).latitude != NAN || rows.at(currentStep).longitude != NAN ||
-                    rows.at(currentStep).altitude != NAN) {
+                if (!isnan(rows.at(currentStep).latitude) || !isnan(rows.at(currentStep).longitude) ||
+                    !isnan(rows.at(currentStep).altitude)) {
                     qDebug() << QStringLiteral("trainprogram change GEO position") +
                                     QString::number(rows.at(currentStep).latitude) + " " +
                                     QString::number(rows.at(currentStep).longitude) + " " +
@@ -436,7 +436,7 @@ void trainprogram::scheduler() {
             }
 
             if (rows.at(currentStep).inclination != -200 &&
-                (rows.at(currentStep).latitude != NAN && rows.at(currentStep).longitude != NAN)) {
+                (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude))) {
                 double inc = avgInclinationNext100Meters();
                 double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
@@ -506,16 +506,16 @@ bool trainprogram::saveXML(const QString &filename, const QList<trainrow> &rows)
             if (row.mets >= 0) {
                 stream.writeAttribute(QStringLiteral("mets"), QString::number(row.mets));
             }
-            if (row.altitude != NAN) {
+            if (!isnan(row.altitude)) {
                 stream.writeAttribute(QStringLiteral("altitude"), QString::number(row.altitude));
             }
-            if (row.azimuth != NAN) {
+            if (!isnan(row.azimuth)) {
                 stream.writeAttribute(QStringLiteral("azimuth"), QString::number(row.azimuth));
             }
-            if (row.latitude != NAN) {
+            if (!isnan(row.latitude)) {
                 stream.writeAttribute(QStringLiteral("latitude"), QString::number(row.latitude));
             }
-            if (row.longitude != NAN) {
+            if (!isnan(row.longitude)) {
                 stream.writeAttribute(QStringLiteral("longitude"), QString::number(row.longitude));
             }
             if (row.upper_resistance >= 0) {
