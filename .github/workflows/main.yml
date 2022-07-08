@@ -48,8 +48,8 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-i686-toolchain
-          msystem: mingw32
+          install: mingw-w64-x86_64-toolchain
+          msystem: mingw64
           release: false          
 
       - name: Setup cmake
@@ -64,7 +64,7 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
-          arch: win32_mingw81
+          arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
 
@@ -83,9 +83,9 @@ jobs:
             cp qdomyos-zwift.exe output/
             cd output
             windeployqt --qmldir ../../ qdomyos-zwift.exe
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_32/bin/libwinpthread-1.dll" .
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_32/bin/libgcc_s_seh-1.dll" .
-            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_32/bin/libstdc++-6.dll" .     
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libwinpthread-1.dll" .
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libgcc_s_seh-1.dll" .
+            cp "${{github.workspace}}/qt/Qt/5.15.2/mingw81_64/bin/libstdc++-6.dll" .     
             cp ../../../icons/iOS/iTunesArtwork@2x.png .     
             cp ../../AppxManifest.xml .
             cd ..
