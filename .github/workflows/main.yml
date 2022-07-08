@@ -50,7 +50,7 @@ jobs:
         with:
           install: mingw-w64-i686-toolchain
           msystem: mingw32
-          release: false          
+          release: true          
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
