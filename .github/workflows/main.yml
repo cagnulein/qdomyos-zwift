@@ -48,7 +48,7 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w32-i686-toolchain
+          install: mingw-w64-i686-toolchain
           msystem: mingw32
           release: false          
 
