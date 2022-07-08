@@ -48,8 +48,8 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-i686-toolchain
-          msystem: mingw32
+          install: mingw-w64-x86_64-toolchain
+          msystem: mingw64
           release: true          
 
       - name: Setup cmake
@@ -64,12 +64,13 @@ jobs:
           host: 'windows'
           modules: 'qtnetworkauth qtcharts'
           target: "desktop"
-          arch: win32_mingw81
+          arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
 
       - name: Build
         run: |         
+            where libstdc++-6.dll
             cd src
             qmake
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
