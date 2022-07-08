@@ -50,7 +50,7 @@ jobs:
         with:
           install: mingw-w64-x86_64-toolchain
           msystem: mingw64
-          release: true          
+          release: false          
 
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v1.9
@@ -67,6 +67,9 @@ jobs:
           arch: win64_mingw81
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
+
+      - name: Check libstdc++-6.dll
+        run: where libstdc++-6.dll
 
       - name: Build
         run: |         
