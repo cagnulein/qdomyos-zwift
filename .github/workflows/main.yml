@@ -48,8 +48,8 @@ jobs:
 
       - uses: msys2/setup-msys2@v2
         with:
-          install: mingw-w64-x86_64-toolchain
-          msystem: mingw64
+          install: mingw-w32-i686-toolchain
+          msystem: mingw32
           release: false          
 
       - name: Setup cmake
