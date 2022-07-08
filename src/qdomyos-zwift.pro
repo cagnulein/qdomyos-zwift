@@ -31,7 +31,7 @@ QML_IMPORT_PATH =
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 
-QMAKE_LFLAGS_RELEASE += -s
+QMAKE_LFLAGS_RELEASE += -s -static-libstdc++ -static-libgcc
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
     CONFIG -= optimize_size
