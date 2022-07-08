@@ -68,12 +68,8 @@ jobs:
           dir: "${{github.workspace}}/qt/"
           install-deps: "true"          
 
-      - name: Check libstdc++-6.dll
-        run: where libstdc++-6.dll
-
       - name: Build
         run: |         
-            where libstdc++-6.dll
             cd src
             qmake
             echo "#define STRAVA_SECRET_KEY ${{ secrets.strava_secret_key }}" > secret.h
