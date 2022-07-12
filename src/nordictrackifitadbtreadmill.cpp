@@ -94,7 +94,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         }
 
         QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
-        int ret = socket->write(message, message.size());
+        int ret = socket->writeDatagram(message, message.size(), sender, port);
         qDebug() << QString::number(ret) + " >> " + message;
 
         if (watts(weight))
