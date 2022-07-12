@@ -32,6 +32,13 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate();
     void setGears(int8_t d);
     int8_t gears();
+
+
+    /**
+     * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
+     * for the Elite Sterzo or emulating device. Expected range -45 to +45 degrees.
+     * @return A metric object.
+     */
     metric currentSteeringAngle() { return m_steeringAngle; }
     virtual bool inclinationAvailableByHardware();
 
