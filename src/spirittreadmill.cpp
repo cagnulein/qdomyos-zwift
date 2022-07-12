@@ -49,14 +49,41 @@ void spirittreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, const
     }
 }
 
-void spirittreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
-    Q_UNUSED(requestIncline);
-    if (requestSpeed > Speed.value()) {
-        uint8_t increaseSpeed[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
-        writeCharacteristic(increaseSpeed, sizeof(increaseSpeed), QStringLiteral("increaseSpeed"), false, true);
+void spirittreadmill::forceSpeed(double requestSpeed) {
+    if (!XT385) {
+        if (requestSpeed > Speed.value()) {
+            uint8_t increaseSpeed[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+            writeCharacteristic(increaseSpeed, sizeof(increaseSpeed), QStringLiteral("increaseSpeed"), false, true);
+        } else {
+            uint8_t decreaseSpeed[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
+            writeCharacteristic(decreaseSpeed, sizeof(decreaseSpeed), QStringLiteral("decreaseSpeed"), false, true);
+        }
     } else {
-        uint8_t decreaseSpeed[] = {0x5b, 0x04, 0x00, 0x32, 0x4f, 0x4b, 0x5d};
-        writeCharacteristic(decreaseSpeed, sizeof(decreaseSpeed), QStringLiteral("decreaseSpeed"), false, true);
+        uint8_t increase[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+        if (requestSpeed > Speed.value()) {
+            uint8_t increaseSpeed[] = {0x5b, 0x02, 0xF1, 0x02, 0x5d};
+            writeCharacteristic(increaseSpeed, sizeof(increaseSpeed), QStringLiteral("increaseSpeed"), false, true);
+            writeCharacteristic(increase, sizeof(increase), QStringLiteral("increaseSpeed"), false, true);
+        } else {
+            uint8_t decreaseSpeed[] = {0x5b, 0x02, 0xF1, 0x03, 0x5d};
+            writeCharacteristic(decreaseSpeed, sizeof(decreaseSpeed), QStringLiteral("decreaseSpeed"), false, true);
+            writeCharacteristic(increase, sizeof(increase), QStringLiteral("decreaseSpeed"), false, true);
+        }
+    }
+}
+
+void spirittreadmill::forceIncline(double requestIncline) {
+    if (XT385) {
+        uint8_t increase[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+        if (requestIncline > Inclination.value()) {
+            uint8_t increaseSpeed[] = {0x5b, 0x02, 0xF1, 0x04, 0x5d};
+            writeCharacteristic(increaseSpeed, sizeof(increaseSpeed), QStringLiteral("increaseIncline"), false, true);
+            writeCharacteristic(increase, sizeof(increase), QStringLiteral("increaseIncline"), false, true);
+        } else {
+            uint8_t decreaseSpeed[] = {0x5b, 0x02, 0xF1, 0x05, 0x5d};
+            writeCharacteristic(decreaseSpeed, sizeof(decreaseSpeed), QStringLiteral("decreaseIncline"), false, true);
+            writeCharacteristic(increase, sizeof(increase), QStringLiteral("decreaseIncline"), false, true);
+        }
     }
 }
 
@@ -107,24 +134,14 @@ void spirittreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                double inc = Inclination.value();
-                if (requestInclination != -100) {
-                    inc = requestInclination;
-                    requestInclination = -100;
-                }
-                forceSpeedOrIncline(requestSpeed, inc);
+                forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                double speed = currentSpeed().value();
-                if (requestSpeed != -1) {
-                    speed = requestSpeed;
-                    requestSpeed = -1;
-                }
-                forceSpeedOrIncline(speed, requestInclination);
+                forceIncline(requestInclination);
             }
             requestInclination = -100;
         }

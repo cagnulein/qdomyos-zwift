@@ -93,6 +93,10 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             }
         }
 
+        QByteArray message = (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
+        int ret = socket->writeDatagram(message, message.size(), sender, port);
+        qDebug() << QString::number(ret) + " >> " + message;
+
         if (watts(weight))
             KCal +=
                 ((((0.048 * ((double)watts(weight)) + 1.19) * weight * 3.5) / 200.0) /
@@ -166,12 +170,6 @@ void nordictrackifitadbtreadmill::update() {
     // updating the treadmill console every second
     if (sec1Update++ == (500 / refresh->interval())) {
         sec1Update = 0;
-        if (socket) {
-            QByteArray message =
-                (QString::number(requestSpeed) + ";" + QString::number(requestInclination)).toLocal8Bit();
-            int ret = udpSocketSend->writeDatagram(message, message.size(), QHostAddress::Broadcast, 8003);
-            qDebug() << QString::number(ret) + " >> " + message;
-        }
         // updateDisplay(elapsed);
     }
 

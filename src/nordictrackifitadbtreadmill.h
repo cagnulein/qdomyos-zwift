@@ -55,7 +55,6 @@ class nordictrackifitadbtreadmill : public treadmill {
     bool noHeartService = false;
 
     QUdpSocket *socket = nullptr;
-    QUdpSocket *udpSocketSend = new QUdpSocket(this);
     QHostAddress lastSender;
 
 #ifdef Q_OS_IOS
