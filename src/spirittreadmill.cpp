@@ -149,11 +149,24 @@ void spirittreadmill::update() {
             emit debug(QStringLiteral("starting..."));
             requestStart = -1;
             emit tapeStarted();
+            if (XT385) {
+                uint8_t start[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+            }
         }
         if (requestStop != -1) {
             emit debug(QStringLiteral("stopping..."));
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
+
+            if (XT385) {
+                uint8_t stop[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+                writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
+            }
         }
         if (requestIncreaseFan != -1) {
             emit debug(QStringLiteral("increasing fan speed..."));
