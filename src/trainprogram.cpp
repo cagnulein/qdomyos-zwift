@@ -420,9 +420,17 @@ void trainprogram::scheduler() {
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");
 
-                started = false;
-                emit stop();
-                distanceEvaluation = false;
+                // circuit?
+                if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
+                    QGeoCoordinate(rows.first().latitude, rows.first().longitude)
+                            .distanceTo(QGeoCoordinate(rows.last().latitude, rows.last().longitude)) < 50) {
+                    emit lap();
+                    restart();
+                } else {
+                    started = false;
+                    emit stop();
+                    distanceEvaluation = false;
+                }
             }
         } else {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
