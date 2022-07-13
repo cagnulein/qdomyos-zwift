@@ -423,7 +423,7 @@ void trainprogram::scheduler() {
                 // circuit?
                 if (!isnan(rows.first().latitude) && !isnan(rows.first().longitude) &&
                     QGeoCoordinate(rows.first().latitude, rows.first().longitude)
-                            .distanceTo(QGeoCoordinate(rows.last().latitude, rows.last().longitude)) < 50) {
+                            .distanceTo(bluetoothManager->device()->currentCordinate()) < 50) {
                     emit lap();
                     restart();
                 } else {
@@ -480,6 +480,8 @@ void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
 
+    if(bluetoothManager && bluetoothManager->device())
+        lastOdometer = bluetoothManager->device()->odometer();
     ticks = 0;
     offset = 0;
     currentStep = 0;
