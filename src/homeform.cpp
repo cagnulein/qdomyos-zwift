@@ -579,7 +579,7 @@ void homeform::trainProgramSignals() {
     if (bluetoothManager->device()) {
         disconnect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         disconnect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
-        disconnect(trainProgram, &trainprogram::lap, this, homeform::Lap);
+        disconnect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         disconnect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                    &treadmill::changeSpeed);
         disconnect(trainProgram, &trainprogram::changeInclination, ((treadmill *)bluetoothManager->device()),
@@ -622,7 +622,7 @@ void homeform::trainProgramSignals() {
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
-        connect(trainProgram, &trainprogram::lap, this, homeform::Lap);
+        connect(trainProgram, &trainprogram::lap, this, &homeform::Lap);
         if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
             connect(trainProgram, &trainprogram::changeSpeed, ((treadmill *)bluetoothManager->device()),
                     &treadmill::changeSpeed);
