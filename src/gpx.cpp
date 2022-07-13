@@ -66,6 +66,14 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
     if (inclinationList.empty()) {
         gpx_point pP = this->points.constFirst();
         double totDistance = 0;
+        if (!isnan(this->points.constFirst().p.latitude()) && !isnan(this->points.constFirst().p.longitude()) &&
+            QGeoCoordinate(this->points.first().p.latitude(), this->points.first().p.longitude())
+                    .distanceTo(QGeoCoordinate(this->points.constLast().p.latitude(),
+                                               this->points.constLast().p.longitude())) < 300) {
+            // to create the circuit
+            this->points.append(this->points.constFirst());
+        }
+
         for (int32_t i = 1; i < this->points.count(); i++) {
             double distance = this->points.at(i).p.distanceTo(pP.p);
             double elevation = this->points.at(i).p.altitude() - pP.p.altitude();
