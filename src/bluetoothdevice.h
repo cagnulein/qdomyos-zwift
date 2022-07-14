@@ -284,9 +284,8 @@ class bluetoothdevice : public QObject {
     metric wattKg() { return WattKg; }
 
     /**
-     * @brief currentMETS Gets a metric object to get and set the current METS (what does METS stand for?)
-     * Units: ??
-     * @return
+     * @brief currentMETS Gets a metric object to get and set the current METS (Metabolic Equivalent of Tasks)
+     * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
     metric currentMETS() { return METS; }
 
@@ -467,7 +466,8 @@ class bluetoothdevice : public QObject {
     metric Resistance;
 
     /**
-     * @brief METS A metric object to get and set the METS (what's this?) for the session(?). Units: ??
+     * @brief METS A metric object to get and set the METS (Metabolic Equivalent of Tasks) for the session.
+     * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
     metric METS;
 
@@ -556,7 +556,8 @@ class bluetoothdevice : public QObject {
     void update_metrics(bool watt_calc, const double watts);
 
     /**
-     * @brief calculateMETS Calculate the METS (what's that?). Unit: ??
+     * @brief calculateMETS Calculate the METS (Metabolic Equivalent of Tasks)
+     * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
     double calculateMETS();
 };
