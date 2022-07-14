@@ -519,14 +519,10 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: qsTr("Charts")
+                text: qsTr("📅 Workouts History")
                 width: parent.width
                 onClicked: {
-                    console.log(CHARTJS)
-                    if(CHARTJS)
-                        stackView.push("ChartJsTest.qml")
-                    else
-                        stackView.push("ChartsEndWorkout.qml")
+                    stackView.push("WorkoutsHistory.qml")
                     drawer.close()
                 }
             }
