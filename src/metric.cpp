@@ -199,7 +199,8 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
         double fp = aeroEff * (3.0 * vel + hw) * tv + tr;     // the derivative
         double vNew = vel - f / fp;
         if (qAbs(vNew - vel) < TOL) {
-            if(vNew < 0) return 0;
+            if (vNew < 0)
+                return 0;
             return vNew * 3.6;
         } // success
         vel = vNew;
@@ -209,4 +210,71 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
 
 double metric::calculateWeightLoss(double kcal) {
     return kcal / 7716.1854; // comes from 1 lbs = 3500 kcal. Converted to kg
+}
+
+struct IntervalBest {
+    double avg = 0;
+    int64_t start = 0;
+    int64_t stop = 0;
+};
+
+struct CompareBests {
+    // Sort by decreasing power and increasing start time.
+    bool operator()(const IntervalBest &a, const IntervalBest &b) const {
+        if (a.avg > b.avg)
+            return true;
+        if (b.avg > a.avg)
+            return false;
+        return a.start < b.start;
+    }
+};
+
+// VO2 (L/min) = 0.0108 x power (W) + 0.007 x body mass (kg)
+// power = 5 min peak power for a specific ride
+double metric::calculateVO2Max(QList<SessionLine> *session) {
+    QList<IntervalBest> bests;
+    QList<IntervalBest> _results;
+
+    uint windowSize = 5 * 60; // 5 mins
+    double total = 0.0;
+    QList<const SessionLine *> window;
+
+    if (session->count() == 0)
+        return -1;
+
+    // ride is shorter than the window size!
+    if (windowSize > session->last().elapsedTime)
+        return -1;
+
+    int i = 0;
+    // We're looking for intervals with durations in [windowSizeSecs, windowSizeSecs + secsDelta).
+    foreach (SessionLine point, *session) {
+
+        total += point.watt;
+        window.append(&session->at(i));
+        double duration = window.last()->elapsedTime - window.first()->elapsedTime;
+
+        if (duration >= windowSize) {
+            double start = window.first()->elapsedTime;
+            double stop = window.last()->elapsedTime;
+            double avg = total / duration;
+            IntervalBest b;
+            b.start = start;
+            b.stop = stop;
+            b.avg = avg;
+            bests.append(b);
+
+            total -= window.first()->watt;
+            window.removeFirst();
+        }
+        i++;
+    }
+
+    std::sort(bests.begin(), bests.end(), CompareBests());
+
+    double peak = bests.first().avg;
+    QSettings settings;
+    return ((0.0108 * peak + 0.007 * settings.value(QStringLiteral("weight"), 75.0).toFloat()) /
+            settings.value(QStringLiteral("weight"), 75.0).toFloat()) *
+           1000.0;
 }

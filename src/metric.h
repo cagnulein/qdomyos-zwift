@@ -2,6 +2,7 @@
 #define METRIC_H
 
 #include "qdebugfixup.h"
+#include "sessionline.h"
 #include <QDateTime>
 #include <math.h>
 
@@ -42,6 +43,7 @@ class metric {
 
     static double calculateSpeedFromPower(double power, double inclination);
     static double calculateWeightLoss(double kcal);
+    static double calculateVO2Max(QList<SessionLine> *session);
 
   private:
     double m_value = 0;
