@@ -31,12 +31,12 @@
 class MetersByInclination {
   public:
     /**
-     * @brief meters The length of the section.
+     * @brief meters The length of the section. Unit: meters
      */
     double meters;
 
     /**
-     * @brief inclination The inclination of the section.
+     * @brief inclination The inclination of the section. Unit: degrees (0 = horizontal)
      */
     double inclination;
 };
