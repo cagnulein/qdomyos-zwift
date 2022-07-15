@@ -15,43 +15,43 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-#if !defined(FIT_ANT_CHANNEL_ID_MESG_HPP)
-#define FIT_ANT_CHANNEL_ID_MESG_HPP
+#if !defined(FIT_DEVICE_AUX_BATTERY_INFO_MESG_HPP)
+#define FIT_DEVICE_AUX_BATTERY_INFO_MESG_HPP
 
 #include "fit_mesg.hpp"
 
 namespace fit
 {
 
-class AntChannelIdMesg : public Mesg
+class DeviceAuxBatteryInfoMesg : public Mesg
 {
 public:
     class FieldDefNum final
     {
     public:
-       static const FIT_UINT8 ChannelNumber = 0;
-       static const FIT_UINT8 DeviceType = 1;
-       static const FIT_UINT8 DeviceNumber = 2;
-       static const FIT_UINT8 TransmissionType = 3;
-       static const FIT_UINT8 DeviceIndex = 4;
+       static const FIT_UINT8 Timestamp = 253;
+       static const FIT_UINT8 DeviceIndex = 0;
+       static const FIT_UINT8 BatteryVoltage = 1;
+       static const FIT_UINT8 BatteryStatus = 2;
+       static const FIT_UINT8 BatteryIdentifier = 3;
        static const FIT_UINT8 Invalid = FIT_FIELD_NUM_INVALID;
     };
 
-    AntChannelIdMesg(void) : Mesg(Profile::MESG_ANT_CHANNEL_ID)
+    DeviceAuxBatteryInfoMesg(void) : Mesg(Profile::MESG_DEVICE_AUX_BATTERY_INFO)
     {
     }
 
-    AntChannelIdMesg(const Mesg &mesg) : Mesg(mesg)
+    DeviceAuxBatteryInfoMesg(const Mesg &mesg) : Mesg(mesg)
     {
     }
 
     ///////////////////////////////////////////////////////////////////////
-    // Checks the validity of channel_number field
+    // Checks the validity of timestamp field
     // Returns FIT_TRUE if field is valid
     ///////////////////////////////////////////////////////////////////////
-    FIT_BOOL IsChannelNumberValid() const
+    FIT_BOOL IsTimestampValid() const
     {
-        const Field* field = GetField(0);
+        const Field* field = GetField(253);
         if( FIT_NULL == field )
         {
             return FIT_FALSE;
@@ -61,112 +61,19 @@ public:
     }
 
     ///////////////////////////////////////////////////////////////////////
-    // Returns channel_number field
+    // Returns timestamp field
     ///////////////////////////////////////////////////////////////////////
-    FIT_UINT8 GetChannelNumber(void) const
+    FIT_DATE_TIME GetTimestamp(void) const
     {
-        return GetFieldUINT8Value(0, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+        return GetFieldUINT32Value(253, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
     }
 
     ///////////////////////////////////////////////////////////////////////
-    // Set channel_number field
+    // Set timestamp field
     ///////////////////////////////////////////////////////////////////////
-    void SetChannelNumber(FIT_UINT8 channelNumber)
+    void SetTimestamp(FIT_DATE_TIME timestamp)
     {
-        SetFieldUINT8Value(0, channelNumber, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Checks the validity of device_type field
-    // Returns FIT_TRUE if field is valid
-    ///////////////////////////////////////////////////////////////////////
-    FIT_BOOL IsDeviceTypeValid() const
-    {
-        const Field* field = GetField(1);
-        if( FIT_NULL == field )
-        {
-            return FIT_FALSE;
-        }
-
-        return field->IsValueValid();
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Returns device_type field
-    ///////////////////////////////////////////////////////////////////////
-    FIT_UINT8Z GetDeviceType(void) const
-    {
-        return GetFieldUINT8ZValue(1, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Set device_type field
-    ///////////////////////////////////////////////////////////////////////
-    void SetDeviceType(FIT_UINT8Z deviceType)
-    {
-        SetFieldUINT8ZValue(1, deviceType, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Checks the validity of device_number field
-    // Returns FIT_TRUE if field is valid
-    ///////////////////////////////////////////////////////////////////////
-    FIT_BOOL IsDeviceNumberValid() const
-    {
-        const Field* field = GetField(2);
-        if( FIT_NULL == field )
-        {
-            return FIT_FALSE;
-        }
-
-        return field->IsValueValid();
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Returns device_number field
-    ///////////////////////////////////////////////////////////////////////
-    FIT_UINT16Z GetDeviceNumber(void) const
-    {
-        return GetFieldUINT16ZValue(2, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Set device_number field
-    ///////////////////////////////////////////////////////////////////////
-    void SetDeviceNumber(FIT_UINT16Z deviceNumber)
-    {
-        SetFieldUINT16ZValue(2, deviceNumber, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Checks the validity of transmission_type field
-    // Returns FIT_TRUE if field is valid
-    ///////////////////////////////////////////////////////////////////////
-    FIT_BOOL IsTransmissionTypeValid() const
-    {
-        const Field* field = GetField(3);
-        if( FIT_NULL == field )
-        {
-            return FIT_FALSE;
-        }
-
-        return field->IsValueValid();
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Returns transmission_type field
-    ///////////////////////////////////////////////////////////////////////
-    FIT_UINT8Z GetTransmissionType(void) const
-    {
-        return GetFieldUINT8ZValue(3, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
-    }
-
-    ///////////////////////////////////////////////////////////////////////
-    // Set transmission_type field
-    ///////////////////////////////////////////////////////////////////////
-    void SetTransmissionType(FIT_UINT8Z transmissionType)
-    {
-        SetFieldUINT8ZValue(3, transmissionType, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+        SetFieldUINT32Value(253, timestamp, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -175,7 +82,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     FIT_BOOL IsDeviceIndexValid() const
     {
-        const Field* field = GetField(4);
+        const Field* field = GetField(0);
         if( FIT_NULL == field )
         {
             return FIT_FALSE;
@@ -189,7 +96,7 @@ public:
     ///////////////////////////////////////////////////////////////////////
     FIT_DEVICE_INDEX GetDeviceIndex(void) const
     {
-        return GetFieldUINT8Value(4, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+        return GetFieldUINT8Value(0, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -197,11 +104,106 @@ public:
     ///////////////////////////////////////////////////////////////////////
     void SetDeviceIndex(FIT_DEVICE_INDEX deviceIndex)
     {
-        SetFieldUINT8Value(4, deviceIndex, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+        SetFieldUINT8Value(0, deviceIndex, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Checks the validity of battery_voltage field
+    // Returns FIT_TRUE if field is valid
+    ///////////////////////////////////////////////////////////////////////
+    FIT_BOOL IsBatteryVoltageValid() const
+    {
+        const Field* field = GetField(1);
+        if( FIT_NULL == field )
+        {
+            return FIT_FALSE;
+        }
+
+        return field->IsValueValid();
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Returns battery_voltage field
+    // Units: V
+    ///////////////////////////////////////////////////////////////////////
+    FIT_FLOAT32 GetBatteryVoltage(void) const
+    {
+        return GetFieldFLOAT32Value(1, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Set battery_voltage field
+    // Units: V
+    ///////////////////////////////////////////////////////////////////////
+    void SetBatteryVoltage(FIT_FLOAT32 batteryVoltage)
+    {
+        SetFieldFLOAT32Value(1, batteryVoltage, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Checks the validity of battery_status field
+    // Returns FIT_TRUE if field is valid
+    ///////////////////////////////////////////////////////////////////////
+    FIT_BOOL IsBatteryStatusValid() const
+    {
+        const Field* field = GetField(2);
+        if( FIT_NULL == field )
+        {
+            return FIT_FALSE;
+        }
+
+        return field->IsValueValid();
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Returns battery_status field
+    ///////////////////////////////////////////////////////////////////////
+    FIT_BATTERY_STATUS GetBatteryStatus(void) const
+    {
+        return GetFieldUINT8Value(2, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Set battery_status field
+    ///////////////////////////////////////////////////////////////////////
+    void SetBatteryStatus(FIT_BATTERY_STATUS batteryStatus)
+    {
+        SetFieldUINT8Value(2, batteryStatus, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Checks the validity of battery_identifier field
+    // Returns FIT_TRUE if field is valid
+    ///////////////////////////////////////////////////////////////////////
+    FIT_BOOL IsBatteryIdentifierValid() const
+    {
+        const Field* field = GetField(3);
+        if( FIT_NULL == field )
+        {
+            return FIT_FALSE;
+        }
+
+        return field->IsValueValid();
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Returns battery_identifier field
+    ///////////////////////////////////////////////////////////////////////
+    FIT_UINT8 GetBatteryIdentifier(void) const
+    {
+        return GetFieldUINT8Value(3, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    // Set battery_identifier field
+    ///////////////////////////////////////////////////////////////////////
+    void SetBatteryIdentifier(FIT_UINT8 batteryIdentifier)
+    {
+        SetFieldUINT8Value(3, batteryIdentifier, 0, FIT_SUBFIELD_INDEX_MAIN_FIELD);
     }
 
 };
 
 } // namespace fit
 
-#endif // !defined(FIT_ANT_CHANNEL_ID_MESG_HPP)
+#endif // !defined(FIT_DEVICE_AUX_BATTERY_INFO_MESG_HPP)

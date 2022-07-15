@@ -15,21 +15,21 @@
 ///////////////////////////////////////////////////////////////////////////////////
 
 
-#if !defined(FIT_MET_ZONE_MESG_LISTENER_HPP)
-#define FIT_MET_ZONE_MESG_LISTENER_HPP
+#if !defined(FIT_DEVICE_AUX_BATTERY_INFO_MESG_LISTENER_HPP)
+#define FIT_DEVICE_AUX_BATTERY_INFO_MESG_LISTENER_HPP
 
-#include "fit_met_zone_mesg.hpp"
+#include "fit_device_aux_battery_info_mesg.hpp"
 
 namespace fit
 {
 
-class MetZoneMesgListener
+class DeviceAuxBatteryInfoMesgListener
 {
 public:
-    virtual ~MetZoneMesgListener() {}
-    virtual void OnMesg(MetZoneMesg& mesg) = 0;
+    virtual ~DeviceAuxBatteryInfoMesgListener() {}
+    virtual void OnMesg(DeviceAuxBatteryInfoMesg& mesg) = 0;
 };
 
 } // namespace fit
 
-#endif // !defined(FIT_MET_ZONE_MESG_LISTENER_HPP)
+#endif // !defined(FIT_DEVICE_AUX_BATTERY_INFO_MESG_LISTENER_HPP)
