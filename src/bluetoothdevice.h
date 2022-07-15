@@ -53,42 +53,38 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief currentSpeed Gets a metric object for getting and setting the speed. Units: km/h
-     * @return
      */
     virtual metric currentSpeed();
 
     /**
-     * @brief currentPace Gets the current pace. Units: ?
-     * @return
+     * @brief currentPace Gets the current pace. Units: time per km
      */
     virtual QTime currentPace();
 
     /**
-     * @brief currentInclination
-     * @return
+     * @brief currentInclination The current inclination. Expected range: 0 degrees (horizontal) to 90 degrees (vertical)
      */
     virtual metric currentInclination();
 
     /**
-     * @brief setInclination Set the protected Inclination metric.
+     * @brief setInclination Set the protected Inclination metric, which could be different from that
+     * returned by an overridden currentInclination().
      * @param inclination The inclination. Units: degrees (0 is horizontal)
      */
     void setInclination(double inclination);
 
     /**
-     * @brief averagePace Gets the average pace. Units: ?
-     * @return
+     * @brief averagePace Gets the average time per kilometer travelled. Units: time per km
      */
     virtual QTime averagePace();
 
     /**
-     * @brief maxPace Gets the maximum pace for the session. Units: ?
-     * @return
+     * @brief maxPace Gets the maximum pace (minimum time per kilometer) for the session. Units: time per km
      */
     virtual QTime maxPace();
 
     /**
-     * @brief odometer Gets the total distance travelled since ???. Units: km
+     * @brief odometer Gets the total distance travelled. Units: km
      * @return
      */
     virtual double odometer();
@@ -103,24 +99,22 @@ class bluetoothdevice : public QObject {
 
     /**
      * @brief jouls Gets a metric object to get and set the number of joules expended. Units: joules
-     * @return
      */
     metric jouls();
 
     /**
      * @brief fanSpeed Gets the current fan speed. Units: revolutions per second
-     * @return
      */
     virtual uint8_t fanSpeed();
 
     /**
      * @brief elapsedTime The elapsed time for the session(?).
-     * @return
      */
     virtual QTime elapsedTime();
 
     /**
-     * @brief offsetElapsedTime Shifts the elapsed time (stored in the protected member: elapsed)for the session by the specified offset.
+     * @brief offsetElapsedTime Shifts the elapsed time (stored in the protected member: elapsed)
+     * for the session by the specified offset.
      * @param offset The time offset to shift by. Default unit: seconds but this could be overridden.
      */
     virtual void offsetElapsedTime(int offset);
@@ -336,7 +330,7 @@ class bluetoothdevice : public QObject {
     virtual BLUETOOTH_TYPE deviceType();
 
     /**
-     * @brief metrics Gets a list of available metris.
+     * @brief metrics Gets a list of available metrics.
      * @return
      */
     static QStringList metrics();
@@ -399,12 +393,17 @@ class bluetoothdevice : public QObject {
     metric KCal;
 
     /**
-     * @brief Flywheel speed. Units: km/h
+     * @brief Speed The simulated speed of the device. Units: km/h
+     * e.g. the product of bike flywheel speed and simulated wheel size, or
+     * the belt speed of a treadmill.
      */
     metric Speed;        
 
     /**
-     * @brief Cumulative flywheel revolutions multiplied by the wheel circumference. Units: km
+     * @brief Distance The simulated distance travelled. Units: km
+     * Depends on the device.
+     * e.g. the number of bike flywheel revolutions multiplied by the simulated wheel circumference, or
+     *      the length of belt traversed on a treadmill.
      */
     metric Distance;
 
@@ -456,7 +455,9 @@ class bluetoothdevice : public QObject {
     metric WeightLoss;
 
     /**
-     * @brief The speed at which the crank is turning. Units: revolutions per minute (RPM)
+     * @brief The speed at which the crank is turning. Units: device-specific actions per minute
+     * e.g. crank revolutions on a bike, steps on a treadmill,
+     * strokes on a rower, stride rate on an elliptical trainer
      */
     metric Cadence;
 
@@ -517,12 +518,12 @@ class bluetoothdevice : public QObject {
     metric Inclination;
 
     /**
-     * @brief HeartZone A metrix to get and set the current heart zone. Unit: depends on implementation
+     * @brief HeartZone A metric to get and set the current heart zone. Unit: depends on implementation
      */
     metric HeartZone;
 
     /**
-     * @brief PowerZone A metrix to get and set the current power zone. Unit: depends on implementation
+     * @brief PowerZone A metric to get and set the current power zone. Unit: depends on implementation
      */
     metric PowerZone;
 
