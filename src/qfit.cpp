@@ -508,6 +508,7 @@ public:
            if(!s.coordinate.isValid()) {
                s.elevationGain = record.GetAltitude();
            }
+           s.elapsedTime = sessionOpening->count() + 1;
            s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp());
            sessionOpening->append(s);
        }
@@ -535,6 +536,10 @@ void qfit::open(const QString &filename, QList<SessionLine>* output) {
     
     fit::Decode decode;
     std::istream& s = file;
+    if (!decode.CheckIntegrity(file)) {
+        printf("FIT file integrity failed.\nAttempting to decode...\n");
+        return ;
+    }
     fit::MesgBroadcaster mesgBroadcaster;
     Listener listener;
     listener.sessionOpening = output;

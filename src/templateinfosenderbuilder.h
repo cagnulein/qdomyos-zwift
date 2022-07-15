@@ -21,6 +21,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
+    
+    void previewSessionOnChart(QList<SessionLine>* session);
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);

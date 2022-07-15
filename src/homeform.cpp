@@ -321,6 +321,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(fitfile_preview_clicked(QUrl)), this, SLOT(fitfile_preview_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
@@ -3489,6 +3490,22 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
         trainProgramSignals();
     }
 }
+
+void homeform::fitfile_preview_clicked(const QUrl &fileName) {
+    qDebug() << QStringLiteral("fitfile_preview_clicked") << fileName;
+
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    qDebug() << file.fileName();
+
+    if (!file.fileName().isEmpty()) {
+        Session.clear();
+        qfit::open(file.fileName(), &Session);
+        if(!bluetoothManager->device()->isPaused())
+            bluetoothManager->device()->setPaused(true);
+        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&Session);
+    }
+}
+
 
 void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpxpreview_open_clicked") << fileName;

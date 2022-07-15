@@ -9,7 +9,7 @@ import Qt.labs.settings 1.0
 import QtWebView 1.1
 
 ColumnLayout {
-    signal trainprogram_preview(url name)
+    signal fitfile_preview(url name)
 
     RowLayout{
         spacing: 2
@@ -140,7 +140,8 @@ ColumnLayout {
                     if (fileUrl) {
                         list.currentItem.textColor = Material.color(Material.Yellow)
                         console.log(fileUrl + ' selected');
-                        trainprogram_preview(fileUrl)
+                        fitfile_preview(fileUrl)
+                        webView.reload();
                     }
                 }
                 Component.onCompleted: {
@@ -149,19 +150,37 @@ ColumnLayout {
             }
         }
 
-        Settings {
-            id: settings
-        }
-        WebView {
-            id: webView
-            anchors.fill: parent
-            url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
-            visible: true
-            onLoadingChanged: {
-                if (loadRequest.errorString) {
-                    console.error(loadRequest.errorString);
-                    console.error("port " + settings.value("template_inner_QZWS_port"));
+        ScrollView {
+            anchors.top: parent.top
+            ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+            //contentHeight: map.height
+            Layout.preferredHeight: parent.height
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.minimumWidth: 100
+            Layout.preferredWidth: 200
+
+            Row {
+                id: row
+                anchors.fill: parent
+
+                Settings {
+                    id: settings
                 }
+                WebView {
+                    height: parent.height
+                    width: parent.width
+                    id: webView
+                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
+                    visible: true
+                    onLoadingChanged: {
+                        if (loadRequest.errorString) {
+                            console.error(loadRequest.errorString);
+                            console.error("port " + settings.value("template_inner_QZWS_port"));
+                        }
+                    }
+                }
+
             }
         }
     }

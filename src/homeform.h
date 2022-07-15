@@ -597,6 +597,7 @@ class homeform : public QObject {
     void trainprogram_open_clicked(const QUrl &fileName);
     void trainprogram_preview(const QUrl &fileName);
     void gpxpreview_open_clicked(const QUrl &fileName);
+    void fitfile_preview_clicked(const QUrl &fileName);
     void trainprogram_zwo_loaded(const QString &comp);
     void gpx_open_clicked(const QUrl &fileName);
     void gpx_save_clicked();
