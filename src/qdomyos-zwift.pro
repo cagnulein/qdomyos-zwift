@@ -2,6 +2,9 @@ QT += bluetooth widgets xml positioning quick networkauth websockets texttospeec
 
 QT+= charts
 
+windows: QT += serialport
+unix:!android: QT += serialport
+
 unix:android: QT += androidextras gui-private
 qtHaveModule(httpserver) {
     QT += httpserver
@@ -216,6 +219,9 @@ SOURCES += \
    stagesbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
+    trixterxdreamv1bike.cpp \
+    trixterxdreamv1client.cpp \
+    trixterxdreamv1serial.cpp \
    truetreadmill.cpp \
    trxappgateusbbike.cpp \
    ultrasportbike.cpp \
@@ -611,6 +617,9 @@ HEADERS += \
 	treadmill.h \
 	mainwindow.h \
 	trainprogram.h \
+    trixterxdreamv1bike.h \
+    trixterxdreamv1client.h \
+    trixterxdreamv1serial.h \
    truetreadmill.h \
    trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
