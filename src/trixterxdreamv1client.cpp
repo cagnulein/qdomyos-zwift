@@ -1,8 +1,9 @@
-
+//#include "pch.h"
 #include "trixterxdreamv1client.h"
 
 #include <string>
 #include <math.h>
+//#include <cmath>
 
 trixterxdreamv1client::trixterxdreamv1client() { this->ConfigureResistanceMessages(); }
 
@@ -37,15 +38,17 @@ trixterxdreamv1client::PacketState trixterxdreamv1client::ProcessChar(char c) {
 
     constexpr int headerLength = 2;
     constexpr int packetLength = 16;
-    constexpr uint8_t header[] = {0x6, 0xA};
+    constexpr uint8_t header[] = { 0x6, 0xA };
 
     uint8_t b;
 
     if (isdigit(c)) {
         b = c - '0';
-    } else if (c >= 'a' && c <= 'f') {
+    }
+    else if (c >= 'a' && c <= 'f') {
         b = c - 'a' + '\xA';
-    } else {
+    }
+    else {
         this->ResetBuffer();
         return Invalid;
     }
@@ -59,7 +62,8 @@ trixterxdreamv1client::PacketState trixterxdreamv1client::ProcessChar(char c) {
     if (this->inputBuffer.size() == 1) {
         this->byteBuffer.push_back((this->inputBuffer.back() << 4) + b);
         this->inputBuffer.clear();
-    } else
+    }
+    else
         this->inputBuffer.push_back(b);
 
     if (this->byteBuffer.size() == packetLength) {
@@ -81,10 +85,10 @@ trixterxdreamv1client::PacketState trixterxdreamv1client::ProcessChar(char c) {
 }
 
 void trixterxdreamv1client::ConfigureResistanceMessages() {
-    resistanceMessages = new uint8_t *[251];
+    resistanceMessages = new uint8_t * [251];
 
     for (uint8_t level = 0; level <= 250; level++) {
-        unsigned char *message = new uint8_t[6];
+        unsigned char* message = new uint8_t[6];
         resistanceMessages[level] = message;
 
         message[5] = message[0] = 0x6a;
@@ -104,39 +108,51 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     lastPacket.Crank = (static_cast<uint16_t>(this->byteBuffer[0xA]) << 8) + this->byteBuffer[0xB];
     lastPacket.HeartRate = byteBuffer[0xE];
 
+    // got the data, now clear the buffer
+    this->ResetBuffer();
+
     constexpr double millisecondsToBaseUnit = 1024.0 / 1000.0;
     constexpr double flywheelToRevolutionsPerMinute = 576000.0;
     constexpr double crankToRevolutionsPerMinute = 1.0 / 6e-6;
-    constexpr double minutesToMilliseconds = 60.0*1000.0;
+    constexpr double minutesToMilliseconds = 60.0 * 1000.0;
 
-    double flywheelRevsPerMinute =0, crankRevsPerMinute = 0;
+    double flywheelRevsPerMinute = 0, crankRevsPerMinute = 0;
 
     if (lastPacket.Flywheel < 65534) {
-        flywheelRevsPerMinute = flywheelToRevolutionsPerMinute / std::max(static_cast<uint16_t>(1), lastPacket.Flywheel);
+        flywheelRevsPerMinute = flywheelToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Flywheel);
     }
 
     if (lastPacket.Crank > 0 && lastPacket.Crank < 65534) {
-        crankRevsPerMinute = crankToRevolutionsPerMinute / std::max(static_cast<uint16_t>(1), lastPacket.Crank);
+        crankRevsPerMinute = crankToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Crank);
     }
 
+    
     const uint32_t t = this->get_time_ms();
-    const uint32_t dt = t - this->lastT;
+    const uint32_t lt = this->lastT ? this->lastT : t;
 
-    if (dt <= 0) {
+    this->lastT = t;
+
+    if(t<lt)
+    {
         // TODO: error logging - this could be indicative of a problem
         // It should usually be about 12ms
+        
         this->Reset();
         return false;
     }
 
-    // update the internal, precise state
-    double dt_minutes = dt / minutesToMilliseconds;
-    this->lastT = t;
-    this->flywheelRevolutions += dt_minutes * flywheelRevsPerMinute;
-    this->crankRevolutions += dt_minutes * crankRevsPerMinute;
+    const uint32_t dt = t - lt;
+        
+    if (dt > 0)
+    {
+        // update the internal, precise state
+        double dt_minutes = dt / minutesToMilliseconds;
 
-    state newState{};
+        this->flywheelRevolutions += dt_minutes * flywheelRevsPerMinute;
+        this->crankRevolutions += dt_minutes * crankRevsPerMinute;
+    }
 
+	state newState{};
     newState.LastEventTime = static_cast<uint16_t>(millisecondsToBaseUnit * t);
     newState.Steering = lastPacket.Steering;
     newState.HeartRate = lastPacket.HeartRate;
@@ -159,13 +175,13 @@ trixterxdreamv1client::state trixterxdreamv1client::getLastState() {
     return result;
 }
 
-void trixterxdreamv1client::SendResistance(int level) {
+void trixterxdreamv1client::SendResistance(uint8_t level) {
 
     // to maintain the resistance, this needs to be resent about every 50ms.
-    if(level!=0 && this->write_bytes)
+    if (level != 0 && this->write_bytes)
     {
         this->writeMutex.lock();
-        try { this->write_bytes(this->resistanceMessages[std::max(250, std::min(0, level))],6); }
+        try { this->write_bytes(this->resistanceMessages[max(250, min(0, level))], 6); }
         catch (...)
         {
             this->writeMutex.unlock();

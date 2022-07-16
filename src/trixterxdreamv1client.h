@@ -3,10 +3,17 @@
 #include <vector>
 #include <stdint.h>
 #include <bits/std_function.h>
+//#include <functional>
 #include <mutex>
 
+/**
+ * @brief Basic functionality to interpret character data read from a Trixter X-Dream V1 bike via a serial port.
+ * Intended to be free from any non-standard C++ library code.
+ * Requires a time source callback (set_getTime) to timestamp packets and optionally
+ * a callback to write resistance packets to the serial port.
+ */
 class trixterxdreamv1client {
-  public:
+public:
     /**
      * @brief Device state data: CSCS, heartrate and steering.
      */
@@ -47,8 +54,8 @@ class trixterxdreamv1client {
         uint16_t CrankRPM;
     };
 
-  private:
-    unsigned char **resistanceMessages{};
+private:
+    unsigned char** resistanceMessages{};
 
     enum PacketState { None, Incomplete, Invalid, Complete };
 
@@ -63,9 +70,9 @@ class trixterxdreamv1client {
     };
 
     std::function<uint32_t()> get_time_ms;
-    std::function<void(uint8_t * , int)> write_bytes;
+    std::function<void(uint8_t*, int)> write_bytes;
     std::mutex stateMutex, writeMutex;
-    unsigned long lastT = 0;
+    uint32_t lastT = 0;
     double flywheelRevolutions{}, crankRevolutions{};
     Packet lastPacket{};
     std::vector<char> inputBuffer;
@@ -85,7 +92,7 @@ class trixterxdreamv1client {
 
     void ConfigureResistanceMessages();
 
-  public:
+public:
     /**
      * @brief MaxResistance The maximum resistance value supported by the device.
      */
@@ -109,7 +116,7 @@ class trixterxdreamv1client {
      * @brief set_WriteBytes Sets the function used to write bytes to the serial port.
      * @param write_bytes The function that writes bytes to the serial port.
      */
-    void set_WriteBytes(std::function<void(uint8_t *, int)> write_bytes) { this->write_bytes = write_bytes; }
+    void set_WriteBytes(std::function<void(uint8_t*, int)> write_bytes) { this->write_bytes = write_bytes; }
 
     /**
      * @brief set_GetTime Sets the function to get the time in milliseconds since
@@ -132,5 +139,5 @@ class trixterxdreamv1client {
      * @brief Sends 1 packet indicating a specific resistance level to the device. Needs to be sent every 50ms.
      * @param level 0 to 250.
      */
-    void SendResistance(int level);
+    void SendResistance(uint8_t level);
 };
