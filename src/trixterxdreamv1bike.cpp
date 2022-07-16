@@ -6,7 +6,7 @@
 trixterxdreamv1bike::trixterxdreamv1bike(QString portName, bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering)
 {
     // Set the wheel diameter for speed and distance calculations
-    this->set_wheelDiameter(DefaultWheelDiamter);
+    this->set_wheelDiameter(DefaultWheelDiameter);
 
     // QZ things from expected constructor
     this->noWriteResistance = noWriteResistance;
@@ -16,7 +16,7 @@ trixterxdreamv1bike::trixterxdreamv1bike(QString portName, bool noWriteResistanc
 
     // Get the current time in milliseconds since ancient times.
     // This will be subtracted from further readings from getTime() to get an easier to look at number.
-    this->t0 = QDateTime::currentDateTime().toMSecsSinceEpoch();
+    this->t0 = this->getTime();
 
     // References to objects for callbacks
     auto thisObject = this;
@@ -68,6 +68,12 @@ QString trixterxdreamv1bike::findPort()
     return nullptr;
 }
 
+bool trixterxdreamv1bike::connected()
+{
+    return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
+}
+
+
 uint32_t trixterxdreamv1bike::getTime()
 {
     return static_cast<uint32_t>(QDateTime::currentDateTime().toMSecsSinceEpoch() - this->t0);
@@ -94,6 +100,7 @@ void trixterxdreamv1bike::update(QByteArray bytes)
 
     // update the packet count
     this->packetsProcessed++;
+    this->lastPacketProcessedTime = this->getTime();
 
     // update the metrics
     this->LastCrankEventTime = state.LastEventTime;

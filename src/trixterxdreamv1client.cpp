@@ -2,8 +2,7 @@
 #include "trixterxdreamv1client.h"
 
 #include <string>
-#include <math.h>
-//#include <cmath>
+#include <cmath>
 
 trixterxdreamv1client::trixterxdreamv1client() { this->ConfigureResistanceMessages(); }
 
@@ -119,11 +118,11 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     double flywheelRevsPerMinute = 0, crankRevsPerMinute = 0;
 
     if (lastPacket.Flywheel < 65534) {
-        flywheelRevsPerMinute = flywheelToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Flywheel);
+        flywheelRevsPerMinute = flywheelToRevolutionsPerMinute / std::max(static_cast<uint16_t>(1), lastPacket.Flywheel);
     }
 
     if (lastPacket.Crank > 0 && lastPacket.Crank < 65534) {
-        crankRevsPerMinute = crankToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Crank);
+        crankRevsPerMinute = crankToRevolutionsPerMinute / std::max(static_cast<uint16_t>(1), lastPacket.Crank);
     }
 
     
@@ -181,7 +180,7 @@ void trixterxdreamv1client::SendResistance(uint8_t level) {
     if (level != 0 && this->write_bytes)
     {
         this->writeMutex.lock();
-        try { this->write_bytes(this->resistanceMessages[max(250, min(0, level))], 6); }
+        try { this->write_bytes(this->resistanceMessages[std::min(MaxResistance, level)], 6); }
         catch (...)
         {
             this->writeMutex.unlock();
