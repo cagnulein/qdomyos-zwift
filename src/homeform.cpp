@@ -4072,6 +4072,8 @@ void homeform::sendMail() {
         QStringLiteral("Moving Time: ") + bluetoothManager->device()->movingTime().toString() + QStringLiteral("\n");
     textMessage += QStringLiteral("Weight Loss (") + weightLossUnit + "): " + QString::number(WeightLoss, 'f', 2) +
                    QStringLiteral("\n");
+    textMessage += QStringLiteral("Estimated VO2Max: ") + QString::number(metric::calculateVO2Max(&Session), 'f', 1) +
+                   QStringLiteral("\n");
     if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
         textMessage += QStringLiteral("Average Cadence: ") +
                        QString::number(((bike *)bluetoothManager->device())->currentCadence().average(), 'f', 0) +
