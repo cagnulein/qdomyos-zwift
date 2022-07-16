@@ -171,7 +171,7 @@ ColumnLayout {
                     height: parent.height
                     width: parent.width
                     id: webView
-                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/chartjs/chart.htm"
+                    url: "http://localhost:" + settings.value("template_inner_QZWS_port") + "/previewchart/chart.htm"
                     visible: true
                     onLoadingChanged: {
                         if (loadRequest.errorString) {

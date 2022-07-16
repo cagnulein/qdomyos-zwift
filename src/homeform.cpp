@@ -3498,11 +3498,9 @@ void homeform::fitfile_preview_clicked(const QUrl &fileName) {
     qDebug() << file.fileName();
 
     if (!file.fileName().isEmpty()) {
-        Session.clear();
-        qfit::open(file.fileName(), &Session);
-        if(!bluetoothManager->device()->isPaused())
-            bluetoothManager->device()->setPaused(true);
-        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&Session);
+        QList<SessionLine> a;
+        qfit::open(file.fileName(), &a);
+        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&a);
     }
 }
 

@@ -199,6 +199,14 @@ void TemplateInfoSenderBuilder::clearSessionArray() {
     }
 }
 
+void TemplateInfoSenderBuilder::clearPreviewSessionArray() {
+    int len = previewSessionArray.count();
+    for (int i = 0; i < len; i++) {
+        previewSessionArray.removeAt(0);
+    }
+}
+
+
 void TemplateInfoSenderBuilder::start(bluetoothdevice *dev) {
     device = nullptr;
     clearSessionArray();
@@ -468,6 +476,14 @@ void TemplateInfoSenderBuilder::onAppendActivityDescription(const QJsonValue &ms
     tempSender->send(out.toJson());
 }
 
+void TemplateInfoSenderBuilder::onGetPreviewSessionArray(TemplateInfoSender *tempSender) {
+    QJsonObject main;
+    main[QStringLiteral("content")] = previewSessionArray;
+    main[QStringLiteral("msg")] = QStringLiteral("R_getpreviewsessionarray");
+    QJsonDocument out(main);
+    tempSender->send(out.toJson());
+}
+
 void TemplateInfoSenderBuilder::onGetSessionArray(TemplateInfoSender *tempSender) {
     QJsonObject main;
     main[QStringLiteral("content")] = sessionArray;
@@ -715,6 +731,9 @@ void TemplateInfoSenderBuilder::onDataReceived(const QByteArray &data) {
                 } else if (msg == QStringLiteral("getsessionarray")) {
                     onGetSessionArray(sender);
                     return;
+                } else if (msg == QStringLiteral("getpreviewsessionarray")) {
+                    onGetPreviewSessionArray(sender);
+                    return;
                 }
                 if (msg == QStringLiteral("start")) {
                     onStart(sender);
@@ -892,7 +911,7 @@ void TemplateInfoSenderBuilder::workoutEventStateChanged(bluetoothdevice::WORKOU
 }
 
 void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine>* session) {
-    clearSessionArray();
+    clearPreviewSessionArray();
     buildContext(true);
     QJSValue glob = engine->globalObject();
     QJSValue obj;
@@ -901,20 +920,20 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine>* sessio
         QTime el = QTime::fromMSecsSinceStartOfDay(s.elapsedTime * 1000);
         QString name;
         QString nickName;
-        bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
+        //bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
 
         metric dep;
 #ifdef Q_OS_IOS
-        obj.setProperty("deviceId", device->bluetoothDevice.deviceUuid().toString());
+        //obj.setProperty("deviceId", device->bluetoothDevice.deviceUuid().toString());
 #else
-        obj.setProperty(QStringLiteral("deviceId"), device->bluetoothDevice.address().toString());
+        //obj.setProperty(QStringLiteral("deviceId"), device->bluetoothDevice.address().toString());
 #endif
-        obj.setProperty(QStringLiteral("deviceName"),
-                        (name = device->bluetoothDevice.name()).isEmpty() ? QString(QStringLiteral("N/A")) : name);
-        obj.setProperty(QStringLiteral("deviceRSSI"), device->bluetoothDevice.rssi());
-        obj.setProperty(QStringLiteral("deviceType"), (int)device->deviceType());
-        obj.setProperty(QStringLiteral("deviceConnected"), (bool)device->connected());
-        obj.setProperty(QStringLiteral("devicePaused"), (bool)device->isPaused());
+        //obj.setProperty(QStringLiteral("deviceName"),
+        //                (name = device->bluetoothDevice.name()).isEmpty() ? QString(QStringLiteral("N/A")) : name);
+        //obj.setProperty(QStringLiteral("deviceRSSI"), device->bluetoothDevice.rssi());
+        //obj.setProperty(QStringLiteral("deviceType"), (int)device->deviceType());
+        //obj.setProperty(QStringLiteral("deviceConnected"), (bool)device->connected());
+        //obj.setProperty(QStringLiteral("devicePaused"), (bool)device->isPaused());
         obj.setProperty(QStringLiteral("elapsed_s"), el.second());
         obj.setProperty(QStringLiteral("elapsed_m"), el.minute());
         obj.setProperty(QStringLiteral("elapsed_h"), el.hour());
@@ -995,7 +1014,7 @@ void TemplateInfoSenderBuilder::previewSessionOnChart(QList<SessionLine>* sessio
                             s.inclination);
             //obj.setProperty(QStringLiteral("inclination_avg"), dep.average());
         }
-        sessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
+        previewSessionArray.append(QJsonObject::fromVariantMap(obj.toVariant().toMap()));
         
     }
 }
