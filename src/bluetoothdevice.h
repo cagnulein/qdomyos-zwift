@@ -31,12 +31,13 @@
 class MetersByInclination {
   public:
     /**
-     * @brief meters The length of the section. Unit: meters
+     * @brief meters The length of the section. Units: meters
      */
     double meters;
 
     /**
-     * @brief inclination The inclination of the section. Unit: degrees (0 = horizontal)
+     * @brief inclination The inclination of the section.
+     * Units: Percentage vertical to horizontal
      */
     double inclination;
 };
@@ -62,14 +63,16 @@ class bluetoothdevice : public QObject {
     virtual QTime currentPace();
 
     /**
-     * @brief currentInclination The current inclination. Expected range: 0 degrees (horizontal) to 90 degrees (vertical)
+     * @brief currentInclination The current inclination.
+     * Units: Percentage vertical to horizontal
+     * Expected range: Depends on device.
      */
     virtual metric currentInclination();
 
     /**
      * @brief setInclination Set the protected Inclination metric, which could be different from that
      * returned by an overridden currentInclination().
-     * @param inclination The inclination. Units: degrees (0 is horizontal)
+     * @param inclination The inclination. Units: Percentage vertical to horizontal. Expected range: Depends on device.
      */
     void setInclination(double inclination);
 
@@ -103,7 +106,7 @@ class bluetoothdevice : public QObject {
     metric jouls();
 
     /**
-     * @brief fanSpeed Gets the current fan speed. Units: revolutions per second
+     * @brief fanSpeed Gets the current fan speed. Units: depends on device
      */
     virtual uint8_t fanSpeed();
 
@@ -185,7 +188,7 @@ class bluetoothdevice : public QObject {
     virtual uint16_t lastCrankEventTime();
 
     /**
-     * @brief VirtualDevice ???
+     * @brief VirtualDevice The virtual bridge to Zwift for example, or to any 3rd party app.
      */
     virtual void *VirtualDevice();
 
@@ -201,8 +204,8 @@ class bluetoothdevice : public QObject {
     metric wattsMetric();
 
     /**
-     * @brief changeFanSpeed Tries to change the fan speed to the speed.
-     * @param speed The requested fan speed. Units: revolutions per second
+     * @brief changeFanSpeed Tries to change the fan speed.
+     * @param speed The requested fan speed. Units: depends on device
      */
     virtual bool changeFanSpeed(uint8_t speed);
 
@@ -222,7 +225,7 @@ class bluetoothdevice : public QObject {
     QBluetoothDeviceInfo bluetoothDevice;
 
     /**
-     * @brief disconnectBluetooth Disconnect from bluetooth (the device or the client software ??)
+     * @brief disconnectBluetooth Disconnect from the device from bluetooth.
      */
     void disconnectBluetooth();
 
@@ -301,7 +304,7 @@ class bluetoothdevice : public QObject {
     void setGPXFile(QString filename);
 
     /**
-     * @brief currentGPXBase64 ???
+     * @brief currentGPXBase64 Returns the Base64 encode for the current GPX used.
      */
     QString currentGPXBase64() { return gpxBase64; }
 
