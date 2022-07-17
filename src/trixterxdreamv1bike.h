@@ -65,8 +65,12 @@ private:
     uint32_t packetsProcessed;
 
     /**
+     * @brief lastPacketProcessedTime The last time (from getTime()) a packet was processed.
+     */
+    uint32_t lastPacketProcessedTime;
+
+    /**
      * @brief getTime Gets the time in miliseconds since this object was created.
-     * @return The number of milliseconds since this object was created.
      */
     uint32_t getTime();
     
@@ -123,6 +127,11 @@ public:
      */
     constexpr static double DefaultWheelDiamter = 26*0.0254;
 
+    /**
+     * @brief DisconnectionTimeout The number of milliseconds of no packets processed required before
+     * this object will be considered disconnected from the device.
+     */
+    constexpr static int32_t DisconnectionTimeout = 50;
 
     /**
      * @brief trixterxdreamv1bike Constructor
@@ -135,6 +144,11 @@ public:
     trixterxdreamv1bike(QString portName, bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering);
 
     ~trixterxdreamv1bike();
+
+    /**
+     * @brief connected Indicates if a valid packet was received from the device within the DisconnectionTimeout.
+     */
+    virtual bool connected();
 
     /**
      * @brief set_wheelDiameter Set the simulated wheel diameter to be used for converting angular velocity to speed. Units: meters

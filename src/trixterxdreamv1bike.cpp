@@ -45,8 +45,8 @@ bool trixterxdreamv1bike::testPort(const QString& portName)
     try
     {
         trixterxdreamv1bike bike(portName, true, true, true, true); // minimal device
-        QThread::msleep(1000);
-        return bike.packetsProcessed>10; // >0 is probably okay, they should arrive every approx 12ms
+        QThread::msleep(500);
+        return bike.connected();
     }
     catch (...)
     {
