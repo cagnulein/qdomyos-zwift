@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
-
-SUBDIRS = \
-    httpserver
+SUBDIRS += \
+helloworld\
+greeting\
+bodydata\
