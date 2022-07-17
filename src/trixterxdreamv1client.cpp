@@ -4,6 +4,8 @@
 #include <string>
 #include <cmath>
 
+using namespace std;
+
 trixterxdreamv1client::trixterxdreamv1client() { this->ConfigureResistanceMessages(); }
 
 void trixterxdreamv1client::ResetBuffer() {
@@ -87,14 +89,14 @@ void trixterxdreamv1client::ConfigureResistanceMessages() {
     resistanceMessages = new uint8_t * [251];
 
     for (uint8_t level = 0; level <= 250; level++) {
-        unsigned char* message = new uint8_t[6];
+        uint8_t* message = new uint8_t[6];
         resistanceMessages[level] = message;
 
         message[5] = message[0] = 0x6a;
-        message[5] |= message[1] = level;
-        message[5] |= message[2] = (level + 60) % 255;
-        message[5] |= message[3] = (level + 90) % 255;
-        message[5] |= message[4] = (level + 120) % 255;
+        message[5] ^= message[1] = level;
+        message[5] ^= message[2] = (level + 60) % 255;
+        message[5] ^= message[3] = (level + 90) % 255;
+        message[5] ^= message[4] = (level + 120) % 255;
     }
 }
 
@@ -118,14 +120,14 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     double flywheelRevsPerMinute = 0, crankRevsPerMinute = 0;
 
     if (lastPacket.Flywheel < 65534) {
-        flywheelRevsPerMinute = flywheelToRevolutionsPerMinute / std::max(static_cast<uint16_t>(1), lastPacket.Flywheel);
+        flywheelRevsPerMinute = flywheelToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Flywheel);
     }
 
     if (lastPacket.Crank > 0 && lastPacket.Crank < 65534) {
-        crankRevsPerMinute = crankToRevolutionsPerMinute / std::max(static_cast<uint16_t>(1), lastPacket.Crank);
+        crankRevsPerMinute = crankToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Crank);
     }
 
-    
+
     const uint32_t t = this->get_time_ms();
     const uint32_t lt = this->lastT ? this->lastT : t;
 
@@ -135,13 +137,13 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     {
         // TODO: error logging - this could be indicative of a problem
         // It should usually be about 12ms
-        
+
         this->Reset();
         return false;
     }
 
     const uint32_t dt = t - lt;
-        
+
     if (dt > 0)
     {
         // update the internal, precise state
@@ -151,7 +153,7 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
         this->crankRevolutions += dt_minutes * crankRevsPerMinute;
     }
 
-	state newState{};
+    state newState{};
     newState.LastEventTime = static_cast<uint16_t>(millisecondsToBaseUnit * t);
     newState.Steering = lastPacket.Steering;
     newState.HeartRate = lastPacket.HeartRate;
@@ -169,7 +171,7 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
 
 trixterxdreamv1client::state trixterxdreamv1client::getLastState() {
     this->stateMutex.lock();
-    state result = this->lastState;
+    const state result = this->lastState;
     this->stateMutex.unlock();
     return result;
 }
@@ -180,7 +182,7 @@ void trixterxdreamv1client::SendResistance(uint8_t level) {
     if (level != 0 && this->write_bytes)
     {
         this->writeMutex.lock();
-        try { this->write_bytes(this->resistanceMessages[std::min(MaxResistance, level)], 6); }
+        try { this->write_bytes(this->resistanceMessages[min(MaxResistance, level)], 6); }
         catch (...)
         {
             this->writeMutex.unlock();

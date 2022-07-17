@@ -1,9 +1,7 @@
 #pragma once
-#include <queue>
 #include <vector>
-#include <stdint.h>
-#include <bits/std_function.h>
-//#include <functional>
+#include <cstdint>
+#include <functional>
 #include <mutex>
 
 /**
@@ -55,7 +53,7 @@ public:
     };
 
 private:
-    unsigned char** resistanceMessages{};
+    uint8_t** resistanceMessages{};
 
     enum PacketState { None, Incomplete, Invalid, Complete };
 
