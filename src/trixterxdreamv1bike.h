@@ -125,7 +125,7 @@ public:
     /**
      * @brief DefaultWheelDiameter The default wheel diameter. Unit: meters
      */
-    constexpr static double DefaultWheelDiamter = 26*0.0254;
+    constexpr static double DefaultWheelDiameter = 26*0.0254;
 
     /**
      * @brief DisconnectionTimeout The number of milliseconds of no packets processed required before
