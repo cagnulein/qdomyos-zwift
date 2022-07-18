@@ -3499,11 +3499,11 @@ void homeform::fitfile_preview_clicked(const QUrl &fileName) {
 
     if (!file.fileName().isEmpty()) {
         QList<SessionLine> a;
-        qfit::open(file.fileName(), &a);
-        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&a);
+        FIT_SPORT sport;
+        qfit::open(file.fileName(), &a, &sport);
+        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&a, sport);
     }
 }
-
 
 void homeform::gpxpreview_open_clicked(const QUrl &fileName) {
     qDebug() << QStringLiteral("gpxpreview_open_clicked") << fileName;
