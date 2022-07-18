@@ -1,6 +1,7 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
 #include "bluetoothdevice.h"
+#include "fit_profile.hpp"
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
@@ -21,8 +22,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
-    
-    void previewSessionOnChart(QList<SessionLine>* session, );
+
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport);
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);
