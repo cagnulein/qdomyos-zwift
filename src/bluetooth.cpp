@@ -1142,7 +1142,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 octaneTreadmill->deviceDiscovered(b);
                 userTemplateManager->start(octaneTreadmill);
                 innerTemplateManager->start(octaneTreadmill);
-            } else if (b.name().startsWith(QStringLiteral("ECH-ROW")) && !echelonRower && filter) {
+            } else if ((b.name().startsWith(QStringLiteral("ECH-ROW")) ||
+                        b.name().startsWith(QStringLiteral("ROW-S"))) &&
+                       !echelonRower && filter) {
                 discoveryAgent->stop();
                 echelonRower =
                     new echelonrower(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
