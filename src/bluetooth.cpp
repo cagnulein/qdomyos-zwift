@@ -1128,6 +1128,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 echelonStride->deviceDiscovered(b);
                 userTemplateManager->start(echelonStride);
                 innerTemplateManager->start(echelonStride);
+            } else if ((b.name().toUpper().startsWith(QLatin1String("ZR7"))) && !octaneTreadmill && filter) {
+                discoveryAgent->stop();
+                octaneTreadmill = new octanetreadmill(this->pollDeviceTime, noConsole, noHeartService);
+                // stateFileRead();
+                emit deviceConnected(b);
+                connect(octaneTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(octaneTreadmill, SIGNAL(disconnected()), this, SLOT(restart())); connect(echelonStride,
+                connect(octaneTreadmill, &octanetreadmill::debug, this, &bluetooth::debug);
+                connect(octaneTreadmill, &octanetreadmill::speedChanged, this, &bluetooth::speedChanged);
+                connect(octaneTreadmill, &octanetreadmill::inclinationChanged, this, &bluetooth::inclinationChanged);
+                octaneTreadmill->deviceDiscovered(b);
+                userTemplateManager->start(octaneTreadmill);
+                innerTemplateManager->start(octaneTreadmill);
             } else if (b.name().startsWith(QStringLiteral("ECH-ROW")) && !echelonRower && filter) {
                 discoveryAgent->stop();
                 echelonRower =
@@ -2095,6 +2109,11 @@ void bluetooth::restart() {
         delete echelonStride;
         echelonStride = nullptr;
     }
+    if (octaneTreadmill) {
+
+        delete octaneTreadmill;
+        octaneTreadmill = nullptr;
+    }
     if (ftmsRower) {
 
         delete ftmsRower;
@@ -2375,6 +2394,8 @@ bluetoothdevice *bluetooth::device() {
         return echelonRower;
     } else if (echelonStride) {
         return echelonStride;
+    } else if (octaneTreadmill) {
+        return octaneTreadmill;
     } else if (ftmsRower) {
         return ftmsRower;
     } else if (concept2Skierg) {
