@@ -1,5 +1,6 @@
 #include "qfit.h"
 
+#include <QSettings>
 #include <cstdlib>
 #include <fstream>
 #include <ostream>
@@ -16,7 +17,8 @@ using namespace std;
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag, FIT_SPORT overrideSport) {
+                QString title, uint32_t processFlag, FIT_SPORT overrideSport) {
+    QSettings settings;
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -54,6 +56,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fileIdMesg.SetSerialNumber(12345);
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
+    fit::UserProfileMesg userMesg;
+    userMesg.SetWeight(settings.value(QStringLiteral("weight"), 75.0).toFloat());
+    userMesg.SetAge(settings.value(QStringLiteral("age"), 35.0).toUInt());
+    userMesg.SetGender(settings.value(QStringLiteral("sex"), "Male").toString().startsWith("Male") ? FIT_GENDER_MALE
+                                                                                                   : FIT_GENDER_FEMALE);
+    userMesg.SetFriendlyName(
+        settings.value(QStringLiteral("user_nickname"), QStringLiteral("")).toString().toStdWString());
+
     bool gps_data = false;
     double max_alt = 0;
     double min_alt = 99999;
@@ -78,7 +88,71 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
     }
 
+    encode.Open(file);
+    fit::DeveloperDataIdMesg devIdMesg;
+    for (FIT_UINT8 i = 0; i < 16; i++) {
+
+        devIdMesg.SetApplicationId(i, i);
+    }
+    devIdMesg.SetDeveloperDataIndex(0);
+    encode.Write(fileIdMesg);
+    encode.Write(devIdMesg);
+    encode.Write(userMesg);
+
+    fit::FieldDescriptionMesg activityTitle;
+    activityTitle.SetDeveloperDataIndex(0);
+    activityTitle.SetFieldDefinitionNumber(0);
+    activityTitle.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
+    activityTitle.SetFieldName(0, L"Activity Title");
+    activityTitle.SetUnits(0, L"Title");
+    activityTitle.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    encode.Write(activityTitle);
+
+    fit::FieldDescriptionMesg targetCadenceMesg;
+    targetCadenceMesg.SetDeveloperDataIndex(0);
+    targetCadenceMesg.SetFieldDefinitionNumber(1);
+    targetCadenceMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    targetCadenceMesg.SetFieldName(0, L"Target Cadence");
+    targetCadenceMesg.SetUnits(0, L"rpm");
+    targetCadenceMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    encode.Write(targetCadenceMesg);
+
+    fit::FieldDescriptionMesg targetWattMesg;
+    targetWattMesg.SetDeveloperDataIndex(0);
+    targetWattMesg.SetFieldDefinitionNumber(2);
+    targetWattMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    targetWattMesg.SetFieldName(0, L"Target Watt");
+    targetWattMesg.SetUnits(0, L"watts");
+    targetWattMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    encode.Write(targetWattMesg);
+
+    fit::FieldDescriptionMesg targetResistanceMesg;
+    targetResistanceMesg.SetDeveloperDataIndex(0);
+    targetResistanceMesg.SetFieldDefinitionNumber(3);
+    targetResistanceMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    targetResistanceMesg.SetFieldName(0, L"Target Resistance");
+    targetResistanceMesg.SetUnits(0, L"resistance");
+    targetResistanceMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    encode.Write(targetResistanceMesg);
+
+    fit::FieldDescriptionMesg ftpSessionMesg;
+    ftpSessionMesg.SetDeveloperDataIndex(0);
+    ftpSessionMesg.SetFieldDefinitionNumber(4);
+    ftpSessionMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    ftpSessionMesg.SetFieldName(0, L"FTP");
+    ftpSessionMesg.SetUnits(0, L"FTP");
+    ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    encode.Write(ftpSessionMesg);
+
+    fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
+    ftpSessionField.AddValue(settings.value(QStringLiteral("ftp"), 200.0).toDouble());
+
+    fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
+    activityTitleField.SetSTRINGValue(title.toStdWString());
+
     fit::SessionMesg sessionMesg;
+    sessionMesg.AddDeveloperField(activityTitleField);
+    sessionMesg.AddDeveloperField(ftpSessionField);
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
@@ -87,8 +161,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
-    sessionMesg.SetMinAltitude(min_alt - 500);
-    sessionMesg.SetMaxAltitude(max_alt - 500);
+    sessionMesg.SetMinAltitude(min_alt);
+    sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
     sessionMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     sessionMesg.SetFirstLapIndex(0);
@@ -125,13 +199,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     }
 
-    fit::DeveloperDataIdMesg devIdMesg;
-    for (FIT_UINT8 i = 0; i < 16; i++) {
-
-        devIdMesg.SetApplicationId(i, i);
-    }
-    devIdMesg.SetDeveloperDataIndex(0);
-
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     activityMesg.SetTotalTimerTime(session.last().elapsedTime);
@@ -167,9 +234,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
 
-    encode.Open(file);
-    encode.Write(fileIdMesg);
-    encode.Write(devIdMesg);
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
 
@@ -200,6 +264,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
         fit::RecordMesg newRecord;
         sl = session.at(i);
+
+        fit::DeveloperField targetCadenceField(targetCadenceMesg, devIdMesg);
+        targetCadenceField.AddValue(sl.target_cadence);
+        newRecord.AddDeveloperField(targetCadenceField);
+
+        fit::DeveloperField targetWattField(targetWattMesg, devIdMesg);
+        targetWattField.AddValue(sl.target_watt);
+        newRecord.AddDeveloperField(targetWattField);
+
+        fit::DeveloperField targetResistanceField(targetResistanceMesg, devIdMesg);
+        targetResistanceField.AddValue(sl.target_resistance);
+        newRecord.AddDeveloperField(targetResistanceField);
+
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
         newRecord.SetCadence(sl.cadence);
@@ -221,7 +298,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
 
         if (sl.coordinate.isValid()) {
-            newRecord.SetAltitude(sl.coordinate.altitude() - 500);
+            newRecord.SetAltitude(sl.coordinate.altitude());
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {

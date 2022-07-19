@@ -30,6 +30,9 @@ class SessionLine {
     double instantaneousStrideLengthCM;
     double groundContactMS;
     double verticalOscillationMM;
+    double target_cadence;
+    double target_watt;
+    double target_resistance;
 
     SessionLine();
     SessionLine(double speed, int8_t inclination, double distance, uint16_t watt, int8_t resistance,
@@ -37,6 +40,7 @@ class SessionLine {
                 double elevationGain, uint32_t elapsed, bool lap, uint32_t totalStrokes, double avgStrokesRate,
                 double maxStrokesRate, double avgStrokesLength, const QGeoCoordinate coordinate,
                 double instantaneousStrideLengthCM, double groundContactMS, double verticalOscillationMM,
+                double target_cadence, double target_watt, double target_resistance,
                 const QDateTime &time = QDateTime::currentDateTime());
 };
 

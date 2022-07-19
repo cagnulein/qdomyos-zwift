@@ -451,6 +451,8 @@ class homeform : public QObject {
         return false;
     }
 
+    QString activityName(bool strava_suffix);
+
   private:
     QList<QObject *> dataList;
     QList<SessionLine> Session;

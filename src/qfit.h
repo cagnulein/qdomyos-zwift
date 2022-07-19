@@ -17,7 +17,8 @@ class qfit : public QObject {
   public:
     explicit qfit(QObject *parent = nullptr);
     static void save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                     uint32_t processFlag = QFIT_PROCESS_NONE, FIT_SPORT overrideSport = FIT_SPORT_INVALID);
+                     QString title, uint32_t processFlag = QFIT_PROCESS_NONE,
+                     FIT_SPORT overrideSport = FIT_SPORT_INVALID);
     static void open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport);
 
   signals:
