@@ -1,5 +1,6 @@
 #include "qfit.h"
 
+#include <QSettings>
 #include <cstdlib>
 #include <fstream>
 #include <ostream>
@@ -8,15 +9,16 @@
 #include "fit_encode.hpp"
 
 #include "fit_decode.hpp"
-#include "fit_mesg_broadcaster.hpp"
 #include "fit_developer_field_description.hpp"
+#include "fit_mesg_broadcaster.hpp"
 
 using namespace std;
 
 qfit::qfit(QObject *parent) : QObject(parent) {}
 
 void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type,
-                uint32_t processFlag, FIT_SPORT overrideSport) {
+                QString title, uint32_t processFlag, FIT_SPORT overrideSport) {
+    QSettings settings;
     std::list<fit::RecordMesg> records;
     fit::Encode encode(fit::ProtocolVersion::V20);
     if (session.isEmpty()) {
@@ -54,6 +56,14 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     fileIdMesg.SetSerialNumber(12345);
     fileIdMesg.SetTimeCreated(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
 
+    fit::UserProfileMesg userMesg;
+    userMesg.SetWeight(settings.value(QStringLiteral("weight"), 75.0).toFloat());
+    userMesg.SetAge(settings.value(QStringLiteral("age"), 35.0).toUInt());
+    userMesg.SetGender(settings.value(QStringLiteral("sex"), "Male").toString().startsWith("Male") ? FIT_GENDER_MALE
+                                                                                                   : FIT_GENDER_FEMALE);
+    userMesg.SetFriendlyName(
+        settings.value(QStringLiteral("user_nickname"), QStringLiteral("")).toString().toStdWString());
+
     bool gps_data = false;
     double max_alt = 0;
     double min_alt = 99999;
@@ -78,7 +88,71 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
     }
 
+    encode.Open(file);
+    fit::DeveloperDataIdMesg devIdMesg;
+    for (FIT_UINT8 i = 0; i < 16; i++) {
+
+        devIdMesg.SetApplicationId(i, i);
+    }
+    devIdMesg.SetDeveloperDataIndex(0);
+    encode.Write(fileIdMesg);
+    encode.Write(devIdMesg);
+    encode.Write(userMesg);
+
+    fit::FieldDescriptionMesg activityTitle;
+    activityTitle.SetDeveloperDataIndex(0);
+    activityTitle.SetFieldDefinitionNumber(0);
+    activityTitle.SetFitBaseTypeId(FIT_BASE_TYPE_STRING);
+    activityTitle.SetFieldName(0, L"Activity Title");
+    activityTitle.SetUnits(0, L"Title");
+    activityTitle.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    encode.Write(activityTitle);
+
+    fit::FieldDescriptionMesg targetCadenceMesg;
+    targetCadenceMesg.SetDeveloperDataIndex(0);
+    targetCadenceMesg.SetFieldDefinitionNumber(1);
+    targetCadenceMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    targetCadenceMesg.SetFieldName(0, L"Target Cadence");
+    targetCadenceMesg.SetUnits(0, L"rpm");
+    targetCadenceMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    encode.Write(targetCadenceMesg);
+
+    fit::FieldDescriptionMesg targetWattMesg;
+    targetWattMesg.SetDeveloperDataIndex(0);
+    targetWattMesg.SetFieldDefinitionNumber(2);
+    targetWattMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    targetWattMesg.SetFieldName(0, L"Target Watt");
+    targetWattMesg.SetUnits(0, L"watts");
+    targetWattMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    encode.Write(targetWattMesg);
+
+    fit::FieldDescriptionMesg targetResistanceMesg;
+    targetResistanceMesg.SetDeveloperDataIndex(0);
+    targetResistanceMesg.SetFieldDefinitionNumber(3);
+    targetResistanceMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    targetResistanceMesg.SetFieldName(0, L"Target Resistance");
+    targetResistanceMesg.SetUnits(0, L"resistance");
+    targetResistanceMesg.SetNativeMesgNum(FIT_MESG_NUM_RECORD);
+    encode.Write(targetResistanceMesg);
+
+    fit::FieldDescriptionMesg ftpSessionMesg;
+    ftpSessionMesg.SetDeveloperDataIndex(0);
+    ftpSessionMesg.SetFieldDefinitionNumber(4);
+    ftpSessionMesg.SetFitBaseTypeId(FIT_BASE_TYPE_FLOAT64);
+    ftpSessionMesg.SetFieldName(0, L"FTP");
+    ftpSessionMesg.SetUnits(0, L"FTP");
+    ftpSessionMesg.SetNativeMesgNum(FIT_MESG_NUM_SESSION);
+    encode.Write(ftpSessionMesg);
+
+    fit::DeveloperField ftpSessionField(ftpSessionMesg, devIdMesg);
+    ftpSessionField.AddValue(settings.value(QStringLiteral("ftp"), 200.0).toDouble());
+
+    fit::DeveloperField activityTitleField(activityTitle, devIdMesg);
+    activityTitleField.SetSTRINGValue(title.toStdWString());
+
     fit::SessionMesg sessionMesg;
+    sessionMesg.AddDeveloperField(activityTitleField);
+    sessionMesg.AddDeveloperField(ftpSessionField);
     sessionMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetStartTime(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     sessionMesg.SetTotalElapsedTime(session.last().elapsedTime);
@@ -87,8 +161,8 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     sessionMesg.SetTotalDistance((session.last().distance - startingDistanceOffset) * 1000.0); // meters
     sessionMesg.SetTotalCalories(session.last().calories);
     sessionMesg.SetTotalMovingTime(session.last().elapsedTime);
-    sessionMesg.SetMinAltitude(min_alt - 500);
-    sessionMesg.SetMaxAltitude(max_alt - 500);
+    sessionMesg.SetMinAltitude(min_alt);
+    sessionMesg.SetMaxAltitude(max_alt);
     sessionMesg.SetEvent(FIT_EVENT_SESSION);
     sessionMesg.SetEventType(FIT_EVENT_TYPE_STOP);
     sessionMesg.SetFirstLapIndex(0);
@@ -125,13 +199,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         sessionMesg.SetSubSport(FIT_SUB_SPORT_VIRTUAL_ACTIVITY);
     }
 
-    fit::DeveloperDataIdMesg devIdMesg;
-    for (FIT_UINT8 i = 0; i < 16; i++) {
-
-        devIdMesg.SetApplicationId(i, i);
-    }
-    devIdMesg.SetDeveloperDataIndex(0);
-
     fit::ActivityMesg activityMesg;
     activityMesg.SetTimestamp(session.at(firstRealIndex).time.toSecsSinceEpoch() - 631065600L);
     activityMesg.SetTotalTimerTime(session.last().elapsedTime);
@@ -167,9 +234,6 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         lapMesg.SetSport(FIT_SPORT_CYCLING);
     }
 
-    encode.Open(file);
-    encode.Write(fileIdMesg);
-    encode.Write(devIdMesg);
     encode.Write(sessionMesg);
     encode.Write(activityMesg);
 
@@ -200,6 +264,19 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
 
         fit::RecordMesg newRecord;
         sl = session.at(i);
+
+        fit::DeveloperField targetCadenceField(targetCadenceMesg, devIdMesg);
+        targetCadenceField.AddValue(sl.target_cadence);
+        newRecord.AddDeveloperField(targetCadenceField);
+
+        fit::DeveloperField targetWattField(targetWattMesg, devIdMesg);
+        targetWattField.AddValue(sl.target_watt);
+        newRecord.AddDeveloperField(targetWattField);
+
+        fit::DeveloperField targetResistanceField(targetResistanceMesg, devIdMesg);
+        targetResistanceField.AddValue(sl.target_resistance);
+        newRecord.AddDeveloperField(targetResistanceField);
+
         // fit::DateTime date((time_t)session.at(i).time.toSecsSinceEpoch());
         newRecord.SetHeartRate(sl.heart);
         newRecord.SetCadence(sl.cadence);
@@ -221,7 +298,7 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
         }
 
         if (sl.coordinate.isValid()) {
-            newRecord.SetAltitude(sl.coordinate.altitude() - 500);
+            newRecord.SetAltitude(sl.coordinate.altitude());
             newRecord.SetPositionLat(pow(2, 31) * (sl.coordinate.latitude()) / 180.0);
             newRecord.SetPositionLong(pow(2, 31) * (sl.coordinate.longitude()) / 180.0);
         } else {
@@ -265,25 +342,21 @@ void qfit::save(const QString &filename, QList<SessionLine> session, bluetoothde
     return;
 }
 
-class Listener
-    : public fit::FileIdMesgListener
-    , public fit::UserProfileMesgListener
-    , public fit::MonitoringMesgListener
-    , public fit::DeviceInfoMesgListener
-    , public fit::MesgListener
-    , public fit::DeveloperFieldDescriptionListener
-    , public fit::RecordMesgListener
-{
-public:
-    QList<SessionLine>* sessionOpening = nullptr;
-    
-    static void PrintValues(const fit::FieldBase& field)
-    {
-        for (FIT_UINT8 j=0; j< (FIT_UINT8)field.GetNumValues(); j++)
-        {
-            //std::wcout << L"       Val" << j << L": ";
-            switch (field.GetType())
-            {
+class Listener : public fit::FileIdMesgListener,
+                 public fit::UserProfileMesgListener,
+                 public fit::MonitoringMesgListener,
+                 public fit::DeviceInfoMesgListener,
+                 public fit::MesgListener,
+                 public fit::DeveloperFieldDescriptionListener,
+                 public fit::RecordMesgListener {
+  public:
+    QList<SessionLine> *sessionOpening = nullptr;
+    FIT_SPORT *sport = nullptr;
+
+    static void PrintValues(const fit::FieldBase &field) {
+        for (FIT_UINT8 j = 0; j < (FIT_UINT8)field.GetNumValues(); j++) {
+            // std::wcout << L"       Val" << j << L": ";
+            switch (field.GetType()) {
             // Get float 64 values for numeric types to receive values that have
             // their scale and offset properly applied.
             case FIT_BASE_TYPE_ENUM:
@@ -302,247 +375,237 @@ public:
             case FIT_BASE_TYPE_UINT64Z:
             case FIT_BASE_TYPE_FLOAT32:
             case FIT_BASE_TYPE_FLOAT64:
-                //std::wcout << field.GetFLOAT64Value(j);
+                // std::wcout << field.GetFLOAT64Value(j);
                 break;
             case FIT_BASE_TYPE_STRING:
-                //std::wcout << field.GetSTRINGValue(j);
+                // std::wcout << field.GetSTRINGValue(j);
                 break;
             default:
                 break;
             }
-            //std::wcout << L" " << field.GetUnits().c_str() << L"\n";;
+            // std::wcout << L" " << field.GetUnits().c_str() << L"\n";;
         }
     }
 
-    void OnMesg(fit::Mesg& mesg)
-    {
-        //printf("On Mesg:\n");
-        //std::wcout << L"   New Mesg: " << mesg.GetName().c_str() << L".  It has " << mesg.GetNumFields() << L" field(s) and " << mesg.GetNumDevFields() << " developer field(s).\n";
+    void OnMesg(fit::Mesg &mesg) {
+        // printf("On Mesg:\n");
+        // std::wcout << L"   New Mesg: " << mesg.GetName().c_str() << L".  It has " << mesg.GetNumFields() << L"
+        // field(s) and " << mesg.GetNumDevFields() << " developer field(s).\n";
 
-        for (FIT_UINT16 i = 0; i < (FIT_UINT16)mesg.GetNumFields(); i++)
-        {
-            fit::Field* field = mesg.GetFieldByIndex(i);
-            //std::wcout << L"   Field" << i << " (" << field->GetName().c_str() << ") has " << field->GetNumValues() << L" value(s)\n";
+        for (FIT_UINT16 i = 0; i < (FIT_UINT16)mesg.GetNumFields(); i++) {
+            fit::Field *field = mesg.GetFieldByIndex(i);
+            // std::wcout << L"   Field" << i << " (" << field->GetName().c_str() << ") has " << field->GetNumValues()
+            // << L" value(s)\n";
             PrintValues(*field);
         }
 
-        for (auto devField : mesg.GetDeveloperFields())
-        {
-            //std::wcout << L"   Developer Field(" << devField.GetName().c_str() << ") has " << devField.GetNumValues() << L" value(s)\n";
+        for (auto devField : mesg.GetDeveloperFields()) {
+            // std::wcout << L"   Developer Field(" << devField.GetName().c_str() << ") has " << devField.GetNumValues()
+            // << L" value(s)\n";
             PrintValues(devField);
         }
     }
 
-   void OnMesg(fit::FileIdMesg& mesg)
-   {
-      printf("File ID:\n");
-      if (mesg.IsTypeValid())
-         printf("   Type: %d\n", mesg.GetType());
-      if (mesg.IsManufacturerValid())
-         printf("   Manufacturer: %d\n", mesg.GetManufacturer());
-      if (mesg.IsProductValid())
-         printf("   Product: %d\n", mesg.GetProduct());
-      if (mesg.IsSerialNumberValid())
-         printf("   Serial Number: %u\n", mesg.GetSerialNumber());
-      if (mesg.IsNumberValid())
-         printf("   Number: %d\n", mesg.GetNumber());
-   }
+    void OnMesg(fit::FileIdMesg &mesg) {
+        printf("File ID:\n");
+        if (mesg.IsTypeValid())
+            printf("   Type: %d\n", mesg.GetType());
+        if (mesg.IsManufacturerValid())
+            printf("   Manufacturer: %d\n", mesg.GetManufacturer());
+        if (mesg.IsProductValid())
+            printf("   Product: %d\n", mesg.GetProduct());
+        if (mesg.IsSerialNumberValid())
+            printf("   Serial Number: %u\n", mesg.GetSerialNumber());
+        if (mesg.IsNumberValid())
+            printf("   Number: %d\n", mesg.GetNumber());
+    }
 
-   void OnMesg(fit::UserProfileMesg& mesg)
-   {
-      printf("User profile:\n");
-      if (mesg.IsFriendlyNameValid())
-         //std::wcout << L"   Friendly Name: " << mesg.GetFriendlyName().c_str() << L"\n";
-      if (mesg.GetGender() == FIT_GENDER_MALE)
-         printf("   Gender: Male\n");
-      if (mesg.GetGender() == FIT_GENDER_FEMALE)
-         printf("   Gender: Female\n");
-      if (mesg.IsAgeValid())
-         printf("   Age [years]: %d\n", mesg.GetAge());
-      if ( mesg.IsWeightValid() )
-         printf("   Weight [kg]: %0.2f\n", mesg.GetWeight());
-   }
+    void OnMesg(fit::UserProfileMesg &mesg) {
+        printf("User profile:\n");
+        if (mesg.IsFriendlyNameValid())
+            // std::wcout << L"   Friendly Name: " << mesg.GetFriendlyName().c_str() << L"\n";
+            if (mesg.GetGender() == FIT_GENDER_MALE)
+                printf("   Gender: Male\n");
+        if (mesg.GetGender() == FIT_GENDER_FEMALE)
+            printf("   Gender: Female\n");
+        if (mesg.IsAgeValid())
+            printf("   Age [years]: %d\n", mesg.GetAge());
+        if (mesg.IsWeightValid())
+            printf("   Weight [kg]: %0.2f\n", mesg.GetWeight());
+    }
 
-   void OnMesg(fit::DeviceInfoMesg& mesg)
-   {
-      printf("Device info:\n");
+    void OnMesg(fit::DeviceInfoMesg &mesg) {
+        printf("Device info:\n");
 
-      if (mesg.IsTimestampValid())
-         printf("   Timestamp: %d\n", mesg.GetTimestamp());
+        if (mesg.IsTimestampValid())
+            printf("   Timestamp: %d\n", mesg.GetTimestamp());
 
-      switch(mesg.GetBatteryStatus())
-      {
-      case FIT_BATTERY_STATUS_CRITICAL:
-         printf("   Battery status: Critical\n");
-         break;
-      case FIT_BATTERY_STATUS_GOOD:
-         printf("   Battery status: Good\n");
-         break;
-      case FIT_BATTERY_STATUS_LOW:
-         printf("   Battery status: Low\n");
-         break;
-      case FIT_BATTERY_STATUS_NEW:
-         printf("   Battery status: New\n");
-         break;
-      case FIT_BATTERY_STATUS_OK:
-         printf("   Battery status: OK\n");
-         break;
-      default:
-         printf("   Battery status: Invalid\n");
-         break;
-      }
-   }
+        switch (mesg.GetBatteryStatus()) {
+        case FIT_BATTERY_STATUS_CRITICAL:
+            printf("   Battery status: Critical\n");
+            break;
+        case FIT_BATTERY_STATUS_GOOD:
+            printf("   Battery status: Good\n");
+            break;
+        case FIT_BATTERY_STATUS_LOW:
+            printf("   Battery status: Low\n");
+            break;
+        case FIT_BATTERY_STATUS_NEW:
+            printf("   Battery status: New\n");
+            break;
+        case FIT_BATTERY_STATUS_OK:
+            printf("   Battery status: OK\n");
+            break;
+        default:
+            printf("   Battery status: Invalid\n");
+            break;
+        }
+    }
 
-   void OnMesg(fit::MonitoringMesg& mesg)
-   {
-      printf("Monitoring:\n");
+    void OnMesg(fit::MonitoringMesg &mesg) {
+        printf("Monitoring:\n");
 
-      if (mesg.IsTimestampValid())
-      {
-         printf("   Timestamp: %d\n", mesg.GetTimestamp());
-      }
+        if (mesg.IsTimestampValid()) {
+            printf("   Timestamp: %d\n", mesg.GetTimestamp());
+        }
 
-      if(mesg.IsActivityTypeValid())
-      {
-         printf("   Activity type: %d\n", mesg.GetActivityType());
-      }
+        if (mesg.IsActivityTypeValid()) {
+            printf("   Activity type: %d\n", mesg.GetActivityType());
+        }
 
-      switch(mesg.GetActivityType()) // The Cycling field is dynamic
-      {
-      case FIT_ACTIVITY_TYPE_WALKING:
-      case FIT_ACTIVITY_TYPE_RUNNING: // Intentional fallthrough
-         if(mesg.IsStepsValid())
-         {
-            printf("   Steps: %d\n", mesg.GetSteps());
-         }
-         break;
-      case FIT_ACTIVITY_TYPE_CYCLING:
-      case FIT_ACTIVITY_TYPE_SWIMMING: // Intentional fallthrough
-         if( mesg.IsStrokesValid() )
-         {
-            printf(   "Strokes: %d\n", mesg.GetStrokes());
-         }
-         break;
-      default:
-         if(mesg.IsCyclesValid() )
-         {
-            printf(   "Cycles: %d\n", mesg.GetCycles());
-         }
-         break;
-      }
-   }
+        if (sport != nullptr)
+            *sport = mesg.GetActivityType();
 
-   static void PrintOverrideValues( const fit::Mesg& mesg, FIT_UINT8 fieldNum )
-   {
-       std::vector<const fit::FieldBase*> fields = mesg.GetOverrideFields( fieldNum );
-       const fit::Profile::FIELD * profileField = fit::Profile::GetField( mesg.GetNum(), fieldNum );
-       FIT_BOOL namePrinted = FIT_FALSE;
-
-       for ( const fit::FieldBase* field : fields )
-       {
-           if ( !namePrinted )
-           {
-               printf( "   %s:\n", profileField->name.c_str() );
-               namePrinted = FIT_TRUE;
-           }
-
-           if ( FIT_NULL != dynamic_cast<const fit::Field*>( field ) )
-           {
-               // Native Field
-               printf( "      native: " );
-           }
-           else
-           {
-               // Developer Field
-               printf( "      override: " );
-           }
-
-            switch (field->GetType())
-            {
-                // Get float 64 values for numeric types to receive values that have
-                // their scale and offset properly applied.
-                case FIT_BASE_TYPE_ENUM:
-                case FIT_BASE_TYPE_BYTE:
-                case FIT_BASE_TYPE_SINT8:
-                case FIT_BASE_TYPE_UINT8:
-                case FIT_BASE_TYPE_SINT16:
-                case FIT_BASE_TYPE_UINT16:
-                case FIT_BASE_TYPE_SINT32:
-                case FIT_BASE_TYPE_UINT32:
-                case FIT_BASE_TYPE_SINT64:
-                case FIT_BASE_TYPE_UINT64:
-                case FIT_BASE_TYPE_UINT8Z:
-                case FIT_BASE_TYPE_UINT16Z:
-                case FIT_BASE_TYPE_UINT32Z:
-                case FIT_BASE_TYPE_UINT64Z:
-                case FIT_BASE_TYPE_FLOAT32:
-                case FIT_BASE_TYPE_FLOAT64:
-                    printf("%f\n", field->GetFLOAT64Value());
-                    break;
-                case FIT_BASE_TYPE_STRING:
-                    printf("%ls\n", field->GetSTRINGValue().c_str());
-                    break;
-                default:
-                    break;
+        switch (mesg.GetActivityType()) // The Cycling field is dynamic
+        {
+        case FIT_ACTIVITY_TYPE_WALKING:
+        case FIT_ACTIVITY_TYPE_RUNNING: // Intentional fallthrough
+            if (mesg.IsStepsValid()) {
+                printf("   Steps: %d\n", mesg.GetSteps());
             }
-       }
-   }
+            break;
+        case FIT_ACTIVITY_TYPE_CYCLING:
+        case FIT_ACTIVITY_TYPE_SWIMMING: // Intentional fallthrough
+            if (mesg.IsStrokesValid()) {
+                printf("Strokes: %d\n", mesg.GetStrokes());
+            }
+            break;
+        default:
+            if (mesg.IsCyclesValid()) {
+                printf("Cycles: %d\n", mesg.GetCycles());
+            }
+            break;
+        }
+    }
 
-   void OnMesg( fit::RecordMesg& record ) override
-   {
-       if(sessionOpening != nullptr) {
-           SessionLine s;
-           s.heart = record.GetHeartRate();
-           s.cadence = record.GetCadence();
-           s.distance = record.GetDistance() / 1000;
-           s.speed = record.GetSpeed() * 3.6;
-           s.watt = record.GetPower();
-           s.resistance = record.GetResistance();
-           s.calories = record.GetCalories();
-           s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
-           s.verticalOscillationMM = record.GetVerticalOscillation();
-           s.groundContactMS = record.GetStanceTime();
-           s.coordinate.setAltitude(record.GetAltitude() + 500);
-           s.coordinate.setLatitude((record.GetPositionLat() * 180) / pow(2,31));
-           s.coordinate.setLongitude((record.GetPositionLong() * 180) / pow(2,31));
-           if(!s.coordinate.isValid()) {
-               s.elevationGain = record.GetAltitude();
-           }
-           s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp());
-           sessionOpening->append(s);
-       }
-   }
+    static void PrintOverrideValues(const fit::Mesg &mesg, FIT_UINT8 fieldNum) {
+        std::vector<const fit::FieldBase *> fields = mesg.GetOverrideFields(fieldNum);
+        const fit::Profile::FIELD *profileField = fit::Profile::GetField(mesg.GetNum(), fieldNum);
+        FIT_BOOL namePrinted = FIT_FALSE;
 
-   void OnDeveloperFieldDescription( const fit::DeveloperFieldDescription& desc ) override
-   {
-       printf( "New Developer Field Description\n" );
-       printf( "   App Version: %d\n", desc.GetApplicationVersion() );
-       printf( "   Field Number: %d\n", desc.GetFieldDefinitionNumber() );
-   }
+        for (const fit::FieldBase *field : fields) {
+            if (!namePrinted) {
+                printf("   %s:\n", profileField->name.c_str());
+                namePrinted = FIT_TRUE;
+            }
+
+            if (FIT_NULL != dynamic_cast<const fit::Field *>(field)) {
+                // Native Field
+                printf("      native: ");
+            } else {
+                // Developer Field
+                printf("      override: ");
+            }
+
+            switch (field->GetType()) {
+            // Get float 64 values for numeric types to receive values that have
+            // their scale and offset properly applied.
+            case FIT_BASE_TYPE_ENUM:
+            case FIT_BASE_TYPE_BYTE:
+            case FIT_BASE_TYPE_SINT8:
+            case FIT_BASE_TYPE_UINT8:
+            case FIT_BASE_TYPE_SINT16:
+            case FIT_BASE_TYPE_UINT16:
+            case FIT_BASE_TYPE_SINT32:
+            case FIT_BASE_TYPE_UINT32:
+            case FIT_BASE_TYPE_SINT64:
+            case FIT_BASE_TYPE_UINT64:
+            case FIT_BASE_TYPE_UINT8Z:
+            case FIT_BASE_TYPE_UINT16Z:
+            case FIT_BASE_TYPE_UINT32Z:
+            case FIT_BASE_TYPE_UINT64Z:
+            case FIT_BASE_TYPE_FLOAT32:
+            case FIT_BASE_TYPE_FLOAT64:
+                printf("%f\n", field->GetFLOAT64Value());
+                break;
+            case FIT_BASE_TYPE_STRING:
+                printf("%ls\n", field->GetSTRINGValue().c_str());
+                break;
+            default:
+                break;
+            }
+        }
+    }
+
+    void OnMesg(fit::RecordMesg &record) override {
+        if (sessionOpening != nullptr) {
+            SessionLine s;
+            s.heart = record.GetHeartRate();
+            s.cadence = record.GetCadence();
+            s.distance = record.GetDistance() / 1000;
+            s.speed = record.GetSpeed() * 3.6;
+            s.watt = record.GetPower();
+            s.resistance = record.GetResistance();
+            s.calories = record.GetCalories();
+            s.instantaneousStrideLengthCM = record.GetStepLength() / 10;
+            s.verticalOscillationMM = record.GetVerticalOscillation();
+            s.groundContactMS = record.GetStanceTime();
+            s.coordinate.setAltitude(record.GetAltitude() + 500);
+            s.coordinate.setLatitude((record.GetPositionLat() * 180) / pow(2, 31));
+            s.coordinate.setLongitude((record.GetPositionLong() * 180) / pow(2, 31));
+            if (!s.coordinate.isValid()) {
+                s.elevationGain = record.GetAltitude();
+            }
+            s.elapsedTime = sessionOpening->count() + 1;
+            s.time = QDateTime::fromSecsSinceEpoch(record.GetTimestamp());
+            sessionOpening->append(s);
+        }
+    }
+
+    void OnDeveloperFieldDescription(const fit::DeveloperFieldDescription &desc) override {
+        printf("New Developer Field Description\n");
+        printf("   App Version: %d\n", desc.GetApplicationVersion());
+        printf("   Field Number: %d\n", desc.GetFieldDefinitionNumber());
+    }
 };
 
-void qfit::open(const QString &filename, QList<SessionLine>* output) {
+void qfit::open(const QString &filename, QList<SessionLine> *output, FIT_SPORT *sport) {
     std::fstream file;
     file.open(filename.toStdString(), std::ios::in);
 
     if (!file.is_open()) {
 
-        std::system_error(errno, std::system_category(), "failed to open "+filename.toStdString());
+        std::system_error(errno, std::system_category(), "failed to open " + filename.toStdString());
         qDebug() << "opened " << filename << errno;
         printf("Error opening file ExampleActivity.fit\n");
         return;
     }
-    
+
     fit::Decode decode;
-    std::istream& s = file;
+    std::istream &s = file;
+    if (!decode.CheckIntegrity(file)) {
+        printf("FIT file integrity failed.\nAttempting to decode...\n");
+        return;
+    }
     fit::MesgBroadcaster mesgBroadcaster;
     Listener listener;
+    listener.sport = sport;
     listener.sessionOpening = output;
     mesgBroadcaster.AddListener((fit::FileIdMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::UserProfileMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MonitoringMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::DeviceInfoMesgListener &)listener);
-    mesgBroadcaster.AddListener((fit::RecordMesgListener&)listener);
+    mesgBroadcaster.AddListener((fit::RecordMesgListener &)listener);
     mesgBroadcaster.AddListener((fit::MesgListener &)listener);
     decode.Read(&s, &mesgBroadcaster, &mesgBroadcaster, &listener);
 }

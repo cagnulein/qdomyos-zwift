@@ -1,6 +1,7 @@
 #ifndef TEMPLATEINFOSENDERBUILDER_H
 #define TEMPLATEINFOSENDERBUILDER_H
 #include "bluetoothdevice.h"
+#include "fit_profile.hpp"
 #include "templateinfosender.h"
 #include <QHash>
 #include <QJSEngine>
@@ -21,6 +22,8 @@ class TemplateInfoSenderBuilder : public QObject {
     void stop();
     QStringList templateIdList() const;
     ~TemplateInfoSenderBuilder();
+
+    void previewSessionOnChart(QList<SessionLine> *session, FIT_SPORT sport);
   signals:
     void activityDescriptionChanged(QString newDescription);
     void chartSaved(QString filename);
@@ -31,11 +34,13 @@ class TemplateInfoSenderBuilder : public QObject {
     QString activityDescription;
     void createTemplatesFromFolder(const QString &idInfo, const QString &folder, QStringList &dirTemplates);
     void clearSessionArray();
+    void clearPreviewSessionArray();
     bluetoothdevice *device = nullptr;
     QTimer updateTimer;
     QString masterId;
     QStringList foldersToLook;
     QJsonArray sessionArray;
+    QJsonArray previewSessionArray;
     QHash<QString, QVariant> context;
     QJSEngine *engine = nullptr;
     TemplateInfoSenderBuilder(QObject *parent);
@@ -58,6 +63,7 @@ class TemplateInfoSenderBuilder : public QObject {
     void onLoadTrainingPrograms(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onAppendActivityDescription(const QJsonValue &msgContent, TemplateInfoSender *tempSender);
     void onGetSessionArray(TemplateInfoSender *tempSender);
+    void onGetPreviewSessionArray(TemplateInfoSender *tempSender);
     void onGetLatLon(TemplateInfoSender *tempSender);
     void onNextInclination300Meters(TemplateInfoSender *tempSender);
     void onGetGPXBase64(TemplateInfoSender *tempSender);

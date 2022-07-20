@@ -321,6 +321,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(trainprogram_open_clicked(QUrl)), this, SLOT(trainprogram_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_preview(QUrl)), this, SLOT(trainprogram_preview(QUrl)));
     QObject::connect(stack, SIGNAL(gpxpreview_open_clicked(QUrl)), this, SLOT(gpxpreview_open_clicked(QUrl)));
+    QObject::connect(stack, SIGNAL(fitfile_preview_clicked(QUrl)), this, SLOT(fitfile_preview_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(trainprogram_zwo_loaded(QString)), this, SLOT(trainprogram_zwo_loaded(QString)));
     QObject::connect(stack, SIGNAL(gpx_open_clicked(QUrl)), this, SLOT(gpx_open_clicked(QUrl)));
     QObject::connect(stack, SIGNAL(gpx_save_clicked()), this, SLOT(gpx_save_clicked()));
@@ -528,7 +529,7 @@ void homeform::backup() {
 
         QString filename = path + QString::number(index) + backupFitFileName;
         QFile::remove(filename);
-        qfit::save(filename, Session, dev->deviceType(),
+        qfit::save(filename, Session, dev->deviceType(), activityName(false),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType);
 
@@ -3283,17 +3284,19 @@ void homeform::update() {
                 }
             }
 
-            SessionLine s(
-                bluetoothManager->device()->currentSpeed().value(), inclination, bluetoothManager->device()->odometer(),
-                watts, resistance, peloton_resistance, (uint8_t)bluetoothManager->device()->currentHeart().value(),
-                pace, cadence, bluetoothManager->device()->calories().value(),
-                bluetoothManager->device()->elevationGain().value(),
-                bluetoothManager->device()->elapsedTime().second() +
-                    (bluetoothManager->device()->elapsedTime().minute() * 60) +
-                    (bluetoothManager->device()->elapsedTime().hour() * 3600),
+            SessionLine s(bluetoothManager->device()->currentSpeed().value(), inclination,
+                          bluetoothManager->device()->odometer(), watts, resistance, peloton_resistance,
+                          (uint8_t)bluetoothManager->device()->currentHeart().value(), pace, cadence,
+                          bluetoothManager->device()->calories().value(),
+                          bluetoothManager->device()->elevationGain().value(),
+                          bluetoothManager->device()->elapsedTime().second() +
+                              (bluetoothManager->device()->elapsedTime().minute() * 60) +
+                              (bluetoothManager->device()->elapsedTime().hour() * 3600),
 
-                lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
-                bluetoothManager->device()->currentCordinate(), strideLength, groundContact, verticalOscillation);
+                          lapTrigger, totalStrokes, avgStrokesRate, maxStrokesRate, avgStrokesLength,
+                          bluetoothManager->device()->currentCordinate(), strideLength, groundContact,
+                          verticalOscillation, target_cadence->value().toDouble(), target_power->value().toDouble(),
+                          target_resistance->value().toDouble());
 
             Session.append(s);
 
@@ -3410,7 +3413,7 @@ void homeform::fit_save_clicked() {
         QString filename = path +
                            QDateTime::currentDateTime().toString().replace(QStringLiteral(":"), QStringLiteral("_")) +
                            QStringLiteral(".fit");
-        qfit::save(filename, Session, dev->deviceType(),
+        qfit::save(filename, Session, dev->deviceType(), activityName(false),
                    qobject_cast<m3ibike *>(dev) ? QFIT_PROCESS_DISTANCENOISE : QFIT_PROCESS_NONE,
                    stravaPelotonWorkoutType);
         lastFitFileSaved = filename;
@@ -3487,6 +3490,20 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
         }
 
         trainProgramSignals();
+    }
+}
+
+void homeform::fitfile_preview_clicked(const QUrl &fileName) {
+    qDebug() << QStringLiteral("fitfile_preview_clicked") << fileName;
+
+    QFile file(QQmlFile::urlToLocalFileOrQrc(fileName));
+    qDebug() << file.fileName();
+
+    if (!file.fileName().isEmpty()) {
+        QList<SessionLine> a;
+        FIT_SPORT sport;
+        qfit::open(file.fileName(), &a, &sport);
+        bluetoothManager->getInnerTemplateManager()->previewSessionOnChart(&a, sport);
     }
 }
 
@@ -3625,6 +3642,34 @@ void homeform::strava_refreshtoken() {
     settings.setValue(QStringLiteral("strava_lastrefresh"), QDateTime::currentDateTime());
 }
 
+QString homeform::activityName(bool strava_suffix) {
+    QSettings settings;
+    QString activityName =
+        strava_suffix
+            ? QStringLiteral(" ") + settings.value(QStringLiteral("strava_suffix"), QStringLiteral("#QZ")).toString()
+            : "";
+    if (!stravaPelotonActivityName.isEmpty()) {
+        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName + activityName;
+        if (pelotonHandler && settings.value(QStringLiteral("peloton_description_link"), true).toBool())
+            activityDescription =
+                QStringLiteral("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
+                pelotonHandler->current_ride_id;
+    } else if (!stravaWorkoutName.isEmpty()) {
+        activityName = stravaWorkoutName;
+    } else {
+        if (bluetoothManager && bluetoothManager->device()) {
+            if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                activityName = QStringLiteral("Run") + activityName;
+            } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
+                activityName = QStringLiteral("Row") + activityName;
+            } else {
+                activityName = QStringLiteral("Ride") + activityName;
+            }
+        }
+    }
+    return activityName;
+}
+
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
 
     strava_refreshtoken();
@@ -3671,23 +3716,8 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
                                QVariant(QStringLiteral("form-data; name=\"name\"")));
 
     // use metadata config if the user selected it
-    QString activityName =
-        QStringLiteral(" ") + settings.value(QStringLiteral("strava_suffix"), QStringLiteral("#QZ")).toString();
-    if (!stravaPelotonActivityName.isEmpty()) {
-        activityName = stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName + activityName;
-        if (pelotonHandler && settings.value(QStringLiteral("peloton_description_link"), true).toBool())
-            activityDescription =
-                QStringLiteral("https://members.onepeloton.com/classes/cycling?modal=classDetailsModal&classId=") +
-                pelotonHandler->current_ride_id;
-    } else {
-        if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-            activityName = QStringLiteral("Run") + activityName;
-        } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
-            activityName = QStringLiteral("Row") + activityName;
-        } else {
-            activityName = QStringLiteral("Ride") + activityName;
-        }
-    }
+    QString activityName = this->activityName(true);
+
     activityNamePart.setHeader(QNetworkRequest::ContentTypeHeader,
                                QVariant(QStringLiteral("text/plain;charset=utf-8")));
     activityNamePart.setBody(activityName.toUtf8());
@@ -4015,10 +4045,7 @@ void homeform::sendMail() {
                                           settings.value(QStringLiteral("user_email"), QLatin1String("")).toString()));
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
-        if (!stravaPelotonActivityName.isEmpty()) {
-            title +=
-                QStringLiteral(" ") + stravaPelotonActivityName + QStringLiteral(" - ") + stravaPelotonInstructorName;
-        }
+        title += activityName(false);
         message.setSubject(title);
     } else {
         message.setSubject(QStringLiteral("Test"));
