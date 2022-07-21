@@ -10,16 +10,8 @@
 
 using namespace std::chrono_literals;
 
-#ifdef Q_OS_IOS
-extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
-#endif
-
 octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                  double forceInitInclination) {
-
-#ifdef Q_OS_IOS
-    QZ_EnableDiscoveryCharsAndDescripttors = true;
-#endif
 
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -185,7 +177,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
-    if (newValue[0] != 0xa5 || newValue[1] != 0x17 || newValue[2] != 0x22)
+    if ((uint8_t)newValue[0] != 0xa5 || newValue[1] != 0x17 || newValue[2] != 0x22)
         return;
 
     double speed = GetSpeedFromPacket(value);
