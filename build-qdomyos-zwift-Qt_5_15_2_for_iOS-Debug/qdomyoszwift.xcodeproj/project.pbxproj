@@ -397,6 +397,8 @@
 		87DF68BF25E2675100FCDA46 /* moc_schwinnic4bike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87DF68BC25E2675100FCDA46 /* moc_schwinnic4bike.cpp */; };
 		87E0761D277A081A00FDA0F9 /* technogymmyruntreadmillrfcomm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E0761B277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.cpp */; };
 		87E0761F277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E0761E277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp */; };
+		87E34C2B2886F95400CEDE4B /* octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */; };
+		87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */; };
 		87E5D2C625E69F3100BDBE6C /* horizontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E5D2C525E69F3100BDBE6C /* horizontreadmill.cpp */; };
 		87E5D2C825E69F4700BDBE6C /* moc_horizontreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E5D2C725E69F4700BDBE6C /* moc_horizontreadmill.cpp */; };
 		87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87E6A85725B5C88E00371D28 /* moc_flywheelbike.cpp */; };
@@ -1170,6 +1172,9 @@
 		87E0761B277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = technogymmyruntreadmillrfcomm.cpp; path = ../src/technogymmyruntreadmillrfcomm.cpp; sourceTree = "<group>"; };
 		87E0761C277A081900FDA0F9 /* technogymmyruntreadmillrfcomm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = technogymmyruntreadmillrfcomm.h; path = ../src/technogymmyruntreadmillrfcomm.h; sourceTree = "<group>"; };
 		87E0761E277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_technogymmyruntreadmillrfcomm.cpp; sourceTree = "<group>"; };
+		87E34C292886F95300CEDE4B /* octanetreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = octanetreadmill.h; path = ../src/octanetreadmill.h; sourceTree = "<group>"; };
+		87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = octanetreadmill.cpp; path = ../src/octanetreadmill.cpp; sourceTree = "<group>"; };
+		87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_octanetreadmill.cpp; sourceTree = "<group>"; };
 		87E5D2C425E69F3100BDBE6C /* horizontreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = horizontreadmill.h; path = ../src/horizontreadmill.h; sourceTree = "<group>"; };
 		87E5D2C525E69F3100BDBE6C /* horizontreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = horizontreadmill.cpp; path = ../src/horizontreadmill.cpp; sourceTree = "<group>"; };
 		87E5D2C725E69F4700BDBE6C /* moc_horizontreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_horizontreadmill.cpp; sourceTree = "<group>"; };
@@ -1562,6 +1567,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */,
 				87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */,
 				8768D1FC2850820B00F58E3A /* moc_nordictrackifitadbtreadmill.cpp */,
 				87DA8466284933DE00B550E9 /* moc_fakeelliptical.cpp */,
@@ -1710,6 +1716,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */,
+				87E34C292886F95300CEDE4B /* octanetreadmill.h */,
 				87061395286D8CFE00D2446E /* PathController.cpp */,
 				87061396286D8CFE00D2446E /* PathController.h */,
 				8768D1F9285081FE00F58E3A /* nordictrackifitadbtreadmill.cpp */,
@@ -2780,6 +2788,7 @@
 				873824B127E64706004F1B46 /* moc_browser_p.cpp in Compile Sources */,
 				873824B627E64707004F1B46 /* moc_hostname_p.cpp in Compile Sources */,
 				873824EA27E647A8004F1B46 /* browser.cpp in Compile Sources */,
+				87E34C2B2886F95400CEDE4B /* octanetreadmill.cpp in Compile Sources */,
 				87DAE16A26E9FF5000B0527E /* moc_kingsmithr2treadmill.cpp in Compile Sources */,
 				87D91F9C2800B9B90026D43C /* moc_proformwifibike.cpp in Compile Sources */,
 				87C5F0D226285E7E0067A1B5 /* moc_mimemultipart.cpp in Compile Sources */,
@@ -2793,6 +2802,7 @@
 				87CC3BA425A0885F001EC5A8 /* elliptical.cpp in Compile Sources */,
 				4AD2C93A2B8FD5855E521630 /* fit_encode.cpp in Compile Sources */,
 				87EB918C27EE5FE7002535E1 /* moc_inappproduct.cpp in Compile Sources */,
+				87E34C2D2886F99A00CEDE4B /* moc_octanetreadmill.cpp in Compile Sources */,
 				87D91F9A2800B9970026D43C /* proformwifibike.cpp in Compile Sources */,
 				873CD22327EF8E18000131BC /* inappstoreqmltype.cpp in Compile Sources */,
 				87C481FA26DFA7C3006211AD /* eliterizer.cpp in Compile Sources */,
@@ -3368,7 +3378,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.10.99;
+				CURRENT_PROJECT_VERSION = 2.11.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3438,7 +3448,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
 				);
-				MARKETING_VERSION = 2.10;
+				MARKETING_VERSION = 2.11;
 				OTHER_CFLAGS = (
 					"-pipe",
 					"-g",
@@ -3529,7 +3539,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.10.99;
+				CURRENT_PROJECT_VERSION = 2.11.1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -3601,7 +3611,7 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
 				);
-				MARKETING_VERSION = 2.10;
+				MARKETING_VERSION = 2.11;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-pipe",
@@ -3726,7 +3736,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.99;
+				CURRENT_PROJECT_VERSION = 2.11.1;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3747,7 +3757,7 @@
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 2.10;
+				MARKETING_VERSION = 2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -3818,7 +3828,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.99;
+				CURRENT_PROJECT_VERSION = 2.11.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -3835,7 +3845,7 @@
 				IBSC_MODULE = watchkit_Extension;
 				INFOPLIST_FILE = watchkit/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
-				MARKETING_VERSION = 2.10;
+				MARKETING_VERSION = 2.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -3905,7 +3915,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.99;
+				CURRENT_PROJECT_VERSION = 2.11.1;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -3926,7 +3936,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.10;
+				MARKETING_VERSION = 2.11;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";
@@ -3995,7 +4005,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.10.99;
+				CURRENT_PROJECT_VERSION = 2.11.1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
@@ -4012,7 +4022,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = "watchkit Extension/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
-				MARKETING_VERSION = 2.10;
+				MARKETING_VERSION = 2.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				OTHER_CODE_SIGN_FLAGS = "--generate-entitlement-der";

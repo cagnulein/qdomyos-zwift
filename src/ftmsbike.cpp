@@ -581,11 +581,17 @@ void ftmsbike::error(QLowEnergyController::Error err) {
                m_control->errorString());
 }
 
+int ftmsbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if(bluetoothDevice.name().toUpper().startsWith("SUITO")) {
+            qDebug() << QStringLiteral("SUITO found");
+            max_resistance = 16;
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);
