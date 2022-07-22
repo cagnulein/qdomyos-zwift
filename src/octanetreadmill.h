@@ -44,7 +44,6 @@ class octanetreadmill : public treadmill {
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
-    double GetInclinationFromPacket(const QByteArray &packet);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);

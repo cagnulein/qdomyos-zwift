@@ -177,10 +177,16 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
-    if ((uint8_t)newValue[0] != 0xa5 || newValue[1] != 0x17 || newValue[2] != 0x22)
+    if ((uint8_t)newValue[0] != 0xa5 || newValue[1] != 0x10 || newValue[2] != 0x06)
         return;
 
     double speed = GetSpeedFromPacket(value);
+    bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
+    double cadence_multiplier = 1.0;
+    if (double_cadence)
+        cadence_multiplier = 2.0;
+
+    Cadence = newValue[17] / 2 * cadence_multiplier;
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -235,21 +241,9 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 }
 
 double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(6) << 8) | ((uint8_t)packet.at(5));
-    uint16_t convertedData1 = (packet.at(10) << 8) | ((uint8_t)packet.at(9));
-    uint16_t convertedData2 = (packet.at(14) << 8) | ((uint8_t)packet.at(13));
-    uint16_t convertedData3 = (packet.at(18) << 8) | ((uint8_t)packet.at(17));
+    uint16_t convertedData = (packet.at(15) << 8) | ((uint8_t)packet.at(14));
 
-    Cadence = (convertedData + convertedData1 + convertedData2 + convertedData3) / 8.0;
-
-    return Cadence.value() * 0.1;
-}
-
-double octanetreadmill::GetInclinationFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = packet.at(11);
-    double data = convertedData;
-
-    return data;
+    return convertedData / 100.0;
 }
 
 void octanetreadmill::btinit(bool startTape) {

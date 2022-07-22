@@ -201,6 +201,8 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
         if (qAbs(vNew - vel) < TOL) {
             if (vNew < 0)
                 return 0;
+            else if (vNew > 19) // 19 m/s == 70 km/h
+                return 70;
             return vNew * 3.6;
         } // success
         vel = vNew;
