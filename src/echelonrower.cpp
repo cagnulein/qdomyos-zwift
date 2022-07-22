@@ -100,6 +100,9 @@ void echelonrower::sendPoll() {
 }
 
 void echelonrower::update() {
+    if (m_control == nullptr)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -441,40 +444,38 @@ void echelonrower::error(QLowEnergyController::Error err) {
 
 void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << "Found new device: " + device.name() + " (" + device.address().toString() + ')';
-    if (device.name().startsWith(QStringLiteral("ECH"))) {
-        bluetoothDevice = device;
+    bluetoothDevice = device;
 
-        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &echelonrower::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
+    m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
+    connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
+    connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
+    connect(m_control,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, &echelonrower::error);
+    connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
-                    Q_UNUSED(error);
-                    Q_UNUSED(this);
-                    qDebug() << QStringLiteral("Cannot connect to remote device.");
-                    emit disconnected();
-                });
-        connect(m_control, &QLowEnergyController::connected, this, [this]() {
-            Q_UNUSED(this);
-            qDebug() << QStringLiteral("Controller connected. Search services...");
-            m_control->discoverServices();
-        });
-        connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-            Q_UNUSED(this);
-            qDebug() << QStringLiteral("LowEnergy controller disconnected");
-            emit disconnected();
-        });
+    connect(m_control,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, [this](QLowEnergyController::Error error) {
+                Q_UNUSED(error);
+                Q_UNUSED(this);
+                qDebug() << QStringLiteral("Cannot connect to remote device.");
+                emit disconnected();
+            });
+    connect(m_control, &QLowEnergyController::connected, this, [this]() {
+        Q_UNUSED(this);
+        qDebug() << QStringLiteral("Controller connected. Search services...");
+        m_control->discoverServices();
+    });
+    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
+        Q_UNUSED(this);
+        qDebug() << QStringLiteral("LowEnergy controller disconnected");
+        emit disconnected();
+    });
 
-        // Connect
-        m_control->connectToDevice();
-        return;
-    }
+    // Connect
+    m_control->connectToDevice();
+    return;
 }
 
 bool echelonrower::connected() {
