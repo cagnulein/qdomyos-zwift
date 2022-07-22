@@ -181,12 +181,6 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         return;
 
     double speed = GetSpeedFromPacket(value);
-    bool double_cadence = settings.value(QStringLiteral("powr_sensor_running_cadence_double"), false).toBool();
-    double cadence_multiplier = 1.0;
-    if (double_cadence)
-        cadence_multiplier = 2.0;
-
-    Cadence = newValue[17] / 2 * cadence_multiplier;
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -242,8 +236,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(15) << 8) | ((uint8_t)packet.at(14));
-
-    return convertedData / 100.0;
+    return (1 / convertedData) * 3600;
 }
 
 void octanetreadmill::btinit(bool startTape) {
