@@ -174,6 +174,11 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
     emit packetReceived();
 
+    if (lastTimeCharacteristicChanged.secsTo(QDateTime::currentDateTime()) > 5) {
+        emit debug(QStringLiteral("resetting speed"));
+        Speed = 0;
+    }
+
     if ((newValue.length() != 20))
         return;
 
