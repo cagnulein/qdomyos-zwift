@@ -362,31 +362,120 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 foreach (QJsonValue s, subsegments_v2) {
                     trainrow r;
                     QString zone = s["display_name"].toString();
-                    int len = s["length"].toInt();
-                    r.duration = QTime(0, len / 60, len % 60, 0);
+                    int len = s["length"].toInt();                    
                     if (!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
-                        // nothing to do
-                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
+                        uint32_t Duration = len;
+                        double PowerLow = 0.5;
+                        double PowerHigh = 0.83;
+                        for (uint32_t i = 0; i < Duration; i++) {
+                            trainrow row;
+                            row.duration = QTime(0, 0, 1, 0);
+                            row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                            row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                            if (PowerHigh > PowerLow) {
+                                    row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                                settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                            } else {
+                                    row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                                settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                            }
+                            qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
+                            trainrows.append(row);
+                            atLeastOnePower = true;
+                        }
+                    } else if (!zone.toUpper().compare(QStringLiteral("DESCENDING RECOVERY"))) {
+                            uint32_t Duration = len;
+                            double PowerLow = 0.5;
+                            double PowerHigh = 0.45;
+                            for (uint32_t i = 0; i < Duration; i++) {
+                                trainrow row;
+                                row.duration = QTime(0, 0, 1, 0);
+                                row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                                if (PowerHigh > PowerLow) {
+                                        row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                                    settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                } else {
+                                        row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                                    settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                }
+                                qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
+                                trainrows.append(row);
+                                atLeastOnePower = true;
+                            }
+                    } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
+                    } else if (!zone.toUpper().compare(QStringLiteral("INTERVALS"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.75;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
+                    } else if (!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
+                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.66;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 3"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.83;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 4"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.98;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 5"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.13;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 6"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.35;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
+                        r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
+                        if (r.power != -1) {
+                            atLeastOnePower = true;
+                        }
+                        trainrows.append(r);
+                        qDebug() << r.duration << "power" << r.power;
                     }
-
-                    if (r.power != -1) {
-                        atLeastOnePower = true;
-                    }
-                    trainrows.append(r);
-                    qDebug() << r.duration << "power" << r.power;
                 }
             }
         }
