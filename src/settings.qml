@@ -5259,7 +5259,6 @@ import Qt.labs.settings 1.0
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
-                        color: Material.color(Material.Grey)
                     }
 
                     RowLayout {
