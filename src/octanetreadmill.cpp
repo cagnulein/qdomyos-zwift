@@ -241,7 +241,7 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
 
 double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet) {
     uint16_t convertedData = (packet.at(15) << 8) | ((uint8_t)packet.at(14));
-    return (1 / convertedData) * 3600;
+    return (1.0 / ((double)convertedData)) * 3600.0;
 }
 
 void octanetreadmill::btinit(bool startTape) {
