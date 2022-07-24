@@ -226,9 +226,9 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        /*if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             Heart = ((uint8_t)newValue.at(18));
-        }
+        }*/
     }
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())));
