@@ -72,12 +72,12 @@ void proformtreadmill::forceIncline(double incline) {
     write[12] = ((uint16_t)(incline * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(incline * 100) & 0xFF);
 
-    if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill) {
+    if (proform_treadmill_9_0) {
+        write[14] = write[11] + write[12] + 0x12;
+    } else if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
             write[14] += write[i + 6];
         }
-    } else if (proform_treadmill_9_0) {
-        write[14] = write[11] + write[12] + 0x12;
     } else {
         write[14] = write[11] + 0x12;
     }
@@ -100,12 +100,12 @@ void proformtreadmill::forceSpeed(double speed) {
     write[12] = ((uint16_t)(speed * 100) >> 8) & 0xFF;
     write[11] = ((uint16_t)(speed * 100) & 0xFF);
 
-    if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill) {
+    if (proform_treadmill_9_0) {
+        write[14] = write[11] + write[12] + 0x11;
+    } else if (!nordictrack_t65s_treadmill && !nordictrack_s30_treadmill) {
         for (uint8_t i = 0; i < 7; i++) {
             write[14] += write[i + 6];
         }
-    } else if (proform_treadmill_9_0) {
-        write[14] = write[11] + write[12] + 0x11;
     } else {
         write[14] = write[11] + 0x12;
     }
