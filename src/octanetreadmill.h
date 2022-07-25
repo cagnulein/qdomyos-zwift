@@ -43,7 +43,7 @@ class octanetreadmill : public treadmill {
     void *VirtualDevice();
 
   private:
-    double GetSpeedFromPacket(const QByteArray &packet);
+    double GetSpeedFromPacket(const QByteArray &packet, int index);
     void forceSpeed(double requestSpeed);
     void forceIncline(double requestIncline);
     void updateDisplay(uint16_t elapsed);
@@ -62,6 +62,8 @@ class octanetreadmill : public treadmill {
 
     int64_t lastStart = 0;
     int64_t lastStop = 0;
+
+    QByteArray actualPaceSign;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;

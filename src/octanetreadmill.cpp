@@ -13,6 +13,9 @@ using namespace std::chrono_literals;
 octanetreadmill::octanetreadmill(uint32_t pollDeviceTime, bool noConsole, bool noHeartService, double forceInitSpeed,
                                  double forceInitInclination) {
 
+    actualPaceSign.clear();
+    actualPaceSign.append(0x02);
+    actualPaceSign.append(0x23);
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
     this->noConsole = noConsole;
@@ -182,10 +185,15 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
-    if ((uint8_t)newValue[0] != 0xa5 || newValue[1] != 0x10 || newValue[2] != 0x06)
+    if (!newValue.contains(actualPaceSign))
         return;
 
-    double speed = GetSpeedFromPacket(value);
+    uint16_t i = newValue.indexOf(actualPaceSign) + 2;
+
+    if (i + 1 >= newValue.length())
+        return;
+
+    double speed = GetSpeedFromPacket(value, i);
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
@@ -239,8 +247,8 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     firstCharacteristicChanged = false;
 }
 
-double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(15) << 8) | ((uint8_t)packet.at(14));
+double octanetreadmill::GetSpeedFromPacket(const QByteArray &packet, int index) {
+    uint16_t convertedData = (packet.at(index + 1) << 8) | ((uint8_t)packet.at(index));
     return (1.0 / ((double)convertedData)) * 3600.0;
 }
 
