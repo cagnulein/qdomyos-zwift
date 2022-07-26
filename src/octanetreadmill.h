@@ -64,6 +64,7 @@ class octanetreadmill : public treadmill {
     int64_t lastStop = 0;
 
     QByteArray actualPaceSign;
+    QByteArray actualPace2Sign;
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadMill = nullptr;
