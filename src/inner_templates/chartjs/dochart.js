@@ -337,20 +337,16 @@ function process_arr(arr) {
                     ticks: {
                         stepSize: 1,
                         autoSkip: false,
-                        font: {
-                            family: "monospace",
-                            size: 10,
-                        },
                         callback: value => [ftpZones[0] * 0.8, ftpZones[0], ftpZones[1], ftpZones[2], ftpZones[3], ftpZones[4], ftpZones[5]].includes(value) ?
-                            value === ftpZones[0] * 0.8 ? '('+ftpZones[0] * 0.8 + ') zone 1 - Active Recovery    ':
-                            value === ftpZones[0] ?       '('+ftpZones[0] +       ') zone 2 - Endurance          ':
-                            value === ftpZones[1] ?       '('+ftpZones[1] +       ') zone 3 - Tempo              ':
-                            value === ftpZones[2] ?       '('+ftpZones[2] +       ') zone 4 - Threshold          ':
-                            value === ftpZones[3] ?       '('+ftpZones[3] +       ') zone 5 - VO2 Max            ':
-                            value === ftpZones[4] ?       '('+ftpZones[4] +       ') zone 6 - Anaerobic Capacity ':
-                            value === ftpZones[5] ?       '('+ftpZones[5] +       ') zone 7 - Neuromuscular Power': undefined : undefined,
+                            value === ftpZones[0] * 0.8 ? 'zone 1' :
+                            value === ftpZones[0] ? 'zone 2' :
+                            value === ftpZones[1] ? 'zone 3' :
+                            value === ftpZones[2] ? 'zone 4' :
+                            value === ftpZones[3] ? 'zone 5' :
+                            value === ftpZones[4] ? 'zone 6' :
+                            value === ftpZones[5] ? 'zone 7' : undefined : undefined,
                         color: 'black',
-                        padding: -200,
+                        padding: -50,
                         align: 'end',
                         z: 1,
                     }
@@ -505,20 +501,16 @@ function process_arr(arr) {
                     },
                     min: 50,
                     ticks: {
-                        font: {
-                            family: "monospace",
-                            size: 10,
-                        },
                         stepSize: 1,
                         autoSkip: false,
                         callback: value => [heartZones[0] * 0.8, heartZones[0], heartZones[1], heartZones[2], heartZones[3], heartZones[4]].includes(value) ?
-                            value === heartZones[0] * 0.8 ? '('+ heartZones[0] * 0.8 + ') zone 1 - Warm Up  ' :
-                            value === heartZones[0]       ? '('+ heartZones[0] + ') zone 2 - Fat Burn ' :
-                            value === heartZones[1]       ? '('+ heartZones[1] + ') zone 3 - Endurance' :
-                            value === heartZones[2]       ? '('+ heartZones[2] + ') zone 4 - Hardcore ' :
-                            value === heartZones[3]       ? '('+ heartZones[3] + ') zone 5 - VO2 Max  ' : undefined : undefined,
+                            value === heartZones[0] * 0.8 ? 'zone 1' :
+                            value === heartZones[0] ? 'zone 2' :
+                            value === heartZones[1] ? 'zone 3' :
+                            value === heartZones[2] ? 'zone 4' :
+                            value === heartZones[3] ? 'zone 5' : undefined : undefined,
                         color: 'black',
-                        padding: -145,
+                        padding: -50,
                         align: 'end',
                         z: 1,
                     }
