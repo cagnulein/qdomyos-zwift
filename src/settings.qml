@@ -449,6 +449,9 @@ import Qt.labs.settings 1.0
             // from the version 2.10.112
             property real ss2k_max_resistance: 100
             property real ss2k_min_resistance: 0
+
+            // from the version 2.11.10
+            property bool proform_treadmill_se: false
         }
 
         function paddingZeros(text, limit) {
@@ -4390,6 +4393,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_1800i = checked
+                        }
+                        SwitchDelegate {
+                            id: proformSEDelegate
+                            text: qsTr("Proform SE")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_se
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_se = checked
                         }
                         RowLayout {
                             spacing: 10
