@@ -167,6 +167,9 @@ void gpiotreadmill::update() {
     if (!firstInit && !virtualTreadMill && !virtualBike) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        
+        emit connectedAndDiscovered();
+        
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
