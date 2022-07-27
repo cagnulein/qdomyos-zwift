@@ -29,5 +29,6 @@
         <file>icons/tray-arrow-up.png</file>
         <file>icons/lock.png</file>
         <file>icons/unlock.png</file>
+        <file>icons/maps-icon-16.png</file>
     </qresource>
 </RCC>

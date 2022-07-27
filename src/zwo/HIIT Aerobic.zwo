@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<workout_file>
+    <author>Jonathan Colledge</author>
+    <name>HIIT Aerobic</name>
+    <description>These intervals are long enough to need significant aerobic energy generation mixing anaerobic work with low end VO2max work. Gastin demonstrates in his review[1] that over 120 seconds, 63% of the work was aerobic. That was at 95% effort, so this will be slightly skewed to anaerobic work in the spikes. If you want more aerobic intervals, see my VO2max intervals. Even so, this will register as Tempo on Garmin’s primary benefit category of training impact, with 0 anaerobic training effect. 
+	
+References: 
+1. Gastin PB. Energy system interaction and relative contribution during maximal exercise. Sports Med. 2001;31(10):725-41. Review. PMID: 11547894
+</description>
+    <sportType>bike</sportType>
+    <tags>
+        <tag name="INTERVALS"/>
+		<tag name="JonathanC"/>
+        <tag name="Aerobic"/>
+        <tag name="VO2max"/>
+    </tags>
+    <workout>
+        <SteadyState Duration="90.0" PowerLow="0.600" PowerHigh="0.600"/>
+        <SteadyState Duration="120.0" PowerLow="0.650" PowerHigh="0.650"/>
+        <SteadyState Duration="120.0" PowerLow="0.700" PowerHigh="0.700"/>
+        <SteadyState Duration="120.0" PowerLow="0.750" PowerHigh="0.750"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950"/>
+        <SteadyState Duration="120.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="150.0" PowerLow="0.550" PowerHigh="0.550"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950"/>
+        <SteadyState Duration="120.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="150.0" PowerLow="0.550" PowerHigh="0.550"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950"/>
+        <SteadyState Duration="120.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="150.0" PowerLow="0.550" PowerHigh="0.550"/>
+        <SteadyState Duration="300.0" PowerLow="0.950" PowerHigh="0.950"/>
+        <SteadyState Duration="120.0" PowerLow="1.250" PowerHigh="1.250"/>
+        <SteadyState Duration="150.0" PowerLow="0.550" PowerHigh="0.550"/>
+        <SteadyState Duration="300.0" PowerLow="0.800" PowerHigh="0.800"/>
+        <SteadyState Duration="150.0" PowerLow="0.560" PowerHigh="0.560"/>
+        <SteadyState Duration="120.0" PowerLow="0.550" PowerHigh="0.550"/>
+    </workout>
+</workout_file>
+

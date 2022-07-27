@@ -10,10 +10,10 @@ void treadmill::changeSpeed(double speed) {
         requestSpeed = speed;
 }
 void treadmill::changeInclination(double grade, double inclination) {
-    Q_UNUSED(grade);
-    RequestedInclination = inclination;
+    Q_UNUSED(inclination);
+    RequestedInclination = grade;
     if (autoResistanceEnable) {
-        requestInclination = inclination;
+        requestInclination = grade;
     }
 }
 void treadmill::changeSpeedAndInclination(double speed, double inclination) {
@@ -25,6 +25,7 @@ bool treadmill::connected() { return false; }
 bluetoothdevice::BLUETOOTH_TYPE treadmill::deviceType() { return bluetoothdevice::TREADMILL; }
 
 double treadmill::minStepInclination() { return 0.5; }
+double treadmill::minStepSpeed() { return 0.5; }
 
 void treadmill::update_metrics(bool watt_calc, const double watts) {
 
@@ -99,6 +100,7 @@ void treadmill::clearStats() {
     m_watt.clear(false);
     WeightLoss.clear(false);
     WattKg.clear(false);
+    Cadence.clear(false);
 
     Inclination.clear(false);
 }
@@ -117,6 +119,7 @@ void treadmill::setPaused(bool p) {
     Inclination.setPaused(p);
     WeightLoss.setPaused(p);
     WattKg.setPaused(p);
+    Cadence.setPaused(p);
 }
 
 void treadmill::setLap() {
@@ -131,6 +134,7 @@ void treadmill::setLap() {
     m_watt.setLap(false);
     WeightLoss.setLap(false);
     WattKg.setLap(false);
+    Cadence.setLap(false);
 
     Inclination.setLap(false);
 }
@@ -147,5 +151,8 @@ double treadmill::requestedInclination() { return requestInclination; }
 double treadmill::currentTargetSpeed() { return targetSpeed; }
 
 void treadmill::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power); }
+void treadmill::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 void treadmill::speedSensor(double speed) { Speed.setValue(speed); }
+void treadmill::instantaneousStrideLengthSensor(double length) {InstantaneousStrideLengthCM.setValue(length);}
+void treadmill::groundContactSensor(double groundContact) {GroundContactMS.setValue(groundContact);}
+void treadmill::verticalOscillationSensor(double verticalOscillation) {VerticalOscillationMM.setValue(verticalOscillation);}

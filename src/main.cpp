@@ -53,7 +53,7 @@ QString peloton_password = "";
 QString pzp_username = "";
 QString pzp_password = "";
 bool testResistance = false;
-bool forceQml = false;
+bool forceQml = true;
 bool miles = false;
 bool bluetooth_no_reconnection = false;
 bool bluetooth_relaxed = false;
@@ -65,6 +65,7 @@ bool bike_wheel_revs = false;
 bool run_cadence_sensor = false;
 bool nordictrack_10_treadmill = false;
 bool gpiotreadmill = false;
+bool reebok_fr30_treadmill = false;
 QString trainProgram;
 QString deviceName = QLatin1String("");
 uint32_t pollDeviceTime = 200;
@@ -89,6 +90,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             nogui = true;
         if (!qstrcmp(argv[i], "-qml"))
             forceQml = true;
+        if (!qstrcmp(argv[i], "-noqml"))
+            forceQml = false;
         if (!qstrcmp(argv[i], "-miles"))
             miles = true;
         if (!qstrcmp(argv[i], "-no-console"))
@@ -127,6 +130,8 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
             nordictrack_10_treadmill = true;
         if (!qstrcmp(argv[i], "-gpiotreadmill"))
             gpiotreadmill = true;
+        if (!qstrcmp(argv[i], "-reebok_fr30_treadmill"))
+            reebok_fr30_treadmill = true;
         if (!qstrcmp(argv[i], "-test-peloton"))
             testPeloton = true;
         if (!qstrcmp(argv[i], "-test-hfb"))
@@ -331,6 +336,7 @@ int main(int argc, char *argv[]) {
         settings.setValue(QStringLiteral("run_cadence_sensor"), run_cadence_sensor);
         settings.setValue(QStringLiteral("nordictrack_10_treadmill"), nordictrack_10_treadmill);
         settings.setValue(QStringLiteral("gpio_treadmill"), gpiotreadmill);
+        settings.setValue(QStringLiteral("reebok_fr30_treadmill"), reebok_fr30_treadmill);
     }
 #endif
 
@@ -387,7 +393,7 @@ int main(int argc, char *argv[]) {
             homefitnessbuddy *h = new homefitnessbuddy(0, 0);
             QObject::connect(h, &homefitnessbuddy::loginState, [&](bool ok) {
                 if (ok) {
-                    h->searchWorkout(QDate(2021, 5, 19), "Christine D'Ercole");
+                    h->searchWorkout(QDate(2021, 8, 21), "Matt Wilpers", 2700);
                     QObject::connect(h, &homefitnessbuddy::workoutStarted, [&](QList<trainrow> *list) {
                         if (list->length() > 0)
                             app->exit(0);
@@ -418,6 +424,8 @@ int main(int argc, char *argv[]) {
         }
     }
 #endif
+
+    settings.setValue(QStringLiteral("app_opening"), settings.value(QStringLiteral("app_opening"), 0).toInt() + 1);
 
     /* test virtual echelon
      * settings.setValue("virtual_device_echelon", true);

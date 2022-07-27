@@ -1,4 +1,4 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location
 
 QT+= charts
 
@@ -23,6 +23,17 @@ qtHaveModule(httpserver) {
 }
 
 CONFIG += c++17 console app_bundle optimize_full ltcg
+
+CONFIG += qmltypes
+QML_IMPORT_NAME = org.cagnulein.qdomyoszwift
+QML_IMPORT_MAJOR_VERSION = 1
+# Additional import path used to resolve QML modules in Qt Creator's code model
+QML_IMPORT_PATH =
+
+# Additional import path used to resolve QML modules just for Qt Quick Designer
+QML_DESIGNER_IMPORT_PATH =
+
+win32:QMAKE_LFLAGS_DEBUG += -static-libstdc++ -static-libgcc
 QMAKE_LFLAGS_RELEASE += -s
 QMAKE_CXXFLAGS += -fno-sized-deallocation
 unix:android: {
@@ -30,7 +41,13 @@ unix:android: {
     QMAKE_CFLAGS_OPTIMIZE_FULL -= -Oz
     QMAKE_CFLAGS_OPTIMIZE_FULL += -O3
 }
+macx: CONFIG += debug
+win32: CONFIG += debug
 macx: CONFIG += static
+macx {
+    QMAKE_INFO_PLIST = macx/Info.plist
+}
+INCLUDEPATH += qmdnsengine/src/include
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -45,16 +62,57 @@ DEFINES += QT_DEPRECATED_WARNINGS IO_UNDER_QT SMTP_BUILD
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 android: include(../android_openssl/openssl.pri)
+# include(../qtzeroconf/qtzeroconf.pri)
 
 SOURCES += \
+   PathController.cpp \
+    characteristicnotifier2a53.cpp \
+    characteristicnotifier2a5b.cpp \
+    characteristicnotifier2acc.cpp \
+    characteristicnotifier2acd.cpp \
+    characteristicnotifier2ad9.cpp \
+    fakeelliptical.cpp \
+   kmlworkout.cpp \
+   nautilusbike.cpp \
+   nordictrackifitadbtreadmill.cpp \
+   octanetreadmill.cpp \
+   proformellipticaltrainer.cpp \
+   proformrower.cpp \
+   proformwifibike.cpp \
+    qmdnsengine/src/src/abstractserver.cpp \
+    qmdnsengine/src/src/bitmap.cpp \
+    qmdnsengine/src/src/browser.cpp \
+    qmdnsengine/src/src/cache.cpp \
+    qmdnsengine/src/src/dns.cpp \
+    qmdnsengine/src/src/hostname.cpp \
+    qmdnsengine/src/src/mdns.cpp \
+    qmdnsengine/src/src/message.cpp \
+    qmdnsengine/src/src/prober.cpp \
+    qmdnsengine/src/src/provider.cpp \
+    qmdnsengine/src/src/query.cpp \
+    qmdnsengine/src/src/record.cpp \
+    qmdnsengine/src/src/resolver.cpp \
+    qmdnsengine/src/src/server.cpp \
+    qmdnsengine/src/src/service.cpp \
     activiotreadmill.cpp \
+   bhfitnesselliptical.cpp \
    bike.cpp \
 	     bluetooth.cpp \
 		bluetoothdevice.cpp \
+    characteristicnotifier2a37.cpp \
+    characteristicnotifier2a63.cpp \
+    characteristicnotifier2ad2.cpp \
+    characteristicwriteprocessor2ad9.cpp \
+   bowflext216treadmill.cpp \
     bowflextreadmill.cpp \
    chronobike.cpp \
+    concept2skierg.cpp \
    cscbike.cpp \
+    dirconmanager.cpp \
+    dirconpacket.cpp \
+    dirconprocessor.cpp \
 	 domyoselliptical.cpp \
+   domyosrower.cpp \
 	     domyostreadmill.cpp \
 		echelonconnectsport.cpp \
    echelonrower.cpp \
@@ -64,6 +122,7 @@ SOURCES += \
 	 elliptical.cpp \
 	eslinkertreadmill.cpp \
     fakebike.cpp \
+   filedownloader.cpp \
     fitmetria_fanfit.cpp \
    fitplusbike.cpp \
 	fitshowtreadmill.cpp \
@@ -104,11 +163,13 @@ SOURCES += \
    iconceptbike.cpp \
 	inspirebike.cpp \
 	keepawakehelper.cpp \
+   keepbike.cpp \
    kingsmithr1protreadmill.cpp \
    kingsmithr2treadmill.cpp \
 	     main.cpp \
    mcfbike.cpp \
 		metric.cpp \
+   nautiluselliptical.cpp \
     nautilustreadmill.cpp \
     npecablebike.cpp \
    pafersbike.cpp \
@@ -116,6 +177,7 @@ SOURCES += \
    peloton.cpp \
    powerzonepack.cpp \
 	proformbike.cpp \
+   proformelliptical.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
    renphobike.cpp \
@@ -125,6 +187,7 @@ SOURCES += \
 	sessionline.cpp \
    shuaa5treadmill.cpp \
 	signalhandler.cpp \
+   simplecrypt.cpp \
     skandikawiribike.cpp \
    smartrowrower.cpp \
    smartspin2k.cpp \
@@ -141,6 +204,7 @@ SOURCES += \
     smtpclient/src/quotedprintable.cpp \
     smtpclient/src/smtpclient.cpp \
    snodebike.cpp \
+   solebike.cpp \
    soleelliptical.cpp \
    solef80treadmill.cpp \
    spirittreadmill.cpp \
@@ -156,8 +220,11 @@ SOURCES += \
    stagesbike.cpp \
 	     toorxtreadmill.cpp \
 		  treadmill.cpp \
+   truetreadmill.cpp \
    trxappgateusbbike.cpp \
+   ultrasportbike.cpp \
    virtualrower.cpp \
+   wahookickrsnapbike.cpp \
 		yesoulbike.cpp \
 		  trainprogram.cpp \
 		trxappgateusbtreadmill.cpp \
@@ -178,14 +245,68 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 INCLUDEPATH += fit-sdk/
 
 HEADERS += \
+   PathController.h \
+    characteristicnotifier2a53.h \
+    characteristicnotifier2a5b.h \
+    characteristicnotifier2acc.h \
+    characteristicnotifier2acd.h \
+    characteristicnotifier2ad9.h \
+    fakeelliptical.h \
+   kmlworkout.h \
+   nautilusbike.h \
+   nordictrackifitadbtreadmill.h \
+   octanetreadmill.h \
+   proformellipticaltrainer.h \
+   proformrower.h \
+   proformwifibike.h \
+    qmdnsengine/src/include/qmdnsengine/abstractserver.h \
+    qmdnsengine/src/include/qmdnsengine/bitmap.h \
+    qmdnsengine/src/include/qmdnsengine/browser.h \
+    qmdnsengine/src/include/qmdnsengine/cache.h \
+    qmdnsengine/src/include/qmdnsengine/dns.h \
+    qmdnsengine/src/include/qmdnsengine/hostname.h \
+    qmdnsengine/src/include/qmdnsengine/mdns.h \
+    qmdnsengine/src/include/qmdnsengine/message.h \
+    qmdnsengine/src/include/qmdnsengine/prober.h \
+    qmdnsengine/src/include/qmdnsengine/provider.h \
+    qmdnsengine/src/include/qmdnsengine/query.h \
+    qmdnsengine/src/include/qmdnsengine/record.h \
+    qmdnsengine/src/include/qmdnsengine/resolver.h \
+    qmdnsengine/src/include/qmdnsengine/server.h \
+    qmdnsengine/src/include/qmdnsengine/service.h \
+    qmdnsengine/src/src/bitmap_p.h \
+    qmdnsengine/src/src/browser_p.h \
+    qmdnsengine/src/src/cache_p.h \
+    qmdnsengine/src/src/hostname_p.h \
+    qmdnsengine/src/src/message_p.h \
+    qmdnsengine/src/src/prober_p.h \
+    qmdnsengine/src/src/provider_p.h \
+    qmdnsengine/src/src/query_p.h \
+    qmdnsengine/src/src/record_p.h \
+    qmdnsengine/src/src/resolver_p.h \
+    qmdnsengine/src/src/server_p.h \
+    qmdnsengine/src/src/service_p.h \
     activiotreadmill.h \
+   bhfitnesselliptical.h \
    bike.h \
 	bluetooth.h \
 	bluetoothdevice.h \
+    characteristicnotifier.h \
+    characteristicnotifier2a37.h \
+    characteristicnotifier2a63.h \
+    characteristicnotifier2ad2.h \
+    characteristicwriteprocessor.h \
+    characteristicwriteprocessor2ad9.h \
+   bowflext216treadmill.h \
     bowflextreadmill.h \
    chronobike.h \
+    concept2skierg.h \
    cscbike.h \
+    dirconmanager.h \
+    dirconpacket.h \
+    dirconprocessor.h \
 	 domyoselliptical.h \
+   domyosrower.h \
 	domyostreadmill.h \
 	echelonconnectsport.h \
    echelonrower.h \
@@ -195,6 +316,7 @@ HEADERS += \
 	 elliptical.h \
    eslinkertreadmill.h \
     fakebike.h \
+   filedownloader.h \
     fitmetria_fanfit.h \
    fitplusbike.h \
     ftmsrower.h \
@@ -202,6 +324,7 @@ HEADERS += \
    homefitnessbuddy.h \
     horizongr7bike.h \
    iconceptbike.h \
+   keepbike.h \
    kingsmithr1protreadmill.h \
    kingsmithr2treadmill.h \
    m3ibike.h \
@@ -436,6 +559,7 @@ HEADERS += \
 	material.h \
    mcfbike.h \
 	metric.h \
+   nautiluselliptical.h \
     nautilustreadmill.h \
     npecablebike.h \
    pafersbike.h \
@@ -443,9 +567,11 @@ HEADERS += \
    peloton.h \
    powerzonepack.h \
 	proformbike.h \
+   proformelliptical.h \
 	proformtreadmill.h \
     qdebugfixup.h \
 	qfit.h \
+    qmdnsengine_export.h \
    renphobike.h \
    rower.h \
 	schwinnic4bike.h \
@@ -453,6 +579,7 @@ HEADERS += \
 	sessionline.h \
    shuaa5treadmill.h \
 	signalhandler.h \
+   simplecrypt.h \
     skandikawiribike.h \
    smartrowrower.h \
    smartspin2k.h \
@@ -471,6 +598,7 @@ HEADERS += \
     smtpclient/src/smtpclient.h \
     smtpclient/src/smtpexports.h \
    snodebike.h \
+   solebike.h \
    soleelliptical.h \
    solef80treadmill.h \
    spirittreadmill.h \
@@ -489,15 +617,22 @@ HEADERS += \
 	treadmill.h \
 	mainwindow.h \
 	trainprogram.h \
+   truetreadmill.h \
    trxappgateusbbike.h \
 	trxappgateusbtreadmill.h \
+   ultrasportbike.h \
 	 virtualbike.h \
    virtualrower.h \
 	virtualtreadmill.h \
 	 domyosbike.h \
+   wahookickrsnapbike.h \
+   wobjectdefs.h \
+   wobjectimpl.h \
         yesoulbike.h \
         scanrecordresult.h \
    zwiftworkout.h
+
+exists(secret.h): HEADERS += secret.h
 
 !ios: HEADERS += charts.h
 
@@ -511,6 +646,7 @@ RESOURCES += \
 
 DISTFILES += \
     .clang-format \
+   AppxManifest.xml \
    android/AndroidManifest.xml \
 	android/build.gradle \
 	android/gradle/wrapper/gradle-wrapper.jar \
@@ -528,6 +664,10 @@ DISTFILES += \
 	android/src/PowerChannelController.java \
 	android/src/SpeedChannelController.java \
 	android/src/com/dsi/ant/channel/PredefinedNetwork.java \
+	android/src/org/qtproject/qt/android/purchasing/Security.java \
+	android/src/org/qtproject/qt/android/purchasing/InAppPurchase.java \
+	android/src/org/qtproject/qt/android/purchasing/Base64.java \
+	android/src/org/qtproject/qt/android/purchasing/Base64DecoderException.java \
 	ios/AppDelegate.swift \
 	ios/BLEPeripheralManager.swift
 
@@ -565,5 +705,10 @@ ios {
     DEFINES+=_Nullable_result=_Nullable NS_FORMAT_ARGUMENT\\(A\\)=
 }
 
-VERSION = 2.9.34
+include($$PWD/purchasing/purchasing.pri)
+INCLUDEPATH += purchasing/qmltypes
+INCLUDEPATH += purchasing/inapp
 
+WINRT_MANIFEST = AppxManifest.xml
+
+VERSION = 2.11.10

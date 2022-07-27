@@ -208,7 +208,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = speed;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
     } else if (newValue.at(1) == 0x10) {
         if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))

@@ -77,7 +77,8 @@ void shuaa5treadmill::update() {
     }
 
     if (initRequest && firstStateChanged) {
-        // btinit(); // commented because this means starting the tape
+        uint8_t initData01[] = {FTMS_REQUEST_CONTROL};
+        writeCharacteristic(initData01, sizeof(initData01), QStringLiteral("init1"), false, true);
         initRequest = false;
     } else if (bluetoothDevice.isValid() //&&
 
@@ -104,13 +105,15 @@ void shuaa5treadmill::update() {
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
+            if(requestInclination < 0)
+                requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));

@@ -176,7 +176,7 @@ void soleelliptical::update() {
         }
 
         // Resistance as incline on Sole E95s Elliptical #419
-        if (requestInclination != -1)
+        if (requestInclination != -100)
             requestResistance = requestInclination;
 
         if (requestResistance != -1) {
@@ -192,7 +192,7 @@ void soleelliptical::update() {
                 forceResistanceAndInclination(requestResistance, currentInclination().value());
             }
             requestResistance = -1;
-        } else if (requestInclination != -1) {
+        } else if (requestInclination != -100) {
             if (requestInclination > 15) {
                 requestInclination = 15;
             } else if (requestInclination == 0) {
@@ -204,7 +204,7 @@ void soleelliptical::update() {
 
                 forceResistanceAndInclination(currentResistance().value(), requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -235,11 +235,16 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
+    // the elliptical send the speed in miles always
+    double miles = 1;
+    if (settings.value(QStringLiteral("sole_treadmill_miles"), true).toBool())
+        miles = 1.60934;
+
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
 
-    if (newValue.length() == 5 && newValue.at(1) == 0x02) {
+    if (newValue.length() == 5 && newValue.at(1) == 0x02 && newValue.at(2) == 0x13) {
 
         Resistance = newValue.at(3) + 1;
         emit debug(QStringLiteral("Current resistance: ") + QString::number(Resistance.value()));
@@ -250,8 +255,8 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
         return;
     }
 
-    double speed =
-        GetSpeedFromPacket(newValue) * settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble();
+    double speed = GetSpeedFromPacket(newValue) *
+                   settings.value(QStringLiteral("domyos_elliptical_speed_ratio"), 1.0).toDouble() * miles;
     double kcal = GetKcalFromPacket(newValue);
     // double distance = GetDistanceFromPacket(newValue) *
     // settings.value("domyos_elliptical_speed_ratio", 1.0).toDouble();
@@ -262,7 +267,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    m_watt = watt;
+    // m_watt = watt;
 
     // Inclination = newValue.at(21);
     if (Resistance.value() < 1) {
@@ -309,7 +314,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
 
 double soleelliptical::GetSpeedFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = (packet.at(11) << 8) | packet.at(12);
+    uint16_t convertedData = (packet.at(11) << 8) | ((uint8_t)packet.at(12));
     double data = (double)convertedData / 100.0f;
     return data;
 }
@@ -485,7 +490,25 @@ void *soleelliptical::VirtualTreadmill() { return virtualTreadmill; }
 
 void *soleelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
-uint16_t soleelliptical::watts() { return m_watt.value(); }
+uint16_t soleelliptical::watts() {
+
+    QSettings settings;
+
+    // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
+
+    uint16_t watts = 0;
+    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    if (currentSpeed().value() > 0) {
+
+        double pace = 60 / currentSpeed().value();
+        double VO2R = 210.0 / pace;
+        double VO2A = (VO2R * weight) / 1000.0;
+        double hwatts = 75 * VO2A;
+        double vwatts = ((9.8 * weight) * (currentResistance().value() / 2 / 100.0));
+        watts = hwatts + vwatts;
+    }
+    return watts;
+}
 
 void soleelliptical::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

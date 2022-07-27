@@ -427,7 +427,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
     KCal = kcal;
     Distance = distance;
@@ -672,7 +672,7 @@ uint16_t domyosbike::watts() {
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
-    if (currentSpeed().value() <= 0) {
+    if (currentCadence().value() <= 0) {
         return 0;
     }
     v = wattsFromResistance(currentResistance().value());

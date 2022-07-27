@@ -35,7 +35,8 @@
 class trxappgateusbbike : public bike {
     Q_OBJECT
   public:
-    trxappgateusbbike(bool noWriteResistance, bool noHeartService);
+    trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
+                      double bikeResistanceGain);
     bool connected();
 
     void *VirtualBike();
@@ -65,6 +66,8 @@ class trxappgateusbbike : public bike {
     lockscreen *h = 0;
 #endif
 
+    uint8_t bikeResistanceOffset = 4;
+    double bikeResistanceGain = 1.0;
     bool noWriteResistance = false;
     bool noHeartService = false;
 
@@ -97,6 +100,8 @@ class trxappgateusbbike : public bike {
         ICONSOLE_2 = 10,
         HERTZ_XR_770 = 11,
         CASALL = 12,
+        VIRTUFIT = 13,
+        HERTZ_XR_770_2 = 14,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

@@ -203,7 +203,7 @@ void mcfbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
             Speed = (((uint16_t)newValue.at(11) << 8) | (uint16_t)((uint8_t)newValue.at(12))) / 10.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
 
         Distance += ((Speed.value() / 3600000.0) *

@@ -31,7 +31,7 @@
 class fitmetria_fanfit : public bluetoothdevice {
     Q_OBJECT
   public:
-    fitmetria_fanfit();
+    fitmetria_fanfit(bluetoothdevice *parentDevice);
     bool connected();
 
   private:
@@ -41,6 +41,8 @@ class fitmetria_fanfit : public bluetoothdevice {
 
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+
+    bluetoothdevice *parentDevice = nullptr;
 
   signals:
     void disconnected();

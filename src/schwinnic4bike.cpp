@@ -163,7 +163,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -294,7 +294,7 @@ void schwinnic4bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         LastCrankEventTime += (uint16_t)(1024.0 / (((double)(Cadence.value())) / 60.0));
     }
 
-    // if ee change this, also change the wattsFromResistance function. We can create a standard function in order to
+    // if we change this, also change the wattsFromResistance function. We can create a standard function in order to
     // have all the costants in one place (I WANT MORE TIME!!!)
     double ac = 0.01243107769;
     double bc = 1.145964912;
@@ -420,7 +420,10 @@ void schwinnic4bike::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            uint8_t bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 4).toInt();
+            double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1.0).toDouble();
+            virtualBike =
+                new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &schwinnic4bike::changeInclination);
         }
@@ -553,7 +556,7 @@ int schwinnic4bike::pelotonToBikeResistance(int pelotonResistance) {
         // y = 0,04x2 - 1,32x + 11,8
         return ((0.04 * pow(pelotonResistance, 2)) - (1.32 * pelotonResistance) + 11.8);
     } else {
-        if(pelotonResistance > 20)
+        if (pelotonResistance > 20)
             return (((double)pelotonResistance - 20.0) * 1.25);
         else
             return 1;
@@ -594,8 +597,9 @@ void schwinnic4bike::resistanceFromFTMSAccessory(int8_t res) {
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
 }
 
+/*
 uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
-    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
+    qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value() << power;
 
     if (Cadence.value() == 0)
         return 1;
@@ -628,3 +632,4 @@ uint8_t schwinnic4bike::resistanceFromPowerRequest(uint16_t power) {
     else
         return 1;
 }
+*/

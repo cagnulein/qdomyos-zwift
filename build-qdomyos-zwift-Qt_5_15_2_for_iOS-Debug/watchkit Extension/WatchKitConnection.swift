@@ -23,6 +23,7 @@ class WatchKitConnection: NSObject {
     static let shared = WatchKitConnection()
     public static var distance = 0.0
     public static var kcal = 0.0
+    public static var stepCadence = 0
     weak var delegate: WatchKitConnectionDelegate?
     
     private override init() {

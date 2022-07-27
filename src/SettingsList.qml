@@ -37,6 +37,7 @@ ColumnLayout {
                     folder: "file://" + rootItem.getWritableAppDir() + 'settings'
                     showDotAndDotDot: false
                     showDirs: true
+                    sortReversed: true
                 }
                 model: folderModel
                 delegate: Component {

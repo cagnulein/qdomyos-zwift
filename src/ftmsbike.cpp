@@ -14,6 +14,10 @@
 #include "keepawakehelper.h"
 #include <chrono>
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 using namespace std::chrono_literals;
 
 ftmsbike::ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
@@ -52,11 +56,29 @@ void ftmsbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     loop.exec();
 }
 
-void ftmsbike::forceResistance(int8_t requestResistance) {
-
-    // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a FTMS bike
-    if (virtualBike->connected())
+void ftmsbike::init() {
+    if (initDone)
         return;
+
+    uint8_t write[] = {FTMS_REQUEST_CONTROL};
+    writeCharacteristic(write, sizeof(write), "requestControl", false, true);
+    write[0] = {FTMS_START_RESUME};
+    writeCharacteristic(write, sizeof(write), "start simulation", false, true);
+
+    initDone = true;
+    initRequest = false;
+}
+
+void ftmsbike::forcePower(int16_t requestPower) {
+    uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
+
+    write[1] = ((uint16_t)requestPower) & 0xFF;
+    write[2] = ((uint16_t)requestPower) >> 8;
+
+    writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
+}
+
+void ftmsbike::forceResistance(int8_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -98,9 +120,21 @@ void ftmsbike::update() {
 
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
-                forceResistance(requestResistance);
+                // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
+                // FTMS bike. This condition handles the peloton requests
+                if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
+                    (requestPower == 0 || requestPower == -1)) {
+                    init();
+                    forceResistance(requestResistance);
+                }
             }
             requestResistance = -1;
+        }
+        if (requestPower != -1) {
+            qDebug() << QStringLiteral("writing power") << requestPower;
+            init();
+            forcePower(requestPower);
+            requestPower = -1;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -170,7 +204,7 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -225,6 +259,27 @@ void ftmsbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         emit resistanceRead(Resistance.value());
         index += 2;
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+    } else {
+        double ac = 0.01243107769;
+        double bc = 1.145964912;
+        double cc = -23.50977444;
+
+        double ar = 0.1469553975;
+        double br = -5.841344538;
+        double cr = 97.62165482;
+
+        if (Cadence.value() && m_watt.value()) {
+            m_pelotonResistance =
+                (((sqrt(pow(br, 2.0) - 4.0 * ar *
+                                           (cr - (m_watt.value() * 132.0 /
+                                                  (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
+                   br) /
+                  (2.0 * ar)) *
+                 settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+                settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+            Resistance = m_pelotonResistance;
+            emit resistanceRead(Resistance.value());
+        }
     }
 
     if (Flags.instantPower) {
@@ -346,6 +401,11 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
         }
     }
 
+    if (state != QLowEnergyService::ServiceState::ServiceDiscovered) {
+        qDebug() << QStringLiteral("ignoring this state");
+        return;
+    }
+
     qDebug() << QStringLiteral("all services discovered!");
 
     for (QLowEnergyService *s : qAsConst(gattCommunicationChannelService)) {
@@ -453,6 +513,17 @@ void ftmsbike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &charact
     if (gattWriteCharControlPointId.isValid()) {
         qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 
+        // handling gears
+        if (b.at(0) == 0x11) {
+            qDebug() << "applying gears mod" << m_gears;
+            int16_t slope = (((uint8_t)b.at(3)) + (b.at(4) << 8));
+            if (m_gears != 0) {
+                slope += (m_gears * 50);
+                b[3] = slope & 0xFF;
+                b[4] = slope >> 8;
+            }
+        }
+
         gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, b);
     }
 }
@@ -510,11 +581,17 @@ void ftmsbike::error(QLowEnergyController::Error err) {
                m_control->errorString());
 }
 
+int ftmsbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+        if(bluetoothDevice.name().toUpper().startsWith("SUITO")) {
+            qDebug() << QStringLiteral("SUITO found");
+            max_resistance = 16;
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsbike::serviceDiscovered);

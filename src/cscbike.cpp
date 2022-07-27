@@ -209,7 +209,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 

@@ -79,17 +79,36 @@ void solef80treadmill::btinit() {
 
     QSettings settings;
     bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
+    bool f63 = settings.value(QStringLiteral("sole_treadmill_f63"), false).toBool();
+    bool tt8 = settings.value(QStringLiteral("sole_treadmill_tt8"), false).toBool();
 
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
     uint8_t initData02[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
     uint8_t initData03[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03_f63[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03b_f63[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03c_f63[] = {0x5b, 0x02, 0x03, 0x00, 0x5d};
+    uint8_t initData03d_f63[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
+    uint8_t initData03e_f63[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};
+    uint8_t initData03f_f63[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+    uint8_t initData03_tt8[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+    uint8_t initData04_f63[] = {0x5b, 0x06, 0x07, 0x00, 0x23, 0x00, 0x84, 0x40, 0x5d};
+    uint8_t initData04_tt8[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0x43, 0x5d};
     uint8_t initData04[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
+    uint8_t initData05_f63[] = {0x5b, 0x03, 0x08, 0x30, 0x07, 0x5d};
+    uint8_t initData05_tt8[] = {0x5b, 0x03, 0x08, 0x20, 0x02, 0x5d};
     uint8_t initData05[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
     uint8_t initData06[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
+    uint8_t initData06_tt8[] = {0x5b, 0x05, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x5d};
     uint8_t initData07[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
     uint8_t initData08[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData09[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
+    uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
+
+    uint8_t initData07_f63[] = {0x5b, 0x16, 0x24, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    uint8_t initData07b_f63[] = {0x00, 0x00, 0x00, 0x00, 0x5d};
     // uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
     if (gattCustomService) {
@@ -109,7 +128,96 @@ void solef80treadmill::btinit() {
         if (!f65)
             writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
 
-        if (f65) {
+        if (tt8) {
+            writeCharacteristic(initData03_tt8, sizeof(initData03_tt8), QStringLiteral("init3_tt8"), false, false);
+            writeCharacteristic(initData03_tt8, sizeof(initData03_tt8), QStringLiteral("init3_tt8"), false, false);
+            writeCharacteristic(initData03_tt8, sizeof(initData03_tt8), QStringLiteral("init3_tt8"), false, false);
+            writeCharacteristic(initData03_tt8, sizeof(initData03_tt8), QStringLiteral("init3_tt8"), false, true);
+
+            writeCharacteristic(initData04_tt8, sizeof(initData04_tt8), QStringLiteral("init4_tt8"), false, true);
+            writeCharacteristic(initData05_tt8, sizeof(initData05_tt8), QStringLiteral("init5_tt8"), false, false);
+            writeCharacteristic(initData05_tt8, sizeof(initData05_tt8), QStringLiteral("init5_tt8"), false, true);
+            writeCharacteristic(initData05_tt8, sizeof(initData05_tt8), QStringLiteral("init5_tt8"), false, false);
+            writeCharacteristic(initData05_tt8, sizeof(initData05_tt8), QStringLiteral("init5_tt8"), false, true);
+
+            writeCharacteristic(initData06_tt8, sizeof(initData06_tt8), QStringLiteral("init6_tt8"), false, false);
+            writeCharacteristic(initData06_tt8, sizeof(initData06_tt8), QStringLiteral("init6_tt8"), false, true);
+
+            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, false);
+            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
+
+            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+
+        } else if (f63) {
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData03b_f63, sizeof(initData03b_f63), QStringLiteral("init3b_f63"), false, true);
+
+            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
+            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
+            writeCharacteristic(initData03c_f63, sizeof(initData03c_f63), QStringLiteral("init3c_f63"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, false);
+
+            writeCharacteristic(initData03d_f63, sizeof(initData03d_f63), QStringLiteral("init3d_f63"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData03e_f63, sizeof(initData03e_f63), QStringLiteral("init3e_f63"), false, false);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
+            writeCharacteristic(initData03f_f63, sizeof(initData03f_f63), QStringLiteral("init3f_f63"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData04_f63, sizeof(initData04_f63), QStringLiteral("init4_f63"), false, true);
+
+            writeCharacteristic(initData05_f63, sizeof(initData05_f63), QStringLiteral("init5_f63"), false, true);
+
+            writeCharacteristic(initData06, sizeof(initData06), QStringLiteral("init6"), false, true);
+
+            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, false);
+            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
+            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, true);
+            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
+            writeCharacteristic(initData07_f63, sizeof(initData07_f63), QStringLiteral("init7a"), false, true);
+            writeCharacteristic(initData07b_f63, sizeof(initData07b_f63), QStringLiteral("init7b"), false, false);
+
+            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, false);
+            writeCharacteristic(initData07, sizeof(initData07), QStringLiteral("init7"), false, true);
+
+            writeCharacteristic(initData08, sizeof(initData08), QStringLiteral("init8"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+            writeCharacteristic(initData03_f63, sizeof(initData03_f63), QStringLiteral("init3_f63"), false, true);
+
+            writeCharacteristic(initData09, sizeof(initData09), QStringLiteral("init9"), false, true);
+
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init10"), false, true);
+
+        } else if (f65) {
             writeCharacteristic(initData01a, sizeof(initData01a), QStringLiteral("init1a"), false, false);
             writeCharacteristic(initData02, sizeof(initData02), QStringLiteral("init2"), false, true);
             writeCharacteristic(initData03, sizeof(initData03), QStringLiteral("init3"), false, true);
@@ -150,6 +258,8 @@ void solef80treadmill::update() {
 
     QSettings settings;
     bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
+    bool f63 = settings.value(QStringLiteral("sole_treadmill_f63"), false).toBool();
+    bool tt8 = settings.value(QStringLiteral("sole_treadmill_tt8"), false).toBool();
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -160,7 +270,7 @@ void solef80treadmill::update() {
     if (initRequest && firstStateChanged) {
         btinit();
         initRequest = false;
-    } else if (bluetoothDevice.isValid() //&&
+    } else if (bluetoothDevice.isValid() && initDone //&&
 
                // m_control->state() == QLowEnergyController::DiscoveredState //&&
                // gattCommunicationChannelService &&
@@ -183,7 +293,7 @@ void solef80treadmill::update() {
 
         if (gattCustomService) {
             writeCharacteristic(noop, sizeof(noop), QStringLiteral("noop"), false, true);
-            if (f65)
+            if (f65 || f63 || tt8)
                 writeCharacteristic(noop2, sizeof(noop2), QStringLiteral("noop2"), false, true);
         }
 
@@ -195,14 +305,20 @@ void solef80treadmill::update() {
             // i have to do the reset on when the speed is equal to the current
             // requestSpeed = -1;
         }
-        if (requestInclination != -1) {
-            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+        if (requestInclination != -100) {
+            if(requestInclination < 0)
+                requestInclination = 0;
+            // this treadmill has only 1% step inclination
+            if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
+            } else if((int)requestInclination == (int)currentInclination().value()) {
+                qDebug() << "int inclination match the current one" << requestInclination << currentInclination().value();
+                requestInclination = -100;
             }
             // i have to do the reset on when the inclination is equal to the current
-            // requestInclination = -1;
+            // requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -298,7 +414,7 @@ void solef80treadmill::forceIncline(double requestIncline) {
             requestInclinationState = UP;
         else if (requestInclinationState == DOWN) {
             requestInclinationState = IDLE;
-            this->requestInclination = -1;
+            this->requestInclination = -100;
             return;
         }
         if (gattCustomService)
@@ -308,13 +424,13 @@ void solef80treadmill::forceIncline(double requestIncline) {
             requestInclinationState = DOWN;
         else if (requestInclinationState == UP) {
             requestInclinationState = IDLE;
-            this->requestInclination = -1;
+            this->requestInclination = -100;
             return;
         }
         if (gattCustomService)
             writeCharacteristic(down, sizeof(down), QStringLiteral("Inclination down"), false, true);
     } else {
-        this->requestInclination = -1;
+        this->requestInclination = -100;
         requestInclinationState = IDLE;
     }
 }
@@ -332,6 +448,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+    bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
+    bool f63 = settings.value(QStringLiteral("sole_treadmill_f63"), false).toBool();
+    bool tt8 = settings.value(QStringLiteral("sole_treadmill_tt8"), false).toBool();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
@@ -376,8 +495,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         lastRefreshCharacteristicChanged = now;
 
-    } else if (characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
-               newValue.at(1) == 0x02 && newValue.at(2) == 0x03) {
+    } else if ((characteristic.uuid() == _gattNotifyCharId && newValue.length() == 5 && newValue.at(0) == 0x5b &&
+                newValue.at(1) == 0x02 && newValue.at(2) == 0x03) &&
+               !f63) {
         // stop event from the treadmill
         qDebug() << "stop/pause event detected from the treadmill";
         initRequest = true;
@@ -648,10 +768,18 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
             virtualTreadmill = new virtualtreadmill(this, noHeartService);
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &solef80treadmill::debug);
+            connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                    &solef80treadmill::changeInclinationRequested);
         }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
+}
+
+void solef80treadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
 }
 
 void solef80treadmill::descriptorWritten(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue) {

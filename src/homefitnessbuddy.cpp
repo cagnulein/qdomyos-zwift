@@ -19,11 +19,18 @@ homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(par
     retry.setInterval(10s);
     connect(&retry, &QTimer::timeout, this, &homefitnessbuddy::startEngine);
 
+    if (!settings.value(QStringLiteral("peloton_username"), QStringLiteral("username"))
+             .toString()
+             .compare(QStringLiteral("username"))) {
+        qDebug() << QStringLiteral("invalid peloton credentials");
+        return;
+    }
+
     startEngine();
 }
 
 void homefitnessbuddy::startEngine() {
-    QSettings settings;    
+    QSettings settings;
     retry.stop();
     connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::login_onfinish);
     QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/"));
@@ -46,7 +53,7 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
 
     qDebug() << QStringLiteral("login_onfinish") << payload;
 
-    if(!payload.length()) {
+    if (!payload.length()) {
         qDebug() << QStringLiteral("homefitnessbuddy error, trying again");
         retry.setSingleShot(true);
         retry.start(10s);
@@ -102,27 +109,77 @@ void homefitnessbuddy::login_onfinish(QNetworkReply *reply) {
     emit loginState(true);
 
     // REMOVE IT
-    // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole");
+    // searchWorkout(QDate(2021,5,19) ,"Christine D'Ercole", 3600);
+    // searchWorkout(QDate(2020,1,18) ,"Denis & Matt", 3600); //     Multiple Instructors
 }
 
-void homefitnessbuddy::searchWorkout(QDate date, const QString &coach) {
+void homefitnessbuddy::searchWorkout(QDate date, const QString &coach, int pedaling_duration) {
+    int found = 0;
     for (const QJsonValue &r : qAsConst(lessons)) {
         QDate d = QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
         d = d.addYears(100);
         bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
+        qDebug()
+            << coach.contains('&') << r.toObject().value(QStringLiteral("Coach")).toString()
+            << r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"))
+            << d << date;
+        c |= coach.contains('&') &&
+             r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
         if (d == date && c) {
-            connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
-            QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));
-            QUrlQuery query;
-            query.addQueryItem(QStringLiteral("class_id"), r.toObject().value(QStringLiteral("Class ID")).toString());
-            url.setQuery(query.query());
-            QNetworkRequest request(url);
+            found++;
+        }
+    }
 
-            // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-            request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+    if (found == 1) {
+        for (const QJsonValue &r : qAsConst(lessons)) {
+            QDate d =
+                QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
+            d = d.addYears(100);
+            bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
+            c |=
+                coach.contains('&') &&
+                r.toObject().value(QStringLiteral("Coach")).toString().contains(QStringLiteral("Multiple Instructors"));
+            if (d == date && c) {
+                connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
+                QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));
+                QUrlQuery query;
+                query.addQueryItem(QStringLiteral("class_id"),
+                                   r.toObject().value(QStringLiteral("Class ID")).toString());
+                url.setQuery(query.query());
+                QNetworkRequest request(url);
 
-            mgr->get(request);
-            return;
+                // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+                request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+
+                mgr->get(request);
+                return;
+            }
+        }
+    } else if (found > 1) {
+        qDebug() << QStringLiteral("HomeFitnessBuddy found more than one workout with the same date and same "
+                                   "Instructor, try to filter this out using the length...");
+        for (const QJsonValue &r : qAsConst(lessons)) {
+            QDate d =
+                QDate::fromString(r.toObject().value(QStringLiteral("Date")).toString(), QStringLiteral("MM/dd/yy"));
+            d = d.addYears(100);
+            bool c = !coach.compare(r.toObject().value(QStringLiteral("Coach")).toString());
+            int len = r.toObject().value(QStringLiteral("Length")).toString().toInt();
+            bool duration = (len == (pedaling_duration / 60));
+            if (d == date && c && duration) {
+                connect(mgr, &QNetworkAccessManager::finished, this, &homefitnessbuddy::search_workout_onfinish);
+                QUrl url(QStringLiteral("https://app.homefitnessbuddy.com/peloton/powerzone/zwift_export.php"));
+                QUrlQuery query;
+                query.addQueryItem(QStringLiteral("class_id"),
+                                   r.toObject().value(QStringLiteral("Class ID")).toString());
+                url.setQuery(query.query());
+                QNetworkRequest request(url);
+
+                // request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+                request.setHeader(QNetworkRequest::UserAgentHeader, QStringLiteral("qdomyos-zwift"));
+
+                mgr->get(request);
+                return;
+            }
         }
     }
 }

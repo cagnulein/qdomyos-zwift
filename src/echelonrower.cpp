@@ -100,6 +100,9 @@ void echelonrower::sendPoll() {
 }
 
 void echelonrower::update() {
+    if (m_control == nullptr)
+        return;
+
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
         emit disconnected();
         return;
@@ -211,16 +214,19 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     /*if ((uint8_t)(newValue.at(0)) != 0xf0 && (uint8_t)(newValue.at(1)) != 0xd1)
         return;*/
 
-    double distance = GetDistanceFromPacket(newValue);
+    // double distance = GetDistanceFromPacket(newValue);
 
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(11));
         StrokesCount += (Cadence.value()) *
-                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 600000;
+                        ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
     Speed = (0.37497622 * ((double)Cadence.value())) / 2.0;
+    StrokesLength =
+        ((Speed.value() / 60.0) * 1000.0) /
+        Cadence.value(); // this is just to fill the tile, but it's quite useless since the machinery doesn't report it
     if (watts())
         KCal +=
             ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
@@ -228,9 +234,8 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
                                                               //* 3.5) / 200 ) / 60
-    // Distance += ((Speed.value() / 3600000.0) *
-    // ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) );
-    Distance = distance;
+    Distance += ((Speed.value() / 3600000.0) *
+                 ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     if (Cadence.value() > 0) {
         CrankRevs++;
@@ -275,7 +280,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
-    qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
+    // qDebug() << QStringLiteral("Current Distance: ") + QString::number(distance);
     qDebug() << QStringLiteral("Current CrankRevs: ") + QString::number(CrankRevs);
     qDebug() << QStringLiteral("Last CrankEventTime: ") + QString::number(LastCrankEventTime);
     qDebug() << QStringLiteral("Current Watt: ") + QString::number(watts());
@@ -439,40 +444,38 @@ void echelonrower::error(QLowEnergyController::Error err) {
 
 void echelonrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << "Found new device: " + device.name() + " (" + device.address().toString() + ')';
-    if (device.name().startsWith(QStringLiteral("ECH"))) {
-        bluetoothDevice = device;
+    bluetoothDevice = device;
 
-        m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
-        connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
-        connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, &echelonrower::error);
-        connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
+    m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
+    connect(m_control, &QLowEnergyController::serviceDiscovered, this, &echelonrower::serviceDiscovered);
+    connect(m_control, &QLowEnergyController::discoveryFinished, this, &echelonrower::serviceScanDone);
+    connect(m_control,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, &echelonrower::error);
+    connect(m_control, &QLowEnergyController::stateChanged, this, &echelonrower::controllerStateChanged);
 
-        connect(m_control,
-                static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
-                this, [this](QLowEnergyController::Error error) {
-                    Q_UNUSED(error);
-                    Q_UNUSED(this);
-                    qDebug() << QStringLiteral("Cannot connect to remote device.");
-                    emit disconnected();
-                });
-        connect(m_control, &QLowEnergyController::connected, this, [this]() {
-            Q_UNUSED(this);
-            qDebug() << QStringLiteral("Controller connected. Search services...");
-            m_control->discoverServices();
-        });
-        connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
-            Q_UNUSED(this);
-            qDebug() << QStringLiteral("LowEnergy controller disconnected");
-            emit disconnected();
-        });
+    connect(m_control,
+            static_cast<void (QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error),
+            this, [this](QLowEnergyController::Error error) {
+                Q_UNUSED(error);
+                Q_UNUSED(this);
+                qDebug() << QStringLiteral("Cannot connect to remote device.");
+                emit disconnected();
+            });
+    connect(m_control, &QLowEnergyController::connected, this, [this]() {
+        Q_UNUSED(this);
+        qDebug() << QStringLiteral("Controller connected. Search services...");
+        m_control->discoverServices();
+    });
+    connect(m_control, &QLowEnergyController::disconnected, this, [this]() {
+        Q_UNUSED(this);
+        qDebug() << QStringLiteral("LowEnergy controller disconnected");
+        emit disconnected();
+    });
 
-        // Connect
-        m_control->connectToDevice();
-        return;
-    }
+    // Connect
+    m_control->connectToDevice();
+    return;
 }
 
 bool echelonrower::connected() {

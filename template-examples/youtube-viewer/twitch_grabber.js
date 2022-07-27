@@ -93,9 +93,14 @@ class TwitchGrabber {
         }
     }
 
-    on_fail(e) {
-        console.error('fail downloading / parsing ' + e);
-        if (this.on_grab) {
+    on_fail(jqXHR, textStatus, errorThrown) {
+        console.error('fail downloading / parsing ts = ' + textStatus + '; err' + errorThrown);
+        if (jqXHR.status == 401 || jqXHR.status == 403) {
+            this.access = null;
+            this.token = null;
+            this.grab(this.ajax_settings.raw_query);
+        }
+        else if (this.on_grab) {
             this.on_grab([], this.ajax_settings.raw_query, 'twitch');
         }
     }
@@ -126,6 +131,7 @@ class TwitchGrabber {
     }
 
     on_curl_videos(json_obj) {
+        json_obj.data.reverse();
         for (let d of json_obj.data) {
             d.link = TWITCH_VIDEO_ID_PRE + d.id;
             d.uid = TWITCH_VIDEO_ID_PRE + d.id;

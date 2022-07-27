@@ -49,10 +49,34 @@ void trxappgateusbtreadmill::writeCharacteristic(uint8_t *data, uint8_t data_len
     }
 }
 
-void trxappgateusbtreadmill::forceSpeedOrIncline(double requestSpeed, double requestIncline) {
-    Q_UNUSED(requestSpeed);
-    Q_UNUSED(requestIncline);
+void trxappgateusbtreadmill::changeInclinationRequested(double grade, double percentage) {
+    if (percentage < 0)
+        percentage = 0;
+    changeInclination(grade, percentage);
 }
+
+void trxappgateusbtreadmill::forceIncline(double requestIncline) {
+    QSettings settings;
+    bool reebok_fr30_treadmill = settings.value(QStringLiteral("reebok_fr30_treadmill"), false).toBool();
+
+    if (requestIncline < 0)
+        requestIncline = 0;
+    if (!reebok_fr30_treadmill) {
+        uint8_t write[] = {0xf0, 0xac, 0x01, 0xd3, 0x03, 0x64, 0x64, 0x3b};
+        write[4] = (requestIncline + 1);
+        write[7] = write[4] + 0x38;
+
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+    } else {
+        uint8_t write[] = {0xf0, 0xac, 0x32, 0xd3, 0x01, 0x64, 0x64, 0x6a};
+        write[4] = (requestIncline + 1);
+        write[7] = write[4] + 0x69;
+
+        writeCharacteristic(write, sizeof(write), QStringLiteral("forceIncline"), false, true);
+    }
+}
+
+void trxappgateusbtreadmill::forceSpeed(double requestSpeed) {}
 
 void trxappgateusbtreadmill::update() {
     QSettings settings;
@@ -91,7 +115,8 @@ void trxappgateusbtreadmill::update() {
         } else if (treadmill_type == TYPE::DKN_2) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x04, 0x01, 0x97};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false || jtx_fitness_sprint_treadmill) {
+        } else if (treadmill_type == TYPE::DKN || treadmill_type == TYPE::DKN_2 || toorx30 == false ||
+                   jtx_fitness_sprint_treadmill) {
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x01, 0xd3, 0x66};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else {
@@ -102,26 +127,16 @@ void trxappgateusbtreadmill::update() {
         if (requestSpeed != -1) {
             if (requestSpeed != currentSpeed().value()) {
                 emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
-                double inc = Inclination.value();
-                if (requestInclination != -1) {
-                    inc = requestInclination;
-                    requestInclination = -1;
-                }
-                forceSpeedOrIncline(requestSpeed, inc);
+                forceSpeed(requestSpeed);
             }
             requestSpeed = -1;
         }
-        if (requestInclination != -1) {
+        if (requestInclination != -100) {
             if (requestInclination != currentInclination().value()) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
-                double speed = currentSpeed().value();
-                if (requestSpeed != -1) {
-                    speed = requestSpeed;
-                    requestSpeed = -1;
-                }
-                forceSpeedOrIncline(speed, requestInclination);
+                forceIncline(requestInclination);
             }
-            requestInclination = -1;
+            requestInclination = -100;
         }
         if (requestStart != -1) {
             emit debug(QStringLiteral("starting..."));
@@ -202,7 +217,20 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
 #endif
     {
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+            lockscreen h;
+            long appleWatchHeartRate = h.heartRate();
+            h.setKcal(KCal.value());
+            h.setDistance(Distance.value());
+            Heart = appleWatchHeartRate;
+            debug("Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate));
+#else
             Heart = 0;
+#endif
+#else
+            Heart = 0;
+#endif
         }
     }
     FanSpeed = 0;
@@ -351,9 +379,12 @@ void trxappgateusbtreadmill::btinit(bool startTape) {
         const uint8_t initData3[] = {0xf0, 0xa1, 0x04, 0x01, 0x96};
         const uint8_t initData4[] = {0xf0, 0xa3, 0x04, 0x01, 0x04, 0x9c};
         const uint8_t initData5[] = {0xf0, 0xac, 0x04, 0x01, 0x01, 0x64, 0x64, 0x6a};
-        const uint8_t initData6[] = {0xf0, 0xa4, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0xa6};
-        const uint8_t initData7[] = {0xf0, 0xa4, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa4};
-        const uint8_t initData8[] = {0xf0, 0xa4, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x06, 0x01, 0x01, 0xa9};
+        const uint8_t initData6[] = {0xf0, 0xa4, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0xa6};
+        const uint8_t initData7[] = {0xf0, 0xa4, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0xa4};
+        const uint8_t initData8[] = {0xf0, 0xa4, 0x04, 0x01, 0x01, 0x01, 0x01, 0x01,
+                                     0x01, 0x01, 0x01, 0x01, 0x06, 0x01, 0x01, 0xa9};
         const uint8_t initData9[] = {0xf0, 0xa2, 0x04, 0x01, 0x97};
         const uint8_t initData10[] = {0xf0, 0xa5, 0x04, 0x01, 0x02, 0x9c};
 
@@ -481,7 +512,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
 
         gattWriteCharacteristic = gattCommunicationChannelService->characteristic(_gattWriteCharacteristicId);
         gattNotifyCharacteristic = gattCommunicationChannelService->characteristic(_gattNotifyCharacteristicId);
-        if(treadmill_type == TYPE::DKN_2)
+        if (treadmill_type == TYPE::DKN_2)
             gattNotify2Characteristic = gattCommunicationChannelService->characteristic(_gattNotify2CharacteristicId);
         Q_ASSERT(gattWriteCharacteristic.isValid());
         Q_ASSERT(gattNotifyCharacteristic.isValid());
@@ -505,6 +536,8 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, false);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &trxappgateusbtreadmill::debug);
+                connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
+                        &trxappgateusbtreadmill::changeInclinationRequested);
             }
         }
         firstVirtualTreadmill = 1;
@@ -516,7 +549,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
         gattCommunicationChannelService->writeDescriptor(
             gattNotifyCharacteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
 
-        if(treadmill_type == TYPE::DKN_2 && gattNotify2Characteristic.isValid())
+        if (treadmill_type == TYPE::DKN_2 && gattNotify2Characteristic.isValid())
             gattCommunicationChannelService->writeDescriptor(
                 gattNotify2Characteristic.descriptor(QBluetoothUuid::ClientCharacteristicConfiguration), descriptor);
     }
@@ -587,7 +620,7 @@ void trxappgateusbtreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device
         device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
         if (dkn_endurun_treadmill) {
             treadmill_type = TYPE::DKN;
-        } else if(device.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) {
+        } else if (device.name().toUpper().startsWith(QStringLiteral("DKN RUN"))) {
             treadmill_type = TYPE::DKN_2;
         } else if (device.name().toUpper().startsWith(QStringLiteral("I-RUNNING")) ||
                    device.name().toUpper().startsWith(QStringLiteral("ICONSOLE+")) ||
@@ -656,3 +689,5 @@ void trxappgateusbtreadmill::controllerStateChanged(QLowEnergyController::Contro
         m_control->connectToDevice();
     }
 }
+
+double trxappgateusbtreadmill::minStepInclination() { return 1.0; }

@@ -26,6 +26,8 @@ import Qt.labs.settings 1.0
             property bool zwift_negative_inclination_x2: false
             property real zwift_inclination_offset: 0
             property real zwift_inclination_gain: 1.0
+            property real echelon_resistance_offset: 0
+            property real echelon_resistance_gain: 1.0
 
             property bool speed_power_based: false
             property int bike_resistance_start: 1
@@ -101,6 +103,8 @@ import Qt.labs.settings 1.0
             property int  tile_moving_time_order: 21
             property bool tile_peloton_offset_enabled: false
             property int  tile_peloton_offset_order: 22
+            property bool tile_peloton_difficulty_enabled: false
+            property int  tile_peloton_difficulty_order: 32
             property bool tile_peloton_resistance_enabled: true
             property int  tile_peloton_resistance_order: 15
             property bool tile_datetime_enabled: true
@@ -137,6 +141,8 @@ import Qt.labs.settings 1.0
             property int  tile_targetmets_order: 29
             property bool tile_steering_angle_enabled: false
             property int  tile_steering_angle_order: 30
+            property bool tile_pid_hr_enabled: false
+            property int  tile_pid_hr_order: 31
 
             property real heart_rate_zone1: 70.0
             property real heart_rate_zone2: 80.0
@@ -149,12 +155,18 @@ import Qt.labs.settings 1.0
             property real peloton_offset: 0
 
             property string treadmill_pid_heart_zone: "Disabled"
+            property real pacef_1mile: 250
+            property real pacef_5km: 300
+            property real pacef_10km: 320
+            property real pacef_halfmarathon: 340
+            property real pacef_marathon: 360
+            property string pace_default: "Half Marathon"
 
             property bool domyos_treadmill_buttons: false
             property bool domyos_treadmill_distance_display: true
             property bool domyos_treadmill_display_invert: false
 
-            property real domyos_bike_cadence_filter: 0.0            
+            property real domyos_bike_cadence_filter: 0.0
             property bool domyos_bike_display_calories: true
 
             property real domyos_elliptical_speed_ratio: 1.0
@@ -167,10 +179,11 @@ import Qt.labs.settings 1.0
             property bool proform_tour_de_france_clc: false
             property bool proform_tdf_jonseed_watt: false
             property bool proform_studio: false
+            property bool proform_tdf_10: false
 
             property double horizon_gr7_cadence_multiplier: 1.0
 
-            property int  fitshow_user_id: 0x006E13AA
+            property int  fitshow_user_id: 0x13AA
 
             property bool inspire_peloton_formula: false
             property bool inspire_peloton_formula2: false
@@ -182,6 +195,7 @@ import Qt.labs.settings 1.0
             property bool yesoul_peloton_formula: false
 
             property bool nordictrack_10_treadmill: true
+            property bool nordictrack_t65s_treadmill: false
             //property bool proform_treadmill_995i: false
 
             property bool toorx_3_0: false
@@ -191,6 +205,7 @@ import Qt.labs.settings 1.0
             property bool trx_route_key: false
             property bool bh_spada_2: false
             property bool toorx_bike: false
+            property bool toorx_ftms: false
             property bool jll_IC400_bike: false
             property bool fytter_ri08_bike: false
             property bool asviva_bike: false
@@ -203,6 +218,7 @@ import Qt.labs.settings 1.0
 
             property bool snode_bike: false
             property bool fitplus_bike: false
+            property bool virtufit_etappe: false
 
             property int flywheel_filter: 2
             property bool flywheel_life_fitness_ic8: false
@@ -210,6 +226,8 @@ import Qt.labs.settings 1.0
             property bool sole_treadmill_inclination: false
             property bool sole_treadmill_miles: true
             property bool sole_treadmill_f65: false
+            property bool sole_treadmill_f63: false
+            property bool sole_treadmill_tt8: false
 
             property bool schwinn_bike_resistance: false
             property bool schwinn_bike_resistance_v2: value
@@ -267,6 +285,7 @@ import Qt.labs.settings 1.0
             property bool battery_service: false
             property bool service_changed: false
             property bool virtual_device_enabled: true
+            property bool virtual_device_bluetooth: true
             property bool ios_peloton_workaround: true
             property bool android_wakelock: true
             property bool log_debug: false
@@ -277,6 +296,185 @@ import Qt.labs.settings 1.0
             property bool virtual_device_force_bike: false
             property bool volume_change_gears: false
             property bool applewatch_fakedevice: false
+
+            // from version 2.10.15
+            property real zwift_erg_resistance_down: 0.0
+            property real zwift_erg_resistance_up: 999.0
+
+            // from version 2.10.16
+            property bool horizon_paragon_x: false
+
+            // from version 2.10.18
+            property real treadmill_step_speed: 0.5
+            property real treadmill_step_incline: 0.5
+
+            // from version 2.10.19
+            property bool  fitshow_anyrun: false
+
+            // from version 2.10.21
+            property bool nordictrack_s30_treadmill: false
+
+            // from version 2.10.23
+            // not used anymore because it's an elliptical not a treadmill. Don't remove this
+            // it will cause corruption in the settings
+            property bool nordictrack_fs5i_treadmill: false
+
+            // from version 2.10.26
+            property bool renpho_peloton_conversion_v2: false
+
+            // from version 2.10.27
+            property real ss2k_resistance_sample_1: 20
+            property real ss2k_shift_step_sample_1: 0
+            property real ss2k_resistance_sample_2: 30
+            property real ss2k_shift_step_sample_2: 0
+            property real ss2k_resistance_sample_3: 40
+            property real ss2k_shift_step_sample_3: 0
+            property real ss2k_resistance_sample_4: 50
+            property real ss2k_shift_step_sample_4: 0
+
+            property bool  fitshow_truetimer: false
+
+            // from the version 2.10.28
+            property real elite_rizer_gain: 1.0
+            property bool tile_ext_incline_enabled: false
+            property int  tile_ext_incline_order: 32
+
+            // from the version 2.10.41
+            property bool reebok_fr30_treadmill: false
+
+            // from the version 2.10.44
+            property bool horizon_treadmill_7_8: false
+
+            // from the version 2.10.45
+            property string profile_name: "default"
+
+            // from the version 2.10.46
+            property bool tile_cadence_color_enabled: false
+            property bool tile_peloton_remaining_enabled: false
+            property int  tile_peloton_remaining_order: 22
+            property bool tile_peloton_resistance_color_enabled: false
+
+            // from the version 2.10.49
+            property bool dircon_yes: true
+            property int dircon_server_base_port: 36866
+
+            // from the version 2.10.56
+            property bool ios_cache_heart_device: true
+
+            // from the version 2.10.57
+            property int app_opening: 0
+
+            // from the version 2.10.62
+            property string proformtdf4ip: ""
+
+            // from the version 2.10.72
+            property bool fitfiu_mc_v460: false
+            property real bike_weight: 0
+
+            // from the version 2.10.77
+            property bool kingsmith_encrypt_v2: false
+
+            // from the version 2.10.81
+            property bool proform_treadmill_9_0: false
+
+            // from the version 2.10.85
+            property bool proform_treadmill_1800i: false
+
+            // from the version 2.10.91
+            property real cadence_offset: 0
+            property real cadence_gain: 1
+            property bool sp_ht_9600ie: false
+
+            // from the version 2.10.92
+            property bool tts_enabled: false
+            property int tts_summary_sec: 120
+            property bool tts_act_speed: false
+            property bool tts_avg_speed: true
+            property bool tts_max_speed: false
+            property bool tts_act_inclination: false
+            property bool tts_act_cadence: false
+            property bool tts_avg_cadence: true
+            property bool tts_max_cadence: false
+            property bool tts_act_elevation: true
+            property bool tts_act_calories: true
+            property bool tts_act_odometer: true
+            property bool tts_act_pace: false
+            property bool tts_avg_pace: true
+            property bool tts_max_pace: false
+            property bool tts_act_resistance: true
+            property bool tts_avg_resistance: true
+            property bool tts_max_resistance: false
+            property bool tts_act_watt: false
+            property bool tts_avg_watt: true
+            property bool tts_max_watt: true
+            property bool tts_act_ftp: false
+            property bool tts_avg_ftp: true
+            property bool tts_max_ftp: false
+            property bool tts_act_heart: true
+            property bool tts_avg_heart: true
+            property bool tts_max_heart: false
+            property bool tts_act_jouls: true
+            property bool tts_act_elapsed: true
+            property bool tts_act_peloton_resistance: false
+            property bool tts_avg_peloton_resistance: false
+            property bool tts_max_peloton_resistance: false
+            property bool tts_act_target_peloton_resistance: true
+            property bool tts_act_target_cadence: true
+            property bool tts_act_target_power: true
+            property bool tts_act_target_zone: true
+            property bool tts_act_target_speed: true
+            property bool tts_act_target_incline: true
+            property bool tts_act_watt_kg: false
+            property bool tts_avg_watt_kg: false
+            property bool tts_max_watt_kg: false
+
+            // from the version 2.10.96
+            property bool fakedevice_elliptical: false
+
+            // from the version 2.10.99
+            property string nordictrack_2950_ip: ""
+
+            // from the version 2.10.102
+            property bool tile_instantaneous_stride_length_enabled: false
+            property int  tile_instantaneous_stride_length_order: 32
+            property bool tile_ground_contact_enabled: false
+            property int  tile_ground_contact_order: 33
+            property bool tile_vertical_oscillation_enabled: false
+            property int  tile_vertical_oscillation_order: 34
+            property string sex: "Male"
+
+            // from the version 2.10.111
+            property string maps_type: "3D"
+
+            // from the version 2.10.112
+            property real ss2k_max_resistance: 100
+            property real ss2k_min_resistance: 0
+
+            // from the version 2.11.10
+            property bool proform_treadmill_se: false
+        }
+
+        function paddingZeros(text, limit) {
+          if (text.length < limit) {
+            return paddingZeros("0" + text, limit);
+          } else {
+            return text;
+          }
+        }
+
+        function formatLimitDecimals(value, decimals) {
+          const stringValue = value.toString();
+          if(stringValue.includes('e')) {
+              // TODO: remove exponential notation
+              throw 'invald number';
+          } else {
+            const [integerPart, decimalPart] = stringValue.split('.');
+            if(decimalPart) {
+              return +[integerPart, decimalPart.slice(0, decimals)].join('.')
+            } else {
+              return integerPart;
+            }
+          }
         }
 
         ColumnLayout {
@@ -318,7 +516,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.ui_zoom = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -343,7 +541,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.weight = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -377,6 +575,33 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.age = ageTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelSex
+                            text: qsTr("Gender:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: sexTextField
+                            model: [ "Male", "Female" ]
+                            displayText: settings.sex
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + sexTextField.currentIndex)
+                                displayText = sexTextField.currentValue
+                             }
+
+                        }
+                        Button {
+                            id: okSex
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.sex = sexTextField.displayText
                         }
                     }
 
@@ -905,6 +1130,30 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.speed_power_based = checked
                     }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelBikeWeight
+                            text: qsTr("Bike Weight") + "(" + (settings.miles_unit?"lbs":"kg") + ")"
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: bikeweightTextField
+                            text: (settings.miles_unit?settings.bike_weight * 2.20462:settings.bike_weight)
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.bike_weight = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okBikeWeightButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.bike_weight = (settings.miles_unit?bikeweightTextField.text / 2.20462:bikeweightTextField.text)
+                        }
+                    }
                     SwitchDelegate {
                         id: zwiftErgDelegate
                         text: qsTr("Zwift Workout/Erg Mode")
@@ -971,7 +1220,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_gain_f = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1030,6 +1279,56 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.zwift_erg_filter_down = zwiftErgDownFilterTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgResistanceDown
+                            text: qsTr("ERG Min. Resistance:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgResistanceDownTextField
+                            text: settings.zwift_erg_resistance_down
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_resistance_down = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgResistanceDownButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_resistance_down = zwiftErgResistanceDownTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelZwiftErgResistanceUp
+                            text: qsTr("ERG Max. Resistance:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: zwiftErgResistanceUpTextField
+                            text: settings.zwift_erg_resistance_up
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_erg_resistance_up = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okzwiftErgResistanceUpButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_erg_resistance_up = zwiftErgResistanceUpTextField.text
                         }
                     }
 
@@ -1116,7 +1415,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.horizon_gr7_cadence_multiplier = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1166,6 +1465,54 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.echelon_watttable = echelonWattTableTextField.displayText
                             }
                         }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelEchelonResistanceGain
+                                text: qsTr("Resistance Gain:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: echelonResistanceGainTextField
+                                text: settings.echelon_resistance_gain
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.echelon_resistance_gain = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okechelonResistanceGainButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.echelon_resistance_gain = echelonResistanceGainTextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelEchelonResistanceOffset
+                                text: qsTr("Resistance Offset:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: echelonResistanceOffsetTextField
+                                text: settings.echelon_resistance_offset
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.echelon_resistance_offset = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okechelonResistanceOffsetButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.echelon_resistance_offset = echelonResistanceOffsetTextField.text
+                            }
+                        }
                     }
                 }
 
@@ -1209,6 +1556,31 @@ import Qt.labs.settings 1.0
                 }
 
                 AccordionElement {
+                    id: renphoBikeAccordion
+                    title: qsTr("Renpho Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: renphoPelotonFormulaDelegate
+                            text: qsTr("New Peloton Formula (11/02/2022)")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.renpho_peloton_conversion_v2
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.renpho_peloton_conversion_v2 = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
                     id: hammerBikeAccordion
                     title: qsTr("Hammer Racer Bike Options")
                     indicatRectColor: Material.color(Material.Grey)
@@ -1227,6 +1599,27 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.hammer_racer_s = checked
+                    }
+                }
+                AccordionElement {
+                    id: cardioFitBikeAccordion
+                    title: qsTr("CardioFIT Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: SwitchDelegate {
+                        id: spht9600iEBikeDelegate
+                        text: qsTr("SP-HT-9600iE")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.sp_ht_9600ie
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.sp_ht_9600ie = checked
                     }
                 }
                 AccordionElement {
@@ -1278,7 +1671,8 @@ import Qt.labs.settings 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: SwitchDelegate {
+                    accordionContent:
+                    SwitchDelegate {
                         id: fitplusBikeDelegate
                         text: qsTr("Fit Plus Bike")
                         spacing: 0
@@ -1291,6 +1685,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.fitplus_bike = checked
+                    }
+                    SwitchDelegate {
+                        id: virtufitEtappeBikeDelegate
+                        text: qsTr("Virtufit Etappe 2.0 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtufit_etappe
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.virtufit_etappe = checked
                     }
                 }
                 AccordionElement {
@@ -1405,7 +1813,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.proform_wheel_ratio = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1445,6 +1853,20 @@ import Qt.labs.settings 1.0
                         onClicked: settings.proform_studio = checked
                     }
                     SwitchDelegate {
+                        id: proformTDF10odelegate
+                        text: qsTr("Proform TDF 1.0")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.proform_tdf_10
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.proform_tdf_10 = checked
+                    }
+                    SwitchDelegate {
                         id: proformTdfJonseedWattdelegate
                         text: qsTr("TDF CBC Jonseed Watt table")
                         spacing: 0
@@ -1457,6 +1879,30 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_jonseed_watt = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelproformTDF4IP
+                            text: qsTr("TDF4 IP:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: proformTDF4IPTextField
+                            text: settings.proformtdf4ip
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.proformtdf4ip = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okproformTDF4IPButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.proformtdf4ip = proformTDF4IPTextField.text
+                        }
                     }
                 }
 
@@ -1692,29 +2138,45 @@ import Qt.labs.settings 1.0
                         title: qsTr("Cadence")
                         linkedBoolSetting: "tile_cadence_enabled"
                         settings: settings
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelcadenceOrder
-                                text: qsTr("order index:")
+                        accordionContent:  ColumnLayout {
+                            SwitchDelegate {
+                                id: cadenceColorEnabled
+                                text: qsTr("Enable Cadence color")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tile_cadence_color_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                horizontalAlignment: Text.AlignRight
+                                onClicked: settings.tile_cadence_color_enabled = checked
                             }
-                            ComboBox {
-                                id: cadenceOrderTextField
-                                model: rootItem.tile_order
-                                displayText: settings.tile_cadence_order
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onActivated: {
-                                    displayText = cadenceOrderTextField.currentValue
-                                 }
-                            }
-                            Button {
-                                id: okcadenceOrderButton
-                                text: "OK"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelcadenceOrder
+                                    text: qsTr("order index:")
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                                ComboBox {
+                                    id: cadenceOrderTextField
+                                    model: rootItem.tile_order
+                                    displayText: settings.tile_cadence_order
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        displayText = cadenceOrderTextField.currentValue
+                                     }
+                                }
+                                Button {
+                                    id: okcadenceOrderButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.tile_cadence_order = cadenceOrderTextField.displayText
+                                }
                             }
                         }
                     }
@@ -2200,6 +2662,71 @@ import Qt.labs.settings 1.0
                     }
 
                     AccordionCheckElement {
+                        id: pelotonRemainingEnabledAccordion
+                        title: qsTr("Peloton Remaining")
+                        linkedBoolSetting: "tile_peloton_remaining_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelPelotonRemainingOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pelotonRemainingOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_peloton_remaining_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pelotonRemainingOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okPelotonRemainingOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_peloton_remaining_order = pelotonRemainingOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    /*
+                    AccordionCheckElement {
+                        id: pelotonDifficultyEnabledAccordion
+                        title: qsTr("Peloton Difficulty")
+                        linkedBoolSetting: "tile_peloton_difficulty_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelpelotonDifficultyOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pelotonDifficultyOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_peloton_difficulty_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pelotonDifficultyOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpelotonDifficultyOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_peloton_difficulty_order = pelotonDifficultyOrderTextField.displayText
+                            }
+                        }
+                    }*/
+
+                    AccordionCheckElement {
                         id: lapElapsedEnabledAccordion
                         title: qsTr("Lap Elapsed")
                         linkedBoolSetting: "tile_lapelapsed_enabled"
@@ -2236,29 +2763,45 @@ import Qt.labs.settings 1.0
                         title: qsTr("Peloton Resistance")
                         linkedBoolSetting: "tile_peloton_resistance_enabled"
                         settings: settings
-                        accordionContent: RowLayout {
-                            spacing: 10
-                            Label {
-                                id: labelpeloton_resistanceOrder
-                                text: qsTr("order index:")
+                        accordionContent: ColumnLayout {
+                            SwitchDelegate {
+                                id: pelotonResistanceColorEnabled
+                                text: qsTr("Enable Peloton Resistance color")
+                                spacing: 0
+                                bottomPadding: 0
+                                topPadding: 0
+                                rightPadding: 0
+                                leftPadding: 0
+                                clip: false
+                                checked: settings.tile_peloton_resistance_color_enabled
+                                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                                 Layout.fillWidth: true
-                                horizontalAlignment: Text.AlignRight
+                                onClicked: settings.tile_peloton_resistance_color_enabled = checked
                             }
-                            ComboBox {
-                                id: peloton_resistanceOrderTextField
-                                model: rootItem.tile_order
-                                displayText: settings.tile_peloton_resistance_order
-                                Layout.fillHeight: false
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onActivated: {
-                                    displayText = peloton_resistanceOrderTextField.currentValue
-                                 }
-                            }
-                            Button {
-                                id: okpeloton_resistanceOrderButton
-                                text: "OK"
-                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelpeloton_resistanceOrder
+                                    text: qsTr("order index:")
+                                    Layout.fillWidth: true
+                                    horizontalAlignment: Text.AlignRight
+                                }
+                                ComboBox {
+                                    id: peloton_resistanceOrderTextField
+                                    model: rootItem.tile_order
+                                    displayText: settings.tile_peloton_resistance_order
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onActivated: {
+                                        displayText = peloton_resistanceOrderTextField.currentValue
+                                     }
+                                }
+                                Button {
+                                    id: okpeloton_resistanceOrderButton
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.tile_peloton_resistance_order = peloton_resistanceOrderTextField.displayText
+                                }
                             }
                         }
                     }
@@ -2799,6 +3342,166 @@ import Qt.labs.settings 1.0
                             }
                         }
                     }
+
+                    AccordionCheckElement {
+                        id: targetPIDHrAccordion
+                        title: qsTr("PID HR Zone")
+                        linkedBoolSetting: "tile_pid_hr_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelPIDHROrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: pidHROrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_pid_hr_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = pidHROrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okpidHROrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_pid_hr_order = pidHROrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: extInclineAccordion
+                        title: qsTr("External Incline")
+                        linkedBoolSetting: "tile_ext_incline_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelExtInclineOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: extInclineOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_ext_incline_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = extInclineOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okextInclineOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_ext_incline_order = extInclineOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: strideLength
+                        title: qsTr("Stride Length")
+                        linkedBoolSetting: "tile_instantaneous_stride_length_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelStrideLengthOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: strideLengthOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_instantaneous_stride_length_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = strideLengthOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okStrideLengthOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_instantaneous_stride_length_order = strideLengthOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: groundContact
+                        title: qsTr("Ground Contact")
+                        linkedBoolSetting: "tile_ground_contact_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelGroundContactOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: groundContactOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_ground_contact_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = groundContactOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okGroundContactOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_ground_contact_order = groundContactOrderTextField.displayText
+                            }
+                        }
+                    }
+
+                    AccordionCheckElement {
+                        id: verticalOscillation
+                        title: qsTr("Vertical Oscillation")
+                        linkedBoolSetting: "tile_vertical_oscillation_enabled"
+                        settings: settings
+                        accordionContent: RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelVerticalOscillationOrder
+                                text: qsTr("order index:")
+                                Layout.fillWidth: true
+                                horizontalAlignment: Text.AlignRight
+                            }
+                            ComboBox {
+                                id: verticalOscillationOrderTextField
+                                model: rootItem.tile_order
+                                displayText: settings.tile_vertical_oscillation_order
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onActivated: {
+                                    displayText = verticalOscillationOrderTextField.currentValue
+                                 }
+                            }
+                            Button {
+                                id: okVerticalOscillationOrderButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.tile_vertical_oscillation_order = verticalOscillationOrderTextField.displayText
+                            }
+                        }
+                    }
                 }
             }
 
@@ -2826,7 +3529,7 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.top_bar_enabled = checked
-                    }                    
+                    }
                 }
             }
 
@@ -2979,7 +3682,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -3057,21 +3760,6 @@ import Qt.labs.settings 1.0
                             onClicked: settings.peloton_cadence_metric = pelotonCadenceMetricTextField.displayText;
                         }
                     }*/
-
-                    SwitchDelegate {
-                        id: treadmillForceSpeedDelegate
-                        text: qsTr("Treadmill Speed Forcing")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.treadmill_force_speed
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.treadmill_force_speed = checked
-                    }
 
                     RowLayout {
                         spacing: 10
@@ -3182,6 +3870,151 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPace1mile
+                        text: qsTr("1 mile pace (total time):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPace1mileTextField
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_1mile * 1.60934) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_1mile * 1.60934) / 60) % 60,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals((((settings.pacef_1mile * 1.60934) % 60)),0).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPace1Mile
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pacef_1mile = (((parseInt(trainProgramPace1mileTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace1mileTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace1mileTextField.text.split(":")[2]))) / 1.60934;}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPace5km
+                        text: qsTr("5 km pace (total time):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPace5kmTextField
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_5km * 5) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_5km * 5) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_5km * 5) % 60),0)).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPace5km
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pacef_5km = (((parseInt(trainProgramPace5kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace5kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace5kmTextField.text.split(":")[2]))) / 5;}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPace10km
+                        text: qsTr("10 km pace (total time):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPace10kmTextField
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_10km * 10) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_10km * 10) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_10km * 10) % 60),0)).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPace10KM
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pacef_10km = (((parseInt(trainProgramPace10kmTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPace10kmTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPace10kmTextField.text.split(":")[2]))) / 10;}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPaceHalfMarathon
+                        text: qsTr("Half Marathon pace (total time):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPaceHalfMarathonTextField
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_halfmarathon * 21) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_halfmarathon * 21) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_halfmarathon * 21) % 60),0)).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPaceHalfMarathon
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pacef_halfmarathon = (((parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceHalfMarathonTextField.text.split(":")[2]))) / 21;}
+                    }
+                }
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTrainProgramPaceMarathon
+                        text: qsTr("Marathon pace (total time):")
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: trainProgramPaceMarathonTextField
+                        text: (paddingZeros(formatLimitDecimals((settings.pacef_marathon * 42) / 3600,0).toString(), 2) + ":" + paddingZeros(formatLimitDecimals(((settings.pacef_marathon * 42) / 60) % 60,0).toString(), 2) + ":" + paddingZeros((formatLimitDecimals(((settings.pacef_marathon * 42) % 60),0)).toString(), 2))
+                        horizontalAlignment: Text.AlignRight
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                    }
+                    Button {
+                        id: okTrainProgramPaceMarathon
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: { settings.pacef_marathon = (((parseInt(trainProgramPaceMarathonTextField.text.split(":")[0]) * 3600) + (parseInt(trainProgramPaceMarathonTextField.text.split(":")[1]) * 60) + parseInt(trainProgramPaceMarathonTextField.text.split(":")[2]))) / 42;}
+                    }
+                }
+
+                RowLayout {
+                    spacing: 10
+                    Label {
+                        id: labelTreadmillPaceDefault
+                        text: qsTr("Default Pace:")
+                        Layout.fillWidth: true
+                    }
+                    ComboBox {
+                        id: treadmillPaceDefaultTextField
+                        model: [ "1 mile", "5 km", "10 km","Half Marathon","Marathon", ]
+                        displayText: settings.pace_default
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onActivated: {
+                            console.log("combomodel activated" + treadmillPaceDefaultTextField.currentIndex)
+                            displayText = treadmillPaceDefaultTextField.currentValue
+                         }
+
+                    }
+                    Button {
+                        id: okTreadmillPaceDefault
+                        text: "OK"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: settings.pace_default = treadmillPaceDefaultTextField.displayText
+                    }
+                }
+
                 AccordionCheckElement {
                     id: trainingProgramRandomAccordion
                     title: qsTr("Training Program Random Options")
@@ -3252,7 +4085,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_min = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -3277,7 +4110,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_max = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -3302,7 +4135,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_min = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -3327,7 +4160,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_max = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -3417,6 +4250,21 @@ import Qt.labs.settings 1.0
                 }
 
                 SwitchDelegate {
+                    id: treadmillForceSpeedDelegate
+                    text: qsTr("Treadmill Speed Forcing")
+                    spacing: 0
+                    bottomPadding: 0
+                    topPadding: 0
+                    rightPadding: 0
+                    leftPadding: 0
+                    clip: false
+                    checked: settings.treadmill_force_speed
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    onClicked: settings.treadmill_force_speed = checked
+                }
+
+                SwitchDelegate {
                     id: pauseOnStartTreadmillDelegate
                     text: qsTr("Pause when App Starts")
                     spacing: 0
@@ -3434,52 +4282,53 @@ import Qt.labs.settings 1.0
                 RowLayout {
                     spacing: 10
                     Label {
-                        id: labelTreadmillInclinationOffset
-                        text: qsTr("Zwift Inclination Offset:")
+                        id: labelTreadmillStepSpeed
+                        text: qsTr("Speed Step:")
                         Layout.fillWidth: true
                     }
                     TextField {
-                        id: treadmillInclinationOffsetTextField
-                        text: settings.zwift_inclination_offset
+                        id: treadmillSpeedStepTextField
+                        text: (settings.miles_unit?settings.treadmill_step_speed * 0.621371:settings.treadmill_step_speed).toFixed(1)
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                         inputMethodHints: Qt.ImhDigitsOnly
-                        onAccepted: settings.zwift_inclination_offset = text
+                        onAccepted: settings.treadmill_step_speed = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
-                        id: okTreadmillInclinationOffsetButton
+                        id: okTreadmillSpeedStepButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text
+                        onClicked: settings.treadmill_step_speed = (settings.miles_unit?treadmillSpeedStepTextField.text * 1.60934:treadmillSpeedStepTextField.text)
                     }
                 }
 
                 RowLayout {
                     spacing: 10
                     Label {
-                        id: labelTreadmillInclinationGain
-                        text: qsTr("Zwift Inclination Gain:")
+                        id: labelTreadmillStepInclination
+                        text: qsTr("Inclination Step:")
                         Layout.fillWidth: true
                     }
                     TextField {
-                        id: treadmillInclinationGainTextField
-                        text: settings.zwift_inclination_gain
+                        id: treadmillInclinationStepTextField
+                        text: settings.treadmill_step_incline
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhFormattedNumbersOnly
-                        onAccepted: settings.zwift_inclination_gain = text
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        onAccepted: settings.treadmill_step_incline = text
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
-                        id: okTreadmillInclinationGainButton
+                        id: okTreadmillInclinationStepButton
                         text: "OK"
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        onClicked: settings.zwift_inclination_gain = treadmillInclinationGainTextField.text
+                        onClicked: settings.treadmill_step_incline = treadmillInclinationStepTextField.text
                     }
                 }
+
 
                 AccordionElement {
                     id: proformTreadmillAccordion
@@ -3503,6 +4352,115 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.nordictrack_10_treadmill = checked
                         }
+                        SwitchDelegate {
+                            id: nordictrackT65SDelegate
+                            text: qsTr("Nordictrack T6.5S")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_t65s_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_t65s_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            id: nordictrackS30Delegate
+                            text: qsTr("Nordictrack S30")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_s30_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_s30_treadmill = checked
+                        }
+                        SwitchDelegate {
+                            id: proform1800iDelegate
+                            text: qsTr("Proform 1800i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_1800i
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_1800i = checked
+                        }
+                        SwitchDelegate {
+                            id: proformSEDelegate
+                            text: qsTr("Proform SE")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_se
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_se = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelnordictrack2950IP
+                                text: qsTr("Nordictrack 2950 IP:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: nordictrack2950IPTextField
+                                text: settings.nordictrack_2950_ip
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.nordictrack_2950_ip = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: oknordictrack2950IPButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.nordictrack_2950_ip = nordictrack2950IPTextField.text
+                            }
+                        }
+                        SwitchDelegate {
+                            id: proform90IDelegate
+                            text: qsTr("Proform 9.0")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_9_0
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_9_0 = checked
+                        }
+                        /*
+                        SwitchDelegate {
+                            id: nordictrackFS5IDelegate
+                            text: qsTr("Nordictrack FS5i")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.nordictrack_fs5i_treadmill
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.nordictrack_fs5i_treadmill = checked
+                        }*/
                         /*
                         SwitchDelegate {
                             id: proform995iDelegate
@@ -3542,6 +4500,56 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.pafers_treadmill = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: kingsmithTreadmillAccordion
+                    title: qsTr("KingSmith Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: kingSmithTreadmillDelegate
+                            text: qsTr("WalkingPad X21")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.kingsmith_encrypt_v2
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.kingsmith_encrypt_v2 = checked
+                        }
+                    }
+                }
+
+                AccordionElement {
+                    id: runnerTTreadmillAccordion
+                    title: qsTr("RunnerT Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: fitfiuMCV460TreadmillDelegate
+                            text: qsTr("Fitfiu MC-460")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitfiu_mc_v460
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.fitfiu_mc_v460 = checked
                         }
                     }
                 }
@@ -3638,6 +4646,20 @@ import Qt.labs.settings 1.0
                             onClicked: settings.sole_treadmill_miles = checked
                         }
                         SwitchDelegate {
+                            id: soleF63Delegate
+                            text: qsTr("Sole F63")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_f63
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_f63 = checked
+                        }
+                        SwitchDelegate {
                             id: soleF65Delegate
                             text: qsTr("Sole F65")
                             spacing: 0
@@ -3650,6 +4672,20 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.sole_treadmill_f65 = checked
+                        }
+                        SwitchDelegate {
+                            id: soleTT8Delegate
+                            text: qsTr("Sole TT8")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.sole_treadmill_tt8
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.sole_treadmill_tt8 = checked
                         }
                     }
                 }
@@ -3685,28 +4721,58 @@ import Qt.labs.settings 1.0
                     indicatRectColor: Material.color(Material.Grey)
                     textColor: Material.color(Material.Yellow)
                     color: Material.backgroundColor
-                    accordionContent: RowLayout {
-                        spacing: 10
-                        Label {
-                            id: labelfitshowTreadmillUserId
-                            text: qsTr("User ID:")
+                    accordionContent: ColumnLayout {
+                        SwitchDelegate {
+                            id: fitshowAnyrunDelegate
+                            text: qsTr("AnyRun")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_anyrun
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
+                            onClicked: settings.fitshow_anyrun = checked
                         }
-                        TextField {
-                            id: fitshowTreadmillUserIdTextField
-                            text: settings.fitshow_user_id
-                            horizontalAlignment: Text.AlignRight
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            onAccepted: settings.fitshow_user_id = text
-                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        SwitchDelegate {
+                            id: fitshowTruetimerDelegate
+                            text: qsTr("True timer")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.fitshow_truetimer
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.fitshow_truetimer = checked
                         }
-                        Button {
-                            id: okfitshowTreadmillUserIdButton
-                            text: "OK"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelfitshowTreadmillUserId
+                                text: qsTr("User ID:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: fitshowTreadmillUserIdTextField
+                                text: settings.fitshow_user_id
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                onAccepted: settings.fitshow_user_id = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okfitshowTreadmillUserIdButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.fitshow_user_id = fitshowTreadmillUserIdTextField.text
+                            }
                         }
                     }
                 }
@@ -3735,6 +4801,46 @@ import Qt.labs.settings 1.0
                         }
                     }
                 }
+
+                AccordionElement {
+                    id: horizonTreadmillAccordion
+                    title: qsTr("Horizon Treadmill Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent: ColumnLayout {
+                        spacing: 0
+                        SwitchDelegate {
+                            id: horizonParagonXTreadmillCadenzaDelegate
+                            text: qsTr("Paragon X")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_paragon_x
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_paragon_x = checked
+                        }
+                        SwitchDelegate {
+                            id: horizon78TreadmillDelegate
+                            text: qsTr("Horizon 7.8 start issue")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.horizon_treadmill_7_8
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.horizon_treadmill_7_8 = checked
+                        }
+                    }
+                }
+
             }
 
             AccordionElement {
@@ -3805,6 +4911,21 @@ import Qt.labs.settings 1.0
                     }
 
                     SwitchDelegate {
+                        id: reebokFR30TreadmillDelegate
+                        text: qsTr("Reebok FR30 Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.reebok_fr30_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.reebok_fr30_treadmill = checked
+                    }
+
+                    SwitchDelegate {
                         id: dknEndurunTreadmillDelegate
                         text: qsTr("DKN Endurn Treadmill")
                         spacing: 0
@@ -3848,6 +4969,22 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.toorx_bike = checked
                     }
+
+                    SwitchDelegate {
+                        id: toorxFTMSBikeDelegate
+                        text: qsTr("Toorx FTMS Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.toorx_ftms
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.toorx_ftms = checked
+                    }
+
                     SwitchDelegate {
                         id: toorxBikeJLLIC400Delegate
                         text: qsTr("JLL IC400 Bike")
@@ -4012,7 +5149,7 @@ import Qt.labs.settings 1.0
                         spacing: 10
                         Label {
                             id: labelwattGain
-                            text: qsTr("Watt Gain (max value 2.00):")
+                            text: qsTr("Watt Gain:")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -4021,7 +5158,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.watt_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -4071,7 +5208,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.speed_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -4083,13 +5220,62 @@ import Qt.labs.settings 1.0
                         }
                     }
 
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcadenceOffset
+                            text: qsTr("Cadence Offset")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceOffsetTextField
+                            text: settings.cadence_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.cadence_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okcadenceOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_offset = cadenceOffsetTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelcadenceGain
+                            text: qsTr("Cadence Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: cadenceGainTextField
+                            text: settings.cadence_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.cadence_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okCadenceGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.cadence_gain = speedGainTextField.text
+                        }
+                    }
+
                     Label {
                         id: stravaLabel
                         text: qsTr("Strava")
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
-                        color: Material.color(Material.Grey)
                     }
 
                     RowLayout {
@@ -4159,6 +5345,56 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.instant_power_on_pause = checked
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillInclinationOffset
+                            text: qsTr("Zwift Inclination Offset:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillInclinationOffsetTextField
+                            text: settings.zwift_inclination_offset
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.zwift_inclination_offset = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTreadmillInclinationOffsetButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_inclination_offset = treadmillInclinationOffsetTextField.text
+                        }
+                    }
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelTreadmillInclinationGain
+                            text: qsTr("Zwift Inclination Gain:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: treadmillInclinationGainTextField
+                            text: settings.zwift_inclination_gain
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.zwift_inclination_gain = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okTreadmillInclinationGainButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.zwift_inclination_gain = treadmillInclinationGainTextField.text
+                        }
                     }
                 }
             }
@@ -4404,6 +5640,30 @@ import Qt.labs.settings 1.0
                                         onClicked: refresh_bluetooth_devices_clicked();
                                     }
                                 }
+                                RowLayout {
+                                    spacing: 10
+                                    Label {
+                                        id: labelEliteRizerGain
+                                        text: qsTr("Difficulty/Gain:")
+                                        Layout.fillWidth: true
+                                    }
+                                    TextField {
+                                        id: eliteRizerGainTextField
+                                        text: settings.elite_rizer_gain
+                                        horizontalAlignment: Text.AlignRight
+                                        Layout.fillHeight: false
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                        onAccepted: settings.elite_rizer_gain = text
+                                        onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                    }
+                                    Button {
+                                        id: okEliteRizerGainButton
+                                        text: "OK"
+                                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                        onClicked: settings.elite_rizer_gain = eliteRizerGainTextField.text
+                                    }
+                                }
                             }
                             AccordionElement {
                                 id: eliteSterzoSmartOptionsAccordion
@@ -4517,6 +5777,253 @@ import Qt.labs.settings 1.0
                                     onClicked: settings.ss2k_shift_step = ss2kShiftStepTextField.text
                                 }
                             }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelSS2KMaxResistance
+                                    text: qsTr("Max Resistance")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: ss2kMaxResistanceTextField
+                                    text: settings.ss2k_max_resistance
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ss2k_max_resistance = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okSS2kMaxResistance
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.ss2k_max_resistance = ss2kMaxResistanceTextField.text
+                                }
+                            }
+                            RowLayout {
+                                spacing: 10
+                                Label {
+                                    id: labelSS2KMinResistance
+                                    text: qsTr("Min Resistance")
+                                    Layout.fillWidth: true
+                                }
+                                TextField {
+                                    id: ss2kMinResistanceTextField
+                                    text: settings.ss2k_min_resistance
+                                    horizontalAlignment: Text.AlignRight
+                                    Layout.fillHeight: false
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    inputMethodHints: Qt.ImhDigitsOnly
+                                    onAccepted: settings.ss2k_min_resistance = text
+                                    onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                }
+                                Button {
+                                    id: okSS2kMinResistance
+                                    text: "OK"
+                                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                    onClicked: settings.ss2k_min_resistance = ss2kMinResistanceTextField.text
+                                }
+                            }
+
+                            AccordionElement {
+                                id: ftmsAccessoryAdvancedOptionsAccordion
+                                title: qsTr("Advanced SmartSpin2k Calibration")
+                                indicatRectColor: Material.color(Material.Grey)
+                                textColor: Material.color(Material.Blue)
+                                color: Material.backgroundColor
+                                accordionContent: ColumnLayout {
+                                    spacing: 10
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample1
+                                            text: qsTr("Resistance Sample 1")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample1TextField
+                                            text: settings.ss2k_resistance_sample_1
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_1 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample1
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_1 = ss2kResistanceSample1TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample1
+                                            text: qsTr("Shift Step Sample 1")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample1TextField
+                                            text: settings.ss2k_shift_step_sample_1
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_1 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample1
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_1 = ss2kShiftStepSample1TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample2
+                                            text: qsTr("Resistance Sample 2")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample2TextField
+                                            text: settings.ss2k_resistance_sample_2
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_2 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample2
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_2 = ss2kResistanceSample2TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample2
+                                            text: qsTr("Shift Step Sample 2")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample2TextField
+                                            text: settings.ss2k_shift_step_sample_2
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_2 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample2
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_2 = ss2kShiftStepSample2TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample3
+                                            text: qsTr("Resistance Sample 3")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample3TextField
+                                            text: settings.ss2k_resistance_sample_3
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_3 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample3
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_3 = ss2kResistanceSample3TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample3
+                                            text: qsTr("Shift Step Sample 3")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample3TextField
+                                            text: settings.ss2k_shift_step_sample_3
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_3 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample3
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_3 = ss2kShiftStepSample3TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelSS2KResistanceSample4
+                                            text: qsTr("Resistance Sample 4")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kResistanceSample4TextField
+                                            text: settings.ss2k_resistance_sample_4
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.resistance_sample_4 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kResistanceSample4
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_resistance_sample_4 = ss2kResistanceSample4TextField.text
+                                        }
+                                    }
+                                    RowLayout {
+                                        Label {
+                                            id: labelSS2KShiftStepSample4
+                                            text: qsTr("Shift Step Sample 4")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: ss2kShiftStepSample4TextField
+                                            text: settings.ss2k_shift_step_sample_4
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.ss2k_shift_step_sample_4 = text
+                                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                                        }
+                                        Button {
+                                            id: okSS2kShiftStepSample4
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.ss2k_shift_step_sample_4 = ss2kShiftStepSample4TextField.text
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -4623,6 +6130,55 @@ import Qt.labs.settings 1.0
                 }
             }
 
+            NewPageElement {
+                id: labelTTSSettings
+                title: qsTr("TTS (Text to Speech) Settings 🔊")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                accordionContent: "settings-tts.qml"
+            }
+
+            AccordionElement {
+                id: mapsAccordion
+                title: qsTr("Maps 🗺️")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelMapsType
+                            text: qsTr("Maps Type:")
+                            Layout.fillWidth: true
+                        }
+                        ComboBox {
+                            id: mapsTypeTextField
+                            model: [ "2D", "3D" ]
+                            displayText: settings.maps_type
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onActivated: {
+                                console.log("combomodel activated" + mapsTypeTextField.currentIndex)
+                                displayText = mapsTypeTextField.currentValue
+                            }
+
+                        }
+                        Button {
+                            id: okMapsType
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.maps_type = mapsTypeTextField.displayText
+                        }
+                    }
+                }
+            }
+
             AccordionElement {
                 id: experimentalFeatureAccordion
                 title: qsTr("Experimental Features")
@@ -4694,109 +6250,139 @@ import Qt.labs.settings 1.0
                         onClicked: settings.service_changed = checked
                     }
         */
-                    SwitchDelegate {
-                        id: virtualDeviceEnabledDelegate
-                        text: qsTr("Virtual Device")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_enabled
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_enabled = checked
-                    }
+                    AccordionCheckElement {
+                        id: virtualDeviceAccordion
+                        title: qsTr("Enable Virtual Device")
+                        linkedBoolSetting: "virtual_device_enabled"
+                        settings: settings
+                        accordionContent: ColumnLayout {
+                            AccordionCheckElement {
+                                id: virtualBeviceBluetoothAccordion
+                                title: qsTr("Virtual Device Bluetooth")
+                                linkedBoolSetting: "virtual_device_bluetooth"
+                                settings: settings
+                                accordionContent: ColumnLayout {
+                                    SwitchDelegate {
+                                        id: virtualDeviceOnlyHeartDelegate
+                                        text: qsTr("Virtual Heart Only")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_onlyheart
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_onlyheart = checked
+                                    }
+                                    SwitchDelegate {
+                                        id: virtualDeviceEchelonDelegate
+                                        text: qsTr("Virtual Echelon")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_echelon
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_echelon = checked
+                                    }
 
-                    SwitchDelegate {
-                        id: virtualDeviceOnlyHeartDelegate
-                        text: qsTr("Virtual Heart Only")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_onlyheart
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_onlyheart = checked
-                    }
+                                    SwitchDelegate {
+                                        id: virtualDeviceRowerDelegate
+                                        text: qsTr("Virtual Rower")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_rower
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_rower = checked
+                                    }
+                                    SwitchDelegate {
+                                        id: virtualBikeForceResistanceDelegate
+                                        text: qsTr("Zwift Force Resistance")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtualbike_forceresistance
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtualbike_forceresistance = checked
+                                    }
 
-                    SwitchDelegate {
-                        id: virtualDeviceEchelonDelegate
-                        text: qsTr("Virtual Echelon")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_echelon
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_echelon = checked
-                    }
-
-                    SwitchDelegate {
-                        id: virtualDeviceIfitDelegate
-                        text: qsTr("Virtual iFit")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_ifit
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_ifit = checked
-                    }
-
-                    SwitchDelegate {
-                        id: virtualDeviceRowerDelegate
-                        text: qsTr("Virtual Rower")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtual_device_rower
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtual_device_rower = checked
-                    }
-
-                    SwitchDelegate {
-                        id: virtualBikeForceResistanceDelegate
-                        text: qsTr("Zwift Force Resistance")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.virtualbike_forceresistance
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.virtualbike_forceresistance = checked
-                    }
-
-                    SwitchDelegate {
-                        id: bikePowerSensorDelegate
-                        text: qsTr("Bike Power Sensor")
-                        spacing: 0
-                        bottomPadding: 0
-                        topPadding: 0
-                        rightPadding: 0
-                        leftPadding: 0
-                        clip: false
-                        checked: settings.bike_power_sensor
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        onClicked: settings.bike_power_sensor = checked
+                                    SwitchDelegate {
+                                        id: bikePowerSensorDelegate
+                                        text: qsTr("Bike Power Sensor")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.bike_power_sensor
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.bike_power_sensor = checked
+                                    }
+                                    SwitchDelegate {
+                                        id: virtualDeviceIfitDelegate
+                                        text: qsTr("Virtual iFit")
+                                        spacing: 0
+                                        bottomPadding: 0
+                                        topPadding: 0
+                                        rightPadding: 0
+                                        leftPadding: 0
+                                        clip: false
+                                        checked: settings.virtual_device_ifit
+                                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                                        Layout.fillWidth: true
+                                        onClicked: settings.virtual_device_ifit = checked
+                                    }
+                                }
+                            }
+                            AccordionCheckElement {
+                                id: dirconAccordion
+                                title: qsTr("Wahoo direct connect")
+                                linkedBoolSetting: "dircon_yes"
+                                settings: settings
+                                accordionContent: ColumnLayout {
+                                    spacing: 0
+                                    RowLayout {
+                                        spacing: 10
+                                        Label {
+                                            id: labelDirconServerPort
+                                            text: qsTr("Server Port:")
+                                            Layout.fillWidth: true
+                                        }
+                                        TextField {
+                                            id: dirconServerPortTextField
+                                            text: settings.dircon_server_base_port
+                                            horizontalAlignment: Text.AlignRight
+                                            Layout.fillHeight: false
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            inputMethodHints: Qt.ImhDigitsOnly
+                                            onAccepted: settings.dircon_server_base_port = text
+                                        }
+                                        Button {
+                                            id: okDirconServerPort
+                                            text: "OK"
+                                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                            onClicked: settings.dircon_server_base_port = dirconServerPortTextField.text
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     SwitchDelegate {
@@ -4891,7 +6477,7 @@ import Qt.labs.settings 1.0
 
                     SwitchDelegate {
                         id: appleWatchFakeDeviceDelegate
-                        text: qsTr("Apple Watch Fake Device")
+                        text: qsTr("Fake Device")
                         spacing: 0
                         bottomPadding: 0
                         topPadding: 0
@@ -4902,6 +6488,36 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: fakeEllipticalDelegate
+                        text: qsTr("Fake Elliptical")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_elliptical
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fakedevice_elliptical = checked
+                    }
+
+                    SwitchDelegate {
+                        id: appleHeartCacheDelegate
+                        text: qsTr("iOS Heart Caching")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.ios_cache_heart_device
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.ios_cache_heart_device = checked
                     }
 
                     SwitchDelegate {
@@ -4917,6 +6533,13 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.log_debug = checked
+                    }
+
+                    Button {
+                        id: clearLogs
+                        text: "Clear History"
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        onClicked: rootItem.clearFiles();
                     }
                 }
             }

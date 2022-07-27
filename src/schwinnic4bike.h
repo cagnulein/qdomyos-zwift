@@ -40,7 +40,7 @@ class schwinnic4bike : public bike {
   public:
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
     int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
+    bool ergManagedBySS2K() { return true; }
     uint8_t maxResistance() { return max_resistance; }
     bool connected();
 

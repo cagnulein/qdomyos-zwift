@@ -59,6 +59,7 @@ class eliterizer : public bike {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotifyCharacteristic;
     QLowEnergyCharacteristic gattNotify2Characteristic;
+    QLowEnergyCharacteristic gattNotify3Characteristic;
 
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
@@ -93,7 +94,7 @@ class eliterizer : public bike {
     void characteristicRead(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
     void descriptorRead(const QLowEnergyDescriptor &descriptor, const QByteArray &newValue);
     void stateChanged(QLowEnergyService::ServiceState state);
-    void controllerStateChanged(QLowEnergyController::ControllerState state);    
+    void controllerStateChanged(QLowEnergyController::ControllerState state);
 
     void serviceDiscovered(const QBluetoothUuid &gatt);
     void serviceScanDone(void);

@@ -52,6 +52,8 @@ class kingsmithr2treadmill : public treadmill {
         QStringLiteral("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=").toUtf8();
     const QByteArray ENCRYPT_TABLE =
         QStringLiteral("SaCw4FGHIJqLhN+P9RVTU/WcY6ObDdefgEijklmnopQrsBuvMxXz1yA2t5078KZ3=").toUtf8();
+    const QByteArray ENCRYPT_TABLE_v2 =
+        QStringLiteral("ZaCw4FGHIJqLhN+P9RMTU/WcY6ObDdefgEijklmnopQrsBuvVxXz1yA2t5078KS3=").toUtf8();
 
     double GetInclinationFromPacket(const QByteArray &packet);
     double GetKcalFromPacket(const QByteArray &packet);

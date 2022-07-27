@@ -90,8 +90,8 @@ void horizongr7bike::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 100) {
-                requestResistance = 100;
+            if (requestResistance > max_resistance) {
+                requestResistance = max_resistance;
             } // TODO, use the bluetooth value
             else if (requestResistance == 0) {
                 requestResistance = 1;
@@ -172,7 +172,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                               (uint16_t)((uint8_t)newValue.at(index)))) /
                     100.0;
         } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
         index += 2;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
@@ -219,15 +219,15 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                               (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
                              (uint32_t)((uint8_t)newValue.at(index)))) /
                    1000.0;*/
-        if(firstPacket)
+        if (firstPacket)
             Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
         index += 3;
     } else {
-        if(firstPacket)
+        if (firstPacket)
             Distance += ((Speed.value() / 3600000.0) *
-                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
     }
 
     emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
@@ -236,6 +236,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         Resistance =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         emit resistanceRead(Resistance.value());
+        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
         index += 2;
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
@@ -593,3 +594,5 @@ void horizongr7bike::controllerStateChanged(QLowEnergyController::ControllerStat
         m_control->connectToDevice();
     }
 }
+
+double horizongr7bike::bikeResistanceToPeloton(double resistance) { return resistance * 8.33333333; }

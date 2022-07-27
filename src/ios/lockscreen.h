@@ -6,6 +6,7 @@ class lockscreen {
     void setTimerDisabled();
     void request();
     long heartRate();
+    long stepCadence();
     void setKcal(double kcal);
     void setDistance(double distance);
 
@@ -18,7 +19,14 @@ class lockscreen {
     double virtualbike_getCurrentSlope();
     double virtualbike_getPowerRequested();
     bool virtualbike_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance,
-                                unsigned short currentCadence, unsigned short currentWatt);
+                                unsigned short currentCadence, unsigned short currentWatt, unsigned short  CrankRevolutions, unsigned short  LastCrankEventTime);
+    int virtualbike_getLastFTMSMessage(unsigned char* message);
+    
+    // virtualrower
+    void virtualrower_ios();
+    void virtualrower_setHeartRate(unsigned char heartRate);
+    bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime);
+    int virtualrower_getLastFTMSMessage(unsigned char* message);
     
     // virtualtreadmill
     void virtualtreadmill_zwift_ios();

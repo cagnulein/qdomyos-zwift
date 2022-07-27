@@ -233,6 +233,8 @@ bool domyostreadmill::changeFanSpeed(uint8_t speed) {
 void domyostreadmill::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
         percentage = 0;
+    if (grade < 0)
+        grade = 0;
     changeInclination(grade, percentage);
 }
 
@@ -298,18 +300,20 @@ void domyostreadmill::update() {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
 
                     double inc = Inclination.value();
-                    if (requestInclination != -1) {
+                    if (requestInclination != -100) {
 
                         // only 0.5 steps ara avaiable
                         requestInclination = qRound(requestInclination * 2.0) / 2.0;
                         inc = requestInclination;
-                        requestInclination = -1;
+                        requestInclination = -100;
                     }
                     forceSpeedOrIncline(requestSpeed, inc);
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -1) {
+            if (requestInclination != -100) {
+                if(requestInclination < 0)
+                    requestInclination = 0;
                 // only 0.5 steps ara avaiable
                 requestInclination = qRound(requestInclination * 2.0) / 2.0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
@@ -324,7 +328,7 @@ void domyostreadmill::update() {
                     }
                     forceSpeedOrIncline(speed, requestInclination);
                 }
-                requestInclination = -1;
+                requestInclination = -100;
             }
             if (requestStart != -1) {
                 emit debug(QStringLiteral("starting..."));
@@ -522,7 +526,8 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     double incline = GetInclinationFromPacket(value);
     double kcal = GetKcalFromPacket(value);
     double distance = GetDistanceFromPacket(value);
-
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
+    
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
@@ -532,7 +537,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
 
             uint8_t heart = ((uint8_t)value.at(18));
-            if (heart == 0) {
+            if (heart == 0 || disable_hr_frommachinery) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
@@ -549,6 +554,20 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
                 Heart = heart;
         }
     }
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+    {
+        lockscreen h;
+        long appleWatchCadence = h.stepCadence();
+        Cadence = appleWatchCadence;
+    }
+#endif
+#endif
+    
     FanSpeed = value.at(23);
 
     if (!firstCharacteristicChanged) {

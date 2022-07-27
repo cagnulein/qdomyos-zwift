@@ -19,6 +19,18 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
     Q_UNUSED(noWriteResistance)
 
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    if (ios_peloton_workaround && !heart_only) {
+
+        qDebug() << "ios_zwift_workaround activated!";
+        h = new lockscreen();
+        h->virtualrower_ios();
+    } else
+
+#endif
+#endif
     {
         //! [Advertising Data]
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
@@ -281,11 +293,9 @@ void virtualrower::reconnect() {
     qDebug() << QStringLiteral("virtualrower::reconnect");
     leController->disconnectFromDevice();
 
-#ifndef Q_OS_IOS
     serviceFIT = leController->addService(serviceDataFIT);
     if (!this->noHeartService || heart_only)
         serviceHR = leController->addService(serviceDataHR);
-#endif
 
     QLowEnergyAdvertisingParameters pars;
     pars.setInterval(100, 100);
@@ -296,6 +306,44 @@ void virtualrower::rowerProvider() {
 
     QSettings settings;
     bool heart_only = settings.value(QStringLiteral("virtual_device_onlyheart"), false).toBool();
+
+    double normalizeWattage = Rower->wattsMetric().value();
+    if (normalizeWattage < 0)
+        normalizeWattage = 0;
+
+    uint16_t normalizeSpeed = (uint16_t)qRound(Rower->currentSpeed().value() * 100);
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    if (h) {
+        // really connected to a device
+        if (h->virtualrower_updateFTMS(normalizeSpeed, (char)Rower->currentResistance().value(),
+                                      (uint16_t)Rower->currentCadence().value() * 2, (uint16_t)normalizeWattage,
+                                       Rower->currentCrankRevolutions(), Rower->lastCrankEventTime())) {
+            h->virtualrower_setHeartRate(Rower->currentHeart().value());
+
+            uint8_t ftms_message[255];
+            int ret = h->virtualrower_getLastFTMSMessage(ftms_message);
+            if (ret > 0) {
+                lastFTMSFrameReceived = QDateTime::currentMSecsSinceEpoch();
+                qDebug() << "FTMS rcv << " << QByteArray::fromRawData((char *)ftms_message, ret).toHex(' ');
+                emit ftmsCharacteristicChanged(QLowEnergyCharacteristic(),
+                                               QByteArray::fromRawData((char *)ftms_message, ret));
+            }
+            qDebug() << "last FTMS rcv" << lastFTMSFrameReceived;
+            if (lastFTMSFrameReceived > 0 && QDateTime::currentMSecsSinceEpoch() < (lastFTMSFrameReceived + 30000)) {/*
+                if (!erg_mode)
+                    writeP2AD9->changeSlope(h->virtualbike_getCurrentSlope());
+                else {
+                    qDebug() << "ios workaround power changed request" << h->virtualbike_getPowerRequested();
+                    writeP2AD9->changePower(h->virtualbike_getPowerRequested());
+                }*/
+            }
+        }
+        return;
+    }
+#endif
+#endif
 
     if (leController->state() != QLowEnergyController::ConnectedState) {
         qDebug() << QStringLiteral("virtual rower not connected");
@@ -349,8 +397,12 @@ void virtualrower::rowerProvider() {
         }
 
         QLowEnergyCharacteristic characteristic =
-            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD2);
-        Q_ASSERT(characteristic.isValid());
+            serviceFIT->characteristic((QBluetoothUuid::CharacteristicType)0x2AD1);
+        if (!characteristic.isValid()) {
+            qDebug() << QStringLiteral("virtual rower characteristic not valid!");
+
+            return;
+        }
         if (leController->state() != QLowEnergyController::ConnectedState) {
             qDebug() << QStringLiteral("virtual rower not connected");
 

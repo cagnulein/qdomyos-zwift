@@ -134,15 +134,17 @@ void eslinkertreadmill::update() {
                 if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
                     emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
                     // double inc = Inclination.value(); // NOTE: clang-analyzer-deadcode.DeadStores
-                    if (requestInclination != -1) {
+                    if (requestInclination != -100) {
                         //                        inc = requestInclination;
-                        requestInclination = -1;
+                        requestInclination = -100;
                     }
                     forceSpeed(requestSpeed);
                 }
                 requestSpeed = -1;
             }
-            if (requestInclination != -1) {
+            if (requestInclination != -100) {
+                if(requestInclination < 0)
+                    requestInclination = 0;
                 if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                     requestInclination <= 15) {
                     emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
@@ -153,7 +155,7 @@ void eslinkertreadmill::update() {
                     }
                     forceIncline(requestInclination);
                 }
-                requestInclination = -1;
+                requestInclination = -100;
             }
         } else {
             if (requestVar2) {
@@ -177,7 +179,7 @@ void eslinkertreadmill::update() {
                 }
             } else {
                 // we need always to send values
-                if (requestSpeed != -1 && requestInclination != -1) {
+                if (requestSpeed != -1 && requestInclination != -100) {
                     if (requestSpeed >= 0 && requestSpeed <= 20 && !toggleRequestSpeed) {
                         lastStart = 0;
                         forceSpeed(requestSpeed);
@@ -235,7 +237,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (treadmill_type == CADENZA_FITNESS_T45) {
         if (newValue.length() == 6 && newValue.at(0) == 8 && newValue.at(1) == 4 && newValue.at(2) == 1 &&
             newValue.at(3) == 0 && newValue.at(4) == 0 && newValue.at(5) == 1) {
-            if (requestSpeed == -1 || requestInclination == -1) {
+            if (requestSpeed == -1 || requestInclination == -100) {
                 requestSpeed = 0;
                 requestInclination = 0;
                 qDebug() << QStringLiteral("we can start send force commands");
@@ -274,7 +276,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             qDebug() << QStringLiteral("Speed DOWN received!");
         } else if (newValue.length() == 3 && newValue.at(0) == 8 && newValue.at(1) == 1) {
             uint8_t display[] = {0x08, 0x01, 0x01};
-            if (requestSpeed == -1 || requestInclination == -1) {
+            if (requestSpeed == -1 || requestInclination == -100) {
                 requestSpeed = 0;
                 requestInclination = 0;
                 qDebug() << QStringLiteral("we can start send force commands");
@@ -289,7 +291,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
             display[4] = (uint8_t)(newValue.at(4) ^ 66);
             writeCharacteristic(display, sizeof(display), QStringLiteral("var4"), false, false);
         } else if (newValue.length() == 4 && newValue.at(0) == 8 && newValue.at(1) == 2) {
-            if (requestSpeed == -1 || requestInclination == -1) {
+            if (requestSpeed == -1 || requestInclination == -100) {
                 qDebug() << QStringLiteral("we can start send force commands");
                 requestSpeed = 0;
                 requestInclination = 0;

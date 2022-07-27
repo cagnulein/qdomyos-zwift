@@ -129,7 +129,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
     if (watts())
         KCal +=
@@ -142,9 +142,13 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
     if (!settings.value(QStringLiteral("yesoul_peloton_formula"), false).toBool()) {
-        m_pelotonResistance = Resistance.value() * 0.88; // 15% lower than yesoul bike
+        m_pelotonResistance =
+            ((Resistance.value() * 0.88) * settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+            settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble(); // 15% lower than yesoul bike
     } else {
-        m_pelotonResistance = (Resistance.value() * 1.1099) - 20.769;
+        m_pelotonResistance = (((Resistance.value() * 1.1099) - 20.769) *
+                               settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) +
+                              settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
     }
 
     if (Cadence.value() > 0) {
@@ -316,7 +320,8 @@ void yesoulbike::error(QLowEnergyController::Error err) {
 void yesoulbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +
                device.address().toString() + ')');
-    if (device.name().startsWith(QStringLiteral("YESOUL"))) {
+    //if (device.name().startsWith(QStringLiteral("YESOUL")))
+    {
         bluetoothDevice = device;
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

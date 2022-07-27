@@ -15,7 +15,10 @@ void rower::changeResistance(int8_t resistance) {
 
 void rower::changeRequestedPelotonResistance(int8_t resistance) { RequestedPelotonResistance = resistance; }
 void rower::changeCadence(int16_t cadence) { RequestedCadence = cadence; }
-void rower::changePower(int32_t power) { RequestedPower = power; }
+void rower::changePower(int32_t power) {
+    RequestedPower = power;
+    qDebug() << "rower::changePower" << power;
+}
 double rower::currentCrankRevolutions() { return CrankRevs; }
 uint16_t rower::lastCrankEventTime() { return LastCrankEventTime; }
 metric rower::lastRequestedResistance() { return RequestedResistance; }
@@ -32,7 +35,7 @@ metric rower::pelotonResistance() { return m_pelotonResistance; }
 int rower::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
 uint8_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
-void rower::powerSensor(uint16_t power) { m_watt.setValue(power); }
+void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 
 bluetoothdevice::BLUETOOTH_TYPE rower::deviceType() { return bluetoothdevice::ROWING; }
 

@@ -166,6 +166,9 @@ int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
 uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
+    if (Cadence.value() == 0)
+        return 1;
+
     for (int i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
@@ -180,12 +183,13 @@ uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
 }
 
 double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
+    QSettings settings;
     // 0,0097x3 - 0,4972x2 + 10,126x - 37,08
     double p = ((pow(resistance, 3) * 0.0097) - (0.4972 * pow(resistance, 2)) + (10.126 * resistance) - 37.08);
     if (p < 0) {
         p = 0;
     }
-    return p;
+    return (p * settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) + settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
 }
 
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -227,7 +231,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
     if (watts())
         KCal +=

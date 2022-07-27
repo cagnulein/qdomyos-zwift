@@ -18,12 +18,16 @@
 #include <QtCore/qloggingcategory.h>
 
 #include "activiotreadmill.h"
+#include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"
+#include "bowflext216treadmill.h"
 #include "bowflextreadmill.h"
 #include "chronobike.h"
+#include "concept2skierg.h"
 #include "cscbike.h"
 #include "domyosbike.h"
 #include "domyoselliptical.h"
+#include "domyosrower.h"
 #include "domyostreadmill.h"
 
 #include "echelonconnectsport.h"
@@ -32,6 +36,7 @@
 #include "elitesterzosmart.h"
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
+#include "fakeelliptical.h"
 #include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
 
@@ -45,16 +50,25 @@
 #include "horizontreadmill.h"
 #include "iconceptbike.h"
 #include "inspirebike.h"
+#include "keepbike.h"
 #include "kingsmithr1protreadmill.h"
 #include "kingsmithr2treadmill.h"
 #include "m3ibike.h"
 #include "mcfbike.h"
+#include "nautilusbike.h"
+#include "nautiluselliptical.h"
 #include "nautilustreadmill.h"
+#include "nordictrackifitadbtreadmill.h"
 #include "npecablebike.h"
+#include "octanetreadmill.h"
 #include "pafersbike.h"
 #include "paferstreadmill.h"
 #include "proformbike.h"
+#include "proformelliptical.h"
+#include "proformellipticaltrainer.h"
+#include "proformrower.h"
 #include "proformtreadmill.h"
+#include "proformwifibike.h"
 #include "schwinnic4bike.h"
 #include "signalhandler.h"
 #include "skandikawiribike.h"
@@ -64,6 +78,7 @@
 #include "strydrunpowersensor.h"
 
 #include "shuaa5treadmill.h"
+#include "solebike.h"
 #include "soleelliptical.h"
 #include "solef80treadmill.h"
 
@@ -82,8 +97,11 @@
 #include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
 #include "treadmill.h"
+#include "truetreadmill.h"
 #include "trxappgateusbbike.h"
 #include "trxappgateusbtreadmill.h"
+#include "ultrasportbike.h"
+#include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
 
 class bluetooth : public QObject, public SignalHandler {
@@ -95,6 +113,7 @@ class bluetooth : public QObject, public SignalHandler {
                        bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~bluetooth();
     bluetoothdevice *device();
+    bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
@@ -106,29 +125,42 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
+    bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
+    bowflext216treadmill *bowflexT216Treadmill = nullptr;
     fitshowtreadmill *fitshowTreadmill = nullptr;
+    concept2skierg *concept2Skierg = nullptr;
     domyostreadmill *domyos = nullptr;
     domyosbike *domyosBike = nullptr;
+    domyosrower *domyosRower = nullptr;
     domyoselliptical *domyosElliptical = nullptr;
     toorxtreadmill *toorx = nullptr;
     iconceptbike *iConceptBike = nullptr;
     trxappgateusbtreadmill *trxappgateusb = nullptr;
     spirittreadmill *spiritTreadmill = nullptr;
     activiotreadmill *activioTreadmill = nullptr;
+    nautilusbike *nautilusBike = nullptr;
+    nautiluselliptical *nautilusElliptical = nullptr;
     nautilustreadmill *nautilusTreadmill = nullptr;
     trxappgateusbbike *trxappgateusbBike = nullptr;
     echelonconnectsport *echelonConnectSport = nullptr;
     yesoulbike *yesoulBike = nullptr;
     gpiotreadmill *gpioTreadmill = nullptr;
     flywheelbike *flywheelBike = nullptr;
+    nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
+    octanetreadmill *octaneTreadmill = nullptr;
+    proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
+    proformwifibike *proformWifiBike = nullptr;
+    proformelliptical *proformElliptical = nullptr;
+    proformellipticaltrainer *proformEllipticalTrainer = nullptr;
     proformtreadmill *proformTreadmill = nullptr;
     horizontreadmill *horizonTreadmill = nullptr;
     technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
 #ifndef Q_OS_IOS
     technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
 #endif
+    truetreadmill *trueTreadmill = nullptr;
     horizongr7bike *horizonGr7Bike = nullptr;
     schwinnic4bike *schwinnIC4Bike = nullptr;
     sportstechbike *sportsTechBike = nullptr;
@@ -142,6 +174,7 @@ class bluetooth : public QObject, public SignalHandler {
     mcfbike *mcfBike = nullptr;
     npecablebike *npeCableBike = nullptr;
     stagesbike *stagesBike = nullptr;
+    solebike *soleBike = nullptr;
     soleelliptical *soleElliptical = nullptr;
     solef80treadmill *soleF80 = nullptr;
     chronobike *chronoBike = nullptr;
@@ -150,6 +183,7 @@ class bluetooth : public QObject, public SignalHandler {
     ftmsrower *ftmsRower = nullptr;
     smartrowrower *smartrowRower = nullptr;
     echelonstride *echelonStride = nullptr;
+    keepbike *keepBike = nullptr;
     kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
     kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
     ftmsbike *ftmsBike = nullptr;
@@ -164,10 +198,13 @@ class bluetooth : public QObject, public SignalHandler {
     stagesbike *powerSensor = nullptr;
     strydrunpowersensor *powerSensorRun = nullptr;
     stagesbike *powerBike = nullptr;
+    ultrasportbike *ultraSportBike = nullptr;
+    wahookickrsnapbike *wahooKickrSnapBike = nullptr;
     strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
     fakebike *fakeBike = nullptr;
+    fakeelliptical *fakeElliptical = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
 
@@ -191,6 +228,10 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteRizerAvaiable();
     bool eliteSterzoSmartAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
+
+#ifdef Q_OS_WIN
+    QTimer discoveryTimeout;
+#endif
 
   signals:
     void deviceConnected(QBluetoothDeviceInfo b);

@@ -23,6 +23,7 @@ class bike : public bluetoothdevice {
     virtual int pelotonToBikeResistance(int pelotonResistance);
     virtual uint8_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(int8_t requestResistance);
+    virtual bool ergManagedBySS2K() { return false; }
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
@@ -31,7 +32,15 @@ class bike : public bluetoothdevice {
     uint8_t metrics_override_heartrate();
     void setGears(int8_t d);
     int8_t gears();
+
+
+    /**
+     * @brief currentSteeringAngle Gets a metric object to get or set the current steering angle
+     * for the Elite Sterzo or emulating device. Expected range -45 to +45 degrees.
+     * @return A metric object.
+     */
     metric currentSteeringAngle() { return m_steeringAngle; }
+    virtual bool inclinationAvailableByHardware();
 
   public Q_SLOTS:
     virtual void changeResistance(int8_t res);
@@ -57,7 +66,7 @@ class bike : public bluetoothdevice {
     metric RequestedPower;
 
     int8_t requestResistance = -1;
-    double requestInclination = -1;
+    double requestInclination = -100;
     int16_t requestPower = -1;
 
     bool ergModeSupported = false; // if a bike has this mode supported, when from the virtual bike there is a power

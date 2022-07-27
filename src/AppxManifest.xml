@@ -1,0 +1,30 @@
+<Package xmlns=\"http://schemas.microsoft.com/appx/manifest/foundation/windows10\" xmlns:mp=\"http://schemas.microsoft.com/appx/2014/phone/manifest\" xmlns:uap=\"http://schemas.microsoft.com/appx/manifest/uap/windows10\" xmlns:uap3=\"http://schemas.microsoft.com/appx/manifest/uap/windows10/3\" xmlns:mobile=\"http://schemas.microsoft.com/appx/manifest/mobile/windows10\" xmlns:iot=\"http://schemas.microsoft.com/appx/manifest/iot/windows10\" IgnorableNamespaces=\"uap uap3 mp mobile iot\">
+<Identity Name=\"35433QZdiRobertoViola.QZFitness\" Publisher=\"CN=CA24F902-6882-40DF-B1E3-2E1B81CD730C\" Version=\"2.10.83.0\" ProcessorArchitecture=\"x64\"/>
+<Properties>
+<DisplayName>QZ Fitness</DisplayName>
+<PublisherDisplayName>QZ di Roberto Viola</PublisherDisplayName>
+<Description>QZ Fitness syncs fitness bikes, ellipticals, rowers, and treadmills to training apps like Echelon, Peloton, Zwift and Strava providing you with an unparalleled level of connectivity that keeps you informed and in control of your workouts</Description>
+<Logo>50.png</Logo>
+</Properties>
+<Dependencies>
+<TargetDeviceFamily Name=\"Windows.Universal\" MinVersion=\"10.0.19041.0\" MaxVersionTested=\"10.0.19041.0\"/>
+<PackageDependency Name=\"Microsoft.VCLibs.140.00\" MinVersion=\"14.0.0.0\" Publisher=\"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US\"/>
+</Dependencies>
+<Resources>
+<Resource Language=\"en\"/>
+</Resources>
+<Applications>
+<Application Id=\"App\" Executable=\"qdomyos-zwift.exe\" EntryPoint=\"qdomyos-zwift.App\">
+<uap:VisualElements DisplayName=\"qdomyos-zwift\" Description=\"Default package description\" BackgroundColor=\"green\" Square150x150Logo=\"150.png\" Square44x44Logo=\"44.png\">
+</uap:VisualElements>
+</Application>
+</Applications>
+<Capabilities>
+<Capability Name=\"internetClient\"/>
+<Capability Name=\"internetClientServer\"/>
+<Capability Name=\"privateNetworkClientServer\"/>
+<DeviceCapability Name=\"bluetooth.genericAttributeProfile\"/>
+<DeviceCapability Name=\"bluetooth.rfcomm\"/>
+<DeviceCapability Name=\"location\"/>
+</Capabilities>
+</Package>

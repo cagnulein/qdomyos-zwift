@@ -2,6 +2,7 @@
 #define METRIC_H
 
 #include "qdebugfixup.h"
+#include "sessionline.h"
 #include <QDateTime>
 #include <math.h>
 
@@ -18,7 +19,7 @@ class metric {
 
     metric();
     void setType(_metric_type t);
-    void setValue(double value);
+    void setValue(double value, bool applyGainAndOffset = true);
     double value();
     double average();
     double average5s();
@@ -40,8 +41,9 @@ class metric {
     void setPaused(bool p);
     void setLap(bool accumulator);
 
-    static double calculateSpeedFromPower(double power);
+    static double calculateSpeedFromPower(double power, double inclination);
     static double calculateWeightLoss(double kcal);
+    static double calculateVO2Max(QList<SessionLine> *session);
 
   private:
     double m_value = 0;
