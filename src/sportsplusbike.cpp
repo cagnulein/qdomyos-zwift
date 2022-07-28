@@ -249,7 +249,7 @@ double sportsplusbike::GetKcalFromPacket(const QByteArray &packet) {
 }
 
 double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
-    uint16_t convertedData = (packet.at(9) << 8) | ((uint8_t)packet.at(10));
+    uint16_t convertedData = (packet.at(2) << 8) | ((uint8_t)packet.at(3));
     double data = ((double)(convertedData));
     return data;
 }
