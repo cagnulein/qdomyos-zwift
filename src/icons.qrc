@@ -30,5 +30,6 @@
         <file>icons/lock.png</file>
         <file>icons/unlock.png</file>
         <file>icons/maps-icon-16.png</file>
+        <file>icons/video.png</file>
     </qresource>
 </RCC>

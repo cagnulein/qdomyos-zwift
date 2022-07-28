@@ -8,7 +8,13 @@ Rectangle {
     MediaPlayer {
         id: videoPlayback
         source: rootItem.videoPath
-        autoPlay: true
+        autoPlay: false
+        playbackRate: rootItem.videoRate
+
+        Component.onCompleted: {
+            videoPlayback.seek(rootItem.videoPosition)
+            videoPlayback.play()
+        }
     }
     VideoOutput {
          id:videoPlayer

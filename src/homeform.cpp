@@ -620,6 +620,7 @@ void homeform::trainProgramSignals() {
                    &bluetoothdevice::changeGeoPosition);
         disconnect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
                    &bluetoothdevice::workoutEventStateChanged);
+        disconnect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
@@ -664,6 +665,7 @@ void homeform::trainProgramSignals() {
         connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram, &trainprogram::onTapeStarted);
         connect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
                 &bluetoothdevice::changeGeoPosition);
+        connect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         connect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
                 &bluetoothdevice::workoutEventStateChanged);
 
@@ -3476,7 +3478,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
-                        r.rampElapsed = QTime().addSecs(p.seconds);
+                        r.rampElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                         list.append(r);
                         setMapsVisible(true);
@@ -3968,6 +3970,22 @@ void homeform::setVideoVisible(bool value) {
 
     m_VideoVisible = value;
     emit videoVisibleChanged(m_VideoVisible);
+}
+
+int homeform::videoPosition() { return m_VideoPosition; }
+
+void homeform::setVideoPosition(int value) {
+
+    m_VideoPosition = value;
+    emit videoPositionChanged(m_VideoPosition);
+}
+
+double homeform::videoRate() { return m_VideoRate; }
+
+void homeform::setVideoRate(double value) {
+
+    m_VideoRate = value;
+    emit videoRateChanged(m_VideoPosition);
 }
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }

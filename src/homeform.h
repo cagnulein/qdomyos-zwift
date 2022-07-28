@@ -118,6 +118,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
     Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
     Q_PROPERTY(QString videoPath READ videoPath)
+    Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
+    Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -336,6 +338,8 @@ class homeform : public QObject {
     bool licensePopupVisible();
     bool mapsVisible();
     bool videoVisible();
+    int videoPosition();
+    double videoRate();
     QString videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
@@ -351,6 +355,8 @@ class homeform : public QObject {
     }
     void setLicensePopupVisible(bool value);
     void setVideoVisible(bool value);
+    void setVideoPosition(int position);
+    void setVideoRate(double rate);
     void setMapsVisible(bool value);
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -475,6 +481,8 @@ class homeform : public QObject {
     bool m_LicensePopupVisible = false;
     bool m_MapsVisible = false;
     bool m_VideoVisible = false;
+    int m_VideoPosition = 0;
+    double m_VideoRate = 1;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
@@ -631,6 +639,11 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
+    void changeTimestamp(QTime source, QTime actual) {
+        qDebug() << "changeTimestamp" << source << actual;
+        setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+        setVideoRate((double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual));
+    }
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);
@@ -658,6 +671,8 @@ class homeform : public QObject {
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
     void videoVisibleChanged(bool value);
+    void videoPositionChanged(int value);
+    void videoRateChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);

@@ -182,7 +182,8 @@ void metric::setLap(bool accumulator) { clearLap(accumulator); }
 
 double metric::calculateSpeedFromPower(double power, double inclination) {
     QSettings settings;
-    if(inclination < -5) inclination = -5;
+    if (inclination < -5)
+        inclination = -5;
     double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
                         settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
     double aero = 0.22691607640851885;

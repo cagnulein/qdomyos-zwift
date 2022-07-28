@@ -468,7 +468,7 @@ ApplicationWindow {
                 }
             }
             id: toolButtonVideo
-            icon.source: ( "icons/icons/maps-icon-16.png" )
+            icon.source: ( "icons/icons/video.png" )
             onClicked: { loadVideo(); }
             anchors.right: toolButtonMaps.left
             visible: rootItem.videoVisible
