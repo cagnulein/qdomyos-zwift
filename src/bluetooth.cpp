@@ -2050,6 +2050,7 @@ void bluetooth::restart() {
 
         delete gpioTreadmill;
         gpioTreadmill = nullptr;
+    }
     if (fakeElliptical) {
 
         delete fakeElliptical;
