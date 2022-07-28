@@ -639,11 +639,7 @@ class homeform : public QObject {
     void sortTilesTimeout();
     void gearUp();
     void gearDown();
-    void changeTimestamp(QTime source, QTime actual) {
-        qDebug() << "changeTimestamp" << source << actual;
-        setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
-        setVideoRate((double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual));
-    }
+    void changeTimestamp(QTime source, QTime actual);
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     void licenseReply(QNetworkReply *reply);

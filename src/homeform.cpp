@@ -4436,3 +4436,11 @@ void homeform::licenseReply(QNetworkReply *reply) {
 }
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
+
+void homeform::changeTimestamp(QTime source, QTime actual) {
+    qDebug() << "changeTimestamp" << source << actual;
+    setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+    double rate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
+    if (m_VideoRate != rate)
+        setVideoRate(rate);
+}
