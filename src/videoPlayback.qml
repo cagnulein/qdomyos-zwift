@@ -5,20 +5,17 @@ import QtQuick 2.15
 
 Rectangle {
     anchors.fill: parent
-    MediaPlayer {
-        id: videoPlayback
+    Video {
+        id: video
+        anchors.fill: parent
         source: rootItem.videoPath
         autoPlay: false
         playbackRate: rootItem.videoRate
 
         Component.onCompleted: {
-            videoPlayback.seek(rootItem.videoPosition)
-            videoPlayback.play()
+            video.seek(rootItem.videoPosition)
+            video.play()
         }
+
     }
-    VideoOutput {
-         id:videoPlayer
-         anchors.fill: parent
-         source: videoPlayback
-     }
 }

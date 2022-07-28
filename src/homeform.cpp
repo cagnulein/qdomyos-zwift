@@ -4438,9 +4438,10 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
-    qDebug() << "changeTimestamp" << source << actual;
-    setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+    const double filter = 0.1;
     double rate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
-    if (m_VideoRate != rate)
+    qDebug() << "changeTimestamp" << source << actual << rate;
+    setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+    if (fabs(videoRate() - rate) > filter)
         setVideoRate(rate);
 }
