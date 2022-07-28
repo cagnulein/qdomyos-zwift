@@ -116,6 +116,8 @@ class homeform : public QObject {
     Q_PROPERTY(bool licensePopupVisible READ licensePopupVisible NOTIFY licensePopupVisibleChanged WRITE
                    setLicensePopupVisible)
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
+    Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
+    Q_PROPERTY(QString videoPath READ videoPath)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -333,6 +335,8 @@ class homeform : public QObject {
     bool generalPopupVisible();
     bool licensePopupVisible();
     bool mapsVisible();
+    bool videoVisible();
+    QString videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
@@ -346,6 +350,7 @@ class homeform : public QObject {
         }
     }
     void setLicensePopupVisible(bool value);
+    void setVideoVisible(bool value);
     void setMapsVisible(bool value);
     void setGeneralPopupVisible(bool value);
     int workout_sample_points() { return Session.count(); }
@@ -469,6 +474,7 @@ class homeform : public QObject {
     bool m_generalPopupVisible = false;
     bool m_LicensePopupVisible = false;
     bool m_MapsVisible = false;
+    bool m_VideoVisible = false;
     QOAuth2AuthorizationCodeFlow *strava = nullptr;
     QNetworkAccessManager *manager = nullptr;
     QOAuthHttpServerReplyHandler *stravaReplyHandler = nullptr;
@@ -485,6 +491,7 @@ class homeform : public QObject {
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
     QString stravaWorkoutName = "";
+    QString movieFileName = "";
     FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
     QString pelotonAskedName = QStringLiteral("");
@@ -650,6 +657,7 @@ class homeform : public QObject {
     void changePelotonProvider(QString value);
     void generalPopupVisibleChanged(bool value);
     void licensePopupVisibleChanged(bool value);
+    void videoVisibleChanged(bool value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);

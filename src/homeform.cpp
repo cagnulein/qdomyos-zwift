@@ -259,6 +259,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaPelotonInstructorName = QLatin1String("");
     activityDescription = QLatin1String("");
     stravaWorkoutName = QLatin1String("");
+    movieFileName = QLatin1String("");
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -1947,6 +1948,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
                 stravaPelotonActivityName = QLatin1String("");
                 stravaPelotonInstructorName = QLatin1String("");
+                movieFileName = QLatin1String("");
                 stravaWorkoutName = QLatin1String("");
                 stravaPelotonWorkoutType = FIT_SPORT_INVALID;
                 emit workoutNameChanged(workoutName());
@@ -3474,6 +3476,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
+                        r.rampElapsed = QTime().addSecs(p.seconds);
 
                         list.append(r);
                         setMapsVisible(true);
@@ -3484,6 +3487,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 i++;
             }
             trainProgram = new trainprogram(list, bluetoothManager);
+
+            if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
+                movieFileName = file.fileName().replace(".gpx", ".mp4");
+                setVideoVisible(true);
+            }
         }
 
         trainProgramSignals();
@@ -3952,6 +3960,14 @@ void homeform::setMapsVisible(bool value) {
 
     m_MapsVisible = value;
     emit mapsVisibleChanged(m_MapsVisible);
+}
+
+bool homeform::videoVisible() { return m_VideoVisible; }
+
+void homeform::setVideoVisible(bool value) {
+
+    m_VideoVisible = value;
+    emit videoVisibleChanged(m_VideoVisible);
 }
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
