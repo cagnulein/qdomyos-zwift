@@ -344,6 +344,9 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
+    if((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+        return;
+
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
         return;
 
