@@ -449,6 +449,10 @@ import Qt.labs.settings 1.0
             // from the version 2.10.112
             property real ss2k_max_resistance: 100
             property real ss2k_min_resistance: 0
+
+
+
+            property bool trixter_xdream_v1_bike: true
         }
 
         function paddingZeros(text, limit) {

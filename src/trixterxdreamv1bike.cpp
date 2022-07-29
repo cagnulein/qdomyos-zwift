@@ -1,9 +1,10 @@
 #include "trixterxdreamv1bike.h"
-#include <math.h>
+#include <cmath>
+#include <qmath.h>
 #include <QSerialPortInfo>
 
 
-trixterxdreamv1bike::trixterxdreamv1bike(QString portName, bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering)
+trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering)
 {
     // Set the wheel diameter for speed and distance calculations
     this->set_wheelDiameter(DefaultWheelDiameter);
@@ -13,7 +14,10 @@ trixterxdreamv1bike::trixterxdreamv1bike(QString portName, bool noWriteResistanc
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
     this->noSteering = noSteering;
+}
 
+bool trixterxdreamv1bike::connect(QString portName)
+{
     // Get the current time in milliseconds since ancient times.
     // This will be subtracted from further readings from getTime() to get an easier to look at number.
     this->t0 = this->getTime();
@@ -37,16 +41,19 @@ trixterxdreamv1bike::trixterxdreamv1bike(QString portName, bool noWriteResistanc
 
     // create the timer for the resistance. This only needs to be active when a non-zero resistance is requested.
     this->resistanceTimer = new QTimer(this);
-    connect(this->resistanceTimer, &QTimer::timeout, this, &trixterxdreamv1bike::updateResistance);
+    bike::connect(this->resistanceTimer, &QTimer::timeout, this, &trixterxdreamv1bike::updateResistance);
+
+    // wait for some packets to arrive
+    QThread::msleep(500);
+    return this->connected();
 }
 
 bool trixterxdreamv1bike::testPort(const QString& portName)
 {
     try
     {
-        trixterxdreamv1bike bike(portName, true, true, true, true); // minimal device
-        QThread::msleep(500);
-        return bike.connected();
+        trixterxdreamv1bike bike(true, true, true, true); // minimal device
+        return bike.connect(portName);
     }
     catch (...)
     {
@@ -122,7 +129,7 @@ void trixterxdreamv1bike::update(QByteArray bytes)
 
     // Set the steering
     if(!this->noSteering)
-        this->currentSteeringAngle().setValue(90.0 / 250.0 * state.Steering -45.0);
+        this->m_steeringAngle.setValue(90.0 / 250.0 * state.Steering -45.0);
 
 }
 
@@ -149,10 +156,15 @@ void trixterxdreamv1bike::updateResistance()
 
 trixterxdreamv1bike::~trixterxdreamv1bike()
 {
-    this->resistanceTimer->stop();
+    if(this->resistanceTimer)
+    {
+        this->resistanceTimer->stop();
+        delete this->resistanceTimer;
+    }
+
     this->port.quit();
 
-    delete this->resistanceTimer;
+
 }
 
 void trixterxdreamv1bike::set_wheelDiameter(double value)

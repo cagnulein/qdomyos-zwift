@@ -70,13 +70,20 @@ private:
     uint32_t lastPacketProcessedTime;
 
     /**
+     * @brief updateMutex Mutex to syncronize access to
+     */
+    QMutex updateMutex;
+
+
+    uint32_t updatesInProgress = 0;
+
+    /**
      * @brief getTime Gets the time in miliseconds since this object was created.
      */
     uint32_t getTime();
     
     /**
-     * @brief Temporary method to contain what happens when a new block of data comes in
-     * from the data source (serial port).
+     * @brief Called by the data source (serial port) when a new block of data arrives.
      */
     void update(QByteArray bytes);
 
@@ -133,17 +140,28 @@ public:
      */
     constexpr static int32_t DisconnectionTimeout = 50;
 
+
+    /**
+     * @brief SettingsIdentifier The identifier for this device in the QDomyos settings.
+     */
+    inline static const std::string SettingsIdentifier = "trixter-xdream-v1";
+
     /**
      * @brief trixterxdreamv1bike Constructor
-     * @param portName The name of the serial port to connect to.
      * @param noWriteResistance Option to avoid sending resistance to the device.
      * @param noHeartService Option to avoid using the heart rate reading.
      * @param noVirtualDevice Option to avoid using a virtual device.
      * @param noSteering Option to avoid using the steering reading.
      */
-    trixterxdreamv1bike(QString portName, bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering);
+    trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering);
 
     ~trixterxdreamv1bike();
+
+    /**
+     * @brief connect Attempt to connect to the specified port.
+     * @param portName The name of the serial port to connect to.
+     */
+    bool connect(QString portName);
 
     /**
      * @brief connected Indicates if a valid packet was received from the device within the DisconnectionTimeout.

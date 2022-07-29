@@ -73,7 +73,7 @@ private:
     uint32_t lastT = 0;
     double flywheelRevolutions{}, crankRevolutions{};
     Packet lastPacket{};
-    std::vector<char> inputBuffer;
+    std::vector<uint8_t> inputBuffer;
     std::vector<uint8_t> byteBuffer;
     state lastState;
 
@@ -99,7 +99,7 @@ public:
     /**
      * @brief The time interval between sending resistance requests to the device.
      */
-    constexpr static uint8_t ResistancePulseIntervalMilliseconds = 50;
+    constexpr static uint8_t ResistancePulseIntervalMilliseconds = 10;
 
     trixterxdreamv1client();
 
@@ -134,7 +134,7 @@ public:
     void Reset();
 
     /**
-     * @brief Sends 1 packet indicating a specific resistance level to the device. Needs to be sent every 50ms.
+     * @brief Sends 1 packet indicating a specific resistance level to the device. Needs to be sent at the rate specified by ResistancePulseIntervalMilliseconds.
      * @param level 0 to 250.
      */
     void SendResistance(uint8_t level);

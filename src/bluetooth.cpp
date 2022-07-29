@@ -337,6 +337,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
 
+    bool trixterxdreamv1bikeEnabled = settings.value(QStringLiteral("trixter_xdream_v1_bike")).toBool();
+
     if (!heartRateBeltFound) {
 
         heartRateBeltFound = heartRateBeltAvaiable();
@@ -393,6 +395,30 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         return;
     }
 #endif
+
+    if(trixterxdreamv1bikeEnabled)
+    {
+        QString port = trixterxdreamv1bike::findPort();
+
+        if(port != nullptr)
+        {
+            discoveryAgent->stop();
+            trixterxdreamv1bike = new class trixterxdreamv1bike(noWriteResistance, noHeartService, false,false);
+            if(trixterxdreamv1bike->connect(port))
+            {
+                connect(trixterxdreamv1bike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                //connect(trixterxdreamv1bike, &trixterxdreamv1bike::debug, this, &bluetooth::debug);
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(trixterxdreamv1bike);
+                innerTemplateManager->start(trixterxdreamv1bike);
+            }
+            else
+                delete trixterxdreamv1bike;
+        }
+    }
 
     if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
          eliteSterzoSmartFound) ||

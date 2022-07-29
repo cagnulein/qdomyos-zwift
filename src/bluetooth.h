@@ -96,6 +96,7 @@
 #include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
 #include "treadmill.h"
+#include "trixterxdreamv1bike.h"
 #include "truetreadmill.h"
 #include "trxappgateusbbike.h"
 #include "trxappgateusbtreadmill.h"
@@ -205,6 +206,7 @@ class bluetooth : public QObject, public SignalHandler {
     fakeelliptical *fakeElliptical = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
+    trixterxdreamv1bike * trixterxdreamv1bike = nullptr;
 
     bool testResistance = false;
     bool noWriteResistance = false;

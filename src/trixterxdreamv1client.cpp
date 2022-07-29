@@ -6,7 +6,9 @@
 
 using namespace std;
 
-trixterxdreamv1client::trixterxdreamv1client() { this->ConfigureResistanceMessages(); }
+trixterxdreamv1client::trixterxdreamv1client() {
+    this->ConfigureResistanceMessages();
+}
 
 void trixterxdreamv1client::ResetBuffer() {
     // for the case of an invalid packet, if this was smart, it would store all the input
@@ -178,7 +180,7 @@ trixterxdreamv1client::state trixterxdreamv1client::getLastState() {
 
 void trixterxdreamv1client::SendResistance(uint8_t level) {
 
-    // to maintain the resistance, this needs to be resent about every 50ms.
+    // to maintain the resistance, this needs to be resent about every 10ms 
     if (level != 0 && this->write_bytes)
     {
         this->writeMutex.lock();
