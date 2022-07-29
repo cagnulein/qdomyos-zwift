@@ -288,6 +288,7 @@
 		876F9B61275385D8006AE6FA /* moc_fitmetria_fanfit.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876F9B60275385D8006AE6FA /* moc_fitmetria_fanfit.cpp */; };
 		8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */; };
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
+		877A080D2893DC4300C0F0AB /* CoreVideo.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74122893D705009A64C8 /* CoreVideo.framework */; };
 		877A7609269D8E9F0024DD2C /* WebKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 877A7608269D8E9F0024DD2C /* WebKit.framework */; };
 		877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877FBA27276E684400F6C0C9 /* bowflextreadmill.cpp */; };
 		877FBA2B276E684E00F6C0C9 /* moc_bowflextreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877FBA2A276E684E00F6C0C9 /* moc_bowflextreadmill.cpp */; };
@@ -1533,6 +1534,7 @@
 				7C8D236C48F2964061C3457C /* widgetsplugin in Link Binary With Libraries */,
 				401B341C04019FFA2146E79D /* Qt5Widgets in Link Binary With Libraries */,
 				61EC5BE7EEC8D905C63FF628 /* qmlplugin in Link Binary With Libraries */,
+				877A080D2893DC4300C0F0AB /* CoreVideo.framework in Link Binary With Libraries */,
 				876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */,
 				7167B22320D1DE063C3DF45E /* windowplugin in Link Binary With Libraries */,
 				F55B541DFCF9C73160D34905 /* qtquick2plugin in Link Binary With Libraries */,
