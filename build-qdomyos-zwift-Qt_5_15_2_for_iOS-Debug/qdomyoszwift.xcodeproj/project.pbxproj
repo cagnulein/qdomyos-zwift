@@ -318,6 +318,12 @@
 		879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */; };
 		879F16462847E55C00CE4945 /* proformellipticaltrainer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */; };
 		879F16482847E57400CE4945 /* moc_proformellipticaltrainer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */; };
+		879F74092893D4B6009A64C8 /* libQt5MultimediaWidgets.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */; };
+		879F740C2893D4FA009A64C8 /* libqtaudio_coreaudio.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */; };
+		879F740D2893D4FA009A64C8 /* libqtmultimedia_m3u.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */; };
+		879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */; };
+		879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74102893D5B7009A64C8 /* libqavfcamera.a */; };
+		879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74142893D732009A64C8 /* CoreMedia.framework */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -1053,6 +1059,13 @@
 		879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformellipticaltrainer.cpp; path = ../src/proformellipticaltrainer.cpp; sourceTree = "<group>"; };
 		879F16452847E55C00CE4945 /* proformellipticaltrainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformellipticaltrainer.h; path = ../src/proformellipticaltrainer.h; sourceTree = "<group>"; };
 		879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformellipticaltrainer.cpp; sourceTree = "<group>"; };
+		879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaWidgets.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaWidgets.a; sourceTree = "<group>"; };
+		879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtaudio_coreaudio.a; path = ../../Qt/5.15.2/ios/plugins/audio/libqtaudio_coreaudio.a; sourceTree = "<group>"; };
+		879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmultimedia_m3u.a; path = ../../Qt/5.15.2/ios/plugins/playlistformats/libqtmultimedia_m3u.a; sourceTree = "<group>"; };
+		879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmedia_audioengine.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqtmedia_audioengine.a; sourceTree = "<group>"; };
+		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfcamera.a; sourceTree = "<group>"; };
+		879F74122893D705009A64C8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		879F74142893D732009A64C8 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/cscbike.cpp; sourceTree = "<group>"; };
@@ -1431,6 +1444,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
+				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
+				879F740C2893D4FA009A64C8 /* libqtaudio_coreaudio.a in Link Binary With Libraries */,
+				879F740D2893D4FA009A64C8 /* libqtmultimedia_m3u.a in Link Binary With Libraries */,
+				879F74092893D4B6009A64C8 /* libQt5MultimediaWidgets.a in Link Binary With Libraries */,
 				871189192893CECF006A04D1 /* libqavfmediaplayer.a in Link Binary With Libraries */,
 				871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */,
 				871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */,
@@ -1504,6 +1522,7 @@
 				7BEF7EDD71FE6186DE2A2CA8 /* qt_poly2tri in Link Binary With Libraries */,
 				B4D9325E1B419854C84A6E86 /* qt_clipper in Link Binary With Libraries */,
 				4FA524144B680D741D33EACB /* qtgraphicaleffectsprivate in Link Binary With Libraries */,
+				879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */,
 				1C823E40F377B93A664EAC1B /* modelsplugin in Link Binary With Libraries */,
 				B9DED9CC16B0F3339F363FBF /* workerscriptplugin in Link Binary With Libraries */,
 				023642106C14651D2E1F4D5D /* dialogplugin in Link Binary With Libraries */,
@@ -2121,6 +2140,13 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				879F74142893D732009A64C8 /* CoreMedia.framework */,
+				879F74122893D705009A64C8 /* CoreVideo.framework */,
+				879F74102893D5B7009A64C8 /* libqavfcamera.a */,
+				879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */,
+				879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */,
+				879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */,
+				879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */,
 				871189182893CECC006A04D1 /* libqavfmediaplayer.a */,
 				871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */,
 				871189142893CB51006A04D1 /* libdeclarative_multimedia.a */,
@@ -3465,6 +3491,8 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtMultimedia,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 				);
 				MARKETING_VERSION = 2.11;
 				OTHER_CFLAGS = (
@@ -3632,6 +3660,8 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
 					/Users/cagnulein/Qt/5.15.2/ios/qml/QtMultimedia,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 				);
 				MARKETING_VERSION = 2.11;
 				ONLY_ACTIVE_ARCH = YES;
