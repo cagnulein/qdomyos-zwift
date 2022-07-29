@@ -5,17 +5,29 @@ import QtQuick 2.15
 
 Rectangle {
     anchors.fill: parent
-    Video {
-        id: video
-        anchors.fill: parent
-        source: rootItem.videoPath
-        autoPlay: false
-        playbackRate: rootItem.videoRate
+    MediaPlayer {
+           id: videoPlayback
+           source: rootItem.videoPath
+           autoPlay: false
+           playbackRate: rootItem.videoRate
 
-        Component.onCompleted: {
-            video.seek(rootItem.videoPosition)
-            video.play()
-        }
+           onError: {
+               if (videoPlayback.NoError !== error) {
+                   console.log("[qmlvideo] VideoItem.onError error " + error + " errorString " + errorString)
+               }
+           }
 
-    }
+       }
+
+    VideoOutput {
+             id:videoPlayer
+             anchors.fill: parent
+             source: videoPlayback
+
+             Component.onCompleted: {
+                 console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
+                 videoPlayback.seek(rootItem.videoPosition)
+                 videoPlayback.play()
+             }
+         }
 }

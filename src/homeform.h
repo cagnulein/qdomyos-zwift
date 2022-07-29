@@ -117,7 +117,7 @@ class homeform : public QObject {
                    setLicensePopupVisible)
     Q_PROPERTY(bool mapsVisible READ mapsVisible NOTIFY mapsVisibleChanged WRITE setMapsVisible)
     Q_PROPERTY(bool videoVisible READ videoVisible NOTIFY videoVisibleChanged WRITE setVideoVisible)
-    Q_PROPERTY(QString videoPath READ videoPath)
+    Q_PROPERTY(QUrl videoPath READ videoPath)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
@@ -340,7 +340,7 @@ class homeform : public QObject {
     bool videoVisible();
     int videoPosition();
     double videoRate();
-    QString videoPath() { return movieFileName; }
+    QUrl videoPath() { return QUrl::fromLocalFile(movieFileName); }
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
