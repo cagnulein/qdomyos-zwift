@@ -143,6 +143,10 @@
 		87083D9626678EFA0072410D /* zwiftworkout.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87083D9526678EFA0072410D /* zwiftworkout.cpp */; };
 		87097D2F275EA9A30020EE6F /* sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */; };
 		87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */; };
+		871189132893C930006A04D1 /* libQt5Multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189122893C92F006A04D1 /* libQt5Multimedia.a */; };
+		871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189142893CB51006A04D1 /* libdeclarative_multimedia.a */; };
+		871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */; };
+		871189192893CECF006A04D1 /* libqavfmediaplayer.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189182893CECC006A04D1 /* libqavfmediaplayer.a */; };
 		871235BF26B297670012D0F2 /* kingsmithr1protreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871235BE26B297660012D0F2 /* kingsmithr1protreadmill.cpp */; };
 		871235C126B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */; };
 		87182A09276BBAF600141463 /* virtualrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87182A08276BBAF600141463 /* virtualrower.cpp */; };
@@ -781,6 +785,10 @@
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/sportsplusbike.cpp; sourceTree = "<group>"; };
 		87097D2E275EA9A20020EE6F /* sportsplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sportsplusbike.h; path = ../src/sportsplusbike.h; sourceTree = "<group>"; };
 		87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusbike.cpp; sourceTree = "<group>"; };
+		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = ../../Qt/5.15.2/ios/lib/libQt5Multimedia.a; sourceTree = "<group>"; };
+		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = ../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia.a; sourceTree = "<group>"; };
+		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaQuick.a; sourceTree = "<group>"; };
+		871189182893CECC006A04D1 /* libqavfmediaplayer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfmediaplayer.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfmediaplayer.a; sourceTree = "<group>"; };
 		871235BD26B297660012D0F2 /* kingsmithr1protreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr1protreadmill.h; path = ../src/kingsmithr1protreadmill.h; sourceTree = "<group>"; };
 		871235BE26B297660012D0F2 /* kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr1protreadmill.cpp; path = ../src/kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
 		871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
@@ -1423,6 +1431,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				871189192893CECF006A04D1 /* libqavfmediaplayer.a in Link Binary With Libraries */,
+				871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */,
+				871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */,
+				871189132893C930006A04D1 /* libQt5Multimedia.a in Link Binary With Libraries */,
 				870613BC286D97D200D2446E /* libQt5Sql.a in Link Binary With Libraries */,
 				870613BA286D979100D2446E /* libqmapboxgl.a in Link Binary With Libraries */,
 				870613B8286D973C00D2446E /* libqsqlite.a in Link Binary With Libraries */,
@@ -2109,6 +2121,10 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				871189182893CECC006A04D1 /* libqavfmediaplayer.a */,
+				871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */,
+				871189142893CB51006A04D1 /* libdeclarative_multimedia.a */,
+				871189122893C92F006A04D1 /* libQt5Multimedia.a */,
 				870613BB286D97D100D2446E /* libQt5Sql.a */,
 				870613B9286D979000D2446E /* libqmapboxgl.a */,
 				870613B7286D973B00D2446E /* libqsqlite.a */,
@@ -3447,6 +3463,8 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtMultimedia,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 				);
 				MARKETING_VERSION = 2.11;
 				OTHER_CFLAGS = (
@@ -3477,6 +3495,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
 					"-DQT_LOCATION_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3510,6 +3529,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_LOCATION_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -3610,6 +3630,8 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtMultimedia,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
 				);
 				MARKETING_VERSION = 2.11;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3641,6 +3663,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
 					"-DQT_LOCATION_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3674,6 +3697,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_LOCATION_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;

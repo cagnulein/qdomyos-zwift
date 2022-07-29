@@ -1,5 +1,5 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location
-
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
+QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 unix:android: QT += androidextras gui-private
