@@ -455,7 +455,7 @@ import Qt.labs.settings 1.0
             property bool proform_treadmill_se: false
             
             // from the version ?
-            property bool trixter_xdream_v1_bike: true
+            property bool trixter_xdream_v1_bike: false
         }
 
         function paddingZeros(text, limit) {
@@ -1703,6 +1703,28 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.virtufit_etappe = checked
+                    }
+                }
+                AccordionElement {
+                    id: trixterXDreamV1BikeAccordion
+                    title: qsTr("Trixter X-Dream V1 Bike Options")
+                    indicatRectColor: Material.color(Material.Grey)
+                    textColor: Material.color(Material.Yellow)
+                    color: Material.backgroundColor
+                    accordionContent:
+                    SwitchDelegate {
+                        id: trixterXDreamV1
+                        text: qsTr("Trixter X-Dream V1 Bike")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trixter_xdream_v1_bike
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trixter_xdream_v1_bike = checked
                     }
                 }
                 AccordionElement {
