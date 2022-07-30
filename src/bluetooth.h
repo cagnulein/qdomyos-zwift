@@ -229,6 +229,13 @@ class bluetooth : public QObject, public SignalHandler {
     bool eliteSterzoSmartAvaiable();
     bool fitmetria_fanfit_isconnected(QString name);
 
+    /**
+     * @brief findTrixterXDreamV1Bike Searches serial ports for a Trixter X-Dream V1 Bike
+     * @param settings The application settings.
+     * @return A trixterxdreamv1bike object if a bike has been found, nullptr otherwise.
+     */
+    class trixterxdreamv1bike * findTrixterXDreamV1Bike(const QSettings& settings);
+
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
 #endif

@@ -3,7 +3,6 @@
 #include <qmath.h>
 #include <QSerialPortInfo>
 
-
 trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering)
 {
     // Set the wheel diameter for speed and distance calculations
@@ -14,22 +13,28 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
     this->noSteering = noSteering;
-
-    if(!bike::connect(&this->port, &trixterxdreamv1serial::request, this, &trixterxdreamv1bike::update))
-    {
-        throw "Failed to connect to request slot";
-    }
 }
 
 bool trixterxdreamv1bike::connect(QString portName)
 {
+    if(this->port) delete this->port;
+    if(this->resistanceTimer) delete this->resistanceTimer;
+
     // Get the current time in milliseconds since ancient times.
     // This will be subtracted from further readings from getTime() to get an easier to look at number.
     this->t0 = this->getTime();
 
+    // create the port object and connect it
+    this->port = new trixterxdreamv1serial(this);
+    this->moveToThread(this->port); // this appears to be necessary for the slot to be called
+    if(!bike::connect(this->port, &trixterxdreamv1serial::request, this, &trixterxdreamv1bike::update))
+    {
+        throw "Failed to connect to request slot";
+    }
+
     // References to objects for callbacks
     auto thisObject = this;
-    auto device=&this->port;
+    auto device=this->port;
 
     // tell the client where to get the time
     this->client.set_GetTime([&thisObject]()->uint32_t { return thisObject->getTime();} );
@@ -39,7 +44,7 @@ bool trixterxdreamv1bike::connect(QString portName)
         this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(bytes, length, "");});
 
     // open the port. This should be at 115200 bits per second.
-    this->port.open(portName, 1000);
+    this->port->open(portName, 1000);
 
     // create the timer for the resistance. This only needs to be active when a non-zero resistance is requested.
     this->resistanceTimer = new QTimer(this);
@@ -50,33 +55,6 @@ bool trixterxdreamv1bike::connect(QString portName)
     return this->connected();
 }
 
-bool trixterxdreamv1bike::testPort(const QString& portName)
-{
-    try
-    {
-        trixterxdreamv1bike bike(true, true, true, true); // minimal device
-        return bike.connect(portName);
-    }
-    catch (...)
-    {
-        return false;
-    }
-
-}
-
-QString trixterxdreamv1bike::findPort()
-{
-    auto availablePorts = trixterxdreamv1serial::availablePorts();
-
-    for(int i=0; i<availablePorts.length(); i++)
-    {
-        if(testPort(availablePorts[i].portName()))
-            return availablePorts[i].portName();
-    }
-
-    return nullptr;
-}
-
 bool trixterxdreamv1bike::connected()
 {
     return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
@@ -85,7 +63,9 @@ bool trixterxdreamv1bike::connected()
 
 uint32_t trixterxdreamv1bike::getTime()
 {
-    return static_cast<uint32_t>(QDateTime::currentDateTime().toMSecsSinceEpoch() - this->t0);
+    auto currentDateTime = QDateTime::currentDateTime();
+    auto ms = currentDateTime.toMSecsSinceEpoch();
+    return static_cast<uint32_t>(ms);
 }
 
 bool trixterxdreamv1bike::updateClient(const QString& s, trixterxdreamv1client * client)
@@ -158,15 +138,15 @@ void trixterxdreamv1bike::updateResistance()
 
 trixterxdreamv1bike::~trixterxdreamv1bike()
 {
-    if(this->resistanceTimer)
-    {
+    if(this->resistanceTimer) {
         this->resistanceTimer->stop();
         delete this->resistanceTimer;
     }
 
-    this->port.quit();
-
-
+    if(this->port) {
+        this->port->quit();
+        delete this->port;
+    }
 }
 
 void trixterxdreamv1bike::set_wheelDiameter(double value)
@@ -177,3 +157,34 @@ void trixterxdreamv1bike::set_wheelDiameter(double value)
     // stored as km to avoid dividing by 1000 every time it's used
     this->wheelCircumference = value * M_PI / 1000.0;
 }
+
+trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering, const QString &portName)
+{
+    // first check if there's a port specified
+    if(portName!=nullptr && !portName.isEmpty())
+    {
+        trixterxdreamv1bike * result = new trixterxdreamv1bike(noWriteResistance, noHeartService, noVirtualDevice, noSteering);
+        if(result->connect(portName))
+            return result;
+        delete result;
+        return nullptr;
+    }
+
+    // Find the available ports and return the first success
+    auto availablePorts = trixterxdreamv1serial::availablePorts();
+
+    for(int i=0; i<availablePorts.length(); i++)
+    {
+        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, availablePorts[i].portName());
+        if(result) return result;
+    }
+
+    return nullptr;
+}
+
+trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(const QString& portName)
+{
+    return tryCreate(false, false, false, false, portName);
+}
+
+

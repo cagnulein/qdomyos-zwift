@@ -67,10 +67,11 @@ private:
         uint8_t HeartRate;
     };
 
-    std::function<uint32_t()> get_time_ms;
-    std::function<void(uint8_t*, int)> write_bytes;
+    std::function<uint32_t()> get_time_ms=nullptr;
+    std::function<void(uint8_t*, int)> write_bytes=nullptr;
     std::mutex stateMutex, writeMutex;
     uint32_t lastT = 0;
+    uint32_t t0 = 0;
     double flywheelRevolutions{}, crankRevolutions{};
     Packet lastPacket{};
     std::vector<uint8_t> inputBuffer;
@@ -121,7 +122,7 @@ public:
      * a starting point understood by the client.
      * @param get_time_ms A function to get the time.
      */
-    void set_GetTime(std::function<uint32_t()> get_time_ms) { this->get_time_ms = get_time_ms; }
+    void set_GetTime(std::function<uint32_t()> get_time_ms);
 
     /**
      * @brief Gets the state of the device as it was last read. This consists of CSCS data, steering and heartbeat.

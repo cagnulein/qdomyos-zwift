@@ -41,6 +41,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
+
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
     userTemplateManager->start(schwinnIC4Bike);
@@ -197,6 +198,17 @@ void bluetooth::debug(const QString &text) {
     }
 }
 
+
+trixterxdreamv1bike * bluetooth::findTrixterXDreamV1Bike(const QSettings& settings)
+{
+    bool trixterxdreamv1bikeEnabled = settings.value(QStringLiteral("trixter_xdream_v1_bike")).toBool();
+
+    if(trixterxdreamv1bikeEnabled)
+        return trixterxdreamv1bike::tryCreate(this->noWriteResistance, this->noHeartService, false, false);
+
+    return nullptr;
+}
+
 bool bluetooth::cscSensorAvaiable() {
 
     QSettings settings;
@@ -337,7 +349,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
 
-    bool trixterxdreamv1bikeEnabled = settings.value(QStringLiteral("trixter_xdream_v1_bike")).toBool();
+
 
     if (!heartRateBeltFound) {
 
@@ -386,6 +398,15 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << device.deviceUuid();
 #endif
 
+    // Try to connect to a Trixter X-Dream V1 bike if the setting is enabled.
+    this->trixterxdreamv1bike = this->findTrixterXDreamV1Bike(settings);
+    if(this->trixterxdreamv1bike) {
+        this->userTemplateManager->start(trixterxdreamv1bike);
+        this->innerTemplateManager->start(trixterxdreamv1bike);
+        this->connectedAndDiscovered();
+        return;
+    }
+
     if (onlyDiscover)
         return;
 
@@ -396,29 +417,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 #endif
 
-    if(trixterxdreamv1bikeEnabled)
-    {
-        QString port = trixterxdreamv1bike::findPort();
 
-        if(port != nullptr)
-        {
-            discoveryAgent->stop();
-            trixterxdreamv1bike = new class trixterxdreamv1bike(noWriteResistance, noHeartService, false,false);
-            if(trixterxdreamv1bike->connect(port))
-            {
-                connect(trixterxdreamv1bike, &bluetoothdevice::connectedAndDiscovered, this, &bluetooth::connectedAndDiscovered);
-                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
-                //connect(trixterxdreamv1bike, &trixterxdreamv1bike::debug, this, &bluetooth::debug);
-                if (!discoveryAgent->isActive()) {
-                    emit searchingStop();
-                }
-                userTemplateManager->start(trixterxdreamv1bike);
-                innerTemplateManager->start(trixterxdreamv1bike);
-            }
-            else
-                delete trixterxdreamv1bike;
-        }
-    }
 
     if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
          eliteSterzoSmartFound) ||

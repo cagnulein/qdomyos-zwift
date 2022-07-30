@@ -16,12 +16,12 @@ private:
      * @brief port An object that monitors a serial port to read incoming data, and to write
      * resistance level requests.
      */
-    trixterxdreamv1serial port;
+    trixterxdreamv1serial * port = nullptr;
 
     /**
      * @brief resistanceTimer A timer to push the currently requested resistance level to the device.
      */
-    QTimer * resistanceTimer;
+    QTimer * resistanceTimer = nullptr;
 
     /**
      * @brief noHeartService Suppress heart rate readings.
@@ -57,25 +57,22 @@ private:
     /**
      * @brief t0 The start time in milliseconds. Used to reduce te size of time values processed.
      */
-    qint64 t0;
+    qint64 t0=0;
 
     /**
      * @brief packetsProcessed The number of packets processed.
      */
-    uint32_t packetsProcessed;
+    uint32_t packetsProcessed=0;
 
     /**
      * @brief lastPacketProcessedTime The last time (from getTime()) a packet was processed.
      */
-    uint32_t lastPacketProcessedTime;
+    uint32_t lastPacketProcessedTime=0;
 
     /**
      * @brief updateMutex Mutex to syncronize access to
      */
     QMutex updateMutex;
-
-
-    uint32_t updatesInProgress = 0;
 
     /**
      * @brief getTime Gets the time in miliseconds since this object was created.
@@ -97,12 +94,6 @@ private:
      */
     static bool updateClient(const QString &s, trixterxdreamv1client * client);
 
-    /**
-     * @brief testPort Tries to open a port and looks for valid data packets.
-     * @param portName The name of the serial port.
-     * @return True if valid data packets were obtained from the port.
-     */
-    static bool testPort(const QString &portName);
 protected:
     virtual BLUETOOTH_TYPE devicetype() { return BIKE; }
 
@@ -141,12 +132,6 @@ public:
      */
     constexpr static int32_t DisconnectionTimeout = 50;
 
-
-    /**
-     * @brief SettingsIdentifier The identifier for this device in the QDomyos settings.
-     */
-    inline static const std::string SettingsIdentifier = "trixter-xdream-v1";
-
     /**
      * @brief trixterxdreamv1bike Constructor
      * @param noWriteResistance Option to avoid sending resistance to the device.
@@ -182,8 +167,23 @@ public:
     virtual uint8_t maxResistance() { return trixterxdreamv1client::MaxResistance; }
 
     /**
-     * @brief findPort Looks for an X-Dream V1 bike on known serial ports and returns the port name if it finds one.
+     * @brief tryCreate Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,
+     * or if the port is unspecified, any serial port.
+     * @param noWriteResistance Option to avoid sending resistance to the device.
+     * @param noHeartService Option to avoid using the heart rate reading.
+     * @param noVirtualDevice Option to avoid using a virtual device.
+     * @param noSteering Option to avoid using the steering reading.
+     * @param portName (Optional) The specific port to search.
+     * @return nullptr if no device is found, an object if a device is found and connected.
      */
-    static QString findPort();
+    static trixterxdreamv1bike * tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering, const QString& portName = nullptr);
+
+    /**
+     * @brief tryCreate Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,
+     * or if the port is unspecified, any serial port.
+     * @param port (Optional) The specific port to search.
+     * @return
+     */
+    static trixterxdreamv1bike * tryCreate(const QString& portName = nullptr);
 
 };
