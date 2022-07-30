@@ -68,8 +68,10 @@ void trixterxdreamv1serial::run() {
             qDebug() << "serial << " << requestData.toHex(' ');
 
             // Send the bytes to the client code
-            if(bytes_read)
-                bytes_read(requestData);
+            if(requestData.length()>0) {
+                const QString request = QString::fromUtf8(requestData);
+                emit this->request(request);
+            }
         }
         m_mutex.lock();
         if (currentPortName != m_portName) {

@@ -82,10 +82,6 @@ private:
      */
     uint32_t getTime();
     
-    /**
-     * @brief Called by the data source (serial port) when a new block of data arrives.
-     */
-    void update(QByteArray bytes);
 
     /**
      * @brief updateResistance Called by the resistanceTimer to send the resistence request to the
@@ -99,7 +95,7 @@ private:
      * @param client The client object that interprets the incoming bytes into data packets.
      * @return True if the state of the client changed due to the input.
      */
-    static bool updateClient(QByteArray bytes, trixterxdreamv1client * client);
+    static bool updateClient(const QString &s, trixterxdreamv1client * client);
 
     /**
      * @brief testPort Tries to open a port and looks for valid data packets.
@@ -116,6 +112,11 @@ public Q_SLOTS:
      * @param resistanceLevel The resistance level to request (0..250)
      */
     virtual void changeResistance(int8_t resistanceLevel);
+
+    /**
+     * @brief Called by the data source (serial port) when a new block of data arrives.
+     */
+    void update(const QString& s);
 
 public:
 

@@ -14,6 +14,11 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
     this->noSteering = noSteering;
+
+    if(!bike::connect(&this->port, &trixterxdreamv1serial::request, this, &trixterxdreamv1bike::update))
+    {
+        throw "Failed to connect to request slot";
+    }
 }
 
 bool trixterxdreamv1bike::connect(QString portName)
@@ -32,9 +37,6 @@ bool trixterxdreamv1bike::connect(QString portName)
     // tell the client how to send data to the device
     if(!noWriteResistance)
         this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(bytes, length, "");});
-
-    // tell the serial port where to send incoming data blocks
-    this->port.set_bytes_read([&thisObject](QByteArray bytes) -> void {thisObject->update(bytes); });
 
     // open the port. This should be at 115200 bits per second.
     this->port.open(portName, 1000);
@@ -86,20 +88,20 @@ uint32_t trixterxdreamv1bike::getTime()
     return static_cast<uint32_t>(QDateTime::currentDateTime().toMSecsSinceEpoch() - this->t0);
 }
 
-bool trixterxdreamv1bike::updateClient(QByteArray bytes, trixterxdreamv1client * client)
+bool trixterxdreamv1bike::updateClient(const QString& s, trixterxdreamv1client * client)
 {
     bool stateChanged = false;
 
-    for(int i=0; i<bytes.length();i++)
-        stateChanged |= client->ReceiveChar(bytes[i]);
+    for(int i=0; i<s.length();i++)
+        stateChanged |= client->ReceiveChar(s[i].toLatin1());
 
     return stateChanged;
 }
 
-void trixterxdreamv1bike::update(QByteArray bytes)
+void trixterxdreamv1bike::update(const QString &s)
 {
     // send the bytes to the client and return if there's no change of state
-    if(!updateClient(bytes, &this->client))
+    if(!updateClient(s, &this->client))
         return;
 
     // Take the most recent state read

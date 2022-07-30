@@ -29,12 +29,6 @@ class trixterxdreamv1serial : public QThread {
     void write(const uint8_t *buffer, int len, QString info);
 
     /**
-     * @brief Sets the callback function to call when bytes have been read.
-     * @param bytes_read A callback function to call when a block of bytes has been read.
-     */
-    void set_bytes_read(std::function<void(QByteArray)> bytes_read) { this->bytes_read = bytes_read; }
-
-    /**
      * @brief availablePorts Returns a list of information objects for the serial ports found in the system.
      */
     static QList<QSerialPortInfo> availablePorts();
@@ -47,7 +41,6 @@ signals:
     void run() override;
 
     QSerialPort serial;
-    std::function<void(QByteArray)> bytes_read;
     QString m_portName;
     int m_waitTimeout = 1000;
     QMutex m_mutex;
