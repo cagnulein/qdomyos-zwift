@@ -449,6 +449,9 @@ import Qt.labs.settings 1.0
             // from the version 2.10.112
             property real ss2k_max_resistance: 100
             property real ss2k_min_resistance: 0
+
+            // from the version 2.11.10
+            property bool proform_treadmill_se: false
         }
 
         function paddingZeros(text, limit) {
@@ -513,7 +516,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.ui_zoom = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -538,7 +541,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.weight = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1140,7 +1143,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_weight = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1217,7 +1220,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.bike_resistance_gain_f = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1412,7 +1415,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.horizon_gr7_cadence_multiplier = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1475,7 +1478,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.echelon_resistance_gain = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -1810,7 +1813,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.proform_wheel_ratio = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -1890,7 +1893,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.proformtdf4ip = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -3679,7 +3682,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.peloton_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -4082,7 +4085,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_min = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -4107,7 +4110,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_speed_max = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -4132,7 +4135,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_min = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -4157,7 +4160,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.trainprogram_incline_max = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -4391,6 +4394,20 @@ import Qt.labs.settings 1.0
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_1800i = checked
                         }
+                        SwitchDelegate {
+                            id: proformSEDelegate
+                            text: qsTr("Proform SE")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.proform_treadmill_se
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.proform_treadmill_se = checked
+                        }
                         RowLayout {
                             spacing: 10
                             Label {
@@ -4404,7 +4421,7 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                 onAccepted: settings.nordictrack_2950_ip = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -5141,7 +5158,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.watt_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -5191,7 +5208,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.speed_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -5241,7 +5258,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.cadence_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -5259,7 +5276,6 @@ import Qt.labs.settings 1.0
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         verticalAlignment: Text.AlignVCenter
-                        color: Material.color(Material.Grey)
                     }
 
                     RowLayout {
@@ -5369,7 +5385,7 @@ import Qt.labs.settings 1.0
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
                             onAccepted: settings.zwift_inclination_gain = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -5637,7 +5653,7 @@ import Qt.labs.settings 1.0
                                         horizontalAlignment: Text.AlignRight
                                         Layout.fillHeight: false
                                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                        //inputMethodHints: Qt.ImhFormattedNumbersOnly
                                         onAccepted: settings.elite_rizer_gain = text
                                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                                     }

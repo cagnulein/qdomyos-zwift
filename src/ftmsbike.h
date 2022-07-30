@@ -71,6 +71,8 @@ class ftmsbike : public bike {
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
+    int pelotonToBikeResistance(int pelotonResistance);
+    uint8_t maxResistance() { return max_resistance; }
 
     void *VirtualBike();
     void *VirtualDevice();
@@ -97,6 +99,7 @@ class ftmsbike : public bike {
     uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    int max_resistance = 100;
 
     bool initDone = false;
     bool initRequest = false;

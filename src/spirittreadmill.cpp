@@ -114,19 +114,33 @@ void spirittreadmill::update() {
             sec1update = 0;
             // updateDisplay(elapsed);
         } else {
-            uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
-            uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
+            if(!XT385) {
+                uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
-            switch (counterPoll) {
-            case 0:
-                writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-                break;
-            case 1:
-                writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
-                break;
+                switch (counterPoll) {
+                case 0:
+                    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                    break;
+                case 1:
+                    writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                }
+            } else {
+                uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+                uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x06, 0x4f, 0x4b, 0x5d};
+
+                switch (counterPoll) {
+                case 0:
+                    writeCharacteristic(noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+                    break;
+                case 1:
+                    writeCharacteristic(noOpData, sizeof(noOpData1), QStringLiteral("noOp"), false, true);
+                    break;
+                }
             }
             counterPoll++;
-            if (counterPoll > 1 || XT385) {
+            if (counterPoll > 1) {
                 counterPoll = 0;
             }
         }
@@ -212,9 +226,9 @@ void spirittreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     else
 #endif
     {
-        if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
+        /*if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
             Heart = ((uint8_t)newValue.at(18));
-        }
+        }*/
     }
 
     Distance += ((Speed.value() / 3600000.0) * ((double)lastTimeCharChanged.msecsTo(QTime::currentTime())));
@@ -302,9 +316,10 @@ void spirittreadmill::btinit(bool startTape) {
         uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
         uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x01, 0x23, 0x00, 0x9b, 0xaa, 0x5d};
         uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x10, 0x01, 0x5d};
-        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x00, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x62, 0x00, 0x00, 0x00, 0x5d};
         uint8_t initData8[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
         uint8_t initData9[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+        uint8_t initData10[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
         writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
         writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
@@ -329,6 +344,8 @@ void spirittreadmill::btinit(bool startTape) {
         writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
         writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, true);
     }
 
     initDone = true;

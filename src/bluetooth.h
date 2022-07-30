@@ -59,6 +59,7 @@
 #include "nautilustreadmill.h"
 #include "nordictrackifitadbtreadmill.h"
 #include "npecablebike.h"
+#include "octanetreadmill.h"
 #include "pafersbike.h"
 #include "paferstreadmill.h"
 #include "proformbike.h"
@@ -145,6 +146,7 @@ class bluetooth : public QObject, public SignalHandler {
     yesoulbike *yesoulBike = nullptr;
     flywheelbike *flywheelBike = nullptr;
     nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
+    octanetreadmill *octaneTreadmill = nullptr;
     proformrower *proformRower = nullptr;
     proformbike *proformBike = nullptr;
     proformwifibike *proformWifiBike = nullptr;
