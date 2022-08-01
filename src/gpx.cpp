@@ -14,6 +14,22 @@ QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
     input.open(QIODevice::ReadOnly);
     QDomDocument doc;
     doc.setContent(&input);
+    QDomNodeList metadata = doc.elementsByTagName(QStringLiteral("metadata"));
+    if(metadata.size()) {
+        QDomNodeList list = metadata.at(0).childNodes();
+        for(int i=0; i<list.count(); i++) {
+            if(list.at(i).nodeName().toLower() == "video") {
+                QString video = list.at(i).toElement().firstChild().nodeValue();
+                if(!video.isEmpty()) {
+                    videoUrl = video;
+                    qDebug() << "gpx::videoUrl " << videoUrl;
+                    break;
+                }
+
+            }
+        }
+    }
+    
     QDomNodeList points = doc.elementsByTagName(QStringLiteral("trkpt"));
     for (int i = 0; i < points.size(); i++) {
         QDomNode point = points.item(i);

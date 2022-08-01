@@ -340,7 +340,7 @@ class homeform : public QObject {
     bool videoVisible();
     int videoPosition();
     double videoRate();
-    QUrl videoPath() { return QUrl::fromLocalFile(movieFileName); }
+    QUrl videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
     QStringList bluetoothDevices();
@@ -499,7 +499,7 @@ class homeform : public QObject {
     QString stravaPelotonActivityName;
     QString stravaPelotonInstructorName;
     QString stravaWorkoutName = "";
-    QString movieFileName = "";
+    QUrl movieFileName;
     FIT_SPORT stravaPelotonWorkoutType = FIT_SPORT_INVALID;
     QString activityDescription;
     QString pelotonAskedName = QStringLiteral("");

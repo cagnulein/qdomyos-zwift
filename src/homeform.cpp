@@ -259,7 +259,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaPelotonInstructorName = QLatin1String("");
     activityDescription = QLatin1String("");
     stravaWorkoutName = QLatin1String("");
-    movieFileName = QLatin1String("");
+    movieFileName = QUrl("");
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -3490,8 +3490,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
             }
             trainProgram = new trainprogram(list, bluetoothManager);
 
-            if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
-                movieFileName = file.fileName().replace(".gpx", ".mp4");
+            if(g.getVideoURL().isEmpty() == false) {
+                movieFileName = QUrl(g.getVideoURL());
+                setVideoVisible(true);
+            } else if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
+                movieFileName = QUrl::fromLocalFile(file.fileName().replace(".gpx", ".mp4"));
                 setVideoVisible(true);
             }
         }
