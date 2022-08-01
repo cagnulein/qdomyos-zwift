@@ -41,7 +41,6 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
     this->innerTemplateManager =
         TemplateInfoSenderBuilder::getInstance(innerId, QStringList({QStringLiteral(":/inner_templates/")}), this);
 
-
 #ifdef TEST
     schwinnIC4Bike = (schwinnic4bike *)new bike();
     userTemplateManager->start(schwinnIC4Bike);
@@ -403,6 +402,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if(this->trixterXDreamV1Bike) {
         this->userTemplateManager->start(trixterXDreamV1Bike);
         this->innerTemplateManager->start(trixterXDreamV1Bike);
+        emit deviceFound("Trixter X-Dream V1 Bike");
         this->connectedAndDiscovered();
         return;
     }
