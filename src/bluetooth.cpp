@@ -399,10 +399,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 #endif
 
     // Try to connect to a Trixter X-Dream V1 bike if the setting is enabled.
-    this->trixterxdreamv1bike = this->findTrixterXDreamV1Bike(settings);
-    if(this->trixterxdreamv1bike) {
-        this->userTemplateManager->start(trixterxdreamv1bike);
-        this->innerTemplateManager->start(trixterxdreamv1bike);
+    this->trixterXDreamV1Bike = this->findTrixterXDreamV1Bike(settings);
+    if(this->trixterXDreamV1Bike) {
+        this->userTemplateManager->start(trixterXDreamV1Bike);
+        this->innerTemplateManager->start(trixterXDreamV1Bike);
         this->connectedAndDiscovered();
         return;
     }
@@ -2336,6 +2336,10 @@ void bluetooth::restart() {
         delete eliteSterzoSmart;
         eliteSterzoSmart = nullptr;
     }
+    if (trixterXDreamV1Bike) {
+        delete trixterXDreamV1Bike;
+        trixterXDreamV1Bike = nullptr;
+    }
     discoveryAgent->start();
 }
 
@@ -2483,7 +2487,10 @@ bluetoothdevice *bluetooth::device() {
         return fitPlusBike;
     } else if (skandikaWiriBike) {
         return skandikaWiriBike;
+    } else if (trixterXDreamV1Bike){
+        return trixterXDreamV1Bike;
     }
+
     return nullptr;
 }
 

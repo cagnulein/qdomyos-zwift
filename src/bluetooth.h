@@ -206,7 +206,7 @@ class bluetooth : public QObject, public SignalHandler {
     fakeelliptical *fakeElliptical = nullptr;
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
-    trixterxdreamv1bike * trixterxdreamv1bike = nullptr;
+    trixterxdreamv1bike * trixterXDreamV1Bike = nullptr;
 
     bool testResistance = false;
     bool noWriteResistance = false;
