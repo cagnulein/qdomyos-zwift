@@ -459,6 +459,22 @@ ApplicationWindow {
         }
 
         ToolButton {
+            function loadVideo() {
+                if(rootItem.currentCoordinateValid) {
+                    console.log("coordinate is valid for map");
+                    stackView.push("videoPlayback.qml");
+                } else {
+                    console.log("coordinate is NOT valid for map");
+                }
+            }
+            id: toolButtonVideo
+            icon.source: ( "icons/icons/video.png" )
+            onClicked: { loadVideo(); }
+            anchors.right: toolButtonMaps.left
+            visible: rootItem.videoVisible
+        }
+
+        ToolButton {
             id: toolButtonLockTiles
             icon.source: ( window.lockTiles ? "icons/icons/unlock.png" : "icons/icons/lock.png")
             onClicked: { window.lockTiles = !window.lockTiles; console.log("lock tiles toggled " + window.lockTiles); popuplockTiles.open(); popuplockTilesAutoClose.running = true; }
