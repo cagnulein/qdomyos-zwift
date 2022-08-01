@@ -46,7 +46,7 @@ private:
     /**
      * @brief resistanceLevel The last requested resistance level.
      */
-    uint8_t resistanceLevel;
+    uint8_t resistanceLevel = 0;
 
     /**
      * @brief wheelCircumference The simulated circumference of the bike's wheels, for converting

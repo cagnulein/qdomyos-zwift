@@ -111,12 +111,17 @@ void trixterxdreamv1bike::update(const QString &s)
 
     // Set the steering
     if(!this->noSteering)
-        this->m_steeringAngle.setValue(90.0 / 250.0 * state.Steering -45.0);
+        this->m_steeringAngle.setValue(round(90.0 / 255.0 * state.Steering - 45.0));
+
+    // set the elapsed time
+    this->elapsed = (this->getTime() - this->t0) * 0.001;
 
 }
 
 void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel)
 {
+    bike::changeResistance(resistanceLevel);
+
     // store the new resistance level. This might be the same as lastRequestedResistance(),Value
     // but it doesn't involve a function call and a cast to get the value.
     this->resistanceLevel = resistanceLevel;

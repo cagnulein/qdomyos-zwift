@@ -163,8 +163,8 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     newState.LastEventTime = static_cast<uint16_t>(millisecondsToBaseUnit * t);
     newState.Steering = lastPacket.Steering;
     newState.HeartRate = lastPacket.HeartRate;
-    newState.CumulativeCrankRevolutions = static_cast<uint16_t>(round(flywheelRevolutions));
-    newState.CumulativeWheelRevolutions = static_cast<uint32_t>(round(crankRevolutions));
+    newState.CumulativeCrankRevolutions = static_cast<uint16_t>(round(crankRevolutions));
+    newState.CumulativeWheelRevolutions = static_cast<uint32_t>(round(flywheelRevolutions));
     newState.CrankRPM = static_cast<uint16_t>(crankRevsPerMinute);
     newState.FlywheelRPM = static_cast<uint16_t>(flywheelRevsPerMinute);
 
