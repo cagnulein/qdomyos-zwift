@@ -77,6 +77,7 @@ SOURCES += \
    proformellipticaltrainer.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
+   proformwifitreadmill.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
     qmdnsengine/src/src/bitmap.cpp \
     qmdnsengine/src/src/browser.cpp \
@@ -256,6 +257,7 @@ HEADERS += \
    proformellipticaltrainer.h \
    proformrower.h \
    proformwifibike.h \
+   proformwifitreadmill.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
     qmdnsengine/src/include/qmdnsengine/bitmap.h \
     qmdnsengine/src/include/qmdnsengine/browser.h \
@@ -707,4 +709,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.13
+VERSION = 2.11.14
