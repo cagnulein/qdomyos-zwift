@@ -402,7 +402,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if(this->trixterXDreamV1Bike) {
         this->userTemplateManager->start(trixterXDreamV1Bike);
         this->innerTemplateManager->start(trixterXDreamV1Bike);
-        emit deviceFound("Trixter X-Dream V1 Bike");
+        this->emit deviceFound("Trixter X-Dream V1 Bike");
+        QBluetoothDeviceInfo fakeInfo;
+        emit this->deviceConnected(fakeInfo);
         this->connectedAndDiscovered();
         return;
     }
