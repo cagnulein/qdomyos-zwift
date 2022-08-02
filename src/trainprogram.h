@@ -100,6 +100,7 @@ class trainprogram : public QObject {
     void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
+    void changeTimestamp(QTime source, QTime actual);
 
   private:
     mutable QRecursiveMutex schedulerMutex;

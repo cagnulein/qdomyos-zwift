@@ -887,14 +887,14 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::ASVIVA;
             qDebug() << QStringLiteral("ASVIVA bike found");
-        } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
-
-            bike_type = TYPE::CHANGYOW;
-            qDebug() << QStringLiteral("CHANGYOW bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR"))) {
 
             bike_type = TYPE::VIRTUFIT;
             qDebug() << QStringLiteral("VIRTUFIT bike found");
+        } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
+
+            bike_type = TYPE::CHANGYOW;
+            qDebug() << QStringLiteral("CHANGYOW bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("BFCP"))) {
 
             bike_type = TYPE::SKANDIKAWIRY;

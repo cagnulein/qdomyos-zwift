@@ -259,6 +259,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     stravaPelotonInstructorName = QLatin1String("");
     activityDescription = QLatin1String("");
     stravaWorkoutName = QLatin1String("");
+    movieFileName = QUrl("");
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
@@ -619,6 +620,7 @@ void homeform::trainProgramSignals() {
                    &bluetoothdevice::changeGeoPosition);
         disconnect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
                    &bluetoothdevice::workoutEventStateChanged);
+        disconnect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
 
         connect(trainProgram, &trainprogram::start, bluetoothManager->device(), &bluetoothdevice::start);
         connect(trainProgram, &trainprogram::stop, bluetoothManager->device(), &bluetoothdevice::stop);
@@ -663,6 +665,7 @@ void homeform::trainProgramSignals() {
         connect(((bike *)bluetoothManager->device()), &bike::bikeStarted, trainProgram, &trainprogram::onTapeStarted);
         connect(trainProgram, &trainprogram::changeGeoPosition, bluetoothManager->device(),
                 &bluetoothdevice::changeGeoPosition);
+        connect(trainProgram, &trainprogram::changeTimestamp, this, &homeform::changeTimestamp);
         connect(this, &homeform::workoutEventStateChanged, bluetoothManager->device(),
                 &bluetoothdevice::workoutEventStateChanged);
 
@@ -1947,6 +1950,7 @@ void homeform::Start_inner(bool send_event_to_device) {
             if (!pelotonHandler || (pelotonHandler && !pelotonHandler->isWorkoutInProgress())) {
                 stravaPelotonActivityName = QLatin1String("");
                 stravaPelotonInstructorName = QLatin1String("");
+                movieFileName = QLatin1String("");
                 stravaWorkoutName = QLatin1String("");
                 stravaPelotonWorkoutType = FIT_SPORT_INVALID;
                 emit workoutNameChanged(workoutName());
@@ -3474,6 +3478,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
+                        r.rampElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                         list.append(r);
                         setMapsVisible(true);
@@ -3484,6 +3489,14 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                 i++;
             }
             trainProgram = new trainprogram(list, bluetoothManager);
+
+            if(g.getVideoURL().isEmpty() == false) {
+                movieFileName = QUrl(g.getVideoURL());
+                setVideoVisible(true);
+            } else if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
+                movieFileName = QUrl::fromLocalFile(file.fileName().replace(".gpx", ".mp4"));
+                setVideoVisible(true);
+            }
         }
 
         trainProgramSignals();
@@ -3954,6 +3967,30 @@ void homeform::setMapsVisible(bool value) {
     emit mapsVisibleChanged(m_MapsVisible);
 }
 
+bool homeform::videoVisible() { return m_VideoVisible; }
+
+void homeform::setVideoVisible(bool value) {
+
+    m_VideoVisible = value;
+    emit videoVisibleChanged(m_VideoVisible);
+}
+
+int homeform::videoPosition() { return m_VideoPosition; }
+
+void homeform::setVideoPosition(int value) {
+
+    m_VideoPosition = value;
+    emit videoPositionChanged(m_VideoPosition);
+}
+
+double homeform::videoRate() { return m_VideoRate; }
+
+void homeform::setVideoRate(double value) {
+
+    m_VideoRate = value;
+    emit videoRateChanged(m_VideoPosition);
+}
+
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
 
 void homeform::sendMail() {
@@ -4402,3 +4439,12 @@ void homeform::licenseReply(QNetworkReply *reply) {
 }
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
+
+void homeform::changeTimestamp(QTime source, QTime actual) {
+    const double filter = 0.1;
+    double rate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
+    qDebug() << "changeTimestamp" << source << actual << rate;
+    setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+    if (fabs(videoRate() - rate) > filter)
+        setVideoRate(rate);
+}

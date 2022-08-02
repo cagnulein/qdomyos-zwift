@@ -143,6 +143,10 @@
 		87083D9626678EFA0072410D /* zwiftworkout.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87083D9526678EFA0072410D /* zwiftworkout.cpp */; };
 		87097D2F275EA9A30020EE6F /* sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */; };
 		87097D31275EA9AF0020EE6F /* moc_sportsplusbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */; };
+		871189132893C930006A04D1 /* libQt5Multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189122893C92F006A04D1 /* libQt5Multimedia.a */; };
+		871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189142893CB51006A04D1 /* libdeclarative_multimedia.a */; };
+		871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */; };
+		871189192893CECF006A04D1 /* libqavfmediaplayer.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 871189182893CECC006A04D1 /* libqavfmediaplayer.a */; };
 		871235BF26B297670012D0F2 /* kingsmithr1protreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871235BE26B297660012D0F2 /* kingsmithr1protreadmill.cpp */; };
 		871235C126B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */; };
 		87182A09276BBAF600141463 /* virtualrower.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87182A08276BBAF600141463 /* virtualrower.cpp */; };
@@ -284,6 +288,7 @@
 		876F9B61275385D8006AE6FA /* moc_fitmetria_fanfit.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 876F9B60275385D8006AE6FA /* moc_fitmetria_fanfit.cpp */; };
 		8772A0E625E43ADB0080718C /* trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E525E43ADA0080718C /* trxappgateusbbike.cpp */; };
 		8772A0E825E43AE70080718C /* moc_trxappgateusbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8772A0E725E43AE70080718C /* moc_trxappgateusbbike.cpp */; };
+		877A080D2893DC4300C0F0AB /* CoreVideo.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74122893D705009A64C8 /* CoreVideo.framework */; };
 		877A7609269D8E9F0024DD2C /* WebKit.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 877A7608269D8E9F0024DD2C /* WebKit.framework */; };
 		877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877FBA27276E684400F6C0C9 /* bowflextreadmill.cpp */; };
 		877FBA2B276E684E00F6C0C9 /* moc_bowflextreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 877FBA2A276E684E00F6C0C9 /* moc_bowflextreadmill.cpp */; };
@@ -314,6 +319,12 @@
 		879A38C8281BD83300F78B2A /* characteristicnotifier2ad9.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879A38C7281BD83300F78B2A /* characteristicnotifier2ad9.cpp */; };
 		879F16462847E55C00CE4945 /* proformellipticaltrainer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */; };
 		879F16482847E57400CE4945 /* moc_proformellipticaltrainer.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */; };
+		879F74092893D4B6009A64C8 /* libQt5MultimediaWidgets.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */; };
+		879F740C2893D4FA009A64C8 /* libqtaudio_coreaudio.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */; };
+		879F740D2893D4FA009A64C8 /* libqtmultimedia_m3u.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */; };
+		879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */; };
+		879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74102893D5B7009A64C8 /* libqavfcamera.a */; };
+		879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 879F74142893D732009A64C8 /* CoreMedia.framework */; };
 		87A0C4BB262329A600121A76 /* npecablebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B7262329A600121A76 /* npecablebike.cpp */; };
 		87A0C4BC262329A600121A76 /* cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4B9262329A600121A76 /* cscbike.cpp */; };
 		87A0C4BF262329B500121A76 /* moc_cscbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87A0C4BD262329B500121A76 /* moc_cscbike.cpp */; };
@@ -781,6 +792,10 @@
 		87097D2D275EA9A20020EE6F /* sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sportsplusbike.cpp; path = ../src/sportsplusbike.cpp; sourceTree = "<group>"; };
 		87097D2E275EA9A20020EE6F /* sportsplusbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sportsplusbike.h; path = ../src/sportsplusbike.h; sourceTree = "<group>"; };
 		87097D30275EA9AE0020EE6F /* moc_sportsplusbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_sportsplusbike.cpp; sourceTree = "<group>"; };
+		871189122893C92F006A04D1 /* libQt5Multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Multimedia.a; path = ../../Qt/5.15.2/ios/lib/libQt5Multimedia.a; sourceTree = "<group>"; };
+		871189142893CB51006A04D1 /* libdeclarative_multimedia.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libdeclarative_multimedia.a; path = ../../Qt/5.15.2/ios/qml/QtMultimedia/libdeclarative_multimedia.a; sourceTree = "<group>"; };
+		871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaQuick.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaQuick.a; sourceTree = "<group>"; };
+		871189182893CECC006A04D1 /* libqavfmediaplayer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfmediaplayer.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfmediaplayer.a; sourceTree = "<group>"; };
 		871235BD26B297660012D0F2 /* kingsmithr1protreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kingsmithr1protreadmill.h; path = ../src/kingsmithr1protreadmill.h; sourceTree = "<group>"; };
 		871235BE26B297660012D0F2 /* kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = kingsmithr1protreadmill.cpp; path = ../src/kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
 		871235C026B297720012D0F2 /* moc_kingsmithr1protreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_kingsmithr1protreadmill.cpp; sourceTree = "<group>"; };
@@ -1045,6 +1060,13 @@
 		879F16442847E55C00CE4945 /* proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = proformellipticaltrainer.cpp; path = ../src/proformellipticaltrainer.cpp; sourceTree = "<group>"; };
 		879F16452847E55C00CE4945 /* proformellipticaltrainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = proformellipticaltrainer.h; path = ../src/proformellipticaltrainer.h; sourceTree = "<group>"; };
 		879F16472847E57400CE4945 /* moc_proformellipticaltrainer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_proformellipticaltrainer.cpp; sourceTree = "<group>"; };
+		879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5MultimediaWidgets.a; path = ../../Qt/5.15.2/ios/lib/libQt5MultimediaWidgets.a; sourceTree = "<group>"; };
+		879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtaudio_coreaudio.a; path = ../../Qt/5.15.2/ios/plugins/audio/libqtaudio_coreaudio.a; sourceTree = "<group>"; };
+		879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmultimedia_m3u.a; path = ../../Qt/5.15.2/ios/plugins/playlistformats/libqtmultimedia_m3u.a; sourceTree = "<group>"; };
+		879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtmedia_audioengine.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqtmedia_audioengine.a; sourceTree = "<group>"; };
+		879F74102893D5B7009A64C8 /* libqavfcamera.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqavfcamera.a; path = ../../Qt/5.15.2/ios/plugins/mediaservice/libqavfcamera.a; sourceTree = "<group>"; };
+		879F74122893D705009A64C8 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		879F74142893D732009A64C8 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		87A0C4B7262329A600121A76 /* npecablebike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = npecablebike.cpp; path = ../src/npecablebike.cpp; sourceTree = "<group>"; };
 		87A0C4B8262329A600121A76 /* cscbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cscbike.h; path = ../src/cscbike.h; sourceTree = "<group>"; };
 		87A0C4B9262329A600121A76 /* cscbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cscbike.cpp; path = ../src/cscbike.cpp; sourceTree = "<group>"; };
@@ -1423,6 +1445,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				879F74112893D5B8009A64C8 /* libqavfcamera.a in Link Binary With Libraries */,
+				879F740F2893D592009A64C8 /* libqtmedia_audioengine.a in Link Binary With Libraries */,
+				879F740C2893D4FA009A64C8 /* libqtaudio_coreaudio.a in Link Binary With Libraries */,
+				879F740D2893D4FA009A64C8 /* libqtmultimedia_m3u.a in Link Binary With Libraries */,
+				879F74092893D4B6009A64C8 /* libQt5MultimediaWidgets.a in Link Binary With Libraries */,
+				871189192893CECF006A04D1 /* libqavfmediaplayer.a in Link Binary With Libraries */,
+				871189172893CC45006A04D1 /* libQt5MultimediaQuick.a in Link Binary With Libraries */,
+				871189152893CB52006A04D1 /* libdeclarative_multimedia.a in Link Binary With Libraries */,
+				871189132893C930006A04D1 /* libQt5Multimedia.a in Link Binary With Libraries */,
 				870613BC286D97D200D2446E /* libQt5Sql.a in Link Binary With Libraries */,
 				870613BA286D979100D2446E /* libqmapboxgl.a in Link Binary With Libraries */,
 				870613B8286D973C00D2446E /* libqsqlite.a in Link Binary With Libraries */,
@@ -1492,6 +1523,7 @@
 				7BEF7EDD71FE6186DE2A2CA8 /* qt_poly2tri in Link Binary With Libraries */,
 				B4D9325E1B419854C84A6E86 /* qt_clipper in Link Binary With Libraries */,
 				4FA524144B680D741D33EACB /* qtgraphicaleffectsprivate in Link Binary With Libraries */,
+				879F74152893D732009A64C8 /* CoreMedia.framework in Link Binary With Libraries */,
 				1C823E40F377B93A664EAC1B /* modelsplugin in Link Binary With Libraries */,
 				B9DED9CC16B0F3339F363FBF /* workerscriptplugin in Link Binary With Libraries */,
 				023642106C14651D2E1F4D5D /* dialogplugin in Link Binary With Libraries */,
@@ -1502,6 +1534,7 @@
 				7C8D236C48F2964061C3457C /* widgetsplugin in Link Binary With Libraries */,
 				401B341C04019FFA2146E79D /* Qt5Widgets in Link Binary With Libraries */,
 				61EC5BE7EEC8D905C63FF628 /* qmlplugin in Link Binary With Libraries */,
+				877A080D2893DC4300C0F0AB /* CoreVideo.framework in Link Binary With Libraries */,
 				876EE3CDDF69DA139329ADD8 /* qquicklayoutsplugin in Link Binary With Libraries */,
 				7167B22320D1DE063C3DF45E /* windowplugin in Link Binary With Libraries */,
 				F55B541DFCF9C73160D34905 /* qtquick2plugin in Link Binary With Libraries */,
@@ -2109,6 +2142,17 @@
 		AF39DD055C3EF8226FBE929D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				879F74142893D732009A64C8 /* CoreMedia.framework */,
+				879F74122893D705009A64C8 /* CoreVideo.framework */,
+				879F74102893D5B7009A64C8 /* libqavfcamera.a */,
+				879F740E2893D591009A64C8 /* libqtmedia_audioengine.a */,
+				879F740A2893D4F9009A64C8 /* libqtaudio_coreaudio.a */,
+				879F740B2893D4F9009A64C8 /* libqtmultimedia_m3u.a */,
+				879F74082893D4B5009A64C8 /* libQt5MultimediaWidgets.a */,
+				871189182893CECC006A04D1 /* libqavfmediaplayer.a */,
+				871189162893CC44006A04D1 /* libQt5MultimediaQuick.a */,
+				871189142893CB51006A04D1 /* libdeclarative_multimedia.a */,
+				871189122893C92F006A04D1 /* libQt5Multimedia.a */,
 				870613BB286D97D100D2446E /* libQt5Sql.a */,
 				870613B9286D979000D2446E /* libqmapboxgl.a */,
 				870613B7286D973B00D2446E /* libqsqlite.a */,
@@ -3378,7 +3422,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.11.1;
+				CURRENT_PROJECT_VERSION = 2.11.13;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
 				HEADER_SEARCH_PATHS = (
@@ -3447,6 +3491,10 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtMultimedia,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 				);
 				MARKETING_VERSION = 2.11;
 				OTHER_CFLAGS = (
@@ -3477,6 +3525,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
 					"-DQT_LOCATION_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3510,6 +3559,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_LOCATION_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -3539,7 +3589,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "../src/ios/qdomyos-zwift.entitlements";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2.11.1;
+				CURRENT_PROJECT_VERSION = 2.11.13;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = NO;
@@ -3610,6 +3660,10 @@
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/geoservices,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/position,
 					/Users/cagnulein/Qt/5.15.2/ios/plugins/sqldrivers,
+					/Users/cagnulein/Qt/5.15.2/ios/qml/QtMultimedia,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/mediaservice,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/playlistformats,
+					/Users/cagnulein/Qt/5.15.2/ios/plugins/audio,
 				);
 				MARKETING_VERSION = 2.11;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3641,6 +3695,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
 					"-DQT_LOCATION_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"-pipe",
@@ -3674,6 +3729,7 @@
 					"-DQT_TEXTTOSPEECH_LIB",
 					"-DQT_LOCATION_LIB",
 					"-DQT_POSITIONINGQUICK_LIB",
+					"-DQT_MULTIMEDIA_LIB",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cagnulein.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = qdomyoszwift;
@@ -3736,7 +3792,7 @@
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.1;
+				CURRENT_PROJECT_VERSION = 2.11.13;
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -3828,7 +3884,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.1;
+				CURRENT_PROJECT_VERSION = 2.11.13;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 6335M7T29D;
 				ENABLE_BITCODE = YES;
@@ -3915,7 +3971,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.1;
+				CURRENT_PROJECT_VERSION = 2.11.13;
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;
 				ENABLE_PREVIEWS = YES;
@@ -4005,7 +4061,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = "watchkit Extension/WatchKit Extension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2.11.1;
+				CURRENT_PROJECT_VERSION = 2.11.13;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"watchkit Extension/Preview Content\"";
 				ENABLE_BITCODE = YES;

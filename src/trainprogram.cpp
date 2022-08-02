@@ -416,6 +416,7 @@ void trainprogram::scheduler() {
                         p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer),
                                                    rows.at(currentStep).azimuth);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
+                    emit changeTimestamp(rows.at(currentStep).rampElapsed, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");
@@ -480,7 +481,7 @@ void trainprogram::onTapeStarted() { started = true; }
 
 void trainprogram::restart() {
 
-    if(bluetoothManager && bluetoothManager->device())
+    if (bluetoothManager && bluetoothManager->device())
         lastOdometer = bluetoothManager->device()->odometer();
     ticks = 0;
     offset = 0;

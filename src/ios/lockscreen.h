@@ -25,7 +25,7 @@ class lockscreen {
     // virtualrower
     void virtualrower_ios();
     void virtualrower_setHeartRate(unsigned char heartRate);
-    bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime);
+    bool virtualrower_updateFTMS(unsigned short normalizeSpeed, unsigned char currentResistance, unsigned short currentCadence, unsigned short currentWatt, unsigned short CrankRevolutions, unsigned short LastCrankEventTime, unsigned short StrokesCount, unsigned int Distance, unsigned short KCal, unsigned short Pace);
     int virtualrower_getLastFTMSMessage(unsigned char* message);
     
     // virtualtreadmill
