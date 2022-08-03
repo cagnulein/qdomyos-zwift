@@ -3492,9 +3492,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
             if(g.getVideoURL().isEmpty() == false) {
                 movieFileName = QUrl(g.getVideoURL());
+                emit videoPathChanged(movieFileName);
                 setVideoVisible(true);
             } else if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
                 movieFileName = QUrl::fromLocalFile(file.fileName().replace(".gpx", ".mp4"));
+                emit videoPathChanged(movieFileName);
                 setVideoVisible(true);
             }
         }
