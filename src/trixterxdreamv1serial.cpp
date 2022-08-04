@@ -4,13 +4,13 @@
 #include <QTime>
 #include <QSerialPortInfo>
 
-trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent) {}
+trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent){}
 
 trixterxdreamv1serial::~trixterxdreamv1serial() {
-    m_mutex.lock();
-    m_quit = true;
-    m_mutex.unlock();
-    wait();
+    this->mutex.lock();
+    this->quitPending = true;
+    this->mutex.unlock();
+    this->wait();
 }
 
 QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts()
@@ -19,9 +19,9 @@ QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts()
 }
 
 void trixterxdreamv1serial::open(const QString &portName, int waitTimeout) {
-    const QMutexLocker locker(&m_mutex);
-    m_portName = portName;
-    m_waitTimeout = waitTimeout;
+    const QMutexLocker locker(&this->mutex);
+    this->portName = portName;
+    this->waitTimeout = waitTimeout;
     if (!isRunning())
         start();
 }
@@ -36,26 +36,26 @@ void trixterxdreamv1serial::run() {
 
     bool currentPortNameChanged = false;
 
-    m_mutex.lock();
+    this->mutex.lock();
 
     QString currentPortName;
-    if (currentPortName != m_portName) {
-        currentPortName = m_portName;
+    if (currentPortName != this->portName) {
+        currentPortName = this->portName;
         currentPortNameChanged = true;
     }
 
-    int currentWaitTimeout = m_waitTimeout;
-    m_mutex.unlock();
+    int currentWaitTimeout = this->waitTimeout;
+    this->mutex.unlock();
 
-    while (!m_quit) {
+    while (!this->quitPending) {
         if (currentPortNameChanged) {
             serial.close();
             serial.setPortName(currentPortName);
             serial.setBaudRate(QSerialPort::Baud115200);
 
             if (!serial.open(QIODevice::ReadWrite)) {
-                qDebug() << tr("Can't open %1, error code %2").arg(m_portName).arg(serial.error());
-                emit error(tr("Can't open %1, error code %2").arg(m_portName).arg(serial.error()));
+                qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
+                emit error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
                 return;
             }
             qDebug() << "Serial port" << currentPortName << "opened";
@@ -70,17 +70,18 @@ void trixterxdreamv1serial::run() {
             // Send the bytes to the client code
             if(requestData.length()>0) {
                 const QString request = QString::fromUtf8(requestData);
-                emit this->request(request);
+                emit this->receive(request);
             }
         }
-        m_mutex.lock();
-        if (currentPortName != m_portName) {
-            currentPortName = m_portName;
+
+        this->mutex.lock();
+        if (currentPortName != this->portName) {
+            currentPortName = this->portName;
             currentPortNameChanged = true;
         } else {
             currentPortNameChanged = false;
         }
-        currentWaitTimeout = m_waitTimeout;
-        m_mutex.unlock();
+        currentWaitTimeout = this->waitTimeout;
+        this->mutex.unlock();
     }
 }

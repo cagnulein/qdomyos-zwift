@@ -9,7 +9,7 @@
 class trixterxdreamv1serial : public QThread {
     Q_OBJECT
 
-  public:
+public:
     explicit trixterxdreamv1serial(QObject *parent = nullptr);
     ~trixterxdreamv1serial();
 
@@ -32,19 +32,23 @@ class trixterxdreamv1serial : public QThread {
      * @brief availablePorts Returns a list of information objects for the serial ports found in the system.
      */
     static QList<QSerialPortInfo> availablePorts();
+
+
+
 signals:
-    void request(const QString &s);
+    void receive(const QString &s);
     void error(const QString &s);
     void timeout(const QString &s);
+
 
   private:
     void run() override;
 
     QSerialPort serial;
-    QString m_portName;
-    int m_waitTimeout = 1000;
-    QMutex m_mutex;
-    bool m_quit = false;
+    QString portName;
+    int waitTimeout = 1000;
+    QMutex mutex;
+    bool quitPending = false;
 };
 
 #endif // TRIXTERXDREAMSERIAL_H

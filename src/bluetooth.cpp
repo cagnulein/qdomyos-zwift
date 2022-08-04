@@ -402,9 +402,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     if(this->trixterXDreamV1Bike) {
         this->userTemplateManager->start(trixterXDreamV1Bike);
         this->innerTemplateManager->start(trixterXDreamV1Bike);
-        this->emit deviceFound("Trixter X-Dream V1 Bike");
-        QBluetoothDeviceInfo fakeInfo;
-        emit this->deviceConnected(fakeInfo);
+        emit this->deviceConnected(this->trixterXDreamV1Bike->bluetoothDeviceInfo);
         this->connectedAndDiscovered();
         return;
     }
@@ -418,8 +416,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         return;
     }
 #endif
-
-
 
     if ((heartRateBeltFound && ftmsAccessoryFound && cscFound && powerSensorFound && eliteRizerFound &&
          eliteSterzoSmartFound) ||

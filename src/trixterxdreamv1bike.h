@@ -77,14 +77,7 @@ private:
     /**
      * @brief getTime Gets the time in miliseconds since this object was created.
      */
-    uint32_t getTime();
-    
-
-    /**
-     * @brief updateResistance Called by the resistanceTimer to send the resistence request to the
-     * device.
-     */
-    void updateResistance();
+    static uint32_t getTime();
 
     /**
      * @brief updateClient Passes the array of bytes into the client one by one.
@@ -109,6 +102,12 @@ public Q_SLOTS:
      */
     void update(const QString& s);
 
+    /**
+     * @brief updateResistance Called by the resistanceTimer to send the resistance request to the
+     * device.
+     */
+    void updateResistance(void);
+
 public:
 
     /**
@@ -131,6 +130,11 @@ public:
      * this object will be considered disconnected from the device.
      */
     constexpr static int32_t DisconnectionTimeout = 50;
+
+    /**
+     * @brief bluetoothDeviceInfo A QBluetoothDeviceInfo object for functions that need it.
+     */
+    const QBluetoothDeviceInfo bluetoothDeviceInfo { QBluetoothUuid {QStringLiteral("774f25bd-6636-4cdc-9398-839de026be1d")}, "Trixter X-Dream V1 Bike", 0};
 
     /**
      * @brief trixterxdreamv1bike Constructor
