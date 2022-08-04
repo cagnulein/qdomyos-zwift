@@ -1,10 +1,29 @@
 #include "trixterxdreamv1bike.h"
+#include "trixterxdreamv1serial.h"
 #include <cmath>
 #include <qmath.h>
 #include <QSerialPortInfo>
 #include <QTimer>
 
 using namespace std;
+
+
+class trixterxdreamv1bike::serialPortMonitor : public trixterxdreamv1serial
+{
+    protected:
+    trixterxdreamv1bike * bike = nullptr;
+
+    void receive(const QString &s) override
+    {
+        this->bike->update(s);
+    }
+
+public:
+    explicit serialPortMonitor(trixterxdreamv1bike * bike) {
+        this->bike = bike;
+    }
+};
+
 
 trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering)
 {
@@ -28,7 +47,7 @@ bool trixterxdreamv1bike::connect(QString portName)
     this->t0 = this->getTime();
 
     // create the port object and connect it
-    this->port = new serialPort(this);
+    this->port = new serialPortMonitor(this);
 
     // References to objects for callbacks
     auto device=this->port;
