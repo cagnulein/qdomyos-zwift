@@ -401,6 +401,9 @@ void proformtreadmill::update() {
                                    0x0d, 0x13, 0x96, 0x31, 0x00, 0x00, 0x40, 0x10, 0x00, 0x80};
             uint8_t noOpData6[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0xe9, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData7[] = {0xfe, 0x02, 0x10, 0x02};
+            uint8_t noOpData8[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x02,
+                                   0x00, 0x04, 0xa9, 0x00, 0x00, 0x04, 0x00, 0xc5, 0x00, 0x00};
 
             switch (counterPoll) {
             case 0:
@@ -452,9 +455,15 @@ void proformtreadmill::update() {
                     requestStop = -1;
                 }
                 break;
+            case 6:
+                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+                break;
+            case 7:
+                writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("noOp"), false, true);
+                break;
             }
             counterPoll++;
-            if (counterPoll > 5) {
+            if (counterPoll > 7) {
                 counterPoll = 0;
             }
         } else if (proform_treadmill_1800i) {
