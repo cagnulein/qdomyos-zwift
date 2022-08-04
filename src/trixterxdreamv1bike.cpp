@@ -28,15 +28,7 @@ bool trixterxdreamv1bike::connect(QString portName)
     this->t0 = this->getTime();
 
     // create the port object and connect it
-    this->port = new trixterxdreamv1serial(this);
-
-    // Move this to the port access thread.
-    // This appears to be necessary for the slot to be called without segmentation faults in strange places
-    this->moveToThread(this->port);
-    if(!bike::connect(this->port, &trixterxdreamv1serial::receive, this, &trixterxdreamv1bike::update))
-    {
-        throw "Failed to connect to request slot";
-    }
+    this->port = new serialPort(this);
 
     // References to objects for callbacks
     auto device=this->port;

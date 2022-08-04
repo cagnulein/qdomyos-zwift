@@ -7,6 +7,23 @@ class trixterxdreamv1bike : public bike
 {
     Q_OBJECT
 private:
+
+    class serialPort : public trixterxdreamv1serial
+    {
+        protected:
+        trixterxdreamv1bike * bike = nullptr;
+
+        void receive(const QString &s) override
+        {
+            this->bike->update(s);
+        }
+
+    public:
+        explicit serialPort(trixterxdreamv1bike * bike) {
+            this->bike = bike;
+        }
+    };
+
     /**
      * @brief client An object that processes incoming data to CSCS, heart rate and steering data
      */
@@ -16,7 +33,7 @@ private:
      * @brief port An object that monitors a serial port to read incoming data, and to write
      * resistance level requests.
      */
-    trixterxdreamv1serial * port = nullptr;
+    serialPort * port = nullptr;
 
     /**
      * @brief resistanceTimer A timer to push the currently requested resistance level to the device.

@@ -35,10 +35,10 @@ public:
 
 
 
-signals:
-    void receive(const QString &s);
-    void error(const QString &s);
-    void timeout(const QString &s);
+protected:
+    virtual void receive(const QString &s) {}
+    virtual void error(const QString &s) {}
+    virtual void timeout(const QString &s) {}
 
 
   private:

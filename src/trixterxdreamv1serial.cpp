@@ -55,7 +55,7 @@ void trixterxdreamv1serial::run() {
 
             if (!serial.open(QIODevice::ReadWrite)) {
                 qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
-                emit error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
+                this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
                 return;
             }
             qDebug() << "Serial port" << currentPortName << "opened";
@@ -70,7 +70,7 @@ void trixterxdreamv1serial::run() {
             // Send the bytes to the client code
             if(requestData.length()>0) {
                 const QString request = QString::fromUtf8(requestData);
-                emit this->receive(request);
+                this->receive(request);
             }
         }
 
