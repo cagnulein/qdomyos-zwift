@@ -49,7 +49,6 @@ bool trixterxdreamv1bike::connect(QString portName)
     // PreciseTimer for 1ms resolution
     this->resistanceTimer->setTimerType(Qt::PreciseTimer);
     this->resistanceTimer->setSingleShot(false);
-    this->resistanceTimer->moveToThread(this->port);
     if(!bike::connect(this->resistanceTimer, &QTimer::timeout, this, &trixterxdreamv1bike::updateResistance))
     {
         throw "Failed to connect resistance timer to update resistance slot";
@@ -131,6 +130,10 @@ void trixterxdreamv1bike::update(const QString &s)
 
 void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel)
 {
+    // ignore the resistance if this option was selected
+    if(this->noWriteResistance)
+        return;
+
     // Clip the incoming values
     if(resistanceLevel<0) resistanceLevel = 0;
     if(resistanceLevel>maxResistance()) resistanceLevel = maxResistance();
@@ -143,13 +146,7 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel)
 
     // store the resistance level as a metric for the UI
     this->Resistance.setValue(resistanceLevel);
-
-    // don't do anything if resistance is disabled
-    if(this->noWriteResistance)
-        return;
 }
-
-
 
 void trixterxdreamv1bike::updateResistance(void)
 {
