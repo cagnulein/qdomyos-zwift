@@ -59,7 +59,7 @@ bool trixterxdreamv1bike::connect(QString portName)
 
     if(this->connected())
     {
-        this->resistanceTimer->start(trixterxdreamv1client::ResistancePulseIntervalMilliseconds);
+
         return true;
     }
     return false;
@@ -146,6 +146,17 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel)
 
     // store the resistance level as a metric for the UI
     this->Resistance.setValue(resistanceLevel);
+
+    // run the resistance timer only if the resistance is non-zero
+    bool isActive = this->resistanceTimer->isActive();
+    if(resistanceLevel==0)
+    {
+        if(isActive)
+            this->resistanceTimer->stop();
+    } else {
+        if(!isActive)
+            this->resistanceTimer->start(trixterxdreamv1client::ResistancePulseIntervalMilliseconds);
+    }
 }
 
 void trixterxdreamv1bike::updateResistance(void)

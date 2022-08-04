@@ -87,11 +87,6 @@ private:
     uint32_t lastPacketProcessedTime=0;
 
     /**
-     * @brief updateMutex Mutex to syncronize access to
-     */
-    QMutex updateMutex;
-
-    /**
      * @brief getTime Gets the time in miliseconds since this object was created.
      */
     static uint32_t getTime();
