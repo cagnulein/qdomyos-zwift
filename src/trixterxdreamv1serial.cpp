@@ -33,10 +33,8 @@ void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
 }
 
 void trixterxdreamv1serial::run() {
-
+    QMutexLocker locker(&this->mutex);
     bool currentPortNameChanged = false;
-
-    this->mutex.lock();
 
     QString currentPortName;
     if (currentPortName != this->portName) {
@@ -45,7 +43,7 @@ void trixterxdreamv1serial::run() {
     }
 
     int currentWaitTimeout = this->waitTimeout;
-    this->mutex.unlock();
+    locker.unlock();
 
     while (!this->quitPending) {
         if (currentPortNameChanged) {
@@ -73,7 +71,7 @@ void trixterxdreamv1serial::run() {
             }
         }
 
-        this->mutex.lock();
+        locker.relock();
         if (currentPortName != this->portName) {
             currentPortName = this->portName;
             currentPortNameChanged = true;
@@ -81,6 +79,9 @@ void trixterxdreamv1serial::run() {
             currentPortNameChanged = false;
         }
         currentWaitTimeout = this->waitTimeout;
-        this->mutex.unlock();
+        locker.unlock();
     }
+
+    if(serial.isOpen())
+        serial.close();
 }

@@ -19,6 +19,9 @@ private:
      */
     serialPortMonitor * port = nullptr;
 
+    /**
+     * @brief resistanceTimerId The id for identifying the resistance timer in void timerEvent(QEvent*).
+     */
     int resistanceTimerId = 0;
 
     /**
@@ -80,18 +83,6 @@ private:
      */
     static bool updateClient(const QByteArray &bytes, trixterxdreamv1client * client);
 
-protected:
-    virtual BLUETOOTH_TYPE devicetype() { return BIKE; }
-
-    void timerEvent(QTimerEvent *event) override;
-
-public Q_SLOTS:
-    /**
-     * @brief changeResistance Called to change the requested resistance level.
-     * @param resistanceLevel The resistance level to request (0..250)
-     */
-    void changeResistance(int8_t resistanceLevel) override;
-
     /**
      * @brief Called by the data source (serial port) when a new block of data arrives.
      */
@@ -102,6 +93,17 @@ public Q_SLOTS:
      * device.
      */
     void updateResistance();
+protected:
+
+    void timerEvent(QTimerEvent *event) override;
+
+public Q_SLOTS:
+    /**
+     * @brief changeResistance Called to change the requested resistance level.
+     * @param resistanceLevel The resistance level to request (0..250)
+     */
+    void changeResistance(int8_t resistanceLevel) override;
+
 
 public:
 
@@ -151,7 +153,7 @@ public:
     /**
      * @brief connected Indicates if a valid packet was received from the device within the DisconnectionTimeout.
      */
-    virtual bool connected();
+    bool connected() override;
 
     /**
      * @brief set_wheelDiameter Set the simulated wheel diameter to be used for converting angular velocity to speed. Units: meters
@@ -163,7 +165,7 @@ public:
      * @brief maxResistance The maximum resistance supported.
      * @return
      */
-    virtual uint8_t maxResistance() { return trixterxdreamv1client::MaxResistance; }
+    uint8_t maxResistance() override { return trixterxdreamv1client::MaxResistance; }
 
     /**
      * @brief tryCreate Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,
