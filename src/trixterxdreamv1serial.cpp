@@ -7,9 +7,7 @@
 trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent){}
 
 trixterxdreamv1serial::~trixterxdreamv1serial() {
-    this->mutex.lock();
     this->quitPending = true;
-    this->mutex.unlock();
     this->wait();
 }
 
@@ -29,60 +27,38 @@ void trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate 
 
 void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
     qDebug() << "serial >> " << buffer.toHex(' ') << "//" << info;
+    QMutexLocker locker(&this->mutex);
     qint64 o = serial.write(buffer);
+    locker.unlock();
     qDebug() << "serial byte written" << o;
 }
 
 void trixterxdreamv1serial::run() {
-    QMutexLocker locker(&this->mutex);
-    bool currentPortNameChanged = false;
 
-    QString currentPortName;
-    if (currentPortName != this->portName) {
-        currentPortName = this->portName;
-        currentPortNameChanged = true;
+    serial.setPortName(this->portName);
+    serial.setBaudRate(this->baudRate);
+
+    if (!serial.open(QIODevice::ReadWrite)) {
+        qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
+        this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
+        return;
     }
-
-    int currentWaitTimeout = this->waitTimeout;
-    locker.unlock();
+    qDebug() << "Serial port" << this->portName << "opened";
 
     while (!this->quitPending) {
-        if (currentPortNameChanged) {
-            serial.close();
-            serial.setPortName(currentPortName);
-            serial.setBaudRate(this->baudRate);
 
-            if (!serial.open(QIODevice::ReadWrite)) {
-                qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
-                this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
-                return;
-            }
-            qDebug() << "Serial port" << currentPortName << "opened";
-        }
-
-        if (serial.waitForReadyRead(currentWaitTimeout)) {
-            QByteArray requestData = serial.readAll();
-            while (serial.waitForReadyRead(1))
-                requestData += serial.readAll();
+        if (this->serial.waitForReadyRead(this->waitTimeout)) {
+            QMutexLocker locker(&this->mutex);
+            QByteArray requestData = this->serial.readAll();
+            while (this->serial.waitForReadyRead(1))
+                requestData += this->serial.readAll();
+            locker.unlock();
             qDebug() << "serial << " << requestData.toHex(' ');
 
             // Send the bytes to the client code
-            if(requestData.length()>0) {
-                this->receive(requestData);
-            }
+            this->receive(requestData);
         }
-
-        locker.relock();
-        if (currentPortName != this->portName) {
-            currentPortName = this->portName;
-            currentPortNameChanged = true;
-        } else {
-            currentPortNameChanged = false;
-        }
-        currentWaitTimeout = this->waitTimeout;
-        locker.unlock();
     }
 
-    if(serial.isOpen())
-        serial.close();
+    this->serial.close();
 }
