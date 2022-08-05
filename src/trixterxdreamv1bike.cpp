@@ -14,9 +14,9 @@ class trixterxdreamv1bike::serialPortMonitor : public trixterxdreamv1serial
     protected:
     trixterxdreamv1bike * bike = nullptr;
 
-    void receive(const QString &s) override
+    void receive(const QByteArray &bytes) override
     {
-        this->bike->update(s);
+        this->bike->update(bytes);
     }
 
 public:
@@ -57,7 +57,7 @@ bool trixterxdreamv1bike::connect(QString portName)
 
     // tell the client how to send data to the device
     if(!noWriteResistance)
-        this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(bytes, length, "");});
+        this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(QByteArray((const char *)bytes, length), "");});
 
     // open the port. This should be at 115200 bits per second.
     this->port->open(portName, 1000);
@@ -91,16 +91,6 @@ uint32_t trixterxdreamv1bike::getTime()
     return static_cast<uint32_t>(ms);
 }
 
-bool trixterxdreamv1bike::updateClient(const QString& s, trixterxdreamv1client * client)
-{
-    bool stateChanged = false;
-
-    for(int i=0; i<s.length();i++)
-        stateChanged |= client->ReceiveChar(s[i].toLatin1());
-
-    return stateChanged;
-}
-
 void trixterxdreamv1bike::timerEvent(QTimerEvent *event)
 {
     if(event->timerId()==this->resistanceTimerId)
@@ -110,10 +100,20 @@ void trixterxdreamv1bike::timerEvent(QTimerEvent *event)
     }
 }
 
-void trixterxdreamv1bike::update(const QString &s)
+bool trixterxdreamv1bike::updateClient(const QByteArray& bytes, trixterxdreamv1client * client)
+{
+    bool stateChanged = false;
+
+    for(int i=0; i<bytes.length();i++)
+        stateChanged |= client->ReceiveChar(bytes[i]);
+
+    return stateChanged;
+}
+
+void trixterxdreamv1bike::update(const QByteArray &bytes)
 {
     // send the bytes to the client and return if there's no change of state
-    if(!updateClient(s, &this->client))
+    if(!updateClient(bytes, &this->client))
         return;
 
     // Take the most recent state read

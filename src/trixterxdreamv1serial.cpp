@@ -26,9 +26,9 @@ void trixterxdreamv1serial::open(const QString &portName, int waitTimeout) {
         start();
 }
 
-void trixterxdreamv1serial::write(const uint8_t *buffer, int len, QString info) {
-    qDebug() << "serial >> " << QByteArray((const char *)buffer, len).toHex(' ') << "//" << info;
-    qint64 o = serial.write(QByteArray((const char *)buffer, len));
+void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
+    qDebug() << "serial >> " << buffer.toHex(' ') << "//" << info;
+    qint64 o = serial.write(buffer);
     qDebug() << "serial byte written" << o;
 }
 
@@ -69,8 +69,7 @@ void trixterxdreamv1serial::run() {
 
             // Send the bytes to the client code
             if(requestData.length()>0) {
-                const QString request = QString::fromUtf8(requestData);
-                this->receive(request);
+                this->receive(requestData);
             }
         }
 

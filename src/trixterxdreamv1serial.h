@@ -23,10 +23,9 @@ public:
     /**
      * @brief Writes the array of bytes to the serial port
      * @param buffer The bytes to send.
-     * @param len The number of bytes to send.
      * @param info Debug information
      */
-    void write(const uint8_t *buffer, int len, QString info);
+    void write(const QByteArray& buffer, QString info);
 
     /**
      * @brief availablePorts Returns a list of information objects for the serial ports found in the system.
@@ -36,7 +35,7 @@ public:
 
 
 protected:
-    virtual void receive(const QString &s) {}
+    virtual void receive(const QByteArray &bytes) {}
     virtual void error(const QString &s) {}
     virtual void timeout(const QString &s) {}
 

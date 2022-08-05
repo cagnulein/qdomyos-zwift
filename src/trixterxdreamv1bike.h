@@ -78,7 +78,7 @@ private:
      * @param client The client object that interprets the incoming bytes into data packets.
      * @return True if the state of the client changed due to the input.
      */
-    static bool updateClient(const QString &s, trixterxdreamv1client * client);
+    static bool updateClient(const QByteArray &bytes, trixterxdreamv1client * client);
 
 protected:
     virtual BLUETOOTH_TYPE devicetype() { return BIKE; }
@@ -90,18 +90,18 @@ public Q_SLOTS:
      * @brief changeResistance Called to change the requested resistance level.
      * @param resistanceLevel The resistance level to request (0..250)
      */
-    virtual void changeResistance(int8_t resistanceLevel);
+    void changeResistance(int8_t resistanceLevel) override;
 
     /**
      * @brief Called by the data source (serial port) when a new block of data arrives.
      */
-    void update(const QString& s);
+    void update(const QByteArray& bytes);
 
     /**
      * @brief updateResistance Called by the resistanceTimer to send the resistance request to the
      * device.
      */
-    void updateResistance(void);
+    void updateResistance();
 
 public:
 
