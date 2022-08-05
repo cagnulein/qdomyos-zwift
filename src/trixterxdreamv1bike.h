@@ -19,10 +19,7 @@ private:
      */
     serialPortMonitor * port = nullptr;
 
-    /**
-     * @brief resistanceTimer A timer to push the currently requested resistance level to the device.
-     */
-    QTimer * resistanceTimer = nullptr;
+    int resistanceTimerId = 0;
 
     /**
      * @brief noHeartService Suppress heart rate readings.
@@ -85,6 +82,8 @@ private:
 
 protected:
     virtual BLUETOOTH_TYPE devicetype() { return BIKE; }
+
+    void timerEvent(QTimerEvent *event) override;
 
 public Q_SLOTS:
     /**

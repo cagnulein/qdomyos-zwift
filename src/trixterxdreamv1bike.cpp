@@ -1,4 +1,5 @@
 #include "trixterxdreamv1bike.h"
+#include "qcoreevent.h"
 #include "trixterxdreamv1serial.h"
 #include <cmath>
 #include <qmath.h>
@@ -40,7 +41,6 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
 bool trixterxdreamv1bike::connect(QString portName)
 {
     if(this->port) delete this->port;
-    if(this->resistanceTimer) delete this->resistanceTimer;
 
     // Get the current time in milliseconds since ancient times.
     // This will be subtracted from further readings from getTime() to get an easier to look at number.
@@ -62,26 +62,20 @@ bool trixterxdreamv1bike::connect(QString portName)
     // open the port. This should be at 115200 bits per second.
     this->port->open(portName, 1000);
 
-    // create the timer for the resistance. 
-    this->resistanceTimer = new QTimer(this);
-
-    // PreciseTimer for 1ms resolution
-    this->resistanceTimer->setTimerType(Qt::PreciseTimer);
-    this->resistanceTimer->setSingleShot(false);
-    if(!bike::connect(this->resistanceTimer, &QTimer::timeout, this, &trixterxdreamv1bike::updateResistance))
-    {
-        throw "Failed to connect resistance timer to update resistance slot";
-    }
-
     // wait for some packets to arrive
     QThread::msleep(500);
 
-    if(this->connected())
+    if(!this->noWriteResistance)
     {
-
-        return true;
+        this->resistanceTimerId = this->startTimer(trixterxdreamv1client::ResistancePulseIntervalMilliseconds, Qt::PreciseTimer);
+        if(this->resistanceTimerId==0)
+        {
+            qDebug() << "Failed to start resistance timer";
+            throw "Failed to start resistance timer";
+        }
     }
-    return false;
+
+    return this->connected();
 }
 
 bool trixterxdreamv1bike::connected()
@@ -105,6 +99,15 @@ bool trixterxdreamv1bike::updateClient(const QString& s, trixterxdreamv1client *
         stateChanged |= client->ReceiveChar(s[i].toLatin1());
 
     return stateChanged;
+}
+
+void trixterxdreamv1bike::timerEvent(QTimerEvent *event)
+{
+    if(event->timerId()==this->resistanceTimerId)
+    {
+        event->accept();
+        this->updateResistance();
+    }
 }
 
 void trixterxdreamv1bike::update(const QString &s)
@@ -165,20 +168,9 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel)
 
     // store the resistance level as a metric for the UI
     this->Resistance.setValue(resistanceLevel);
-
-    // run the resistance timer only if the resistance is non-zero
-    bool isActive = this->resistanceTimer->isActive();
-    if(resistanceLevel==0)
-    {
-        if(isActive)
-            this->resistanceTimer->stop();
-    } else {
-        if(!isActive)
-            this->resistanceTimer->start(trixterxdreamv1client::ResistancePulseIntervalMilliseconds);
-    }
 }
 
-void trixterxdreamv1bike::updateResistance(void)
+void trixterxdreamv1bike::updateResistance()
 {
     this->client.SendResistance(this->resistanceLevel);
 }
