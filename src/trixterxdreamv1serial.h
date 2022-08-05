@@ -16,9 +16,10 @@ public:
     /**
      * @brief Opens the port.
      * @param portName The name of the serial port.
+     * @param baudRate The baud rate.
      * @param waitTimeout The timeout for the serial port.
      */
-    void open(const QString &portName, int waitTimeout);
+    void open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout);
 
     /**
      * @brief Writes the array of bytes to the serial port
@@ -45,6 +46,7 @@ protected:
 
     QSerialPort serial;
     QString portName;
+    QSerialPort::BaudRate baudRate;
     int waitTimeout = 1000;
     QMutex mutex;
     bool quitPending = false;

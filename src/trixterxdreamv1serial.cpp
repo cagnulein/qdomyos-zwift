@@ -18,9 +18,10 @@ QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts()
     return QSerialPortInfo::availablePorts();
 }
 
-void trixterxdreamv1serial::open(const QString &portName, int waitTimeout) {
+void trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout) {
     const QMutexLocker locker(&this->mutex);
     this->portName = portName;
+    this->baudRate = baudRate;
     this->waitTimeout = waitTimeout;
     if (!isRunning())
         start();
@@ -49,7 +50,7 @@ void trixterxdreamv1serial::run() {
         if (currentPortNameChanged) {
             serial.close();
             serial.setPortName(currentPortName);
-            serial.setBaudRate(QSerialPort::Baud115200);
+            serial.setBaudRate(this->baudRate);
 
             if (!serial.open(QIODevice::ReadWrite)) {
                 qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());

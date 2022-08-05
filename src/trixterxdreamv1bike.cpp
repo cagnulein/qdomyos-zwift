@@ -60,7 +60,7 @@ bool trixterxdreamv1bike::connect(QString portName)
         this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(QByteArray((const char *)bytes, length), "");});
 
     // open the port. This should be at 115200 bits per second.
-    this->port->open(portName, 1000);
+    this->port->open(portName, QSerialPort::Baud115200, 1000);
 
     // wait for some packets to arrive
     QThread::msleep(500);
