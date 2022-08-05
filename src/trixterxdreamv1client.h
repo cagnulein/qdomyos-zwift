@@ -98,6 +98,11 @@ public:
     constexpr static uint8_t MaxResistance = 250;
 
     /**
+     * @brief MaxSteering The maximum steering value supported by the device.
+     */
+    constexpr static uint8_t MaxSteering = 255;
+
+    /**
      * @brief The time interval between sending resistance requests to the device.
      */
     constexpr static uint8_t ResistancePulseIntervalMilliseconds = 10;

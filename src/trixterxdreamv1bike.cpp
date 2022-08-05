@@ -143,8 +143,9 @@ void trixterxdreamv1bike::update(const QByteArray &bytes)
     this->CrankRevs = state.CumulativeCrankRevolutions;
 
     // Set the steering
+    constexpr double steeringScale = 90.0 / trixterxdreamv1client::MaxSteering;
     if(!this->noSteering)
-        this->m_steeringAngle.setValue(round(90.0 / 255.0 * state.Steering - 45.0));
+        this->m_steeringAngle.setValue(round(steeringScale * state.Steering - 45.0));
 
     // set the elapsed time
     this->elapsed = (currentTime - this->t0) * 0.001;
@@ -208,6 +209,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     {
         trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, availablePorts[i].portName());
         if(result) return result;
+        delete result;
     }
 
     return nullptr;
