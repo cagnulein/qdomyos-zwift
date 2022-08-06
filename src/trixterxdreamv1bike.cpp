@@ -216,14 +216,26 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
 
     for(int i=0; i<availablePorts.length(); i++)
     {
+        auto port = availablePorts[i];
+
 #if defined(Q_OS_LINUX)
-        if(!availablePorts[i].portName().startsWith("/dev/ttyUSB"))
+        if(!port.portName().startsWith("/dev/ttyUSB"))
         {
-            qDebug() << "Skipping port: " << availablePorts[i].portName() << " because it doesn't start with /dev/ttyUSB";
+            qDebug() << "Skipping port: " << port.portName() << " because it doesn't start with /dev/ttyUSB";
             continue;
         }
 #endif
-        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, availablePorts[i].portName());
+
+        qDebug() << "Found portName:" << port.portName()
+                 << "," << "description:" << port.description()
+                 << "," << "vender identifier:" << port.vendorIdentifier()
+                 << "," << "manufacturer:" << port.manufacturer()
+                 << "," << "product identifier:" << port.productIdentifier()
+                 << "," << "isBusy:" << port.isBusy()
+                 << "," << "isNull:" << port.isNull()
+                 << "," << "serialNumber:" << port.serialNumber();
+
+        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, port.portName());
         if(result)
             return result;
     }

@@ -201,11 +201,17 @@ void bluetooth::debug(const QString &text) {
 trixterxdreamv1bike * bluetooth::findTrixterXDreamV1Bike(const QSettings& settings)
 {
     bool trixterxdreamv1bikeEnabled = settings.value(QStringLiteral("trixter_xdream_v1_bike")).toBool();
+    trixterxdreamv1bike * result = nullptr;
+    if(trixterxdreamv1bikeEnabled) {
+        debug("Looking for Trixter X-Dream V1 Bike");
+        result = trixterxdreamv1bike::tryCreate(this->noWriteResistance, this->noHeartService, false, false);
+        if(!result)
+            debug("Failed to find a Trixter X-Dream V1 Bike");
+    } else {
+        debug("Not looking for Trixter X-Dream V1 Bike - disabled in settings");
+    }
 
-    if(trixterxdreamv1bikeEnabled)
-        return trixterxdreamv1bike::tryCreate(this->noWriteResistance, this->noHeartService, false, false);
-
-    return nullptr;
+    return result;
 }
 
 bool bluetooth::cscSensorAvaiable() {
