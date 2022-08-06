@@ -626,7 +626,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(nautilusBike);
                 innerTemplateManager->start(nautilusBike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS")))) &&
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) &&
                        !proformElliptical && filter) {
                 discoveryAgent->stop();
                 proformElliptical = new proformelliptical(noWriteResistance, noHeartService);
@@ -644,12 +644,13 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_EL"))) &&
                        !nordictrackElliptical && filter) {
                 discoveryAgent->stop();
-                nordictrackElliptical = new nordictrackelliptical(noWriteResistance, noHeartService);
+                nordictrackElliptical = new nordictrackelliptical(noWriteResistance, noHeartService,
+                                                                  bikeResistanceOffset, bikeResistanceGain);
                 emit deviceConnected(b);
                 connect(nordictrackElliptical, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
                 // connect(nordictrackElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
-                connect(nordictrackElliptical, &proformelliptical::debug, this, &bluetooth::debug);
+                connect(nordictrackElliptical, &nordictrackelliptical::debug, this, &bluetooth::debug);
                 nordictrackElliptical->deviceDiscovered(b);
                 // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
                 if (!discoveryAgent->isActive())
