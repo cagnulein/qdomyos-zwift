@@ -450,9 +450,11 @@ import Qt.labs.settings 1.0
             property real ss2k_max_resistance: 100
             property real ss2k_min_resistance: 0
 
-
-			// from the version 2.11.10
+            // from the version 2.11.10
             property bool proform_treadmill_se: false
+
+            // from the version 2.11.14
+            property string proformtreadmillip: ""
             
             // from the version ?
             property bool trixter_xdream_v1_bike: false
@@ -4433,6 +4435,30 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.proform_treadmill_se = checked
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelproformtreadmillip
+                                text: qsTr("Proform IP:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: proformtreadmillIPTextField
+                                text: settings.proformtreadmillip
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                onAccepted: settings.proformtreadmillip = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okproformtreadmillIPButton
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.proformtreadmillip = proformtreadmillIPTextField.text
+                            }
                         }
                         RowLayout {
                             spacing: 10
