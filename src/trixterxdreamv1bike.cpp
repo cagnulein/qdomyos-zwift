@@ -189,16 +189,25 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     // first check if there's a port specified
     if(portName!=nullptr && !portName.isEmpty())
     {
+        qDebug() << "Looking for Trixter X-Dream V1 device on port: " << portName;
         trixterxdreamv1bike * result = new trixterxdreamv1bike(noWriteResistance, noHeartService, noVirtualDevice, noSteering);
         try {
-            if(result->connect(portName))
+            if(result->connect(portName)) {
+                qDebug() << "Found Trixter X-Dream V1 device on port: " << portName;
                 return result;
+            }
             delete result;
         } catch(...) {
+            qDebug() << "Error thrown looking for Trixter X-Dream V1 device on port: " << portName;
+
             // make absolutely sure the object is delete otherwise the serial port it opened will remain blocked.
-            if(result) delete result;
+            if(result) {
+                qDebug() << "Deleting object that was not able to connect";
+                delete result;
+            }
             throw;
         }
+        qDebug() << "No Trixter X-Dream V1 device found on port: " << portName;
         return nullptr;
     }
 
@@ -209,10 +218,14 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     {
 #if defined(Q_OS_LINUX)
         if(!availablePorts[i].portName().startsWith("/dev/ttyUSB"))
+        {
+            qDebug() << "Skipping port: " << availablePorts[i].portName() << " because it doesn't start with /dev/ttyUSB"
             continue;
+        }
 #endif
         trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, availablePorts[i].portName());
-        if(result) return result;
+        if(result)
+            return result;
     }
 
     return nullptr;

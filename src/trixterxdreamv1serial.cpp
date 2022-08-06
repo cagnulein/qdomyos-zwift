@@ -47,8 +47,12 @@ void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
 
 void trixterxdreamv1serial::run() {
 
-    serial.setPortName(this->portName);
-    serial.setBaudRate(this->baudRate);
+    this->serial.setPortName(this->portName);
+    this->serial.setBaudRate(this->baudRate);
+    this->serial.setDataBits(QSerialPort::Data8);
+    this->serial.setStopBits(QSerialPort::OneStop);
+    this->serial.setFlowControl(QSerialPort::NoFlowControl);
+    this->serial.setParity(QSerialPort::NoParity);
 
     if (!serial.open(QIODevice::ReadWrite)) {
         qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
