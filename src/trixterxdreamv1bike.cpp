@@ -8,24 +8,6 @@
 
 using namespace std;
 
-
-class trixterxdreamv1bike::serialPortMonitor : public trixterxdreamv1serial
-{
-    protected:
-    trixterxdreamv1bike * bike = nullptr;
-
-    void receive(const QByteArray &bytes) override
-    {
-        this->bike->update(bytes);
-    }
-
-public:
-    explicit serialPortMonitor(trixterxdreamv1bike * bike) {
-        this->bike = bike;
-    }
-};
-
-
 trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering) {
     // Set the wheel diameter for speed and distance calculations
     this->set_wheelDiameter(DefaultWheelDiameter);

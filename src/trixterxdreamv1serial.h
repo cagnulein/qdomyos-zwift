@@ -32,6 +32,11 @@ public:
      */
     void write(const QByteArray& buffer, QString info);
 
+    /**
+     * @brief set_receiveBytes Set a delegate to receive bytes. This is an alternative
+     * to sublcassing and overrding the virtual receive function.
+     * @param value
+     */
     void set_receiveBytes(std::function<void(const QByteArray& bytes)> value) { this->receiveBytes = value; }
 
     /**

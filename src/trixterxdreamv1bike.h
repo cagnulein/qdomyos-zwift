@@ -7,8 +7,6 @@ class trixterxdreamv1bike : public bike
 {
     Q_OBJECT
 private:
-    class serialPortMonitor;
-
     /**
      * @brief client An object that processes incoming data to CSCS, heart rate and steering data
      */
