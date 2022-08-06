@@ -626,7 +626,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(nautilusBike);
                 innerTemplateManager->start(nautilusBike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS")) ||
+                        b.name().toUpper().startsWith(QStringLiteral("I_EL"))) &&
+                       !proformElliptical && filter) {
                 discoveryAgent->stop();
                 proformElliptical = new proformelliptical(noWriteResistance, noHeartService);
                 emit deviceConnected(b);
