@@ -272,6 +272,10 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_ANDROID
     qputenv("QT_ANDROID_VOLUME_KEYS", "1"); // "1" is dummy
 #endif
+#ifdef Q_OS_WIN32
+    qputenv("QT_MULTIMEDIA_PREFERRED_PLUGINS", "windowsmediafoundation");
+#endif
+
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     QScopedPointer<QCoreApplication> app(createApplication(argc, argv));
 #else

@@ -352,6 +352,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool fakedevice_elliptical = settings.value(QStringLiteral("fakedevice_elliptical"), false).toBool();
     bool pafers_treadmill = settings.value(QStringLiteral("pafers_treadmill"), false).toBool();
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
+    QString proformtreadmillip = settings.value(QStringLiteral("proformtreadmillip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
 
 
@@ -495,6 +496,22 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(proformWifiBike);
                 innerTemplateManager->start(proformWifiBike);
+            } else if (!proformtreadmillip.isEmpty() && !proformWifiTreadmill) {
+                discoveryAgent->stop();
+                proformWifiTreadmill = new proformwifitreadmill(noWriteResistance, noHeartService, bikeResistanceOffset,
+                                                                bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(proformWifiTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(cscBike, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(proformWifiTreadmill, &proformwifitreadmill::debug, this, &bluetooth::debug);
+                proformWifiTreadmill->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(proformWifiTreadmill);
+                innerTemplateManager->start(proformWifiTreadmill);
             } else if (!nordictrack_2950_ip.isEmpty() && !nordictrackifitadbTreadmill) {
                 discoveryAgent->stop();
                 nordictrackifitadbTreadmill = new nordictrackifitadbtreadmill(noWriteResistance, noHeartService);
@@ -638,7 +655,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(nautilusBike);
                 innerTemplateManager->start(nautilusBike);
-            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) && !proformElliptical && filter) {
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_FS"))) &&
+                       !proformElliptical && filter) {
                 discoveryAgent->stop();
                 proformElliptical = new proformelliptical(noWriteResistance, noHeartService);
                 emit deviceConnected(b);
@@ -652,6 +670,23 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     emit searchingStop();
                 userTemplateManager->start(proformElliptical);
                 innerTemplateManager->start(proformElliptical);
+            } else if ((b.name().toUpper().startsWith(QStringLiteral("I_EL"))) &&
+                       !nordictrackElliptical && filter) {
+                discoveryAgent->stop();
+                nordictrackElliptical = new nordictrackelliptical(noWriteResistance, noHeartService,
+                                                                  bikeResistanceOffset, bikeResistanceGain);
+                emit deviceConnected(b);
+                connect(nordictrackElliptical, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                // connect(nordictrackElliptical, SIGNAL(disconnected()), this, SLOT(restart()));
+                connect(nordictrackElliptical, &nordictrackelliptical::debug, this, &bluetooth::debug);
+                nordictrackElliptical->deviceDiscovered(b);
+                // connect(this, &bluetooth::searchingStop, proformElliptical, &proformelliptical::searchingStop);
+                if (!discoveryAgent->isActive())
+                    emit searchingStop();
+                userTemplateManager->start(nordictrackElliptical);
+                innerTemplateManager->start(nordictrackElliptical);
+
             } else if ((b.name().toUpper().startsWith(QStringLiteral("I_VE"))) && !proformEllipticalTrainer && filter) {
                 discoveryAgent->stop();
                 proformEllipticalTrainer = new proformellipticaltrainer(noWriteResistance, noHeartService,
@@ -2039,6 +2074,11 @@ void bluetooth::restart() {
         delete proformWifiBike;
         proformWifiBike = nullptr;
     }
+    if (proformWifiTreadmill) {
+
+        delete proformWifiTreadmill;
+        proformWifiTreadmill = nullptr;
+    }
     if (nordictrackifitadbTreadmill) {
 
         delete nordictrackifitadbTreadmill;
@@ -2179,6 +2219,11 @@ void bluetooth::restart() {
 
         delete proformElliptical;
         proformElliptical = nullptr;
+    }
+    if (nordictrackElliptical) {
+
+        delete nordictrackElliptical;
+        nordictrackElliptical = nullptr;
     }
     if (proformEllipticalTrainer) {
 
@@ -2371,6 +2416,8 @@ bluetoothdevice *bluetooth::device() {
         return cscBike;
     } else if (proformWifiBike) {
         return proformWifiBike;
+    } else if (proformWifiTreadmill) {
+        return proformWifiTreadmill;
     } else if (nordictrackifitadbTreadmill) {
         return nordictrackifitadbTreadmill;
     } else if (powerBike) {
@@ -2445,6 +2492,8 @@ bluetoothdevice *bluetooth::device() {
         return proformTreadmill;
     } else if (proformElliptical) {
         return proformElliptical;
+    } else if (nordictrackElliptical) {
+        return nordictrackElliptical;
     } else if (proformEllipticalTrainer) {
         return proformEllipticalTrainer;
     } else if (proformRower) {

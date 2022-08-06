@@ -43,6 +43,8 @@
 	<array>
 		<string>_wahoo-fitness-tnp._tcp</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>This app use a QT framework in order to playback workout videos. This permission is required for this reason.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
 	<string>application needs Documents access in order to save logs and gpx file for the trainig sessions</string>
 	<key>NSHealthShareUsageDescription</key>

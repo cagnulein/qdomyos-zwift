@@ -301,12 +301,24 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
             duration++;
         }
 
+        r.lower_requested_peloton_resistance = resistance_range[QStringLiteral("lower")].toInt();
+        r.upper_requested_peloton_resistance = resistance_range[QStringLiteral("upper")].toInt();
+
+        r.lower_cadence = cadence_range[QStringLiteral("lower")].toInt();
+        r.upper_cadence = cadence_range[QStringLiteral("upper")].toInt();
+
+        r.average_requested_peloton_resistance =
+            (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
+        r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
+
         if (bluetoothManager && bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
                 r.lower_resistance = ((bike *)bluetoothManager->device())
                                          ->pelotonToBikeResistance(resistance_range[QStringLiteral("lower")].toInt());
                 r.upper_resistance = ((bike *)bluetoothManager->device())
                                          ->pelotonToBikeResistance(resistance_range[QStringLiteral("upper")].toInt());
+                r.average_resistance = ((bike *)bluetoothManager->device())
+                                           ->pelotonToBikeResistance(r.average_requested_peloton_resistance);
             } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ELLIPTICAL) {
                 r.lower_resistance =
                     ((elliptical *)bluetoothManager->device())
@@ -314,20 +326,12 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 r.upper_resistance =
                     ((elliptical *)bluetoothManager->device())
                         ->pelotonToEllipticalResistance(resistance_range[QStringLiteral("upper")].toInt());
+                r.average_resistance = ((elliptical *)bluetoothManager->device())
+                                           ->pelotonToEllipticalResistance(r.average_requested_peloton_resistance);
             }
         }
 
-        r.lower_requested_peloton_resistance = resistance_range[QStringLiteral("lower")].toInt();
-        r.upper_requested_peloton_resistance = resistance_range[QStringLiteral("upper")].toInt();
-
-        r.lower_cadence = cadence_range[QStringLiteral("lower")].toInt();
-        r.upper_cadence = cadence_range[QStringLiteral("upper")].toInt();
-
         // Set for compatibility
-        r.average_resistance = (r.lower_resistance + r.upper_resistance) / 2;
-        r.average_requested_peloton_resistance =
-            (r.lower_requested_peloton_resistance + r.upper_requested_peloton_resistance) / 2;
-        r.average_cadence = (r.lower_cadence + r.upper_cadence) / 2;
         if (difficulty == QStringLiteral("average")) {
             r.resistance = r.average_resistance;
             r.requested_peloton_resistance = r.average_requested_peloton_resistance;
@@ -362,7 +366,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                 foreach (QJsonValue s, subsegments_v2) {
                     trainrow r;
                     QString zone = s["display_name"].toString();
-                    int len = s["length"].toInt();                    
+                    int len = s["length"].toInt();
                     if (!zone.toUpper().compare(QStringLiteral("SPIN UPS"))) {
                         uint32_t Duration = len;
                         double PowerLow = 0.5;
@@ -370,39 +374,41 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         for (uint32_t i = 0; i < Duration; i++) {
                             trainrow row;
                             row.duration = QTime(0, 0, 1, 0);
-                            row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                            row.rampDuration =
+                                QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
                             row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
                             if (PowerHigh > PowerLow) {
-                                    row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                                settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                             } else {
-                                    row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                                settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                             }
                             qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                             trainrows.append(row);
                             atLeastOnePower = true;
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("DESCENDING RECOVERY"))) {
-                            uint32_t Duration = len;
-                            double PowerLow = 0.5;
-                            double PowerHigh = 0.45;
-                            for (uint32_t i = 0; i < Duration; i++) {
-                                trainrow row;
-                                row.duration = QTime(0, 0, 1, 0);
-                                row.rampDuration = QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
-                                row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
-                                if (PowerHigh > PowerLow) {
-                                        row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                                    settings.value(QStringLiteral("ftp"), 200.0).toDouble();
-                                } else {
-                                        row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                                    settings.value(QStringLiteral("ftp"), 200.0).toDouble();
-                                }
-                                qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
-                                trainrows.append(row);
-                                atLeastOnePower = true;
+                        uint32_t Duration = len;
+                        double PowerLow = 0.5;
+                        double PowerHigh = 0.45;
+                        for (uint32_t i = 0; i < Duration; i++) {
+                            trainrow row;
+                            row.duration = QTime(0, 0, 1, 0);
+                            row.rampDuration =
+                                QTime((Duration - i) / 3600, (Duration - i) / 60, (Duration - i) % 60, 0);
+                            row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
+                            if (PowerHigh > PowerLow) {
+                                row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
+                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                            } else {
+                                row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
+                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
                             }
+                            qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
+                            trainrows.append(row);
+                            atLeastOnePower = true;
+                        }
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
                         r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;

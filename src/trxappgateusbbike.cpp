@@ -70,7 +70,7 @@ void trxappgateusbbike::forceResistance(int8_t requestResistance) {
     uint8_t resistance[] = {0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00};
     if (bike_type == DKN_MOTION_2) {
         resistance[2] = 0x02;
-    } else if (bike_type == VIRTUFIT) {
+    } else if (bike_type == VIRTUFIT || bike_type == VIRTUFIT_2) {
         resistance[2] = 0x1e;
     }
     resistance[4] = requestResistance + 1;
@@ -136,7 +136,7 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x00, 0xc8, 0x5a};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::VIRTUFIT) {
+        } else if (bike_type == TYPE::VIRTUFIT || bike_type == VIRTUFIT_2) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x1e, 0x01, 0xb1};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -465,7 +465,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         if (bike_type == TYPE::IRUNNING) {
             QThread::msleep(400);
         }
-    } else if (bike_type == TYPE::VIRTUFIT) {
+    } else if (bike_type == TYPE::VIRTUFIT || bike_type == VIRTUFIT_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x1e, 0x01, 0xaf};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x1e, 0x01, 0xb0};
@@ -691,7 +691,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
             bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2 || bike_type == TYPE::FYTTER_RI08 ||
-            bike_type == TYPE::HERTZ_XR_770_2) {
+            bike_type == TYPE::HERTZ_XR_770_2 || bike_type == TYPE::VIRTUFIT_2) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -807,6 +807,21 @@ void trxappgateusbbike::serviceScanDone(void) {
             bike_type = DKN_MOTION_2;
             uuid = uuid2;
         }
+    } else if (bike_type == VIRTUFIT) {
+
+        bool found = false;
+        foreach (QBluetoothUuid s, m_control->services()) {
+
+            if (s == QBluetoothUuid::fromString(uuid)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            bike_type = VIRTUFIT_2;
+            uuid = uuid2;
+        }
+
     } else if (bike_type == ICONSOLE) {
 
         bool found = false;
@@ -887,14 +902,14 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::ASVIVA;
             qDebug() << QStringLiteral("ASVIVA bike found");
-        } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
-
-            bike_type = TYPE::CHANGYOW;
-            qDebug() << QStringLiteral("CHANGYOW bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR"))) {
 
             bike_type = TYPE::VIRTUFIT;
             qDebug() << QStringLiteral("VIRTUFIT bike found");
+        } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
+
+            bike_type = TYPE::CHANGYOW;
+            qDebug() << QStringLiteral("CHANGYOW bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("BFCP"))) {
 
             bike_type = TYPE::SKANDIKAWIRY;
