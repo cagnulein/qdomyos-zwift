@@ -317,11 +317,11 @@ class rowerBLEPeripheralManagerZwift: NSObject, CBPeripheralManagerDelegate {
   }
     
     func calculateRower() -> Data {
-        let flags0:UInt8 = 0xAE
+        let flags0:UInt8 = 0x2C
         let flags1:UInt8 = 0x03
       //self.delegate?.BLEPeripheralManagerCSCDidSendValue(flags, crankRevolutions: self.crankRevolutions, lastCrankEventTime: self.lastCrankEventTime)
-        var rower: [UInt8] = [flags0, flags1,  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)(self.StrokesCount & 0xFF), (UInt8)((self.StrokesCount >> 8) & 0xFF), (UInt8)(self.Distance & 0xFF), (UInt8)((self.Distance >> 8) & 0xFF), (UInt8)((self.Distance >> 16) & 0xFF), (UInt8)(self.Pace & 0xFF), (UInt8)((self.Pace >> 8) & 0xFF), (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), 0x00 /* resistance L*/, 0x00 /* resistance H*/, (UInt8)(self.KCal & 0xFF), (UInt8)((self.KCal >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), (UInt8)((self.KCal >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), self.heartRate, 0x00]
-      let rowerData = Data(bytes: &rower, count: 21)
+        var rower: [UInt8] = [flags0, flags1,  (UInt8)(self.CurrentCadence & 0xFF), (UInt8)(self.StrokesCount & 0xFF), (UInt8)((self.StrokesCount >> 8) & 0xFF), (UInt8)(self.Distance & 0xFF), (UInt8)((self.Distance >> 8) & 0xFF), (UInt8)((self.Distance >> 16) & 0xFF), (UInt8)(self.Pace & 0xFF), (UInt8)((self.Pace >> 8) & 0xFF), (UInt8)(self.CurrentWatt & 0xFF), (UInt8)((self.CurrentWatt >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), (UInt8)((self.KCal >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), (UInt8)((self.KCal >> 8) & 0xFF), (UInt8)(self.KCal & 0xFF), self.heartRate, 0x00]
+      let rowerData = Data(bytes: &rower, count: 19)
       return rowerData
     }
   
