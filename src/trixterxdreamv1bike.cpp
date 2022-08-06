@@ -208,7 +208,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
     for(int i=0; i<availablePorts.length(); i++)
     {
 #if defined(Q_OS_LINUX)
-        if(!availablePorts[i].portName().startsWith("ttyUSB"))
+        if(!availablePorts[i].portName().startsWith("/dev/ttyUSB"))
             continue;
 #endif
         trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, availablePorts[i].portName());
