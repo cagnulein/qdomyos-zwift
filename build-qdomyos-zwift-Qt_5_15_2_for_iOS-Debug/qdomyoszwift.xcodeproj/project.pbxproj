@@ -163,6 +163,8 @@
 		871B9FD2265E6A8800DB41F4 /* powerzonepack.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */; };
 		871B9FD4265E6A9A00DB41F4 /* moc_powerzonepack.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */; };
 		871E4CD125A6FB5A00E18D6D /* BLEPeripheralManager.swift in Compile Sources */ = {isa = PBXBuildFile; fileRef = 871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */; };
+		872261EE289EA873006A6F75 /* nordictrackelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */; };
+		872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */; };
 		8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47627849EA600019B5D /* paferstreadmill.cpp */; };
 		8727A47927849EB200019B5D /* moc_paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47827849EB200019B5D /* moc_paferstreadmill.cpp */; };
 		872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4D261750EE006A59AB /* libQt5Charts.a */; };
@@ -823,6 +825,9 @@
 		871B9FD1265E6A8800DB41F4 /* powerzonepack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = powerzonepack.cpp; path = ../src/powerzonepack.cpp; sourceTree = "<group>"; };
 		871B9FD3265E6A9A00DB41F4 /* moc_powerzonepack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_powerzonepack.cpp; sourceTree = "<group>"; };
 		871E4CD025A6FB5A00E18D6D /* BLEPeripheralManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = BLEPeripheralManager.swift; path = ../src/ios/BLEPeripheralManager.swift; sourceTree = "<group>"; };
+		872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nordictrackelliptical.cpp; path = ../src/nordictrackelliptical.cpp; sourceTree = "<group>"; };
+		872261ED289EA873006A6F75 /* nordictrackelliptical.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nordictrackelliptical.h; path = ../src/nordictrackelliptical.h; sourceTree = "<group>"; };
+		872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nordictrackelliptical.cpp; sourceTree = "<group>"; };
 		8727A47527849EA600019B5D /* paferstreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = paferstreadmill.h; path = ../src/paferstreadmill.h; sourceTree = "<group>"; };
 		8727A47627849EA600019B5D /* paferstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = paferstreadmill.cpp; path = ../src/paferstreadmill.cpp; sourceTree = "<group>"; };
 		8727A47827849EB200019B5D /* moc_paferstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_paferstreadmill.cpp; sourceTree = "<group>"; };
@@ -1605,6 +1610,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */,
 				879E5AA9289C05A500FEA38A /* moc_proformwifitreadmill.cpp */,
 				87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */,
 				87061398286D8D6500D2446E /* moc_wobjectdefs.cpp */,
@@ -1755,6 +1761,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */,
+				872261ED289EA873006A6F75 /* nordictrackelliptical.h */,
 				879E5AA6289C057E00FEA38A /* proformwifitreadmill.cpp */,
 				879E5AA7289C057E00FEA38A /* proformwifitreadmill.h */,
 				87E34C2A2886F95400CEDE4B /* octanetreadmill.cpp */,
@@ -2985,6 +2993,7 @@
 				873824AE27E64706004F1B46 /* moc_browser.cpp in Compile Sources */,
 				8738249727E646E3004F1B46 /* characteristicnotifier2a53.cpp in Compile Sources */,
 				DF373364C5474D877506CB26 /* FitMesg.mm in Compile Sources */,
+				872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */,
 				873824E327E647A8004F1B46 /* bitmap.cpp in Compile Sources */,
 				87FE5BB12692F31E0056EFC8 /* moc_tacxneo2.cpp in Compile Sources */,
 				873824E827E647A8004F1B46 /* provider.cpp in Compile Sources */,
@@ -3029,6 +3038,7 @@
 				87C5F0D726285E7E0067A1B5 /* moc_mimefile.cpp in Compile Sources */,
 				877FBA29276E684500F6C0C9 /* bowflextreadmill.cpp in Compile Sources */,
 				8762D5102601F7EA00F6F049 /* M3iNSQT.cpp in Compile Sources */,
+				872261EE289EA873006A6F75 /* nordictrackelliptical.cpp in Compile Sources */,
 				8718CBA3263063BD004BF4EE /* templateinfosender.cpp in Compile Sources */,
 				E8B499F921FB0AB55C7A8A8B /* moc_gpx.cpp in Compile Sources */,
 				87E6A85825B5C88E00371D28 /* moc_flywheelbike.cpp in Compile Sources */,
