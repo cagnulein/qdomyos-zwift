@@ -1,6 +1,7 @@
 #pragma once
 #include "bike.h"
 #include "trixterxdreamv1client.h"
+#include "trixterxdreamv1serial.h"
 
 class trixterxdreamv1bike : public bike
 {
@@ -17,7 +18,7 @@ private:
      * @brief port An object that monitors a serial port to read incoming data, and to write
      * resistance level requests.
      */
-    serialPortMonitor * port = nullptr;
+    trixterxdreamv1serial * port = nullptr;
 
     /**
      * @brief resistanceTimerId The id for identifying the resistance timer in void timerEvent(QEvent*).
@@ -95,8 +96,16 @@ private:
     void updateResistance();
 protected:
 
+    /**
+     * @brief timerEvent Processes timer events, e.g. for resistance.
+     * @param event
+     */
     void timerEvent(QTimerEvent *event) override;
 
+    /**
+     * @brief disconnectPort Disconnect the serial port and resistance timer.
+     */
+    void disconnectPort();
 public Q_SLOTS:
     /**
      * @brief changeResistance Called to change the requested resistance level.
