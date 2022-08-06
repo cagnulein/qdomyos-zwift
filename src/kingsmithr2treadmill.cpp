@@ -57,10 +57,12 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
         QSettings settings;
-        if (!settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
-            encrypted.append(ENCRYPT_TABLE[idx]);
-        else
+        if (settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
+        else if (settings.value(QStringLiteral("kingsmith_encrypt_v3"), false).toBool())
+            encrypted.append(ENCRYPT_TABLE_v3[idx]);
+        else
+            encrypted.append(ENCRYPT_TABLE[idx]);
     }
     if (!disable_log) {
         emit debug(QStringLiteral(" >> plain: ") + data + QStringLiteral(" // ") + info);
@@ -246,10 +248,12 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
         int idx;
         QSettings settings;
-        if (!settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
-            idx = ENCRYPT_TABLE.indexOf(ch);
-        else
+        if (settings.value(QStringLiteral("kingsmith_encrypt_v2"), false).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
+        else if (settings.value(QStringLiteral("kingsmith_encrypt_v3"), false).toBool())
+            idx = ENCRYPT_TABLE_v3.indexOf(ch);
+        else
+            idx = ENCRYPT_TABLE.indexOf(ch);
         decrypted.append(PLAINTEXT_TABLE[idx]);
     }
     buffer.clear();
