@@ -219,7 +219,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
 #if defined(Q_OS_LINUX)
         if(!availablePorts[i].portName().startsWith("/dev/ttyUSB"))
         {
-            qDebug() << "Skipping port: " << availablePorts[i].portName() << " because it doesn't start with /dev/ttyUSB"
+            qDebug() << "Skipping port: " << availablePorts[i].portName() << " because it doesn't start with /dev/ttyUSB";
             continue;
         }
 #endif
