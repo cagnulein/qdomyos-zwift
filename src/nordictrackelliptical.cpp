@@ -187,7 +187,6 @@ void nordictrackelliptical::update() {
                     }
                     requestResistance = -1;
                 }
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 break;
             }
             counterPoll++;
