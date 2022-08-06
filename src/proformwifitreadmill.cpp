@@ -78,6 +78,18 @@ void proformwifitreadmill::connectToDevice() {
     websocket.open(QUrl("ws://" + settings.value(QStringLiteral("proformtreadmillip"), "").toString() + "/control"));
 }
 
+void proformwifitreadmill::forceSpeed(double requestSpeed) {
+    QString send = "{\"type\":\"set\",\"values\":{\"Speed\":\"" + QString::number(requestSpeed) + "\"}}";
+    qDebug() << "forceSpeed" << send;
+    websocket.sendTextMessage(send);
+}
+
+void proformwifitreadmill::forceIncline(double requestIncline) {
+    QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestIncline) + "\"}}";
+    qDebug() << "forceIncline" << send;
+    websocket.sendTextMessage(send);
+}
+
 void proformwifitreadmill::update() {
     qDebug() << "websocket.state()" << websocket.state();
 
@@ -86,6 +98,27 @@ void proformwifitreadmill::update() {
         btinit();
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
         update_metrics(true, watts());
+
+        if (requestSpeed != -1) {
+            if (requestSpeed != currentSpeed().value() && requestSpeed >= 0 && requestSpeed <= 22) {
+                emit debug(QStringLiteral("writing speed ") + QString::number(requestSpeed));
+                forceSpeed(requestSpeed);
+            }
+            requestSpeed = -1;
+        }
+        if (requestInclination != -100) {
+            if (requestInclination < 0)
+                requestInclination = 0;
+            // only 0.5 steps ara avaiable
+            requestInclination = qRound(requestInclination * 2.0) / 2.0;
+            if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
+                requestInclination <= 15) {
+                emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
+
+                forceIncline(requestInclination);
+            }
+            requestInclination = -100;
+        }
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {

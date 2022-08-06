@@ -224,7 +224,31 @@ void proformtreadmill::update() {
                 writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("noOp"));
                 break;
             case 5:
-                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"), false, true);
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    uint8_t start1[] = {0xfe, 0x02, 0x20, 0x03};
+                    uint8_t start2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x1c, 0x04, 0x1c, 0x02, 0x09,
+                                        0x00, 0x00, 0x40, 0x02, 0x18, 0x40, 0x00, 0x00, 0x80, 0x35};
+                    uint8_t start3[] = {0xff, 0x0e, 0x07, 0x00, 0x00, 0x6c, 0x20, 0x58, 0x02, 0x01,
+                                        0xb4, 0x00, 0x58, 0x02, 0x00, 0x76, 0x00, 0x00, 0x00, 0x00};
+                    uint8_t start4[] = {0xfe, 0x02, 0x11, 0x02};
+                    uint8_t start5[] = {0xff, 0x11, 0x02, 0x04, 0x02, 0x0d, 0x04, 0x0d, 0x02, 0x02,
+                                        0x03, 0x10, 0xc8, 0x00, 0x00, 0x00, 0x0a, 0x00, 0xfa, 0x00};
+                    writeCharacteristic(start1, sizeof(start1), QStringLiteral("start1"));
+                    writeCharacteristic(start2, sizeof(start2), QStringLiteral("start2"));
+                    writeCharacteristic(start3, sizeof(start3), QStringLiteral("start3"), false, true);
+                    writeCharacteristic(start4, sizeof(start4), QStringLiteral("start4"));
+                    writeCharacteristic(start5, sizeof(start5), QStringLiteral("start5"), false, true);
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    requestStop = -1;
+                }
                 break;
             }
             counterPoll++;
@@ -279,6 +303,20 @@ void proformtreadmill::update() {
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
+
                 break;
             }
             counterPoll++;
@@ -332,6 +370,20 @@ void proformtreadmill::update() {
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
                 break;
             }
             counterPoll++;
@@ -349,6 +401,9 @@ void proformtreadmill::update() {
                                    0x0d, 0x13, 0x96, 0x31, 0x00, 0x00, 0x40, 0x10, 0x00, 0x80};
             uint8_t noOpData6[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0xe9, 0x00, 0x00, 0x00,
                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            uint8_t noOpData7[] = {0xfe, 0x02, 0x10, 0x02};
+            uint8_t noOpData8[] = {0xff, 0x10, 0x02, 0x04, 0x02, 0x0c, 0x04, 0x0c, 0x02, 0x02,
+                                   0x00, 0x04, 0xa9, 0x00, 0x00, 0x04, 0x00, 0xc5, 0x00, 0x00};
 
             switch (counterPoll) {
             case 0:
@@ -385,10 +440,30 @@ void proformtreadmill::update() {
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
+                break;
+            case 6:
+                writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+                break;
+            case 7:
+                writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("noOp"), false, true);
                 break;
             }
             counterPoll++;
-            if (counterPoll > 5) {
+            if (counterPoll > 7) {
                 counterPoll = 0;
             }
         } else if (proform_treadmill_1800i) {
@@ -438,6 +513,20 @@ void proformtreadmill::update() {
                 break;
             case 5:
                 writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("noOp"));
+
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
                 break;
             }
             counterPoll++;
@@ -491,6 +580,19 @@ void proformtreadmill::update() {
                     }
                     requestSpeed = -1;
                 }
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
                 break;
             }
             counterPoll++;
@@ -531,6 +633,19 @@ void proformtreadmill::update() {
                 break;
             case 6:
                 writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("noOp"));
+                if (requestStart != -1) {
+                    emit debug(QStringLiteral("starting..."));
+
+                    // btinit();
+
+                    requestStart = -1;
+                    emit tapeStarted();
+                }
+                if (requestStop != -1) {
+                    emit debug(QStringLiteral("stopping..."));
+                    // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
+                    requestStop = -1;
+                }
                 break;
             }
             counterPoll++;
@@ -543,20 +658,6 @@ void proformtreadmill::update() {
         if (sec1Update++ == (500 / refresh->interval())) {
             sec1Update = 0;
             // updateDisplay(elapsed);
-        }
-
-        if (requestStart != -1) {
-            emit debug(QStringLiteral("starting..."));
-
-            // btinit();
-
-            requestStart = -1;
-            emit tapeStarted();
-        }
-        if (requestStop != -1) {
-            emit debug(QStringLiteral("stopping..."));
-            // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
-            requestStop = -1;
         }
     }
 }
@@ -663,7 +764,7 @@ void proformtreadmill::btinit() {
     bool nordictrack_s30_treadmill = settings.value("nordictrack_s30_treadmill", false).toBool();
     bool proform_treadmill_1800i = settings.value("proform_treadmill_1800i", false).toBool();
     bool proform_treadmill_se = settings.value("proform_treadmill_se", false).toBool();
-     bool proform_treadmill_9_0 = settings.value("proform_treadmill_9_0", false).toBool();
+    bool proform_treadmill_9_0 = settings.value("proform_treadmill_9_0", false).toBool();
     // bool proform_treadmill_995i = settings.value("proform_treadmill_995i", false).toBool();
 
     /*if (proform_treadmill_995i) {
@@ -820,119 +921,119 @@ void proformtreadmill::btinit() {
         QThread::msleep(400);
         writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-        } else if (proform_treadmill_9_0) {
-            uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
-            uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
-            uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
-                                   0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
-                                   0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
-            uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x04,
-                                    0x00, 0x91, 0x18, 0xad, 0x30, 0xc1, 0x50, 0xe5, 0x88, 0x11};
-            uint8_t initData11[] = {0x01, 0x12, 0xb8, 0x5d, 0xe0, 0x81, 0x20, 0xc5, 0x68, 0x31,
-                                    0xd8, 0x6d, 0x30, 0xc1, 0x90, 0x25, 0xe8, 0xb1, 0x78, 0x3d};
-            uint8_t initData12[] = {0xff, 0x08, 0xc0, 0x81, 0x40, 0x80, 0x02, 0x00, 0x00, 0x05,
-                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
-            uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
-            uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData7[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
-                                   0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
-            uint8_t noOpData8[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00,
-                                   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData9[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
-                                   0x0d, 0x1b, 0x94, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
-            uint8_t noOpData10[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00,
-                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
-                                    0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-            uint8_t noOpData12[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x84, 0x74, 0x00, 0x00, 0x00,
-                                    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    } else if (proform_treadmill_9_0) {
+        uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
+        uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData3[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x80, 0x88,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData4[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x04, 0x04, 0x88, 0x90,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData5[] = {0xfe, 0x02, 0x0a, 0x02};
+        uint8_t initData6[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x82, 0x00,
+                               0x00, 0x8a, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData7[] = {0xff, 0x0a, 0x02, 0x04, 0x02, 0x06, 0x02, 0x06, 0x84, 0x00,
+                               0x00, 0x8c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData8[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x95, 0x9b,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t initData9[] = {0xfe, 0x02, 0x2c, 0x04};
+        uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x04, 0x28, 0x90, 0x04,
+                                0x00, 0x91, 0x18, 0xad, 0x30, 0xc1, 0x50, 0xe5, 0x88, 0x11};
+        uint8_t initData11[] = {0x01, 0x12, 0xb8, 0x5d, 0xe0, 0x81, 0x20, 0xc5, 0x68, 0x31,
+                                0xd8, 0x6d, 0x30, 0xc1, 0x90, 0x25, 0xe8, 0xb1, 0x78, 0x3d};
+        uint8_t initData12[] = {0xff, 0x08, 0xc0, 0x81, 0x40, 0x80, 0x02, 0x00, 0x00, 0x05,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData1[] = {0xfe, 0x02, 0x17, 0x03};
+        uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x04, 0x15, 0x02, 0x0e,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData3[] = {0xff, 0x07, 0x00, 0x00, 0x00, 0x10, 0x01, 0x00, 0x3a, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData4[] = {0xfe, 0x02, 0x19, 0x03};
+        uint8_t noOpData5[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x0c,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData6[] = {0xff, 0x05, 0x00, 0x80, 0x00, 0x00, 0xa5, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData7[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                               0x0d, 0x00, 0x10, 0x00, 0xd8, 0x1c, 0x48, 0x00, 0x00, 0xe0};
+        uint8_t noOpData8[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x10, 0x62, 0x00, 0x00, 0x00,
+                               0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData9[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                               0x0d, 0x1b, 0x94, 0x31, 0x00, 0x00, 0x40, 0x50, 0x00, 0x80};
+        uint8_t noOpData10[] = {0xff, 0x05, 0x18, 0x00, 0x00, 0x01, 0x2f, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData11[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x13, 0x04, 0x13, 0x02, 0x00,
+                                0x0d, 0x80, 0x0a, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        uint8_t noOpData12[] = {0xff, 0x05, 0x00, 0x00, 0x00, 0x84, 0x74, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData11, sizeof(noOpData11), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData12, sizeof(noOpData12), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
-            writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
-            QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData10, sizeof(initData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData11, sizeof(initData11), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData4, sizeof(noOpData4), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData2, sizeof(noOpData2), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData3, sizeof(noOpData3), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData5, sizeof(noOpData5), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData6, sizeof(noOpData6), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData7, sizeof(noOpData7), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData8, sizeof(noOpData8), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData11, sizeof(noOpData11), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData12, sizeof(noOpData12), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData9, sizeof(noOpData9), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
+        writeCharacteristic(noOpData10, sizeof(noOpData10), QStringLiteral("init"), false, false);
+        QThread::msleep(400);
     } else if (nordictrack_t65s_treadmill) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
         uint8_t initData2[] = {0xff, 0x08, 0x02, 0x04, 0x02, 0x04, 0x02, 0x04, 0x81, 0x87,

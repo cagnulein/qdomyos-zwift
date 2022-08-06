@@ -61,6 +61,8 @@ class proformwifitreadmill : public treadmill {
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
+    void forceSpeed(double requestSpeed);
+    void forceIncline(double requestIncline);
     void startDiscover();
     void sendPoll();
     uint16_t watts();
