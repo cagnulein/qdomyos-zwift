@@ -272,6 +272,10 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         if (!key.compare(QStringLiteral("mcu_version")) || !key.compare(QStringLiteral("goal"))) {
             continue;
         }
+        if(i+1 >= _props.count()) {
+            qDebug() << "error decoding" << i;
+            return;
+        }
         QString value = _props.at(i + 1);
         emit debug(key + ": " + value);
         props[key] = value.toDouble();
