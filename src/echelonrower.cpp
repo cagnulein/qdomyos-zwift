@@ -186,20 +186,25 @@ double echelonrower::bikeResistanceToPeloton(double resistance) {
     return p;
 }
 
-void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    qDebug() << QStringLiteral(" << ") + newValue.toHex(' ');
+    qDebug() << QStringLiteral(" << ") + newvalue.toHex(' ');
 
-    lastPacket = newValue;
+    if(lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
+        lastPacket.append(newvalue);
+        qDebug() << QStringLiteral(" << concatenated ") + newvalue.toHex(' ');
+    }
+
+    lastPacket = newvalue;
 
     // resistance value is in another frame
-    if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Resistance = newValue.at(3);
+    if (lastPacket.length() == 5 && ((unsigned char)lastPacket.at(0)) == 0xf0 && ((unsigned char)lastPacket.at(1)) == 0xd2) {
+        Resistance = lastPacket.at(3);
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
@@ -207,7 +212,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         return;
     }
 
-    if (newValue.length() != 21) {
+    if (lastPacket.length() != 21) {
         return;
     }
 
@@ -219,7 +224,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(11));
+        Cadence = ((uint8_t)lastPacket.at(11));
         StrokesCount += (Cadence.value()) *
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
@@ -276,7 +281,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
 #endif
 
-    qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
+    qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(lastPacket).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());
