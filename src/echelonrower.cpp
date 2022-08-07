@@ -196,11 +196,11 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     qDebug() << QStringLiteral(" << ") + newvalue.toHex(' ');
 
     if(lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
-        lastPacket.append(newvalue);
-        qDebug() << QStringLiteral(" << concatenated ") + newvalue.toHex(' ');
+        lastPacket = lastPacket.append(newvalue);
+        qDebug() << QStringLiteral(" << concatenated ") + lastPacket.toHex(' ');
+    } else {
+        lastPacket = newvalue;
     }
-
-    lastPacket = newvalue;
 
     // resistance value is in another frame
     if (lastPacket.length() == 5 && ((unsigned char)lastPacket.at(0)) == 0xf0 && ((unsigned char)lastPacket.at(1)) == 0xd2) {
