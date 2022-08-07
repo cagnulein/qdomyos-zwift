@@ -268,6 +268,7 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
         return 16;
     case 0x21:
         return 17;
+    case 0x22:
     case 0x23:
         return 18;
     case 0x25:
@@ -309,7 +310,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(19) == 0x46) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(2) == 0x46) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();
