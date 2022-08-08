@@ -236,6 +236,7 @@ void trixterxdreamv1bike::updateResistance() {
 
 trixterxdreamv1bike::~trixterxdreamv1bike() {
     if(this->port) delete this->port;
+    if(this->appSettings) delete this->appSettings;
 }
 
 void trixterxdreamv1bike::set_wheelDiameter(double value) {
