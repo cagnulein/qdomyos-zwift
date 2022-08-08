@@ -458,6 +458,7 @@ import Qt.labs.settings 1.0
             
             // from the version ?
             property bool trixter_xdream_v1_bike: false
+            property bool trixter_xdream_v1_bike_heartrate_enabled: true
             property bool trixter_xdream_v1_bike_steering_enabled: true
             property int trixter_xdream_v1_bike_steering_center: 127
             property int trixter_xdream_v1_bike_steering_deadzone_width: 20
@@ -1736,6 +1737,22 @@ import Qt.labs.settings 1.0
                         onClicked: settings.trixter_xdream_v1_bike = checked
                     }
                     SwitchDelegate {
+                        id: trixterXDreamV1HeartRate
+                        text: qsTr("Heart Rate Signal Enabled")
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Use this to enable or disable the heart rate signal.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.trixter_xdream_v1_bike_heartrate_enabled
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.trixter_xdream_v1_bike_heartrate_enabled = checked
+                    }
+                    SwitchDelegate {
                         id: trixterXDreamV1Steering
                         text: qsTr("Steering Enabled")
                         ToolTip.visible: hovered
@@ -1749,7 +1766,7 @@ import Qt.labs.settings 1.0
                         checked: settings.trixter_xdream_v1_bike_steering_enabled
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
-                        onClicked: settings.settings.trixter_xdream_v1_bike_steering_enabled = checked
+                        onClicked: settings.trixter_xdream_v1_bike_steering_enabled = checked
                     }
                     RowLayout {
                         spacing: 10

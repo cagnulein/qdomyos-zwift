@@ -14,8 +14,12 @@
  */
 class trixterxdreamv1settings {
 public:
+    // these should match the corresponding values in settings.qml
+    // - the default values where the properties are defined
+    // - the validations on the text boxes
     constexpr static bool DefaultEnabled =true;
     constexpr static bool DefaultSteeringEnabled =true;
+    constexpr static bool DefaultHeartRateEnabled =true;
     constexpr static uint8_t DefaultSteeringCenter = trixterxdreamv1client::MaxSteering/2;
     constexpr static uint8_t DefaultSteeringDeadZoneWidth = 20;
     constexpr static uint8_t DefaultSteeringSensitivity = 100;
@@ -35,6 +39,7 @@ public:
          * @brief Enabled QSettings key to specify if the Trixter X-Dream V1 Bike is enabled in the application.
          */
         const static QString Enabled;
+        const static QString HeartRateEnabled;
         const static QString SteeringEnabled;
         const static QString SteeringCenter;
         const static QString SteeringDeadZoneWidth;
@@ -47,6 +52,7 @@ private:
     QRecursiveMutex mutex;
     bool enabled=DefaultEnabled;
     bool steeringEnabled = DefaultSteeringEnabled;
+    bool heartRateEnabled = DefaultHeartRateEnabled;
     uint8_t steeringCenter = DefaultSteeringCenter;
     uint8_t steeringDeadZoneWidth = DefaultSteeringDeadZoneWidth;
     uint8_t steeringSensitivityLeft = DefaultSteeringSensitivity;
@@ -59,7 +65,8 @@ private:
      * @param maximum The maximum value.
      * @param value The value to clip.
      */
-    static uint8_t clip(uint8_t minimum, uint8_t maximum, uint8_t value) { return std::max(minimum, std::min(maximum, value)); }
+    template <typename T>
+    static T clip(const T minimum, const T maximum, const T value) { return std::max(minimum, std::min(maximum, value)); }
 
     /**
      * @brief updateField Updates a field and increments the version if the value has changed.
@@ -67,15 +74,8 @@ private:
      * @param newValue The new value.
      * @return The value set.
      */
-    uint8_t updateField(uint8_t& member, const uint8_t newValue);
-
-    /**
-     * @brief updateField Updates a field and increments the version if the value has changed.
-     * @param member The member to update.
-     * @param newValue The new value.
-     * @return The value set.
-     */
-    bool updateField(bool& member, const bool newValue);
+    template <typename T>
+    T updateField(T& member, const T newValue);
 
 public:
     /**
@@ -94,6 +94,18 @@ public:
      * @return The actual value set.
      */
     bool set_enabled(bool value);
+
+    /**
+     * @brief get_heartRateEnabled Indicates if the the heart rate signal is enabled.
+     */
+    bool get_heartRateEnabled();
+
+    /**
+     * @brief set_heartRateEnabled Enables/disables steering.
+     * @param value True to use heart rate data, false to ignore it.
+     * @return The actual value set;
+     */
+    bool set_heartRateEnabled(bool value);
 
     /**
      * @brief get_steeringEnabled Indicates if the steering is enabled.

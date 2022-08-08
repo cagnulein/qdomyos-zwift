@@ -1,13 +1,16 @@
 #include "trixterxdreamv1settings.h"
 
 const QString trixterxdreamv1settings::keys::Enabled = QStringLiteral("trixter_xdream_v1_bike");
+const QString trixterxdreamv1settings::keys::HeartRateEnabled = QStringLiteral("trixter_xdream_v1_bike_heartrate_enabled");
 const QString trixterxdreamv1settings::keys::SteeringEnabled = QStringLiteral("trixter_xdream_v1_bike_steering_enabled");
 const QString trixterxdreamv1settings::keys::SteeringCenter = QStringLiteral("trixter_xdream_v1_bike_steering_center");
 const QString trixterxdreamv1settings::keys::SteeringDeadZoneWidth =QStringLiteral("trixter_xdream_v1_bike_steering_deadzone_width");
 const QString trixterxdreamv1settings::keys::SteeringSensitivityLeft = QStringLiteral("trixter_xdream_v1_bike_steering_sensitivity_left");
 const QString trixterxdreamv1settings::keys::SteeringSensitivityRight= QStringLiteral("trixter_xdream_v1_bike_steering_sensitivity_right");
 
-uint8_t trixterxdreamv1settings::updateField(uint8_t &member, const uint8_t newValue){
+
+template <typename T>
+T trixterxdreamv1settings::updateField(T& member, const T newValue) {
     QMutexLocker locker(&this->mutex);
     if(member!=newValue) {
         member = newValue;
@@ -16,14 +19,6 @@ uint8_t trixterxdreamv1settings::updateField(uint8_t &member, const uint8_t newV
     return newValue;
 }
 
-bool trixterxdreamv1settings::updateField(bool &member, const bool newValue){
-    QMutexLocker locker(&this->mutex);
-    if(member!=newValue) {
-        member = newValue;
-        this->version++;
-    }
-    return newValue;
-}
 
 uint32_t trixterxdreamv1settings::get_version() {
     QMutexLocker locker(&this->mutex);
@@ -37,6 +32,15 @@ bool trixterxdreamv1settings::get_enabled() {
 
 bool trixterxdreamv1settings::set_enabled(bool value) {
     return this->updateField(this->enabled, value);
+}
+
+bool trixterxdreamv1settings::get_heartRateEnabled(){
+    QMutexLocker locker(&this->mutex);
+    return this->heartRateEnabled;
+}
+
+bool trixterxdreamv1settings::set_heartRateEnabled(bool value) {
+    return this->updateField(this->heartRateEnabled, value);
 }
 
 bool trixterxdreamv1settings::get_steeringEnabled()  {
@@ -107,6 +111,7 @@ void trixterxdreamv1settings::Load() {
 void trixterxdreamv1settings::Load(const QSettings &settings) {
     QMutexLocker locker(&this->mutex);
     this->set_enabled(settings.value(keys::Enabled, DefaultEnabled).toBool());
+    this->set_heartRateEnabled(settings.value(keys::HeartRateEnabled, DefaultHeartRateEnabled).toBool());
     this->set_steeringEnabled(settings.value(keys::SteeringEnabled, DefaultSteeringEnabled).toBool());
     this->set_steeringCenter(settings.value(keys::SteeringCenter, DefaultSteeringCenter).toUInt());
     this->set_steeringDeadZoneWidth(settings.value(keys::SteeringDeadZoneWidth, DefaultSteeringDeadZoneWidth).toUInt());
@@ -123,6 +128,7 @@ void trixterxdreamv1bikesettings::Save() {
 void trixterxdreamv1bikesettings::Save(const QSettings &settings) {
     QMutexLocker locker(&this->mutex);
     settings.value(keys::Enabled).setValue(this->enabled);
+    settings.value(keys::HeartRateEnabled).setValue(this->heartRateEnabled);
     settings.value(keys::SteeringEnabled).setValue(this->steeringEnabled);
     settings.value(keys::SteeringCenter).setValue(this->steeringCenter);
     settings.value(keys::SteeringDeadZoneWidth).setValue(this->steeringDeadZoneWidth);

@@ -148,8 +148,6 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // update the metrics
     this->LastCrankEventTime = state.LastEventTime;
-    if(!this->noHeartService)
-        this->Heart.setValue(state.HeartRate);
 
     // set the speed in km/h
     constexpr double minutesPerHour = 60.0;
@@ -166,13 +164,23 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // check if the settings have been updated and adjust accordingly
     if(this->appSettings->get_version()!=this->lastAppSettingsVersion) {
+
+        this->noHeartRate = this->noHeartService || !this->appSettings->get_heartRateEnabled();
+        if(this->noHeartRate)
+            this->Heart.setValue(0.0);
+
         this->noSteering = !this->appSettings->get_steeringEnabled();
         if(this->noSteering)
             this->m_steeringAngle.setValue(0.0);
         else
             this->calculateSteeringMap();
+
         this->lastAppSettingsVersion = this->appSettings->get_version();
     }
+
+    // update the heart rate
+    if(!this->noHeartRate)
+        this->Heart.setValue(state.HeartRate);
 
     // Set the steering
     if(!this->noSteering) {

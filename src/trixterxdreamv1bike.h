@@ -37,9 +37,14 @@ private:
     int settingsUpdateTimerId = 0;
 
     /**
-     * @brief noHeartService Suppress heart rate readings.
+     * @brief noHeartService Suppress heart rate readings, QZ level setting.
      */
     bool noHeartService;
+
+    /**
+     * @brief noHeartRate Value from app settings combined with QZ's noHeartService value.
+     */
+    bool noHeartRate;
 
     /**
      * @brief noVirtualDevice Suppress virtual device.
