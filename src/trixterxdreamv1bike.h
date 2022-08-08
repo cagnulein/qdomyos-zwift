@@ -1,6 +1,5 @@
 #pragma once
 #include "bike.h"
-#include "qsettings.h"
 #include "trixterxdreamv1client.h"
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
@@ -90,7 +89,7 @@ private:
     /**
      * @brief appSettings The application settings.
      */
-    trixterxdreamv1settings * appSettings;
+    trixterxdreamv1settings * appSettings = nullptr;
 
     /**
      * @brief lastAppSettingsVersion The last app settings version that was used to configure the object.

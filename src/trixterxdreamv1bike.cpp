@@ -301,6 +301,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
                  << "," << "vender identifier:" << port.vendorIdentifier()
                  << "," << "manufacturer:" << port.manufacturer()
                  << "," << "product identifier:" << port.productIdentifier()
+                 << "," << "system location:" << port.systemLocation()
                  << "," << "isBusy:" << port.isBusy()
                  << "," << "isNull:" << port.isNull()
                  << "," << "serialNumber:" << port.serialNumber();
