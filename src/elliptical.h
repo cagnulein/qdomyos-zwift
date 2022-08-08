@@ -13,25 +13,25 @@ class elliptical : public bluetoothdevice {
     metric lastRequestedCadence();
     metric lastRequestedResistance();
     metric lastRequestedSpeed() { return RequestedSpeed; }
-    virtual metric currentInclination();
-    virtual metric currentResistance();
+    virtual metric currentInclination() override;
+    virtual metric currentResistance() override;
     virtual double requestedSpeed();
-    virtual uint8_t fanSpeed();
-    virtual double currentCrankRevolutions();
-    virtual uint16_t lastCrankEventTime();
-    virtual bool connected();
+    virtual uint8_t fanSpeed() override;
+    virtual double currentCrankRevolutions() override;
+    virtual uint16_t lastCrankEventTime() override;
+    virtual bool connected() override;
     metric pelotonResistance();
     virtual int pelotonToEllipticalResistance(int pelotonResistance);
-    bluetoothdevice::BLUETOOTH_TYPE deviceType();
-    void clearStats();
-    void setPaused(bool p);
-    void setLap();
+    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
+    void clearStats() override;
+    void setPaused(bool p) override;
+    void setLap() override;
     uint16_t watts();
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);
-    virtual void changeResistance(int8_t res);
-    virtual void changeInclination(double grade, double inclination);
+    virtual void changeResistance(int8_t res) override;
+    virtual void changeInclination(double grade, double inclination) override;
     virtual void changeCadence(int16_t cad);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
 

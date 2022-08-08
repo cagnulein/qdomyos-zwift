@@ -14,22 +14,22 @@ class bike : public bluetoothdevice {
     metric lastRequestedPelotonResistance();
     metric lastRequestedCadence();
     metric lastRequestedPower();
-    virtual metric currentResistance();
-    virtual uint8_t fanSpeed();
-    virtual double currentCrankRevolutions();
-    virtual uint16_t lastCrankEventTime();
-    virtual bool connected();
+    virtual metric currentResistance() override;
+    virtual uint8_t fanSpeed() override;
+    virtual double currentCrankRevolutions() override;
+    virtual uint16_t lastCrankEventTime() override;
+    virtual bool connected() override;
     virtual uint16_t watts();
     virtual int pelotonToBikeResistance(int pelotonResistance);
     virtual uint8_t resistanceFromPowerRequest(uint16_t power);
     virtual uint16_t powerFromResistanceRequest(int8_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
-    bluetoothdevice::BLUETOOTH_TYPE deviceType();
+    bluetoothdevice::BLUETOOTH_TYPE deviceType() override;
     metric pelotonResistance();
-    void clearStats();
-    void setLap();
-    void setPaused(bool p);
-    uint8_t metrics_override_heartrate();
+    void clearStats() override;
+    void setLap() override;
+    void setPaused(bool p) override;
+    uint8_t metrics_override_heartrate() override;
     void setGears(int8_t d);
     int8_t gears();
 

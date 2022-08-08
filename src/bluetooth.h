@@ -115,7 +115,7 @@ class bluetooth : public QObject, public SignalHandler {
     ~bluetooth();
     bluetoothdevice *device();
     bluetoothdevice *externalInclination() { return eliteRizer; }
-    bluetoothdevice *heartRateDevice() { return heartRateBelt; }
+    bluetoothdevice *heartRateDevice() { return this->heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
     bool onlyDiscover = false;
     TemplateInfoSenderBuilder *getUserTemplateManager() const { return userTemplateManager; }
@@ -126,87 +126,16 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
-    bhfitnesselliptical *bhFitnessElliptical = nullptr;
-    bowflextreadmill *bowflexTreadmill = nullptr;
-    bowflext216treadmill *bowflexT216Treadmill = nullptr;
-    fitshowtreadmill *fitshowTreadmill = nullptr;
-    concept2skierg *concept2Skierg = nullptr;
-    domyostreadmill *domyos = nullptr;
-    domyosbike *domyosBike = nullptr;
-    domyosrower *domyosRower = nullptr;
-    domyoselliptical *domyosElliptical = nullptr;
-    toorxtreadmill *toorx = nullptr;
-    iconceptbike *iConceptBike = nullptr;
-    trxappgateusbtreadmill *trxappgateusb = nullptr;
-    spirittreadmill *spiritTreadmill = nullptr;
-    activiotreadmill *activioTreadmill = nullptr;
-    nautilusbike *nautilusBike = nullptr;
-    nautiluselliptical *nautilusElliptical = nullptr;
-    nautilustreadmill *nautilusTreadmill = nullptr;
-    trxappgateusbbike *trxappgateusbBike = nullptr;
-    echelonconnectsport *echelonConnectSport = nullptr;
-    yesoulbike *yesoulBike = nullptr;
-    flywheelbike *flywheelBike = nullptr;
-    nordictrackelliptical *nordictrackElliptical = nullptr;
-    nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
-    octanetreadmill *octaneTreadmill = nullptr;
-    proformrower *proformRower = nullptr;
-    proformbike *proformBike = nullptr;
-    proformwifibike *proformWifiBike = nullptr;
-    proformwifitreadmill *proformWifiTreadmill = nullptr;
-    proformelliptical *proformElliptical = nullptr;
-    proformellipticaltrainer *proformEllipticalTrainer = nullptr;
-    proformtreadmill *proformTreadmill = nullptr;
-    horizontreadmill *horizonTreadmill = nullptr;
-    technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
-#ifndef Q_OS_IOS
-    technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
-#endif
-    truetreadmill *trueTreadmill = nullptr;
-    horizongr7bike *horizonGr7Bike = nullptr;
-    schwinnic4bike *schwinnIC4Bike = nullptr;
-    sportstechbike *sportsTechBike = nullptr;
-    sportsplusbike *sportsPlusBike = nullptr;
-    inspirebike *inspireBike = nullptr;
-    snodebike *snodeBike = nullptr;
-    eslinkertreadmill *eslinkerTreadmill = nullptr;
-    m3ibike *m3iBike = nullptr;
-    skandikawiribike *skandikaWiriBike = nullptr;
-    cscbike *cscBike = nullptr;
-    mcfbike *mcfBike = nullptr;
-    npecablebike *npeCableBike = nullptr;
-    stagesbike *stagesBike = nullptr;
-    solebike *soleBike = nullptr;
-    soleelliptical *soleElliptical = nullptr;
-    solef80treadmill *soleF80 = nullptr;
-    chronobike *chronoBike = nullptr;
-    fitplusbike *fitPlusBike = nullptr;
-    echelonrower *echelonRower = nullptr;
-    ftmsrower *ftmsRower = nullptr;
-    smartrowrower *smartrowRower = nullptr;
-    echelonstride *echelonStride = nullptr;
-    keepbike *keepBike = nullptr;
-    kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
-    kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
-    ftmsbike *ftmsBike = nullptr;
-    pafersbike *pafersBike = nullptr;
-    paferstreadmill *pafersTreadmill = nullptr;
-    tacxneo2 *tacxneo2Bike = nullptr;
-    renphobike *renphoBike = nullptr;
-    shuaa5treadmill *shuaA5Treadmill = nullptr;
+    bluetoothdevice *bluetoothDevice = nullptr;
+
+
     heartratebelt *heartRateBelt = nullptr;
     smartspin2k *ftmsAccessory = nullptr;
-    cscbike *cadenceSensor = nullptr;
-    stagesbike *powerSensor = nullptr;
-    strydrunpowersensor *powerSensorRun = nullptr;
-    stagesbike *powerBike = nullptr;
-    ultrasportbike *ultraSportBike = nullptr;
-    wahookickrsnapbike *wahooKickrSnapBike = nullptr;
-    strydrunpowersensor *powerTreadmill = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
-    fakebike *fakeBike = nullptr;
-    fakeelliptical *fakeElliptical = nullptr;
+    cscbike *cadenceSensor = nullptr;
+    bluetoothdevice *powerSensor = nullptr;
+
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
 
@@ -223,19 +152,113 @@ class bluetooth : public QObject, public SignalHandler {
     bool handleSignal(int signal) override;
     void stateFileUpdate();
     void stateFileRead();
-    bool heartRateBeltAvaiable();
-    bool ftmsAccessoryAvaiable();
-    bool cscSensorAvaiable();
-    bool powerSensorAvaiable();
-    bool eliteRizerAvaiable();
-    bool eliteSterzoSmartAvaiable();
+    bool heartRateBeltAvailable();
+    bool ftmsAccessoryAvailable();
+    bool cscSensorAvailable();
+    bool powerSensorAvailable();
+    bool eliteRizerAvailable();
+    bool eliteSterzoSmartAvailable();
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
     QTimer discoveryTimeout;
 #endif
 
-  signals:
+    // ------------------------------------------------------------------------------------------------------
+    // Exercise machine detectors
+    bluetoothdevice *detect_m3iBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_fakeBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_fakeElliptical(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformWifiBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_bhfitnesselliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_bowflextreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_bowflext216treadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_fitshowtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_concept2skierg(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_domyostreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_domyosbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_domyosrower(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_domyoselliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_toorxtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_iconceptbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_trxappgateusbtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_spirittreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_activiotreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_nautilusbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_nautiluselliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_nautilustreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_trxappgateusbbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_echelonconnectsport(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_yesoulbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_flywheelbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_nordictrackelliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_nordictrackifitadbtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_octanetreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformrower(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformwifibike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformwifitreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformelliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformellipticaltrainer(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_proformtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_horizontreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_technogymmyruntreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_technogymmyruntreadmillrfcomm(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_truetreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_horizongr7bike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_schwinnic4bike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_sportstechbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_sportsplusbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_inspirebike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_snodebike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_eslinkertreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_m3ibike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_skandikawiribike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_cscbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_mcfbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_npecablebike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_stagesbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_solebike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_soleelliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_solef80treadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_chronobike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_fitplusbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_echelonrower(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_ftmsrower(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_smartrowrower(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_echelonstride(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_keepbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_kingsmithr1protreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_kingsmithr2treadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_ftmsbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_pafersbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_paferstreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_tacxneo2(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_renphobike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_shuaa5treadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_ultrasportbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_wahookickrsnapbike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_strydrunpowersensor(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_fakebike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_fakeelliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_powerBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
+    bluetoothdevice *detect_powerTreadmill(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
+    // ------------------------------------------------------------------------------------------------------
+
+    // ------------------------------------------------------------------------------------------------------
+    // special device detectors
+    elitesterzosmart *detect_elitesterzosmart(const QBluetoothDeviceInfo& b, QSettings& settings);
+    eliterizer *detect_eliterizer(const QBluetoothDeviceInfo& b, QSettings& settings);
+    smartspin2k *detect_smartspin2k(const QBluetoothDeviceInfo& b,  QSettings& settings);
+    heartratebelt *detect_heartratebelt(const QBluetoothDeviceInfo& b, QSettings& settings);
+    cscbike *detect_cadenceSensor(const QBluetoothDeviceInfo &b, QSettings &settings);
+    bluetoothdevice *detect_powerSensor(const QBluetoothDeviceInfo &b, QSettings &settings);
+    // ------------------------------------------------------------------------------------------------------
+
+    bool toorxBikeAvaiable(const QSettings &settings);
+
+
+signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
