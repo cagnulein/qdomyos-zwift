@@ -17,34 +17,37 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
+#include "templateinfosenderbuilder.h"
+
+#include "bluetoothdevice.h"
+
+#include "cscbike.h"
+#include "eliterizer.h"
+#include "elitesterzosmart.h"
+#include "fitmetria_fanfit.h"
+#include "heartratebelt.h"
+#include "signalhandler.h"
+#include "smartspin2k.h"
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
-#include "bluetoothdevice.h"
 #include "bowflext216treadmill.h"
-#include "bowflextreadmill.h"
 #include "chronobike.h"
 #include "concept2skierg.h"
-#include "cscbike.h"
 #include "domyosbike.h"
 #include "domyoselliptical.h"
 #include "domyosrower.h"
 #include "domyostreadmill.h"
-
 #include "echelonconnectsport.h"
 #include "echelonrower.h"
-#include "eliterizer.h"
-#include "elitesterzosmart.h"
+#include "echelonstride.h"
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
 #include "fakeelliptical.h"
-#include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
-
 #include "fitshowtreadmill.h"
 #include "flywheelbike.h"
 #include "ftmsbike.h"
 #include "ftmsrower.h"
-#include "heartratebelt.h"
 #include "horizongr7bike.h"
 #include "horizontreadmill.h"
 #include "iconceptbike.h"
@@ -70,32 +73,23 @@
 #include "proformtreadmill.h"
 #include "proformwifibike.h"
 #include "proformwifitreadmill.h"
+#include "renphobike.h"
 #include "schwinnic4bike.h"
-#include "signalhandler.h"
+#include "shuaa5treadmill.h"
 #include "skandikawiribike.h"
 #include "smartrowrower.h"
-#include "smartspin2k.h"
 #include "snodebike.h"
-#include "strydrunpowersensor.h"
-
-#include "shuaa5treadmill.h"
 #include "solebike.h"
 #include "soleelliptical.h"
 #include "solef80treadmill.h"
-
 #include "spirittreadmill.h"
 #include "sportsplusbike.h"
 #include "sportstechbike.h"
 #include "stagesbike.h"
-
-#include "renphobike.h"
+#include "strydrunpowersensor.h"
 #include "tacxneo2.h"
 #include "technogymmyruntreadmill.h"
 #include "technogymmyruntreadmillrfcomm.h"
-
-#include "echelonstride.h"
-
-#include "templateinfosenderbuilder.h"
 #include "toorxtreadmill.h"
 #include "treadmill.h"
 #include "truetreadmill.h"
@@ -104,6 +98,7 @@
 #include "ultrasportbike.h"
 #include "wahookickrsnapbike.h"
 #include "yesoulbike.h"
+
 
 class bluetooth : public QObject, public SignalHandler {
 
@@ -158,6 +153,7 @@ class bluetooth : public QObject, public SignalHandler {
     bool powerSensorAvailable();
     bool eliteRizerAvailable();
     bool eliteSterzoSmartAvailable();
+    bool toorxBikeAvailable(const QSettings &settings);
     bool fitmetria_fanfit_isconnected(QString name);
 
 #ifdef Q_OS_WIN
@@ -166,12 +162,16 @@ class bluetooth : public QObject, public SignalHandler {
 
     // ------------------------------------------------------------------------------------------------------
     // Exercise machine detectors
+    //
+    // The 3 parameters are not always used. The QSettings object is passed to avoid loading it for very call.
+    // These are coded to a specific method signature with a view to them being implementations of the same interface
+    // after a future refactoring.
+    // ------------------------------------------------------------------------------------------------------
     bluetoothdevice *detect_m3iBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
     bluetoothdevice *detect_fakeBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
     bluetoothdevice *detect_fakeElliptical(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
     bluetoothdevice *detect_proformWifiBike(const QBluetoothDeviceInfo &b, bool filter, QSettings& settings);
     bluetoothdevice *detect_bhfitnesselliptical(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
-    bluetoothdevice *detect_bowflextreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_bowflext216treadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_fitshowtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_concept2skierg(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
@@ -203,7 +203,6 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *detect_proformtreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_horizontreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_technogymmyruntreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
-    bluetoothdevice *detect_technogymmyruntreadmillrfcomm(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_truetreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_horizongr7bike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
     bluetoothdevice *detect_schwinnic4bike(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings);
@@ -255,7 +254,7 @@ class bluetooth : public QObject, public SignalHandler {
     bluetoothdevice *detect_powerSensor(const QBluetoothDeviceInfo &b, QSettings &settings);
     // ------------------------------------------------------------------------------------------------------
 
-    bool toorxBikeAvaiable(const QSettings &settings);
+
 
 
 signals:

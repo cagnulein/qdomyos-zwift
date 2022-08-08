@@ -1,15 +1,15 @@
-#include "bluetooth.h"
-#include "homeform.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
-
+#include "homeform.h"
 #include <QtXml>
 #ifdef Q_OS_ANDROID
 #include "keepawakehelper.h"
 #include <QAndroidJniObject>
 #endif
+#include "bluetooth.h"
+
 
 bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistance, bool noHeartService,
                      uint32_t pollDeviceTime, bool noConsole, bool testResistance, uint8_t bikeResistanceOffset,
@@ -399,11 +399,6 @@ bluetoothdevice * bluetooth::detect_bhfitnesselliptical(const QBluetoothDeviceIn
     return nullptr;
 }
 
-bluetoothdevice * bluetooth::detect_bowflextreadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings) {
-    auto bowflexTreadmill = dynamic_cast<bowflextreadmill*>(this->device());
-    return nullptr;
-}
-
 bluetoothdevice * bluetooth::detect_bowflext216treadmill(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings) {
     auto bowflexT216Treadmill = dynamic_cast<bowflext216treadmill*>(this->device());
 
@@ -607,7 +602,7 @@ bluetoothdevice * bluetooth::detect_trxappgateusbtreadmill(const QBluetoothDevic
     auto trxappgateusb = dynamic_cast<trxappgateusbtreadmill*>(this->device());
     auto trxappgateusbBike = dynamic_cast<trxappgateusbbike*>(this->device());
 
-    bool toorx_bike = toorxBikeAvaiable(settings);
+    bool toorx_bike = toorxBikeAvailable(settings);
 
     if (((b.name().startsWith(QStringLiteral("TOORX"))) ||
          (b.name().startsWith(QStringLiteral("V-RUN"))) ||
@@ -737,7 +732,7 @@ bluetoothdevice * bluetooth::detect_trxappgateusbbike(const QBluetoothDeviceInfo
     auto trxappgateusbBike = dynamic_cast<trxappgateusbbike*>(this->device());
     auto trxappgateusb = dynamic_cast<trxappgateusbtreadmill*>(this->device());
 
-    bool toorx_bike = this->toorxBikeAvaiable(settings);
+    bool toorx_bike = this->toorxBikeAvailable(settings);
 
     auto upperName = b.name().toUpper();
     if ((((b.name().startsWith(QStringLiteral("TOORX")) ||
@@ -1119,11 +1114,6 @@ bluetoothdevice * bluetooth::detect_technogymmyruntreadmill(const QBluetoothDevi
 
 
 
-    return nullptr;
-}
-
-bluetoothdevice * bluetooth::detect_technogymmyruntreadmillrfcomm(const QBluetoothDeviceInfo& b, bool filter, QSettings& settings) {
-    auto technogymmyrunrfcommTreadmill = dynamic_cast<technogymmyruntreadmillrfcomm*>(this->device());
     return nullptr;
 }
 
@@ -2186,7 +2176,7 @@ bluetoothdevice *bluetooth::detect_powerSensor(const QBluetoothDeviceInfo &b, QS
     return nullptr;
 }
 
-bool bluetooth::toorxBikeAvaiable(const QSettings& settings)
+bool bluetooth::toorxBikeAvailable(const QSettings& settings)
 {
     bool toorx_ftms = settings.value(QStringLiteral("toorx_ftms"), false).toBool();
     bool toorx_bike = (settings.value(QStringLiteral("toorx_bike"), false).toBool() ||
@@ -2558,6 +2548,7 @@ void bluetooth::restart() {
     DELETE(this->eliteRizer);
     DELETE(this->eliteSterzoSmart);
     DELETE(this->cadenceSensor);
+    DELETE(this->powerSensor);
 
     if (fitmetriaFanfit.length()) {
 
