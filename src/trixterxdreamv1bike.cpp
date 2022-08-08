@@ -1,6 +1,8 @@
 #include "trixterxdreamv1bike.h"
-#include "qcoreevent.h"
 #include "trixterxdreamv1serial.h"
+#include "trixterxdreamv1settings.h"
+#include "qcoreevent.h"
+
 #include <cmath>
 #include <qmath.h>
 #include <QSerialPortInfo>
@@ -8,15 +10,21 @@
 
 using namespace std;
 
-trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering) {
+trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
     // Set the wheel diameter for speed and distance calculations
     this->set_wheelDiameter(DefaultWheelDiameter);
+
+    // Create the settings object and load from QSettings.
+    this->appSettings = new trixterxdreamv1settings();
 
     // QZ things from expected constructor
     this->noWriteResistance = noWriteResistance;
     this->noHeartService = noHeartService;
     this->noVirtualDevice = noVirtualDevice;
-    this->noSteering = noSteering;
+    this->noSteering = !appSettings->get_steeringEnabled();
+
+    // Calculate the steering mapping
+    this->calculateSteeringMap();
 }
 
 bool trixterxdreamv1bike::connect(QString portName) {
@@ -59,6 +67,12 @@ bool trixterxdreamv1bike::connect(QString portName) {
         }
     }
 
+    this->settingsUpdateTimerId = this->startTimer(SettingsUpdateTimerIntervalMilliseconds, Qt::VeryCoarseTimer);
+    if(this->settingsUpdateTimerId==0)
+    {
+        qDebug() << "Failed to start settings update timer. Too bad.";
+    }
+
     if(!this->connected())
     {
         qDebug() << "Failed to connect to device";
@@ -80,6 +94,11 @@ void trixterxdreamv1bike::disconnectPort() {
         this->killTimer(this->resistanceTimerId);
         this->resistanceTimerId = 0;
     }
+    if(this->settingsUpdateTimerId) {
+        qDebug() << "Kiling settings update timer";
+        this->killTimer(this->settingsUpdateTimerId);
+        this->settingsUpdateTimerId = 0;
+    }
 }
 
 bool trixterxdreamv1bike::connected() {
@@ -94,10 +113,14 @@ uint32_t trixterxdreamv1bike::getTime() {
 }
 
 void trixterxdreamv1bike::timerEvent(QTimerEvent *event) {
-    if(event->timerId()==this->resistanceTimerId)
-    {
+    int timerId = event->timerId();
+
+    if(timerId==this->resistanceTimerId){
         event->accept();
         this->updateResistance();
+    } else if(timerId==this->settingsUpdateTimerId) {
+        event->accept();
+        this->appSettings->Load();
     }
 }
 
@@ -141,13 +164,51 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
     // set the crank revolutions
     this->CrankRevs = state.CumulativeCrankRevolutions;
 
+    // check if the settings have been updated and adjust accordingly
+    if(this->appSettings->get_version()!=this->lastAppSettingsVersion) {
+        this->noSteering = !this->appSettings->get_steeringEnabled();
+        if(this->noSteering)
+            this->m_steeringAngle.setValue(0.0);
+        else
+            this->calculateSteeringMap();
+        this->lastAppSettingsVersion = this->appSettings->get_version();
+    }
+
     // Set the steering
-    constexpr double steeringScale = 90.0 / trixterxdreamv1client::MaxSteering;
-    if(!this->noSteering)
-        this->m_steeringAngle.setValue(round(steeringScale * state.Steering - 45.0));
+    if(!this->noSteering) {
+        this->m_steeringAngle.setValue(this->steeringMap[state.Steering]);
+    }
 
     // set the elapsed time
     this->elapsed = (currentTime - this->t0) * 0.001;
+}
+
+void trixterxdreamv1bike::calculateSteeringMap() {
+
+    constexpr double maxSteeringAngle = 45.0;
+
+    this->steeringMap.clear();
+
+    int halfDeadZone = this->appSettings->get_steeringDeadZoneWidth()/2;
+    int deadZoneLeft = this->appSettings->get_steeringCenter()-halfDeadZone;
+    int deadZoneRight = this->appSettings->get_steeringCenter()+halfDeadZone;
+    double sensitivityLeft = 0.01 * this->appSettings->get_steeringSensitivityLeft();
+    double sensitivityRight = 0.01 * this->appSettings->get_steeringSensitivityRight();
+    double scaleLeft = sensitivityLeft * maxSteeringAngle / deadZoneLeft;
+    double scaleRight = sensitivityRight * maxSteeringAngle / (trixterxdreamv1client::MaxSteering - deadZoneRight);
+
+    for(int i=0; i<=trixterxdreamv1client::MaxSteering; i++) {
+        double mappedValue;
+        if(i>=deadZoneLeft && i<=deadZoneRight) {
+            mappedValue = 0.0;
+        } else if (i<deadZoneLeft) {
+            mappedValue = -std::max(0.0, std::min(maxSteeringAngle, scaleLeft*(deadZoneLeft-i)));
+        } else {
+            mappedValue = std::max(0.0, std::min(maxSteeringAngle, scaleRight * (i-deadZoneRight)));
+        }
+        this->steeringMap.push_back(mappedValue);
+    }
+
 }
 
 void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
@@ -185,12 +246,12 @@ void trixterxdreamv1bike::set_wheelDiameter(double value) {
     this->wheelCircumference = value * M_PI / 1000.0;
 }
 
-trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, bool noSteering, const QString &portName) {
+trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
     // first check if there's a port specified
     if(portName!=nullptr && !portName.isEmpty())
     {
         qDebug() << "Looking for Trixter X-Dream V1 device on port: " << portName;
-        trixterxdreamv1bike * result = new trixterxdreamv1bike(noWriteResistance, noHeartService, noVirtualDevice, noSteering);
+        trixterxdreamv1bike * result = new trixterxdreamv1bike(noWriteResistance, noHeartService, noVirtualDevice);
         try {
             if(result->connect(portName)) {
                 qDebug() << "Found Trixter X-Dream V1 device on port: " << portName;
@@ -235,7 +296,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
                  << "," << "isNull:" << port.isNull()
                  << "," << "serialNumber:" << port.serialNumber();
 
-        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, noSteering, port.portName());
+        trixterxdreamv1bike * result = tryCreate(noWriteResistance, noHeartService, noVirtualDevice, port.portName());
         if(result)
             return result;
     }
@@ -244,7 +305,7 @@ trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, boo
 }
 
 trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(const QString& portName) {
-    return tryCreate(false, false, false, false, portName);
+    return tryCreate(false, false, false, portName);
 }
 
 

@@ -32,7 +32,7 @@ void trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate 
 }
 
 void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
-    qDebug() << "serial >> " << buffer.toHex(' ') << "//" << info;
+    qDebug() << "serial >> " << buffer.toHex() << "//" << info;
 
     // obtain a mutex lock to avoid writing during a read
     QMutexLocker locker(&this->mutex);
