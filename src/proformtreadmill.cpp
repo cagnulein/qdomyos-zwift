@@ -707,7 +707,8 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // filter some strange values from proform
     m_watts = (((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14)));
 
-    if (m_watts > 3000) {
+    // for the proform_treadmill_se this field is the distance in meters ;)
+    if (m_watts > 3000 && !proform_treadmill_se) {
         m_watts = 0;
     } else {
         Inclination =

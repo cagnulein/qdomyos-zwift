@@ -187,7 +187,6 @@ void nordictrackelliptical::update() {
                     }
                     requestResistance = -1;
                 }
-                writeCharacteristic(noOpData1, sizeof(noOpData1), QStringLiteral("noOp"));
                 break;
             }
             counterPoll++;
@@ -229,7 +228,7 @@ void nordictrackelliptical::serviceDiscovered(const QBluetoothUuid &gatt) {
 }
 
 double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
-    uint8_t r = (uint8_t)(packet.at(13));
+    uint8_t r = (uint8_t)(packet.at(11));
     switch (r) {
     case 1:
         return 1;
@@ -269,6 +268,7 @@ double nordictrackelliptical::GetResistanceFromPacket(QByteArray packet) {
         return 16;
     case 0x21:
         return 17;
+    case 0x22:
     case 0x23:
         return 18;
     case 0x25:
@@ -310,13 +310,14 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    /*
-    if (newValue.length() == 20 && (uint8_t)newValue.at(0) == 0xff && newValue.at(1) == 0x10 &&
-        newValue.at(2) == 0x01) {
-        Speed = (double)(((uint16_t)((uint8_t)newValue.at(4)) << 8) + (uint16_t)((uint8_t)newValue.at(3))) / 100.0;
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(2) == 0x46) {
+        Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-        return;
-    }*/
+        lastSpeedChanged = QDateTime::currentDateTime();
+    } else if(QDateTime::currentDateTime().secsTo(lastSpeedChanged) > 3) {
+        Speed = 0;
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    }
 
     if (newValue.length() != 20 || newValue.at(0) != 0x00 || newValue.at(1) != 0x12 || newValue.at(2) != 0x01 ||
         newValue.at(3) != 0x04 || newValue.at(4) != 0x02 || (newValue.at(5) != 0x2e && newValue.at(5) != 0x30) ||
@@ -327,8 +328,8 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    Speed = ((double)((uint8_t)newValue.at(12)) / 10.0) * miles;
-    emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+    //wattage = newValue.at(12)
+
     Resistance = GetResistanceFromPacket(newValue);
 
     uint16_t p = qCeil((Resistance.value() * 3.33) + 10.0);

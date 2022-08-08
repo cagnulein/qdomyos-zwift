@@ -102,7 +102,7 @@ This operation takes a moment to complete.
 
 #### Install qdomyos-zwift from sources
 
-`sudo apt install git libqt5bluetooth5 libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev`
+`sudo apt install git libqt5bluetooth5 libqt5serialport5-dev libqt5widgets5 libqt5positioning5 libqt5xml5 qtconnectivity5-dev qtpositioning5-dev libqt5charts5-dev libqt5charts5 qt5-assistant libqt5networkauth5-dev libqt5websockets5-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5`
 
 `git clone https://github.com/cagnulein/qdomyos-zwift.git`  
 `cd qdomyos-zwift`  

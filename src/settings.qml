@@ -456,6 +456,10 @@ import Qt.labs.settings 1.0
             // from the version 2.11.14
             property string proformtreadmillip: ""
             
+            // from the version 2.11.22
+            property bool kingsmith_encrypt_v3: false
+
+            
             // from the version ?
             property bool trixter_xdream_v1_bike: false
             property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -4730,10 +4734,25 @@ import Qt.labs.settings 1.0
                             rightPadding: 0
                             leftPadding: 0
                             clip: false
-                            checked: settings.kingsmith_encrypt_v2
+                        }
+
+                        SwitchDelegate {
+                            id: kingSmithV3TreadmillDelegate
+                            text: qsTr("WalkingPad X21 v2")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.kingsmith_encrypt_v3
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
-                            onClicked: settings.kingsmith_encrypt_v2 = checked
+                            onClicked: settings.kingsmith_encrypt_v3 = checked
+                            checked: settings.kingsmith_encrypt_v3
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            Layout.fillWidth: true
+                            onClicked: settings.kingsmith_encrypt_v3 = checked
                         }
                     }
                 }
