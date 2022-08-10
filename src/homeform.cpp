@@ -2128,7 +2128,7 @@ void homeform::update() {
         double resistance = 0;
         double watts = 0;
         double pace = 0;
-        double peloton_resistance = 0;
+        int8_t peloton_resistance = 0;
         uint8_t cadence = 0;
         uint32_t totalStrokes = 0;
         double avgStrokesRate = 0;
