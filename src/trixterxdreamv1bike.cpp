@@ -33,7 +33,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
 
     // Get the current time in milliseconds since ancient times.
     // This will be subtracted from further readings from getTime() to get an easier to look at number.
-    this->t0 = this->getTime();
+    this->t0 = getTime();
 
     auto thisObject = this;
 
@@ -51,11 +51,31 @@ bool trixterxdreamv1bike::connect(QString portName) {
     if(!noWriteResistance)
         this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(QByteArray((const char *)bytes, length), "");});
 
-    // open the port. This should be at 115200 bits per second.
-    this->port->open(portName, QSerialPort::Baud115200, 1000);
+    // Set up a stopwatch to time the connection operations
+    QElapsedTimer stopWatch;
+    stopWatch.start();
 
-    // wait for some packets to arrive
-    QThread::msleep(500);
+    // open the port. This should be at 115200 bits per second.
+    if(!this->port->open(portName, QSerialPort::Baud115200, 1000)) {
+        qDebug() << "Failed to open port, determined after " << stopWatch.elapsed() << "milliseconds";
+        return false;
+    }
+
+    // wait for up to 500ms for some packets to arrive
+    for(uint32_t start = getTime(), t=start, limit=start+500; t<limit; t=getTime()) {
+        if(this->connected()) {
+            qDebug() << "Connected after " << stopWatch.elapsed() << "milliseconds";
+            break;
+        }
+        QThread::msleep(20);
+    }
+
+    if(!this->connected())
+    {
+        qDebug() << "Failed to connect to device, after " << stopWatch.elapsed() << "milliseconds";
+        this->disconnectPort();
+        return false;
+    }
 
     if(!this->noWriteResistance)
     {
@@ -73,14 +93,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
         qDebug() << "Failed to start settings update timer. Too bad.";
     }
 
-    if(!this->connected())
-    {
-        qDebug() << "Failed to connect to device";
-        this->disconnectPort();
-        return false;
-    }
-
-    return this->connected();
+    return true;
 }
 
 void trixterxdreamv1bike::disconnectPort() {
@@ -95,7 +108,7 @@ void trixterxdreamv1bike::disconnectPort() {
         this->resistanceTimerId = 0;
     }
     if(this->settingsUpdateTimerId) {
-        qDebug() << "Kiling settings update timer";
+        qDebug() << "Killing settings update timer";
         this->killTimer(this->settingsUpdateTimerId);
         this->settingsUpdateTimerId = 0;
     }

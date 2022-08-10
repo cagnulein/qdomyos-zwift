@@ -5,6 +5,7 @@
 #include <QSerialPort>
 #include <QThread>
 #include <QWaitCondition>
+#include <QAtomicInt>
 
 /**
  * @brief A basic serial port monitoring thread.
@@ -22,8 +23,9 @@ public:
      * @param portName The name of the serial port.
      * @param baudRate The baud rate.
      * @param waitTimeout The timeout for the serial port.
+     * @returns True if the port was opened, false if the port wasn't opened, or was already open.
      */
-    void open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout);
+    bool open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout);
 
     /**
      * @brief Writes the array of bytes to the serial port
@@ -65,6 +67,7 @@ protected:
     QSerialPort::BaudRate baudRate;
     int waitTimeout = 1000;
     QMutex mutex;
+    QAtomicInt openAttemptsPending{0};
     bool quitPending = false;
     std::function<void(const QByteArray& bytes)> receiveBytes=nullptr;
 };

@@ -4,6 +4,7 @@
 #include <QTime>
 #include <QSerialPortInfo>
 
+
 trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent){}
 
 trixterxdreamv1serial::~trixterxdreamv1serial() {
@@ -15,20 +16,36 @@ QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts() {
     return QSerialPortInfo::availablePorts();
 }
 
-void trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout) {
+bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout) {
+
+    QMutexLocker locker(&this->mutex);
+
     if(this->isRunning())
     {
         qDebug() << "Port is already being monitored.";
         this->error("Port is already being monitored.");
-        return;
+        return false;
     }
 
-    const QMutexLocker locker(&this->mutex);
     this->portName = portName;
     this->baudRate = baudRate;
     this->waitTimeout = waitTimeout;
-    if (!isRunning())
-        start();    
+
+
+
+    if (!isRunning()) {
+        this->openAttemptsPending=1;
+        start();
+    }
+
+    locker.unlock();
+
+    while(this->openAttemptsPending==1){
+        QThread::msleep(10);
+    }
+
+    locker.relock();
+    return serial.isOpen();
 }
 
 void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
@@ -54,11 +71,22 @@ void trixterxdreamv1serial::run() {
     this->serial.setFlowControl(QSerialPort::NoFlowControl);
     this->serial.setParity(QSerialPort::NoParity);
 
-    if (!serial.open(QIODevice::ReadWrite)) {
+    bool openResult = false;
+
+    try {
+        openResult = serial.open(QIODevice::ReadWrite);
+        this->openAttemptsPending = 0;
+    } catch(...) {
+        this->openAttemptsPending = 0;
+        throw;
+    }
+
+    if (!openResult) {
         qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
         this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
         return;
     }
+
     qDebug() << "Serial port" << this->portName << "opened";
 
     while (!this->quitPending) {
