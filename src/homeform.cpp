@@ -2156,6 +2156,7 @@ void homeform::update() {
         }
 
         emit signalChanged(signal());
+        emit currentSpeedChanged(bluetoothManager->device()->currentSpeed().value());
         speed->setValue(QString::number(bluetoothManager->device()->currentSpeed().value() * unit_conversion, 'f', 1));
         speed->setSecondLine(
             QStringLiteral("AVG: ") +
