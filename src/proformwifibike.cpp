@@ -210,6 +210,8 @@ void proformwifibike::innerWriteResistance() {
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {
             requestResistance = max_resistance;
+        } else if (requestResistance < min_resistance) {
+            requestResistance = min_resistance;
         } else if (requestResistance == 0) {
             requestResistance = 1;
         }
