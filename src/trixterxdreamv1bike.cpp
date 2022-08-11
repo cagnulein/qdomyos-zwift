@@ -207,12 +207,15 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 void trixterxdreamv1bike::calculateSteeringMap() {
 
     constexpr double maxSteeringAngle = 45.0;
+    constexpr int maxSteering = trixterxdreamv1client::MaxSteering;
 
     this->steeringMap.clear();
 
-    int halfDeadZone = this->appSettings->get_steeringDeadZoneWidth()/2;
-    int deadZoneLeft = this->appSettings->get_steeringCenter()-halfDeadZone;
-    int deadZoneRight = this->appSettings->get_steeringCenter()+halfDeadZone;
+    int steeringCenterOffset =  round(0.5+this->appSettings->get_steeringCenterOffsetPercentage()*maxSteering*0.01);
+    int steeringCenter = maxSteering / 2 + steeringCenterOffset;
+    int halfDeadZone = this->appSettings->get_steeringDeadZoneWidthPercentage() * maxSteering * 0.005;
+    int deadZoneLeft = steeringCenter-halfDeadZone;
+    int deadZoneRight = steeringCenter+halfDeadZone;
     double sensitivityLeft = 0.01 * this->appSettings->get_steeringSensitivityLeft();
     double sensitivityRight = 0.01 * this->appSettings->get_steeringSensitivityRight();
     double scaleLeft = sensitivityLeft * maxSteeringAngle / deadZoneLeft;

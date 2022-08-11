@@ -3,7 +3,7 @@
 const QString trixterxdreamv1settings::keys::Enabled = QStringLiteral("trixter_xdream_v1_bike");
 const QString trixterxdreamv1settings::keys::HeartRateEnabled = QStringLiteral("trixter_xdream_v1_bike_heartrate_enabled");
 const QString trixterxdreamv1settings::keys::SteeringEnabled = QStringLiteral("trixter_xdream_v1_bike_steering_enabled");
-const QString trixterxdreamv1settings::keys::SteeringCenter = QStringLiteral("trixter_xdream_v1_bike_steering_center");
+const QString trixterxdreamv1settings::keys::SteeringCenterOffset = QStringLiteral("trixter_xdream_v1_bike_steering_center_offset");
 const QString trixterxdreamv1settings::keys::SteeringDeadZoneWidth =QStringLiteral("trixter_xdream_v1_bike_steering_deadzone_width");
 const QString trixterxdreamv1settings::keys::SteeringSensitivityLeft = QStringLiteral("trixter_xdream_v1_bike_steering_sensitivity_left");
 const QString trixterxdreamv1settings::keys::SteeringSensitivityRight= QStringLiteral("trixter_xdream_v1_bike_steering_sensitivity_right");
@@ -52,24 +52,24 @@ bool trixterxdreamv1settings::set_steeringEnabled(bool value) {
     return this->updateField(this->steeringEnabled, value);
 }
 
-uint8_t trixterxdreamv1settings::get_steeringCenter() {
+int8_t trixterxdreamv1settings::get_steeringCenterOffsetPercentage() {
     QMutexLocker locker(&this->mutex);
-    return this->steeringCenter;
+    return this->steeringCenterOffsetPercentage;
 }
 
-uint8_t trixterxdreamv1settings::set_steeringCenter(uint8_t value) {
-    auto newValue = clip(MinSteeringCenter, MaxSteeringCenter, value);
-    return this->updateField(this->steeringCenter, newValue);
+int8_t trixterxdreamv1settings::set_steeringCenterOffsetPercentage(int8_t value) {
+    auto newValue = clip((int8_t)-MaxSteeringCenterOffsetPercentage, MaxSteeringCenterOffsetPercentage, value);
+    return this->updateField(this->steeringCenterOffsetPercentage, newValue);
 }
 
-uint8_t trixterxdreamv1settings::get_steeringDeadZoneWidth() {
+uint8_t trixterxdreamv1settings::get_steeringDeadZoneWidthPercentage() {
     QMutexLocker locker(&this->mutex);
-    return this->steeringDeadZoneWidth;
+    return this->steeringDeadZoneWidthPercentage;
 }
 
-uint8_t trixterxdreamv1settings::set_steeringDeadZoneWidth(uint8_t value) {
-    auto newValue = clip(MinSteeringDeadZoneWidth, MaxSteeringDeadZoneWidth, value);
-    return this->updateField(this->steeringDeadZoneWidth, newValue);
+uint8_t trixterxdreamv1settings::set_steeringDeadZoneWidthPercentage(uint8_t value) {
+    auto newValue = clip(MinSteeringDeadZoneWidthPercentage, MaxSteeringDeadZoneWidthPercentage, value);
+    return this->updateField(this->steeringDeadZoneWidthPercentage, newValue);
 }
 
 uint8_t trixterxdreamv1settings::get_steeringSensitivityLeft()  {
@@ -113,8 +113,8 @@ void trixterxdreamv1settings::Load(const QSettings &settings) {
     this->set_enabled(settings.value(keys::Enabled, DefaultEnabled).toBool());
     this->set_heartRateEnabled(settings.value(keys::HeartRateEnabled, DefaultHeartRateEnabled).toBool());
     this->set_steeringEnabled(settings.value(keys::SteeringEnabled, DefaultSteeringEnabled).toBool());
-    this->set_steeringCenter(settings.value(keys::SteeringCenter, DefaultSteeringCenter).toUInt());
-    this->set_steeringDeadZoneWidth(settings.value(keys::SteeringDeadZoneWidth, DefaultSteeringDeadZoneWidth).toUInt());
+    this->set_steeringCenterOffsetPercentage(settings.value(keys::SteeringCenterOffset, DefaultSteeringCenterOffsetPercentage).toUInt());
+    this->set_steeringDeadZoneWidthPercentage(settings.value(keys::SteeringDeadZoneWidth, DefaultSteeringDeadZoneWidthPercentage).toUInt());
     this->set_steeringSensitivityLeft(settings.value(keys::SteeringSensitivityLeft, DefaultSteeringSensitivity).toUInt());
     this->set_steeringSensitivityRight(settings.value(keys::SteeringSensitivityRight, DefaultSteeringSensitivity).toUInt());
 }

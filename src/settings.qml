@@ -464,8 +464,8 @@ import Qt.labs.settings 1.0
             property bool trixter_xdream_v1_bike: false
             property bool trixter_xdream_v1_bike_heartrate_enabled: true
             property bool trixter_xdream_v1_bike_steering_enabled: true
-            property int trixter_xdream_v1_bike_steering_center: 127
-            property int trixter_xdream_v1_bike_steering_deadzone_width: 20
+            property int trixter_xdream_v1_bike_steering_center_offset: 0
+            property int trixter_xdream_v1_bike_steering_deadzone_width: 5
             property int trixter_xdream_v1_bike_steering_sensitivity_left: 100
             property int trixter_xdream_v1_bike_steering_sensitivity_right: 100
         }
@@ -1727,6 +1727,7 @@ import Qt.labs.settings 1.0
                     SwitchDelegate {
                         id: trixterXDreamV1
                         text: qsTr("Trixter X-Dream V1 Bike Enabled")
+                        hoverEnabled: true
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Use this to enable or disable detection of the Trixter X-Dream V1 Bike.")
                         spacing: 0
@@ -1743,6 +1744,7 @@ import Qt.labs.settings 1.0
                     SwitchDelegate {
                         id: trixterXDreamV1HeartRate
                         text: qsTr("Heart Rate Signal Enabled")
+                        hoverEnabled: true
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Use this to enable or disable the heart rate signal.")
                         spacing: 0
@@ -1759,6 +1761,7 @@ import Qt.labs.settings 1.0
                     SwitchDelegate {
                         id: trixterXDreamV1Steering
                         text: qsTr("Steering Enabled")
+                        hoverEnabled: true
                         ToolTip.visible: hovered
                         ToolTip.text: qsTr("Use this to enable or disable steering.")
                         spacing: 0
@@ -1775,37 +1778,37 @@ import Qt.labs.settings 1.0
                     RowLayout {
                         spacing: 10
                         Label {
-                            id: labelTrixterXDreamV1BikeSteeringCenter
-                            text: qsTr("Steering Center")
+                            id: labelTrixterXDreamV1BikeSteeringCenterOffset
+                            text: qsTr("Steering Center Offset (%)")
                             Layout.fillWidth: true
                         }
                         TextField {
-                            id: trixterXDreamV1BikeSteeringCenterTextField
-                            text: settings.trixter_xdream_v1_bike_steering_center
+                            id: trixterXDreamV1BikeSteeringCenterOffsetTextField
+                            text: settings.trixter_xdream_v1_bike_steering_center_offset
                             hoverEnabled: true
                             ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Use this setting to adjust the steering angle for the resting position of the handle bars. Default=127. Full range of steering is 0 (left) to 255 (right).")
+                            ToolTip.text: qsTr("Use this setting to adjust the steering angle offset percentage for the resting position of the handle bars. Use +/- % values to adjust left and right.")
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            // this should be in sync with trixterxdreamv1bikesettings::MinSteeringCenter and MaxSteeringCenter
-                            validator: IntValidator {bottom: 67; top: 187;}
-                            onAccepted: settings.trixter_xdream_v1_bike_steering_center = text
+                            // this should be in sync with trixterxdreamv1bikesettings::MinSteeringCenterOffsetPercentage and MaxSteeringCenterOffsetPercentage
+                            validator: IntValidator {bottom: -30; top: 30;}
+                            onAccepted: settings.trixter_xdream_v1_bike_steering_center_offset = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: oktrixterXDreamV1BikeSteeringCenterButton
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.trixter_xdream_v1_bike_steering_center = trixterXDreamV1BikeSteeringCenterTextField.text
+                            onClicked: settings.trixter_xdream_v1_bike_steering_center_offset = trixterXDreamV1BikeSteeringCenterOffsetTextField.text
                         }
                     }
                     RowLayout {
                         spacing: 10
                         Label {
                             id: labelTrixterXDreamV1BikeSteeringDeadZoneWidth
-                            text: qsTr("Steering Dead Zone Width")
+                            text: qsTr("Steering Dead Zone Width (%)")
                             Layout.fillWidth: true
                         }
                         TextField {
@@ -1813,13 +1816,13 @@ import Qt.labs.settings 1.0
                             text: settings.trixter_xdream_v1_bike_steering_deadzone_width
                             hoverEnabled: true
                             ToolTip.visible: hovered
-                            ToolTip.text: qsTr("The width from left to right of the region where the steering value will be mapped to 0 degrees. Full range of steering is 0 (left) to 255 (right).")
+                            ToolTip.text: qsTr("The percentage of the total range where the steering value will be mapped to 0 degrees.")
                             horizontalAlignment: Text.AlignRight
                             Layout.fillHeight: false
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             inputMethodHints: Qt.ImhDigitsOnly
-                            // this should be in sync with trixterxdreamv1bikesettings::MinSteeringDeadZoneWidth and MaxSteeringDeadZoneWidth
-                            validator: IntValidator {bottom: 0; top: 50;}
+                            // this should be in sync with trixterxdreamv1bikesettings::MinSteeringDeadZonePercentage and MaxSteeringDeadZonePercentage
+                            validator: IntValidator {bottom: 0; top: 20;}
                             onAccepted: settings.trixter_xdream_v1_bike_steering_deadzone_width = text
                             onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
@@ -4745,10 +4748,6 @@ import Qt.labs.settings 1.0
                             rightPadding: 0
                             leftPadding: 0
                             clip: false
-                            checked: settings.kingsmith_encrypt_v3
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            Layout.fillWidth: true
-                            onClicked: settings.kingsmith_encrypt_v3 = checked
                             checked: settings.kingsmith_encrypt_v3
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true

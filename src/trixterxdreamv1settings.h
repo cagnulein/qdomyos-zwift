@@ -20,13 +20,13 @@ public:
     constexpr static bool DefaultEnabled =true;
     constexpr static bool DefaultSteeringEnabled =true;
     constexpr static bool DefaultHeartRateEnabled =true;
-    constexpr static uint8_t DefaultSteeringCenter = trixterxdreamv1client::MaxSteering/2;
-    constexpr static uint8_t DefaultSteeringDeadZoneWidth = 20;
+    constexpr static int8_t DefaultSteeringCenterOffsetPercentage = 0;
+    constexpr static uint8_t DefaultSteeringDeadZoneWidthPercentage = 5;
     constexpr static uint8_t DefaultSteeringSensitivity = 100;
-    constexpr static uint8_t MinSteeringCenter = DefaultSteeringCenter-60;
-    constexpr static uint8_t MaxSteeringCenter = DefaultSteeringCenter+60;
-    constexpr static uint8_t MaxSteeringDeadZoneWidth = 50;
-    constexpr static uint8_t MinSteeringDeadZoneWidth = 0;
+    constexpr static int8_t MinSteeringCenterOffsetPercentage = 0;
+    constexpr static int8_t MaxSteeringCenterOffsetPercentage = 30;
+    constexpr static uint8_t MaxSteeringDeadZoneWidthPercentage = 50;
+    constexpr static uint8_t MinSteeringDeadZoneWidthPercentage = 0;
     constexpr static uint8_t MinSteeringSensitivityPercentage = 20;
     constexpr static uint8_t MaxSteeringSensitivityPercentage = 200;
 
@@ -41,7 +41,7 @@ public:
         const static QString Enabled;
         const static QString HeartRateEnabled;
         const static QString SteeringEnabled;
-        const static QString SteeringCenter;
+        const static QString SteeringCenterOffset;
         const static QString SteeringDeadZoneWidth;
         const static QString SteeringSensitivityLeft;
         const static QString SteeringSensitivityRight;
@@ -53,8 +53,8 @@ private:
     bool enabled=DefaultEnabled;
     bool steeringEnabled = DefaultSteeringEnabled;
     bool heartRateEnabled = DefaultHeartRateEnabled;
-    uint8_t steeringCenter = DefaultSteeringCenter;
-    uint8_t steeringDeadZoneWidth = DefaultSteeringDeadZoneWidth;
+    int8_t steeringCenterOffsetPercentage = DefaultSteeringCenterOffsetPercentage;
+    uint8_t steeringDeadZoneWidthPercentage = DefaultSteeringDeadZoneWidthPercentage;
     uint8_t steeringSensitivityLeft = DefaultSteeringSensitivity;
     uint8_t steeringSensitivityRight = DefaultSteeringSensitivity;
     uint32_t version=0;
@@ -121,31 +121,32 @@ public:
 
     /**
      * @brief get_steeringCenter Gets the value considered to be the center position for the steering.
-     * Defaults to half of trixterxdreamv1client::MaxSteering, but in reality is somewhat different
-     * due to physical calibration.
+     * Defaults to 0%, but in reality is somewhat different due to physical calibration.
      */
-    uint8_t get_steeringCenter();
+    int8_t get_steeringCenterOffsetPercentage();
 
     /**
-     * @brief set_steeringCenter Sets the steering center value. Used to accomodate the bike's calibration.
-     * @param value The value, will be clipped to [MinSteeringCenter, MaxSteeringCenter].
+     * @brief set_steeringCenterOffsetPercentage Sets the steering center offset percentage. Used to accommodate
+     *  the bike's calibration.
+     * @param value The value, will be clipped to [-MaxSteeringCenterOffsetPercentage, MaxSteeringCenterOffsetPercentage].
      * @return The actual value set.
      */
-    uint8_t set_steeringCenter(uint8_t value);
+    int8_t set_steeringCenterOffsetPercentage(int8_t value);
 
     /**
-     * @brief get_steeringDeadZoneWidth Gets the width of the dead zone. This is the region
-     * from the left to the right of steeringCenter for which the steering value will be mapped to 0 degrees.
+     * @brief get_steeringDeadZoneWidthPercentage Gets the width of the dead zone as a percentage of the total range.
+     * This is the region from the left to the right of steering center for which the steering value will be mapped to 0 degrees.
      */
-    uint8_t get_steeringDeadZoneWidth();
+    uint8_t get_steeringDeadZoneWidthPercentage();
 
     /**
-     * @brief set_steeringDeadZoneWidth Sets the width, left to right, of the "dead zone" surrounding the
-     * steeringCenter value, for which the steering value will be mapped to 0 degrees.
-     * @param value The width, left to right, of the dead zone. Clipped to [MinSteeringDeadZoneWidth, MaxSteeringDeadZoneWidth].
+     * @brief set_steeringDeadZoneWidthPercentage Sets the width, left to right, as a percentage of the total range,
+     * of the "dead zone" surrounding the steering center, for which the steering value will be mapped to 0 degrees.
+     * @param value The width, left to right, of the dead zone, as a percentage of the total range.
+     * Clipped to [MinSteeringDeadZoneWidthPercentage, MaxSteeringDeadZoneWidthPercentage].
      * @return
      */
-    uint8_t set_steeringDeadZoneWidth(uint8_t value);
+    uint8_t set_steeringDeadZoneWidthPercentage(uint8_t value);
 
     /**
      * @brief get_steeringSensitivityLeft Gets the sensitivity, as a percentage for how sensitive the
