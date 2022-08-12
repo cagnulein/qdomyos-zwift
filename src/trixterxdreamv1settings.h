@@ -5,7 +5,7 @@
 #include <cstdint>
 #include "qmutex.h"
 #include "qsettings.h"
-#include "trixterxdreamv1client.h"
+
 
 
 /**
@@ -16,19 +16,14 @@ class trixterxdreamv1settings {
 public:
     // these should match the corresponding values in settings.qml
     // - the default values where the properties are defined
-    // - the validations on the text boxes
+    constexpr static int8_t MaxSteeringAngle = 45;
     constexpr static bool DefaultEnabled =true;
     constexpr static bool DefaultSteeringEnabled =true;
     constexpr static bool DefaultHeartRateEnabled =true;
-    constexpr static int8_t DefaultSteeringCenterOffsetPercentage = 0;
-    constexpr static uint8_t DefaultSteeringDeadZoneWidthPercentage = 5;
-    constexpr static uint8_t DefaultSteeringSensitivity = 100;
-    constexpr static int8_t MinSteeringCenterOffsetPercentage = 0;
-    constexpr static int8_t MaxSteeringCenterOffsetPercentage = 30;
-    constexpr static uint8_t MaxSteeringDeadZoneWidthPercentage = 50;
-    constexpr static uint8_t MinSteeringDeadZoneWidthPercentage = 0;
-    constexpr static uint8_t MinSteeringSensitivityPercentage = 20;
-    constexpr static uint8_t MaxSteeringSensitivityPercentage = 200;
+    constexpr static int8_t DefaultSteeringCalibrationL = -MaxSteeringAngle;
+    constexpr static int8_t DefaultSteeringCalibrationR = MaxSteeringAngle;
+    constexpr static int8_t DefaultSteeringCalibrationCL = -2;
+    constexpr static int8_t DefaultSteeringCalibrationCR = 2;
 
     /**
      * @brief Defines QSettings keys relating to the Trixter X-Dream V1 bike.
@@ -41,10 +36,72 @@ public:
         const static QString Enabled;
         const static QString HeartRateEnabled;
         const static QString SteeringEnabled;
-        const static QString SteeringCenterOffset;
-        const static QString SteeringDeadZoneWidth;
-        const static QString SteeringSensitivityLeft;
-        const static QString SteeringSensitivityRight;
+        const static QString SteeringCalibrationLeft;
+        const static QString SteeringCalibrationCenterLeft;
+        const static QString SteeringCalibrationCenterRight;
+        const static QString SteeringCalibrationRight;
+        const static QString SteeringCalibrationMAX;
+    };
+
+    struct steeringCalibrationInfo {
+
+    public:
+
+        /**
+         * @brief left The uncalibrated left turning angle that will be mapped to hard left.
+         */
+        int8_t left;
+
+        /**
+         * @brief centerLeft The lower uncalibrated left turning angle that will be mapped to 0.
+         */
+        int8_t centerLeft;
+
+        /**
+         * @brief centerRight The higest uncalibrated right turning angle that will be mapped to 0.
+         */
+        int8_t centerRight;
+
+        /**
+         * @brief right The uncalibrated right turning angle that will be mapped to hard right.
+         */
+        int8_t right;
+
+        /**
+         * @brief max The maximum turning angle.
+         */
+        static const int8_t max = MaxSteeringAngle;
+
+        /**
+         * @brief isValid Validates the record.
+         * @return True if the values are valid, false otherwise.
+         */
+        bool isValid() const {
+            return left>=-max && left<centerLeft && centerLeft<centerRight && centerRight<right && right<=max;
+        }
+
+        steeringCalibrationInfo()
+        :left(DefaultSteeringCalibrationL), centerLeft(DefaultSteeringCalibrationCL),
+          centerRight(DefaultSteeringCalibrationCR), right(DefaultSteeringCalibrationR)
+        {
+
+        }
+
+        steeringCalibrationInfo(const int8_t left, const int8_t centerLeft, const int8_t centerRight, const int8_t right)
+            :left(left), centerLeft(centerLeft), centerRight(centerRight), right(right)
+        {
+            if(!this->isValid())
+                throw "Arguments are out of range or out of order.";
+        }
+
+        friend bool operator==(const steeringCalibrationInfo& lhs, const steeringCalibrationInfo& rhs)
+        {
+            return rhs.left==lhs.left &&
+                   rhs.right==lhs.right &&
+                   rhs.centerLeft==lhs.centerLeft &&
+                   rhs.centerRight==lhs.centerRight;
+
+        }
     };
 
 private:
@@ -53,10 +110,9 @@ private:
     bool enabled=DefaultEnabled;
     bool steeringEnabled = DefaultSteeringEnabled;
     bool heartRateEnabled = DefaultHeartRateEnabled;
-    int8_t steeringCenterOffsetPercentage = DefaultSteeringCenterOffsetPercentage;
-    uint8_t steeringDeadZoneWidthPercentage = DefaultSteeringDeadZoneWidthPercentage;
-    uint8_t steeringSensitivityLeft = DefaultSteeringSensitivity;
-    uint8_t steeringSensitivityRight = DefaultSteeringSensitivity;
+
+    steeringCalibrationInfo steeringCalibration;
+
     uint32_t version=0;
 
     /**
@@ -78,6 +134,7 @@ private:
     T updateField(T& member, const T newValue);
 
 public:
+
     /**
      * @brief get_version Incremented if the values are modified.
      */
@@ -120,64 +177,15 @@ public:
     bool set_steeringEnabled(bool value);
 
     /**
-     * @brief get_steeringCenter Gets the value considered to be the center position for the steering.
-     * Defaults to 0%, but in reality is somewhat different due to physical calibration.
+     * @brief get_steeringCalibration Gets the values for steering calibration.
      */
-    int8_t get_steeringCenterOffsetPercentage();
+    steeringCalibrationInfo get_steeringCalibration();
 
     /**
-     * @brief set_steeringCenterOffsetPercentage Sets the steering center offset percentage. Used to accommodate
-     *  the bike's calibration.
-     * @param value The value, will be clipped to [-MaxSteeringCenterOffsetPercentage, MaxSteeringCenterOffsetPercentage].
-     * @return The actual value set.
+     * @brief set_steeringCalibration sets the values for steering calibration.
+     * @param value The calibraion values.
      */
-    int8_t set_steeringCenterOffsetPercentage(int8_t value);
-
-    /**
-     * @brief get_steeringDeadZoneWidthPercentage Gets the width of the dead zone as a percentage of the total range.
-     * This is the region from the left to the right of steering center for which the steering value will be mapped to 0 degrees.
-     */
-    uint8_t get_steeringDeadZoneWidthPercentage();
-
-    /**
-     * @brief set_steeringDeadZoneWidthPercentage Sets the width, left to right, as a percentage of the total range,
-     * of the "dead zone" surrounding the steering center, for which the steering value will be mapped to 0 degrees.
-     * @param value The width, left to right, of the dead zone, as a percentage of the total range.
-     * Clipped to [MinSteeringDeadZoneWidthPercentage, MaxSteeringDeadZoneWidthPercentage].
-     * @return
-     */
-    uint8_t set_steeringDeadZoneWidthPercentage(uint8_t value);
-
-    /**
-     * @brief get_steeringSensitivityLeft Gets the sensitivity, as a percentage for how sensitive the
-     * steering will be when turning left.
-     * @return
-     */
-    uint8_t get_steeringSensitivityLeft();
-
-    /**
-     * @brief set_steeringSensitivityLeft Sets the sensitivity, as a percentage, for how sensitive the steering
-     * will be when turning left.
-     * @param value The value, a percentage clipped to [MinSteeringSensitivityPercentage, MaxSteeringSensitivityPercentage].
-     * @return The actual value set.
-     */
-    uint8_t set_steeringSensitivityLeft(uint8_t value);
-
-    /**
-     * @brief get_steeringSensitivityLeft Gets the sensitivity, as a percentage for how sensitive the
-     * steering will be when turning right. Valid range 20 to 200.
-     * @return
-     */
-    uint8_t get_steeringSensitivityRight();
-
-
-    /**
-     * @brief set_steeringSensitivityRight Sets the sensitivity, as a percentage, for how sensitive the steering
-     * will be when turning right.
-     * @param value The value, a percentage clipped to [MinSteeringSensitivityPercentage, MaxSteeringSensitivityPercentage].
-     * @return The actual value set.
-     */
-    uint8_t set_steeringSensitivityRight(uint8_t value);
+    void set_steeringCalibration(const steeringCalibrationInfo value);
 
     /**
      * @brief trixterxdreamv1bikesettings Constructor, intializes from the default QSettings.

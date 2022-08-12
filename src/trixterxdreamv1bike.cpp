@@ -93,6 +93,8 @@ bool trixterxdreamv1bike::connect(QString portName) {
         qDebug() << "Failed to start settings update timer. Too bad.";
     }
 
+    this->configureVirtualBike();
+
     return true;
 }
 
@@ -113,6 +115,42 @@ void trixterxdreamv1bike::disconnectPort() {
         this->settingsUpdateTimerId = 0;
     }
 }
+
+void trixterxdreamv1bike::configureVirtualBike(){
+// ******************************************* virtual bike init *************************************
+
+    bool haveVirtualBike = this->virtualBike!=nullptr;
+
+    #ifdef Q_OS_IOS
+    #ifndef IO_UNDER_QT
+    haveVirtualBike &= !h;
+    #endif
+    #endif
+
+    if(!haveVirtualBike){
+        QSettings settings;
+        bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+
+    #ifdef Q_OS_IOS
+    #ifndef IO_UNDER_QT
+        bool cadence = settings.value("bike_cadence_sensor", false).toBool();
+        bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+        if (ios_peloton_workaround && cadence) {
+            qDebug() << "ios_peloton_workaround activated!";
+            h = new lockscreen();
+            h->virtualbike_ios();
+        } else
+    #endif
+    #endif
+        if (virtual_device_enabled) {
+            qDebug() << QStringLiteral("creating virtual bike interface...");
+            this->virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+        }
+    }
+
+// ********************************************************************************************************
+}
+
 
 bool trixterxdreamv1bike::connected() {
     return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
@@ -206,32 +244,42 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
 void trixterxdreamv1bike::calculateSteeringMap() {
 
-    constexpr double maxSteeringAngle = 45.0;
-    constexpr int maxSteering = trixterxdreamv1client::MaxSteering;
 
-    this->steeringMap.clear();
+    trixterxdreamv1settings::steeringCalibrationInfo info = this->appSettings->get_steeringCalibration();
 
-    int steeringCenterOffset =  round(0.5+this->appSettings->get_steeringCenterOffsetPercentage()*maxSteering*0.01);
-    int steeringCenter = maxSteering / 2 + steeringCenterOffset;
-    int halfDeadZone = this->appSettings->get_steeringDeadZoneWidthPercentage() * maxSteering * 0.005;
-    int deadZoneLeft = steeringCenter-halfDeadZone;
-    int deadZoneRight = steeringCenter+halfDeadZone;
-    double sensitivityLeft = 0.01 * this->appSettings->get_steeringSensitivityLeft();
-    double sensitivityRight = 0.01 * this->appSettings->get_steeringSensitivityRight();
-    double scaleLeft = sensitivityLeft * maxSteeringAngle / deadZoneLeft;
-    double scaleRight = sensitivityRight * maxSteeringAngle / (trixterxdreamv1client::MaxSteering - deadZoneRight);
+    vector<double> newMap;
+
+    // Map the calibration values from [-info.max,+info.max] to [0, 2*info.max]
+    double mid = info.max, max = 2*mid;
+
+    double l = mid+info.left;
+    double cl = mid+info.centerLeft;
+    double cr = mid+info.centerRight;
+    double r = mid+info.right;
+
+    double scale = max / trixterxdreamv1client::MaxSteering;
+    double scaleLeft = mid / (cl-l);
+    double scaleRight = mid / (r-cr);
 
     for(int i=0; i<=trixterxdreamv1client::MaxSteering; i++) {
-        double mappedValue;
-        if(i>=deadZoneLeft && i<=deadZoneRight) {
-            mappedValue = 0.0;
-        } else if (i<deadZoneLeft) {
-            mappedValue = -std::max(0.0, std::min(maxSteeringAngle, scaleLeft*(deadZoneLeft-i)));
+        double mappedValue = i *scale;
+
+        if(mappedValue>=cl && mappedValue<=cr) {
+            mappedValue = mid;
+        } else if (mappedValue<=l) {
+            mappedValue = 0;
+        } else if (mappedValue>=r) {
+            mappedValue = max;
+        } else if(mappedValue<cl) {
+            mappedValue = mid-(cl-mappedValue) * scaleLeft;
         } else {
-            mappedValue = std::max(0.0, std::min(maxSteeringAngle, scaleRight * (i-deadZoneRight)));
+            mappedValue = mid+(mappedValue-cr) * scaleRight;
         }
-        this->steeringMap.push_back(mappedValue);
+        mappedValue = std::max(0.0, std::min(max, mappedValue));
+        newMap.push_back(mappedValue-mid);
     }
+
+    this->steeringMap=newMap;
 
 }
 
@@ -261,6 +309,11 @@ void trixterxdreamv1bike::updateResistance() {
 trixterxdreamv1bike::~trixterxdreamv1bike() {
     if(this->port) delete this->port;
     if(this->appSettings) delete this->appSettings;
+    if(this->virtualBike) delete this->virtualBike;
+}
+
+void *trixterxdreamv1bike::VirtualDevice() {
+    return this->virtualBike;
 }
 
 void trixterxdreamv1bike::set_wheelDiameter(double value) {

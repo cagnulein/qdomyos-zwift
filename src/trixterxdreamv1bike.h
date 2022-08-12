@@ -3,6 +3,7 @@
 #include "trixterxdreamv1client.h"
 #include "trixterxdreamv1serial.h"
 #include "trixterxdreamv1settings.h"
+#include "virtualbike.h"
 
 class trixterxdreamv1bike : public bike
 {
@@ -24,6 +25,11 @@ private:
      * resistance level requests.
      */
     trixterxdreamv1serial * port = nullptr;
+
+    /**
+     * @brief virtualBike The bridge to the client application.
+     */
+    virtualbike * virtualBike = nullptr;
 
     /**
      * @brief resistanceTimerId The id for identifying the resistance timer in void timerEvent(QEvent*).
@@ -130,6 +136,11 @@ private:
      * the steering angles sent to the application. Uses the values in the appSettings field.
      */
     void calculateSteeringMap();
+
+    /**
+     * @brief configureVirtualBike Set up the bridge to the client application.
+     */
+    void configureVirtualBike();
 protected:
 
     /**
@@ -187,6 +198,12 @@ public:
     trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
 
     ~trixterxdreamv1bike();
+
+    /**
+     * @brief VirtualDevice Virtual device
+     * @return
+     */
+    void *VirtualDevice() override;
 
     /**
      * @brief connect Attempt to connect to the specified port.
