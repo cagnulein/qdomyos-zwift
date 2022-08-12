@@ -239,6 +239,13 @@ public:
     uint8_t maxResistance() override { return trixterxdreamv1client::MaxResistance; }
 
     /**
+     * @brief pelotonToBikeResistance Map Peloton 0 to 100% resistance to the bike's range.
+     * @param pelotonResistance The Peloton resistance. Range: 0 to 100.
+     * @return The Trixter X-Dream V1 bike resistance. Range 0..250.
+     */
+    int pelotonToBikeResistance(int pelotonResistance) override;
+
+    /**
      * @brief tryCreate Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,
      * or if the port is unspecified, any serial port.
      * @param noWriteResistance Option to avoid sending resistance to the device.

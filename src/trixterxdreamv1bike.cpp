@@ -292,8 +292,8 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
         return;
 
     QMutexLocker locker(&this->updateMutex);
-    // Clip the incoming values
 
+    // Clip the incoming values
     if(resistanceLevel<0) resistanceLevel = 0;
     if(resistanceLevel>maxResistance()) resistanceLevel = maxResistance();
 
@@ -304,7 +304,10 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
     this->resistanceLevel = resistanceLevel;
 
     // store the resistance level as a metric for the UI
+    constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
     this->Resistance.setValue(resistanceLevel);
+    this->m_pelotonResistance.setValue(round(pelotonScaleFactor * resistanceLevel));
+
 }
 
 void trixterxdreamv1bike::updateResistance() {
@@ -330,6 +333,12 @@ void trixterxdreamv1bike::set_wheelDiameter(double value) {
 
     // stored as km to avoid dividing by 1000 every time it's used
     this->wheelCircumference = value * M_PI / 1000.0;
+}
+
+
+int trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance) {
+    pelotonResistance = std::max(0, std::min(100, pelotonResistance));
+    return round(0.01*pelotonResistance*trixterxdreamv1client::MaxResistance);
 }
 
 trixterxdreamv1bike * trixterxdreamv1bike::tryCreate(bool noWriteResistance, bool noHeartService, bool noVirtualDevice, const QString &portName) {
