@@ -16,7 +16,7 @@ QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts() {
     return QSerialPortInfo::availablePorts();
 }
 
-bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate, int waitTimeout) {
+bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate) {
 
     QMutexLocker locker(&this->mutex);
 
@@ -29,8 +29,6 @@ bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate 
 
     this->portName = portName;
     this->baudRate = baudRate;
-    this->waitTimeout = waitTimeout;
-
 
 
     if (!isRunning()) {
@@ -96,11 +94,14 @@ void trixterxdreamv1serial::run() {
         QMutexLocker locker(&this->mutex);
 
         // try to read some bytes, but only block for 1ms because a write attempt could come in.
-        while (this->serial.waitForReadyRead(1))
+        int quit = 0;
+        while (!(quit=this->quitPending) && this->serial.waitForReadyRead(1))
             requestData += this->serial.readAll();
 
         // release the mutex
         locker.unlock();
+
+        if(quit) break;
 
         if(requestData.length()>0) {
 

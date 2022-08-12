@@ -35,9 +35,8 @@ bool trixterxdreamv1bike::connect(QString portName) {
     // This will be subtracted from further readings from getTime() to get an easier to look at number.
     this->t0 = getTime();
 
-    auto thisObject = this;
-
     // create the port object and connect it
+    auto thisObject = this;
     this->port = new trixterxdreamv1serial(this);
     this->port->set_receiveBytes([thisObject](const QByteArray& bytes)->void{thisObject->update(bytes);});
 
@@ -56,7 +55,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     stopWatch.start();
 
     // open the port. This should be at 115200 bits per second.
-    if(!this->port->open(portName, QSerialPort::Baud115200, 1000)) {
+    if(!this->port->open(portName, QSerialPort::Baud115200)) {
         qDebug() << "Failed to open port, determined after " << stopWatch.elapsed() << "milliseconds";
         return false;
     }
@@ -153,6 +152,7 @@ void trixterxdreamv1bike::configureVirtualBike(){
 
 
 bool trixterxdreamv1bike::connected() {
+    QMutexLocker locker(&this->updateMutex);
     return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
 }
 
@@ -185,6 +185,8 @@ bool trixterxdreamv1bike::updateClient(const QByteArray& bytes, trixterxdreamv1c
 }
 
 void trixterxdreamv1bike::update(const QByteArray &bytes) {
+    QMutexLocker locker(&this->updateMutex);
+
     // send the bytes to the client and return if there's no change of state
     if(!updateClient(bytes, &this->client))
         return;
@@ -224,7 +226,7 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
         if(this->noSteering)
             this->m_steeringAngle.setValue(0.0);
         else
-            this->calculateSteeringMap();
+            QTimer::singleShot(10ms, this, &trixterxdreamv1bike::calculateSteeringMap);
 
         this->lastAppSettingsVersion = this->appSettings->get_version();
     }
@@ -279,6 +281,7 @@ void trixterxdreamv1bike::calculateSteeringMap() {
         newMap.push_back(mappedValue-mid);
     }
 
+    QMutexLocker locker(&this->updateMutex);
     this->steeringMap=newMap;
 
 }
@@ -288,7 +291,9 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
     if(this->noWriteResistance)
         return;
 
+    QMutexLocker locker(&this->updateMutex);
     // Clip the incoming values
+
     if(resistanceLevel<0) resistanceLevel = 0;
     if(resistanceLevel>maxResistance()) resistanceLevel = maxResistance();
 
@@ -303,6 +308,7 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
 }
 
 void trixterxdreamv1bike::updateResistance() {
+    QMutexLocker locker(&this->updateMutex);
     this->client.SendResistance(this->resistanceLevel);
 }
 
@@ -317,6 +323,8 @@ void *trixterxdreamv1bike::VirtualDevice() {
 }
 
 void trixterxdreamv1bike::set_wheelDiameter(double value) {
+    QMutexLocker locker(&this->updateMutex);
+
     // clip the value
     value = std::min(MaxWheelDiameter, std::max(value, MinWheelDiameter));
 

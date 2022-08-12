@@ -108,6 +108,11 @@ private:
     std::vector<double> steeringMap;
 
     /**
+     * @brief updateMutex Used to synchronise updates to this object's members.
+     */
+    QRecursiveMutex updateMutex;
+
+    /**
      * @brief getTime Gets the time in miliseconds since this object was created.
      */
     static uint32_t getTime();
