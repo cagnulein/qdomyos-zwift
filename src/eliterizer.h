@@ -82,7 +82,7 @@ class eliterizer : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    // void resistanceReadFromTheBike(int8_t resistance);
+    // void resistanceReadFromTheBike(resistance_t resistance);
     void autoResistanceChanged(bool value);
     void changeInclinationRequested(double grade, double percentage);
 

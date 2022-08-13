@@ -60,7 +60,7 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     }
 }
 
-void trxappgateusbbike::forceResistance(int8_t requestResistance) {
+void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 
     if (!initDone) {
         emit debug(QStringLiteral("forceResistance Ignored, init not done yet"));

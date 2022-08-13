@@ -50,7 +50,7 @@ void sportsplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
 }
 
-void sportsplusbike::forceResistance(int8_t requestResistance) {
+void sportsplusbike::forceResistance(resistance_t requestResistance) {
     Q_UNUSED(requestResistance)
     /*
     uint8_t resistance[] = { 0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00 };
@@ -64,7 +64,7 @@ void sportsplusbike::forceResistance(int8_t requestResistance) {
     */
 }
 
-int sportsplusbike::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t sportsplusbike::pelotonToBikeResistance(int pelotonResistance) {
     return (pelotonResistance * max_resistance) / 100;
 }
 

@@ -230,7 +230,7 @@ void wahookickrsnapbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     emit debug(QStringLiteral("serviceDiscovered ") + gatt.toString());
 }
 
-int wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t wahookickrsnapbike::pelotonToBikeResistance(int pelotonResistance) {
     QSettings settings;
     bool schwinn_bike_resistance_v2 = settings.value(QStringLiteral("schwinn_bike_resistance_v2"), false).toBool();
     if (!schwinn_bike_resistance_v2) {
@@ -700,7 +700,7 @@ uint16_t wahookickrsnapbike::watts() {
     return m_watt.value();
 }
 
-void wahookickrsnapbike::resistanceFromFTMSAccessory(int8_t res) {
+void wahookickrsnapbike::resistanceFromFTMSAccessory(resistance_t res) {
     ResistanceFromFTMSAccessory = res;
     qDebug() << QStringLiteral("resistanceFromFTMSAccessory") << res;
 }

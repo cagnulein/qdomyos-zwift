@@ -18,7 +18,7 @@
 
 using namespace std::chrono_literals;
 
-smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice) {
+smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -192,7 +192,7 @@ void smartspin2k::calibrateShiftStep() {
                QString::number(intercept));
 }
 
-void smartspin2k::forceResistance(int8_t requestResistance) {
+void smartspin2k::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
 

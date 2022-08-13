@@ -250,6 +250,7 @@ HEADERS += \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
+    definitions.h \
     fakeelliptical.h \
    kmlworkout.h \
    nautilusbike.h \

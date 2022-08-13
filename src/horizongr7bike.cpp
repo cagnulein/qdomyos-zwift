@@ -53,7 +53,7 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     loop.exec();
 }
 
-void horizongr7bike::forceResistance(int8_t requestResistance) {
+void horizongr7bike::forceResistance(resistance_t requestResistance) {
 
     // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a FTMS bike
     if (virtualBike->connected())

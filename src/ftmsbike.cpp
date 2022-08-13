@@ -78,7 +78,7 @@ void ftmsbike::forcePower(int16_t requestPower) {
     writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(requestPower));
 }
 
-void ftmsbike::forceResistance(int8_t requestResistance) {
+void ftmsbike::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
@@ -581,7 +581,7 @@ void ftmsbike::error(QLowEnergyController::Error err) {
                m_control->errorString());
 }
 
-int ftmsbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+resistance_t ftmsbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
 
 void ftmsbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     emit debug(QStringLiteral("Found new device: ") + device.name() + QStringLiteral(" (") +

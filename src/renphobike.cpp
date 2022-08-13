@@ -68,7 +68,7 @@ void renphobike::forcePower(int16_t requestPower) {
     writeCharacteristic(write, sizeof(write), QStringLiteral("forcePower ") + QString::number(r));
 }
 
-void renphobike::forceResistance(int8_t requestResistance) {
+void renphobike::forceResistance(resistance_t requestResistance) {
     // requestPower = powerFromResistanceRequest(requestResistance);
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
 
@@ -636,8 +636,8 @@ void renphobike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     }
 }
 
-int renphobike::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance - 1; i++) {
+resistance_t renphobike::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance - 1; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance)
             return i;
     }

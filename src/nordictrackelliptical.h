@@ -53,7 +53,7 @@ class nordictrackelliptical : public elliptical {
     void btinit();
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void startDiscover();
     void sendPoll();
     void forceIncline(double incline);
@@ -70,7 +70,7 @@ class nordictrackelliptical : public elliptical {
     QLowEnergyCharacteristic gattWriteCharacteristic;
     QLowEnergyCharacteristic gattNotify1Characteristic;
 
-    const int max_resistance = 20;
+    const resistance_t max_resistance = 20;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

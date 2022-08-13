@@ -37,9 +37,9 @@ class stagesbike : public bike {
     Q_OBJECT
   public:
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    int pelotonToBikeResistance(int pelotonResistance);
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool connected();
-    uint8_t maxResistance() { return 100; }
+    resistance_t maxResistance() { return 100; }
     bool ergManagedBySS2K() { return true; }
 
     void *VirtualBike();
@@ -86,7 +86,7 @@ class stagesbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(int8_t res);
+    void resistanceFromFTMSAccessory(resistance_t res);
 
   private slots:
 

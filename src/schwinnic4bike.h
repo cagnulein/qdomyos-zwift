@@ -39,9 +39,9 @@ class schwinnic4bike : public bike {
     Q_OBJECT
   public:
     schwinnic4bike(bool noWriteResistance, bool noHeartService);
-    int pelotonToBikeResistance(int pelotonResistance);
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool ergManagedBySS2K() { return true; }
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();
@@ -71,7 +71,7 @@ class schwinnic4bike : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    const uint8_t max_resistance = 100;
+    const resistance_t max_resistance = 100;
 
     metric ResistanceFromFTMSAccessory;
 
@@ -85,7 +85,7 @@ class schwinnic4bike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(int8_t res);
+    void resistanceFromFTMSAccessory(resistance_t res);
 
   private slots:
 

@@ -204,7 +204,7 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         if ((char)newValue.at(0) == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
 
             // Set Target Resistance
-            uint8_t uresistance = newValue.at(1);
+            resistance_t uresistance = newValue.at(1);
             uresistance = uresistance / 10;
             if (force_resistance && !erg_mode) {
                 rower->changeResistance(uresistance);

@@ -3045,7 +3045,7 @@ void homeform::update() {
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
 
                         const int step = 1;
-                        int8_t currentResistance = ((bike *)bluetoothManager->device())->currentResistance().value();
+                        resistance_t currentResistance = ((bike *)bluetoothManager->device())->currentResistance().value();
                         if (zone < currentHRZone) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
@@ -3056,7 +3056,7 @@ void homeform::update() {
                     } else if (bluetoothManager->device()->deviceType() == bluetoothdevice::ROWING) {
 
                         const int step = 1;
-                        int8_t currentResistance = ((rower *)bluetoothManager->device())->currentResistance().value();
+                        resistance_t currentResistance = ((rower *)bluetoothManager->device())->currentResistance().value();
                         if (zone < currentHRZone) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);

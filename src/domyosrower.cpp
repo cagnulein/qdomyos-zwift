@@ -126,7 +126,7 @@ void domyosrower::forceInclination(int8_t requestInclination) {
                         QStringLiteral("forceInclination ") + QString::number(requestInclination));
 }
 
-void domyosrower::forceResistance(int8_t requestResistance) {
+void domyosrower::forceResistance(resistance_t requestResistance) {
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
 
