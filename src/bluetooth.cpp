@@ -101,7 +101,7 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
         }
 #endif
 
-        this->startDiscovery(false);
+        this->startDiscovery();
     }
 }
 
@@ -198,14 +198,11 @@ void bluetooth::finished() {
         forceHeartBeltOffForTimeout = true;
     }
 
-    this->startDiscovery(false);
+    this->startDiscovery();
 }
 
-void bluetooth::startDiscovery(bool noMode) {
+void bluetooth::startDiscovery() {
 
-    if(noMode)
-        this->discoveryAgent->start();
-    else {
     #ifndef Q_OS_IOS
         QSettings settings;
         bool technogym_myrun_treadmill_experimental =
@@ -222,7 +219,7 @@ void bluetooth::startDiscovery(bool noMode) {
                                   QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
         }
     #endif
-    }
+
 
     QTimer::singleShot(1, this, &bluetooth::nonBluetoothDeviceDiscovery);
 }
@@ -1982,7 +1979,7 @@ void bluetooth::restart() {
 
     if (onlyDiscover) {
         onlyDiscover = false;
-        this->startDiscovery(true);
+        this->startDiscovery();
         return;
     }
 
@@ -2422,7 +2419,7 @@ void bluetooth::restart() {
         delete trixterXDreamV1Bike;
         trixterXDreamV1Bike = nullptr;
     }
-    this->startDiscovery(true);
+    this->startDiscovery();
 }
 
 bluetoothdevice *bluetooth::device() {

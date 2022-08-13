@@ -124,9 +124,8 @@ class bluetooth : public QObject, public SignalHandler {
 protected:
     /**
      * @brief startDiscovery Start the Bluetooth docscovery agent and the thread that discovers non-bluetooth devices.
-     * @param noMode True to start the Bluetooth discovery agent with no options, false to start with options.
      */
-    void startDiscovery(bool noMode);
+    void startDiscovery();
 
     /**
      * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
