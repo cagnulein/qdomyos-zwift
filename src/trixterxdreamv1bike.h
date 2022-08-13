@@ -190,11 +190,6 @@ public:
     constexpr static int32_t DisconnectionTimeout = 50;
 
     /**
-     * @brief bluetoothDeviceInfo A QBluetoothDeviceInfo object for functions that need it.
-     */
-    const QBluetoothDeviceInfo bluetoothDeviceInfo { QBluetoothUuid {QStringLiteral("774f25bd-6636-4cdc-9398-839de026be1d")}, "Trixter X-Dream V1 Bike", 0};
-
-    /**
      * @brief trixterxdreamv1bike Constructor
      * @param noWriteResistance Option to avoid sending resistance to the device.
      * @param noHeartService Option to avoid using the heart rate reading.

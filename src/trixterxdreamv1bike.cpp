@@ -11,6 +11,10 @@
 using namespace std;
 
 trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice) {
+    // Set the fake bluetooth device info
+    this->bluetoothDevice =
+            QBluetoothDeviceInfo(QBluetoothUuid {QStringLiteral("774f25bd-6636-4cdc-9398-839de026be1d")}, "Trixter X-Dream V1 Bike", 0);
+
     // Set the wheel diameter for speed and distance calculations
     this->set_wheelDiameter(DefaultWheelDiameter);
 

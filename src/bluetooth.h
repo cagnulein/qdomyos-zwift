@@ -121,7 +121,24 @@ class bluetooth : public QObject, public SignalHandler {
     bool onlyDiscover = false;
     TemplateInfoSenderBuilder *getUserTemplateManager() const { return userTemplateManager; }
     TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
+protected:
+    /**
+     * @brief startDiscovery Start the Bluetooth docscovery agent and the thread that discovers non-bluetooth devices.
+     * @param noMode True to start the Bluetooth discovery agent with no options, false to start with options.
+     */
+    void startDiscovery(bool noMode);
 
+    /**
+     * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
+     * @return An object for the first non-bluetooth device found.
+     */
+    bluetoothdevice * discoverNonBluetoothDevices();
+
+    /**
+     * @brief nonBluetoothDeviceDiscovery Called by the non-bluetooth discovery thread to identify using
+     * discoverNonBluetoothDevices() and connect non-Bluetooth devices.
+     */
+    void nonBluetoothDeviceDiscovery();
   private:
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
@@ -244,7 +261,7 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer discoveryTimeout;
 #endif
 
-  signals:
+signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();
@@ -266,7 +283,8 @@ class bluetooth : public QObject, public SignalHandler {
     void inclinationChanged(double, double);
     void connectedAndDiscovered();
 
-  signals:
+signals:
+
 };
 
 #endif // BLUETOOTH_H
