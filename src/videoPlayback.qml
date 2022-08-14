@@ -5,6 +5,15 @@ import QtQuick 2.15
 
 Rectangle {
     anchors.fill: parent
+
+    Timer {
+        id: pauseTimer
+        interval: 1000; running: true; repeat: true
+        onTriggered: { (rootItem.currentSpeed > 0 ?
+                            videoPlayback.play() :
+                            videoPlayback.pause()) }
+    }
+
     MediaPlayer {
            id: videoPlayback
            source: rootItem.videoPath

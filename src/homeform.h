@@ -120,6 +120,7 @@ class homeform : public QObject {
     Q_PROPERTY(QUrl videoPath READ videoPath)
     Q_PROPERTY(int videoPosition READ videoPosition NOTIFY videoPositionChanged WRITE setVideoPosition)
     Q_PROPERTY(double videoRate READ videoRate NOTIFY videoRateChanged WRITE setVideoRate)
+    Q_PROPERTY(double currentSpeed READ currentSpeed NOTIFY currentSpeedChanged)
     Q_PROPERTY(int pelotonLogin READ pelotonLogin NOTIFY pelotonLoginChanged)
     Q_PROPERTY(int pzpLogin READ pzpLogin NOTIFY pzpLoginChanged)
     Q_PROPERTY(QString workoutStartDate READ workoutStartDate)
@@ -340,6 +341,7 @@ class homeform : public QObject {
     bool videoVisible();
     int videoPosition();
     double videoRate();
+    double currentSpeed() {if(bluetoothManager && bluetoothManager->device()) return bluetoothManager->device()->currentSpeed().value(); else return 0;}
     QUrl videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
@@ -669,6 +671,7 @@ class homeform : public QObject {
     void videoVisibleChanged(bool value);
     void videoPositionChanged(int value);
     void videoRateChanged(double value);
+    void currentSpeedChanged(double value);
     void mapsVisibleChanged(bool value);
     void autoResistanceChanged(bool value);
     void pelotonLoginChanged(int ok);
