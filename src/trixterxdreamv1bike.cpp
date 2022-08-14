@@ -240,12 +240,21 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
         this->Heart.setValue(state.HeartRate);
 
     // Set the steering
+    bool steeringAngleChanged = false;
     if(!this->noSteering) {
-        this->m_steeringAngle.setValue(this->steeringMap[state.Steering]);
+        double newValue = this->steeringMap[state.Steering];
+        steeringAngleChanged = this->m_steeringAngle.value()!=newValue;
+        if(steeringAngleChanged)
+            this->m_steeringAngle.setValue(newValue);
     }
 
     // set the elapsed time
     this->elapsed = (currentTime - this->t0) * 0.001;
+
+    locker.unlock();
+
+    if(steeringAngleChanged)
+        emit this->steeringAngleChanged(this->m_steeringAngle.value());
 }
 
 void trixterxdreamv1bike::calculateSteeringMap() {
@@ -322,7 +331,9 @@ void trixterxdreamv1bike::updateResistance() {
 trixterxdreamv1bike::~trixterxdreamv1bike() {
     if(this->port) delete this->port;
     if(this->appSettings) delete this->appSettings;
-    if(this->virtualBike) delete this->virtualBike;
+
+    // NOTE: bluetooth::restart() deletes this object, then deletes the bike object
+    //if(this->virtualBike) delete this->virtualBike;
 }
 
 void *trixterxdreamv1bike::VirtualDevice() {
