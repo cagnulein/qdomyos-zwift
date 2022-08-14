@@ -123,7 +123,7 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 protected:
     /**
-     * @brief startDiscovery Start the Bluetooth docscovery agent and the thread that discovers non-bluetooth devices.
+     * @brief startDiscovery Start the Bluetooth discovery agent and the thread that discovers non-bluetooth devices.
      */
     void startDiscovery();
 
