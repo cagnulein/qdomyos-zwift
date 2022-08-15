@@ -16,6 +16,11 @@ private:
     constexpr static int SettingsUpdateTimerIntervalMilliseconds = 10000;
 
     /**
+     * @brief powerSurface Mapping from cadence and resistance to power.
+     */
+    static double powerSurface[260][3];
+
+    /**
      * @brief client An object that processes incoming data to CSCS, heart rate and steering data
      */
     trixterxdreamv1client client;
@@ -146,6 +151,14 @@ private:
      * @brief configureVirtualBike Set up the bridge to the client application.
      */
     void configureVirtualBike();
+
+    /**
+     * @brief calculatePower Calculate power from cadence RPM and resistance.
+     * @param cadenceRPM
+     * @param resistance
+     * @return
+     */
+    double calculatePower(int cadenceRPM, int resistance);
 protected:
 
     /**
@@ -198,6 +211,20 @@ public:
     trixterxdreamv1bike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
 
     ~trixterxdreamv1bike();
+
+    /**
+     * @brief powerFromResistanceRequest Calculate the power for the requested resistance at the current cadence.
+     * @param requestedResistance
+     * @return
+     */
+    uint16_t powerFromResistanceRequest(int8_t requestedResistance) override;
+
+    /**
+     * @brief resistanceFromPowerRequest Calculate the reistance required to produce the requested power at the current cadence.
+     * @param power
+     * @return
+     */
+    uint8_t resistanceFromPowerRequest(uint16_t power) override;
 
     /**
      * @brief VirtualDevice Virtual device
