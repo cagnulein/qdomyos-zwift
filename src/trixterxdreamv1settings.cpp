@@ -8,6 +8,7 @@ const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterLeft =QStr
 const QString trixterxdreamv1settings::keys::SteeringCalibrationCenterRight = QStringLiteral("trixter_xdream_v1_bike_steering_CR");
 const QString trixterxdreamv1settings::keys::SteeringCalibrationRight = QStringLiteral("trixter_xdream_v1_bike_steering_R");
 const QString trixterxdreamv1settings::keys::SteeringCalibrationMAX = QStringLiteral("trixter_xdream_v1_bike_steering_MAX");
+const QString trixterxdreamv1settings::keys::ConnectionTimeoutMilliseconds = QStringLiteral("trixter_xdream_v1_bike_connection_timeout_ms");
 
 
 template <typename T>
@@ -69,6 +70,15 @@ void trixterxdreamv1settings::set_steeringCalibration(const trixterxdreamv1setti
     }
 }
 
+uint16_t trixterxdreamv1settings::get_connectionTimeoutMilliseconds() {
+    QMutexLocker locker(&this->mutex);
+    return this->DefaultConnectionTimeoutMilliseconds;
+}
+
+void trixterxdreamv1settings::set_connectionTimeoutMilliseconds(uint16_t value) {
+    value = this->clip(MinConnectionTimeoutMilliseconds, MaxConnectionTimeoutMilliseconds, value);
+    this->updateField(this->connectionTimeoutMilliseconds, value);
+}
 
 trixterxdreamv1settings::trixterxdreamv1settings() {
     QSettings defaultSettings;
@@ -91,7 +101,7 @@ void trixterxdreamv1settings::Load(const QSettings &settings) {
     this->set_enabled(settings.value(keys::Enabled, DefaultEnabled).toBool());
     this->set_heartRateEnabled(settings.value(keys::HeartRateEnabled, DefaultHeartRateEnabled).toBool());
     this->set_steeringEnabled(settings.value(keys::SteeringEnabled, DefaultSteeringEnabled).toBool());
-
+    this->set_connectionTimeoutMilliseconds(settings.value(keys::ConnectionTimeoutMilliseconds, DefaultConnectionTimeoutMilliseconds).toUInt());
     steeringCalibrationInfo sc(settings.value(keys::SteeringCalibrationLeft, DefaultSteeringCalibrationL).toInt(),
                            settings.value(keys::SteeringCalibrationCenterLeft, DefaultSteeringCalibrationCL).toInt(),
                            settings.value(keys::SteeringCalibrationCenterRight, DefaultSteeringCalibrationCR).toInt(),

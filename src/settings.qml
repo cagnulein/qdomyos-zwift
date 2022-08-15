@@ -469,6 +469,7 @@ ScrollView {
         property int trixter_xdream_v1_bike_steering_CR : 2
         property int trixter_xdream_v1_bike_steering_R : 45
         property int trixter_xdream_v1_bike_steering_MAX : 45
+        property int trixter_xdream_v1_bike_connection_timeout_ms : 500
 
     }
 
@@ -1742,6 +1743,29 @@ ScrollView {
                     Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     onClicked: settings.trixter_xdream_v1_bike = checked
+                }
+                RowLayout {
+                    id: trixterXDreamV1BikeConnection
+                    spacing: 10
+                    Label {
+                        id: labelTrixterXDreamV1BikeConnectionTimeout
+                        text: qsTr("Initial connection timeout (ms)")
+                        Layout.fillWidth: true
+                    }
+                    SpinBox {
+                        id: trixterXDreamV1BikeConnectionTimeout
+                        value: settings.trixter_xdream_v1_bike_connection_timeout_ms
+                        hoverEnabled: true
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("The number of milliseconds the app will wait for data from the bike when searching a port.")
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        stepSize: 100
+                        from: 100
+                        to: 10000
+                        onValueChanged: settings.trixter_xdream_v1_bike_connection_timout_ms = value
+                    }
                 }
                 SwitchDelegate {
                     id: trixterXDreamV1HeartRate

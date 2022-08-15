@@ -333,7 +333,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     }
 
     // wait for up to 500ms for some packets to arrive
-    for(uint32_t start = getTime(), t=start, limit=start+500; t<limit; t=getTime()) {
+    for(uint32_t start = getTime(), t=start, limit=start+this->appSettings->get_connectionTimeoutMilliseconds(); t<limit; t=getTime()) {
         if(this->connected()) {
             qDebug() << "Connected after " << stopWatch.elapsed() << "milliseconds";
             break;
@@ -449,7 +449,7 @@ double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
 
     if(ps[0]!=c*10+30 || ps[1]!=r*10)
     {
-        throw "Unexpected r and c values.";
+        qDebug() << "Unexpected (r,c) values: (" << r << "," << c << ")";
     }
 
     return ps[2];

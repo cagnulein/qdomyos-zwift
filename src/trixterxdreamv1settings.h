@@ -17,6 +17,8 @@ public:
     // these should match the corresponding values in settings.qml
     // - the default values where the properties are defined
     constexpr static int8_t MaxSteeringAngle = 45;
+    constexpr static uint16_t MinConnectionTimeoutMilliseconds = 20;
+    constexpr static uint16_t MaxConnectionTimeoutMilliseconds = 10000;
     constexpr static bool DefaultEnabled =true;
     constexpr static bool DefaultSteeringEnabled =true;
     constexpr static bool DefaultHeartRateEnabled =true;
@@ -24,6 +26,7 @@ public:
     constexpr static int8_t DefaultSteeringCalibrationR = MaxSteeringAngle;
     constexpr static int8_t DefaultSteeringCalibrationCL = -2;
     constexpr static int8_t DefaultSteeringCalibrationCR = 2;
+    constexpr static uint16_t DefaultConnectionTimeoutMilliseconds = 500;
 
     /**
      * @brief Defines QSettings keys relating to the Trixter X-Dream V1 bike.
@@ -41,6 +44,7 @@ public:
         const static QString SteeringCalibrationCenterRight;
         const static QString SteeringCalibrationRight;
         const static QString SteeringCalibrationMAX;
+        const static QString ConnectionTimeoutMilliseconds;
     };
 
     struct steeringCalibrationInfo {
@@ -110,6 +114,7 @@ private:
     bool enabled=DefaultEnabled;
     bool steeringEnabled = DefaultSteeringEnabled;
     bool heartRateEnabled = DefaultHeartRateEnabled;
+    uint16_t connectionTimeoutMilliseconds = DefaultConnectionTimeoutMilliseconds;
 
     steeringCalibrationInfo steeringCalibration;
 
@@ -188,6 +193,20 @@ public:
     void set_steeringCalibration(const steeringCalibrationInfo value);
 
     /**
+     * @brief get_ConnectionTimeoutMilliseconds Gets the number of milliseconds the
+     * detector will wait for valid data from the serial port.
+     * @return
+     */
+    uint16_t get_connectionTimeoutMilliseconds();
+
+    /**
+     * @brief set_connectionTimeoutMilliseconds Sets the number of milliseconds the
+     * detector will wait for valid data from the serial port.
+     * @param value
+     */
+    void set_connectionTimeoutMilliseconds(uint16_t value);
+
+    /**
      * @brief trixterxdreamv1bikesettings Constructor, intializes from the default QSettings.
      */
     trixterxdreamv1settings();
@@ -209,7 +228,6 @@ public:
      */
     void Load(const QSettings& settings);
 
-
     ///**
     // * @brief Save Saves the values to the default QSettings object.
     // */
@@ -220,7 +238,6 @@ public:
     // * @param settings
     // */
     //void Save(const QSettings& settings);
-
 };
 
 
