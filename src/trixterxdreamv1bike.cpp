@@ -279,6 +279,9 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
 
+    // use a percentage resistance until QZ is using more than 7 bits to store the resistance levels.
+    this->useResistancePercentage = true;
+
     // Set the fake bluetooth device info
     this->bluetoothDevice =
             QBluetoothDeviceInfo(QBluetoothUuid {QStringLiteral("774f25bd-6636-4cdc-9398-839de026be1d")}, "Trixter X-Dream V1 Bike", 0);
@@ -332,7 +335,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
         return false;
     }
 
-    // wait for up to 500ms for some packets to arrive
+    // wait for up to the configured connection timeout for some packets to arrive
     for(uint32_t start = getTime(), t=start, limit=start+this->appSettings->get_connectionTimeoutMilliseconds(); t<limit; t=getTime()) {
         if(this->connected()) {
             qDebug() << "Connected after " << stopWatch.elapsed() << "milliseconds";
@@ -376,7 +379,7 @@ void trixterxdreamv1bike::disconnectPort() {
         this->port = nullptr;
     }
     if(this->resistanceTimerId) {
-        qDebug() << "Kiling resistance timer";
+        qDebug() << "Killing resistance timer";
         this->killTimer(this->resistanceTimerId);
         this->resistanceTimerId = 0;
     }
@@ -424,6 +427,7 @@ void trixterxdreamv1bike::configureVirtualBike(){
 
 uint16_t trixterxdreamv1bike::powerFromResistanceRequest(int8_t requestedResistance)
 {
+    requestedResistance = this->adjustedResistance(requestedResistance, true);
     return this->calculatePower((int)this->Cadence.value(), requestedResistance);
 }
 
@@ -431,11 +435,17 @@ uint8_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
 {
     int c = std::max(0, std::min(9, (int)(0.1*(this->Cadence.value()-30) +0.5)));
 
+    int16_t result = -1;
+
     double * ps = powerSurface[c*26];
-    for(int i=0; i<26; i++, ps++)
+    for(int i=0; result<0 && i<26; i++, ps++)
         if(ps[2]>=power)
-            return (uint8_t)ps[1];
-    return (uint8_t)((ps-1)[1]);
+            result = ps[1];
+    if(result<0)
+        result = (ps-1)[1];
+
+    result = this->adjustedResistance(result, false);
+    return result;
 }
 
 double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
@@ -453,6 +463,16 @@ double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
     }
 
     return ps[2];
+}
+
+int16_t trixterxdreamv1bike::adjustedResistance(int16_t input, bool toDevice) {
+    if(this->useResistancePercentage){
+        if(toDevice)
+            return trixterxdreamv1client::MaxResistance * input / 100;
+        else
+            return 100 * input / trixterxdreamv1client::MaxResistance ;
+    }
+    return input;
 }
 
 
@@ -563,7 +583,6 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
 void trixterxdreamv1bike::calculateSteeringMap() {
 
-
     trixterxdreamv1settings::steeringCalibrationInfo info = this->appSettings->get_steeringCalibration();
 
     vector<double> newMap;
@@ -616,15 +635,17 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
 
     bike::changeResistance(resistanceLevel);
 
-    // store the new resistance level. This might be the same as lastRequestedResistance(),Value
-    // but it doesn't involve a function call and a cast to get the value.
-    this->resistanceLevel = resistanceLevel;
-
     // store the resistance level as a metric for the UI
     constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
     this->Resistance.setValue(resistanceLevel);
-    this->m_pelotonResistance.setValue(round(pelotonScaleFactor * resistanceLevel));
+    if(this->useResistancePercentage)
+        this->m_pelotonResistance.setValue(resistanceLevel);
+    else
+        this->m_pelotonResistance.setValue(round(pelotonScaleFactor * resistanceLevel));
 
+    // store the new resistance level. This might be the same as lastRequestedResistance(),Value
+    // but it doesn't involve a function call and a cast to get the value.
+    this->resistanceLevel = this->adjustedResistance(resistanceLevel, true);
 }
 
 void trixterxdreamv1bike::updateResistance() {
@@ -657,6 +678,10 @@ void trixterxdreamv1bike::set_wheelDiameter(double value) {
 
 int trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance) {
     pelotonResistance = std::max(0, std::min(100, pelotonResistance));
+
+    if(this->useResistancePercentage)
+        return pelotonResistance;
+
     return round(0.01*pelotonResistance*trixterxdreamv1client::MaxResistance);
 }
 

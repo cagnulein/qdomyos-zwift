@@ -77,6 +77,12 @@ private:
     uint8_t resistanceLevel = 0;
 
     /**
+     * @brief useResistancePercentage Option to use resistance levels 0..100 instead of
+     * a full range that exceeds an int8_t.
+     */
+    bool useResistancePercentage = false;
+
+    /**
      * @brief wheelCircumference The simulated circumference of the bike's wheels, for converting
      * angular velocity to a speed. Units: kilometers.
      */
@@ -155,10 +161,22 @@ private:
     /**
      * @brief calculatePower Calculate power from cadence RPM and resistance.
      * @param cadenceRPM
-     * @param resistance
+     * @param resistance Bike resistance on full, not percentage scale.
      * @return
      */
     double calculatePower(int cadenceRPM, int resistance);
+
+
+    /**
+     * @brief adjustedResistance Adjust the resistance based on whether the
+     * object has been configured to use a resistance percentage or the
+     * raw value.
+     * @param input 0..100 if the object is using a resistance percentage,
+     * 0..trixterxdreamclient::MaxResistance otherwise.
+     * @param toDevice The direction of the conversion.
+     * @return
+     */
+    int16_t adjustedResistance(int16_t input, bool toDevice);
 protected:
 
     /**
@@ -174,7 +192,7 @@ protected:
 public Q_SLOTS:
     /**
      * @brief changeResistance Called to change the requested resistance level.
-     * @param resistanceLevel The resistance level to request (0..250)
+     * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
     void changeResistance(int8_t resistanceLevel) override;
 
@@ -220,7 +238,7 @@ public:
     uint16_t powerFromResistanceRequest(int8_t requestedResistance) override;
 
     /**
-     * @brief resistanceFromPowerRequest Calculate the reistance required to produce the requested power at the current cadence.
+     * @brief resistanceFromPowerRequest Calculate the resistance required to produce the requested power at the current cadence.
      * @param power
      * @return
      */
@@ -258,12 +276,12 @@ public:
      * @brief maxResistance The maximum resistance supported.
      * @return
      */
-    uint8_t maxResistance() override { return trixterxdreamv1client::MaxResistance; }
+    uint8_t maxResistance() override { return this->useResistancePercentage ? 100:trixterxdreamv1client::MaxResistance; }
 
     /**
      * @brief pelotonToBikeResistance Map Peloton 0 to 100% resistance to the bike's range.
      * @param pelotonResistance The Peloton resistance. Range: 0 to 100.
-     * @return The Trixter X-Dream V1 bike resistance. Range 0..250.
+     * @return The Trixter X-Dream V1 bike resistance. Range 0..250 if !this->useResistancePercentage.
      */
     int pelotonToBikeResistance(int pelotonResistance) override;
 
