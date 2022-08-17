@@ -524,6 +524,9 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
     this->packetsProcessed++;
     this->lastPacketProcessedTime = currentTime;
 
+    // Determine if the user is pressing the button to stop.
+    this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
+
     // update the metrics
     this->LastCrankEventTime = state.LastEventTime;
 
@@ -538,7 +541,7 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
     this->Cadence.setValue(state.CrankRPM);
 
     // update the power output
-    this->m_watt.setValue(this->calculatePower(state.CrankRPM, this->resistanceLevel));
+    this->update_metrics(true, this->calculatePower(state.CrankRPM, this->resistanceLevel));
 
     // set the crank revolutions
     this->CrankRevs = state.CumulativeCrankRevolutions;
@@ -650,7 +653,8 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
 
 void trixterxdreamv1bike::updateResistance() {
     QMutexLocker locker(&this->updateMutex);
-    this->client.SendResistance(this->resistanceLevel);
+    uint8_t actualResistance = this->stopping ? (trixterxdreamv1client::MaxResistance): this->resistanceLevel;
+    this->client.SendResistance(actualResistance);
 }
 
 trixterxdreamv1bike::~trixterxdreamv1bike() {

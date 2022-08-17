@@ -12,10 +12,39 @@
  */
 class trixterxdreamv1client {
 public:
+
     /**
-     * @brief Device state data: CSCS, heartrate and steering.
+     * @brief Values for the button state.
+     */
+    enum buttons : uint16_t
+    {
+        LeftArrow = 4096,
+        RightArrow = 16384,
+        UpArrow = 256,
+        DownArrow = 1024,
+
+        Blue = 8192,
+        Red = 512,
+        Green = 2048,
+
+        Seated = 8,
+
+        FrontGearUp = 32768,
+        FrontGearDown = 128,
+
+        BackGearUp = 32,
+        BackGearDown = 64
+    };
+
+    /**
+     * @brief Device state data: CSCS, heartrate, steering, buttons.
      */
     struct state {
+        /**
+         * @brief Buttons The state of the buttons.
+         */
+        buttons Buttons;
+
         /**
          * @brief Steering Steering value, from 0 (left) to 250 (right)
          */
@@ -50,6 +79,22 @@ public:
          * @brief CrankRPM Crank speed. Units: revolutions per minute
          */
         uint16_t CrankRPM;
+
+        /**
+         * @brief CrankPosition Position of the crank. Range: 1 to 60.
+         */
+        uint8_t CrankPosition;
+
+        /**
+         * @brief Brake 1. Position of brake 1. Range: 135 (on) to 250 (off)
+         */
+        uint8_t Brake1;
+
+
+        /**
+         * @brief Brake 2. Position of brake 1. Range: 135 (on) to 250 (off)
+         */
+        uint8_t Brake2;
     };
 
 private:
@@ -61,10 +106,8 @@ private:
      * @brief Raw data selected from the incoming packet.
      */
     struct Packet {
-        uint8_t Steering;
-        uint16_t Flywheel;
-        uint16_t Crank;
-        uint8_t HeartRate;
+        uint8_t Steering, Brake1, Brake2, HeartRate, CrankPosition;
+        uint16_t Flywheel, Crank, Buttons;
     };
 
     std::function<uint32_t()> get_time_ms=nullptr;
@@ -101,6 +144,27 @@ public:
      * @brief MaxSteering The maximum steering value supported by the device.
      */
     constexpr static uint8_t MaxSteering = 255;
+
+
+    /**
+     * @brief MaxBrake The maximum brake value, which indicates fully off. 
+     */
+    constexpr static uint8_t MaxBrake = 250;
+
+    /**
+     * @brief MinBrake The minimum brake value, which indicates fully on.
+     */
+    constexpr static uint8_t MinBrake = 135;
+
+    /**
+     * @brief MinCrankPosition The minimum CrankPosition value.
+     */
+    constexpr static uint8_t MinCrankPosition = 1;
+
+    /**
+	* @brief MinCrankPosition The maximum CrankPosition value.
+	*/
+    constexpr static uint8_t MaxCrankPosition = 60;
 
     /**
      * @brief The time interval between sending resistance requests to the device.

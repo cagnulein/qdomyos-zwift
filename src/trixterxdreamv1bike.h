@@ -37,6 +37,11 @@ private:
     virtualbike * virtualBike = nullptr;
 
     /**
+     * @brief stopping Indicates if the deice should be sent full resistance instead of the currently requested resistance.
+     */
+    bool stopping = false;
+
+    /**
      * @brief resistanceTimerId The id for identifying the resistance timer in void timerEvent(QEvent*).
      */
     int resistanceTimerId = 0;

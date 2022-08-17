@@ -111,6 +111,10 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     if (this->ProcessChar(c) != Complete)
         return false;
 
+    lastPacket.Buttons = (static_cast<uint16_t>(this->byteBuffer[0x8]) << 8) + this->byteBuffer[0x9];
+    lastPacket.CrankPosition = this->byteBuffer[0x3];
+    lastPacket.Brake1 = this->byteBuffer[0x4];
+    lastPacket.Brake2 = this->byteBuffer[0x5];
     lastPacket.Steering = this->byteBuffer[0x1];
     lastPacket.Flywheel = (static_cast<uint16_t>(this->byteBuffer[0xC]) << 8) + this->byteBuffer[0xD];
     lastPacket.Crank = (static_cast<uint16_t>(this->byteBuffer[0xA]) << 8) + this->byteBuffer[0xB];
@@ -167,6 +171,9 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     newState.CumulativeWheelRevolutions = static_cast<uint32_t>(round(flywheelRevolutions));
     newState.CrankRPM = static_cast<uint16_t>(crankRevsPerMinute);
     newState.FlywheelRPM = static_cast<uint16_t>(flywheelRevsPerMinute);
+    newState.Buttons = (buttons)(0xFFFF-lastPacket.Buttons);
+
+
 
     this->stateMutex.lock();
     this->lastState = newState;
