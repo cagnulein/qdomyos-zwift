@@ -1746,12 +1746,12 @@ void bluetooth::connectedAndDiscovered() {
 
                 connect(ftmsAccessory, &smartspin2k::debug, this, &bluetooth::debug);
 
-                connect(this->device(), SIGNAL(resistanceChanged(int16_t)), ftmsAccessory,
-                        SLOT(changeResistance(int16_t)));
-                connect(this->device(), SIGNAL(resistanceRead(int16_t)), ftmsAccessory,
-                        SLOT(resistanceReadFromTheBike(int16_t)));
-                connect(ftmsAccessory, SIGNAL(resistanceRead(int16_t)), this->device(),
-                        SLOT(resistanceFromFTMSAccessory(int16_t)));
+                connect(this->device(), SIGNAL(resistanceChanged(resistance_t)), ftmsAccessory,
+                        SLOT(changeResistance(resistance_t)));
+                connect(this->device(), SIGNAL(resistanceRead(resistance_t)), ftmsAccessory,
+                        SLOT(resistanceReadFromTheBike(resistance_t)));
+                connect(ftmsAccessory, SIGNAL(resistanceRead(resistance_t)), this->device(),
+                        SLOT(resistanceFromFTMSAccessory(resistance_t)));
                 emit ftmsAccessoryConnected(ftmsAccessory);
                 ftmsAccessory->deviceDiscovered(b);
                 break;

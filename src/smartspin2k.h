@@ -57,7 +57,7 @@ class smartspin2k : public bike {
     uint16_t watts();
     void forceResistance(resistance_t requestResistance);
     void setShiftStep(uint16_t);
-    void lowInit(int8_t resistance);
+    void lowInit(resistance_t resistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -104,7 +104,7 @@ class smartspin2k : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceReadFromTheBike(int8_t resistance);
+    void resistanceReadFromTheBike(resistance_t resistance);
     void autoResistanceChanged(bool value);
     void calibrateShiftStep();
 
