@@ -1764,7 +1764,7 @@ ScrollView {
                         stepSize: 100
                         from: 100
                         to: 10000
-                        onValueChanged: settings.trixter_xdream_v1_bike_connection_timout_ms = value
+                        onValueChanged: settings.trixter_xdream_v1_bike_connection_timeout_ms = value
                     }
                 }
                 SwitchDelegate {
