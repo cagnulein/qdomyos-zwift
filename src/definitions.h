@@ -1,6 +1,8 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-#define resistance_t int16_t
+#include <stdint.h>
+
+typedef int16_t resistance_t;
 
 #endif // DEFINITIONS_H
