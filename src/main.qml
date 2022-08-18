@@ -13,7 +13,7 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("Stack")
+    title: qsTr("qDomyos-Zwift")
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
