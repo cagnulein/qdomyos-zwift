@@ -41,6 +41,18 @@ public:
     void set_receiveBytes(std::function<void(const QByteArray& bytes)> value) { this->receiveBytes = value; }
 
     /**
+     * @brief get_SendReceiveLog Gets whether or not the bytes sent and received will be written to the debug log.
+     * @return
+     */
+    bool get_SendReceiveLog();
+
+    /**
+     * @brief set_SendReceiveLog Sets whether or not the bytes sent and received will be written to the debug log.
+     * @param value
+     */
+    void set_SendReceiveLog(bool value);
+
+    /**
      * @brief availablePorts Returns a list of information objects for the serial ports found in the system.
      */
     static QList<QSerialPortInfo> availablePorts();
@@ -61,6 +73,7 @@ protected:
   private:
     void run() override;
 
+    bool sendReceiveLog = false;
     QSerialPort serial;
     QString portName;
     QSerialPort::BaudRate baudRate;
