@@ -761,6 +761,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
+        } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x10) { // Value: ff100204020c040c02020004b600000400d20000
+            qDebug() << "ifit ans 16";
+            reply1 = QByteArray::fromHex("fe0209025802341c0500341c050000a56700b400");
+            reply2 = QByteArray::fromHex("ff0901040205040502020d1c050000a56700b400");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
 
         } else if (newValue.length() > 8 && (uint8_t)newValue.at(0) == 0xFF) {
             qDebug() << "ifit not managed";
