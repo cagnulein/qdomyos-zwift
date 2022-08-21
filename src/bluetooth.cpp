@@ -1647,6 +1647,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
+                userTemplateManager->start(chronoBike);
+                innerTemplateManager->start(chronoBike);
             }
         }
     }
