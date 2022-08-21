@@ -113,7 +113,19 @@ class bluetooth : public QObject, public SignalHandler {
                        bool noHeartService = false, uint32_t pollDeviceTime = 200, bool noConsole = false,
                        bool testResistance = false, uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
     ~bluetooth();
+
+    /**
+     * @brief device Gets the currently active device.
+     * @return
+     */
     bluetoothdevice *device();
+
+    /**
+     * @brief device Gets the currently active device object dynamically cast to the specified type.
+     * @return Null if the device is not of the specified type, otherwise the current device object cast to the specified type.
+     */
+    template <typename T> T *device() { return dynamic_cast<T*>(this->device()); }
+
     bluetoothdevice *externalInclination() { return eliteRizer; }
     bluetoothdevice *heartRateDevice() { return heartRateBelt; }
     QList<QBluetoothDeviceInfo> devices;
@@ -125,88 +137,17 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
-    QBluetoothDeviceDiscoveryAgent *discoveryAgent;
-    bhfitnesselliptical *bhFitnessElliptical = nullptr;
-    bowflextreadmill *bowflexTreadmill = nullptr;
-    bowflext216treadmill *bowflexT216Treadmill = nullptr;
-    fitshowtreadmill *fitshowTreadmill = nullptr;
-    concept2skierg *concept2Skierg = nullptr;
-    domyostreadmill *domyos = nullptr;
-    domyosbike *domyosBike = nullptr;
-    domyosrower *domyosRower = nullptr;
-    domyoselliptical *domyosElliptical = nullptr;
-    toorxtreadmill *toorx = nullptr;
-    iconceptbike *iConceptBike = nullptr;
-    trxappgateusbtreadmill *trxappgateusb = nullptr;
-    spirittreadmill *spiritTreadmill = nullptr;
-    activiotreadmill *activioTreadmill = nullptr;
-    nautilusbike *nautilusBike = nullptr;
-    nautiluselliptical *nautilusElliptical = nullptr;
-    nautilustreadmill *nautilusTreadmill = nullptr;
-    trxappgateusbbike *trxappgateusbBike = nullptr;
-    echelonconnectsport *echelonConnectSport = nullptr;
-    yesoulbike *yesoulBike = nullptr;
-    flywheelbike *flywheelBike = nullptr;
-    nordictrackelliptical *nordictrackElliptical = nullptr;
-    nordictrackifitadbtreadmill *nordictrackifitadbTreadmill = nullptr;
-    octanetreadmill *octaneTreadmill = nullptr;
-    proformrower *proformRower = nullptr;
-    proformbike *proformBike = nullptr;
-    proformwifibike *proformWifiBike = nullptr;
-    proformwifitreadmill *proformWifiTreadmill = nullptr;
-    proformelliptical *proformElliptical = nullptr;
-    proformellipticaltrainer *proformEllipticalTrainer = nullptr;
-    proformtreadmill *proformTreadmill = nullptr;
-    horizontreadmill *horizonTreadmill = nullptr;
-    technogymmyruntreadmill *technogymmyrunTreadmill = nullptr;
-#ifndef Q_OS_IOS
-    technogymmyruntreadmillrfcomm *technogymmyrunrfcommTreadmill = nullptr;
-#endif
-    truetreadmill *trueTreadmill = nullptr;
-    horizongr7bike *horizonGr7Bike = nullptr;
-    schwinnic4bike *schwinnIC4Bike = nullptr;
-    sportstechbike *sportsTechBike = nullptr;
-    sportsplusbike *sportsPlusBike = nullptr;
-    inspirebike *inspireBike = nullptr;
-    snodebike *snodeBike = nullptr;
-    eslinkertreadmill *eslinkerTreadmill = nullptr;
-    m3ibike *m3iBike = nullptr;
-    skandikawiribike *skandikaWiriBike = nullptr;
-    cscbike *cscBike = nullptr;
-    mcfbike *mcfBike = nullptr;
-    npecablebike *npeCableBike = nullptr;
-    stagesbike *stagesBike = nullptr;
-    solebike *soleBike = nullptr;
-    soleelliptical *soleElliptical = nullptr;
-    solef80treadmill *soleF80 = nullptr;
-    chronobike *chronoBike = nullptr;
-    fitplusbike *fitPlusBike = nullptr;
-    echelonrower *echelonRower = nullptr;
-    ftmsrower *ftmsRower = nullptr;
-    smartrowrower *smartrowRower = nullptr;
-    echelonstride *echelonStride = nullptr;
-    keepbike *keepBike = nullptr;
-    kingsmithr1protreadmill *kingsmithR1ProTreadmill = nullptr;
-    kingsmithr2treadmill *kingsmithR2Treadmill = nullptr;
-    ftmsbike *ftmsBike = nullptr;
-    pafersbike *pafersBike = nullptr;
-    paferstreadmill *pafersTreadmill = nullptr;
-    tacxneo2 *tacxneo2Bike = nullptr;
-    renphobike *renphoBike = nullptr;
-    shuaa5treadmill *shuaA5Treadmill = nullptr;
-    heartratebelt *heartRateBelt = nullptr;
-    smartspin2k *ftmsAccessory = nullptr;
+    QBluetoothDeviceDiscoveryAgent *discoveryAgent = nullptr;
+
+    bluetoothdevice * bluetoothDevice = nullptr;
     cscbike *cadenceSensor = nullptr;
     stagesbike *powerSensor = nullptr;
     strydrunpowersensor *powerSensorRun = nullptr;
-    stagesbike *powerBike = nullptr;
-    ultrasportbike *ultraSportBike = nullptr;
-    wahookickrsnapbike *wahooKickrSnapBike = nullptr;
-    strydrunpowersensor *powerTreadmill = nullptr;
+    smartspin2k *ftmsAccessory = nullptr;
+    heartratebelt *heartRateBelt = nullptr;
     eliterizer *eliteRizer = nullptr;
     elitesterzosmart *eliteSterzoSmart = nullptr;
-    fakebike *fakeBike = nullptr;
-    fakeelliptical *fakeElliptical = nullptr;
+
     QList<fitmetria_fanfit *> fitmetriaFanfit;
     QString filterDevice = QLatin1String("");
 
