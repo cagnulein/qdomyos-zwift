@@ -26,17 +26,13 @@
 #include <QTime>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 class sportsplusbike : public bike {
     Q_OBJECT
   public:
     sportsplusbike(bool noWriteResistance, bool noHeartService);
-    int pelotonToBikeResistance(int pelotonResistance);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    int pelotonToBikeResistance(int pelotonResistance) override;
+    bool connected() override;
 
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
@@ -49,11 +45,10 @@ class sportsplusbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
                              bool wait_for_response);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
     double GetWattFromPacket(const QByteArray &packet);
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     bool noWriteResistance = false;
     bool noHeartService = false;

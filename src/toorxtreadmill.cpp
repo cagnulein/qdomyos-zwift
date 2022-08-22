@@ -1,4 +1,5 @@
 #include "toorxtreadmill.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QMetaEnum>
@@ -79,13 +80,14 @@ void toorxtreadmill::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!virtualTreadMill) {
+        if (!this->VirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, true);
+                auto virtualTreadMill = new virtualtreadmill(this, true);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &toorxtreadmill::debug);
+                this->setVirtualDevice(virtualTreadMill);
             }
         }
         // ********************************************************************************************************

@@ -6,6 +6,13 @@
 
 bluetoothdevice::bluetoothdevice() {}
 
+bluetoothdevice::~bluetoothdevice() {
+    if(this->virtualDevice) {
+        delete this->virtualDevice;
+        this->virtualDevice = nullptr;
+    }
+}
+
 bluetoothdevice::BLUETOOTH_TYPE bluetoothdevice::deviceType() { return bluetoothdevice::UNKNOWN; }
 void bluetoothdevice::start() { requestStart = 1; }
 void bluetoothdevice::stop() { requestStop = 1; }
@@ -90,7 +97,6 @@ double bluetoothdevice::odometer() { return Distance.value(); }
 metric bluetoothdevice::calories() { return KCal; }
 metric bluetoothdevice::jouls() { return m_jouls; }
 uint8_t bluetoothdevice::fanSpeed() { return FanSpeed; };
-void *bluetoothdevice::VirtualDevice() { return nullptr; }
 bool bluetoothdevice::changeFanSpeed(uint8_t speed) {
     // managing underflow
     if (speed > 230 && FanSpeed < 20) {
@@ -128,6 +134,12 @@ void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groun
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
+
+void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice) {
+    if(this->virtualDevice)
+        delete this->virtualDevice;
+    this->virtualDevice = virtualDevice;
+}
 
 // keiser m3i has a separate management of this, so please check it
 void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {

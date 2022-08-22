@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,12 +37,9 @@ class wahookickrsnapbike : public bike {
   public:
     wahookickrsnapbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                        double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    bool connected();
-    uint8_t maxResistance() { return 100; }
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    int pelotonToBikeResistance(int pelotonResistance) override;
+    bool connected() override;
+    uint8_t maxResistance() override { return 100; }
 
   private:
     enum OperationCode : uint8_t {
@@ -75,10 +71,9 @@ class wahookickrsnapbike : public bike {
     uint16_t wattsFromResistance(double resistance);
     metric ResistanceFromFTMSAccessory;
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyService *gattPowerChannelService = nullptr;

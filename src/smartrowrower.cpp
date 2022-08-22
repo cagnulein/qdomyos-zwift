@@ -342,7 +342,7 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &smartrowrower::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -364,9 +364,10 @@ void smartrowrower::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&smartrowrower::debug);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstStateChanged = 1;
@@ -458,10 +459,6 @@ bool smartrowrower::connected() {
         return false;
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *smartrowrower::VirtualBike() { return virtualBike; }
-
-void *smartrowrower::VirtualDevice() { return VirtualBike(); }
 
 uint16_t smartrowrower::watts() {
     if (currentCadence().value() == 0)

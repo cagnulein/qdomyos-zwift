@@ -95,12 +95,13 @@ void nautilustreadmill::update() {
                initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &nautilustreadmill::debug);
+                this->setVirtualDevice(virtualTreadMill);
                 firstInit = 1;
             }
         }
@@ -390,10 +391,6 @@ bool nautilustreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *nautilustreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *nautilustreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool nautilustreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

@@ -1,6 +1,7 @@
 #include "strydrunpowersensor.h"
 #include "ios/lockscreen.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -363,7 +364,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !noVirtualDevice
+    if (!firstStateChanged && !this->VirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -374,10 +375,11 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
+            auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&strydrunpowersensor::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &strydrunpowersensor::inclinationChanged);
+            this->setVirtualDevice(virtualTreadmill);
         }
     }
     firstStateChanged = 1;
@@ -475,10 +477,6 @@ bool strydrunpowersensor::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *strydrunpowersensor::VirtualTreadmill() { return virtualTreadmill; }
-
-void *strydrunpowersensor::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t strydrunpowersensor::watts() { return m_watt.value(); }
 

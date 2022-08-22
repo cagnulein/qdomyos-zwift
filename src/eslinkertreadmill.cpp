@@ -110,12 +110,13 @@ void eslinkertreadmill::update() {
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &eslinkertreadmill::debug);
+                this->setVirtualDevice(virtualTreadMill);
                 firstInit = 1;
             }
         }
@@ -569,10 +570,6 @@ bool eslinkertreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *eslinkertreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *eslinkertreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool eslinkertreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

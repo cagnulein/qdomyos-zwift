@@ -19,6 +19,8 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 
+#include "virtualdevice.h"
+
 #if defined(Q_OS_IOS)
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
 #else
@@ -45,8 +47,13 @@ class MetersByInclination {
 class bluetoothdevice : public QObject {
 
     Q_OBJECT
+  private:
+    virtualdevice *virtualDevice = nullptr;
   public:
     bluetoothdevice();
+
+    ~bluetoothdevice() override;
+
     /**
      * @brief currentHeart Gets a metric object for getting and setting the current heart rate. Units: beats per minute
      */
@@ -190,7 +197,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief VirtualDevice The virtual bridge to Zwift for example, or to any 3rd party app.
      */
-    virtual void *VirtualDevice();
+    virtualdevice *VirtualDevice() { return this->virtualDevice; }
 
     /**
      * @brief watts Calculates the amount of power used. Units: watts
@@ -564,6 +571,13 @@ class bluetoothdevice : public QObject {
      * Units: METs (1 MET is approximately 3.5mL of Oxygen consumed per kg of body weight per minute)
      */
     double calculateMETS();
+
+
+    /**
+     * @brief setVirtualDevice Set the virtual device. Deletes the existing one, if present.
+     * @param virtualDevice The virtual device.
+     */
+    void setVirtualDevice(virtualdevice * virtualDevice);
 };
 
 #endif // BLUETOOTHDEVICE_H

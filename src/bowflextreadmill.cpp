@@ -94,12 +94,13 @@ void bowflextreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill) {
+        if (!firstInit && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &bowflextreadmill::debug);
+                this->setVirtualDevice(virtualTreadMill);
                 firstInit = 1;
             }
         }
@@ -410,10 +411,6 @@ bool bowflextreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *bowflextreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *bowflextreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 bool bowflextreadmill::autoPauseWhenSpeedIsZero() {
     if (lastStart == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStart + 10000))

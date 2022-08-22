@@ -122,6 +122,7 @@ void ftmsbike::update() {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
                 // if the FTMS is connected, the ftmsCharacteristicChanged event will do all the stuff because it's a
                 // FTMS bike. This condition handles the peloton requests
+                auto virtualBike = this->VirtualBike();
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     init();
@@ -475,7 +476,7 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -497,11 +498,12 @@ void ftmsbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike =
+            auto virtualBike =
                 new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsbike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &ftmsbike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &ftmsbike::ftmsCharacteristicChanged);
+            this->setVirtualDevice(virtualBike);
         }
     }
     firstStateChanged = 1;
@@ -632,10 +634,6 @@ bool ftmsbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ftmsbike::VirtualBike() { return virtualBike; }
-
-void *ftmsbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t ftmsbike::watts() {
     if (currentCadence().value() == 0) {

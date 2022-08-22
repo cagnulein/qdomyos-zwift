@@ -1,6 +1,7 @@
 #include "nautilusbike.h"
 
 #include "keepawakehelper.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -30,11 +31,7 @@ nautilusbike::nautilusbike(bool noWriteResistance, bool noHeartService, bool tes
 }
 
 nautilusbike::~nautilusbike() {
-    qDebug() << QStringLiteral("~nautilusbike()") << virtualBike;
-    if (virtualBike) {
-
-        delete virtualBike;
-    }
+    qDebug() << QStringLiteral("~nautilusbike()");
 }
 
 void nautilusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -91,12 +88,13 @@ void nautilusbike::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && !virtualBike) {
+        if (!firstVirtual && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &nautilusbike::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike);
                 firstVirtual = 1;
             }
         }
@@ -382,8 +380,6 @@ bool nautilusbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *nautilusbike::VirtualDevice() { return virtualBike; }
 
 void nautilusbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

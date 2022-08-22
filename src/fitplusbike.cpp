@@ -1,6 +1,4 @@
 #include "fitplusbike.h"
-#include "ios/lockscreen.h"
-#include "keepawakehelper.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -440,7 +438,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &fitplusbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -462,10 +460,11 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&fitplusbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &fitplusbike::changeInclination);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstStateChanged = 1;
@@ -557,10 +556,6 @@ bool fitplusbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *fitplusbike::VirtualBike() { return virtualBike; }
-
-void *fitplusbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t fitplusbike::watts() {
     if (currentCadence().value() == 0) {

@@ -30,10 +30,7 @@ domyosbike::domyosbike(bool noWriteResistance, bool noHeartService, bool testRes
 }
 
 domyosbike::~domyosbike() {
-    qDebug() << QStringLiteral("~domyosbike()") << virtualBike;
-    if (virtualBike) {
-        delete virtualBike;
-    }
+    qDebug() << QStringLiteral("~domyosbike()");
 }
 
 void domyosbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -182,7 +179,7 @@ void domyosbike::update() {
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -204,10 +201,11 @@ void domyosbike::update() {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &domyosbike::changeInclination);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstStateChanged = 1;
@@ -641,10 +639,6 @@ bool domyosbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *domyosbike::VirtualBike() { return virtualBike; }
-
-void *domyosbike::VirtualDevice() { return VirtualBike(); }
 
 int domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
 

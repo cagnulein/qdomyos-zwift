@@ -32,21 +32,23 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+    if (!firstStateChanged && !this->VirtualDevice()) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &nordictrackifitadbtreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike);
             }
             firstStateChanged = 1;
         }
@@ -195,7 +197,3 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
 }
 
 bool nordictrackifitadbtreadmill::connected() {}
-
-void *nordictrackifitadbtreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *nordictrackifitadbtreadmill::VirtualDevice() { return VirtualTreadmill(); }

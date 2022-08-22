@@ -356,13 +356,13 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadmill
-#ifdef Q_OS_IOS
-#ifndef IO_UNDER_QT
-        && !h
-#endif
-#endif
-    ) {
+    if (!firstStateChanged && !this->VirtualDevice()
+        #ifdef Q_OS_IOS
+        #ifndef IO_UNDER_QT
+            && !h
+        #endif
+        #endif
+            ) {
 
         QSettings settings;
         bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
@@ -380,13 +380,14 @@ void concept2skierg::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
 #endif
             if (virtual_device_enabled) {
-            emit debug(QStringLiteral("creating virtual bike interface..."));
+                emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            virtualTreadmill = new virtualtreadmill(this, noHeartService);
-            connect(virtualTreadmill, &virtualtreadmill::debug, this, &concept2skierg::debug);
-            // connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
-            //        &domyostreadmill::changeInclinationRequested);
-        }
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                connect(virtualTreadmill, &virtualtreadmill::debug, this, &concept2skierg::debug);
+                // connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
+                //        &domyostreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill);
+            }
     }
     firstStateChanged = 1;
     // ********************************************************************************************************
@@ -494,9 +495,7 @@ bool concept2skierg::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *concept2skierg::VirtualTreadmill() { return virtualTreadmill; }
 
-void *concept2skierg::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t concept2skierg::watts() {
     if (currentCadence().value() == 0) {

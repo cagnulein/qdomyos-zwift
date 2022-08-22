@@ -260,7 +260,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 &chronobike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -282,9 +282,10 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::changeInclination);
                 // connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstStateChanged = 1;
@@ -375,10 +376,6 @@ bool chronobike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *chronobike::VirtualBike() { return virtualBike; }
-
-void *chronobike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t chronobike::watts() {
     QSettings settings;

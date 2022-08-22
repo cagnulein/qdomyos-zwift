@@ -299,9 +299,6 @@ m3ibike::~m3ibike() {
         elapsedTimer->stop();
         delete elapsedTimer;
     }
-    if (virtualBike) {
-        delete virtualBike;
-    }
     m_instance = 0;
     disconnecting = true;
 #if defined(Q_OS_ANDROID)
@@ -616,7 +613,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
-            if (!virtualBike
+            if (!this->VirtualDevice()
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 && !h
 #endif
@@ -633,9 +630,10 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #endif
                     if (virtual_device_enabled) {
                     emit debug(QStringLiteral("creating virtual bike interface..."));
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                     connect(virtualBike, &virtualbike::changeInclination, this, &m3ibike::changeInclination);
+                    this->setVirtualDevice(virtualBike);
                 }
                 int buffSize = settings.value(QStringLiteral("m3i_bike_speed_buffsize"), 90).toInt();
                 k3s.inner_reset(buffSize,
@@ -764,10 +762,6 @@ void m3ibike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 }
 
 bool m3ibike::connected() { return initDone; }
-
-void *m3ibike::VirtualBike() { return virtualBike; }
-
-void *m3ibike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t m3ibike::watts() {
     if (currentCadence().value() == 0) {

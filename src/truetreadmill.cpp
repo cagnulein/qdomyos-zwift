@@ -1,6 +1,7 @@
 #include "truetreadmill.h"
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -55,21 +56,23 @@ void truetreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
+        if (!firstInit && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &truetreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &truetreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &truetreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike);
                 }
                 firstInit = 1;
             }
@@ -371,6 +374,3 @@ bool truetreadmill::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-void *truetreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *truetreadmill::VirtualDevice() { return VirtualTreadMill(); }

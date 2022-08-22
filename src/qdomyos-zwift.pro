@@ -222,6 +222,7 @@ SOURCES += \
    truetreadmill.cpp \
    trxappgateusbbike.cpp \
    ultrasportbike.cpp \
+    virtualdevice.cpp \
    virtualrower.cpp \
    wahookickrsnapbike.cpp \
 		yesoulbike.cpp \
@@ -622,6 +623,7 @@ HEADERS += \
 	trxappgateusbtreadmill.h \
    ultrasportbike.h \
 	 virtualbike.h \
+    virtualdevice.h \
    virtualrower.h \
 	virtualtreadmill.h \
 	 domyosbike.h \

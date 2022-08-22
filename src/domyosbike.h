@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,15 +37,11 @@ class domyosbike : public bike {
   public:
     domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t maxResistance() { return max_resistance; }
-    ~domyosbike();
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
-
+    uint8_t resistanceFromPowerRequest(uint16_t power) override;
+    int pelotonToBikeResistance(int pelotonResistance) override;
+    uint8_t maxResistance() override { return max_resistance; }
+    ~domyosbike() override;
+    bool connected() override;
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
@@ -60,11 +55,10 @@ class domyosbike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     const int max_resistance = 15;
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t firstVirtual = 0;
     uint8_t firstStateChanged = 0;
 

@@ -27,13 +27,13 @@
 #include <QtCore/qtimer.h>
 
 #include "dirconmanager.h"
-#include "treadmill.h"
+#include "virtualdevice.h"
 
-class virtualtreadmill : public QObject {
+class virtualtreadmill : public virtualdevice {
     Q_OBJECT
   public:
     virtualtreadmill(bluetoothdevice *t, bool noHeartService);
-    bool connected();
+    bool connected() override;
     bool autoInclinationEnabled() { return m_autoInclinationEnabled; }
 
   private:

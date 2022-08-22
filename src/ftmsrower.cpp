@@ -442,7 +442,7 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -468,8 +468,9 @@ void ftmsrower::stateChanged(QLowEnergyService::ServiceState state) {
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
 
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&ftmsrower::debug);
+            this->setVirtualDevice(virtualBike);
         }
     }
     firstStateChanged = 1;
@@ -577,10 +578,6 @@ bool ftmsrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *ftmsrower::VirtualBike() { return virtualBike; }
-
-void *ftmsrower::VirtualDevice() { return VirtualBike(); }
 
 uint16_t ftmsrower::watts() {
     if (currentCadence().value() == 0) {

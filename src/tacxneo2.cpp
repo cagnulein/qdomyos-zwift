@@ -108,6 +108,7 @@ void tacxneo2::update() {
         if (requestResistance != -1) {
             if (requestResistance != currentResistance().value()) {
                 emit debug(QStringLiteral("writing resistance ") + QString::number(requestResistance));
+                auto virtualBike =this->VirtualBike();
                 if (((virtualBike && !virtualBike->ftmsDeviceConnected()) || !virtualBike) &&
                     (requestPower == 0 || requestPower == -1)) {
                     requestInclination = requestResistance / 10.0;
@@ -408,7 +409,7 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualBike
+    if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -430,10 +431,11 @@ void tacxneo2::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
             if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual bike interface..."));
-            virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
+            auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, 4, 1);
             connect(virtualBike, &virtualbike::changeInclination, this, &tacxneo2::changeInclination);
             // connect(virtualBike, &virtualbike::powerPacketReceived, this, &tacxneo2::powerPacketReceived);
             // connect(virtualBike, &virtualbike::debug, this, &tacxneo2::debug);
+            this->setVirtualDevice(virtualBike);
         }
     }
     firstStateChanged = 1;
@@ -535,10 +537,6 @@ bool tacxneo2::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *tacxneo2::VirtualBike() { return virtualBike; }
-
-void *tacxneo2::VirtualDevice() { return VirtualBike(); }
 
 uint16_t tacxneo2::watts() {
     if (currentCadence().value() == 0) {

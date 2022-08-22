@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -38,13 +37,10 @@ class echelonconnectsport : public bike {
   public:
     echelonconnectsport(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                         double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t maxResistance() { return max_resistance; }
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    int pelotonToBikeResistance(int pelotonResistance) override;
+    uint8_t maxResistance() override { return max_resistance; }
+    uint8_t resistanceFromPowerRequest(uint16_t power) override;
+    bool connected() override;
 
   private:
     const int max_resistance = 32;
@@ -58,10 +54,9 @@ class echelonconnectsport : public bike {
     void startDiscover();
     void forceResistance(int8_t requestResistance);
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;

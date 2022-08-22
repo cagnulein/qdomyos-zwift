@@ -26,7 +26,6 @@
 #include <QTime>
 
 #include "treadmill.h"
-#include "virtualtreadmill.h"
 
 class heartratebelt : public treadmill {
     Q_OBJECT

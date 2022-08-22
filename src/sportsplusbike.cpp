@@ -313,14 +313,15 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &sportsplusbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstVirtualBike && !virtualBike) {
+        if (!firstVirtualBike && !this->VirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&sportsplusbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &sportsplusbike::changeInclination);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstVirtualBike = 1;
@@ -444,10 +445,6 @@ bool sportsplusbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *sportsplusbike::VirtualBike() { return virtualBike; }
-
-void *sportsplusbike::VirtualDevice() { return VirtualBike(); }
 
 void sportsplusbike::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

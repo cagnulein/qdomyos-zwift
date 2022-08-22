@@ -35,7 +35,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -46,14 +45,11 @@ class proformwifibike : public bike {
   public:
     proformwifibike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                     double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    uint8_t maxResistance() { return max_resistance; }
-    bool inclinationAvailableByHardware();
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    int pelotonToBikeResistance(int pelotonResistance) override;
+    uint8_t resistanceFromPowerRequest(uint16_t power) override;
+    uint8_t maxResistance() override { return max_resistance; }
+    bool inclinationAvailableByHardware() override;
+    bool connected() override;
 
   private:
     QWebSocket websocket;
@@ -68,12 +64,11 @@ class proformwifibike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
     void forceResistance(int8_t requestResistance);
     void innerWriteResistance();
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

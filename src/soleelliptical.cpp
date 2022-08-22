@@ -1,6 +1,7 @@
 #include "soleelliptical.h"
 
 #include "keepawakehelper.h"
+#include "virtualbike.h"
 #include "virtualtreadmill.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
@@ -30,11 +31,7 @@ soleelliptical::soleelliptical(bool noWriteResistance, bool noHeartService, bool
 }
 
 soleelliptical::~soleelliptical() {
-    qDebug() << QStringLiteral("~soleelliptical()") << virtualTreadmill;
-    if (virtualTreadmill) {
-
-        delete virtualTreadmill;
-    }
+    qDebug() << QStringLiteral("~soleelliptical()");
 }
 
 void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -123,21 +120,23 @@ void soleelliptical::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && searchStopped && !virtualTreadmill && !virtualBike) {
+        if (!firstVirtual && searchStopped && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &soleelliptical::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &soleelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadmill);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &soleelliptical::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike);
                 }
                 firstVirtual = 1;
             }
@@ -485,10 +484,6 @@ bool soleelliptical::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *soleelliptical::VirtualTreadmill() { return virtualTreadmill; }
-
-void *soleelliptical::VirtualDevice() { return VirtualTreadmill(); }
 
 uint16_t soleelliptical::watts() {
 

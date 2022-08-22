@@ -2,6 +2,7 @@
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualbike.h"
+#include "virtualrower.h"
 #include <QBluetoothLocalDevice>
 #include <QDateTime>
 #include <QFile>
@@ -367,7 +368,7 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonrower::descriptorWritten);
 
         // ******************************************* virtual bike/rower init *************************************
-        if (!firstStateChanged && !virtualBike && !virtualRower
+        if (!firstStateChanged && !VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -391,13 +392,15 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 if (virtual_device_enabled) {
                 if (!virtual_device_rower) {
                     qDebug() << QStringLiteral("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
+                    auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualBike);
                 } else {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
-                    virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
+                    auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
+                    this->setVirtualDevice(virtualRower);
                 }
             }
         }
@@ -489,15 +492,6 @@ bool echelonrower::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *echelonrower::VirtualBike() {
-    if (virtualBike)
-        return virtualBike;
-    else
-        return virtualRower;
-}
-
-void *echelonrower::VirtualDevice() { return VirtualBike(); }
 
 uint16_t echelonrower::watts() {
     if (currentCadence().value() == 0) {

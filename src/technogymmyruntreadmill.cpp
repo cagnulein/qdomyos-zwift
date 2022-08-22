@@ -558,7 +558,7 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
     emit connectedAndDiscovered();
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !virtualTreadmill && !virtualBike
+    if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -572,15 +572,17 @@ void technogymmyruntreadmill::stateChanged(QLowEnergyService::ServiceState state
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadmill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &technogymmyruntreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &technogymmyruntreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadmill);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &technogymmyruntreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstStateChanged = 1;
@@ -693,10 +695,6 @@ bool technogymmyruntreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *technogymmyruntreadmill::VirtualTreadmill() { return virtualTreadmill; }
-
-void *technogymmyruntreadmill::VirtualDevice() { return VirtualTreadmill(); }
 
 void technogymmyruntreadmill::controllerStateChanged(QLowEnergyController::ControllerState state) {
     qDebug() << QStringLiteral("controllerStateChanged") << state;

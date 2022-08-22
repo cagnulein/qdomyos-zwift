@@ -28,8 +28,6 @@
 #include <QString>
 
 #include "elliptical.h"
-#include "virtualbike.h"
-#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -40,11 +38,10 @@ class nordictrackelliptical : public elliptical {
   public:
     nordictrackelliptical(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                              double bikeResistanceGain);
-    bool connected();
+    bool connected() override;
 
-    void *VirtualTreadmill();
-    void *VirtualDevice();
-    int pelotonToEllipticalResistance(int pelotonResistance);
+
+    int pelotonToEllipticalResistance(int pelotonResistance) override;
 
   private:
     double GetDistanceFromPacket(QByteArray packet);
@@ -60,8 +57,6 @@ class nordictrackelliptical : public elliptical {
     void forceSpeed(double speed);
 
     QTimer *refresh;
-    virtualtreadmill *virtualTreadmill = nullptr;
-    virtualbike *virtualBike = nullptr;
     uint8_t counterPoll = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;

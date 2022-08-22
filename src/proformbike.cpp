@@ -951,7 +951,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &proformbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !virtualBike
+        if (!firstStateChanged && !this->VirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -973,10 +973,11 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
-                virtualBike =
+                auto virtualBike =
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&proformbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &proformbike::changeInclination);
+                this->setVirtualDevice(virtualBike);
             }
         }
         firstStateChanged = 1;
@@ -1069,10 +1070,6 @@ bool proformbike::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *proformbike::VirtualBike() { return virtualBike; }
-
-void *proformbike::VirtualDevice() { return VirtualBike(); }
 
 uint16_t proformbike::watts() {
     if (currentCadence().value() == 0) {

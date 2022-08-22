@@ -1,4 +1,5 @@
 #include "activiotreadmill.h"
+#include "virtualbike.h"
 
 #include "activiotreadmill.h"
 #include "ios/lockscreen.h"
@@ -168,21 +169,23 @@ void activiotreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !virtualTreadMill && !virtualBike) {
+        if (!firstInit && !this->VirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
-                    virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                    auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &activiotreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualTreadMill);
                 } else {
                     debug("creating virtual bike interface...");
-                    virtualBike = new virtualbike(this);
+                    auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
+                    this->setVirtualDevice(virtualBike);
                 }
                 firstInit = 1;
             }
@@ -675,9 +678,5 @@ bool activiotreadmill::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *activiotreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *activiotreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 void activiotreadmill::searchingStop() { searchStopped = true; }

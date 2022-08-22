@@ -2,6 +2,7 @@
 #include "ios/lockscreen.h"
 #include "keepawakehelper.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 #include <QDateTime>
 #include <QFile>
 #include <QMetaEnum>
@@ -42,21 +43,23 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !virtualTreadMill && !virtualBike) {
+    if (!firstStateChanged && !this->VirtualDevice()) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
-                virtualTreadMill = new virtualtreadmill(this, noHeartService);
+                auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &proformwifitreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualTreadMill);
             } else {
                 debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
+                auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
+                this->setVirtualDevice(virtualBike);
             }
             firstStateChanged = 1;
         }
@@ -276,11 +279,5 @@ void proformwifitreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) 
 }
 
 bool proformwifitreadmill::connected() { return websocket.state() == QAbstractSocket::ConnectedState; }
-
-void *proformwifitreadmill::VirtualBike() { return virtualBike; }
-
-void *proformwifitreadmill::VirtualTreadMill() { return virtualTreadMill; }
-
-void *proformwifitreadmill::VirtualDevice() { return VirtualTreadMill(); }
 
 uint16_t proformwifitreadmill::watts() { return m_watts; }

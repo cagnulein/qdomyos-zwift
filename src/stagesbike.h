@@ -27,7 +27,6 @@
 #include <QString>
 
 #include "bike.h"
-#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,14 +36,10 @@ class stagesbike : public bike {
     Q_OBJECT
   public:
     stagesbike(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
-    int pelotonToBikeResistance(int pelotonResistance);
-    bool connected();
-    uint8_t maxResistance() { return 100; }
-    bool ergManagedBySS2K() { return true; }
-
-    void *VirtualBike();
-    void *VirtualDevice();
-
+    int pelotonToBikeResistance(int pelotonResistance) override;
+    bool connected() override;
+    uint8_t maxResistance() override { return 100; }
+    bool ergManagedBySS2K() override { return true; }
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,
                              bool wait_for_response = false);
@@ -52,10 +47,9 @@ class stagesbike : public bike {
     metric ResistanceFromFTMSAccessory;
     uint64_t ResistanceFromFTMSAccessoryLastTime = 0;
     void startDiscover();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     // QLowEnergyCharacteristic gattNotify1Characteristic;
@@ -86,7 +80,7 @@ class stagesbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(int8_t res);
+    void resistanceFromFTMSAccessory(int8_t res) override;
 
   private slots:
 

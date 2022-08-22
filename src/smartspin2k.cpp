@@ -1,4 +1,5 @@
 #include "smartspin2k.h"
+#include "ftmsbike.h"
 #include "ios/lockscreen.h"
 #include "virtualbike.h"
 #include <QBluetoothLocalDevice>
@@ -511,10 +512,6 @@ bool smartspin2k::connected() {
     }
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
-
-void *smartspin2k::VirtualBike() { return virtualBike; }
-
-void *smartspin2k::VirtualDevice() { return VirtualBike(); }
 
 uint16_t smartspin2k::watts() {
     if (currentCadence().value() == 0) {

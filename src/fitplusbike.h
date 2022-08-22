@@ -37,11 +37,8 @@ class fitplusbike : public bike {
     Q_OBJECT
   public:
     fitplusbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    uint8_t maxResistance() { return max_resistance; }
-    bool connected();
-
-    void *VirtualBike();
-    void *VirtualDevice();
+    uint8_t maxResistance() override { return max_resistance; }
+    bool connected() override;
 
   private:
     const int max_resistance = 24;
@@ -51,10 +48,9 @@ class fitplusbike : public bike {
     void startDiscover();
     void forceResistance(int8_t requestResistance);
     void sendPoll();
-    uint16_t watts();
+    uint16_t watts() override;
 
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     QLowEnergyService *gattCommunicationChannelService = nullptr;
     QLowEnergyCharacteristic gattWriteCharacteristic;
