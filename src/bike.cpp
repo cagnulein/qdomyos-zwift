@@ -5,6 +5,8 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
+virtualbike *bike::VirtualBike() { return dynamic_cast<virtualbike*>(this->VirtualDevice()); }
+
 void bike::changeResistance(resistance_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
@@ -23,7 +25,7 @@ void bike::changeInclination(double grade, double percentage) {
     emit inclinationChanged(grade, percentage);
 }
 
-// originally made for renphobike, but i guess it could be very generic
+                                            // originally made for renphobike, but i guess it could be very generic
 uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
     // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
     double cadence = RequestedCadence.value();
