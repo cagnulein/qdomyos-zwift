@@ -34,6 +34,8 @@ class toorxtreadmill : public treadmill {
     Q_OBJECT
   public:
     explicit toorxtreadmill();
+    void *VirtualTreadMill();
+    void *VirtualDevice();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
