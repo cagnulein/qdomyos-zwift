@@ -43,7 +43,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
     emit connectedAndDiscovered();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()) {
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
         if (virtual_device_enabled) {
@@ -53,13 +53,13 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &proformwifitreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
             } else {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &proformwifitreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, true);
             }
             firstStateChanged = 1;
         }

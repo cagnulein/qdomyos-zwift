@@ -1380,7 +1380,7 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -1398,13 +1398,13 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &horizontreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadmill);
+                this->setVirtualDevice(virtualTreadmill, false);
             } else {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &horizontreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, true);
             }
         }
         firstStateChanged = 1;

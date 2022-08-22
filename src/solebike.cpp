@@ -435,7 +435,7 @@ void solebike::stateChanged(QLowEnergyService::ServiceState state) {
                 &solebike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -461,7 +461,7 @@ void solebike::stateChanged(QLowEnergyService::ServiceState state) {
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&solebike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &solebike::changeInclination);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;

@@ -515,7 +515,7 @@ void npecablebike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -540,7 +540,7 @@ void npecablebike::stateChanged(QLowEnergyService::ServiceState state) {
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             // connect(virtualBike,&virtualbike::debug ,this,&npecablebike::debug);
             connect(virtualBike, &virtualbike::changeInclination, this, &npecablebike::changeInclination);
-            this->setVirtualDevice(virtualBike);
+            this->setVirtualDevice(virtualBike, false);
         }
     }
     firstStateChanged = 1;

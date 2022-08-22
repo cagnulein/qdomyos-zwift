@@ -142,13 +142,13 @@ void echelonstride::update() {
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &echelonstride::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadMill);
+                    this->setVirtualDevice(virtualTreadMill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &echelonstride::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstInit = 1;
             }

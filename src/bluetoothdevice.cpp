@@ -133,12 +133,15 @@ void bluetoothdevice::instantaneousStrideLengthSensor(double length) { Q_UNUSED(
 void bluetoothdevice::groundContactSensor(double groundContact) { Q_UNUSED(groundContact); }
 void bluetoothdevice::verticalOscillationSensor(double verticalOscillation) { Q_UNUSED(verticalOscillation); }
 
+bool bluetoothdevice::hasVirtualDevice() { return this->virtualDevice!=nullptr; }
+
 double bluetoothdevice::calculateMETS() { return ((0.048 * m_watt.value()) + 1.19); }
 
-void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice) {
+void bluetoothdevice::setVirtualDevice(virtualdevice *virtualDevice, bool hide) {
     if(this->virtualDevice)
         delete this->virtualDevice;
     this->virtualDevice = virtualDevice;
+    this->hideVirtualDevice = hide;
 }
 
 // keiser m3i has a separate management of this, so please check it

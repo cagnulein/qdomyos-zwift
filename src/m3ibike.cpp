@@ -613,7 +613,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         detectDisc->start(M3i_DISCONNECT_THRESHOLD);
         if (!initDone) {
             initDone = true;
-            if (!this->VirtualDevice()
+            if (!this->hasVirtualDevice()
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 && !h
 #endif
@@ -633,7 +633,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                     connect(virtualBike, &virtualbike::changeInclination, this, &m3ibike::changeInclination);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, false);
                 }
                 int buffSize = settings.value(QStringLiteral("m3i_bike_speed_buffsize"), 90).toInt();
                 k3s.inner_reset(buffSize,

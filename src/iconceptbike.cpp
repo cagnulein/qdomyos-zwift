@@ -79,14 +79,14 @@ void iconceptbike::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!this->VirtualDevice()) {
+        if (!this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 auto virtualBike = new virtualbike(this, true);
                 connect(virtualBike, &virtualbike::changeInclination, this, &iconceptbike::changeInclination);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         // ********************************************************************************************************

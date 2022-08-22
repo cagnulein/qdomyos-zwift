@@ -728,18 +728,17 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &trxappgateusbbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstVirtualBike && !this->VirtualDevice()) {
+        if (!firstVirtualBike && !this->hasVirtualDevice()) {
 
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
 
-                auto virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&trxappgateusbbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &trxappgateusbbike::changeInclination);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstVirtualBike = 1;

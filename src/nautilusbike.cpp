@@ -88,13 +88,13 @@ void nautilusbike::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtual && !this->VirtualDevice()) {
+        if (!firstVirtual && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             if (virtual_device_enabled) {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &nautilusbike::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
                 firstVirtual = 1;
             }
         }

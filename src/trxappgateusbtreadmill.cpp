@@ -529,7 +529,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 &trxappgateusbtreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !this->VirtualDevice()) {
+        if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
@@ -538,7 +538,7 @@ void trxappgateusbtreadmill::stateChanged(QLowEnergyService::ServiceState state)
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &trxappgateusbtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &trxappgateusbtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
             }
         }
         firstVirtualTreadmill = 1;

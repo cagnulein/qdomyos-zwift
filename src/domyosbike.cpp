@@ -179,7 +179,7 @@ void domyosbike::update() {
         update_metrics(true, watts());
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -205,7 +205,7 @@ void domyosbike::update() {
                     new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&schwinnic4bike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &domyosbike::changeInclination);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;

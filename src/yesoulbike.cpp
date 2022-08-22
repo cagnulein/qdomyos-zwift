@@ -250,7 +250,7 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &yesoulbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -275,7 +275,7 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 // connect(virtualBike,&virtualbike::debug ,this,&yesoulbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &yesoulbike::changeInclination);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;

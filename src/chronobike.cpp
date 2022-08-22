@@ -260,7 +260,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 &chronobike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -285,7 +285,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
                 auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
                 connect(virtualBike, &virtualbike::changeInclination, this, &chronobike::changeInclination);
                 // connect(virtualBike,&virtualbike::debug ,this,&chronobike::debug);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;

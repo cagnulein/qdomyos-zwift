@@ -32,7 +32,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()) {
+    if (!firstStateChanged && !this->hasVirtualDevice()) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
         if (virtual_device_enabled) {
@@ -42,13 +42,13 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
                 connect(virtualTreadmill, &virtualtreadmill::debug, this, &nordictrackifitadbtreadmill::debug);
                 connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadmill);
+                this->setVirtualDevice(virtualTreadmill, false);
             } else {
                 debug("creating virtual bike interface...");
                 auto virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this,
                         &nordictrackifitadbtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, true);
             }
             firstStateChanged = 1;
         }

@@ -434,7 +434,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual treadmill init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -451,7 +451,7 @@ void shuaa5treadmill::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualTreadmill, &virtualtreadmill::debug, this, &shuaa5treadmill::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &shuaa5treadmill::changeInclinationRequested);
-            this->setVirtualDevice(virtualTreadmill);
+            this->setVirtualDevice(virtualTreadmill, false);
         }
     }
     firstStateChanged = 1;

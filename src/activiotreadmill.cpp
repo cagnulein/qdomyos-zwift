@@ -169,7 +169,7 @@ void activiotreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !this->VirtualDevice()) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
@@ -179,13 +179,15 @@ void activiotreadmill::update() {
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &activiotreadmill::debug);
                     connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadMill);
+                    this->setVirtualDevice(virtualTreadMill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &activiotreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike);
+
+                    // DO NOT show the virtual device in this case (Zwift Auto-Inclination Workaround)
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstInit = 1;
             }

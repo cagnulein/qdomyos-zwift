@@ -48,6 +48,12 @@ class bluetoothdevice : public QObject {
 
     Q_OBJECT
   private:
+    /**
+     * @brief hideVirtualDevice Indicates if the virtual device will be exposed via VirtualDevice().
+     * Normally false, set this to true where the device is being used unusually, e.g.
+     * for the Zwift Auto-Inclination Workaround.
+     */
+    bool hideVirtualDevice = false;
     virtualdevice *virtualDevice = nullptr;
   public:
     bluetoothdevice();
@@ -197,7 +203,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief VirtualDevice The virtual bridge to Zwift for example, or to any 3rd party app.
      */
-    virtualdevice *VirtualDevice() { return this->virtualDevice; }
+    virtualdevice *VirtualDevice() { return this->hideVirtualDevice ? nullptr:this->virtualDevice; }
 
     /**
      * @brief watts Calculates the amount of power used. Units: watts
@@ -385,6 +391,11 @@ class bluetoothdevice : public QObject {
     void verticalOscillationChanged(double verticalOscillation);
 
   protected:
+    /**
+     * @brief hasVirtualDevice shows if the object has any virtual device, even if hidden via VirtualDevice().
+     */
+    bool hasVirtualDevice();
+
     QLowEnergyController *m_control = nullptr;
 
     /**
@@ -576,8 +587,10 @@ class bluetoothdevice : public QObject {
     /**
      * @brief setVirtualDevice Set the virtual device. Deletes the existing one, if present.
      * @param virtualDevice The virtual device.
+     * @hide Set to true to store the virtual device (for later deletion by the desctructor)
+     * but don't show via VirtualDevice().
      */
-    void setVirtualDevice(virtualdevice * virtualDevice);
+    void setVirtualDevice(virtualdevice * virtualDevice, bool hide);
 };
 
 #endif // BLUETOOTHDEVICE_H

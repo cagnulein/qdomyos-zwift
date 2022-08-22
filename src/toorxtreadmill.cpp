@@ -80,14 +80,14 @@ void toorxtreadmill::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!this->VirtualDevice()) {
+        if (!this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 auto virtualTreadMill = new virtualtreadmill(this, true);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &toorxtreadmill::debug);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
             }
         }
         // ********************************************************************************************************

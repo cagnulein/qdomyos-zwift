@@ -104,7 +104,7 @@ void technogymmyruntreadmillrfcomm::update() {
 
     if (initDone) {
         // ******************************************* virtual treadmill init *************************************
-        if (!this->VirtualDevice()) {
+        if (!this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
@@ -113,7 +113,7 @@ void technogymmyruntreadmillrfcomm::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &technogymmyruntreadmillrfcomm::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &technogymmyruntreadmillrfcomm::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
             }
         }
         // ********************************************************************************************************

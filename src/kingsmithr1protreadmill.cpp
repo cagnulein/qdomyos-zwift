@@ -105,7 +105,7 @@ void kingsmithr1protreadmill::update() {
 
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && searchStopped && !this->VirtualDevice()) {
+        if (!firstInit && searchStopped && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
@@ -113,13 +113,13 @@ void kingsmithr1protreadmill::update() {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadMill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadMill, &virtualtreadmill::debug, this, &kingsmithr1protreadmill::debug);
-                    this->setVirtualDevice(virtualTreadMill);
+                    this->setVirtualDevice(virtualTreadMill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &kingsmithr1protreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstInit = 1;
             }

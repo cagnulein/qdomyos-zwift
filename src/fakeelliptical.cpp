@@ -43,7 +43,7 @@ void fakeelliptical::update() {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualDevice() && !noVirtualDevice
+    if (!firstStateChanged && !this->hasVirtualDevice() && !noVirtualDevice
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -68,7 +68,7 @@ void fakeelliptical::update() {
             auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakeelliptical::changeInclinationRequested);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakeelliptical::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike);
+            this->setVirtualDevice(virtualBike, false);
         }
     }
     if (!firstStateChanged)

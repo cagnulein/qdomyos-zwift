@@ -427,7 +427,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -442,7 +442,7 @@ void bhfitnesselliptical::stateChanged(QLowEnergyService::ServiceState state) {
             // connect(virtualTreadmill,&virtualTreadmill::debug ,this,&bhfitnesselliptical::debug);
             connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                     &bhfitnesselliptical::changeInclination);
-            this->setVirtualDevice(virtualTreadmill);
+            this->setVirtualDevice(virtualTreadmill, false);
         }
     }
     firstStateChanged = 1;

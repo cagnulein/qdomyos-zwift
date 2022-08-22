@@ -384,14 +384,14 @@ void spirittreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                 &spirittreadmill::descriptorWritten);
 
         // ******************************************* virtual treadmill init *************************************
-        if (!firstVirtualTreadmill && !this->VirtualDevice()) {
+        if (!firstVirtualTreadmill && !this->hasVirtualDevice()) {
             QSettings settings;
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 auto virtualTreadMill = new virtualtreadmill(this, false);
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &spirittreadmill::debug);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
             }
         }
         firstVirtualTreadmill = 1;

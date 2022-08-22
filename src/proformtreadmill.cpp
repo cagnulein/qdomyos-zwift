@@ -1417,7 +1417,7 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
-        if (!firstStateChanged && !this->VirtualDevice()) {
+        if (!firstStateChanged && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
@@ -1427,13 +1427,13 @@ void proformtreadmill::stateChanged(QLowEnergyService::ServiceState state) {
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformtreadmill::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &proformtreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill);
+                    this->setVirtualDevice(virtualTreadmill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformtreadmill::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstStateChanged = 1;
             }

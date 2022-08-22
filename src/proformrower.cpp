@@ -525,7 +525,7 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         bool virtual_device_rower = settings.value("virtual_device_rower", false).toBool();
-        if (!firstStateChanged && !this->VirtualDevice()) {
+        if (!firstStateChanged && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
@@ -533,20 +533,20 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
-                    this->setVirtualDevice(virtualRower);
+                    this->setVirtualDevice(virtualRower, true);
                 } else if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
                     auto virtualTreadmill = new virtualtreadmill(this, noHeartService);
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &proformrower::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill);
+                    this->setVirtualDevice(virtualTreadmill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformrower::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstStateChanged = 1;
             }

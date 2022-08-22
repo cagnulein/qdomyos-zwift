@@ -160,7 +160,7 @@ void fitshowtreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &fitshowtreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &fitshowtreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
                 firstInit = 1;
             }
         }

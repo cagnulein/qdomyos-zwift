@@ -578,14 +578,14 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &proformellipticaltrainer::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill);
+                    this->setVirtualDevice(virtualTreadmill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &proformellipticaltrainer::changeInclinationRequested);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, true);
                 }
                 firstStateChanged = 1;
             }

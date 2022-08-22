@@ -266,7 +266,7 @@ void octanetreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() && initDone) {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
-        if (!firstInit && !this->VirtualDevice()) {
+        if (!firstInit && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
@@ -274,7 +274,7 @@ void octanetreadmill::update() {
                 connect(virtualTreadMill, &virtualtreadmill::debug, this, &octanetreadmill::debug);
                 connect(virtualTreadMill, &virtualtreadmill::changeInclination, this,
                         &octanetreadmill::changeInclinationRequested);
-                this->setVirtualDevice(virtualTreadMill);
+                this->setVirtualDevice(virtualTreadMill, false);
                 firstInit = 1;
             }
         }

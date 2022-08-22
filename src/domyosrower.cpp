@@ -168,7 +168,7 @@ void domyosrower::update() {
 
         // ******************************************* virtual bike init *************************************
         QSettings settings;
-        if (!firstVirtual && searchStopped && !this->VirtualDevice()) {
+        if (!firstVirtual && searchStopped && !this->hasVirtualDevice()) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {
@@ -178,14 +178,14 @@ void domyosrower::update() {
                     connect(virtualTreadmill, &virtualtreadmill::debug, this, &domyosrower::debug);
                     connect(virtualTreadmill, &virtualtreadmill::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
-                    this->setVirtualDevice(virtualTreadmill);
+                    this->setVirtualDevice(virtualTreadmill, false);
                 } else {
                     debug("creating virtual bike interface...");
                     auto virtualBike = new virtualbike(this);
                     connect(virtualBike, &virtualbike::changeInclination, this,
                             &domyosrower::changeInclinationRequested);
                     connect(virtualBike, &virtualbike::changeInclination, this, &domyosrower::changeInclination);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, false);
                 }
                 firstVirtual = 1;
             }

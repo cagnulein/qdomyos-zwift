@@ -431,7 +431,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
     }
 
     // ******************************************* virtual bike init *************************************
-    if (!firstStateChanged && !this->VirtualDevice()
+    if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         && !h
@@ -459,7 +459,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::changeInclination, this, &horizongr7bike::changeInclination);
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                     &horizongr7bike::ftmsCharacteristicChanged);
-            this->setVirtualDevice(virtualBike);
+            this->setVirtualDevice(virtualBike, false);
         }
     }
     firstStateChanged = 1;

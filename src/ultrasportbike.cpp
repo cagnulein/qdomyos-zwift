@@ -291,7 +291,7 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
                 &ultrasportbike::descriptorWritten);
 
         // ******************************************* virtual bike init *************************************
-        if (!firstStateChanged && !this->VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -313,11 +313,10 @@ void ultrasportbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
                 if (virtual_device_enabled) {
                 qDebug() << QStringLiteral("creating virtual bike interface...");
-                auto virtualBike =
-                    new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+                auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 // connect(virtualBike,&virtualbike::debug ,this,&ultrasportbike::debug);
                 connect(virtualBike, &virtualbike::changeInclination, this, &ultrasportbike::changeInclination);
-                this->setVirtualDevice(virtualBike);
+                this->setVirtualDevice(virtualBike, false);
             }
         }
         firstStateChanged = 1;

@@ -368,7 +368,7 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                 &echelonrower::descriptorWritten);
 
         // ******************************************* virtual bike/rower init *************************************
-        if (!firstStateChanged && !VirtualDevice()
+        if (!firstStateChanged && !this->hasVirtualDevice()
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             && !h
@@ -395,12 +395,12 @@ void echelonrower::stateChanged(QLowEnergyService::ServiceState state) {
                     auto virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset,
                                                   bikeResistanceGain);
                     // connect(virtualBike,&virtualbike::debug ,this,&echelonrower::debug);
-                    this->setVirtualDevice(virtualBike);
+                    this->setVirtualDevice(virtualBike, false);
                 } else {
                     qDebug() << QStringLiteral("creating virtual rower interface...");
                     auto virtualRower = new virtualrower(this, noWriteResistance, noHeartService);
                     // connect(virtualRower,&virtualrower::debug ,this,&echelonrower::debug);
-                    this->setVirtualDevice(virtualRower);
+                    this->setVirtualDevice(virtualRower, false);
                 }
             }
         }
