@@ -237,9 +237,12 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     }
 
     if (Flags.instantPower) {
-        m_watt =
+        double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
+        if(!filterWattNull || watt != 0) {
+            m_watt = watt;
+        }
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
     }
 
@@ -536,6 +539,11 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                device.address().toString() + ')');
     {
         bluetoothDevice = device;
+
+        if(device.name().trimmed().toUpper().startsWith("WHIPR")) {
+            filterWattNull = true;
+            qDebug() << "WHIPR found! filtering null wattage";
+        }
 
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);
         connect(m_control, &QLowEnergyController::serviceDiscovered, this, &ftmsrower::serviceDiscovered);
