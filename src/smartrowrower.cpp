@@ -70,7 +70,7 @@ void smartrowrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const Q
     loop.exec();
 }
 
-void smartrowrower::forceResistance(int8_t requestResistance) {
+void smartrowrower::forceResistance(resistance_t requestResistance) {
     Q_UNUSED(requestResistance)
     /*
                                    uint8_t noOpData[] = { 0xf0, 0xb1, 0x01, 0x00, 0x00 };
@@ -143,7 +143,7 @@ void smartrowrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int smartrowrower::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t smartrowrower::pelotonToBikeResistance(int pelotonResistance) {
     for (int i = 1; i < max_resistance - 1; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
@@ -152,7 +152,7 @@ int smartrowrower::pelotonToBikeResistance(int pelotonResistance) {
     return Resistance.value();
 }
 
-uint8_t smartrowrower::resistanceFromPowerRequest(uint16_t power) {
+resistance_t smartrowrower::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
     for (int i = 1; i < max_resistance - 1; i++) {

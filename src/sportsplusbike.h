@@ -32,7 +32,7 @@ class sportsplusbike : public bike {
     Q_OBJECT
   public:
     sportsplusbike(bool noWriteResistance, bool noHeartService);
-    int pelotonToBikeResistance(int pelotonResistance);
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool connected();
 
     void *VirtualBike();
@@ -43,7 +43,7 @@ class sportsplusbike : public bike {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -74,7 +74,7 @@ class sportsplusbike : public bike {
     bool initRequest = false;
     bool readyToStart = false;
 
-    const int max_resistance = 24;
+    const resistance_t max_resistance = 24;
 
   signals:
     void disconnected();

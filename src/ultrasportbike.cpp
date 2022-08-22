@@ -70,7 +70,7 @@ void ultrasportbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     loop.exec();
 }
 
-void ultrasportbike::forceResistance(int8_t requestResistance) {}
+void ultrasportbike::forceResistance(resistance_t requestResistance) {}
 
 void ultrasportbike::update() {
 
@@ -129,8 +129,8 @@ void ultrasportbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int ultrasportbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance; i++) {
+resistance_t ultrasportbike::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }

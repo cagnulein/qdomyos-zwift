@@ -257,6 +257,7 @@ HEADERS += \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
+    definitions.h \
     fakeelliptical.h \
    kmlworkout.h \
    nautilusbike.h \
@@ -722,4 +723,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.27
+VERSION = 2.11.31

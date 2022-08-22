@@ -41,7 +41,7 @@ class smartspin2k : public bike {
 
     Q_OBJECT
   public:
-    smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice);
+    smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice);
     bool connected();
 
     void *VirtualBike();
@@ -55,9 +55,9 @@ class smartspin2k : public bike {
                                  bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void setShiftStep(uint16_t);
-    void lowInit(int8_t resistance);
+    void lowInit(resistance_t resistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -81,11 +81,11 @@ class smartspin2k : public bike {
     bool noWriteResistance = false;
     bool noHeartService = false;
 
-    int8_t startupResistance = -1;
-    int8_t lastResistance;
-    int8_t lastRequestResistance;
+    resistance_t startupResistance = -1;
+    resistance_t lastResistance;
+    resistance_t lastRequestResistance;
 
-    uint8_t max_resistance;
+    resistance_t max_resistance;
 
     double slope = 0.0;
     double intercept = 0.0;
@@ -104,7 +104,7 @@ class smartspin2k : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceReadFromTheBike(int8_t resistance);
+    void resistanceReadFromTheBike(resistance_t resistance);
     void autoResistanceChanged(bool value);
     void calibrateShiftStep();
 

@@ -50,7 +50,7 @@ void nordictrackelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len,
     loop.exec();
 }
 
-void nordictrackelliptical::forceResistance(int8_t requestResistance) {
+void nordictrackelliptical::forceResistance(resistance_t requestResistance) {
 
     const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
     writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("resistance"), false, false);
@@ -311,7 +311,7 @@ void nordictrackelliptical::characteristicChanged(const QLowEnergyCharacteristic
         return;
     }
 
-    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && newValue.at(2) == 0x46) {
+    if (newValue.length() == 20 && newValue.at(0) == 0x01 && newValue.at(1) == 0x12 && initDone == true) {
         Speed = (double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) + (uint16_t)((uint8_t)newValue.at(14))) / 100.0;
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
         lastSpeedChanged = QDateTime::currentDateTime();

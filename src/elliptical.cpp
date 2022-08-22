@@ -56,7 +56,7 @@ uint16_t elliptical::watts() {
     m_watt.setValue(watts);
     return m_watt.value();
 }
-void elliptical::changeResistance(int8_t resistance) {
+void elliptical::changeResistance(resistance_t resistance) {
     requestResistance = resistance;
     RequestedResistance = resistance;
 }

@@ -50,7 +50,7 @@ void proformbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     loop.exec();
 }
 
-uint8_t proformbike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t proformbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
     QSettings settings;
@@ -58,7 +58,7 @@ uint8_t proformbike::resistanceFromPowerRequest(uint16_t power) {
     double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
     double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
             ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest")
@@ -73,7 +73,7 @@ uint8_t proformbike::resistanceFromPowerRequest(uint16_t power) {
         return max_resistance;
 }
 
-uint16_t proformbike::wattsFromResistance(uint8_t resistance) {
+uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 
     if (currentCadence().value() == 0)
         return 0;
@@ -146,7 +146,7 @@ uint16_t proformbike::wattsFromResistance(uint8_t resistance) {
     }
 }
 
-void proformbike::forceResistance(int8_t requestResistance) {
+void proformbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool proform_studio = settings.value(QStringLiteral("proform_studio"), false).toBool();
     bool proform_tdf_10 = settings.value(QStringLiteral("proform_tdf_10"), false).toBool();
@@ -437,7 +437,7 @@ bool proformbike::inclinationAvailableByHardware() {
         return false;
 }
 
-int proformbike::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t proformbike::pelotonToBikeResistance(int pelotonResistance) {
     if (pelotonResistance <= 10) {
         return 1;
     }

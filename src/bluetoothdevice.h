@@ -1,7 +1,9 @@
 #ifndef BLUETOOTHDEVICE_H
 #define BLUETOOTHDEVICE_H
 
+#include "definitions.h"
 #include "metric.h"
+
 #include <QBluetoothDeviceDiscoveryAgent>
 #include <QBluetoothDeviceInfo>
 #include <QDateTime>
@@ -19,11 +21,15 @@
 #include <QtBluetooth/qlowenergyservice.h>
 #include <QtBluetooth/qlowenergyservicedata.h>
 
+
+
 #if defined(Q_OS_IOS)
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.deviceUuid() == d2.deviceUuid())
 #else
 #define SAME_BLUETOOTH_DEVICE(d1, d2) (d1.address() == d2.address())
 #endif
+
+
 
 /**
  * @brief The MetersByInclination class represents a section of track at a specific inclination.
@@ -347,7 +353,7 @@ class bluetoothdevice : public QObject {
     /**
      * @brief Overridden in subclasses to specify the maximum resistance level supported by the device.
      */
-    virtual uint8_t maxResistance();
+    virtual resistance_t maxResistance();
 
   public Q_SLOTS:
     virtual void start();
@@ -356,7 +362,7 @@ class bluetoothdevice : public QObject {
     virtual void cadenceSensor(uint8_t cadence);
     virtual void powerSensor(uint16_t power);
     virtual void speedSensor(double speed);
-    virtual void changeResistance(int8_t res);
+    virtual void changeResistance(resistance_t res);
     virtual void changePower(int32_t power);
     virtual void changeInclination(double grade, double percentage);
     virtual void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);

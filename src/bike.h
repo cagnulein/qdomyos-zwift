@@ -20,9 +20,9 @@ class bike : public bluetoothdevice {
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
     virtual uint16_t watts();
-    virtual int pelotonToBikeResistance(int pelotonResistance);
-    virtual uint8_t resistanceFromPowerRequest(uint16_t power);
-    virtual uint16_t powerFromResistanceRequest(int8_t requestResistance);
+    virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
+    virtual resistance_t resistanceFromPowerRequest(uint16_t power);
+    virtual uint16_t powerFromResistanceRequest(resistance_t requestResistance);
     virtual bool ergManagedBySS2K() { return false; }
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
@@ -43,7 +43,7 @@ class bike : public bluetoothdevice {
     virtual bool inclinationAvailableByHardware();
 
   public Q_SLOTS:
-    virtual void changeResistance(int8_t res);
+    virtual void changeResistance(resistance_t res);
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
@@ -51,12 +51,12 @@ class bike : public bluetoothdevice {
     virtual void powerSensor(uint16_t power);
     virtual void changeInclination(double grade, double percentage);
     virtual void changeSteeringAngle(double angle) { m_steeringAngle = angle; }
-    virtual void resistanceFromFTMSAccessory(int8_t res) { Q_UNUSED(res); }
+    virtual void resistanceFromFTMSAccessory(resistance_t res) { Q_UNUSED(res); }
 
   Q_SIGNALS:
     void bikeStarted();
-    void resistanceChanged(int8_t resistance);
-    void resistanceRead(int8_t resistance);
+    void resistanceChanged(resistance_t resistance);
+    void resistanceRead(resistance_t resistance);
     void steeringAngleChanged(double angle);
 
   protected:
@@ -65,7 +65,7 @@ class bike : public bluetoothdevice {
     metric RequestedCadence;
     metric RequestedPower;
 
-    int8_t requestResistance = -1;
+    resistance_t requestResistance = -1;
     double requestInclination = -100;
     int16_t requestPower = -1;
 
@@ -73,7 +73,7 @@ class bike : public bluetoothdevice {
                                    // request there is no need to translate in resistance levels
 
     int8_t m_gears = 0;
-    int8_t lastRawRequestedResistanceValue = -1;
+    resistance_t lastRawRequestedResistanceValue = -1;
     uint16_t LastCrankEventTime = 0;
     double CrankRevs = 0;
 

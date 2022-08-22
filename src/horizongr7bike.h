@@ -48,7 +48,7 @@ class horizongr7bike : public bike {
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
     virtualbike *virtualBike = nullptr;
@@ -58,7 +58,7 @@ class horizongr7bike : public bike {
     QLowEnergyService *gattFTMSService;
 
     double bikeResistanceToPeloton(double resistance);
-    const int max_resistance = 12;
+    const resistance_t max_resistance = 12;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

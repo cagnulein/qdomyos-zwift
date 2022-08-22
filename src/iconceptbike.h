@@ -34,6 +34,8 @@ class iconceptbike : public bike {
     Q_OBJECT
   public:
     explicit iconceptbike();
+    void *VirtualBike();
+    void *VirtualDevice();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

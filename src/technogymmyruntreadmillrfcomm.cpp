@@ -226,3 +226,7 @@ void technogymmyruntreadmillrfcomm::readSocket() {
 void technogymmyruntreadmillrfcomm::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
+
+void *technogymmyruntreadmillrfcomm::VirtualTreadMill() { return virtualTreadMill; }
+
+void *technogymmyruntreadmillrfcomm::VirtualDevice() { return VirtualTreadMill(); }

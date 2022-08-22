@@ -1529,7 +1529,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 trxappgateusb->deviceDiscovered(b);
                 userTemplateManager->start(trxappgateusb);
                 innerTemplateManager->start(trxappgateusb);
-            } else if ((((b.name().startsWith(QStringLiteral("TOORX")) ||
+            } else if ((
+                           b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
+                           ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||
@@ -1705,6 +1707,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 if (!discoveryAgent->isActive()) {
                     emit searchingStop();
                 }
+                userTemplateManager->start(chronoBike);
+                innerTemplateManager->start(chronoBike);
             }
         }
     }
@@ -1806,12 +1810,12 @@ void bluetooth::connectedAndDiscovered() {
 
                 connect(ftmsAccessory, &smartspin2k::debug, this, &bluetooth::debug);
 
-                connect(this->device(), SIGNAL(resistanceChanged(int8_t)), ftmsAccessory,
-                        SLOT(changeResistance(int8_t)));
-                connect(this->device(), SIGNAL(resistanceRead(int8_t)), ftmsAccessory,
-                        SLOT(resistanceReadFromTheBike(int8_t)));
-                connect(ftmsAccessory, SIGNAL(resistanceRead(int8_t)), this->device(),
-                        SLOT(resistanceFromFTMSAccessory(int8_t)));
+                connect(this->device(), SIGNAL(resistanceChanged(resistance_t)), ftmsAccessory,
+                        SLOT(changeResistance(resistance_t)));
+                connect(this->device(), SIGNAL(resistanceRead(resistance_t)), ftmsAccessory,
+                        SLOT(resistanceReadFromTheBike(resistance_t)));
+                connect(ftmsAccessory, SIGNAL(resistanceRead(resistance_t)), this->device(),
+                        SLOT(resistanceFromFTMSAccessory(resistance_t)));
                 emit ftmsAccessoryConnected(ftmsAccessory);
                 ftmsAccessory->deviceDiscovered(b);
                 break;

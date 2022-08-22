@@ -70,7 +70,7 @@ void keepbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStrin
     loop.exec();
 }
 
-void keepbike::forceResistance(int8_t requestResistance) {
+void keepbike::forceResistance(resistance_t requestResistance) {
     uint8_t up[] = {0x5b, 0x02, 0xf1, 0x02, 0x5d};
     uint8_t down[] = {0x5b, 0x02, 0xf1, 0x03, 0x5d};
 
@@ -158,8 +158,8 @@ void keepbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int keepbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance; i++) {
+resistance_t keepbike::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }

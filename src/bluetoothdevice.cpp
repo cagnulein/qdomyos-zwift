@@ -30,7 +30,7 @@ metric bluetoothdevice::currentResistance() { return Resistance; }
 metric bluetoothdevice::currentCadence() { return Cadence; }
 double bluetoothdevice::currentCrankRevolutions() { return 0; }
 uint16_t bluetoothdevice::lastCrankEventTime() { return 0; }
-void bluetoothdevice::changeResistance(int8_t resistance) {}
+void bluetoothdevice::changeResistance(resistance_t resistance) {}
 void bluetoothdevice::changePower(int32_t power) {}
 void bluetoothdevice::changeInclination(double grade, double percentage) {}
 
@@ -261,7 +261,7 @@ QStringList bluetoothdevice::metrics() {
     return r;
 }
 
-uint8_t bluetoothdevice::maxResistance() { return 100; }
+resistance_t bluetoothdevice::maxResistance() { return 100; }
 
 uint8_t bluetoothdevice::metrics_override_heartrate() {
 

@@ -69,7 +69,7 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
     loop.exec();
 }
 
-void fitplusbike::forceResistance(int8_t requestResistance) {
+void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
     bool virtufit_etappe = settings.value(QStringLiteral("virtufit_etappe"), false).toBool();
     if (virtufit_etappe) {
