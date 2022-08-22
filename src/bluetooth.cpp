@@ -1339,7 +1339,9 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 // connect(trxappgateusb, SIGNAL(disconnected()), this, SLOT(restart()));
                 connect(trxappgateusb, &trxappgateusbtreadmill::debug, this, &bluetooth::debug);
                 trxappgateusb->deviceDiscovered(b);
-            } else if ((((b.name().startsWith(QStringLiteral("TOORX")) ||
+            } else if ((
+                           b.name().toUpper().startsWith(QStringLiteral("TUN ")) ||
+                          ((b.name().startsWith(QStringLiteral("TOORX")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOIE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("I-CONSOLE+")) ||
                           b.name().toUpper().startsWith(QStringLiteral("IBIKING+")) ||

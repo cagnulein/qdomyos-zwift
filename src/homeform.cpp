@@ -2128,7 +2128,7 @@ void homeform::update() {
         double resistance = 0;
         double watts = 0;
         double pace = 0;
-        int8_t peloton_resistance = 0;
+        double peloton_resistance = 0;
         uint8_t cadence = 0;
         uint32_t totalStrokes = 0;
         double avgStrokesRate = 0;
@@ -2613,9 +2613,9 @@ void homeform::update() {
             if (settings.value(QStringLiteral("tile_peloton_resistance_color_enabled"), false).toBool()) {
                 if (lower_requested_peloton_resistance == -1) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("white"));
-                } else if (peloton_resistance < lower_requested_peloton_resistance) {
+                } else if (((int8_t)peloton_resistance) < lower_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("red"));
-                } else if (peloton_resistance <= upper_requested_peloton_resistance) {
+                } else if (((int8_t)peloton_resistance) <= upper_requested_peloton_resistance) {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("limegreen"));
                 } else {
                     this->peloton_resistance->setValueFontColor(QStringLiteral("orange"));

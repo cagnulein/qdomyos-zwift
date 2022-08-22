@@ -13,7 +13,7 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("Stack")
+    title: qsTr("qDomyos-Zwift")
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
@@ -642,7 +642,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.11.27"
+                text: "version 2.11.30"
                 width: parent.width
             }
 				FileDialog {
