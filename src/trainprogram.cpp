@@ -251,7 +251,7 @@ void trainprogram::scheduler() {
                 } else {
                     inc = rows.at(0).inclination;
                 }
-                bluetoothManager->device()->changeResistance((int8_t)(round(inc * bikeResistanceGain)) +
+                bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                              bikeResistanceOffset + 1); // resistance start from 1)
                 if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                     bluetoothManager->device()->setInclination(inc);
@@ -375,7 +375,7 @@ void trainprogram::scheduler() {
                         } else {
                             inc = rows.at(currentStep).inclination;
                         }
-                        bluetoothManager->device()->changeResistance((int8_t)(round(inc * bikeResistanceGain)) +
+                        bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                      bikeResistanceOffset +
                                                                      1); // resistance start from 1)
                         if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
@@ -451,7 +451,7 @@ void trainprogram::scheduler() {
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
                 if (bluetoothManager->device()->deviceType() == bluetoothdevice::BIKE) {
-                    bluetoothManager->device()->changeResistance((int8_t)(round(inc * bikeResistanceGain)) +
+                    bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                  bikeResistanceOffset + 1); // resistance start from 1)
                     if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
                         bluetoothManager->device()->setInclination(inc);

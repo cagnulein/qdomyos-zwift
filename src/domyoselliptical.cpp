@@ -126,7 +126,7 @@ void domyoselliptical::forceInclination(int8_t requestInclination) {
                         QStringLiteral("forceInclination ") + QString::number(requestInclination));
 }
 
-void domyoselliptical::forceResistance(int8_t requestResistance) {
+void domyoselliptical::forceResistance(resistance_t requestResistance) {
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
 

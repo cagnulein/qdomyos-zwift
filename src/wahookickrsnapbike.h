@@ -38,9 +38,9 @@ class wahookickrsnapbike : public bike {
   public:
     wahookickrsnapbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                        double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
     bool connected();
-    uint8_t maxResistance() { return 100; }
+    resistance_t maxResistance() { return 100; }
 
     void *VirtualBike();
     void *VirtualDevice();
@@ -112,7 +112,7 @@ class wahookickrsnapbike : public bike {
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);
-    void resistanceFromFTMSAccessory(int8_t res);
+    void resistanceFromFTMSAccessory(resistance_t res);
 
   private slots:
 

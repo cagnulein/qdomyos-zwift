@@ -57,7 +57,7 @@ void ftmsrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStri
     loop.exec();
 }
 
-void ftmsrower::forceResistance(int8_t requestResistance) {
+void ftmsrower::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 

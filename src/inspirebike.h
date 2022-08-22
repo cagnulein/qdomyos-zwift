@@ -37,13 +37,13 @@ class inspirebike : public bike {
     Q_OBJECT
   public:
     inspirebike(bool noWriteResistance, bool noHeartService);
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
-    const int max_resistance = 40;
+    const resistance_t max_resistance = 40;
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, QString info, bool disable_log = false,

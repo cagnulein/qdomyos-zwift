@@ -23,8 +23,8 @@ class rower : public bluetoothdevice {
     virtual uint16_t lastCrankEventTime();
     virtual bool connected();
     virtual uint16_t watts();
-    virtual int pelotonToBikeResistance(int pelotonResistance);
-    virtual uint8_t resistanceFromPowerRequest(uint16_t power);
+    virtual resistance_t pelotonToBikeResistance(int pelotonResistance);
+    virtual resistance_t resistanceFromPowerRequest(uint16_t power);
     bluetoothdevice::BLUETOOTH_TYPE deviceType();
     metric pelotonResistance();
     void clearStats();
@@ -32,7 +32,7 @@ class rower : public bluetoothdevice {
     void setPaused(bool p);
 
   public slots:
-    virtual void changeResistance(int8_t res);
+    virtual void changeResistance(resistance_t res);
     virtual void changeCadence(int16_t cad);
     virtual void changePower(int32_t power);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
@@ -41,8 +41,8 @@ class rower : public bluetoothdevice {
 
   signals:
     void bikeStarted();
-    void resistanceChanged(int8_t resistance);
-    void resistanceRead(int8_t resistance);
+    void resistanceChanged(resistance_t resistance);
+    void resistanceRead(resistance_t resistance);
 
   protected:
     metric Resistance;
@@ -54,7 +54,7 @@ class rower : public bluetoothdevice {
     metric StrokesLength;
     metric StrokesCount;
     uint16_t LastCrankEventTime = 0;
-    int8_t requestResistance = -1;
+    resistance_t requestResistance = -1;
     double CrankRevs = 0;
 
     metric m_pelotonResistance;

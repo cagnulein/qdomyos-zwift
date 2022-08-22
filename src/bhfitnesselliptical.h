@@ -48,7 +48,7 @@ class bhfitnesselliptical : public elliptical {
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
     virtualtreadmill *virtualTreadmill = nullptr;
