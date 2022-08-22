@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -37,18 +38,20 @@ class domyosbike : public bike {
   public:
     domyosbike(bool noWriteResistance = false, bool noHeartService = false, bool testResistance = false,
                uint8_t bikeResistanceOffset = 4, double bikeResistanceGain = 1.0);
-    uint8_t resistanceFromPowerRequest(uint16_t power) override;
-    int pelotonToBikeResistance(int pelotonResistance) override;
-    uint8_t maxResistance() override { return max_resistance; }
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t maxResistance() override { return max_resistance; }
     ~domyosbike() override;
     bool connected() override;
+
+
   private:
     double GetSpeedFromPacket(const QByteArray &packet);
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t wattsFromResistance(double resistance);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);
     void btinit_telink(bool startTape);
@@ -57,7 +60,7 @@ class domyosbike : public bike {
     void startDiscover();
     uint16_t watts() override;
 
-    const int max_resistance = 15;
+    const resistance_t max_resistance = 15;
     QTimer *refresh;
     uint8_t firstVirtual = 0;
     uint8_t firstStateChanged = 0;

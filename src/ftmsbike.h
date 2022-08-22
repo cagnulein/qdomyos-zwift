@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -69,9 +70,9 @@ class ftmsbike : public bike {
     Q_OBJECT
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    bool connected() override;
-    int pelotonToBikeResistance(int pelotonResistance) override;
-    uint8_t maxResistance() override { return max_resistance; }
+    bool connected();
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t maxResistance() { return max_resistance; }
 
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
@@ -79,7 +80,7 @@ class ftmsbike : public bike {
     void startDiscover();
     uint16_t watts() override;
     void init();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
 
     QTimer *refresh;

@@ -19,7 +19,7 @@
 
 using namespace std::chrono_literals;
 
-smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, uint8_t max_resistance, bike *parentDevice) {
+smartspin2k::smartspin2k(bool noWriteResistance, bool noHeartService, resistance_t max_resistance, bike *parentDevice) {
     QSettings settings;
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
@@ -61,7 +61,7 @@ void smartspin2k::setShiftStep(uint16_t steps) {
     writeCharacteristic(shiftStep, sizeof(shiftStep), "BLE_setShiftStep", false, true);
 }
 
-void smartspin2k::lowInit(int8_t resistance) {
+void smartspin2k::lowInit(resistance_t resistance) {
     uint8_t enable_syncmode[] = {0x02, 0x1B, 0x01};
     uint8_t disable_syncmode[] = {0x02, 0x1B, 0x00};
     writeCharacteristic(enable_syncmode, sizeof(enable_syncmode), "BLE_syncMode enabling", false, true);
@@ -78,7 +78,7 @@ void smartspin2k::lowInit(int8_t resistance) {
     writeCharacteristic(simulate_hr, sizeof(simulate_hr), "simulate_hr", false, true);
 }
 
-void smartspin2k::resistanceReadFromTheBike(int8_t resistance) {
+void smartspin2k::resistanceReadFromTheBike(resistance_t resistance) {
 
     qDebug() << "resistanceReadFromTheBike startupResistance:" << startupResistance << "initRequest:" << initRequest;
     if (startupResistance == -1) {
@@ -193,7 +193,7 @@ void smartspin2k::calibrateShiftStep() {
                QString::number(intercept));
 }
 
-void smartspin2k::forceResistance(int8_t requestResistance) {
+void smartspin2k::forceResistance(resistance_t requestResistance) {
 
     QSettings settings;
 

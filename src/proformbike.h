@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -36,15 +37,15 @@ class proformbike : public bike {
     Q_OBJECT
   public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance) override;
-    uint8_t resistanceFromPowerRequest(uint16_t power) override;
-    uint8_t maxResistance() override { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t maxResistance() override { return max_resistance; }
     bool inclinationAvailableByHardware() override;
     bool connected() override;
 
   private:
-    int max_resistance = 16;
-    uint16_t wattsFromResistance(uint8_t resistance);
+    resistance_t max_resistance = 16;
+    uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
@@ -53,7 +54,7 @@ class proformbike : public bike {
     void startDiscover();
     void sendPoll();
     uint16_t watts() override;
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void forceIncline(double incline);
     void innerWriteResistance();
 

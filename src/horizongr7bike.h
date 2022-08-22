@@ -27,6 +27,7 @@
 #include <QString>
 
 #include "bike.h"
+#include "virtualbike.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
@@ -39,12 +40,13 @@ class horizongr7bike : public bike {
                    double bikeResistanceGain);
     bool connected() override;
 
+
   private:
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
     uint16_t watts() override;
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
 
@@ -53,7 +55,7 @@ class horizongr7bike : public bike {
     QLowEnergyService *gattFTMSService;
 
     double bikeResistanceToPeloton(double resistance);
-    const int max_resistance = 12;
+    const resistance_t max_resistance = 12;
     uint8_t sec1Update = 0;
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();

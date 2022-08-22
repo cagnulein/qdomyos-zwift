@@ -53,7 +53,7 @@ void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, c
     loop.exec();
 }
 
-void bhfitnesselliptical::forceResistance(int8_t requestResistance) {
+void bhfitnesselliptical::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
 

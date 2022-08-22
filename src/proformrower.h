@@ -40,7 +40,7 @@ class proformrower : public rower {
     bool connected() override;
 
   private:
-    const int max_resistance = 24;
+    const resistance_t max_resistance = 24;
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     double GetResistanceFromPacket(QByteArray packet);
@@ -49,7 +49,7 @@ class proformrower : public rower {
                              bool wait_for_response = false);
     void startDiscover();
     void sendPoll();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
 
     QTimer *refresh;
     uint8_t counterPoll = 0;

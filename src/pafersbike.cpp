@@ -70,7 +70,7 @@ void pafersbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QStr
     loop.exec();
 }
 
-void pafersbike::forceResistance(int8_t requestResistance) {
+void pafersbike::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData[] = {0x55, 0x11, 0x01, 0x18};
 
     noOpData[3] = requestResistance;
@@ -137,8 +137,8 @@ void pafersbike::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int pafersbike::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance; i++) {
+resistance_t pafersbike::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }
@@ -149,10 +149,10 @@ int pafersbike::pelotonToBikeResistance(int pelotonResistance) {
         return max_resistance;
 }
 
-uint8_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t pafersbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;

@@ -60,7 +60,7 @@ void skandikawiribike::writeCharacteristic(uint8_t *data, uint8_t data_len, cons
 }
 
 /*
-void skandikawiribike::forceResistance(int8_t requestResistance)
+void skandikawiribike::forceResistance(resistance_t requestResistance)
 {
 
 }
@@ -441,7 +441,7 @@ bool skandikawiribike::connected() {
 uint16_t skandikawiribike::watts() {
     QSettings settings;
     // double v = 0; // NOTE: unused variable v
-    // const uint8_t max_resistance = 15;
+    // const resistance_t max_resistance = 15;
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 

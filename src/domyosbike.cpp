@@ -141,7 +141,7 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
                         QStringLiteral("updateDisplay elapsed=") + QString::number(elapsed), false, true);
 }
 
-void domyosbike::forceResistance(int8_t requestResistance) {
+void domyosbike::forceResistance(resistance_t requestResistance) {
     uint8_t write[] = {0xf0, 0xad, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
                        0xff, 0xff, 0xff, 0xff, 0xff, 0x00, 0x01, 0xff, 0xff, 0xff, 0x00};
 
@@ -640,12 +640,12 @@ bool domyosbike::connected() {
     return m_control->state() == QLowEnergyController::DiscoveredState;
 }
 
-int domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
+resistance_t domyosbike::pelotonToBikeResistance(int pelotonResistance) { return (pelotonResistance * max_resistance) / 100; }
 
-uint8_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t domyosbike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << currentCadence().value();
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             return i;
         }
@@ -662,7 +662,7 @@ uint16_t domyosbike::wattsFromResistance(double resistance) {
 
 uint16_t domyosbike::watts() {
     double v = 0;
-    // const uint8_t max_resistance = 15;
+    // const resistance_t max_resistance = 15;
     // ref
     // https://translate.google.com/translate?hl=it&sl=en&u=https://support.wattbike.com/hc/en-us/articles/115001881825-Power-Resistance-and-Cadence-Tables&prev=search&pto=aue
 
