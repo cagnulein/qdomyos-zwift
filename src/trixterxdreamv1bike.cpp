@@ -279,8 +279,7 @@ trixterxdreamv1bike::trixterxdreamv1bike(bool noWriteResistance, bool noHeartSer
     m_watt.setType(metric::METRIC_WATT);
     Speed.setType(metric::METRIC_SPEED);
 
-    // use a percentage resistance until QZ is using more than 7 bits to store the resistance levels.
-    this->useResistancePercentage = true;
+    this->useResistancePercentage = false;
 
     // Set the fake bluetooth device info
     this->bluetoothDevice =
@@ -425,13 +424,13 @@ void trixterxdreamv1bike::configureVirtualBike(){
 // ********************************************************************************************************
 }
 
-uint16_t trixterxdreamv1bike::powerFromResistanceRequest(int8_t requestedResistance)
+uint16_t trixterxdreamv1bike::powerFromResistanceRequest(resistance_t requestedResistance)
 {
     requestedResistance = this->adjustedResistance(requestedResistance, true);
     return this->calculatePower((int)this->Cadence.value(), requestedResistance);
 }
 
-uint8_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
+resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
 {
     int c = std::max(0, std::min(9, (int)(0.1*(this->Cadence.value()-30) +0.5)));
 
@@ -444,7 +443,10 @@ uint8_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
     if(result<0)
         result = (ps-1)[1];
 
+    result += this->brakeLevel;
+
     result = this->adjustedResistance(result, false);
+    result = std::min((int16_t)trixterxdreamv1client::MaxResistance, std::max((int16_t)0, result));
     return result;
 }
 
@@ -465,7 +467,7 @@ double trixterxdreamv1bike::calculatePower(int cadenceRPM, int resistance) {
     return ps[2];
 }
 
-int16_t trixterxdreamv1bike::adjustedResistance(int16_t input, bool toDevice) {
+resistance_t trixterxdreamv1bike::adjustedResistance(resistance_t input, bool toDevice) {
     if(this->useResistancePercentage){
         if(toDevice)
             return trixterxdreamv1client::MaxResistance * input / 100;
@@ -526,6 +528,11 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // Determine if the user is pressing the button to stop.
     this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
+
+    constexpr double brakeScale = 125.0/(trixterxdreamv1client::MaxBrake-trixterxdreamv1client::MinBrake);
+    uint8_t b1 = 125 - (state.Brake1 - trixterxdreamv1client::MinBrake) * brakeScale;
+    uint8_t b2 = 125 - (state.Brake2 - trixterxdreamv1client::MinBrake) * brakeScale;
+    this->brakeLevel = b1 + b2;
 
     // update the metrics
     this->LastCrankEventTime = state.LastEventTime;
@@ -625,7 +632,7 @@ void trixterxdreamv1bike::calculateSteeringMap() {
 
 }
 
-void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
+void trixterxdreamv1bike::changeResistance(resistance_t resistanceLevel) {
     // ignore the resistance if this option was selected
     if(this->noWriteResistance)
         return;
@@ -640,6 +647,7 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
 
     // store the resistance level as a metric for the UI
     constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
+
     this->Resistance.setValue(resistanceLevel);
     if(this->useResistancePercentage)
         this->m_pelotonResistance.setValue(resistanceLevel);
@@ -653,7 +661,7 @@ void trixterxdreamv1bike::changeResistance(int8_t resistanceLevel) {
 
 void trixterxdreamv1bike::updateResistance() {
     QMutexLocker locker(&this->updateMutex);
-    uint8_t actualResistance = this->stopping ? (trixterxdreamv1client::MaxResistance): this->resistanceLevel;
+    resistance_t actualResistance = this->stopping ? (trixterxdreamv1client::MaxResistance): this->resistanceLevel;
     this->client.SendResistance(actualResistance);
 }
 
@@ -680,7 +688,7 @@ void trixterxdreamv1bike::set_wheelDiameter(double value) {
 }
 
 
-int trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t trixterxdreamv1bike::pelotonToBikeResistance(int pelotonResistance) {
     pelotonResistance = std::max(0, std::min(100, pelotonResistance));
 
     if(this->useResistancePercentage)

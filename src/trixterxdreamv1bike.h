@@ -42,6 +42,11 @@ private:
     bool stopping = false;
 
     /**
+     * @brief brakeLevel Sum of brakes 1 and 2 each normalised to 0..125.
+     */
+    uint8_t brakeLevel = 0;
+
+    /**
      * @brief resistanceTimerId The id for identifying the resistance timer in void timerEvent(QEvent*).
      */
     int resistanceTimerId = 0;
@@ -79,7 +84,7 @@ private:
     /**
      * @brief resistanceLevel The last requested resistance level.
      */
-    uint8_t resistanceLevel = 0;
+    resistance_t resistanceLevel = 0;
 
     /**
      * @brief useResistancePercentage Option to use resistance levels 0..100 instead of
@@ -181,7 +186,7 @@ private:
      * @param toDevice The direction of the conversion.
      * @return
      */
-    int16_t adjustedResistance(int16_t input, bool toDevice);
+    resistance_t adjustedResistance(resistance_t input, bool toDevice);
 protected:
 
     /**
@@ -199,7 +204,7 @@ public Q_SLOTS:
      * @brief changeResistance Called to change the requested resistance level.
      * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
-    void changeResistance(int8_t resistanceLevel) override;
+    void changeResistance(resistance_t resistanceLevel) override;
 
 
 public:
@@ -240,14 +245,14 @@ public:
      * @param requestedResistance
      * @return
      */
-    uint16_t powerFromResistanceRequest(int8_t requestedResistance) override;
+    uint16_t powerFromResistanceRequest(resistance_t requestedResistance) override;
 
     /**
      * @brief resistanceFromPowerRequest Calculate the resistance required to produce the requested power at the current cadence.
      * @param power
      * @return
      */
-    uint8_t resistanceFromPowerRequest(uint16_t power) override;
+    resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
     /**
      * @brief VirtualDevice Virtual device
@@ -281,14 +286,14 @@ public:
      * @brief maxResistance The maximum resistance supported.
      * @return
      */
-    uint8_t maxResistance() override { return this->useResistancePercentage ? 100:trixterxdreamv1client::MaxResistance; }
+    resistance_t maxResistance() override { return this->useResistancePercentage ? 100:trixterxdreamv1client::MaxResistance; }
 
     /**
      * @brief pelotonToBikeResistance Map Peloton 0 to 100% resistance to the bike's range.
      * @param pelotonResistance The Peloton resistance. Range: 0 to 100.
      * @return The Trixter X-Dream V1 bike resistance. Range 0..250 if !this->useResistancePercentage.
      */
-    int pelotonToBikeResistance(int pelotonResistance) override;
+    resistance_t pelotonToBikeResistance(int pelotonResistance) override;
 
     /**
      * @brief tryCreate Attempt to create an object to interact with an existing Trixter X-Dream V1 bike on a specific serial port,

@@ -128,6 +128,11 @@ protected:
     void startDiscovery();
 
     /**
+     * @brief stopDiscovery Stop the Bluetooth discovery agent and the thread that discovers non-bluetooth devices.
+     */
+    void stopDiscovery();
+
+    /**
      * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
      * @return An object for the first non-bluetooth device found.
      */
@@ -142,6 +147,10 @@ protected:
     TemplateInfoSenderBuilder *userTemplateManager = nullptr;
     TemplateInfoSenderBuilder *innerTemplateManager = nullptr;
     QFile *debugCommsLog = nullptr;
+    // Indicates generally discovering, bluetooth and others
+    bool discovering = false;
+    // Indicates the non-bluetooth discovery is active
+    bool discoveringNonBluetooth = false;
     QBluetoothDeviceDiscoveryAgent *discoveryAgent;
     bhfitnesselliptical *bhFitnessElliptical = nullptr;
     bowflextreadmill *bowflexTreadmill = nullptr;
