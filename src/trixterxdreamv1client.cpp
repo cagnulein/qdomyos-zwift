@@ -172,8 +172,8 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     newState.CrankRPM = static_cast<uint16_t>(crankRevsPerMinute);
     newState.FlywheelRPM = static_cast<uint16_t>(flywheelRevsPerMinute);
     newState.Buttons = (buttons)(0xFFFF-lastPacket.Buttons);
-
-
+    newState.Brake1 = lastPacket.Brake1;
+    newState.Brake2 = lastPacket.Brake2;
 
     this->stateMutex.lock();
     this->lastState = newState;

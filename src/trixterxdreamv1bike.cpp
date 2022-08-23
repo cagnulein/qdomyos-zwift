@@ -443,8 +443,6 @@ resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
     if(result<0)
         result = (ps-1)[1];
 
-    result += this->brakeLevel;
-
     result = this->adjustedResistance(result, false);
     result = std::min((int16_t)trixterxdreamv1client::MaxResistance, std::max((int16_t)0, result));
     return result;
@@ -548,7 +546,7 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
     this->Cadence.setValue(state.CrankRPM);
 
     // update the power output
-    this->update_metrics(true, this->calculatePower(state.CrankRPM, this->resistanceLevel));
+    this->update_metrics(true, this->brakeLevel + this->calculatePower(state.CrankRPM, this->resistanceLevel));
 
     // set the crank revolutions
     this->CrankRevs = state.CumulativeCrankRevolutions;
