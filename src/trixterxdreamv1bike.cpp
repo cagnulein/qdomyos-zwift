@@ -545,6 +545,12 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
     // set the cadence in revolutions per minute
     this->Cadence.setValue(state.CrankRPM);
 
+    // check if there's a request for a resistance level
+    if(this->requestResistance!=-1) {
+        this->changeResistance(this->requestResistance);
+        this->requestResistance = -1;
+    }
+
     // update the power output
     this->update_metrics(true, this->brakeLevel + this->calculatePower(state.CrankRPM, this->resistanceLevel));
 
