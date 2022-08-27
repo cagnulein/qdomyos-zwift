@@ -425,6 +425,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
     QString proformtreadmillip = settings.value(QStringLiteral("proformtreadmillip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
+    QString tdf_10_ip = settings.value(QStringLiteral("tdf_10_ip"), "").toString();
 
 
 
@@ -587,6 +588,20 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 }
                 userTemplateManager->start(nordictrackifitadbTreadmill);
                 innerTemplateManager->start(nordictrackifitadbTreadmill);
+            } else if (!tdf_10_ip.isEmpty() && !nordictrackifitadbBike) {
+                this->stopDiscovery();
+                nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
+                emit deviceConnected(b);
+                connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbBike, &nordictrackifitadbbike::debug, this, &bluetooth::debug);
+                // nordictrackifitadbTreadmill->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+                if (!discoveryAgent->isActive()) {
+                    emit searchingStop();
+                }
+                userTemplateManager->start(nordictrackifitadbBike);
+                innerTemplateManager->start(nordictrackifitadbBike);
             } else if (csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter) {
 
                 this->stopDiscovery();
@@ -2148,6 +2163,11 @@ void bluetooth::restart() {
         delete nordictrackifitadbTreadmill;
         nordictrackifitadbTreadmill = nullptr;
     }
+    if (nordictrackifitadbBike) {
+
+        delete nordictrackifitadbBike;
+        nordictrackifitadbBike = nullptr;
+    }
     if (powerBike) {
 
         delete powerBike;
@@ -2484,6 +2504,8 @@ bluetoothdevice *bluetooth::device() {
         return proformWifiTreadmill;
     } else if (nordictrackifitadbTreadmill) {
         return nordictrackifitadbTreadmill;
+    } else if (nordictrackifitadbBike) {
+        return nordictrackifitadbBike;
     } else if (powerBike) {
         return powerBike;
     } else if (powerTreadmill) {

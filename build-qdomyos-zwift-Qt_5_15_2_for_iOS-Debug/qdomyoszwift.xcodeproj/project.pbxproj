@@ -308,6 +308,8 @@
 		878531692711A3EC004B153D /* moc_fakebike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878531672711A3EB004B153D /* moc_fakebike.cpp */; };
 		878A331A25AB4FF800BD13E1 /* yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331725AB4FF800BD13E1 /* yesoulbike.cpp */; };
 		878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */; };
+		878C9E6928B77E7C00669129 /* nordictrackifitadbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */; };
+		878C9E6B28B77E9800669129 /* moc_nordictrackifitadbbike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 878C9E6A28B77E9800669129 /* moc_nordictrackifitadbbike.cpp */; };
 		87900DC6268B672E000CB351 /* renphobike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87900DC5268B672E000CB351 /* renphobike.cpp */; };
 		87900DC8268B673C000CB351 /* moc_renphobike.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 87900DC7268B673C000CB351 /* moc_renphobike.cpp */; };
 		8790FDDF277B0ABA00247550 /* nautilustreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8790FDDD277B0ABA00247550 /* nautilustreadmill.cpp */; };
@@ -1048,6 +1050,9 @@
 		878A331725AB4FF800BD13E1 /* yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = yesoulbike.cpp; path = ../src/yesoulbike.cpp; sourceTree = "<group>"; };
 		878A331825AB4FF800BD13E1 /* yesoulbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = yesoulbike.h; path = ../src/yesoulbike.h; sourceTree = "<group>"; };
 		878A331B25AB50C200BD13E1 /* moc_yesoulbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_yesoulbike.cpp; sourceTree = "<group>"; };
+		878C9E6728B77E7B00669129 /* nordictrackifitadbbike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nordictrackifitadbbike.h; path = ../src/nordictrackifitadbbike.h; sourceTree = "<group>"; };
+		878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = nordictrackifitadbbike.cpp; path = ../src/nordictrackifitadbbike.cpp; sourceTree = "<group>"; };
+		878C9E6A28B77E9800669129 /* moc_nordictrackifitadbbike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_nordictrackifitadbbike.cpp; sourceTree = "<group>"; };
 		87900DC4268B672E000CB351 /* renphobike.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = renphobike.h; path = ../src/renphobike.h; sourceTree = "<group>"; };
 		87900DC5268B672E000CB351 /* renphobike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = renphobike.cpp; path = ../src/renphobike.cpp; sourceTree = "<group>"; };
 		87900DC7268B673C000CB351 /* moc_renphobike.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_renphobike.cpp; sourceTree = "<group>"; };
@@ -1610,6 +1615,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				878C9E6A28B77E9800669129 /* moc_nordictrackifitadbbike.cpp */,
 				872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */,
 				879E5AA9289C05A500FEA38A /* moc_proformwifitreadmill.cpp */,
 				87E34C2C2886F99900CEDE4B /* moc_octanetreadmill.cpp */,
@@ -1761,6 +1767,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */,
+				878C9E6728B77E7B00669129 /* nordictrackifitadbbike.h */,
 				872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */,
 				872261ED289EA873006A6F75 /* nordictrackelliptical.h */,
 				879E5AA6289C057E00FEA38A /* proformwifitreadmill.cpp */,
@@ -2834,6 +2842,7 @@
 				873824B927E64707004F1B46 /* moc_provider.cpp in Compile Sources */,
 				8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */,
 				DF1FD9718B75FA591A7E3D80 /* fit_decode.cpp in Compile Sources */,
+				878C9E6B28B77E9800669129 /* moc_nordictrackifitadbbike.cpp in Compile Sources */,
 				878A331D25AB50C300BD13E1 /* moc_yesoulbike.cpp in Compile Sources */,
 				952DBD14DF6369E885020EF4 /* fit_developer_field.cpp in Compile Sources */,
 				879F16482847E57400CE4945 /* moc_proformellipticaltrainer.cpp in Compile Sources */,
@@ -2903,6 +2912,7 @@
 				875F69B926342E8D0009FD78 /* spirittreadmill.cpp in Compile Sources */,
 				87DF68B825E2673B00FCDA46 /* eslinkertreadmill.cpp in Compile Sources */,
 				87C7074327E4CF5900E79C46 /* keepbike.cpp in Compile Sources */,
+				878C9E6928B77E7C00669129 /* nordictrackifitadbbike.cpp in Compile Sources */,
 				8798C8892733E10E003148B3 /* moc_strydrunpowersensor.cpp in Compile Sources */,
 				8781907E2615089D0085E656 /* peloton.cpp in Compile Sources */,
 				2B800DC34C91D8B080DEFBE8 /* fit_mesg_with_event_broadcaster.cpp in Compile Sources */,

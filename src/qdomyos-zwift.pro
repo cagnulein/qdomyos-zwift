@@ -76,6 +76,7 @@ SOURCES += \
    kmlworkout.cpp \
    nautilusbike.cpp \
     nordictrackelliptical.cpp \
+    nordictrackifitadbbike.cpp \
    nordictrackifitadbtreadmill.cpp \
    octanetreadmill.cpp \
    proformellipticaltrainer.cpp \
@@ -262,6 +263,7 @@ HEADERS += \
    kmlworkout.h \
    nautilusbike.h \
     nordictrackelliptical.h \
+    nordictrackifitadbbike.h \
    nordictrackifitadbtreadmill.h \
    octanetreadmill.h \
    proformellipticaltrainer.h \
@@ -723,4 +725,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.34
+VERSION = 2.11.35
