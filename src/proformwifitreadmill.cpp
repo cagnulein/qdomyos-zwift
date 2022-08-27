@@ -79,7 +79,7 @@ void proformwifitreadmill::connectToDevice() {
 }
 
 void proformwifitreadmill::forceSpeed(double requestSpeed) {
-    QString send = "{\"type\":\"set\",\"values\":{\"Speed\":\"" + QString::number(requestSpeed) + "\"}}";
+    QString send = "{\"type\":\"set\",\"values\":{\"KPH\":\"" + QString::number(requestSpeed) + "\"}}";
     qDebug() << "forceSpeed" << send;
     websocket.sendTextMessage(send);
 }
