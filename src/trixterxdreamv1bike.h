@@ -201,10 +201,10 @@ protected:
     void disconnectPort();
 public Q_SLOTS:
     /**
-     * @brief changeResistance Called to change the requested resistance level.
+     * @brief changeResistance Called to set the resistance level sent to the device.
      * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
-    void changeResistance(resistance_t resistanceLevel) override;
+    void setResistance(resistance_t resistanceLevel);
 
 
 public:

@@ -547,8 +547,7 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // check if there's a request for a resistance level
     if(this->requestResistance!=-1) {
-        qDebug() << "requestResistance=" << this->requestResistance;
-        this->changeResistance(this->requestResistance);
+        this->setResistance(this->requestResistance);
         this->requestResistance = -1;
     }
 
@@ -637,7 +636,7 @@ void trixterxdreamv1bike::calculateSteeringMap() {
 
 }
 
-void trixterxdreamv1bike::changeResistance(resistance_t resistanceLevel) {
+void trixterxdreamv1bike::setResistance(resistance_t resistanceLevel) {
     // ignore the resistance if this option was selected
     if(this->noWriteResistance)
         return;
@@ -647,8 +646,6 @@ void trixterxdreamv1bike::changeResistance(resistance_t resistanceLevel) {
     // Clip the incoming values
     if(resistanceLevel<0) resistanceLevel = 0;
     if(resistanceLevel>maxResistance()) resistanceLevel = maxResistance();
-
-    bike::changeResistance(resistanceLevel);
 
     // store the resistance level as a metric for the UI
     constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
