@@ -59,6 +59,7 @@
 #include "nautilustreadmill.h"
 #include "nordictrackelliptical.h"
 #include "nordictrackifitadbtreadmill.h"
+#include "nordictrackifitadbbike.h"
 #include "npecablebike.h"
 #include "octanetreadmill.h"
 #include "pafersbike.h"

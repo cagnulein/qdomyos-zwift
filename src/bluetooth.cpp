@@ -337,6 +337,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proformtdf4ip = settings.value(QStringLiteral("proformtdf4ip"), "").toString();
     QString proformtreadmillip = settings.value(QStringLiteral("proformtreadmillip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
+    QString tdf_10_ip = settings.value(QStringLiteral("tdf_10_ip"), "").toString();
 
     if (!heartRateBeltFound) {
 
@@ -421,8 +422,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     connect(this, &bluetooth::searchingStop, m3iBike, &m3ibike::searchingStop);
                     if (!discoveryAgent->isActive())
                         emit searchingStop();
-                    userTemplateManager->start(m3iBike);
-                    innerTemplateManager->start(m3iBike);
                 }
             } else if (fake_bike && !this->device<fakebike>()) {
                 discoveryAgent->stop();
@@ -479,8 +478,17 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 connect(nordictrackifitadbTreadmill, &nordictrackifitadbtreadmill::debug, this, &bluetooth::debug);
                 // nordictrackifitadbTreadmill->deviceDiscovered(b);
                 // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
+            } else if (!tdf_10_ip.isEmpty() && !this->device<nordictrackifitadbbike>()) {
+                discoveryAgent->stop();
+                auto nordictrackifitadbBike = new nordictrackifitadbbike(noWriteResistance, noHeartService);
+                newDevice = nordictrackifitadbBike;
+                emit deviceConnected(b);
+                connect(nordictrackifitadbBike, &bluetoothdevice::connectedAndDiscovered, this,
+                        &bluetooth::connectedAndDiscovered);
+                connect(nordictrackifitadbBike, &nordictrackifitadbbike::debug, this, &bluetooth::debug);
+                // nordictrackifitadbTreadmill->deviceDiscovered(b);
+                // connect(this, SIGNAL(searchingStop()), cscBike, SLOT(searchingStop())); //NOTE: Commented due to #358
             } else if (csc_as_bike && b.name().startsWith(cscName) && !this->device<cscbike>() && filter) {
-
                 discoveryAgent->stop();
                 auto cscBike = new cscbike(noWriteResistance, noHeartService, false);
                 newDevice = cscBike;
