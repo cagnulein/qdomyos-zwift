@@ -547,12 +547,13 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // check if there's a request for a resistance level
     if(this->requestResistance!=-1) {
+        qDebug() << "requestResistance=" << this->requestResistance;
         this->changeResistance(this->requestResistance);
         this->requestResistance = -1;
     }
 
     // update the power output
-    this->update_metrics(true, this->brakeLevel + this->calculatePower(state.CrankRPM, this->resistanceLevel));
+    this->update_metrics(true, this->brakeLevel + this->brakeLevel + this->calculatePower(state.CrankRPM, this->resistanceLevel));
 
     // set the crank revolutions
     this->CrankRevs = state.CumulativeCrankRevolutions;
