@@ -31,6 +31,8 @@ ApplicationWindow {
     signal restart()
     signal volumeUp()
     signal volumeDown()
+    signal keyMediaPrevious()
+    signal keyMediaNext()
 
     property bool lockTiles: false
 
@@ -670,5 +672,11 @@ ApplicationWindow {
         focus: true
         Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
         Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
+        Keys.onPressed: {
+            if (event.key === Qt.Key_MediaPrevious)
+                keyMediaPrevious();
+            else if (event.key === Qt.Key_MediaNext)
+                keyMediaNext();
+        }
     }
 }

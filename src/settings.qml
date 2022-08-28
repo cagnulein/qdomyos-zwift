@@ -458,6 +458,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.11.22
             property bool kingsmith_encrypt_v3: false
+
+            // from the version 2.11.38
+            property string tdf_10_ip: ""
         }
 
         function paddingZeros(text, limit) {
@@ -1908,6 +1911,30 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.proformtdf4ip = proformTDF4IPTextField.text
+                        }
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelproformTDFCompanionIP
+                            text: qsTr("TDF Companion IP:")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: proformTDFCompanionIPTextField
+                            text: settings.tdf_10_ip
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.tdf_10_ip = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okproformTDFCompanionIPButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.tdf_10_ip = proformTDFCompanionIPTextField.text
                         }
                     }
                 }
