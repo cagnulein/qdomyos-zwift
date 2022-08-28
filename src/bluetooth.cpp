@@ -420,8 +420,6 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                     connect(m3iBike, &m3ibike::debug, this, &bluetooth::debug);
                     m3iBike->deviceDiscovered(b);
                     connect(this, &bluetooth::searchingStop, m3iBike, &m3ibike::searchingStop);
-                    if (!discoveryAgent->isActive())
-                        emit searchingStop();
                 }
             } else if (fake_bike && !this->device<fakebike>()) {
                 discoveryAgent->stop();
