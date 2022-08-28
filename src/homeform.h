@@ -341,7 +341,12 @@ class homeform : public QObject {
     bool videoVisible();
     int videoPosition();
     double videoRate();
-    double currentSpeed() {if(bluetoothManager && bluetoothManager->device()) return bluetoothManager->device()->currentSpeed().value(); else return 0;}
+    double currentSpeed() {
+        if (bluetoothManager && bluetoothManager->device())
+            return bluetoothManager->device()->currentSpeed().value();
+        else
+            return 0;
+    }
     QUrl videoPath() { return movieFileName; }
     bool labelHelp();
     QStringList metrics();
@@ -608,6 +613,8 @@ class homeform : public QObject {
     void Plus(const QString &);
     void volumeDown();
     void volumeUp();
+    void keyMediaPrevious();
+    void keyMediaNext();
     void deviceFound(const QString &name);
     void deviceConnected(QBluetoothDeviceInfo b);
     void ftmsAccessoryConnected(smartspin2k *d);
