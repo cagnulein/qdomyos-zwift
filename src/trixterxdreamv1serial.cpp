@@ -76,6 +76,7 @@ void trixterxdreamv1serial::run() {
     this->serial.setStopBits(QSerialPort::OneStop);
     this->serial.setFlowControl(QSerialPort::NoFlowControl);
     this->serial.setParity(QSerialPort::NoParity);
+    this->serial.setReadBufferSize(4096);
 
     bool openResult = false;
 
@@ -93,7 +94,7 @@ void trixterxdreamv1serial::run() {
         return;
     }
 
-    qDebug() << "Serial port" << this->portName << "opened";
+    qDebug() << "Serial port " << this->portName << " opened with read buffer size=" << this->serial.readBufferSize();
 
     while (!this->quitPending) {
         QByteArray requestData;
