@@ -386,6 +386,10 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     qDebug() << device.deviceUuid();
 #endif
 
+    QVector<quint16> ids = device.manufacturerIds();
+    qDebug() << "manufacturerData";
+    foreach (quint16 id, ids) { qDebug() << id << device.manufacturerData(id).toHex(' '); }
+
     if (onlyDiscover)
         return;
 
