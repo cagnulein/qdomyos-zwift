@@ -36,6 +36,11 @@
 class yesoulbike : public bike {
     Q_OBJECT
   public:
+    static constexpr uint8_t manufacturerData[] = { 0x01, 0x05, 0x00, 0xff, 0xff };
+    static constexpr uint8_t manufacturerDataSize = 5;
+    static constexpr uint16_t manufacturerDataId = 637;
+    static constexpr const char* bluetoothName = "YESOUL";
+
     yesoulbike(bool noWriteResistance, bool noHeartService);
     bool connected();
 
