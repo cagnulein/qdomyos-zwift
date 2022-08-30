@@ -338,6 +338,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     QString proformtreadmillip = settings.value(QStringLiteral("proformtreadmillip"), "").toString();
     QString nordictrack_2950_ip = settings.value(QStringLiteral("nordictrack_2950_ip"), "").toString();
     QString tdf_10_ip = settings.value(QStringLiteral("tdf_10_ip"), "").toString();
+    bool manufacturerDeviceFound = false;
 
     if (!heartRateBeltFound) {
 
@@ -364,19 +365,52 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         eliteSterzoSmartFound = eliteSterzoSmartAvaiable();
     }
 
-    bool found = false;
-    QMutableListIterator<QBluetoothDeviceInfo> i(devices);
-    while (i.hasNext()) {
-        QBluetoothDeviceInfo b = i.next();
-        if (SAME_BLUETOOTH_DEVICE(b, device) && !b.name().isEmpty()) {
+    QVector<quint16> ids = device.manufacturerIds();
+    qDebug() << "manufacturerData";
+    foreach (quint16 id, ids) {
+        qDebug() << id << device.manufacturerData(id).toHex(' ');
 
-            i.setValue(device); // in order to keep the freshest copy of this struct
-            found = true;
-            break;
+#ifdef Q_OS_ANDROID
+        // yesoul bike on android 13 doesn't send anymore the name
+        if( device.name().count() == 0 &&
+            id == yesoulbike::manufacturerDataId &&
+            device.manufacturerData(id).startsWith(QByteArray((const char *)yesoulbike::manufacturerData, yesoulbike::manufacturerDataSize))) {
+                qDebug() << "yesoulBikeFromManufacturerData forcing!";
+                QBluetoothDeviceInfo manufacturerDevice(device.address(), yesoulbike::bluetoothName, device.majorDeviceClass());
+
+                bool found = false;
+                QMutableListIterator<QBluetoothDeviceInfo> i(devices);
+                while (i.hasNext()) {
+                    QBluetoothDeviceInfo b = i.next();
+                    if (SAME_BLUETOOTH_DEVICE(b, manufacturerDevice) && !b.name().isEmpty()) {
+                        i.setValue(manufacturerDevice); // in order to keep the freshest copy of this struct
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    devices.append(manufacturerDevice);
+                }
+                manufacturerDeviceFound = true;
         }
+#endif
     }
-    if (!found) {
-        devices.append(device);
+
+    if(manufacturerDeviceFound == false) {
+        bool found = false;
+        QMutableListIterator<QBluetoothDeviceInfo> i(devices);
+        while (i.hasNext()) {
+            QBluetoothDeviceInfo b = i.next();
+            if (SAME_BLUETOOTH_DEVICE(b, device) && !b.name().isEmpty()) {
+
+                i.setValue(device); // in order to keep the freshest copy of this struct
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            devices.append(device);
+        }
     }
 
     emit deviceFound(device.name());
@@ -384,11 +418,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
           ')' + " " + device.majorDeviceClass() + QStringLiteral(":") + device.minorDeviceClass());
 #if defined(Q_OS_DARWIN) || defined(Q_OS_IOS)
     qDebug() << device.deviceUuid();
-#endif
-
-    QVector<quint16> ids = device.manufacturerIds();
-    qDebug() << "manufacturerData";
-    foreach (quint16 id, ids) { qDebug() << id << device.manufacturerData(id).toHex(' '); }
+#endif    
 
     if (onlyDiscover)
         return;
@@ -1284,7 +1314,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 sportsPlusBike->deviceDiscovered(b);
                 userTemplateManager->start(sportsPlusBike);
                 innerTemplateManager->start(sportsPlusBike);
-            } else if (b.name().startsWith(QStringLiteral("YESOUL")) && !yesoulBike && filter) {
+            } else if (b.name().startsWith(yesoulbike::bluetoothName) && !yesoulBike && filter) {
                 discoveryAgent->stop();
                 yesoulBike = new yesoulbike(noWriteResistance, noHeartService);
                 // stateFileRead();
