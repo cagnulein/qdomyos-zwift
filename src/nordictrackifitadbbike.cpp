@@ -35,10 +35,10 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     if (!firstStateChanged && !virtualBike) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
         if (virtual_device_enabled) {
-                debug("creating virtual bike interface...");
-                virtualBike = new virtualbike(this);
-                connect(virtualBike, &virtualbike::changeInclination, this,
-                        &nordictrackifitadbbike::changeInclinationRequested);
+            debug("creating virtual bike interface...");
+            virtualBike = new virtualbike(this);
+            connect(virtualBike, &virtualbike::changeInclination, this,
+                    &nordictrackifitadbbike::changeInclinationRequested);
             firstStateChanged = 1;
         }
     }
@@ -75,31 +75,31 @@ void nordictrackifitadbbike::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = aValues.last().toDouble();
+                    speed = QLocale().toDouble(aValues.last());
                     Speed = speed;
                 }
             } else if (line.contains(QStringLiteral("Changed RPM"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    cadence = aValues.last().toDouble();
+                    cadence = QLocale().toDouble(aValues.last());
                     Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed CurrentGear"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    gears = aValues.last().toDouble();
-                    //Cadence = cadence;
+                    gears = QLocale().toDouble(aValues.last());
+                    // Cadence = cadence;
                 }
             } else if (line.contains(QStringLiteral("Changed Resistance"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    resistance = aValues.last().toDouble();
+                    resistance = QLocale().toDouble(aValues.last());
                     Resistance = resistance;
                 }
             } else if (line.contains(QStringLiteral("Changed Watts"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    watt = aValues.last().toDouble();
+                    watt = QLocale().toDouble(aValues.last());
                     m_watt = watt;
                 }
             }
@@ -151,8 +151,6 @@ void nordictrackifitadbbike::processPendingDatagrams() {
     }
 }
 
-
-
 void nordictrackifitadbbike::forceResistance(double resistance) {}
 
 void nordictrackifitadbbike::update() {
@@ -180,10 +178,7 @@ void nordictrackifitadbbike::update() {
     }
 }
 
-uint16_t nordictrackifitadbbike::watts() {
-    return m_watt.value();
-}
-
+uint16_t nordictrackifitadbbike::watts() { return m_watt.value(); }
 
 void nordictrackifitadbbike::changeInclinationRequested(double grade, double percentage) {
     if (percentage < 0)
