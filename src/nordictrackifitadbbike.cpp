@@ -45,6 +45,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     // ********************************************************************************************************
 }
 
+bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
+
 void nordictrackifitadbbike::processPendingDatagrams() {
     qDebug() << "in !";
     QHostAddress sender;
@@ -69,6 +71,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         double resistance = 0;
         double gears = 0;
         double watt = 0;
+        double grade = 0;
         QStringList lines = QString::fromLocal8Bit(datagram.data()).split("\n");
         foreach (QString line, lines) {
             qDebug() << line;
@@ -101,6 +104,12 @@ void nordictrackifitadbbike::processPendingDatagrams() {
                 if (aValues.length()) {
                     watt = QLocale().toDouble(aValues.last());
                     m_watt = watt;
+                }
+            } else if (line.contains(QStringLiteral("Changed Grade"))) {
+                QStringList aValues = line.split(" ");
+                if (aValues.length()) {
+                    grade = QLocale().toDouble(aValues.last());
+                    Inclination = grade;
                 }
             }
         }
@@ -146,6 +155,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         emit debug(QStringLiteral("Current Gear: ") + QString::number(gears));
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
         emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
         emit debug(QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value()));
         // debug("Current Distance: " + QString::number(distance));
     }

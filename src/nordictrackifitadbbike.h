@@ -30,6 +30,7 @@ class nordictrackifitadbbike : public bike {
   public:
     nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
     bool connected();
+    bool inclinationAvailableByHardware();
 
     void *VirtualTreadmill();
     void *VirtualDevice();
