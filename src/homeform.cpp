@@ -4474,10 +4474,26 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
-    const double filter = 0.1;
-    double rate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
-    qDebug() << "changeTimestamp" << source << actual << rate;
-    setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
-    if (fabs(videoRate() - rate) > filter)
-        setVideoRate(rate);
+    static QTime lastSource = QTime(0, 0, 0);
+    static QTime lastActual = QTime(0, 0, 0);
+    const double filterRate = 0.1;
+    const int filterSeconds = 3;
+
+    // if a time is smaller then the last one means that the user restart the program
+    if (lastSource < source || lastActual < actual) {
+        lastSource = QTime(0, 0, 0);
+        lastActual = QTime(0, 0, 0);
+    }
+
+    // we need to calculate the rate only if this the first time or every X seconds (in order to have an average)
+    if (lastSource.secsTo(QTime(0, 0, 0)) == 0 || lastActual.secsTo(actual) > filterSeconds) {
+        double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
+        double rate = (double)lastSource.secsTo(source) / (double)lastActual.secsTo(actual);
+        lastSource = source;
+        lastActual = actual;
+        qDebug() << "changeTimestamp" << source << actual << fullRate << lastSource << lastActual << rate;
+        setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+        if (fabs(videoRate() - rate) > filterRate)
+            setVideoRate(rate);
+    }
 }
