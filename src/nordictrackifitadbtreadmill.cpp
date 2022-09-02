@@ -83,13 +83,13 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
             if (line.contains(QStringLiteral("Changed KPH"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    speed = aValues.last().toDouble();
+                    speed = QLocale().toDouble(aValues.last());
                     Speed = speed;
                 }
             } else if (line.contains(QStringLiteral("Changed Grade"))) {
                 QStringList aValues = line.split(" ");
                 if (aValues.length()) {
-                    incline = aValues.last().toDouble();
+                    incline = QLocale().toDouble(aValues.last());
                     Inclination = incline;
                 }
             }

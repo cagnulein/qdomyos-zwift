@@ -46,6 +46,8 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     // ********************************************************************************************************
 }
 
+bool nordictrackifitadbbike::inclinationAvailableByHardware() { return true; }
+
 void nordictrackifitadbbike::processPendingDatagrams() {
     qDebug() << "in !";
     QHostAddress sender;

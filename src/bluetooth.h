@@ -37,6 +37,7 @@
 #include "eslinkertreadmill.h"
 #include "fakebike.h"
 #include "fakeelliptical.h"
+#include "faketreadmill.h"
 #include "fitmetria_fanfit.h"
 #include "fitplusbike.h"
 

@@ -1,6 +1,15 @@
-#ifndef NORDICTRACKIFITADBBIKE_H
-#define NORDICTRACKIFITADBBIKE_H
+#ifndef FAKETREADMILL_H
+#define FAKETREADMILL_H
 
+#include <QBluetoothDeviceDiscoveryAgent>
+#include <QtBluetooth/qlowenergyadvertisingdata.h>
+#include <QtBluetooth/qlowenergyadvertisingparameters.h>
+#include <QtBluetooth/qlowenergycharacteristic.h>
+#include <QtBluetooth/qlowenergycharacteristicdata.h>
+#include <QtBluetooth/qlowenergycontroller.h>
+#include <QtBluetooth/qlowenergydescriptordata.h>
+#include <QtBluetooth/qlowenergyservice.h>
+#include <QtBluetooth/qlowenergyservicedata.h>
 #include <QtCore/qbytearray.h>
 
 #ifndef Q_OS_ANDROID
@@ -16,42 +25,36 @@
 #include <QDateTime>
 #include <QObject>
 #include <QString>
-#include <QUdpSocket>
 
-#include "bike.h"
+#include "treadmill.h"
 #include "virtualbike.h"
+#include "virtualtreadmill.h"
 
 #ifdef Q_OS_IOS
 #include "ios/lockscreen.h"
 #endif
 
-class nordictrackifitadbbike : public bike {
+class faketreadmill : public treadmill {
     Q_OBJECT
   public:
-    nordictrackifitadbbike(bool noWriteResistance, bool noHeartService);
+    faketreadmill(bool noWriteResistance, bool noHeartService, bool noVirtualDevice);
     bool connected();
-    bool inclinationAvailableByHardware();
 
   private:
-    void forceResistance(double resistance);
-    uint16_t watts();
-
     QTimer *refresh;
-    virtualbike *virtualBike = nullptr;
 
     uint8_t sec1Update = 0;
+    QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
+    QDateTime lastGoodCadence = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    uint16_t m_watts = 0;
 
     bool initDone = false;
     bool initRequest = false;
 
     bool noWriteResistance = false;
     bool noHeartService = false;
-
-    QUdpSocket *socket = nullptr;
-    QHostAddress lastSender;
+    bool noVirtualDevice = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;
@@ -62,11 +65,10 @@ class nordictrackifitadbbike : public bike {
     void debug(QString string);
 
   private slots:
-
-    void processPendingDatagrams();
     void changeInclinationRequested(double grade, double percentage);
-
     void update();
+
+    void ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue);
 };
 
-#endif // NORDICTRACKIFITADBBIKE_H
+#endif // FAKETREADMILL_H
