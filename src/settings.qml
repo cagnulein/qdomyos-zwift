@@ -461,6 +461,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.11.38
             property string tdf_10_ip: ""
+
+            // from the version 2.11.41
+            property bool fakedevice_treadmill: false
         }
 
         function paddingZeros(text, limit) {
@@ -6560,6 +6563,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: fakeTreadmillDelegate
+                        text: qsTr("Fake Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fakedevice_treadmill = checked
                     }
 
                     SwitchDelegate {

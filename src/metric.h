@@ -44,6 +44,7 @@ class metric {
     static double calculateSpeedFromPower(double power, double inclination);
     static double calculateWeightLoss(double kcal);
     static double calculateVO2Max(QList<SessionLine> *session);
+    static double calculateKCalfromHR(double HR_AVG, double elapsed);
 
   private:
     double m_value = 0;
