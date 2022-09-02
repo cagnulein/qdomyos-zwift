@@ -108,6 +108,10 @@ void fakeelliptical::update() {
 #endif
     }
 
+    if (Heart.value()) {
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+    }
+
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
         Resistance = requestResistance;
     }
