@@ -27,6 +27,8 @@
 #endif
 #include "bike.h"
 #include "dirconmanager.h"
+#include "virtualdevice.h"
+
 
 class virtualbike : public QObject {
 

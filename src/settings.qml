@@ -4,6 +4,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 
+
 //Page {
     ScrollView {
         contentWidth: -1
@@ -464,6 +465,10 @@ import Qt.labs.settings 1.0
 
             // from the version 2.11.41
             property bool fakedevice_treadmill: false
+
+            // from the version ?
+            property int virtual_device_name_suffix: 0
+            property bool virtual_device_name_suffix_enabled: false
         }
 
         function paddingZeros(text, limit) {
@@ -5161,6 +5166,38 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelVirtualDeviceNameSuffix
+                            text: qsTr("Virtual Device Name Suffix")
+                            Layout.fillWidth: true
+                        }
+                        SpinBox
+                        {
+                            id: virtualDeviceNameSuffixSpinBox
+                            visible: virtualDeviceNameSuffixEnabled.checked
+                            from: 0
+                            to: 9999
+                            onValueChanged:  settings.virtual_device_name_suffix.value
+                        }
+                        SwitchDelegate
+                        {
+                            id: virtualDeviceNameSuffixEnabled
+                            text: qsTr("")
+                            spacing: 0
+                            bottomPadding: 0
+                            topPadding: 0
+                            rightPadding: 0
+                            leftPadding: 0
+                            clip: false
+                            checked: settings.virtual_device_name_suffix_enabled
+                            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                            Layout.fillWidth: false
+                            onClicked: settings.virtual_device_name_suffix_enabled = checked
+                        }
+                    }
                     RowLayout {
                         spacing: 10
                         Label {

@@ -64,7 +64,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
         advertisingData.setDiscoverability(QLowEnergyAdvertisingData::DiscoverabilityGeneral);
         advertisingData.setIncludePowerLevel(true);
         if (!echelon && !ifit) {
-            advertisingData.setLocalName(QStringLiteral("DomyosBridge"));
+            advertisingData.setLocalName(virtualdevice::get_VirtualDeviceName());
         } else if (ifit) {
             advertisingData.setLocalName(QStringLiteral("I_EB"));
         } else {
