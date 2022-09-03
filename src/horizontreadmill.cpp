@@ -731,12 +731,12 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
                                 QStringLiteral("init"), false, true);
-            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData5, sizeof(initData5),
+            /*writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData5, sizeof(initData5),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData6, sizeof(initData6),
-                                QStringLiteral("init"), false, true);
+                                QStringLiteral("init"), false, true);*/
         }
-        messageID = 0x11;
+        messageID = 0x10;
     }
 
     initDone = true;
