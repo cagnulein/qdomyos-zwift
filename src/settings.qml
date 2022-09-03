@@ -5178,14 +5178,22 @@ import Qt.labs.settings 1.0
                         {
                             id: virtualDeviceNameSuffixSpinBox
                             visible: virtualDeviceNameSuffixEnabled.checked
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("The advertised bluetooth device name will be suffixed with this value.")
+                            value: settings.virtual_device_name_suffix
+                            inputMethodHints: Qt.ImhDigitsOnly
                             from: 0
                             to: 9999
-                            onValueChanged:  settings.virtual_device_name_suffix.value
+                            onValueChanged:  settings.virtual_device_name_suffix = value
                         }
                         SwitchDelegate
                         {
                             id: virtualDeviceNameSuffixEnabled
                             text: qsTr("")
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Use this to enable or disable the suffix on the advertised bluetooth device name.")
                             spacing: 0
                             bottomPadding: 0
                             topPadding: 0
