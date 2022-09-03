@@ -187,6 +187,12 @@ private:
      * @return
      */
     resistance_t adjustedResistance(resistance_t input, bool toDevice);
+
+    /**
+     * @brief set_resistance Called to set the resistance level sent to the device.
+     * @param resistanceLevel The resistance level to request (0..maximumResistance())
+     */
+    void set_resistance(resistance_t resistanceLevel);
 protected:
 
     /**
@@ -199,13 +205,6 @@ protected:
      * @brief disconnectPort Disconnect the serial port and resistance timer.
      */
     void disconnectPort();
-public Q_SLOTS:
-    /**
-     * @brief changeResistance Called to set the resistance level sent to the device.
-     * @param resistanceLevel The resistance level to request (0..maximumResistance())
-     */
-    void setResistance(resistance_t resistanceLevel);
-
 
 public:
 

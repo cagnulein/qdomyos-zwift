@@ -444,7 +444,7 @@ resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
         result = (ps-1)[1];
 
     result = this->adjustedResistance(result, false);
-    result = std::min((int16_t)trixterxdreamv1client::MaxResistance, std::max((int16_t)0, result));
+    result = std::min((resistance_t)trixterxdreamv1client::MaxResistance, std::max((resistance_t)0, result));
     return result;
 }
 
@@ -547,7 +547,7 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // check if there's a request for a resistance level
     if(this->requestResistance!=-1) {
-        this->setResistance(this->requestResistance);
+        this->set_resistance(this->requestResistance);
         this->requestResistance = -1;
     }
 
@@ -636,7 +636,7 @@ void trixterxdreamv1bike::calculateSteeringMap() {
 
 }
 
-void trixterxdreamv1bike::setResistance(resistance_t resistanceLevel) {
+void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
     // ignore the resistance if this option was selected
     if(this->noWriteResistance)
         return;
