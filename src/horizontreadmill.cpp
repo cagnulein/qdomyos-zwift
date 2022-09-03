@@ -153,9 +153,6 @@ void horizontreadmill::btinit() {
                            0x01, 0xe5, 0x07, 0x02, 0x08, 0x13, 0x12, 0x21, 0x00};
     uint8_t initData3[] = {0x55, 0xaa, 0x0f, 0x00, 0x03, 0x01, 0x01, 0x00, 0xd1, 0xf1, 0x01};
     uint8_t initData4[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
-    uint8_t initData5[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
-                           0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
-    uint8_t initData6[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
 
     if (gattCustomService) {
 
@@ -731,10 +728,6 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData4, sizeof(initData4),
                                 QStringLiteral("init"), false, true);
-            /*writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData5, sizeof(initData5),
-                                QStringLiteral("init"), false, false);
-            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData6, sizeof(initData6),
-                                QStringLiteral("init"), false, true);*/
         }
         messageID = 0x10;
     }
@@ -815,6 +808,16 @@ void horizontreadmill::update() {
                                             QStringLiteral("requestStart"), false, false);
                         writeCharacteristic(gattCustomService, gattWriteCharCustomService, &write1[20],
                                             sizeof(write1) - 20, QStringLiteral("requestStart"), false, true);
+                    } else {
+                        uint8_t initData5[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
+                                               0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
+                        uint8_t initData6[] = {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
+
+                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData5, sizeof(initData5),
+                                            QStringLiteral("init"), false, false);
+                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData6, sizeof(initData6),
+                                            QStringLiteral("init"), false, true);
+                        messageID++;
                     }
                 } else {
                     uint8_t initData02_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x03, 0x02, 0x0e, 0x00, 0x38,
