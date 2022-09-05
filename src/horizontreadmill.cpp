@@ -773,7 +773,7 @@ void horizontreadmill::update() {
             requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             if (requestInclination != currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
@@ -793,21 +793,31 @@ void horizontreadmill::update() {
             if (gattCustomService) {
                 if (!horizon_paragon_x) {
                     if (horizon_treadmill_7_8) {
-                        messageID++;
-                        // 0x17 0x34 = 99 minutes (99 * 60 = 5940)
-                        uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x02, 0x11, 0x00, 0x1a,
-                                            0x17, 0x00, 0x00, 0x34, 0x17, 0x00, 0x00, 0x00, 0x00,
-                                            0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
-                        int confirm = GenerateCRC_CCITT(&write1[10], 17);
-                        write1[2] = messageID & 0xff;
-                        write1[3] = messageID >> 8;
-                        write1[8] = confirm & 0xff;
-                        write1[9] = confirm >> 8;
+                        if (Speed.value() == 0) {
+                            messageID++;
+                            // 0x17 0x34 = 99 minutes (99 * 60 = 5940)
+                            uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x02, 0x11, 0x00, 0x1a,
+                                                0x17, 0x00, 0x00, 0x34, 0x17, 0x00, 0x00, 0x00, 0x00,
+                                                0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
+                            int confirm = GenerateCRC_CCITT(&write1[10], 17);
+                            write1[2] = messageID & 0xff;
+                            write1[3] = messageID >> 8;
+                            write1[8] = confirm & 0xff;
+                            write1[9] = confirm >> 8;
 
-                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, 20,
-                                            QStringLiteral("requestStart"), false, false);
-                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, &write1[20],
-                                            sizeof(write1) - 20, QStringLiteral("requestStart"), false, true);
+                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, 20,
+                                                QStringLiteral("requestStart"), false, false);
+                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, &write1[20],
+                                                sizeof(write1) - 20, QStringLiteral("requestStart"), false, true);
+                        } else {
+                            messageID++;
+                            uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x03, 0x01, 0x00, 0xf0, 0xe1, 0x00};
+                            write1[2] = messageID & 0xff;
+                            write1[3] = messageID >> 8;
+
+                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
+                                                QStringLiteral("requestPause"), false, false);
+                        }
                     } else {
                         uint8_t initData5[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
                                                0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
@@ -1584,7 +1594,8 @@ bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
 
     // the horizon starts with a strange speed, since that i can auto start (maybe the best way to solve this
     // is to understand why it's starting with this strange speed)
-    if (!horizon_paragon_x && !horizon_treadmill_7_8) return false;
+    if (!horizon_paragon_x && !horizon_treadmill_7_8)
+        return false;
 
     if ((lastStop == 0 || QDateTime::currentMSecsSinceEpoch() > (lastStop + 25000)) && requestStop == -1)
         return true;
