@@ -24,10 +24,12 @@ class MainController: WKInterfaceController {
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
-        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem()]
+        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
         sports[0].title = "Bike"
         sports[1].title = "Run"
         sports[2].title = "Walk"
+        sports[3].title = "Elliptical"
+        sports[4].title = "Rowing"
         cmbSports.setItems(sports)
         sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
         cmbSports.setSelectedItemIndex(sport)
