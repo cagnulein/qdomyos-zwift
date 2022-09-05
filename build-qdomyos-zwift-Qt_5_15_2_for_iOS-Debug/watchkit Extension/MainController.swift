@@ -17,7 +17,7 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var distanceLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
-    @IBOutlet weak var cmbSport: WKInterfacePicker!
+    @IBOutlet weak var cmbSports: WKInterfacePicker!
     static var start: Bool! = false
     let pedometer = CMPedometer()
     var sport: Int = 0
@@ -28,9 +28,9 @@ class MainController: WKInterfaceController {
         sports[0].title = "Bike"
         sports[1].title = "Run"
         sports[2].title = "Walk"
-        cmbSport.setItems(sports)
+        cmbSports.setItems(sports)
         sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
-        cmbSport.setSelectedItemIndex(sport)
+        cmbSports.setSelectedItemIndex(sport)
         
         // Configure interface objects here.
         print("AWAKE")
