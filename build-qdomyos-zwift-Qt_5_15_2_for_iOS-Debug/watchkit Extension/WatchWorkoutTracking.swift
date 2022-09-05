@@ -31,6 +31,7 @@ class WorkoutTracking: NSObject {
     public static var cadenceTimeStamp = NSDate().timeIntervalSince1970
     public static var cadenceLastSteps = Double()
     public static var cadenceSteps = 0
+    var sport: Int = 0
     let healthStore = HKHealthStore()
     let configuration = HKWorkoutConfiguration()
     var workoutSession: HKWorkoutSession!
@@ -101,8 +102,18 @@ extension WorkoutTracking {
         }
     }
     
+    func setSport(_ sport: Int) {
+        self.sport = sport
+    }
+    
     private func configWorkout() {
-        configuration.activityType = .cycling
+        var activityType = HKWorkoutActivityType.cycling
+        if self.sport == 1 {
+            activityType = HKWorkoutActivityType.running
+        } else if self.sport == 2 {
+            activityType = HKWorkoutActivityType.walking
+        }
+        configuration.activityType = activityType
         configuration.locationType = .indoor
         
         do {
