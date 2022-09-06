@@ -794,20 +794,31 @@ void horizontreadmill::update() {
                 if (!horizon_paragon_x) {
                     if (horizon_treadmill_7_8) {
                         messageID++;
-                        // 0x17 0x34 = 99 minutes (99 * 60 = 5940)
-                        uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x02, 0x11, 0x00, 0x1a,
-                                            0x17, 0x00, 0x00, 0x34, 0x17, 0x00, 0x00, 0x00, 0x00,
-                                            0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
-                        int confirm = GenerateCRC_CCITT(&write1[10], 17);
-                        write1[2] = messageID & 0xff;
-                        write1[3] = messageID >> 8;
-                        write1[8] = confirm & 0xff;
-                        write1[9] = confirm >> 8;
+                        // start
+                        if (!paused) {
+                            // 0x17 0x34 = 99 minutes (99 * 60 = 5940)
+                            uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x02, 0x11, 0x00, 0x1a,
+                                                0x17, 0x00, 0x00, 0x34, 0x17, 0x00, 0x00, 0x00, 0x00,
+                                                0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x01};
+                            int confirm = GenerateCRC_CCITT(&write1[10], 17);
+                            write1[2] = messageID & 0xff;
+                            write1[3] = messageID >> 8;
+                            write1[8] = confirm & 0xff;
+                            write1[9] = confirm >> 8;
 
-                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, 20,
-                                            QStringLiteral("requestStart"), false, false);
-                        writeCharacteristic(gattCustomService, gattWriteCharCustomService, &write1[20],
-                                            sizeof(write1) - 20, QStringLiteral("requestStart"), false, true);
+                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, 20,
+                                                QStringLiteral("requestStart"), false, false);
+                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, &write1[20],
+                                                sizeof(write1) - 20, QStringLiteral("requestStart"), false, true);
+                        } else {
+                            // resume
+                            uint8_t write1[] = {0x55, 0xaa, 0x13, 0x00, 0x03, 0x03, 0x01, 0x00, 0xd1, 0xf1, 0x01};
+                            write1[2] = messageID & 0xff;
+                            write1[3] = messageID >> 8;
+
+                            writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
+                                                QStringLiteral("requestResume"), false, false);
+                        }
                     } else {
                         uint8_t initData5[] = {0x55, 0xaa, 0x11, 0x00, 0x03, 0x02, 0x11, 0x00, 0x84, 0xbe,
                                                0x00, 0x00, 0x08, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x05};
