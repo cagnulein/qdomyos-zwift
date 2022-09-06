@@ -462,6 +462,13 @@ import Qt.labs.settings 1.0
             // from the version 2.11.38
             property string tdf_10_ip: ""
             
+            
+            // from the version 2.11.41
+            property bool fakedevice_treadmill: false
+
+            // from the version 2.11.43
+            property int video_playback_window_s: 12
+            
             // from the version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
@@ -4087,7 +4094,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -4110,7 +4117,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -4133,7 +4140,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -4156,7 +4163,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -4179,7 +4186,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -6421,6 +6428,44 @@ import Qt.labs.settings 1.0
             }
 
             AccordionElement {
+                id: videoAccordion
+                title: qsTr("Video 🎥")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelVideoWindow
+                            text: qsTr("Window Time (sec.):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: videoWindowTextField
+                            text: settings.video_playback_window_s
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.video_playback_window_s = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okVideoWindow
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.video_playback_window_s = videoWindowTextField.text
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
                 id: experimentalFeatureAccordion
                 title: qsTr("Experimental Features")
                 indicatRectColor: Material.color(Material.Grey)
@@ -6729,6 +6774,21 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.applewatch_fakedevice = checked
+                    }
+
+                    SwitchDelegate {
+                        id: fakeTreadmillDelegate
+                        text: qsTr("Fake Treadmill")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.fakedevice_treadmill
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.fakedevice_treadmill = checked
                     }
 
                     SwitchDelegate {

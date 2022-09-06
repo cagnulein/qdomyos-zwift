@@ -427,6 +427,64 @@ int main(int argc, char *argv[]) {
 
     settings.setValue(QStringLiteral("app_opening"), settings.value(QStringLiteral("app_opening"), 0).toInt() + 1);
 
+#if defined(Q_OS_ANDROID)
+    auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
+        if (resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "READ_EXTERNAL_STORAGE denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
+        if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "ACCESS_FINE_LOCATION denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
+        if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "BLUETOOTH denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
+        if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "BLUETOOTH_ADMIN denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_SCAN"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_SCAN"}));
+        if (resultHash["android.permission.BLUETOOTH_SCAN"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "BLUETOOTH_SCAN denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADVERTISE"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADVERTISE"}));
+        if (resultHash["android.permission.BLUETOOTH_ADVERTISE"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "BLUETOOTH_ADVERTISE denied!";
+    }
+
+    result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_CONNECT"));
+    if (result == QtAndroid::PermissionResult::Denied) {
+        QtAndroid::PermissionResultMap resultHash =
+            QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_CONNECT"}));
+        if (resultHash["android.permission.BLUETOOTH_CONNECT"] == QtAndroid::PermissionResult::Denied)
+            qDebug() << "BLUETOOTH_CONNECT denied!";
+    }
+#endif
+
     /* test virtual echelon
      * settings.setValue("virtual_device_echelon", true);
     virtualbike* V = new virtualbike(new bike(), noWriteResistance, noHeartService);
@@ -457,39 +515,6 @@ int main(int argc, char *argv[]) {
             },
             Qt::QueuedConnection);
 
-#if defined(Q_OS_ANDROID)
-        auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));
-        if (result == QtAndroid::PermissionResult::Denied) {
-            QtAndroid::PermissionResultMap resultHash =
-                QtAndroid::requestPermissionsSync(QStringList({"android.permission.READ_EXTERNAL_STORAGE"}));
-            if (resultHash["android.permission.READ_EXTERNAL_STORAGE"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "READ_EXTERNAL_STORAGE denied!";
-        }
-
-        result = QtAndroid::checkPermission(QString("android.permission.ACCESS_FINE_LOCATION"));
-        if (result == QtAndroid::PermissionResult::Denied) {
-            QtAndroid::PermissionResultMap resultHash =
-                QtAndroid::requestPermissionsSync(QStringList({"android.permission.ACCESS_FINE_LOCATION"}));
-            if (resultHash["android.permission.ACCESS_FINE_LOCATION"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "ACCESS_FINE_LOCATION denied!";
-        }
-
-        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH"));
-        if (result == QtAndroid::PermissionResult::Denied) {
-            QtAndroid::PermissionResultMap resultHash =
-                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH"}));
-            if (resultHash["android.permission.BLUETOOTH"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "BLUETOOTH denied!";
-        }
-
-        result = QtAndroid::checkPermission(QString("android.permission.BLUETOOTH_ADMIN"));
-        if (result == QtAndroid::PermissionResult::Denied) {
-            QtAndroid::PermissionResultMap resultHash =
-                QtAndroid::requestPermissionsSync(QStringList({"android.permission.BLUETOOTH_ADMIN"}));
-            if (resultHash["android.permission.BLUETOOTH_ADMIN"] == QtAndroid::PermissionResult::Denied)
-                qDebug() << "BLUETOOTH_ADMIN denied!";
-        }
-#endif
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
 #else

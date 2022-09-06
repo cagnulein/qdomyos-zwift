@@ -69,7 +69,8 @@ void fakeelliptical::update() {
             emit debug(QStringLiteral("creating virtual bike interface..."));
             virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
             connect(virtualBike, &virtualbike::changeInclination, this, &fakeelliptical::changeInclinationRequested);
-            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this, &fakeelliptical::ftmsCharacteristicChanged);
+            connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
+                    &fakeelliptical::ftmsCharacteristicChanged);
         }
     }
     if (!firstStateChanged)
@@ -109,12 +110,17 @@ void fakeelliptical::update() {
 #endif
     }
 
+    if (Heart.value()) {
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
+    }
+
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {
         Resistance = requestResistance;
     }
 }
 
-void fakeelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void fakeelliptical::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &characteristic,
+                                               const QByteArray &newValue) {
     QByteArray b = newValue;
     qDebug() << "routing FTMS packet to the bike from virtualbike" << characteristic.uuid() << newValue.toHex(' ');
 }

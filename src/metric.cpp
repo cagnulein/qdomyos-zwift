@@ -282,3 +282,39 @@ double metric::calculateVO2Max(QList<SessionLine> *session) {
             settings.value(QStringLiteral("weight"), 75.0).toFloat()) *
            1000.0;
 }
+
+double metric::calculateKCalfromHR(double HR_AVG, double elapsed) {
+    /*
+         * If VO2 max is unknown, the following formulas would apply:
+
+Women:
+
+    CB = T * (0.4472*H - 0.1263*W + 0.074*A - 20.4022) / 4.184
+
+         Men:
+
+        CB = T * (0.6309*H + 0.1988*W + 0.2017*A - 55.0969) / 4.184
+
+             Where:
+
+        CB is the number of calories burned;
+    T is the duration of exercise in minutes;
+    H is your average heart rate in beats per minute;
+    W is your weight in kilograms; and
+        A is your age in years.
+            */
+
+    QSettings settings;
+    QString sex = settings.value(QStringLiteral("sex"), "Male").toString();
+    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double age = settings.value(QStringLiteral("age"), 35).toDouble();
+    double T = elapsed / 60;
+    double H = HR_AVG;
+    double W = weight;
+    double A = age;
+    if (sex.toLower().contains("female")) {
+        return (T * ((0.4472 * H) - (0.1263 * W) + (0.074 * A) - 20.4022) / 4.184);
+    } else {
+        return (T * ((0.6309 * H) + (0.1988 * W) + (0.2017 * A) - 55.0969) / 4.184);
+    }
+}
