@@ -74,7 +74,7 @@ protected:
     void run() override;
 
     bool sendReceiveLog = false;
-    QSerialPort serial;
+    QSerialPort * serial = nullptr;
     QString portName;
     QSerialPort::BaudRate baudRate;
     QMutex mutex;
