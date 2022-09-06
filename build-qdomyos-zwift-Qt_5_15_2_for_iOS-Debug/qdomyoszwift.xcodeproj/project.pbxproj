@@ -167,6 +167,8 @@
 		872261F0289EA887006A6F75 /* moc_nordictrackelliptical.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */; };
 		8727A47727849EA600019B5D /* paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47627849EA600019B5D /* paferstreadmill.cpp */; };
 		8727A47927849EB200019B5D /* moc_paferstreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 8727A47827849EB200019B5D /* moc_paferstreadmill.cpp */; };
+		872A20DA28C5EC380037774D /* faketreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872A20D928C5EC380037774D /* faketreadmill.cpp */; };
+		872A20DC28C5F5CE0037774D /* moc_faketreadmill.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */; };
 		872BAB4E261750EE006A59AB /* libQt5Charts.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4D261750EE006A59AB /* libQt5Charts.a */; };
 		872BAB50261751FB006A59AB /* libqtchartsqml2.a in Link Binary With Libraries */ = {isa = PBXBuildFile; fileRef = 872BAB4F261751FB006A59AB /* libqtchartsqml2.a */; };
 		873063BE259DF20000DA0F44 /* heartratebelt.cpp in Compile Sources */ = {isa = PBXBuildFile; fileRef = 873063BC259DF20000DA0F44 /* heartratebelt.cpp */; };
@@ -833,6 +835,9 @@
 		8727A47527849EA600019B5D /* paferstreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = paferstreadmill.h; path = ../src/paferstreadmill.h; sourceTree = "<group>"; };
 		8727A47627849EA600019B5D /* paferstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = paferstreadmill.cpp; path = ../src/paferstreadmill.cpp; sourceTree = "<group>"; };
 		8727A47827849EB200019B5D /* moc_paferstreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_paferstreadmill.cpp; sourceTree = "<group>"; };
+		872A20D828C5EC380037774D /* faketreadmill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = faketreadmill.h; path = ../src/faketreadmill.h; sourceTree = "<group>"; };
+		872A20D928C5EC380037774D /* faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = faketreadmill.cpp; path = ../src/faketreadmill.cpp; sourceTree = "<group>"; };
+		872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = moc_faketreadmill.cpp; sourceTree = "<group>"; };
 		872BAB4D261750EE006A59AB /* libQt5Charts.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libQt5Charts.a; path = ../../Qt/5.15.2/ios/lib/libQt5Charts.a; sourceTree = "<group>"; };
 		872BAB4F261751FB006A59AB /* libqtchartsqml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libqtchartsqml2.a; path = ../../Qt/5.15.2/ios/qml/QtCharts/libqtchartsqml2.a; sourceTree = "<group>"; };
 		873063BC259DF20000DA0F44 /* heartratebelt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = heartratebelt.cpp; path = ../src/heartratebelt.cpp; sourceTree = "<group>"; };
@@ -1615,6 +1620,7 @@
 		25B08E2869634E9BCBA333A2 /* Generated Sources */ = {
 			isa = PBXGroup;
 			children = (
+				872A20DB28C5F5CE0037774D /* moc_faketreadmill.cpp */,
 				878C9E6A28B77E9800669129 /* moc_nordictrackifitadbbike.cpp */,
 				872261EF289EA887006A6F75 /* moc_nordictrackelliptical.cpp */,
 				879E5AA9289C05A500FEA38A /* moc_proformwifitreadmill.cpp */,
@@ -1767,6 +1773,8 @@
 		2EB56BE3C2D93CDAB0C52E67 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				872A20D928C5EC380037774D /* faketreadmill.cpp */,
+				872A20D828C5EC380037774D /* faketreadmill.h */,
 				878C9E6828B77E7B00669129 /* nordictrackifitadbbike.cpp */,
 				878C9E6728B77E7B00669129 /* nordictrackifitadbbike.h */,
 				872261EC289EA873006A6F75 /* nordictrackelliptical.cpp */,
@@ -2827,6 +2835,7 @@
 				87368825259C602800C71C7E /* watchAppStart.swift in Compile Sources */,
 				876ED21925C3E9000065F3DC /* moc_ftmsbike.cpp in Compile Sources */,
 				87C5F0BD26285E5F0067A1B5 /* chronobike.cpp in Compile Sources */,
+				872A20DA28C5EC380037774D /* faketreadmill.cpp in Compile Sources */,
 				87900DC8268B673C000CB351 /* moc_renphobike.cpp in Compile Sources */,
 				87CC3B9E25A08812001EC5A8 /* moc_elliptical.cpp in Compile Sources */,
 				876BFC9C27BE35C5001D7645 /* proformelliptical.cpp in Compile Sources */,
@@ -2996,6 +3005,7 @@
 				87AE0CB227760DCB00E547E9 /* virtualtreadmill_zwift.swift in Compile Sources */,
 				87062643259480A200D06586 /* AppDelegate.swift in Compile Sources */,
 				873824F027E647A9004F1B46 /* server.cpp in Compile Sources */,
+				872A20DC28C5F5CE0037774D /* moc_faketreadmill.cpp in Compile Sources */,
 				873CD20927EF8D8A000131BC /* inapppurchasebackend.cpp in Compile Sources */,
 				87E0761F277A082300FDA0F9 /* moc_technogymmyruntreadmillrfcomm.cpp in Compile Sources */,
 				87433F2127D8B722003D1672 /* simplecrypt.cpp in Compile Sources */,

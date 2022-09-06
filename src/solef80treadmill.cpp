@@ -306,15 +306,16 @@ void solef80treadmill::update() {
             // requestSpeed = -1;
         }
         if (requestInclination != -100) {
-            if(requestInclination < 0)
+            if (requestInclination < 0)
                 requestInclination = 0;
             // this treadmill has only 1% step inclination
             if ((int)requestInclination != (int)currentInclination().value() && requestInclination >= 0 &&
                 requestInclination <= 15) {
                 emit debug(QStringLiteral("writing incline ") + QString::number(requestInclination));
                 forceIncline(requestInclination);
-            } else if((int)requestInclination == (int)currentInclination().value()) {
-                qDebug() << "int inclination match the current one" << requestInclination << currentInclination().value();
+            } else if ((int)requestInclination == (int)currentInclination().value()) {
+                qDebug() << "int inclination match the current one" << requestInclination
+                         << currentInclination().value();
                 requestInclination = -100;
             }
             // i have to do the reset on when the inclination is equal to the current
@@ -446,6 +447,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
     bool f65 = settings.value(QStringLiteral("sole_treadmill_f65"), false).toBool();
@@ -463,7 +465,6 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             qDebug() << "solef80treadmill inclination mode paused on, resetting timer...";
             Speed = 0;
             lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-            ;
         }
     }
 
@@ -481,6 +482,11 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         Inclination = (double)((uint8_t)newValue.at(11));
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
+
+        if (!disable_hr_frommachinery) {
+            heart = (double)((uint8_t)newValue.at(9));
+            emit debug(QStringLiteral("Current Heart: ") + QString::number(heart));
+        }
 
         Distance += ((Speed.value() / 3600000.0) * ((double)lastRefreshCharacteristicChanged.msecsTo(now)));
 

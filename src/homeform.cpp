@@ -4477,10 +4477,12 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     static QTime lastSource = QTime(0, 0, 0);
     static QTime lastActual = QTime(0, 0, 0);
     const double filterRate = 0.1;
-    const int filterSeconds = 3;
+    QSettings settings;
+    int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
     // if a time is smaller then the last one means that the user restart the program
-    if (lastSource < source || lastActual < actual) {
+    if (lastSource > source || lastActual > actual) {
+        qDebug() << "changeTimestamp resetting timestamp " << source << actual << lastSource << lastActual;
         lastSource = QTime(0, 0, 0);
         lastActual = QTime(0, 0, 0);
     }
