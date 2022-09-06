@@ -465,7 +465,6 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             qDebug() << "solef80treadmill inclination mode paused on, resetting timer...";
             Speed = 0;
             lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
-            ;
         }
     }
 
