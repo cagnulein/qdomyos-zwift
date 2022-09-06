@@ -62,13 +62,13 @@ protected:
      * @brief receive Override this to process received data.
      * @param bytes
      */
-    virtual void receive(const QByteArray &bytes) { if(this->receiveBytes) this->receiveBytes(bytes); }
+    virtual void receive(const QByteArray &bytes);
 
     /**
      * @brief error Log an error.
      * @param s The error text.
      */
-    virtual void error(const QString &s) {}
+    virtual void error(const QString &s);
 
   private:
     void run() override;

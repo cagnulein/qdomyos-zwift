@@ -16,6 +16,15 @@ QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts() {
     return QSerialPortInfo::availablePorts();
 }
 
+void trixterxdreamv1serial::receive(const QByteArray &bytes) {
+    if(this->receiveBytes)
+        this->receiveBytes(bytes);
+}
+
+void trixterxdreamv1serial::error(const QString &s) {
+    qDebug() << "Error in trixterxdreamv1serial: " << s;
+}
+
 bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate baudRate) {
 
     QMutexLocker locker(&this->mutex);
