@@ -649,8 +649,12 @@ void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
 
     // store the resistance level as a metric for the UI
     constexpr double pelotonScaleFactor = 100.0 / trixterxdreamv1client::MaxResistance;
+    bool resistanceChanged = false;
 
-    this->Resistance.setValue(resistanceLevel);
+    if(resistanceLevel != (resistance_t)this->Resistance.value()) {
+        this->Resistance.setValue(resistanceLevel);
+        resistanceChanged = true;
+    }
     if(this->useResistancePercentage)
         this->m_pelotonResistance.setValue(resistanceLevel);
     else
@@ -659,6 +663,11 @@ void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
     // store the new resistance level. This might be the same as lastRequestedResistance(),Value
     // but it doesn't involve a function call and a cast to get the value.
     this->resistanceLevel = this->adjustedResistance(resistanceLevel, true);
+
+    // if there's been a change of resistance, signal it.
+    if(resistanceChanged)
+        emit this->resistanceRead(resistanceLevel);
+
 }
 
 void trixterxdreamv1bike::updateResistance() {
