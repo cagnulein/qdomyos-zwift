@@ -238,7 +238,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
         workoutBuilder.endCollection(withEnd: Date()) { (success, error) in
             
         }
-        workoutBuilder.finishWorkout{ (success, error) in }
+        workoutBuilder.finishWorkout{ (workout, error) in
+            workout?.setValue(quantityMiles, forKey: "totalDistance")
+        }
     }
     
     func fetchStepCounts() {
