@@ -4480,7 +4480,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     const int filterSeconds = 3;
 
     // if a time is smaller then the last one means that the user restart the program
-    if (lastSource < source || lastActual < actual) {
+    if (lastSource > source || lastActual > actual) {
+        qDebug() << "changeTimestamp resetting timestamp";
         lastSource = QTime(0, 0, 0);
         lastActual = QTime(0, 0, 0);
     }
