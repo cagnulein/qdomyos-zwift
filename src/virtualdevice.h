@@ -8,23 +8,28 @@ private:
     virtualdevice() {}
 public:
     /**
-     * @brief The base default name advertised via Bluetooth. This
-     * can be used to check the start of a device name.
+      * @brief Legacy Bluetooth device name. This is the default when the alternative name is not in use,
+      * and is still used for a consistent customer experience.
+      */
+     const static QString DomyosBridge;
+
+    /**
+     * @brief The base default name advertised via Bluetooth.
      */
     const static QString VirtualDeviceBaseName;
 
     /**
-     * @brief The QSettings key the bluetooth name suffix is stored under.
+     * @brief The QSettings key the alternative bluetooth name suffix is stored under.
      */
-    const static QString VirtualDeviceNameSuffixSettingsKey;
+    const static QString VirtualDeviceAlternativeNameSuffixSettingsKey;
 
     /**
-     * @brief he QSettings key to get the setting indicating if the bluetooth name suffix is enabled.
+     * @brief The QSettings key to get the setting indicating if the alternative bluetooth name is enabled.
      */
-    const static QString VirtualDeviceNameSuffixEnabledSettingsKey;
+    const static QString VirtualDeviceAlternativeNameEnabledSettingsKey;
 
     /**
-     * @brief Gets the full bluetooth name to be advertised, including (if enabled) the suffix from the settings.
+     * @brief Gets the full bluetooth name to be advertised.
      */
     static QString get_VirtualDeviceName();
 

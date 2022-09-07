@@ -1,25 +1,21 @@
 #include "virtualdevice.h"
 #include <QSettings>
 
-const QString virtualdevice::VirtualDeviceBaseName = QStringLiteral("DomyosBridge");
-const QString virtualdevice::VirtualDeviceNameSuffixSettingsKey = QStringLiteral("virtual_device_name_suffix");
-const QString virtualdevice::VirtualDeviceNameSuffixEnabledSettingsKey = QStringLiteral("virtual_device_name_suffix_enabled");
+const QString virtualdevice::DomyosBridge = QStringLiteral("DomyosBridge");
+const QString virtualdevice::VirtualDeviceBaseName = QStringLiteral("QZ");
+const QString virtualdevice::VirtualDeviceAlternativeNameSuffixSettingsKey = QStringLiteral("virtual_device_alt_name_suffix");
+const QString virtualdevice::VirtualDeviceAlternativeNameEnabledSettingsKey = QStringLiteral("virtual_device_alt_name_enabled");
 
 QString virtualdevice::get_VirtualDeviceName() {
     QSettings settings;
 
-    bool usingSuffix = settings.value(VirtualDeviceNameSuffixEnabledSettingsKey, false).toBool();
+    bool usingSuffix = settings.value(VirtualDeviceAlternativeNameEnabledSettingsKey, false).toBool();
 
     if(!usingSuffix)
-        return VirtualDeviceBaseName;
+        return DomyosBridge;
 
-    int suffixValue = settings.value(virtualdevice::VirtualDeviceNameSuffixSettingsKey, 0 ).toInt();
+    QString suffix = settings.value(virtualdevice::VirtualDeviceAlternativeNameSuffixSettingsKey, "0" ).toString();
 
-    QString suffix = QString(suffixValue);
-
-    while(suffix.length()<4)
-        suffix = "0"+suffix;
-
-    return VirtualDeviceBaseName+"-"+suffix;
+    return VirtualDeviceBaseName+suffix;
 }
 

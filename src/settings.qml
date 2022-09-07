@@ -469,8 +469,8 @@ import Qt.labs.settings 1.0
             property int video_playback_window_s: 12
 
             // from the version ?
-            property int virtual_device_name_suffix: 0
-            property bool virtual_device_name_suffix_enabled: false
+            property string virtual_device_alt_name_suffix: "0"
+            property bool virtual_device_alt_name_enabled: false
         }
 
         function paddingZeros(text, limit) {
@@ -5167,45 +5167,59 @@ import Qt.labs.settings 1.0
                 //anchors.top: acc1.bottom
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
-                    spacing: 0
-
+                    spacing: 0                   
+                    SwitchDelegate
+                    {
+                        id: virtualDeviceAltNameEnabled
+                        text: qsTr("Use Alternative Bluetooth Name")
+                        hoverEnabled: true
+                        ToolTip.visible: hovered
+                        ToolTip.text: qsTr("Use this to toggle the alternative advertised bluetooth device name.")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.virtual_device_alt_name_enabled
+                        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.virtual_device_alt_name_enabled = checked
+                    }
                     RowLayout {
                         spacing: 10
+                        visible: virtualDeviceAltNameEnabled.checked
                         Label {
-                            id: labelVirtualDeviceNameSuffix
-                            text: qsTr("Virtual Device Name Suffix")
+                            id: labelVirtualDeviceAltNameSuffix
+                            text: qsTr("Alternative Bluetooth Name")
                             Layout.fillWidth: true
                         }
-                        SpinBox
-                        {
-                            id: virtualDeviceNameSuffixSpinBox
-                            visible: virtualDeviceNameSuffixEnabled.checked
-                            hoverEnabled: true
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("The advertised bluetooth device name will be suffixed with this value.")
-                            value: settings.virtual_device_name_suffix
-                            inputMethodHints: Qt.ImhDigitsOnly
-                            from: 0
-                            to: 9999
-                            onValueChanged:  settings.virtual_device_name_suffix = value
-                        }
-                        SwitchDelegate
-                        {
-                            id: virtualDeviceNameSuffixEnabled
-                            text: qsTr("")
-                            hoverEnabled: true
-                            ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Use this to enable or disable the suffix on the advertised bluetooth device name.")
-                            spacing: 0
-                            bottomPadding: 0
-                            topPadding: 0
-                            rightPadding: 0
-                            leftPadding: 0
-                            clip: false
-                            checked: settings.virtual_device_name_suffix_enabled
-                            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                        Label {
+                            id: labelVirtualDeviceAltNameBase
+                            text: qsTr("QZ")
                             Layout.fillWidth: false
-                            onClicked: settings.virtual_device_name_suffix_enabled = checked
+                        }
+                        ComboBox {
+                            id: virtualDeviceAltNameSuffix
+                            editable: false
+                            Layout.fillWidth: false
+                            hoverEnabled: true
+                            ToolTip.visible: hovered
+                            ToolTip.text: qsTr("Select a unique suffix to distinguish this device from others.")
+                            currentIndex: {
+                                var i = find(settings.virtual_device_alt_name_suffix);
+                                return i<0 ? 0:i;
+                            }
+                            model: [ "0","1","2","3","4","5","6","7","8","9",
+                                     "A","B","C","D","E","F","G","H","I","J",
+                                     "K","L","M","N","O","P","Q","R","S","T",
+                                     "U","V","W","X","Y","Z" ]
+                        }
+                        Button {
+                            id: okVirtualDeviceAltNameSuffix
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.virtual_device_alt_name_suffix = virtualDeviceAltNameSuffix.currentValue
                         }
                     }
                     RowLayout {

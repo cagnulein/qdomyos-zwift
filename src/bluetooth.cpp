@@ -614,7 +614,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(powerTreadmill);
                 innerTemplateManager->start(powerTreadmill);
             } else if (b.name().toUpper().startsWith(QStringLiteral("DOMYOS-ROW")) &&
-                       !b.name().startsWith(virtualdevice::VirtualDeviceBaseName) && !domyosRower && filter) {
+                       !b.name().startsWith(virtualdevice::DomyosBridge) && !domyosRower && filter) {
                 this->stopDiscovery();
                 domyosRower = new domyosrower(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
                                               bikeResistanceGain);
@@ -631,7 +631,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(domyosRower);
                 innerTemplateManager->start(domyosRower);
             } else if (b.name().startsWith(QStringLiteral("Domyos-Bike")) &&
-                       !b.name().startsWith(virtualdevice::VirtualDeviceBaseName) && !domyosBike && filter) {
+                       !b.name().startsWith(virtualdevice::DomyosBridge) && !domyosBike && filter) {
                 this->stopDiscovery();
                 domyosBike = new domyosbike(noWriteResistance, noHeartService, testResistance, bikeResistanceOffset,
                                             bikeResistanceGain);
@@ -647,7 +647,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(domyosBike);
                 innerTemplateManager->start(domyosBike);
             } else if (b.name().startsWith(QStringLiteral("Domyos-EL")) &&
-                       !b.name().startsWith(virtualdevice::VirtualDeviceBaseName) && !domyosElliptical && filter) {
+                       !b.name().startsWith(virtualdevice::DomyosBridge) && !domyosElliptical && filter) {
                 this->stopDiscovery();
                 domyosElliptical = new domyoselliptical(noWriteResistance, noHeartService, testResistance,
                                                         bikeResistanceOffset, bikeResistanceGain);
