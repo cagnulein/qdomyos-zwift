@@ -316,6 +316,11 @@ void nautilusbike::serviceScanDone(void) {
 
     gattCommunicationChannelService = m_control->createServiceObject(_gattCommunicationChannelServiceId);
 
+    if (gattCommunicationChannelService == nullptr) {
+        qDebug() << QStringLiteral("invalid service") << _gattCommunicationChannelServiceId.toString();
+        return;
+    }
+    
     connect(gattCommunicationChannelService, &QLowEnergyService::stateChanged, this, &nautilusbike::stateChanged);
     gattCommunicationChannelService->discoverDetails();
 }
