@@ -3511,7 +3511,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
-                        r.rampElapsed = QTime(0, 0, 0).addSecs(p.seconds);
+                        r.gpxElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                         list.append(r);
                         setMapsVisible(true);
