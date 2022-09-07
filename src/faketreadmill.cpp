@@ -54,9 +54,11 @@ void faketreadmill::update() {
                 debug("creating virtual bike interface...");
                 virtualBike = new virtualbike(this);
                 connect(virtualBike, &virtualbike::changeInclination, this, &faketreadmill::changeInclinationRequested);
-            }
-            firstStateChanged = 1;
+            }            
         }
+        if (!firstStateChanged)
+            emit connectedAndDiscovered();
+        firstStateChanged = 1;
     }
     // ********************************************************************************************************
 
