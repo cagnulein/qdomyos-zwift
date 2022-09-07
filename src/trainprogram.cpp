@@ -113,14 +113,13 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
 // speed in Km/h
 double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
     int c = currentStep + 1;
-    double secs = 0;
     double km = 0;
     int sum = 0;
     double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed);
 
     while (1) {
         if (c < rows.length()) {
-            if (secs > seconds) {
+            if (sum - actualGPXElapsed > seconds) {
                 return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
             }
             km += (rows.at(c).distance);
