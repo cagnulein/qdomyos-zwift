@@ -552,7 +552,8 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
     }
 
     // update the power output
-    this->update_metrics(true, this->brakeLevel + this->brakeLevel + this->calculatePower(state.CrankRPM, this->resistanceLevel));
+    double powerBoost = 4.0 * this->brakeLevel;
+    this->update_metrics(true, powerBoost + this->calculatePower(state.CrankRPM, this->resistanceLevel));
 
     // set the crank revolutions
     this->CrankRevs = state.CumulativeCrankRevolutions;
