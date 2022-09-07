@@ -183,6 +183,8 @@ void bluetooth::stopDiscovery()
 {
     if(this->discoveryAgent)
         this->discoveryAgent->stop();
+    else
+        qDebug() << "bluetooth::stopDiscovery() called when discoveryAgent is not defined. ";
 }
 
 void bluetooth::canceled() {
