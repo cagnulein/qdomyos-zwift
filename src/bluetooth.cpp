@@ -496,7 +496,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 this->stopDiscovery();
                 auto proformWifiBike =new proformwifibike(noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
                 newDevice = proformWifiBike;
-                this->bluetoothDevice = proformWifiBike;
+               
                 emit deviceConnected(b);
                 connect(proformWifiBike, &bluetoothdevice::connectedAndDiscovered, this,
                         &bluetooth::connectedAndDiscovered);
@@ -1990,8 +1990,8 @@ void bluetooth::stateFileUpdate() {
     docTreadmill = docStatus.createElement(QStringLiteral("Treadmill"));
     docTreadmill.setAttribute(QStringLiteral("Speed"), QString::number(device()->currentSpeed().value(), 'f', 1));
     docTreadmill.setAttribute(
-                QStringLiteral("Incline"),
-                QString::number(qobject_cast<treadmill *>(device())->currentInclination().value(), 'f', 1));
+        QStringLiteral("Incline"),
+        QString::number(qobject_cast<treadmill *>(device())->currentInclination().value(), 'f', 1));
     docRoot.appendChild(docTreadmill);
     // docHeart = docStatus.createElement("Heart");
     // docHeart.setAttribute("Rate", QString::number(currentHeart));
