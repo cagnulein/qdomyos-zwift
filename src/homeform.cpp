@@ -3511,7 +3511,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
-                        r.rampElapsed = QTime(0, 0, 0).addSecs(p.seconds);
+                        r.gpxElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                         list.append(r);
                         setMapsVisible(true);
@@ -4474,25 +4474,39 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
-    static QTime lastSource = QTime(0, 0, 0);
-    static QTime lastActual = QTime(0, 0, 0);
     const double filterRate = 0.1;
-    const int filterSeconds = 3;
+    QSettings settings;
+    int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
-    // if a time is smaller then the last one means that the user restart the program
-    if (lastSource < source || lastActual < actual) {
-        lastSource = QTime(0, 0, 0);
-        lastActual = QTime(0, 0, 0);
-    }
-
-    // we need to calculate the rate only if this the first time or every X seconds (in order to have an average)
-    if (lastSource.secsTo(QTime(0, 0, 0)) == 0 || lastActual.secsTo(actual) > filterSeconds) {
+    if (trainProgram) {
+        // only for debug, this is the rate of the video vs the player for the whole ride
         double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
-        double rate = (double)lastSource.secsTo(source) / (double)lastActual.secsTo(actual);
-        lastSource = source;
-        lastActual = actual;
-        qDebug() << "changeTimestamp" << source << actual << fullRate << lastSource << lastActual << rate;
+
+        // calculating the avg speed of the video for the next filterSeconds
+        double speedOfTheVideoForTheNextXSeconds = trainProgram->avgSpeedNextSecondsGPX(filterSeconds);
+
+        // adding filterSeconds to the actual video timestamp
+        double timeStampVideoToXSeconds = QTime(0, 0, 0).secsTo(source.addSecs(filterSeconds));
+
+        // calculating the rate of the video speed of the next filterSeconds to the actual average 5s speed of the
+        // player
+        double playerSpeedVideoRate =
+            speedOfTheVideoForTheNextXSeconds / bluetoothManager->device()->currentSpeed().average5s();
+
+        // adding filterSeconds to the actual player timestamp
+        double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds * playerSpeedVideoRate));
+
+        // calculating the real rate of the video
+        double rate = timeStampVideoToXSeconds / timeStampPlayerToXSeconds;
+
+        qDebug() << "changeTimestamp" << source << actual << fullRate << speedOfTheVideoForTheNextXSeconds
+                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate << rate
+                 << bluetoothManager->device()->currentSpeed().average5s()
+                 << bluetoothManager->device()->currentSpeed().value();
+
+        // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+
         if (fabs(videoRate() - rate) > filterRate)
             setVideoRate(rate);
     }

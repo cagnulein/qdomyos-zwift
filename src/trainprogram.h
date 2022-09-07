@@ -42,6 +42,7 @@ class trainrow {
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
                                             // is the ramp from this very moment
     QTime rampElapsed = QTime(0, 0, 0, 0);
+    QTime gpxElapsed = QTime(0, 0, 0, 0);
     double latitude = NAN;
     double longitude = NAN;
     double altitude = NAN;
@@ -71,6 +72,7 @@ class trainprogram : public QObject {
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
+    double avgSpeedNextSecondsGPX(int seconds);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded

@@ -4,7 +4,6 @@ import QtQuick.Controls 2.15
 import QtQuick.Controls.Material 2.0
 import Qt.labs.settings 1.0
 
-
 //Page {
     ScrollView {
         contentWidth: -1
@@ -465,6 +464,9 @@ import Qt.labs.settings 1.0
 
             // from the version 2.11.41
             property bool fakedevice_treadmill: false
+
+			// from the version 2.11.43
+            property int video_playback_window_s: 12
 
             // from the version ?
             property int virtual_device_name_suffix: 0
@@ -3926,7 +3928,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -3949,7 +3951,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -3972,7 +3974,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -3995,7 +3997,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -4018,7 +4020,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -6294,6 +6296,44 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.maps_type = mapsTypeTextField.displayText
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: videoAccordion
+                title: qsTr("Video 🎥")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelVideoWindow
+                            text: qsTr("Window Time (sec.):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: videoWindowTextField
+                            text: settings.video_playback_window_s
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.video_playback_window_s = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okVideoWindow
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.video_playback_window_s = videoWindowTextField.text
                         }
                     }
                 }
