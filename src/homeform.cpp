@@ -4500,7 +4500,9 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         double rate = timeStampVideoToXSeconds / timeStampPlayerToXSeconds;
 
         qDebug() << "changeTimestamp" << source << actual << fullRate << speedOfTheVideoForTheNextXSeconds
-                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate;
+                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate
+                 << bluetoothManager->device()->currentSpeed().average5s()
+                 << bluetoothManager->device()->currentSpeed().value();
 
         // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
