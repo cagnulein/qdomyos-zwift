@@ -4486,7 +4486,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         double speedOfTheVideoForTheNextXSeconds = trainProgram->avgSpeedNextSecondsGPX(filterSeconds);
 
         // adding filterSeconds to the actual video timestamp
-        int timeStampVideoToXSeconds = QTime(0, 0, 0).secsTo(source.addSecs(filterSeconds));
+        double timeStampVideoToXSeconds = QTime(0, 0, 0).secsTo(source.addSecs(filterSeconds));
 
         // calculating the rate of the video speed of the next filterSeconds to the actual average 5s speed of the
         // player
@@ -4494,13 +4494,13 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             speedOfTheVideoForTheNextXSeconds / bluetoothManager->device()->currentSpeed().average5s();
 
         // adding filterSeconds to the actual player timestamp
-        int timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds * playerSpeedVideoRate));
+        double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds * playerSpeedVideoRate));
 
         // calculating the real rate of the video
         double rate = timeStampVideoToXSeconds / timeStampPlayerToXSeconds;
 
         qDebug() << "changeTimestamp" << source << actual << fullRate << speedOfTheVideoForTheNextXSeconds
-                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate
+                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate << rate
                  << bluetoothManager->device()->currentSpeed().average5s()
                  << bluetoothManager->device()->currentSpeed().value();
 
