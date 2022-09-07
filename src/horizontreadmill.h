@@ -78,6 +78,7 @@ class horizontreadmill : public treadmill {
     double lastInclination = 0;
     int64_t lastStart = 0;
     int64_t lastStop = 0;
+    bool horizonPaused = false;
 
     bool initDone = false;
     bool initRequest = false;

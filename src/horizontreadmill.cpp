@@ -795,7 +795,8 @@ void horizontreadmill::update() {
                     if (horizon_treadmill_7_8) {
                         messageID++;
                         // start
-                        if (!paused) {
+                        if (!horizonPaused) { // we can't use the paused, because it's updated while we're pressing the
+                                              // start button
                             // 0x17 0x34 = 99 minutes (99 * 60 = 5940)
                             uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x02, 0x11, 0x00, 0x1a,
                                                 0x17, 0x00, 0x00, 0x34, 0x17, 0x00, 0x00, 0x00, 0x00,
@@ -846,7 +847,7 @@ void horizontreadmill::update() {
                                         sizeof(initData03_paragon), QStringLiteral("starting"), false, true);
                 }
             }
-
+            horizonPaused = false;
             lastStart = QDateTime::currentMSecsSinceEpoch();
         }
         if (requestStop != -1) {
@@ -864,6 +865,7 @@ void horizontreadmill::update() {
 
                             writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
                                                 QStringLiteral("requestStop"), false, true);
+                            Speed = 0; // forcing the speed to be sure, maybe I could remove this
                             // pause
                         } else {
                             messageID++;
@@ -874,6 +876,7 @@ void horizontreadmill::update() {
                             writeCharacteristic(gattCustomService, gattWriteCharCustomService, write1, sizeof(write1),
                                                 QStringLiteral("requestPause"), false, false);
                             Speed = 0; // forcing the speed to be sure, maybe I could remove this
+                            horizonPaused = true;
                         }
                     }
                 } else {
