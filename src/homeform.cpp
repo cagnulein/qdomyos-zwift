@@ -4491,7 +4491,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // calculating the rate of the video speed of the next filterSeconds to the actual average 5s speed of the
         // player
         double playerSpeedVideoRate =
-            speedOfTheVideoForTheNextXSeconds / bluetoothManager->device()->currentSpeed().average5s();
+            bluetoothManager->device()->currentSpeed().average5s() / speedOfTheVideoForTheNextXSeconds;
 
         // adding filterSeconds to the actual player timestamp
         double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds * playerSpeedVideoRate));
