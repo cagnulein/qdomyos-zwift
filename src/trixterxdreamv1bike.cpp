@@ -322,7 +322,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
 
     // tell the client how to send data to the device
     if(!noWriteResistance)
-        this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(QByteArray((const char *)bytes, length), "");});
+        this->client.set_WriteBytes([device](uint8_t * bytes, int length)->void{ device->write(QByteArray((const char *)bytes, length));});
 
     // Set up a stopwatch to time the connection operations
     QElapsedTimer stopWatch;

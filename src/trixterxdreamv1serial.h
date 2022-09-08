@@ -29,9 +29,8 @@ public:
     /**
      * @brief Writes the array of bytes to the serial port
      * @param buffer The bytes to send.
-     * @param info Debug information
      */
-    void write(const QByteArray& buffer, QString info);
+    void write(const QByteArray& buffer);
 
     /**
      * @brief set_receiveBytes Set a delegate to receive bytes. This is an alternative
@@ -73,8 +72,10 @@ protected:
   private:
     void run() override;
 
+    QMutex writeBufferMutex;
+    QByteArray writeBuffer;
+    QAtomicInt writePending {0};
     bool sendReceiveLog = false;
-    QSerialPort * serial = nullptr;
     QString portName;
     QSerialPort::BaudRate baudRate;
     QMutex mutex;

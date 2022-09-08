@@ -8,13 +8,8 @@
 trixterxdreamv1serial::trixterxdreamv1serial(QObject *parent) : QThread(parent){}
 
 trixterxdreamv1serial::~trixterxdreamv1serial() {
-    if(this->serial) {
-        this->quitPending = true;
-        this->wait();
-
-        if(this->serial)
-            delete this->serial;
-    }
+    this->quitPending = true;
+    this->wait();
 }
 
 QList<QSerialPortInfo> trixterxdreamv1serial::availablePorts() {
@@ -57,25 +52,14 @@ bool trixterxdreamv1serial::open(const QString &portName, QSerialPort::BaudRate 
     }
 
     locker.relock();
-    return this->serial && this->serial->isOpen();
+    return this->isRunning();
 }
 
-void trixterxdreamv1serial::write(const QByteArray& buffer, QString info) {
-    bool log = this->get_SendReceiveLog();
+void trixterxdreamv1serial::write(const QByteArray& buffer) {
+    QMutexLocker locker(&this->writeBufferMutex);
 
-    if(log)
-        qDebug() << "serial >> " << buffer.toHex() << "//" << info;
-
-    // obtain a mutex lock to avoid writing during a read
-    QMutexLocker locker(&this->mutex);
-
-    // write the data
-    qint64 o = this->serial->write(buffer);
-
-    locker.unlock();
-
-    if(log)
-        qDebug() << "serial byte written" << o;
+    this->writeBuffer = buffer;
+    this->writePending = 1;
 }
 
 bool trixterxdreamv1serial::get_SendReceiveLog() { return this->sendReceiveLog; }
@@ -84,19 +68,20 @@ void trixterxdreamv1serial::set_SendReceiveLog(bool value) { this->sendReceiveLo
 
 void trixterxdreamv1serial::run() {
 
-    this->serial = new QSerialPort(this);
-    this->serial->setPortName(this->portName);
-    this->serial->setBaudRate(this->baudRate);
-    this->serial->setDataBits(QSerialPort::Data8);
-    this->serial->setStopBits(QSerialPort::OneStop);
-    this->serial->setFlowControl(QSerialPort::NoFlowControl);
-    this->serial->setParity(QSerialPort::NoParity);
-    this->serial->setReadBufferSize(4096);
+    QSerialPort serial { this };
+
+    serial.setPortName(this->portName);
+    serial.setBaudRate(this->baudRate);
+    serial.setDataBits(QSerialPort::Data8);
+    serial.setStopBits(QSerialPort::OneStop);
+    serial.setFlowControl(QSerialPort::NoFlowControl);
+    serial.setParity(QSerialPort::NoParity);
+    serial.setReadBufferSize(4096);
 
     bool openResult = false;
 
     try {
-        openResult = serial->open(QIODevice::ReadWrite);
+        openResult = serial.open(QIODevice::ReadWrite);
         this->openAttemptsPending = 0;
     } catch(...) {
         this->openAttemptsPending = 0;
@@ -104,12 +89,12 @@ void trixterxdreamv1serial::run() {
     }
 
     if (!openResult) {
-        qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial->error());
-        this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial->error()));
+        qDebug() << tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error());
+        this->error(tr("Can't open %1, error code %2").arg(this->portName).arg(serial.error()));
         return;
     }
 
-    qDebug() << "Serial port " << this->portName << " opened with read buffer size=" << this->serial->readBufferSize();
+    qDebug() << "Serial port " << this->portName << " opened with read buffer size=" << serial.readBufferSize();
 
     while (!this->quitPending) {
         QByteArray requestData;
@@ -117,18 +102,27 @@ void trixterxdreamv1serial::run() {
 
         bool log = this->get_SendReceiveLog();
 
-        // Obtain a mutex lock so it's not waiting for ready read while trying to write...
-        QMutexLocker locker(&this->mutex);
+        if(this->writePending) {
+            QMutexLocker locker{&this->writeBufferMutex};
+
+            try {
+                this->writePending = 0;
+                serial.write(this->writeBuffer);
+            } catch(std::exception const& e) {
+                qDebug() <<  "Exception thrown by QSerialPort::write : " << e.what();
+                throw;
+            } catch(...) {
+                qDebug() <<  "Error thrown by QSerialPort::write";
+                throw;
+            }
+
+            if(log)
+                qDebug() << "write " << this->writeBuffer.size() << " bytes to serial port";
+        }
 
         // try to read some bytes, but only block for 1ms because a write attempt could come in.
-        int quit = 0;
-        while (!(quit=this->quitPending) && this->serial->waitForReadyRead(1))
-            requestData += this->serial->readAll();
-
-        // release the mutex
-        locker.unlock();
-
-        if(quit) break;
+        while (!this->quitPending && serial.waitForReadyRead(1))
+            requestData += serial.readAll();
 
         if(requestData.length()>0) {
 
@@ -146,8 +140,7 @@ void trixterxdreamv1serial::run() {
         }
     }
 
-    this->serial->close();
+    serial.close();
     qDebug() << "Serial port closed";
-    delete this->serial;
-    this->serial = nullptr;
+
 }
