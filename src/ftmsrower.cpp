@@ -263,8 +263,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
-    if (Flags.expEnergy) {
-
+    if (Flags.expEnergy && index + 1 < newValue.length()) {
         KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 

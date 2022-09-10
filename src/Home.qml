@@ -254,11 +254,20 @@ HomeForm{
                 width: parent.width
                 height: parent.height / 2
 
+                Timer {
+                    id: pauseTimer
+                    interval: 1000; running: true; repeat: true
+                    onTriggered: { if(visible == true) { (rootItem.currentSpeed > 0  ?
+                                        videoPlaybackHalf.play() :
+                                        videoPlaybackHalf.pause()) } }
+                }
+
                 onVisibleChanged: {
                     if(visible === true) {
                         console.log("mediaPlayer onCompleted: " + rootItem.videoPath)
+                        console.log("videoRate: " + rootItem.videoRate)
                         videoPlaybackHalf.source = rootItem.videoPath
-                        videoPlaybackHalf.playbackRate = rootItem.videoRate
+                        //videoPlaybackHalf.playbackRate = rootItem.videoRate
 
                         videoPlaybackHalf.seek(rootItem.videoPosition)
                         videoPlaybackHalf.play()
@@ -272,6 +281,7 @@ HomeForm{
                 MediaPlayer {
                        id: videoPlaybackHalf
                        autoPlay: false
+                       playbackRate: rootItem.videoRate
 
                        onError: {
                            if (videoPlaybackHalf.NoError !== error) {
