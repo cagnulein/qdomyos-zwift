@@ -3525,9 +3525,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
             if (g.getVideoURL().isEmpty() == false) {
                 movieFileName = QUrl(g.getVideoURL());
+                emit videoPathChanged(movieFileName);
                 setVideoVisible(true);
             } else if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
                 movieFileName = QUrl::fromLocalFile(file.fileName().replace(".gpx", ".mp4"));
+                emit videoPathChanged(movieFileName);
                 setVideoVisible(true);
             }
         }
@@ -4491,13 +4493,13 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // calculating the rate of the video speed of the next filterSeconds to the actual average 5s speed of the
         // player
         double playerSpeedVideoRate =
-            speedOfTheVideoForTheNextXSeconds / bluetoothManager->device()->currentSpeed().average5s();
+            bluetoothManager->device()->currentSpeed().average5s() / speedOfTheVideoForTheNextXSeconds;
 
         // adding filterSeconds to the actual player timestamp
         double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds * playerSpeedVideoRate));
 
         // calculating the real rate of the video
-        double rate = timeStampVideoToXSeconds / timeStampPlayerToXSeconds;
+        double rate = timeStampPlayerToXSeconds / timeStampVideoToXSeconds;
 
         qDebug() << "changeTimestamp" << source << actual << fullRate << speedOfTheVideoForTheNextXSeconds
                  << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate << rate

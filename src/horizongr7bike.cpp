@@ -35,15 +35,31 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
                                          bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
-    if (wait_for_response) {
-        connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if(gattFTMSService) {
+        if (wait_for_response) {
+            connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        } else {
+            connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        }
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    } else if(customService && customWriteChar.isValid()) {
+        if (wait_for_response) {
+            connect(customService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        } else {
+            connect(customService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        }
+
+        customService->writeCharacteristic(customWriteChar, QByteArray((const char *)data, data_len));
+    } else {
+        qDebug() << "writeCharacteristic error!";
+        return;
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -132,7 +148,11 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
     static bool firstPacket = false;
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.toHex(' '));
+
+    if(gattFTMSService == nullptr && characteristic.uuid() == QBluetoothUuid((quint16)0xfff4) && newValue.length() == 13) {
+        return;
+    }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
         return;
@@ -350,6 +370,13 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     firstPacket = true;
 }
 
+void horizongr7bike::btinit() {
+    if(gattFTMSService == nullptr) {
+        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x16, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+        writeCharacteristic(write, sizeof(write), QStringLiteral("init"));
+    }
+}
+
 void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -421,14 +448,22 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+                QBluetoothUuid _customWriteChar((quint16)0xFFF3);
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
+                } else if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _customWriteChar) {
+                    qDebug() << QStringLiteral("Custom Service found");
+                    customWriteChar = c;
+                    customService = s;
                 }
+
             }
         }
     }
+
+    btinit();
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualBike
@@ -460,7 +495,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
             connect(virtualBike, &virtualbike::ftmsCharacteristicChanged, this,
                     &horizongr7bike::ftmsCharacteristicChanged);
         }
-    }
+    }    
     firstStateChanged = 1;
     // ********************************************************************************************************
 }
