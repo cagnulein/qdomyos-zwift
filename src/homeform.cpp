@@ -4023,7 +4023,7 @@ double homeform::videoRate() { return m_VideoRate; }
 void homeform::setVideoRate(double value) {
 
     m_VideoRate = value;
-    emit videoRateChanged(m_VideoPosition);
+    emit videoRateChanged(m_VideoRate);
 }
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
@@ -4509,7 +4509,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
 
-        if (fabs(videoRate() - rate) > filterRate)
+        //if (fabs(videoRate() - rate) > filterRate)
             setVideoRate(rate);
     }
 }
