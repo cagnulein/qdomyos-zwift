@@ -5199,27 +5199,31 @@ import Qt.labs.settings 1.0
                             text: qsTr("QZ")
                             Layout.fillWidth: false
                         }
-                        ComboBox {
+                        TextField {
                             id: virtualDeviceAltNameSuffix
-                            editable: false
-                            Layout.fillWidth: false
+                            text: settings.virtual_device_alt_name_suffix
+                            horizontalAlignment: Text.AlignRight
                             hoverEnabled: true
                             ToolTip.visible: hovered
-                            ToolTip.text: qsTr("Select a unique suffix to distinguish this device from others.")
-                            currentIndex: {
-                                var i = find(settings.virtual_device_alt_name_suffix);
-                                return i<0 ? 0:i;
-                            }
-                            model: [ "0","1","2","3","4","5","6","7","8","9",
-                                     "A","B","C","D","E","F","G","H","I","J",
-                                     "K","L","M","N","O","P","Q","R","S","T",
-                                     "U","V","W","X","Y","Z" ]
+                            ToolTip.text: qsTr("Enter a unique suffix to distinguish this device from others.")
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhUppercaseOnly
+                            validator: RegExpValidator { regExp: /[0-9A-Z]/ }
+                            maximumLength: 1
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                         }
                         Button {
                             id: okVirtualDeviceAltNameSuffix
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            onClicked: settings.virtual_device_alt_name_suffix = virtualDeviceAltNameSuffix.currentValue
+                            onClicked: {
+                                if (virtualDeviceAltNameSuffix.length==0) {
+                                    settings.virtual_device_alt_name_suffix = "0";
+                                    virtualDeviceAltNameSuffix.text = "0";
+                                } else
+                                    settings.virtual_device_alt_name_suffix = virtualDeviceAltNameSuffix.text;
+                            }
                         }
                     }
                     RowLayout {
