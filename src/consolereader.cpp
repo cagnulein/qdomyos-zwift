@@ -46,12 +46,12 @@ void ConsoleReader::run() {
         } else if (key == 'a') {
             if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
                 double inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
-                ((treadmill *)bluetoothManager->device())->changeInclination(speed + 0.5);
+                ((treadmill *)bluetoothManager->device())->changeInclination(inclination + 0.5);
             }
         } else if (key == 's') {
             if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
-                double speed = ((treadmill *)bluetoothManager->device())->currentInclination().value();
-                ((treadmill *)bluetoothManager->device())->changeInclination(speed - 0.5);
+                double inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
+                ((treadmill *)bluetoothManager->device())->changeInclination(inclination - 0.5);
             }
         }
         emit KeyPressed(key);
