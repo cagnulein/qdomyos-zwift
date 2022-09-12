@@ -71,6 +71,7 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
+   consolereader.cpp \
     fakeelliptical.cpp \
    kmlworkout.cpp \
    nautilusbike.cpp \
@@ -251,6 +252,7 @@ HEADERS += \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
+   consolereader.h \
     fakeelliptical.h \
    kmlworkout.h \
    nautilusbike.h \
