@@ -1121,39 +1121,6 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         distanceEval = true;
-    // 55 aa 00 00 03 00 02 00 5c 48 03 00
-    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
-               (uint8_t)newValue.at(0) == 0x55 &&
-               (uint8_t)newValue.at(1) == 0xAA &&
-               (uint8_t)newValue.at(2) == 0x00 &&
-               (uint8_t)newValue.at(3) == 0x00 &&
-               (uint8_t)newValue.at(4) == 0x03 &&
-               (uint8_t)newValue.at(5) == 0x00 &&
-               (uint8_t)newValue.at(6) == 0x02 &&
-               (uint8_t)newValue.at(7) == 0x00 &&
-               (uint8_t)newValue.at(8) == 0x5c &&
-               (uint8_t)newValue.at(9) == 0x48 &&
-               (uint8_t)newValue.at(10) == 0x03 &&
-               (uint8_t)newValue.at(11) == 0x00) {
-
-        requestStop = 1;
-        qDebug() << "pause request from the treadmill";
-    // 55:aa:00:00:03:03:01:00:f0:e1:00
-    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) &&
-                   (uint8_t)newValue.at(0) == 0x55 &&
-                   (uint8_t)newValue.at(1) == 0xAA &&
-                   (uint8_t)newValue.at(2) == 0x00 &&
-                   (uint8_t)newValue.at(3) == 0x00 &&
-                   (uint8_t)newValue.at(4) == 0x03 &&
-                   (uint8_t)newValue.at(5) == 0x03 &&
-                   (uint8_t)newValue.at(6) == 0x01 &&
-                   (uint8_t)newValue.at(7) == 0x00 &&
-                   (uint8_t)newValue.at(8) == 0xf0 &&
-                   (uint8_t)newValue.at(9) == 0xe1 &&
-                   (uint8_t)newValue.at(10) == 0x00) {
-
-        requestStart = 1;
-        qDebug() << "start/resume request from the treadmill";
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && newValue.length() == 29 &&
                newValue.at(0) == 0x55) {
         Speed = ((double)(((uint16_t)((uint8_t)newValue.at(15)) << 8) | (uint16_t)((uint8_t)newValue.at(14)))) / 10.0;
