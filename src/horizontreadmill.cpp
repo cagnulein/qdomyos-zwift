@@ -1144,6 +1144,15 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
                          ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
         emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
         distanceEval = true;
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0xFFF4) && (uint8_t)newValue.at(0) == 0x55 &&
+               (uint8_t)newValue.at(1) == 0xAA && (uint8_t)newValue.at(2) == 0x00 && (uint8_t)newValue.at(3) == 0x00 &&
+               (uint8_t)newValue.at(4) == 0x03 && (uint8_t)newValue.at(5) == 0x03 && (uint8_t)newValue.at(6) == 0x01 &&
+               (uint8_t)newValue.at(7) == 0x00 && (uint8_t)newValue.at(8) == 0xf0 && (uint8_t)newValue.at(9) == 0xe1 &&
+               (uint8_t)newValue.at(10) == 0x00) {
+
+        Speed = 0;
+        horizonPaused = true;
+        qDebug() << "stop from the treadmill";
     } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2ACD)) {
         lastPacket = newValue;
 
