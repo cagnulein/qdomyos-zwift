@@ -528,7 +528,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_LINUX
     ConsoleReader *consoleReader = new ConsoleReader();
-    consoleReader->start();
+    consoleReader->start(&bl);
 #endif
 
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
