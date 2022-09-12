@@ -857,7 +857,7 @@ void horizontreadmill::update() {
                 if (!horizon_paragon_x) {
                     if (horizon_treadmill_7_8) {
                         // stop
-                        if (Speed.value() == 0) {
+                        if (requestPause == -1) {
                             messageID++;
                             uint8_t write1[] = {0x55, 0xaa, 0x13, 0x00, 0x01, 0x14, 0x00, 0x00, 0x00, 0x00};
                             write1[2] = messageID & 0xff;
@@ -868,6 +868,7 @@ void horizontreadmill::update() {
                             Speed = 0; // forcing the speed to be sure, maybe I could remove this
                             // pause
                         } else {
+                            requestPause = -1;
                             messageID++;
                             uint8_t write1[] = {0x55, 0xaa, 0x12, 0x00, 0x03, 0x03, 0x01, 0x00, 0xf0, 0xe1, 0x00};
                             write1[2] = messageID & 0xff;

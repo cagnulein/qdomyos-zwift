@@ -458,7 +458,7 @@ void MainWindow::on_reset_clicked() {
 void MainWindow::on_stop_clicked() {
     if (bluetoothManager->device()) {
 
-        bluetoothManager->device()->stop();
+        bluetoothManager->device()->stop(false);
     }
 }
 

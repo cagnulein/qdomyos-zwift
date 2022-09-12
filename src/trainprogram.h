@@ -88,7 +88,7 @@ class trainprogram : public QObject {
 
   signals:
     void start();
-    void stop();
+    void stop(bool paused);
     void lap();
     void changeSpeed(double speed);
     bool changeFanSpeed(uint8_t speed);
