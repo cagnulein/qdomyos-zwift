@@ -335,3 +335,7 @@ uint16_t toorxtreadmill::GetElapsedTimeFromPacket(const QByteArray &packet) {
 void toorxtreadmill::onSocketErrorOccurred(QBluetoothSocket::SocketError error) {
     emit debug(QStringLiteral("onSocketErrorOccurred ") + QString::number(error));
 }
+
+void *toorxtreadmill::VirtualTreadMill() { return virtualTreadMill; }
+
+void *toorxtreadmill::VirtualDevice() { return VirtualTreadMill(); }

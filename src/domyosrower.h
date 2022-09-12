@@ -46,7 +46,7 @@ class domyosrower : public rower {
     double GetInclinationFromPacket(QByteArray packet);
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void forceInclination(int8_t requestInclination);
     void updateDisplay(uint16_t elapsed);
     void btinit_changyow(bool startTape);

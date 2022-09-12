@@ -1,6 +1,7 @@
 #include "templateinfosenderbuilder.h"
 #include "bike.h"
 #include "treadmill.h"
+#include <limits>
 #include <QDirIterator>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -257,8 +258,8 @@ void TemplateInfoSenderBuilder::onSetResistance(const QJsonValue &msgContent, Te
         bluetoothdevice::BLUETOOTH_TYPE tp = device->deviceType();
         if (tp == bluetoothdevice::BIKE || tp == bluetoothdevice::ROWING) {
             int res;
-            if ((res = resVal.toInt()) >= 0 && res < 255) {
-                ((bike *)device)->changeResistance((uint8_t)res);
+            if ((res = resVal.toInt()) >= 0 && res < std::numeric_limits<resistance_t>::max()) {
+                ((bike *)device)->changeResistance((resistance_t)res);
                 outObj[QStringLiteral("value")] = res;
             }
         } else {

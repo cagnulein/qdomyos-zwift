@@ -65,7 +65,7 @@ void soleelliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
 }
 
-void soleelliptical::forceResistanceAndInclination(int8_t requestResistance, uint8_t inclination) {
+void soleelliptical::forceResistanceAndInclination(resistance_t requestResistance, uint8_t inclination) {
 
     // TODO do the level down command
     uint8_t write[] = {0x5b, 0x04, 0x00, 0xf1, 0x4f, 0x4b, 0x5d};

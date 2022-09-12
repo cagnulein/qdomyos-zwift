@@ -50,7 +50,7 @@ void proformellipticaltrainer::writeCharacteristic(uint8_t *data, uint8_t data_l
     loop.exec();
 }
 
-void proformellipticaltrainer::forceResistance(int8_t requestResistance) {
+void proformellipticaltrainer::forceResistance(resistance_t requestResistance) {
 
     const uint8_t res[] = {0xfe, 0x02, 0x0d, 0x02};
     writeCharacteristic((uint8_t *)res, sizeof(res), QStringLiteral("resistance"), false, false);

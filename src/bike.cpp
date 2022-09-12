@@ -5,7 +5,7 @@
 
 bike::bike() { elapsed.setType(metric::METRIC_ELAPSED); }
 
-void bike::changeResistance(int8_t resistance) {
+void bike::changeResistance(resistance_t resistance) {
     lastRawRequestedResistanceValue = resistance;
     if (autoResistanceEnable) {
         double v = (resistance * m_difficult) + gears();
@@ -24,7 +24,7 @@ void bike::changeInclination(double grade, double percentage) {
 }
 
 // originally made for renphobike, but i guess it could be very generic
-uint16_t bike::powerFromResistanceRequest(int8_t requestResistance) {
+uint16_t bike::powerFromResistanceRequest(resistance_t requestResistance) {
     // this bike has resistance level to N.m so the formula is Power (kW) = Torque (N.m) x Speed (RPM) / 9.5488
     double cadence = RequestedCadence.value();
     if (cadence <= 0)
@@ -52,13 +52,13 @@ void bike::changePower(int32_t power) {
                     QString::number(erg_filter_upper) + " " + QString::number(erg_filter_lower);
     if (!ergModeSupported && force_resistance /*&& erg_mode*/ &&
         (deltaUp > erg_filter_upper || deltaDown > erg_filter_lower)) {
-        int8_t r = (int8_t)resistanceFromPowerRequest(power);
+        resistance_t r = (resistance_t)resistanceFromPowerRequest(power);
         if ((double)r > zwift_erg_resistance_up) {
             qDebug() << "zwift_erg_resistance_up filter enabled!";
-            r = (int8_t)zwift_erg_resistance_up;
+            r = (resistance_t)zwift_erg_resistance_up;
         } else if ((double)r < zwift_erg_resistance_down) {
             qDebug() << "zwift_erg_resistance_down filter enabled!";
-            r = (int8_t)zwift_erg_resistance_down;
+            r = (resistance_t)zwift_erg_resistance_down;
         }
         changeResistance(r); // resistance start from 1
     }
@@ -84,8 +84,8 @@ uint8_t bike::fanSpeed() { return FanSpeed; }
 bool bike::connected() { return false; }
 uint16_t bike::watts() { return 0; }
 metric bike::pelotonResistance() { return m_pelotonResistance; }
-int bike::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
-uint8_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
+resistance_t bike::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
+resistance_t bike::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void bike::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void bike::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 

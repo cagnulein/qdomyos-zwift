@@ -48,7 +48,7 @@ class trxappgateusbbike : public bike {
     double GetKcalFromPacket(const QByteArray &packet);
     double GetDistanceFromPacket(QByteArray packet);
     uint16_t GetElapsedFromPacket(const QByteArray &packet);
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void updateDisplay(uint16_t elapsed);
     void btinit(bool startTape);
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log,
@@ -102,6 +102,8 @@ class trxappgateusbbike : public bike {
         CASALL = 12,
         VIRTUFIT = 13,
         HERTZ_XR_770_2 = 14,
+        VIRTUFIT_2 = 15,
+        TUNTURI = 16,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 

@@ -50,7 +50,7 @@ void sportstechbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     }
 }
 
-void sportstechbike::forceResistance(int8_t requestResistance) {
+void sportstechbike::forceResistance(resistance_t requestResistance) {
     Q_UNUSED(requestResistance)
     /*
     uint8_t resistance[] = { 0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00 };

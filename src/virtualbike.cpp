@@ -744,7 +744,7 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     if (force_resistance) {
                         // same on the training program
                         Bike->changeResistance(
-                            (int8_t)(round((((bike *)Bike)->pelotonToBikeResistance(i)) * bikeResistanceGain)) +
+                            (resistance_t)(round((((bike *)Bike)->pelotonToBikeResistance(i)) * bikeResistanceGain)) +
                             bikeResistanceOffset); // resistance start from 1
                     }
                     break;
@@ -759,6 +759,12 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             iFit_timer = 0;
             reply1 = QByteArray::fromHex("fe02090200b40000005802000000000038000000");
             reply2 = QByteArray::fromHex("ff09010402050705020210000000000038000000");
+            writeCharacteristic(service, characteristic, reply1);
+            writeCharacteristic(service, characteristic, reply2);
+        } else if (newValue.length() > 12 && ((uint8_t)newValue.at(0)) == 0xFF && ((uint8_t)newValue.at(1)) == 0x10) { // Value: ff100204020c040c02020004b600000400d20000
+            qDebug() << "ifit ans 16";
+            reply1 = QByteArray::fromHex("fe0209025802341c0500341c050000a56700b400");
+            reply2 = QByteArray::fromHex("ff0901040205040502020d1c050000a56700b400");
             writeCharacteristic(service, characteristic, reply1);
             writeCharacteristic(service, characteristic, reply2);
 
@@ -1236,7 +1242,7 @@ void virtualbike::echelonWriteResistance() {
     // resistance change notification
     // f0 d2 01 0b ce
     QByteArray resistance;
-    static uint8_t oldresistance = 255;
+    static resistance_t oldresistance = 255;
     resistance.append(0xf0);
     resistance.append(0xd2);
     resistance.append(0x01);
@@ -1248,7 +1254,7 @@ void virtualbike::echelonWriteResistance() {
         sum += resistance[i]; // the last byte is a sort of a checksum
     }
     resistance.append(sum);
-    if (oldresistance != ((uint8_t)Bike->currentResistance().value())) {
+    if (oldresistance != ((resistance_t)Bike->currentResistance().value())) {
         QLowEnergyCharacteristic characteristic =
             service->characteristic(QBluetoothUuid(QStringLiteral("0bf669f4-45f2-11e7-9598-0800200c9a66")));
         Q_ASSERT(characteristic.isValid());
@@ -1260,7 +1266,7 @@ void virtualbike::echelonWriteResistance() {
 
         writeCharacteristic(service, characteristic, resistance);
     }
-    oldresistance = ((uint8_t)CurrentResistance);
+    oldresistance = ((resistance_t)CurrentResistance);
 }
 
 bool virtualbike::connected() {

@@ -34,6 +34,8 @@ class technogymmyruntreadmillrfcomm : public treadmill {
     Q_OBJECT
   public:
     explicit technogymmyruntreadmillrfcomm();
+    void *VirtualTreadMill();
+    void *VirtualDevice();
 
   public slots:
     void deviceDiscovered(const QBluetoothDeviceInfo &device);

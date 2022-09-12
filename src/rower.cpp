@@ -5,7 +5,7 @@
 
 rower::rower() {}
 
-void rower::changeResistance(int8_t resistance) {
+void rower::changeResistance(resistance_t resistance) {
     if (autoResistanceEnable) {
         requestResistance = resistance * m_difficult;
         emit resistanceChanged(requestResistance);
@@ -32,8 +32,8 @@ uint8_t rower::fanSpeed() { return FanSpeed; }
 bool rower::connected() { return false; }
 uint16_t rower::watts() { return 0; }
 metric rower::pelotonResistance() { return m_pelotonResistance; }
-int rower::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
-uint8_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
+resistance_t rower::pelotonToBikeResistance(int pelotonResistance) { return pelotonResistance; }
+resistance_t rower::resistanceFromPowerRequest(uint16_t power) { return power / 10; } // in order to have something
 void rower::cadenceSensor(uint8_t cadence) { Cadence.setValue(cadence); }
 void rower::powerSensor(uint16_t power) { m_watt.setValue(power, false); }
 

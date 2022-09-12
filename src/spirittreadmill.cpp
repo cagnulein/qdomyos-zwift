@@ -114,7 +114,7 @@ void spirittreadmill::update() {
             sec1update = 0;
             // updateDisplay(elapsed);
         } else {
-            if(!XT385) {
+            if (!XT385 && !XT485) {
                 uint8_t noOpData[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
                 uint8_t noOpData1[] = {0x5b, 0x04, 0x00, 0x40, 0x4f, 0x4b, 0x5d};
 
@@ -167,6 +167,10 @@ void spirittreadmill::update() {
                 uint8_t start[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
                 writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+            } else if (XT485) {
+                uint8_t start[] = {0x5b, 0x02, 0x03, 0x03, 0x5d};
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
+                writeCharacteristic(start, sizeof(start), QStringLiteral("start"), false, true);
             }
         }
         if (requestStop != -1) {
@@ -174,7 +178,7 @@ void spirittreadmill::update() {
             // writeCharacteristic(initDataF0C800B8, sizeof(initDataF0C800B8), "stop tape");
             requestStop = -1;
 
-            if (XT385) {
+            if (XT385 || XT485) {
                 uint8_t stop[] = {0x5b, 0x02, 0xf1, 0x06, 0x5d};
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
                 writeCharacteristic(stop, sizeof(stop), QStringLiteral("stop"), false, true);
@@ -281,7 +285,34 @@ double spirittreadmill::GetInclinationFromPacket(const QByteArray &packet) {
 
 void spirittreadmill::btinit(bool startTape) {
     Q_UNUSED(startTape)
-    if (!XT385) {
+    if (XT485) {
+        // set speed and incline to 0
+        uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
+        uint8_t initData2[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
+        uint8_t initData3[] = {0x5b, 0x02, 0x03, 0x01, 0x5d};
+        uint8_t initData4[] = {0x5b, 0x04, 0x00, 0x09, 0x4f, 0x4b, 0x5d};
+        uint8_t initData5[] = {0x5b, 0x06, 0x07, 0x01, 0x2c, 0x00, 0x61, 0x59, 0x5d};
+        uint8_t initData6[] = {0x5b, 0x03, 0x08, 0x20, 0x04, 0x5d};
+        uint8_t initData7[] = {0x5b, 0x05, 0x04, 0x0a, 0x00, 0x00, 0x00, 0x5d};
+        uint8_t initData8[] = {0x5b, 0x02, 0x22, 0x09, 0x5d};
+        uint8_t initData9[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
+
+        writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData2, sizeof(initData4), QStringLiteral("init"), false, false);
+        writeCharacteristic(initData4, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData4, sizeof(initData2), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData8, sizeof(initData8), QStringLiteral("init"), false, true);
+        writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, true);
+    } else if (!XT385) {
         // set speed and incline to 0
         uint8_t initData1[] = {0x5b, 0x01, 0xf0, 0x5d};
         uint8_t initData2[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
@@ -452,6 +483,9 @@ void spirittreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         if (device.name().toUpper().startsWith(QStringLiteral("XT385"))) {
             XT385 = true;
             qDebug() << QStringLiteral("XT385 mod enabled");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("XT485"))) {
+            XT485 = true;
+            qDebug() << QStringLiteral("XT485 mod enabled");
         }
         bluetoothDevice = device;
         m_control = QLowEnergyController::createCentral(bluetoothDevice, this);

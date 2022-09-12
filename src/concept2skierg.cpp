@@ -52,7 +52,7 @@ void concept2skierg::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
     loop.exec();
 }
 
-void concept2skierg::forceResistance(int8_t requestResistance) {
+void concept2skierg::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 

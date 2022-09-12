@@ -37,9 +37,9 @@ class proformbike : public bike {
     Q_OBJECT
   public:
     proformbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t resistanceFromPowerRequest(uint16_t power);
+    resistance_t maxResistance() { return max_resistance; }
     bool inclinationAvailableByHardware();
     bool connected();
 
@@ -47,8 +47,8 @@ class proformbike : public bike {
     void *VirtualDevice();
 
   private:
-    int max_resistance = 16;
-    uint16_t wattsFromResistance(uint8_t resistance);
+    resistance_t max_resistance = 16;
+    uint16_t wattsFromResistance(resistance_t resistance);
     double GetDistanceFromPacket(QByteArray packet);
     QTime GetElapsedFromPacket(QByteArray packet);
     void btinit();
@@ -57,7 +57,7 @@ class proformbike : public bike {
     void startDiscover();
     void sendPoll();
     uint16_t watts();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void forceIncline(double incline);
     void innerWriteResistance();
 

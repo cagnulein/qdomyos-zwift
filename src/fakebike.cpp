@@ -104,39 +104,7 @@ void fakebike::update() {
     }
 
     if (Heart.value()) {
-
-        /*
-         * If VO2 max is unknown, the following formulas would apply:
-
-         Women:
-
-            CB = T * (0.4472*H - 0.1263*W + 0.074*A - 20.4022) / 4.184
-
-         Men:
-
-            CB = T * (0.6309*H + 0.1988*W + 0.2017*A - 55.0969) / 4.184
-
-        Where:
-
-        CB is the number of calories burned;
-        T is the duration of exercise in minutes;
-        H is your average heart rate in beats per minute;
-        W is your weight in kilograms; and
-            A is your age in years.
-        */
-
-        QString sex = settings.value(QStringLiteral("sex"), "Male").toString();
-        double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
-        double age = settings.value(QStringLiteral("age"), 35).toDouble();
-        double T = elapsed.value() / 60;
-        double H = Heart.average();
-        double W = weight;
-        double A = age;
-        if (sex.toLower().contains("female")) {
-            KCal = T * ((0.4472 * H) - (0.1263 * W) + (0.074 * A) - 20.4022) / 4.184;
-        } else {
-            KCal = T * ((0.6309 * H) + (0.1988 * W) + (0.2017 * A) - 55.0969) / 4.184;
-        }
+        KCal = metric::calculateKCalfromHR(Heart.average(), elapsed.value());
     }
 
     if (requestResistance != -1 && requestResistance != currentResistance().value()) {

@@ -60,7 +60,7 @@ void trxappgateusbbike::writeCharacteristic(uint8_t *data, uint8_t data_len, con
     }
 }
 
-void trxappgateusbbike::forceResistance(int8_t requestResistance) {
+void trxappgateusbbike::forceResistance(resistance_t requestResistance) {
 
     if (!initDone) {
         emit debug(QStringLiteral("forceResistance Ignored, init not done yet"));
@@ -70,7 +70,7 @@ void trxappgateusbbike::forceResistance(int8_t requestResistance) {
     uint8_t resistance[] = {0xf0, 0xa6, 0x01, 0x01, 0x00, 0x00};
     if (bike_type == DKN_MOTION_2) {
         resistance[2] = 0x02;
-    } else if (bike_type == VIRTUFIT) {
+    } else if (bike_type == VIRTUFIT || bike_type == VIRTUFIT_2) {
         resistance[2] = 0x1e;
     }
     resistance[4] = requestResistance + 1;
@@ -128,6 +128,10 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x3b, 0x01, 0xce};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
+        } else if (bike_type == TYPE::TUNTURI) {
+
+            const uint8_t noOpData[] = {0xf0, 0xa2, 0x03, 0x01, 0x96};
+            writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
         } else if (bike_type == TYPE::CHANGYOW) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x23, 0x01, 0xb6};
@@ -136,7 +140,7 @@ void trxappgateusbbike::update() {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x00, 0xc8, 0x5a};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
-        } else if (bike_type == TYPE::VIRTUFIT) {
+        } else if (bike_type == TYPE::VIRTUFIT || bike_type == VIRTUFIT_2) {
 
             const uint8_t noOpData[] = {0xf0, 0xa2, 0x1e, 0x01, 0xb1};
             writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp"), false, true);
@@ -188,8 +192,10 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08)) ||
-        (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08))) {
+    if ((newValue.length() != 21 &&
+         (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != TUNTURI)) ||
+        (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08)) ||
+        (newValue.length() != 20 && newValue.length() != 21 && (bike_type == TUNTURI))) {
         return;
     }
 
@@ -201,6 +207,18 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (bike_type == FYTTER_RI08) {
         speed = cadence * 0.37407407407407407407407407407407;
         watt = GetWattFromPacketFytter(newValue);
+        if (watt)
+            kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
+                                     settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                                    200.0) /
+                                   (60000.0 / ((double)lastTimeCharChanged.msecsTo(
+                                                  QTime::currentTime())))); //(( (0.048* Output in watts +1.19) *
+                                                                            // body weight in kg * 3.5) / 200 ) / 60
+        else
+            kcal = KCal.value();
+    } else if (bike_type == TUNTURI) {
+        speed = cadence * 0.37407407407407407407407407407407;
+        watt = GetWattFromPacket(newValue);
         if (watt)
             kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
                                      settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
@@ -400,15 +418,23 @@ double trxappgateusbbike::GetWattFromPacketFytter(const QByteArray &packet) {
 
 double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 
-    uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
-    double data = ((double)(convertedData)) / 10.0f;
-    return data;
+    if (bike_type == TUNTURI) {
+        uint16_t convertedData = ((packet.at(8) - 1) * 100) + (packet.at(9) - 1);
+        double data = ((double)(convertedData));
+        return data;
+    } else {
+        uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
+        double data = ((double)(convertedData)) / 10.0f;
+        return data;
+    }
 }
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
 
     uint16_t convertedData;
-    if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08) {
+    if (bike_type == TUNTURI) {
+        convertedData = (packet.at(7) - 1) + ((packet.at(8) - 1) * 100);
+    } else if (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08) {
         convertedData = (packet.at(9) - 1) + ((packet.at(8) - 1) * 100);
     } else {
         convertedData = ((uint16_t)packet.at(9)) + ((uint16_t)packet.at(8) * 100);
@@ -465,7 +491,7 @@ void trxappgateusbbike::btinit(bool startTape) {
         if (bike_type == TYPE::IRUNNING) {
             QThread::msleep(400);
         }
-    } else if (bike_type == TYPE::VIRTUFIT) {
+    } else if (bike_type == TYPE::VIRTUFIT || bike_type == VIRTUFIT_2) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x1e, 0x01, 0xaf};
         const uint8_t initData3[] = {0xf0, 0xa1, 0x1e, 0x01, 0xb0};
@@ -609,6 +635,38 @@ void trxappgateusbbike::btinit(bool startTape) {
         QThread::msleep(400);
         writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
         QThread::msleep(400);
+    } else if (bike_type == TYPE::TUNTURI) {
+        const uint8_t initData1[] = {0xf0, 0xa0, 0x01, 0x01, 0x92};
+        const uint8_t initData2[] = {0xf0, 0xa0, 0x03, 0x01, 0x94};
+        const uint8_t initData3[] = {0xf0, 0xa1, 0x03, 0x01, 0x95};
+        const uint8_t initData4[] = {0xf0, 0xa3, 0x03, 0x01, 0x01, 0x98};
+        const uint8_t initData5[] = {0xf0, 0xa5, 0x03, 0x01, 0x02, 0x9b};
+        const uint8_t initData6[] = {0xf0, 0xa6, 0x03, 0x01, 0x06, 0xa0};
+        const uint8_t initData7[] = {0xf0, 0xa6, 0x03, 0x01, 0x09, 0xa3};
+        const uint8_t noOpData[] = {0xf0, 0xa2, 0x03, 0x01, 0x96};
+
+        writeCharacteristic((uint8_t *)initData1, sizeof(initData1), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData2, sizeof(initData2), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData3, sizeof(initData3), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData4, sizeof(initData4), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData5, sizeof(initData5), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData6, sizeof(initData6), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)noOpData, sizeof(noOpData), QStringLiteral("noOp-init"), false, true);
+        QThread::msleep(400);
+        writeCharacteristic((uint8_t *)initData7, sizeof(initData7), QStringLiteral("init"), false, true);
+        QThread::msleep(400);
     } else if (bike_type == TYPE::FYTTER_RI08) {
         const uint8_t initData1[] = {0xf0, 0xa0, 0x00, 0x00, 0x90};
         const uint8_t initData2[] = {0xf0, 0xa0, 0x00, 0xc8, 0x58};
@@ -691,7 +749,7 @@ void trxappgateusbbike::stateChanged(QLowEnergyService::ServiceState state) {
 
         if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
             bike_type == TYPE::JLL_IC400 || bike_type == TYPE::DKN_MOTION_2 || bike_type == TYPE::FYTTER_RI08 ||
-            bike_type == TYPE::HERTZ_XR_770_2) {
+            bike_type == TYPE::HERTZ_XR_770_2 || bike_type == TYPE::VIRTUFIT_2 || bike_type == TYPE::TUNTURI) {
             uuidWrite = QStringLiteral("49535343-8841-43f4-a8d4-ecbe34729bb3");
             uuidNotify1 = QStringLiteral("49535343-1E4D-4BD9-BA61-23C647249616");
             uuidNotify2 = QStringLiteral("49535343-4c8a-39b3-2f49-511cff073b7e");
@@ -776,7 +834,7 @@ void trxappgateusbbike::serviceScanDone(void) {
     QString uuid2 = QStringLiteral("49535343-FE7D-4AE5-8FA9-9FAFD205E455");
     QString uuid3 = QStringLiteral("0000fff0-0000-1000-8000-00805f9b34fb");
     if (bike_type == TYPE::IRUNNING || bike_type == TYPE::CHANGYOW || bike_type == TYPE::ICONSOLE ||
-        bike_type == TYPE::JLL_IC400 || bike_type == TYPE::FYTTER_RI08) {
+        bike_type == TYPE::JLL_IC400 || bike_type == TYPE::FYTTER_RI08 || bike_type == TYPE::TUNTURI) {
         uuid = uuid2;
     }
 
@@ -807,6 +865,21 @@ void trxappgateusbbike::serviceScanDone(void) {
             bike_type = DKN_MOTION_2;
             uuid = uuid2;
         }
+    } else if (bike_type == VIRTUFIT) {
+
+        bool found = false;
+        foreach (QBluetoothUuid s, m_control->services()) {
+
+            if (s == QBluetoothUuid::fromString(uuid)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            bike_type = VIRTUFIT_2;
+            uuid = uuid2;
+        }
+
     } else if (bike_type == ICONSOLE) {
 
         bool found = false;
@@ -887,14 +960,17 @@ void trxappgateusbbike::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
             bike_type = TYPE::ASVIVA;
             qDebug() << QStringLiteral("ASVIVA bike found");
-        } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
-
-            bike_type = TYPE::CHANGYOW;
-            qDebug() << QStringLiteral("CHANGYOW bike found");
+        } else if (device.name().toUpper().startsWith(QStringLiteral("TUN "))) {
+            bike_type = TYPE::TUNTURI;
+            qDebug() << QStringLiteral("TUNTURI bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("VIFHTR"))) {
 
             bike_type = TYPE::VIRTUFIT;
             qDebug() << QStringLiteral("VIRTUFIT bike found");
+        } else if (device.address().toString().toUpper().startsWith(QStringLiteral("E8"))) {
+
+            bike_type = TYPE::CHANGYOW;
+            qDebug() << QStringLiteral("CHANGYOW bike found");
         } else if (device.name().toUpper().startsWith(QStringLiteral("BFCP"))) {
 
             bike_type = TYPE::SKANDIKAWIRY;

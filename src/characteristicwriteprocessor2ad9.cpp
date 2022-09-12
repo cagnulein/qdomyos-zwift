@@ -24,7 +24,7 @@ int CharacteristicWriteProcessor2AD9::writeProcess(quint16 uuid, const QByteArra
             if (cmd == FTMS_SET_TARGET_RESISTANCE_LEVEL) {
 
                 // Set Target Resistance
-                uint8_t uresistance = data.at(1);
+                resistance_t uresistance = data.at(1);
                 uresistance = uresistance / 10;
                 if (force_resistance && !erg_mode) {
                     Bike->changeResistance(uresistance);
@@ -160,7 +160,7 @@ void CharacteristicWriteProcessor2AD9::changeSlope(int16_t iresistance) {
 
       if (force_resistance && !erg_mode) {
           // same on the training program
-          Bike->changeResistance((int8_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
+          Bike->changeResistance((resistance_t)(round(resistance * bikeResistanceGain)) + bikeResistanceOffset +
                                  1); // resistance start from 1
       }
     } else if (dt == bluetoothdevice::TREADMILL || dt == bluetoothdevice::ELLIPTICAL) {

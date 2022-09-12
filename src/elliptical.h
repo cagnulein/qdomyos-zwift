@@ -30,7 +30,7 @@ class elliptical : public bluetoothdevice {
 
   public Q_SLOTS:
     virtual void changeSpeed(double speed);
-    virtual void changeResistance(int8_t res);
+    virtual void changeResistance(resistance_t res);
     virtual void changeInclination(double grade, double inclination);
     virtual void changeCadence(int16_t cad);
     virtual void changeRequestedPelotonResistance(int8_t resistance);
@@ -46,7 +46,7 @@ class elliptical : public bluetoothdevice {
     metric Resistance;
     metric m_pelotonResistance;
     uint16_t LastCrankEventTime = 0;
-    int8_t requestResistance = -1;
+    resistance_t requestResistance = -1;
     volatile double requestSpeed = -1;
     double requestInclination = -100;
     double CrankRevs = 0;

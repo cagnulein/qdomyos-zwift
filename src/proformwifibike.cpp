@@ -37,8 +37,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 
     connectToDevice();
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    initRequest = true;    
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualBike
@@ -103,7 +102,7 @@ void proformwifibike::writeCharacteristic(uint8_t *data, uint8_t data_len, const
     loop.exec();
 }*/
 
-uint8_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
+resistance_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
     QSettings settings;
@@ -111,7 +110,7 @@ uint8_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
     double watt_gain = settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
     double watt_offset = settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
             ((wattsFromResistance(i + 1) * watt_gain) + watt_offset) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest")
@@ -126,7 +125,7 @@ uint8_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
         return max_resistance;
 }
 
-uint16_t proformwifibike::wattsFromResistance(uint8_t resistance) {
+uint16_t proformwifibike::wattsFromResistance(resistance_t resistance) {
 
     if (currentCadence().value() == 0)
         return 0;
@@ -199,7 +198,7 @@ uint16_t proformwifibike::wattsFromResistance(uint8_t resistance) {
     }
 }
 
-void proformwifibike::forceResistance(int8_t requestResistance) {
+void proformwifibike::forceResistance(resistance_t requestResistance) {
 
     QString send = "{\"type\":\"set\",\"values\":{\"Incline\":\"" + QString::number(requestResistance) + "\"}}";
     qDebug() << "forceResistance" << send;
@@ -210,6 +209,8 @@ void proformwifibike::innerWriteResistance() {
     if (requestResistance != -1) {
         if (requestResistance > max_resistance) {
             requestResistance = max_resistance;
+        } else if (requestResistance < min_resistance) {
+            requestResistance = min_resistance;
         } else if (requestResistance == 0) {
             requestResistance = 1;
         }
@@ -238,6 +239,7 @@ void proformwifibike::update() {
     if (initRequest) {
         initRequest = false;
         btinit();
+        emit connectedAndDiscovered();
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
         update_metrics(true, watts());
 
@@ -276,7 +278,7 @@ bool proformwifibike::inclinationAvailableByHardware() {
         return false;
 }
 
-int proformwifibike::pelotonToBikeResistance(int pelotonResistance) {
+resistance_t proformwifibike::pelotonToBikeResistance(int pelotonResistance) {
     if (pelotonResistance <= 10) {
         return 1;
     }
