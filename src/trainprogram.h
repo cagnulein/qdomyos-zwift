@@ -21,10 +21,10 @@ class trainrow {
     double lower_inclination = -200;   // used for peloton
     double average_inclination = -200; // used for peloton
     double upper_inclination = -200;   // used for peloton
-    int8_t resistance = -1;
-    int8_t lower_resistance = -1;
-    int8_t average_resistance = -1; // used for peloton
-    int8_t upper_resistance = -1;
+    resistance_t resistance = -1;
+    resistance_t lower_resistance = -1;
+    resistance_t average_resistance = -1; // used for peloton
+    resistance_t upper_resistance = -1;
     int8_t requested_peloton_resistance = -1;
     int8_t lower_requested_peloton_resistance = -1;
     int8_t average_requested_peloton_resistance = -1; // used for peloton
@@ -42,6 +42,7 @@ class trainrow {
     QTime rampDuration = QTime(0, 0, 0, 0); // QZ split the ramp in 1 second segments. This field will tell you how long
                                             // is the ramp from this very moment
     QTime rampElapsed = QTime(0, 0, 0, 0);
+    QTime gpxElapsed = QTime(0, 0, 0, 0);
     double latitude = NAN;
     double longitude = NAN;
     double altitude = NAN;
@@ -71,6 +72,7 @@ class trainprogram : public QObject {
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
+    double avgSpeedNextSecondsGPX(int seconds);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
@@ -94,12 +96,13 @@ class trainprogram : public QObject {
     bool changeFanSpeed(uint8_t speed);
     void changeInclination(double grade, double inclination);
     void changeNextInclination300Meters(QList<MetersByInclination>);
-    void changeResistance(int8_t resistance);
+    void changeResistance(resistance_t resistance);
     void changeRequestedPelotonResistance(int8_t resistance);
     void changeCadence(int16_t cadence);
     void changePower(int32_t power);
     void changeSpeedAndInclination(double speed, double inclination);
     void changeGeoPosition(QGeoCoordinate p, double azimuth, double avgAzimuthNext300Meters);
+    void changeTimestamp(QTime source, QTime actual);
 
   private:
     mutable QRecursiveMutex schedulerMutex;

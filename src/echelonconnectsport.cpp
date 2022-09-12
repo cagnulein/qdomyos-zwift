@@ -70,7 +70,7 @@ void echelonconnectsport::writeCharacteristic(uint8_t *data, uint8_t data_len, c
     loop.exec();
 }
 
-void echelonconnectsport::forceResistance(int8_t requestResistance) {
+void echelonconnectsport::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData[] = {0xf0, 0xb1, 0x01, 0x00, 0x00};
 
     noOpData[3] = requestResistance;
@@ -151,8 +151,8 @@ void echelonconnectsport::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance; i++) {
+resistance_t echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }
@@ -163,13 +163,13 @@ int echelonconnectsport::pelotonToBikeResistance(int pelotonResistance) {
         return max_resistance;
 }
 
-uint8_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
+resistance_t echelonconnectsport::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
     if (Cadence.value() == 0)
         return 1;
 
-    for (int i = 1; i < max_resistance; i++) {
+    for (resistance_t i = 1; i < max_resistance; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;

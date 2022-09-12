@@ -17,14 +17,31 @@ class MainController: WKInterfaceController {
     @IBOutlet weak var distanceLabel: WKInterfaceLabel!
     @IBOutlet weak var heartRateLabel: WKInterfaceLabel!
     @IBOutlet weak var startButton: WKInterfaceButton!
+    @IBOutlet weak var cmbSports: WKInterfacePicker!
     static var start: Bool! = false
     let pedometer = CMPedometer()
+    var sport: Int = 0
     
     override func awake(withContext context: Any?) {
         super.awake(withContext: context)
+        let sports: [WKPickerItem] = [WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem(),WKPickerItem()]
+        sports[0].title = "Bike"
+        sports[1].title = "Run"
+        sports[2].title = "Walk"
+        sports[3].title = "Elliptical"
+        sports[4].title = "Rowing"
+        cmbSports.setItems(sports)
+        sport = UserDefaults.standard.value(forKey: "sport") as? Int ?? 0
+        cmbSports.setSelectedItemIndex(sport)
         
         // Configure interface objects here.
         print("AWAKE")
+    }
+    
+    @IBAction func changeSport(_ value: Int) {
+        self.sport = value
+        UserDefaults.standard.set(value, forKey: "sport")
+        UserDefaults.standard.synchronize()
     }
     
     override func willActivate() {
@@ -57,6 +74,7 @@ extension MainController {
             MainController.start = true
             startButton.setTitle("Stop")
             WorkoutTracking.authorizeHealthKit()
+            WorkoutTracking.shared.setSport(sport)
             WorkoutTracking.shared.startWorkOut()
             WorkoutTracking.shared.delegate = self
             

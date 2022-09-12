@@ -71,8 +71,8 @@ class ftmsbike : public bike {
   public:
     ftmsbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
     bool connected();
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t maxResistance() { return max_resistance; }
 
     void *VirtualBike();
     void *VirtualDevice();
@@ -83,7 +83,7 @@ class ftmsbike : public bike {
     void startDiscover();
     uint16_t watts();
     void init();
-    void forceResistance(int8_t requestResistance);
+    void forceResistance(resistance_t requestResistance);
     void forcePower(int16_t requestPower);
 
     QTimer *refresh;

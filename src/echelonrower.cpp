@@ -70,7 +70,7 @@ void echelonrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
     loop.exec();
 }
 
-void echelonrower::forceResistance(int8_t requestResistance) {
+void echelonrower::forceResistance(resistance_t requestResistance) {
     uint8_t noOpData[] = {0xf0, 0xb1, 0x01, 0x00, 0x00};
 
     noOpData[3] = requestResistance;
@@ -155,8 +155,8 @@ void echelonrower::serviceDiscovered(const QBluetoothUuid &gatt) {
     qDebug() << QStringLiteral("serviceDiscovered ") + gatt.toString();
 }
 
-int echelonrower::pelotonToBikeResistance(int pelotonResistance) {
-    for (int i = 1; i < max_resistance - 1; i++) {
+resistance_t echelonrower::pelotonToBikeResistance(int pelotonResistance) {
+    for (resistance_t i = 1; i < max_resistance - 1; i++) {
         if (bikeResistanceToPeloton(i) <= pelotonResistance && bikeResistanceToPeloton(i + 1) >= pelotonResistance) {
             return i;
         }
@@ -164,10 +164,10 @@ int echelonrower::pelotonToBikeResistance(int pelotonResistance) {
     return Resistance.value();
 }
 
-uint8_t echelonrower::resistanceFromPowerRequest(uint16_t power) {
+resistance_t echelonrower::resistanceFromPowerRequest(uint16_t power) {
     qDebug() << QStringLiteral("resistanceFromPowerRequest") << Cadence.value();
 
-    for (int i = 1; i < max_resistance - 1; i++) {
+    for (resistance_t i = 1; i < max_resistance - 1; i++) {
         if (wattsFromResistance(i) <= power && wattsFromResistance(i + 1) >= power) {
             qDebug() << QStringLiteral("resistanceFromPowerRequest") << wattsFromResistance(i)
                      << wattsFromResistance(i + 1) << power;
@@ -186,20 +186,25 @@ double echelonrower::bikeResistanceToPeloton(double resistance) {
     return p;
 }
 
-void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
+void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newvalue) {
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
-    qDebug() << QStringLiteral(" << ") + newValue.toHex(' ');
+    qDebug() << QStringLiteral(" << ") + newvalue.toHex(' ');
 
-    lastPacket = newValue;
+    if(lastPacket.count() + newvalue.count() == 21 && ((unsigned char)lastPacket.at(0)) == 0xf0) {
+        lastPacket = lastPacket.append(newvalue);
+        qDebug() << QStringLiteral(" << concatenated ") + lastPacket.toHex(' ');
+    } else {
+        lastPacket = newvalue;
+    }
 
     // resistance value is in another frame
-    if (newValue.length() == 5 && ((unsigned char)newValue.at(0)) == 0xf0 && ((unsigned char)newValue.at(1)) == 0xd2) {
-        Resistance = newValue.at(3);
+    if (lastPacket.length() == 5 && ((unsigned char)lastPacket.at(0)) == 0xf0 && ((unsigned char)lastPacket.at(1)) == 0xd2) {
+        Resistance = lastPacket.at(3);
         emit resistanceRead(Resistance.value());
         m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
 
@@ -207,7 +212,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
         return;
     }
 
-    if (newValue.length() != 21) {
+    if (lastPacket.length() != 21) {
         return;
     }
 
@@ -219,7 +224,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
-        Cadence = ((uint8_t)newValue.at(11));
+        Cadence = ((uint8_t)lastPacket.at(11));
         StrokesCount += (Cadence.value()) *
                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())) / 60000;
     }
@@ -276,7 +281,7 @@ void echelonrower::characteristicChanged(const QLowEnergyCharacteristic &charact
 #endif
 #endif
 
-    qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(newValue).toString();
+    qDebug() << QStringLiteral("Current Local elapsed: ") + GetElapsedFromPacket(lastPacket).toString();
     qDebug() << QStringLiteral("Current Speed: ") + QString::number(Speed.value());
     qDebug() << QStringLiteral("Current Calculate Distance: ") + QString::number(Distance.value());
     qDebug() << QStringLiteral("Current Cadence: ") + QString::number(Cadence.value());

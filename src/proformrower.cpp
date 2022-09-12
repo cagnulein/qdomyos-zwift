@@ -47,7 +47,7 @@ void proformrower::writeCharacteristic(uint8_t *data, uint8_t data_len, const QS
     loop.exec();
 }
 
-void proformrower::forceResistance(int8_t requestResistance) {
+void proformrower::forceResistance(resistance_t requestResistance) {
     const uint8_t res1[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x14, 0x09, 0x02, 0x02,
                             0x00, 0x10, 0x01, 0x00, 0x32, 0x00, 0x00, 0x00, 0x00, 0x00};
     const uint8_t res2[] = {0xff, 0x0d, 0x02, 0x04, 0x02, 0x09, 0x14, 0x09, 0x02, 0x02,
@@ -523,7 +523,7 @@ void proformrower::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         bool virtual_device_rower = settings.value("virtual_device_rower", false).toBool();
-        if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
+        if (!firstStateChanged && !virtualTreadmill && !virtualBike && !virtualRower) {
             bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
             bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
             if (virtual_device_enabled) {

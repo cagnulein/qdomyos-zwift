@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
 
 ApplicationWindow {
@@ -13,7 +14,7 @@ ApplicationWindow {
     visibility: Qt.WindowFullScreen
     visible: true
 	 objectName: "stack"
-    title: qsTr("Stack")
+    title: qsTr("qDomyos-Zwift")
 
     signal gpx_open_clicked(url name)
     signal gpxpreview_open_clicked(url name)
@@ -31,8 +32,11 @@ ApplicationWindow {
     signal restart()
     signal volumeUp()
     signal volumeDown()
+    signal keyMediaPrevious()
+    signal keyMediaNext()
 
     property bool lockTiles: false
+    property bool showVideo: false
 
     Settings {
         id: settings
@@ -456,6 +460,23 @@ ApplicationWindow {
             onClicked: { loadMaps(); }
             anchors.right: toolButtonLockTiles.left
             visible: rootItem.mapsVisible
+        }      
+
+        ToolButton {
+            function loadVideo() {
+                if(rootItem.currentCoordinateValid) {
+                    console.log("coordinate is valid for map");
+                    //stackView.push("videoPlayback.qml");
+                    showVideo = !showVideo
+                } else {
+                    console.log("coordinate is NOT valid for map");
+                }
+            }
+            id: toolButtonVideo
+            icon.source: ( "icons/icons/video.png" )
+            onClicked: { loadVideo(); }
+            anchors.right: toolButtonMaps.left
+            visible: rootItem.videoVisible
         }
 
         ToolButton {
@@ -626,7 +647,7 @@ ApplicationWindow {
             }
 
             ItemDelegate {
-                text: "version 2.11.10"
+                text: "version 2.11.52"
                 width: parent.width
             }
 				FileDialog {
@@ -654,5 +675,11 @@ ApplicationWindow {
         focus: true
         Keys.onVolumeUpPressed: { console.log("onVolumeUpPressed"); volumeUp(); }
         Keys.onVolumeDownPressed: { console.log("onVolumeDownPressed"); volumeDown(); }
+        Keys.onPressed: {
+            if (event.key === Qt.Key_MediaPrevious)
+                keyMediaPrevious();
+            else if (event.key === Qt.Key_MediaNext)
+                keyMediaNext();
+        }
     }
 }

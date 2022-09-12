@@ -37,16 +37,16 @@ class mcfbike : public bike {
     Q_OBJECT
   public:
     mcfbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset, double bikeResistanceGain);
-    int pelotonToBikeResistance(int pelotonResistance);
-    uint8_t resistanceFromPowerRequest(uint16_t power);
-    uint8_t maxResistance() { return max_resistance; }
+    resistance_t pelotonToBikeResistance(int pelotonResistance);
+    resistance_t resistanceFromPowerRequest(uint16_t power);
+    resistance_t maxResistance() { return max_resistance; }
     bool connected();
 
     void *VirtualBike();
     void *VirtualDevice();
 
   private:
-    const int max_resistance = 14;
+    const resistance_t max_resistance = 14;
     double bikeResistanceToPeloton(double resistance);
     double GetDistanceFromPacket(const QByteArray &packet);
     uint16_t wattsFromResistance(double resistance);
@@ -71,7 +71,7 @@ class mcfbike : public bike {
     QByteArray lastPacket;
     QDateTime lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
     uint8_t firstStateChanged = 0;
-    int8_t lastResistanceBeforeDisconnection = -1;
+    resistance_t lastResistanceBeforeDisconnection = -1;
 
     bool initDone = false;
     bool initRequest = false;

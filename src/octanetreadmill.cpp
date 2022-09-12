@@ -344,6 +344,9 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     if ((newValue.length() != 20))
         return;
 
+    if((uint8_t)newValue[0] == 0xa5 && newValue[1] == 0x17)
+        return;
+
     if (!newValue.contains(actualPaceSign) && !newValue.contains(actualPace2Sign))
         return;
 
@@ -355,6 +358,8 @@ void octanetreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
         return;
 
     double speed = GetSpeedFromPacket(value, i);
+    if (isinf(speed))
+        return;
 
 #ifdef Q_OS_ANDROID
     if (settings.value("ant_heart", false).toBool())

@@ -1,5 +1,5 @@
-QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location
-
+QT += bluetooth widgets xml positioning quick networkauth websockets texttospeech location multimedia
+QTPLUGIN += qavfmediaplayer
 QT+= charts
 
 LIBS += -lwiringPi
@@ -73,13 +73,17 @@ SOURCES += \
     characteristicnotifier2ad9.cpp \
    consolereader.cpp \
     fakeelliptical.cpp \
+   faketreadmill.cpp \
    kmlworkout.cpp \
    nautilusbike.cpp \
+    nordictrackelliptical.cpp \
+    nordictrackifitadbbike.cpp \
    nordictrackifitadbtreadmill.cpp \
    octanetreadmill.cpp \
    proformellipticaltrainer.cpp \
    proformrower.cpp \
    proformwifibike.cpp \
+   proformwifitreadmill.cpp \
     qmdnsengine/src/src/abstractserver.cpp \
     qmdnsengine/src/src/bitmap.cpp \
     qmdnsengine/src/src/browser.cpp \
@@ -253,14 +257,19 @@ HEADERS += \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
    consolereader.h \
+    definitions.h \
     fakeelliptical.h \
+   faketreadmill.h \
    kmlworkout.h \
    nautilusbike.h \
+    nordictrackelliptical.h \
+    nordictrackifitadbbike.h \
    nordictrackifitadbtreadmill.h \
    octanetreadmill.h \
    proformellipticaltrainer.h \
    proformrower.h \
    proformwifibike.h \
+   proformwifitreadmill.h \
     qmdnsengine/src/include/qmdnsengine/abstractserver.h \
     qmdnsengine/src/include/qmdnsengine/bitmap.h \
     qmdnsengine/src/include/qmdnsengine/browser.h \
@@ -713,4 +722,4 @@ INCLUDEPATH += purchasing/inapp
 
 WINRT_MANIFEST = AppxManifest.xml
 
-VERSION = 2.11.10
+VERSION = 2.11.52

@@ -31,9 +31,11 @@ class gpx : public QObject {
     explicit gpx(QObject *parent = nullptr);
     QList<gpx_altitude_point_for_treadmill> open(const QString &gpx);
     static void save(const QString &filename, QList<SessionLine> session, bluetoothdevice::BLUETOOTH_TYPE type);
+    QString getVideoURL() {return videoUrl;}
 
   private:
     QList<gpx_point> points;
+    QString videoUrl = "";
 
   signals:
 };
