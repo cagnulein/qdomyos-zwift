@@ -160,7 +160,19 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     // QString heartRateBeltName = //unused QString
     // settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
+    uint16_t _LastCrankEventTime = 0;
+    double _CrankRevs = 0;
+    uint16_t _LastWheelEventTime = 0;
+    double _WheelRevs = 0;
+    uint8_t battery = 0;
+
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
+
+    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2A19)) {
+        battery = newValue.at(0);
+        qDebug() << QStringLiteral("battery: ") << battery;
+        return;
+    }
 
     if (characteristic.uuid() != QBluetoothUuid((quint16)0x2A5B)) {
         return;
@@ -168,28 +180,45 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     lastPacket = newValue;
 
+    bool CrankPresent = (newValue.at(0) & 0x02) == 0x02;
+    bool WheelPresent = (newValue.at(0) & 0x01) == 0x01;
+    qDebug() << QStringLiteral("CrankPresent: ") << CrankPresent;
+    qDebug() << QStringLiteral("WheelPresent: ") << WheelPresent;
+
     uint8_t index = 1;
-    if (newValue.at(0) == 0x02) {
-        CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
-    } else {
-        CrankRevs =
+
+    if (WheelPresent) {
+        _WheelRevs =
             (((uint32_t)((uint8_t)newValue.at(index + 3)) << 24) | ((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
              ((uint32_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint32_t)((uint8_t)newValue.at(index)));
-    }
-    if (newValue.at(0) == 0x01) {
+        emit debug(QStringLiteral("Current Wheel Revs: ") + QString::number(_WheelRevs));
         index += 4;
-    } else {
+
+        _LastWheelEventTime =
+            (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+        emit debug(QStringLiteral("Current Wheel Event Time: ") + QString::number(_LastWheelEventTime));
         index += 2;
     }
-    LastCrankEventTime = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+    if (CrankPresent) {
+        _CrankRevs = (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+        emit debug(QStringLiteral("Current Crank Revs: ") + QString::number(_CrankRevs));
+        index += 2;
+        _LastCrankEventTime =
+            (((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)));
+        emit debug(QStringLiteral("Current Crank Event Time: ") + QString::number(_LastCrankEventTime));
+    }
+
+    if ((!CrankPresent || _CrankRevs == 0) && WheelPresent) {
+        CrankRevs = _WheelRevs;
+        LastCrankEventTime = _LastWheelEventTime;
+    } else {
+        CrankRevs = _CrankRevs;
+        LastCrankEventTime = _LastCrankEventTime;
+    }
 
     int16_t deltaT = LastCrankEventTime - oldLastCrankEventTime;
     if (deltaT < 0) {
-        if (newValue.at(0) == 0x01) {
-            deltaT = LastCrankEventTime + 1024 - oldLastCrankEventTime;
-        } else {
-            deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
-        }
+        deltaT = LastCrankEventTime + 65535 - oldLastCrankEventTime;
     }
 
     if (CrankRevs != oldCrankRevs && deltaT) {
@@ -209,7 +238,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
     }
     emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
 
