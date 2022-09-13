@@ -312,7 +312,7 @@ bool trixterxdreamv1bike::connect(QString portName) {
     // create the port object and connect it
     auto thisObject = this;
     this->port = new trixterxdreamv1serial(this);
-    this->port->set_receiveBytes([thisObject](const QByteArray& bytes)->void{thisObject->update(bytes);});
+    this->port->set_receiveBytes([thisObject](const QByteArray& bytes)->void{thisObject->receiveBytes(bytes);});
 
     // References to objects for callbacks
     auto device=this->port;
@@ -332,6 +332,14 @@ bool trixterxdreamv1bike::connect(QString portName) {
     if(!this->port->open(portName, QSerialPort::Baud115200)) {
         qDebug() << "Failed to open port, determined after " << stopWatch.elapsed() << "milliseconds";
         return false;
+    }
+
+    // Start the metrics update timer
+    this->metricsUpdateTimerId = this->startTimer(UpdateMetricsInterval, Qt::PreciseTimer);
+    if(this->metricsUpdateTimerId==0)
+    {
+        qDebug() << "Failed to start metrics update timer";
+        throw "Failed to start metrics timer";
     }
 
     // wait for up to the configured connection timeout for some packets to arrive
@@ -376,6 +384,11 @@ void trixterxdreamv1bike::disconnectPort() {
         qDebug() << "Disconnecting from serial port";
         delete this->port;
         this->port = nullptr;
+    }
+    if(this->metricsUpdateTimerId) {
+        qDebug() << "Killing metricsUpdate timer";
+        this->killTimer(this->metricsUpdateTimerId);
+        this->metricsUpdateTimerId = 0;
     }
     if(this->resistanceTimerId) {
         qDebug() << "Killing resistance timer";
@@ -477,14 +490,13 @@ resistance_t trixterxdreamv1bike::adjustedResistance(resistance_t input, bool to
 
 
 bool trixterxdreamv1bike::connected() {
-    QMutexLocker locker(&this->updateMutex);
-    return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
+    QMutexLocker locker(&this->unprocessedStatesMutex);
+    return !this->unprocessedStates.empty();
 }
 
 
 uint32_t trixterxdreamv1bike::getTime() {
-    auto currentDateTime = QDateTime::currentDateTime();
-    auto ms = currentDateTime.toMSecsSinceEpoch();
+    auto ms = QDateTime::currentMSecsSinceEpoch();
     return static_cast<uint32_t>(ms);
 }
 
@@ -494,30 +506,52 @@ void trixterxdreamv1bike::timerEvent(QTimerEvent *event) {
     if(timerId==this->resistanceTimerId){
         event->accept();
         this->updateResistance();
+    } else if(timerId==this->metricsUpdateTimerId) {
+        event->accept();
+        this->update();
     } else if(timerId==this->settingsUpdateTimerId) {
         event->accept();
         this->appSettings->Load();
     }
 }
 
-bool trixterxdreamv1bike::updateClient(const QByteArray& bytes, trixterxdreamv1client * client) {
+void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
+
+    // send the bytes to the client and return if there's no change of state
     bool stateChanged = false;
 
     for(int i=0; i<bytes.length();i++)
-        stateChanged |= client->ReceiveChar(bytes[i]);
+        stateChanged |= this->client.ReceiveChar(bytes[i]);
 
-    return stateChanged;
-}
-
-void trixterxdreamv1bike::update(const QByteArray &bytes) {
-    QMutexLocker locker(&this->updateMutex);
-
-    // send the bytes to the client and return if there's no change of state
-    if(!updateClient(bytes, &this->client))
+    if(!stateChanged)
         return;
 
-    // Take the most recent state read
-    auto state = this->client.getLastState();
+    QMutexLocker locker(&this->unprocessedStatesMutex);
+
+    auto timeLimit = getTime() - UpdateMetricsInterval;
+    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates;
+    while(!ups->empty() && ups->front().LastEventTime<timeLimit)
+        ups->pop();
+    ups->push(this->client.getLastState());
+}
+
+void trixterxdreamv1bike::update() {
+    QMutexLocker locker(&this->updateMutex);
+
+    QMutexLocker statesLocker(&this->unprocessedStatesMutex);
+    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates;
+    std::vector<trixterxdreamv1client::state> pendingStates{ups->size()};
+    while(!ups->empty()) {
+        pendingStates.push_back(ups->front());
+        ups->pop();
+    }
+    statesLocker.unlock();
+
+    for(auto state : pendingStates)
+        this->update(state);
+}
+
+void trixterxdreamv1bike::update(const trixterxdreamv1client::state &state) {
     auto currentTime = getTime();
 
     // update the packet count
@@ -589,8 +623,6 @@ void trixterxdreamv1bike::update(const QByteArray &bytes) {
 
     // set the elapsed time
     this->elapsed = (currentTime - this->t0) * 0.001;
-
-    locker.unlock();
 
     if(steeringAngleChanged)
         emit this->steeringAngleChanged(this->m_steeringAngle.value());
