@@ -494,8 +494,16 @@ resistance_t trixterxdreamv1bike::adjustedResistance(resistance_t input, bool to
 
 
 bool trixterxdreamv1bike::connected() {
-    QMutexLocker locker(&this->unprocessedStatesMutex);
-    return !this->unprocessedStates.empty();
+    // If this is called from the connect() method, the timer won't have called the update() method
+    // so go directly to the queue of states.
+    QMutexLocker lockerA(&this->unprocessedStatesMutex);
+    if(!this->unprocessedStates.empty())
+        return true;
+    lockerA.unlock();
+
+    // Queue of states is empty...
+    QMutexLocker lockerB(&this->updateMutex);
+    return (this->getTime()-this->lastPacketProcessedTime) < DisconnectionTimeout;
 }
 
 
