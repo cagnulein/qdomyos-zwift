@@ -430,7 +430,11 @@ void trixterxdreamv1bike::configureVirtualBike(){
     #endif
         if (virtual_device_enabled) {
             qDebug() << QStringLiteral("creating virtual bike interface...");
-            this->virtualBike = new virtualbike(this, noWriteResistance, noHeartService);
+
+            double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
+            double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
+            this->virtualBike = new virtualbike(this, noWriteResistance, noHeartService, bikeResistanceOffset, bikeResistanceGain);
+            bike::connect(this->virtualBike, &virtualbike::changeInclination, this, &trixterxdreamv1bike::changeInclination);
         }
     }
 
@@ -585,6 +589,15 @@ void trixterxdreamv1bike::update(const trixterxdreamv1client::state &state) {
         this->requestResistance = -1;
     }
 
+    // check if there's a request for an inclination grade
+    if(this->requestInclination>=0) {
+        qDebug() << "requestInclination="<<this->requestInclination;
+        // apply a log curve that's pure guesswork
+        resistance_t inc = (resistance_t)(45.0*log(std::max(1.0, 5.0*this->requestInclination))+2);
+        this->set_resistance(this->adjustedResistance(inc, false));
+        this->requestInclination = -100;
+    }
+
     // update the power output
     double powerBoost = 4.0 * this->brakeLevel;
     this->update_metrics(true, powerBoost + this->calculatePower(state.CrankRPM, this->resistanceLevel));
@@ -670,6 +683,8 @@ void trixterxdreamv1bike::calculateSteeringMap() {
 }
 
 void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {
+    qDebug() << "setting resistance: " << resistanceLevel << (this->useResistancePercentage ? "%":"") << this->noWriteResistance;
+
     // ignore the resistance if this option was selected
     if(this->noWriteResistance)
         return;
