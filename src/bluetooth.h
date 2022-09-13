@@ -251,6 +251,16 @@ protected:
     double bikeResistanceGain = 1.0;
     bool forceHeartBeltOffForTimeout = false;
 
+    /**
+     * @brief Start the Bluetooth discovery agent.
+     */
+    void startDiscovery();
+
+    /**
+     * @brief Stop the Bluetooth discovery agent.
+     */
+    void stopDiscovery();
+
     bool handleSignal(int signal) override;
     void stateFileUpdate();
     void stateFileRead();

@@ -110,6 +110,29 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
     return next300;
 }
 
+// speed in Km/h
+double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
+    int c = currentStep + 1;
+    double km = 0;
+    int sum = 0;
+    double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed);
+
+    while (1) {
+        if (c < rows.length()) {
+            if (sum - actualGPXElapsed > seconds) {
+                return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
+            }
+            km += (rows.at(c).distance);
+            sum = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
+
+        } else {
+            return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
+        }
+        c++;
+    }
+    return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
+}
+
 double trainprogram::avgInclinationNext100Meters() {
     int c = currentStep;
     double km = 0;
@@ -416,7 +439,7 @@ void trainprogram::scheduler() {
                         p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer),
                                                    rows.at(currentStep).azimuth);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
-                    emit changeTimestamp(rows.at(currentStep).rampElapsed, QTime(0, 0, 0).addSecs(ticks));
+                    emit changeTimestamp(rows.at(currentStep).gpxElapsed, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");

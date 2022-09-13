@@ -3511,7 +3511,7 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
                         r.inclination = p.inclination;
                         r.latitude = last.latitude;
                         r.longitude = last.longitude;
-                        r.rampElapsed = QTime(0, 0, 0).addSecs(p.seconds);
+                        r.gpxElapsed = QTime(0, 0, 0).addSecs(p.seconds);
 
                         list.append(r);
                         setMapsVisible(true);
@@ -3525,9 +3525,11 @@ void homeform::gpx_open_clicked(const QUrl &fileName) {
 
             if (g.getVideoURL().isEmpty() == false) {
                 movieFileName = QUrl(g.getVideoURL());
+                emit videoPathChanged(movieFileName);
                 setVideoVisible(true);
             } else if (QFile::exists(file.fileName().replace(".gpx", ".mp4"))) {
                 movieFileName = QUrl::fromLocalFile(file.fileName().replace(".gpx", ".mp4"));
+                emit videoPathChanged(movieFileName);
                 setVideoVisible(true);
             }
         }
@@ -4021,7 +4023,7 @@ double homeform::videoRate() { return m_VideoRate; }
 void homeform::setVideoRate(double value) {
 
     m_VideoRate = value;
-    emit videoRateChanged(m_VideoPosition);
+    emit videoRateChanged(m_VideoRate);
 }
 
 void homeform::smtpError(SmtpClient::SmtpError e) { qDebug() << QStringLiteral("SMTP ERROR") << e; }
@@ -4474,28 +4476,40 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
 void homeform::changeTimestamp(QTime source, QTime actual) {
-    static QTime lastSource = QTime(0, 0, 0);
-    static QTime lastActual = QTime(0, 0, 0);
     const double filterRate = 0.1;
     QSettings settings;
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
-    // if a time is smaller then the last one means that the user restart the program
-    if (lastSource > source || lastActual > actual) {
-        qDebug() << "changeTimestamp resetting timestamp " << source << actual << lastSource << lastActual;
-        lastSource = QTime(0, 0, 0);
-        lastActual = QTime(0, 0, 0);
-    }
-
-    // we need to calculate the rate only if this the first time or every X seconds (in order to have an average)
-    if (lastSource.secsTo(QTime(0, 0, 0)) == 0 || lastActual.secsTo(actual) > filterSeconds) {
+    if (trainProgram) {
+        // only for debug, this is the rate of the video vs the player for the whole ride
         double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
-        double rate = (double)lastSource.secsTo(source) / (double)lastActual.secsTo(actual);
-        lastSource = source;
-        lastActual = actual;
-        qDebug() << "changeTimestamp" << source << actual << fullRate << lastSource << lastActual << rate;
+
+        // calculating the avg speed of the video for the next 5 seconds
+        double speedOfTheVideoForTheNextXSeconds = trainProgram->avgSpeedNextSecondsGPX(5);
+
+        // adding filterSeconds to the actual video timestamp
+        double timeStampVideoToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds));
+
+        // calculating the rate of the video speed of the next filterSeconds to the actual average 5s speed of the
+        // player
+        double playerSpeedVideoRate =
+            bluetoothManager->device()->currentSpeed().average5s() / speedOfTheVideoForTheNextXSeconds;
+
+        // adding filterSeconds to the actual player timestamp
+        double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(source.addSecs((((double)(filterSeconds)) * playerSpeedVideoRate)));
+
+        // calculating the real rate of the video
+        double rate = timeStampPlayerToXSeconds / timeStampVideoToXSeconds;
+
+        qDebug() << "changeTimestamp" << source << actual << fullRate << speedOfTheVideoForTheNextXSeconds
+                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate << rate
+                 << bluetoothManager->device()->currentSpeed().average5s()
+                 << bluetoothManager->device()->currentSpeed().value();
+
+        // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
-        if (fabs(videoRate() - rate) > filterRate)
+
+        //if (fabs(videoRate() - rate) > filterRate)
             setVideoRate(rate);
     }
 }

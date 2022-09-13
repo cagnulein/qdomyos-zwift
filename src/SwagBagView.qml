@@ -63,7 +63,7 @@ Item {
         color: "white"
         font.pointSize: 22
         wrapMode: TextArea.Wrap
-        text: qsTr("Hi! Do you know that QZ is just an Open Source Indie App?<br><br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!<br><br>Thanks to Rungap App to give me the idea of the name!")
+        text: qsTr("Hi! Do you know that QZ is just an Open Source Indie App?<br><br>No Big Companies are running this!<br>The \"Swag Bag\" is a way to support the ongoing development, maintenance and support of QZ Fitness!<br><br>Thanks to Rungap App for giving me the idea for the name!")
     }
 
     Column {

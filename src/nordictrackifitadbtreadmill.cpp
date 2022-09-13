@@ -31,6 +31,8 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     processPendingDatagrams();
     connect(socket, SIGNAL(readyRead()), this, SLOT(processPendingDatagrams()));
 
+    initRequest = true;
+
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
         bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
@@ -166,6 +168,11 @@ void nordictrackifitadbtreadmill::update() {
 
     QSettings settings;
     update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+
+    if(initRequest) {
+        initRequest = false;
+        emit connectedAndDiscovered();
+    }
 
     // updating the treadmill console every second
     if (sec1Update++ == (500 / refresh->interval())) {
