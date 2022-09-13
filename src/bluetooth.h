@@ -125,16 +125,6 @@ class bluetooth : public QObject, public SignalHandler {
     TemplateInfoSenderBuilder *getInnerTemplateManager() const { return innerTemplateManager; }
 protected:
     /**
-     * @brief startDiscovery Start the Bluetooth discovery agent and the thread that discovers non-bluetooth devices.
-     */
-    void startDiscovery();
-
-    /**
-     * @brief stopDiscovery Stop the Bluetooth discovery agent and the thread that discovers non-bluetooth devices.
-     */
-    void stopDiscovery();
-
-    /**
      * @brief discoverNonBluetoothDevices Discover non-bluetooth devices and create an object for the first.
      * @return An object for the first non-bluetooth device found.
      */
