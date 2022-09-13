@@ -37,8 +37,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 
     connectToDevice();
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    initRequest = true;    
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()
@@ -241,6 +240,7 @@ void proformwifibike::update() {
     if (initRequest) {
         initRequest = false;
         btinit();
+        emit connectedAndDiscovered();
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
         update_metrics(true, watts());
 

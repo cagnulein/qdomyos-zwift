@@ -45,6 +45,7 @@ class horizongr7bike : public bike {
     void writeCharacteristic(uint8_t *data, uint8_t data_len, const QString &info, bool disable_log = false,
                              bool wait_for_response = false);
     void startDiscover();
+    void btinit();
     uint16_t watts() override;
     void forceResistance(resistance_t requestResistance);
 
@@ -52,7 +53,10 @@ class horizongr7bike : public bike {
 
     QList<QLowEnergyService *> gattCommunicationChannelService;
     QLowEnergyCharacteristic gattWriteCharControlPointId;
-    QLowEnergyService *gattFTMSService;
+    QLowEnergyService *gattFTMSService = nullptr;
+
+    QLowEnergyService* customService = nullptr;
+    QLowEnergyCharacteristic customWriteChar;
 
     double bikeResistanceToPeloton(double resistance);
     const resistance_t max_resistance = 12;

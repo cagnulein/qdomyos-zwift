@@ -35,15 +35,31 @@ void horizongr7bike::writeCharacteristic(uint8_t *data, uint8_t data_len, const 
                                          bool wait_for_response) {
     QEventLoop loop;
     QTimer timeout;
-    if (wait_for_response) {
-        connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    } else {
-        connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
-        timeout.singleShot(300ms, &loop, &QEventLoop::quit);
-    }
 
-    gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    if (gattFTMSService) {
+        if (wait_for_response) {
+            connect(gattFTMSService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        } else {
+            connect(gattFTMSService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        }
+
+        gattFTMSService->writeCharacteristic(gattWriteCharControlPointId, QByteArray((const char *)data, data_len));
+    } else if (customService && customWriteChar.isValid()) {
+        if (wait_for_response) {
+            connect(customService, &QLowEnergyService::characteristicChanged, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        } else {
+            connect(customService, &QLowEnergyService::characteristicWritten, &loop, &QEventLoop::quit);
+            timeout.singleShot(300ms, &loop, &QEventLoop::quit);
+        }
+
+        customService->writeCharacteristic(customWriteChar, QByteArray((const char *)data, data_len));
+    } else {
+        qDebug() << "writeCharacteristic error!";
+        return;
+    }
 
     if (!disable_log) {
         emit debug(QStringLiteral(" >> ") + QByteArray((const char *)data, data_len).toHex(' ') +
@@ -132,14 +148,6 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
     static bool firstPacket = false;
 
-    emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
-
-    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2AD2)) {
-        return;
-    }
-
-    lastPacket = newValue;
-
     union flags {
         struct {
             uint16_t moreData : 1;
@@ -162,113 +170,35 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     };
 
     flags Flags;
-    int index = 0;
-    Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
-    index += 2;
+    Flags.heartRate = 0;
 
-    if (!Flags.moreData) {
-        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
-            Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                              (uint16_t)((uint8_t)newValue.at(index)))) /
-                    100.0;
-        } else {
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
-        }
-        index += 2;
-        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
-    }
+    emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + newValue.toHex(' '));
 
-    if (Flags.avgSpeed) {
-        double avgSpeed;
-        avgSpeed =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-            100.0;
-        index += 2;
-        emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
-    }
-
-    if (Flags.instantCadence) {
-        if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
-                .toString()
-                .startsWith(QStringLiteral("Disabled"))) {
-
-            // this bike sent a cadence 1/10 of the real one
-            Cadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                                 (uint16_t)((uint8_t)newValue.at(index)))) /
-                       2.0) *
-                      settings.value(QStringLiteral("horizon_gr7_cadence_multiplier"), 1.0).toDouble();
-        }
-        index += 2;
+    if (gattFTMSService == nullptr && characteristic.uuid() == QBluetoothUuid((quint16)0xfff4) &&
+        newValue.length() == 13) {
+        Cadence = newValue.at(11);
         emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
-    }
-
-    if (Flags.avgCadence) {
-        double avgCadence;
-        avgCadence =
-            (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index)))) /
-             2.0) *
-            settings.value(QStringLiteral("horizon_gr7_cadence_multiplier"), 1.0).toDouble();
-        index += 2;
-        emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
-    }
-
-    if (Flags.totDistance) {
-        // this bike sent the distance but it doesn't send the avg cadence, so the parsing is wrong.
-        // Let's calculate the distance by software
-        /*Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
-                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                             (uint32_t)((uint8_t)newValue.at(index)))) /
-                   1000.0;*/
-        if (firstPacket)
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-
-        index += 3;
-    } else {
-        if (firstPacket)
-            Distance += ((Speed.value() / 3600000.0) *
-                         ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
-    }
-
-    emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
-
-    if (Flags.resistanceLvl) {
-        Resistance =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        emit resistanceRead(Resistance.value());
-        m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
-        index += 2;
+        Resistance = newValue.at(12);
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
-    }
 
-    if (Flags.instantPower) {
-        if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
-                .toString()
-                .startsWith(QStringLiteral("Disabled")))
-            m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
-                               (uint16_t)((uint8_t)newValue.at(index))));
-        index += 2;
-        emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
-    }
+        if (Heart.value() > 0) {
+            int avgP = ((settings.value(QStringLiteral("power_hr_pwr1"), 200).toDouble() *
+                         settings.value(QStringLiteral("power_hr_hr2"), 170).toDouble()) -
+                        (settings.value(QStringLiteral("power_hr_pwr2"), 230).toDouble() *
+                         settings.value(QStringLiteral("power_hr_hr1"), 150).toDouble())) /
+                           (settings.value(QStringLiteral("power_hr_hr2"), 170).toDouble() -
+                            settings.value(QStringLiteral("power_hr_hr1"), 150).toDouble()) +
+                       (Heart.value() * ((settings.value(QStringLiteral("power_hr_pwr1"), 200).toDouble() -
+                                          settings.value(QStringLiteral("power_hr_pwr2"), 230).toDouble()) /
+                                         (settings.value(QStringLiteral("power_hr_hr1"), 150).toDouble() -
+                                          settings.value(QStringLiteral("power_hr_hr2"), 170).toDouble())));
+            if (avgP < 50) {
+                avgP = 50;
+            }
+            m_watt = avgP;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        }
 
-    if (Flags.avgPower) {
-        double avgPower;
-        avgPower =
-            ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        index += 2;
-        emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
-    }
-
-    if (Flags.expEnergy && newValue.length() > index + 1) {
-        KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        index += 2;
-
-        // energy per hour
-        index += 2;
-
-        // energy per minute
-        index += 1;
-    } else {
         if (watts())
             KCal +=
                 ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() *
@@ -277,35 +207,169 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
-    }
 
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
+        if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+            Speed = Cadence.value() * settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+        } else {
+            Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+        }
+        emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+
+        Distance += ((Speed.value() / 3600000.0) *
+                     ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+        return;
+    } else if (characteristic.uuid() == QBluetoothUuid((quint16)0x2AD2)) {
+
+        lastPacket = newValue;
+
+        int index = 0;
+        Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
+        index += 2;
+
+        if (!Flags.moreData) {
+            if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+                Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                  (uint16_t)((uint8_t)newValue.at(index)))) /
+                        100.0;
+            } else {
+                Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Speed: ") + QString::number(Speed.value()));
+        }
+
+        if (Flags.avgSpeed) {
+            double avgSpeed;
+            avgSpeed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index)))) /
+                       100.0;
+            index += 2;
+            emit debug(QStringLiteral("Current Average Speed: ") + QString::number(avgSpeed));
+        }
+
+        if (Flags.instantCadence) {
+            if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled"))) {
+
+                // this bike sent a cadence 1/10 of the real one
+                Cadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                     (uint16_t)((uint8_t)newValue.at(index)))) /
+                           2.0) *
+                          settings.value(QStringLiteral("horizon_gr7_cadence_multiplier"), 1.0).toDouble();
+            }
+            index += 2;
+            emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
+        }
+
+        if (Flags.avgCadence) {
+            double avgCadence;
+            avgCadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                    (uint16_t)((uint8_t)newValue.at(index)))) /
+                          2.0) *
+                         settings.value(QStringLiteral("horizon_gr7_cadence_multiplier"), 1.0).toDouble();
+            index += 2;
+            emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
+        }
+
+        if (Flags.totDistance) {
+            // this bike sent the distance but it doesn't send the avg cadence, so the parsing is wrong.
+            // Let's calculate the distance by software
+            /*Distance = ((double)((((uint32_t)((uint8_t)newValue.at(index + 2)) << 16) |
+                              (uint32_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint32_t)((uint8_t)newValue.at(index)))) /
+                   1000.0;*/
+            if (firstPacket)
+                Distance += ((Speed.value() / 3600000.0) *
+                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+
+            index += 3;
+        } else {
+            if (firstPacket)
+                Distance += ((Speed.value() / 3600000.0) *
+                             ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
+        }
+
+        emit debug(QStringLiteral("Current Distance: ") + QString::number(Distance.value()));
+
+        if (Flags.resistanceLvl) {
+            Resistance = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            emit resistanceRead(Resistance.value());
+            m_pelotonResistance = bikeResistanceToPeloton(Resistance.value());
+            index += 2;
+            emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
+        }
+
+        if (Flags.instantPower) {
+            if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+                    .toString()
+                    .startsWith(QStringLiteral("Disabled")))
+                m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                   (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
+        }
+
+        if (Flags.avgPower) {
+            double avgPower;
+            avgPower = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                                 (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+            emit debug(QStringLiteral("Current Average Watt: ") + QString::number(avgPower));
+        }
+
+        if (Flags.expEnergy && newValue.length() > index + 1) {
+            KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
+                             (uint16_t)((uint8_t)newValue.at(index))));
+            index += 2;
+
+            // energy per hour
+            index += 2;
+
+            // energy per minute
+            index += 1;
+        } else {
+            if (watts())
+                KCal += ((((0.048 * ((double)watts()) + 1.19) *
+                           settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+                          200.0) /
+                         (60000.0 /
+                          ((double)lastRefreshCharacteristicChanged.msecsTo(
+                              QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
+                                                                // kg * 3.5) / 200 ) / 60
+        }
+
+        emit debug(QStringLiteral("Current KCal: ") + QString::number(KCal.value()));
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
-        Heart = (uint8_t)KeepAwakeHelper::heart();
-    else
+        if (settings.value("ant_heart", false).toBool())
+            Heart = (uint8_t)KeepAwakeHelper::heart();
+        else
 #endif
-    {
-        if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
-            Heart = ((double)((newValue.at(index))));
-            // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
-            emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
-        } else {
-            Flags.heartRate = false;
+        {
+            if (Flags.heartRate && !disable_hr_frommachinery && newValue.length() > index) {
+                Heart = ((double)((newValue.at(index))));
+                // index += 1; // NOTE: clang-analyzer-deadcode.DeadStores
+                emit debug(QStringLiteral("Current Heart: ") + QString::number(Heart.value()));
+            } else {
+                Flags.heartRate = false;
+            }
         }
-    }
 
-    if (Flags.metabolic) {
-        // todo
-    }
+        if (Flags.metabolic) {
+            // todo
+        }
 
-    if (Flags.elapsedTime) {
-        // todo
-    }
+        if (Flags.elapsedTime) {
+            // todo
+        }
 
-    if (Flags.remainingTime) {
-        // todo
+        if (Flags.remainingTime) {
+            // todo
+        }
     }
 
     if (Cadence.value() > 0) {
@@ -348,6 +412,13 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
     firstPacket = true;
+}
+
+void horizongr7bike::btinit() {
+    if (gattFTMSService == nullptr) {
+        uint8_t write[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x16, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
+        writeCharacteristic(write, sizeof(write), QStringLiteral("init"));
+    }
 }
 
 void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
@@ -421,14 +492,21 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
                 }
 
                 QBluetoothUuid _gattWriteCharControlPointId((quint16)0x2AD9);
+                QBluetoothUuid _customWriteChar((quint16)0xFFF3);
                 if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _gattWriteCharControlPointId) {
                     qDebug() << QStringLiteral("FTMS service and Control Point found");
                     gattWriteCharControlPointId = c;
                     gattFTMSService = s;
+                } else if (c.properties() & QLowEnergyCharacteristic::Write && c.uuid() == _customWriteChar) {
+                    qDebug() << QStringLiteral("Custom Service found");
+                    customWriteChar = c;
+                    customService = s;
                 }
             }
         }
     }
+
+    btinit();
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !this->hasVirtualDevice()
