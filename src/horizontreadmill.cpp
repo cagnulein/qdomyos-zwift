@@ -75,6 +75,7 @@ void horizontreadmill::waitForAPacket() {
 
 void horizontreadmill::btinit() {
     QSettings settings;
+    QString nickname = settings.value(QStringLiteral("user_nickname"), "user").toString();
     bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
@@ -84,7 +85,8 @@ void horizontreadmill::btinit() {
     uint8_t initData03_paragon[] = {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
     uint8_t initData01[] = {0x55, 0xaa, 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x00};
-/* profiles
+
+    // profiles
     uint8_t initData7[] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xed, 0xc2,
                            0x00, 0x47, 0x75, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00};
     uint8_t initData8[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -142,7 +144,8 @@ void horizontreadmill::btinit() {
                              0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xdc, 0x05, 0xc2, 0x07};
     uint8_t initData10_6[] = {0x01, 0x01, 0x00, 0x8e, 0x6a, 0x0c, 0x00, 0x01, 0x01, 0x02,
                               0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-*/
+// profiles end
+
     uint8_t initData02[] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
     uint8_t initData03[] = {0x55, 0xaa, 0x03, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
     uint8_t initData04[] = {0x55, 0xaa, 0x04, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
@@ -153,6 +156,22 @@ void horizontreadmill::btinit() {
                            0x01, 0xe5, 0x07, 0x02, 0x08, 0x13, 0x12, 0x21, 0x00};
     uint8_t initData3[] = {0x55, 0xaa, 0x08, 0x00, 0x03, 0x01, 0x01, 0x00, 0xd1, 0xf1, 0x01};
     uint8_t initData4[] = {0x55, 0xaa, 0x09, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
+
+    QByteArray username[7];
+    if(nickname.length() > 8)
+        nickname = nickname.left(8);
+    else if(nickname.length() == 0)
+        nickname = "user";
+    username[0] = nickname.toLocal8Bit();
+    for(int i = 0; i < 10; i++) {
+        initData7[11 + i] = username[0].at(i);
+        initData7_1[11 + i] = username[0].at(i);
+        initData7_2[11 + i] = username[0].at(i);
+        initData7_3[11 + i] = username[0].at(i);
+        initData7_4[11 + i] = username[0].at(i);
+        initData7_5[11 + i] = username[0].at(i);
+        initData7_6[11 + i] = username[0].at(i);
+    }
 
     if (gattCustomService) {
 
@@ -172,7 +191,7 @@ void horizontreadmill::btinit() {
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01, sizeof(initData01),
                                 QStringLiteral("init"), false, true);
             waitForAPacket();
-/*
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData8, sizeof(initData8),
@@ -711,7 +730,7 @@ void horizontreadmill::btinit() {
                                 QStringLiteral("init"), false, false);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData14, sizeof(initData14),
                                 QStringLiteral("init"), false, true);
-*/
+
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData02, sizeof(initData02),
                                 QStringLiteral("init"), false, true);
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData03, sizeof(initData03),
