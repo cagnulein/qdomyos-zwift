@@ -114,7 +114,6 @@ private:
     std::function<void(uint8_t*, int)> write_bytes=nullptr;
     std::mutex stateMutex, writeMutex;
     uint32_t lastT = 0;
-    uint32_t t0 = 0;
     double flywheelRevolutions{}, crankRevolutions{};
     Packet lastPacket{};
     std::vector<uint8_t> inputBuffer;

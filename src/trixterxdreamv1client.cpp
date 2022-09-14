@@ -20,7 +20,6 @@ void trixterxdreamv1client::ResetBuffer() {
 
 void trixterxdreamv1client::set_GetTime(std::function<uint32_t()> get_time_ms) {
     this->get_time_ms = get_time_ms;
-    this->t0 = this->get_time_ms ? this->get_time_ms():0;
 }
 
 trixterxdreamv1client::PacketState trixterxdreamv1client::ProcessChar(char c) {
@@ -138,7 +137,7 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
         crankRevsPerMinute = crankToRevolutionsPerMinute / max(static_cast<uint16_t>(1), lastPacket.Crank);
     }
 
-    const uint32_t t = this->get_time_ms() - this->t0;
+    const uint32_t t = this->get_time_ms();
     const uint32_t lt = this->lastT ? this->lastT : t;
 
     this->lastT = t;
