@@ -239,6 +239,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double framerate = (gpxframedistance / videoframedistance);
     double rate = (videotimerate * framerate);
 
+    rate = gpxsecs / videosecs;
+
     qDebug() << "TimeRateFromGPX" 
              << gpxsecs
              << videosecs
@@ -256,7 +258,6 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << rate
              << fullRate;
 
-    rate = videosecs / gpxsecs;
 
     return rate;
     
