@@ -802,18 +802,19 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.kcal_ignore_builtin = checked
                     }
+                    Label {
+                        id: labelHeartRateBelt
+                        text: qsTr("Heart Belt Name:")
+                        Layout.fillWidth: true
+                    }
                     RowLayout {
                         spacing: 10
-                        Label {
-                            id: labelHeartRateBelt
-                            text: qsTr("Heart Belt Name:")
-                            Layout.fillWidth: true
-                        }
                         ComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
                             displayText: settings.heart_rate_belt_name
                             Layout.fillHeight: false
+                            Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
@@ -5164,18 +5165,19 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    Label {
+                        id: labelFilterDevice
+                        text: qsTr("Manual Device:")
+                        Layout.fillWidth: true
+                    }
                     RowLayout {
                         spacing: 10
-                        Label {
-                            id: labelFilterDevice
-                            text: qsTr("Manual Device:")
-                            Layout.fillWidth: true
-                        }
                         ComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
                             displayText: settings.filter_device
                             Layout.fillHeight: false
+                            Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
@@ -5521,18 +5523,19 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.cadence_sensor_as_bike = checked
                             }
+                            Label {
+                                id: labelCadenceSensorName
+                                text: qsTr("Cadence Sensor:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelCadenceSensorName
-                                    text: qsTr("Cadence Sensor:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: cadenceSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.cadence_sensor_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + cadenceSensorNameTextField.currentIndex)
@@ -5632,18 +5635,19 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.powr_sensor_running_cadence_double = checked
                             }
 
+                            Label {
+                                id: labelPowerSensorName
+                                text: qsTr("Power Sensor:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelPowerSensorName
-                                    text: qsTr("Power Sensor:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: powerSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.power_sensor_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + powerSensorNameTextField.currentIndex)
@@ -5684,18 +5688,19 @@ import Qt.labs.settings 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
+                                    Label {
+                                        id: labelEliteRizerName
+                                        text: qsTr("Elite Rizer:")
+                                        Layout.fillWidth: true
+                                    }
                                     RowLayout {
                                         spacing: 10
-                                        Label {
-                                            id: labelEliteRizerName
-                                            text: qsTr("Elite Rizer:")
-                                            Layout.fillWidth: true
-                                        }
                                         ComboBox {
                                             id: eliteRizerNameTextField
                                             model: rootItem.bluetoothDevices
                                             displayText: settings.elite_rizer_name
                                             Layout.fillHeight: false
+                                            Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteRizerNameTextField.currentIndex)
@@ -5751,18 +5756,19 @@ import Qt.labs.settings 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
+                                    Label {
+                                        id: labelEliteSterzoSmartName
+                                        text: qsTr("Elite Sterzo Smart:")
+                                        Layout.fillWidth: true
+                                    }
                                     RowLayout {
                                         spacing: 10
-                                        Label {
-                                            id: labelEliteSterzoSmartName
-                                            text: qsTr("Elite Sterzo Smart:")
-                                            Layout.fillWidth: true
-                                        }
                                         ComboBox {
                                             id: eliteSterzoSmartNameTextField
                                             model: rootItem.bluetoothDevices
                                             displayText: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
+                                            Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteSterzoSmartNameTextField.currentIndex)
@@ -5797,18 +5803,19 @@ import Qt.labs.settings 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 10
+                            Label {
+                                id: labelFTMSAccessoryName
+                                text: qsTr("SmartSpin2k device:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelFTMSAccessoryName
-                                    text: qsTr("SmartSpin2k device:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: ftmsAccessoryNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.ftms_accessory_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + ftmsAccessoryNameTextField.currentIndex)
