@@ -74,7 +74,7 @@ class trainprogram : public QObject {
     void clearRows();
     double avgSpeedNextSecondsGPX(int seconds);
     double TotalDistanceAfterSecondsGPX(int seconds);
-    double TimeRateFromGPX(int gpxsecs, double videosecs, int timeFrame, double currentspeed);
+    double TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
