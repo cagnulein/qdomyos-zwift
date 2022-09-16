@@ -256,6 +256,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << rate
              << fullRate;
 
+    rate = videosecs / gpxsecs;
+
     return rate;
     
     /*
