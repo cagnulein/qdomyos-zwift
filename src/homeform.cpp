@@ -4493,9 +4493,11 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     if (trainProgram) {
         //double rate = trainProgram->TimeRateFromGPX(source, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
         double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).secsTo(source)), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().value());
+
+        double gpxTimeStampSeconds = ((double)QTime(0, 0, 0).secsTo(source));
+        rate = videoTimeStampSeconds / gpxTimeStampSeconds;
         // this is used by the videoComponent only when the video must be loaded for the first time
 
-        if (QTime(0, 0, 0).secsTo(source) < 10)
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
 
         //if (fabs(videoRate() - rate) > 0.0)
