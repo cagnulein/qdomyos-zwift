@@ -4491,36 +4491,13 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
 
     if (trainProgram) {
-        // only for debug, this is the rate of the video vs the player for the whole ride
-        double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
-
-        // calculating the avg speed of the video for the next 5 seconds
-        double speedOfTheVideoForTheNextXSeconds = trainProgram->avgSpeedNextSecondsGPX(5);
-
-        // adding filterSeconds to the actual video timestamp
-        double timeStampVideoToXSeconds = QTime(0, 0, 0).secsTo(actual.addSecs(filterSeconds));
-
-        // calculating the rate of the video speed of the next filterSeconds to the actual average 5s speed of the
-        // player
-        double playerSpeedVideoRate =
-            bluetoothManager->device()->currentSpeed().average5s() / speedOfTheVideoForTheNextXSeconds;
-
-        // adding filterSeconds to the actual player timestamp
-        double timeStampPlayerToXSeconds =
-            QTime(0, 0, 0).secsTo(source.addSecs((((double)(filterSeconds)) * playerSpeedVideoRate)));
-
-        // calculating the real rate of the video
-        double rate = timeStampPlayerToXSeconds / timeStampVideoToXSeconds;
-
-        qDebug() << "changeTimestamp" << source << actual << fullRate << speedOfTheVideoForTheNextXSeconds
-                 << timeStampVideoToXSeconds << timeStampPlayerToXSeconds << playerSpeedVideoRate << rate
-                 << bluetoothManager->device()->currentSpeed().average5s()
-                 << bluetoothManager->device()->currentSpeed().value();
-
+        //double rate = trainProgram->TimeRateFromGPX(source, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
+        double rate = trainProgram->TimeRateFromGPX(QTime(0, 0, 0).secsTo(source), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().value());
         // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
 
-        // if (fabs(videoRate() - rate) > filterRate)
-        setVideoRate(rate);
+        //if (fabs(videoRate() - rate) > 0.0)
+            setVideoRate(rate);
+
     }
 }

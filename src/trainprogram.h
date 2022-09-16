@@ -73,6 +73,8 @@ class trainprogram : public QObject {
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
     double avgSpeedNextSecondsGPX(int seconds);
+    double TotalDistanceAfterSecondsGPX(int seconds);
+    double TimeRateFromGPX(int gpxsecs, double videosecs, int timeFrame, double currentspeed);
 
     QList<trainrow> rows;
     QList<trainrow> loadedRows; // rows as loaded
