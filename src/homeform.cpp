@@ -315,6 +315,8 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
+    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+    videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
     QObject *stack = rootObject;
     engine->rootContext()->setContextProperty("pathController", &pathController);
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
@@ -4484,6 +4486,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     QSettings settings;
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
+    double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
+
     if (trainProgram) {
         // only for debug, this is the rate of the video vs the player for the whole ride
         double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
@@ -4500,7 +4504,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             bluetoothManager->device()->currentSpeed().average5s() / speedOfTheVideoForTheNextXSeconds;
 
         // adding filterSeconds to the actual player timestamp
-        double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(source.addSecs((((double)(filterSeconds)) * playerSpeedVideoRate)));
+        double timeStampPlayerToXSeconds =
+            QTime(0, 0, 0).secsTo(source.addSecs((((double)(filterSeconds)) * playerSpeedVideoRate)));
 
         // calculating the real rate of the video
         double rate = timeStampPlayerToXSeconds / timeStampVideoToXSeconds;
@@ -4513,7 +4518,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
 
-        //if (fabs(videoRate() - rate) > filterRate)
-            setVideoRate(rate);
+        // if (fabs(videoRate() - rate) > filterRate)
+        setVideoRate(rate);
     }
 }

@@ -13,6 +13,7 @@
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
+#include <QMediaPlayer>
 #include <QNetworkReply>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QQmlApplicationEngine>
@@ -593,6 +594,8 @@ class homeform : public QObject {
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
 #endif
+
+    auto videoPlaybackHalfPlayer;
 
     QGeoPath gpx_preview;
     PathController pathController;
