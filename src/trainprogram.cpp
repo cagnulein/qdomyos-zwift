@@ -235,13 +235,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double speedRate = (currentspeed / avgVideoSpeed);
     // Adjust gpxFramedistance to players Speed
     gpxframedistance = gpxframedistance * speedRate;
-    // Calculate total distances after the Frame
-    double totalgpxdistance = gpxdistance + gpxframedistance;
-    double totalvideodistance = videodistance + videoframedistance;
-
-    // now we have both End-Distances (considering both, speed and time difference) and can calculate a rate for the next frame
-
-    double rate = totalgpxdistance / totalvideodistance;
+    double videotimerate = (videodistance / gpxdistance);
+    double framerate = (gpxframedistance / videoframedistance);
+    double rate = (videotimerate / framerate);
 
     qDebug() << "TimeRateFromGPX" 
              << gpxsecs
@@ -255,6 +251,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << videoframedistance
              << videoframestart
              << videoframeend
+             << videotimerate
+             << framerate
              << rate
              << fullRate;
 
