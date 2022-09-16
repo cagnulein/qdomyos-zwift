@@ -235,6 +235,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double speedRate = (currentspeed / avgVideoSpeed);
     // Adjust gpxFramedistance to players Speed
     gpxframedistance = gpxframedistance * speedRate;
+    videoframedistance = videoframedistance * speedRate;
     double videotimerate = (gpxdistance / videodistance);
     double framerate = (gpxframedistance / videoframedistance);
     double rate = ((videotimerate + framerate) / 2.0);
