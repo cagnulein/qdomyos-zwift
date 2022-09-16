@@ -315,8 +315,6 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
     QObject *rootObject = engine->rootObjects().constFirst();
     QObject *home = rootObject->findChild<QObject *>(QStringLiteral("home"));
-    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
-    videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
     QObject *stack = rootObject;
     engine->rootContext()->setContextProperty("pathController", &pathController);
     QObject::connect(home, SIGNAL(start_clicked()), this, SLOT(Start()));
@@ -4485,6 +4483,10 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     const double filterRate = 0.1;
     QSettings settings;
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
+
+    QObject *rootObject = engine->rootObjects().constFirst();
+    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+    auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
 
     double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
 

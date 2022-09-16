@@ -595,8 +595,6 @@ class homeform : public QObject {
     QTimer tLicense;
 #endif
 
-    auto videoPlaybackHalfPlayer;
-
     QGeoPath gpx_preview;
     PathController pathController;
 
