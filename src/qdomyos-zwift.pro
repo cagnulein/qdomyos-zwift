@@ -71,7 +71,7 @@ SOURCES += \
     characteristicnotifier2acc.cpp \
     characteristicnotifier2acd.cpp \
     characteristicnotifier2ad9.cpp \
-   consolereader.cpp \
+	ConsoleReader.cpp \
     fakeelliptical.cpp \
    faketreadmill.cpp \
    kmlworkout.cpp \
@@ -256,7 +256,7 @@ HEADERS += \
     characteristicnotifier2acc.h \
     characteristicnotifier2acd.h \
     characteristicnotifier2ad9.h \
-   consolereader.h \
+	ConsoleReader.h \
     definitions.h \
     fakeelliptical.h \
    faketreadmill.h \
