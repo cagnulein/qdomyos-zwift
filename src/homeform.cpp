@@ -343,6 +343,10 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     QObject::connect(stack, SIGNAL(keyMediaPrevious()), this, SLOT(keyMediaPrevious()));
     QObject::connect(stack, SIGNAL(keyMediaNext()), this, SLOT(keyMediaNext()));
 
+#if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
+    QObject::connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
+#endif
+
     if (settings.value(QStringLiteral("top_bar_enabled"), true).toBool()) {
         emit stopIconChanged(stopIcon());     // NOTE: clazy-incorrecrt-emit
         emit stopTextChanged(stopText());     // NOTE: clazy-incorrecrt-emit
@@ -4480,6 +4484,12 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     QSettings settings;
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
+    QObject *rootObject = engine->rootObjects().constFirst();
+    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+    auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+
+    double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
+
     if (trainProgram) {
         // only for debug, this is the rate of the video vs the player for the whole ride
         double fullRate = (double)QTime(0, 0, 0).secsTo(source) / (double)QTime(0, 0, 0).secsTo(actual);
@@ -4496,7 +4506,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             bluetoothManager->device()->currentSpeed().average5s() / speedOfTheVideoForTheNextXSeconds;
 
         // adding filterSeconds to the actual player timestamp
-        double timeStampPlayerToXSeconds = QTime(0, 0, 0).secsTo(source.addSecs((((double)(filterSeconds)) * playerSpeedVideoRate)));
+        double timeStampPlayerToXSeconds =
+            QTime(0, 0, 0).secsTo(source.addSecs((((double)(filterSeconds)) * playerSpeedVideoRate)));
 
         // calculating the real rate of the video
         double rate = timeStampPlayerToXSeconds / timeStampVideoToXSeconds;
@@ -4509,7 +4520,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
 
-        //if (fabs(videoRate() - rate) > filterRate)
-            setVideoRate(rate);
+        // if (fabs(videoRate() - rate) > filterRate)
+        setVideoRate(rate);
     }
 }

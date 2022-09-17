@@ -645,9 +645,18 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            ItemDelegate {
+                text: qsTr("Quit")
+                width: parent.width
+                visible: OS_VERSION === "Other" ? true : false
+                onClicked: {
+                    console.log("closing...")
+                    Qt.callLater(Qt.quit)
+                }
+            }
 
             ItemDelegate {
-                text: "version 2.11.52"
+                text: "version 2.11.53"
                 width: parent.width
             }
 				FileDialog {

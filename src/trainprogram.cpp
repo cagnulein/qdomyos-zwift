@@ -482,6 +482,7 @@ void trainprogram::scheduler() {
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
+                emit changeTimestamp(rows.at(currentStep).gpxElapsed, QTime(0, 0, 0).addSecs(ticks));
             }
         }
         sameIteration++;

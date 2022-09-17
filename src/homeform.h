@@ -13,6 +13,7 @@
 #include <QChart>
 #include <QColor>
 #include <QGraphicsScene>
+#include <QMediaPlayer>
 #include <QNetworkReply>
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QQmlApplicationEngine>
