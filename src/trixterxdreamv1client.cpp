@@ -122,7 +122,6 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     // got the data, now clear the buffer
     this->ResetBuffer();
 
-    constexpr double millisecondsToBaseUnit = 1024.0 / 1000.0;
     constexpr double flywheelToRevolutionsPerMinute = 576000.0;
     constexpr double crankToRevolutionsPerMinute = 1.0 / 6e-6;
     constexpr double minutesToMilliseconds = 60.0 * 1000.0;
@@ -163,7 +162,7 @@ bool trixterxdreamv1client::ReceiveChar(char c) {
     }
 
     state newState{};
-    newState.LastEventTime = static_cast<uint16_t>(millisecondsToBaseUnit * t);
+    newState.LastEventTime = t;
     newState.Steering = lastPacket.Steering;
     newState.HeartRate = lastPacket.HeartRate;
     newState.CumulativeCrankRevolutions = static_cast<uint16_t>(round(crankRevolutions));
@@ -190,7 +189,7 @@ trixterxdreamv1client::state trixterxdreamv1client::getLastState() {
 
 void trixterxdreamv1client::SendResistance(uint8_t level) {
 
-    // to maintain the resistance, this needs to be resent about every 10ms 
+    // to maintain the resistance, this needs to be resent about every 10ms
     if (level != 0 && this->write_bytes)
     {
         this->writeMutex.lock();

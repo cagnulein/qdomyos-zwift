@@ -66,9 +66,9 @@ public:
         uint16_t CumulativeCrankRevolutions;
 
         /**
-         * @brief LastEventTime The time of the last event. Unit:  1/1024 s
+         * @brief LastEventTime The time of the last event. Unit:  milliseconds
          */
-        uint16_t LastEventTime;
+        uint32_t LastEventTime;
 
         /**
          * @brief FlywheelRPM Flywheel speed. Units: revolutions per minute
@@ -135,6 +135,11 @@ private:
 
 public:
     /**
+     * @brief GearRatio The physical gear ratio between the flywheel:crank.
+     */
+    constexpr static uint8_t GearRatio = 5;
+
+    /**
      * @brief MaxResistance The maximum resistance value supported by the device.
      */
     constexpr static uint8_t MaxResistance = 250;
@@ -146,7 +151,7 @@ public:
 
 
     /**
-     * @brief MaxBrake The maximum brake value, which indicates fully off. 
+     * @brief MaxBrake The maximum brake value, which indicates fully off.
      */
     constexpr static uint8_t MaxBrake = 250;
 
@@ -161,8 +166,8 @@ public:
     constexpr static uint8_t MinCrankPosition = 1;
 
     /**
-	* @brief MinCrankPosition The maximum CrankPosition value.
-	*/
+    * @brief MinCrankPosition The maximum CrankPosition value.
+    */
     constexpr static uint8_t MaxCrankPosition = 60;
 
     /**

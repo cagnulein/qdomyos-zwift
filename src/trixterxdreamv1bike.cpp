@@ -453,15 +453,13 @@ resistance_t trixterxdreamv1bike::resistanceFromPowerRequest(uint16_t power)
 
     int16_t result = -1;
 
-    double * ps = powerSurface[c*26];
-    for(int i=0; result<0 && i<26; i++, ps++)
-        if(ps[2]>=power)
-            result = ps[1];
-    if(result<0)
-        result = (ps-1)[1];
+    for(int i=c*26, L=i+26; i<L; i++) {
+        result = powerSurface[i][1];
+        if(powerSurface[i][2]>=power) break;
+    }
 
     result = this->adjustedResistance(result, false);
-    result = std::min((resistance_t)trixterxdreamv1client::MaxResistance, std::max((resistance_t)0, result));
+    result = std::min(this->maxResistance(), std::max((resistance_t)0, result));
     return result;
 }
 
@@ -497,7 +495,7 @@ bool trixterxdreamv1bike::connected() {
     // If this is called from the connect() method, the timer won't have called the update() method
     // so go directly to the queue of states.
     QMutexLocker lockerA(&this->unprocessedStatesMutex);
-    if(!this->unprocessedStates.empty())
+    if(!this->unprocessedStates[this->unprocessedStateIndex].empty())
         return true;
     lockerA.unlock();
 
@@ -531,87 +529,167 @@ void trixterxdreamv1bike::receiveBytes(const QByteArray &bytes) {
 
     // send the bytes to the client and return if there's no change of state
     bool stateChanged = false;
+    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates[this->unprocessedStateIndex];
 
-    for(int i=0; i<bytes.length();i++)
-        stateChanged |= this->client.ReceiveChar(bytes[i]);
+    for(int i=0; i<bytes.length();i++) {
+        if(this->client.ReceiveChar(bytes[i])) {
+            QMutexLocker locker(&this->unprocessedStatesMutex);
+            ups->push(this->client.getLastState());
+            stateChanged = true;
+        }
+    }
 
     if(!stateChanged)
         return;
 
     QMutexLocker locker(&this->unprocessedStatesMutex);
-
     auto timeLimit = getTime() - UpdateMetricsInterval;
-    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates;
-    while(!ups->empty() && ups->front().LastEventTime<timeLimit)
+    while(!ups->empty() && ups->front().LastEventTime < timeLimit)
         ups->pop();
-    ups->push(this->client.getLastState());
+
 }
+
+resistance_t trixterxdreamv1bike::calculateResistanceFromInclination() {
+    QSettings settings;
+
+    double inclination = this->Inclination.value();
+    double cadence = this->Cadence.value();
+    double riderMass = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+    double bikeMass = settings.value(QStringLiteral("bike_weight"), 0.0).toFloat();
+    double totalMass = riderMass+bikeMass;
+
+    double flywheelRPM = cadence * trixterxdreamv1client::GearRatio; // not using the value from device here to avoid freewheeling
+    double speedMetresPerSecond = flywheelRPM / 60.0 * 1000 * this->wheelCircumference;
+    double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
+
+    uint16_t power = (uint16_t)(fg * speedMetresPerSecond);
+
+    resistance_t r = resistanceFromPowerRequest(power);
+
+    qDebug() << "Inclination:" << inclination
+             << " Cadence:" << cadence << "RPM "
+             << " Total Mass:"<< totalMass << "kg "
+             << "= Power:" << power << "W "
+             << "Resistance:" << r;
+
+    return r;
+}
+
 
 void trixterxdreamv1bike::update() {
     QMutexLocker locker(&this->updateMutex);
 
-    QMutexLocker statesLocker(&this->unprocessedStatesMutex);
-    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates;
-    std::vector<trixterxdreamv1client::state> pendingStates{ups->size()};
-    while(!ups->empty()) {
-        pendingStates.push_back(ups->front());
-        ups->pop();
-    }
-    statesLocker.unlock();
-
-    for(auto state : pendingStates)
-        this->update(state);
-}
-
-void trixterxdreamv1bike::update(const trixterxdreamv1client::state &state) {
+    // get the current time
     auto currentTime = getTime();
 
-    // update the packet count
-    this->packetsProcessed++;
-    this->lastPacketProcessedTime = currentTime;
+    // Switch to the the other queue for continued input on another thread
+    QMutexLocker statesLocker(&this->unprocessedStatesMutex);
+    queue<trixterxdreamv1client::state> * ups = &this->unprocessedStates[this->unprocessedStateIndex];
+    this->unprocessedStateIndex ^= 1;
+    statesLocker.unlock();
+
+    // If there are no states waiting to be processed, clear the metrics and return.
+    if(ups->empty()) {
+        qDebug() << "no states in queue";
+        this->stopping = false;
+        this->powerBoost = false;
+        this->Speed.setValue(0);
+        this->brakeLevel = 0;
+        this->m_steeringAngle.setValue(0);
+        this->Cadence.setValue(0);
+        this->Heart.setValue(0);
+        return;
+    }
+
+    // sweep the unprocessed states calculating some averages over the last update interval
+    // steering can ba a particularly wobbly signal so smoothing is important
+    double steering=0, cadence=0, flywheel=0, brakeLevel=0;
+    int count = ups->size();
+
+    trixterxdreamv1client::state state{};
+
+    while(!ups->empty()) {
+        // update the packet count
+        this->packetsProcessed++;
+        this->lastPacketProcessedTime = currentTime;
+
+        state = ups->front();
+        ups->pop();
+
+        constexpr double brakeScale = 125.0/(trixterxdreamv1client::MaxBrake-trixterxdreamv1client::MinBrake);
+        uint8_t b1 = 125 - (state.Brake1 - trixterxdreamv1client::MinBrake) * brakeScale;
+        uint8_t b2 = 125 - (state.Brake2 - trixterxdreamv1client::MinBrake) * brakeScale;
+        brakeLevel+= b1+b2;
+
+        flywheel += state.FlywheelRPM;
+        cadence += state.CrankRPM;
+
+        // Set the steering
+        if(!this->noSteering) {
+            steering += this->steeringMap[state.Steering];
+        }
+    }
+
+    if(count>1) {
+        double scale = 1.0/count;
+        steering *= scale;
+        cadence *= scale;
+        flywheel *= scale;
+        brakeLevel *= scale;
+    }
 
     // Determine if the user is pressing the button to stop.
     this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
 
-    constexpr double brakeScale = 125.0/(trixterxdreamv1client::MaxBrake-trixterxdreamv1client::MinBrake);
-    uint8_t b1 = 125 - (state.Brake1 - trixterxdreamv1client::MinBrake) * brakeScale;
-    uint8_t b2 = 125 - (state.Brake2 - trixterxdreamv1client::MinBrake) * brakeScale;
-    this->brakeLevel = b1 + b2;
+    // Determine if the user is pressing the left (front) gear up button, for a power boost.
+    this->powerBoost = (state.Buttons & trixterxdreamv1client::buttons::FrontGearUp) != 0;
 
     // update the metrics
-    this->LastCrankEventTime = state.LastEventTime;
-
-    // set the speed in km/h
-    constexpr double minutesPerHour = 60.0;
-    this->Speed.setValue(state.FlywheelRPM * minutesPerHour * this->wheelCircumference);
-
-    // set the distance in km
+    if(!this->noHeartRate)
+        this->Heart.setValue(state.HeartRate);
     this->Distance.setValue(state.CumulativeWheelRevolutions * this->wheelCircumference);
+    this->Cadence.setValue(cadence);
+    this->LastCrankEventTime = state.LastEventTime;
+    this->CrankRevs = state.CumulativeCrankRevolutions;
+    this->brakeLevel = brakeLevel;
+    constexpr double minutesPerHour = 60.0;
+    this->Speed.setValue(flywheel * minutesPerHour * this->wheelCircumference);
 
-    // set the cadence in revolutions per minute
-    this->Cadence.setValue(state.CrankRPM);
+    bool steeringAngleChanged = false;
+    if(!this->noSteering) {
+        double newValue = steering;
+        steeringAngleChanged = this->m_steeringAngle.value()!=newValue;
+        if(steeringAngleChanged)
+            this->m_steeringAngle.setValue(newValue);
+    }
 
-    // check if there's a request for a resistance level
+    resistance_t newRequestedResistanceLevel = -1;
+    resistance_t newInclinationResistanceLevel = -1;
+
+    qDebug() << "bike::requestResistance=" << this->requestResistance
+             << "bike::requestInclination="<<this->requestInclination
+             << "bike::Inclination=" << this->Inclination.value();
+
+    // check if there's a request for resistance
     if(this->requestResistance!=-1) {
-        this->set_resistance(this->requestResistance);
+        // ignoring forced resistance requests for now
+        //newRequestedResistanceLevel = this->requestResistance;
         this->requestResistance = -1;
     }
 
-    // check if there's a request for an inclination grade
-    if(this->requestInclination>=0) {
-        qDebug() << "requestInclination="<<this->requestInclination;
-        // apply a log curve that's pure guesswork
-        resistance_t inc = (resistance_t)(45.0*log(std::max(1.0, 5.0*this->requestInclination))+2);
-        this->set_resistance(this->adjustedResistance(inc, false));
+    // Cancel any request for inclination (grade)
+    if(this->requestInclination!=-100) {
         this->requestInclination = -100;
     }
 
-    // update the power output
-    double powerBoost = 4.0 * this->brakeLevel;
-    this->update_metrics(true, powerBoost + this->calculatePower(state.CrankRPM, this->resistanceLevel));
+    // update the inclination and cadence based resistance because either could have changed.
+    newInclinationResistanceLevel = this->calculateResistanceFromInclination();
 
-    // set the crank revolutions
-    this->CrankRevs = state.CumulativeCrankRevolutions;
+    this->set_resistance(std::max(newInclinationResistanceLevel, newRequestedResistanceLevel));
+
+    // update the power output
+    double powerBoost = this->powerBoost ? 1000:0;
+    this->update_metrics(true, powerBoost + this->calculatePower(cadence, this->resistanceLevel));
 
     // check if the settings have been updated and adjust accordingly
     if(this->appSettings->get_version()!=this->lastAppSettingsVersion) {
@@ -621,25 +699,15 @@ void trixterxdreamv1bike::update(const trixterxdreamv1client::state &state) {
             this->Heart.setValue(0.0);
 
         this->noSteering = !this->appSettings->get_steeringEnabled();
-        if(this->noSteering)
-            this->m_steeringAngle.setValue(0.0);
-        else
+        if(this->noSteering) {
+            if(this->m_steeringAngle.value()!=0) {
+                this->m_steeringAngle.setValue(0.0);
+                steeringAngleChanged = true;
+            }
+        } else
             QTimer::singleShot(10ms, this, &trixterxdreamv1bike::calculateSteeringMap);
 
         this->lastAppSettingsVersion = this->appSettings->get_version();
-    }
-
-    // update the heart rate
-    if(!this->noHeartRate)
-        this->Heart.setValue(state.HeartRate);
-
-    // Set the steering
-    bool steeringAngleChanged = false;
-    if(!this->noSteering) {
-        double newValue = this->steeringMap[state.Steering];
-        steeringAngleChanged = this->m_steeringAngle.value()!=newValue;
-        if(steeringAngleChanged)
-            this->m_steeringAngle.setValue(newValue);
     }
 
     // set the elapsed time
@@ -647,6 +715,13 @@ void trixterxdreamv1bike::update(const trixterxdreamv1client::state &state) {
 
     if(steeringAngleChanged)
         emit this->steeringAngleChanged(this->m_steeringAngle.value());
+
+    // get the current time
+    auto updateTime = getTime()-currentTime;
+
+    // Check the update was quick enough.
+    if(updateTime>UpdateMetricsInterval/4)
+        qDebug() << "WARNING: Update took too long: " << updateTime << "ms";
 }
 
 void trixterxdreamv1bike::calculateSteeringMap() {
@@ -687,7 +762,6 @@ void trixterxdreamv1bike::calculateSteeringMap() {
 
     QMutexLocker locker(&this->updateMutex);
     this->steeringMap=newMap;
-
 }
 
 void trixterxdreamv1bike::set_resistance(resistance_t resistanceLevel) {

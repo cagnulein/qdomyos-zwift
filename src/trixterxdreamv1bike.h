@@ -22,9 +22,14 @@ private:
     static double powerSurface[260][3];
 
     /**
-     * @brief A queue of states read from the client.
+     * @brief A queue of states read from the client. Syncronized but unprocessedStatesMutex.
      */
-    std::queue<trixterxdreamv1client::state> unprocessedStates;
+    std::queue<trixterxdreamv1client::state> unprocessedStates[2];
+
+    /**
+     * @brief The current unprocessed state queue. Syncronized but unprocessedStatesMutex.
+     */
+    uint32_t unprocessedStateIndex = 0;
 
     /**
      * @brief Mutex for accessing the unprocessedStates queue.
@@ -51,6 +56,11 @@ private:
      * @brief Indicates if the deice should be sent full resistance instead of the currently requested resistance.
      */
     bool stopping = false;
+
+    /**
+     * @brief Indicates if a power boost is being applied.
+     */
+    bool powerBoost = false;
 
     /**
      * @brief Sum of brakes 1 and 2 each normalised to 0..125.
@@ -156,12 +166,6 @@ private:
     void update();
 
     /**
-     * @brief Processes a single state.
-     * @param state The state from the client to process.
-     */
-    void update(const trixterxdreamv1client::state &state);
-
-    /**
      * @brief Gets the time in miliseconds since this object was created.
      */
     static uint32_t getTime();
@@ -198,6 +202,11 @@ private:
      */
     double calculatePower(int cadenceRPM, int resistance);
 
+    /**
+     * @brief Calculate resistance from current inclination and cadence.
+     * @return
+     */
+    resistance_t calculateResistanceFromInclination();
 
     /**
      * @brief Adjust the resistance based on whether the
@@ -215,6 +224,7 @@ private:
      * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
     void set_resistance(resistance_t resistanceLevel);
+
 
 protected:
 
