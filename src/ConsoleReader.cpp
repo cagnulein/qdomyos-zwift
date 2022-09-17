@@ -1,4 +1,5 @@
-#ifdef Q_OS_LINUX
+//#if defined(Q_OS_LINUX)
+#if 1
 #include "ConsoleReader.h"
 #include <stdio.h>
 #include <termios.h>
