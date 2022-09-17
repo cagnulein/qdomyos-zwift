@@ -4498,7 +4498,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
 
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
 
-        if (fabs(videoRate() - rate) > 0.1)
+        //if (fabs(videoRate() - rate) > 0.1)
             setVideoRate(rate);
 
     }
