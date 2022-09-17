@@ -141,24 +141,6 @@ double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
     return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
 }
 
-// Total distance moved from Beginning to x seconds
-double trainprogram::TotalDistanceAfterSecondsGPX(int seconds) {
-    int c = 0;
-    double totaldistance=0.0;
-    uint32_t calculatedElapsedTime = 0;
-
-    if (rows.length() == 0)
-        return 0.0;
-
-    for (c = 0; c < rows.length(); c++) {
-        if (QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)>seconds) {
-            return totaldistance;
-        }
-        totaldistance += (rows.at(c).distance);
-    }
-    return totaldistance;
-}
-
 double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed) {
     // no rows available, return 1
     if (rows.length() <= 0) {
@@ -172,6 +154,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
 
     // only for debug, this is the rate of the video vs the player for the whole ride
     double fullRate = gpxsecs / videosecs;
+
     bool loopFinished = false;
     double gpxdistance = 0.0;
     double videodistance = 0.0;
@@ -189,9 +172,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     else {
         lastsec = gpxsecs;
     }
-    // Add Timeframe to last needed Time
+    // Add the Timeframe to last needed Time
     lastsec += ((double)timeFrame);
-    // Loop through loops to collect needed Data
+    // Loop through gpx Rows to collect needed Data
     while (!loopFinished) {
         double cursecs = ((double)QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed));
         // Row is greater then needed Data, jump out
@@ -214,7 +197,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         // End of Rows reached
         if (c >= rows.length()) loopFinished = true;
     }
-    // If no videoframeend something goes totally wrong. Return 1
+    // If no videoframeend found something is totally wrong. Return 1
     if (videoframeend == 0) {
         qDebug() << "TimeRateFromGPX no Videoframe End"
                  << gpxsecs
@@ -230,13 +213,17 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
 
         return 1.0;
     }
+    // Calculate the average Speed of the Video Frame
     double avgVideoSpeed = (videoframedistance / (((double)(videoframeend-videoframestart+1)) / 3600.0));
     // Calculate the Videospeed to Playerspeed Rate
     double speedRate = (currentspeed / avgVideoSpeed);
     // Adjust gpxFramedistance to players Speed
     gpxframedistance = gpxframedistance * speedRate;
+    // Calculate the Rate for current gpx/video Position
     double videotimerate = ((((double)timeFrame)+gpxsecs-videosecs)/((double)timeFrame));
+    // calculate the Rate for the gpx Frame and Video Frame
     double framerate = (gpxframedistance / videoframedistance);
+    // Calculate overall Rate, 75% Videotime, 25% future Frame
     double rate = (videotimerate*0.75)+(framerate*0.25); //((videotimerate+framerate)/2.0);
 
     qDebug() << "TimeRateFromGPX" 
@@ -255,127 +242,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << framerate
              << rate
              << fullRate;
-
-
     return rate;
-    
-    /*
-    double gpxdistance = 0;
-    int c = 0;
-    int gpxpoint = -1;
-    int videopoint = -1;
-    bool loopfinished = false;
-    int firstpoint = 0;
-    int lastpoint = 0;
-    double videospeedframedistance = 0;
-    double gpxframedistance = 0;
-    double videoframedistance = 0;
-    double targetdistance = 0;
-    int framestartsec = 0;
-    int frameendsec = 0;
-    int targetsec = 0;
-    double avgVideoSpeed = 0;
-    // Calulate Distance for gpx and Video and identify the gpx Point where Video and gpx are currently (Video can differ from gpx!)
-    while (!loopfinished) {
-        int cursecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
-        if (cursecs <= gpxsecs) gpxdistance += (rows.at(c).distance);
-        if ((cursecs > gpxsecs) && (gpxpoint == -1)) gpxpoint = c;
-        if ((cursecs > videosecs) && (videopoint == -1)) videopoint = c;
-        c++;
-        // End of Rows reached
-        if (c >= rows.length()) loopfinished = true;
-        // Have needed Data, finish Loop
-        if ((gpxpoint != -1) && (videopoint != -1)) loopfinished = true;
-    }
-    // unable to identify Video gpx Point or current gpx Point. Should normaly not happen, but just make sure to return 1 in this case
-    if ((gpxpoint == -1) || (videopoint == -1) )
-    {
-        qDebug() << "TimeRateFromGPX unable to identify gpx Points"
-                 << gpxsecs
-                 << videosecs
-                 << gpxpoint
-                 << videopoint;
-
-        return 1.0;
-    }
-
-    // calculate avgVideoSpeed by taking a Window of gpx Points: gpxpoint-5 to gpxpoint+5. Intentionally use Points here. Times are not usable since there can be differences to 5 seconds or more between points
-    firstpoint = videopoint - 5;
-    lastpoint = videopoint + 5;
-    if (firstpoint < 0) firstpoint = 0;
-    if (lastpoint >= rows.length()) lastpoint = (rows.length() - 1);
-    framestartsec = QTime(0, 0, 0).secsTo(rows.at(firstpoint).gpxElapsed);
-    frameendsec = QTime(0, 0, 0).secsTo(rows.at(lastpoint).gpxElapsed);
-    for (c = firstpoint; c <= lastpoint; c++) {
-        videospeedframedistance += (rows.at(c).distance); 
-    }    
-    avgVideoSpeed = (((double)(videospeedframedistance)) / (((double)(frameendsec-framestartsec+1)) / 3600.0));
-
-    // Calculate Distance for gpxFrame
-    c = gpxpoint;
-    framestartsec = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
-    frameendsec = framestartsec + timeFrame;
-    loopfinished = false;
-    while (!loopfinished) {
-        gpxframedistance += (rows.at(c).distance);
-        c++;
-        if (c >=rows.length()) loopfinished = true;
-        else {
-            if (QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed) > frameendsec) loopfinished = true;
-        }
-    }
-    // Calculate the Videospeed to Playerspeed Rate
-    double speedRate = (currentspeed / avgVideoSpeed);
-    // Adjust gpxFramedistance to players Speed
-    gpxframedistance = gpxframedistance * speedRate;
-
-    // Calculate total distances after the Frame
-    double totalgpxdistance = gpxdistance + gpxframedistance;
-
-    // now look where the target distance is reached
-    c = gpxpoint;
-    targetdistance = gpxdistance;
-    targetsec = -1;
-    loopfinished = false;
-    while (!loopfinished) {
-        targetdistance += (rows.at(c).distance);
-        if (targetdistance >= totalgpxdistance) {
-            targetsec = (QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed));
-            loopfinished = true;
-        }
-        c++;
-        if (c >= rows.length()) loopfinished = true;
-    }
-    if (targetsec == -1) {
-        qDebug() << "TimeRateFromGPX targetsec not reachable" 
-                << gpxsecs
-                << videosecs
-                << timeFrame
-                << currentspeed
-                << avgVideoSpeed
-                << gpxdistance
-                << gpxframedistance
-                << videoframedistance;
-        return 1.0;
-    }
-
-    double rate = (((double)(targetsec))/(videosecs+((double)timeFrame)));
-
-    qDebug() << "TimeRateFromGPX" 
-             << gpxsecs
-             << videosecs
-             << timeFrame
-             << currentspeed
-             << avgVideoSpeed
-             << gpxdistance
-             << gpxframedistance
-             << videoframedistance
-             << targetsec
-             << rate
-             << fullRate;
-
-    return rate;
-    */
 }
 
 double trainprogram::avgInclinationNext100Meters() {
