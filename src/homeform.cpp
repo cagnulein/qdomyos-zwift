@@ -4482,6 +4482,7 @@ void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 void homeform::changeTimestamp(QTime source, QTime actual) {
     const double filterRate = 0.1;
     QSettings settings;
+    source = source.addSecs(20); // for testing
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
     QObject *rootObject = engine->rootObjects().constFirst();
