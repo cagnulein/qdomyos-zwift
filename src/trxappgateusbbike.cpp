@@ -218,6 +218,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             kcal = KCal.value();
     } else if (bike_type == TUNTURI) {
         speed = cadence * 0.37407407407407407407407407407407;
+        resistance = GetResistanceFromPacket(newValue);
         watt = GetWattFromPacket(newValue);
         if (watt)
             kcal = KCal.value() + ((((0.048 * ((double)watts()) + 1.19) *
@@ -418,15 +419,9 @@ double trxappgateusbbike::GetWattFromPacketFytter(const QByteArray &packet) {
 
 double trxappgateusbbike::GetWattFromPacket(const QByteArray &packet) {
 
-    if (bike_type == TUNTURI) {
-        uint16_t convertedData = ((packet.at(8) - 1) * 100) + (packet.at(9) - 1);
-        double data = ((double)(convertedData));
-        return data;
-    } else {
-        uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
-        double data = ((double)(convertedData)) / 10.0f;
-        return data;
-    }
+    uint16_t convertedData = ((packet.at(16) - 1) * 100) + (packet.at(17) - 1);
+    double data = ((double)(convertedData)) / 10.0f;
+    return data;
 }
 
 double trxappgateusbbike::GetCadenceFromPacket(const QByteArray &packet) {
