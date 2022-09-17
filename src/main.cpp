@@ -517,8 +517,10 @@ int main(int argc, char *argv[]) {
 
 #ifdef Q_OS_ANDROID
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Android"));
-#else
+#elif defined(Q_OS_IOS)
         engine.rootContext()->setContextProperty("OS_VERSION", QVariant("iOS"));
+#else
+        engine.rootContext()->setContextProperty("OS_VERSION", QVariant("Other"));
 #endif
 #ifdef CHARTJS
         engine.rootContext()->setContextProperty("CHARTJS", QVariant(true));

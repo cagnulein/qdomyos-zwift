@@ -227,22 +227,22 @@ void bluetooth::startDiscovery() {
 
     this->discovering = true;
 
-    #ifndef Q_OS_IOS
-        QSettings settings;
-        bool technogym_myrun_treadmill_experimental =
-            settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
-        bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
-        bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
+#ifndef Q_OS_IOS
+    QSettings settings;
+    bool technogym_myrun_treadmill_experimental =
+        settings.value(QStringLiteral("technogym_myrun_treadmill_experimental"), false).toBool();
+    bool trx_route_key = settings.value(QStringLiteral("trx_route_key"), false).toBool();
+    bool bh_spada_2 = settings.value(QStringLiteral("bh_spada_2"), false).toBool();
 
-        if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental) {
-    #endif
-            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-    #ifndef Q_OS_IOS
-        } else {
-            discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
-                                  QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
-        }
-    #endif
+    if (!trx_route_key && !bh_spada_2 && !technogym_myrun_treadmill_experimental) {
+#endif
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+#ifndef Q_OS_IOS
+    } else {
+        discoveryAgent->start(QBluetoothDeviceDiscoveryAgent::ClassicMethod |
+                              QBluetoothDeviceDiscoveryAgent::LowEnergyMethod);
+    }
+#endif
 
 
     QTimer::singleShot(1, this, &bluetooth::nonBluetoothDeviceDiscovery);
@@ -577,7 +577,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(fakeElliptical);
                 innerTemplateManager->start(fakeElliptical);
             } else if (fakedevice_treadmill && !fakeTreadmill) {
-                discoveryAgent->stop();
+                this->stopDiscovery();
                 fakeTreadmill = new faketreadmill(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
                 connect(fakeTreadmill, &bluetoothdevice::connectedAndDiscovered, this,
@@ -1192,7 +1192,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(npeCableBike);
                 innerTemplateManager->start(npeCableBike);
             } else if (((b.name().startsWith("FS-") && hammerRacerS) ||
-                        (b.name().toUpper().startsWith("MKSM")) || // MKSM3600036
+                        (b.name().toUpper().startsWith("MKSM")) ||   // MKSM3600036
+                        (b.name().toUpper().startsWith("YS_C1_")) || // Yesoul C1H
                         (b.name().toUpper().startsWith("WAHOO KICKR")) || (b.name().toUpper().startsWith("B94")) ||
                         (b.name().toUpper().startsWith("STAGES BIKE")) || (b.name().toUpper().startsWith("SUITO")) ||
                         (b.name().toUpper().startsWith("D2RIDE")) || (b.name().toUpper().startsWith("DIRETO XR")) ||
@@ -1207,7 +1208,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 ftmsBike->deviceDiscovered(b);
                 userTemplateManager->start(ftmsBike);
                 innerTemplateManager->start(ftmsBike);
-            } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE")) &&
+            } else if ((b.name().toUpper().startsWith("KICKR SNAP") || b.name().toUpper().startsWith("KICKR BIKE") ||
+                        b.name().toUpper().startsWith("KICKR ROLLR")) &&
                        !wahooKickrSnapBike && filter) {
                 this->stopDiscovery();
                 wahooKickrSnapBike =
@@ -2074,6 +2076,7 @@ void bluetooth::restart() {
     QSettings settings;
 
     if (onlyDiscover) {
+
         onlyDiscover = false;
         this->startDiscovery();
         return;

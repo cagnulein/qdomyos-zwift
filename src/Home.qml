@@ -249,6 +249,7 @@ HomeForm{
 
         footer:
             Rectangle {
+                objectName: "footerrectangle"
                 visible: showVideo
                 anchors.top: gridView.bottom
                 width: parent.width
@@ -280,6 +281,7 @@ HomeForm{
 
                 MediaPlayer {
                        id: videoPlaybackHalf
+                       objectName: "videoplaybackhalf"
                        autoPlay: false
                        playbackRate: rootItem.videoRate
 
