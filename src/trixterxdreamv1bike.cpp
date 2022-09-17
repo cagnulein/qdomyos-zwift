@@ -642,7 +642,8 @@ void trixterxdreamv1bike::update() {
     this->stopping = (state.Buttons & trixterxdreamv1client::buttons::Red) != 0;
 
     // Determine if the user is pressing the left (front) gear up button, for a power boost.
-    this->powerBoost = (state.Buttons & trixterxdreamv1client::buttons::FrontGearUp) != 0;
+    //this->powerBoost = (state.Buttons & trixterxdreamv1client::buttons::FrontGearUp) != 0;
+    this->powerBoost = false;
 
     // update the metrics
     if(!this->noHeartRate)
