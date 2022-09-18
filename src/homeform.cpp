@@ -4493,10 +4493,15 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
 
     if (trainProgram) {
+        double trainProgramPosition = ((double)(QTime(0, 0, 0).secsTo(source))); 
+        double trainProgramLengthSeconds = ((double)(QTime(0, 0, 0).secsTo(trainProgram->duration())));
+        if (videoLengthSeconds > trainProgramLengthSeconds) {
+            trainProgramPosition = (trainProgramPosition + videoLengthSeconds - trainProgramLengthSeconds);
+        }
         // get the new Videorate 
-        double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).secsTo(source)), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
+        double rate = trainProgram->TimeRateFromGPX(trainProgramPosition, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
         // this is used by the videoComponent only when the video must be loaded for the first time
-        setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+        setVideoPosition((int)(trainProgramPosition * 1000));
         setVideoRate(rate);
     }
 }
