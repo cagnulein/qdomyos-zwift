@@ -104,6 +104,7 @@ class trxappgateusbbike : public bike {
         HERTZ_XR_770_2 = 14,
         VIRTUFIT_2 = 15,
         TUNTURI = 16,
+        TUNTURI_2 = 17,
     } TYPE;
     TYPE bike_type = TRXAPPGATE;
 
