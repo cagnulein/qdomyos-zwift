@@ -14,6 +14,10 @@
 
 using namespace std::chrono_literals;
 
+#ifdef Q_OS_IOS
+extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
+#endif
+
 trxappgateusbbike::trxappgateusbbike(bool noWriteResistance, bool noHeartService, uint8_t bikeResistanceOffset,
                                      double bikeResistanceGain) {
     m_watt.setType(metric::METRIC_WATT);
@@ -902,6 +906,9 @@ void trxappgateusbbike::serviceScanDone(void) {
         if (!found) {
             bike_type = TUNTURI_2;
             uuid = uuid3;
+#ifdef Q_OS_IOS
+            QZ_EnableDiscoveryCharsAndDescripttors = true;
+#endif
         }
     }
 
