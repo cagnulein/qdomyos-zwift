@@ -4485,23 +4485,29 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     //source = source.addSecs(20); // for testing
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
 
-    QObject *rootObject = engine->rootObjects().constFirst();
-    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
-    auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
-
-    double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
-    double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
 
     if (trainProgram) {
-        double trainProgramPosition = ((double)(QTime(0, 0, 0).secsTo(source))); 
-        double trainProgramLengthSeconds = ((double)(QTime(0, 0, 0).secsTo(trainProgram->duration())));
-        if (videoLengthSeconds > trainProgramLengthSeconds) {
-            trainProgramPosition = (trainProgramPosition + videoLengthSeconds - trainProgramLengthSeconds);
+        QObject *rootObject = engine->rootObjects().constFirst();
+        auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+        auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+        double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
+        // only needed if Video is currently not displayed (Timestamp=0)
+        if (videoTimeStampSeconds = 0.0) {
+            double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
+            double trainProgramPosition = ((double)(QTime(0, 0, 0).secsTo(source))); 
+            double trainProgramLengthSeconds = ((double)(QTime(0, 0, 0).secsTo(trainProgram->duration())));
+            if (videoLengthSeconds > trainProgramLengthSeconds) {
+                trainProgramPosition = (trainProgramPosition + videoLengthSeconds - trainProgramLengthSeconds);
+            }
+            qDebug() << "Start Video" 
+                    << trainProgramLengthSeconds
+                    << videoLengthSeconds
+                    << trainProgramPosition;
+            setVideoPosition((int)(trainProgramPosition * 1000));
         }
         // get the new Videorate 
-        double rate = trainProgram->TimeRateFromGPX(trainProgramPosition, videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
+        double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).secsTo(source)), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
         // this is used by the videoComponent only when the video must be loaded for the first time
-        setVideoPosition((int)(trainProgramPosition * 1000));
         setVideoRate(rate);
     }
 }
