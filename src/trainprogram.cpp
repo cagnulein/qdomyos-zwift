@@ -221,6 +221,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     gpxframedistance = gpxframedistance * speedRate;
     // Calculate the Rate for current gpx/video Position
     double videotimerate = ((((double)timeFrame)+gpxsecs-videosecs)/((double)timeFrame));
+
+    // Never let the Video running back :-)
+    if (videotimerate<0.0) {
+        videotimerate = 0.01;
+    }
     // calculate the Rate for the gpx Frame and Video Frame
     double framerate = (gpxframedistance / videoframedistance);
     // Calculate overall Rate, 75% Videotime, 25% future Frame
