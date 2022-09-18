@@ -141,6 +141,12 @@ double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
     return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
 }
 
+int trainprogram::TotalGPXSecs() {
+    if (rows.length() == 0)
+        return QTime(0, 0, 0);
+    return (QTime(0, 0, 0).secsTo(rows.at(rows.length()-1).gpxElapsed));
+}
+
 double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed) {
     // no rows available, return 1
     if (rows.length() <= 0) {
