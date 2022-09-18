@@ -4504,6 +4504,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                     << videoLengthSeconds
                     << trainProgramPosition;
             setVideoPosition((int)(trainProgramPosition * 1000));
+            videoTimeStampSeconds = trainProgramPosition;
         }
         // get the new Videorate 
         double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).secsTo(source)), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
