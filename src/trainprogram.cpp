@@ -226,10 +226,10 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     playedgpxdistance = playedgpxdistance + gpxdistance - videodistance;
     // Calculate rate beween Videoframedistance and played distance
     double rate = (playedgpxdistance / videoframedistance);
+    /*
     // and make the rates slightly higher
     if (rate>1.0) rate = rate * 1.05;
     else rate = rate * 0.95;
-    /*
     if ((fabs(videodiff))>1.0) {
         if (videodiff>1.0) rate = rate + (videodiff / 2.0);
         else {
