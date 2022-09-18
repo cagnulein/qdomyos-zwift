@@ -144,7 +144,7 @@ double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
 int trainprogram::TotalGPXSecs() {
     if (rows.length() == 0)
         return 0;
-    return (rows.at(rows.length()-1).gpxElapsed);
+    return QTime(0, 0, 0).secsTo(rows.at(rows.length()-1).gpxElapsed);
 }
 
 double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed) {
