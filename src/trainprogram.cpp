@@ -228,6 +228,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double videopos = videodistance+videoframedistance;
     // now calculate the needed Rate
     double rate = (playerpos / videopos);
+    if (rate>1.0) rate = rate * 1.1;
+    else rate = rate * 0.9;
+    /*
     if ((fabs(videodiff))>1.0) {
         if (videodiff>1.0) rate = rate + (videodiff / 2.0);
         else {
@@ -235,6 +238,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
             if (rate < 0) rate=0;
         }  
     }
+    */
 
     qDebug() << "TimeRateFromGPX" 
              << gpxsecs
