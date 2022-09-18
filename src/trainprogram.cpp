@@ -217,7 +217,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         return 1.0;
     }
     // Calculate the average Speed of the gpx Frame
-    double avgVideoSpeed = (videoframedistance / (((double)(frameendsecs-framestartsecs+1)) / 3600.0));
+    double avgVideoSpeed = (gpxframedistance / (((double)(frameendsecs-framestartsecs+1)) / 3600.0));
     // Calculate the Videospeed to Playerspeed Rate
     double speedRate = (currentspeed / avgVideoSpeed);
     // Calculate what the played gpx Distance will be assuming player speed doesn't change
