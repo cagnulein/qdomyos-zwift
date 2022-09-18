@@ -222,14 +222,13 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double speedRate = (currentspeed / avgVideoSpeed);
     // Calculate what the played gpx Distance will be assuming player speed doesn't change
     double playedgpxdistance = gpxframedistance * speedRate;
-    // Calculate where the Video should be after the Frame (current Video Pos+future played distance)
-    double playerpos = videodistance + playedgpxdistance;
-    // Calculate where the Video will be after the Frame (current Video Pos+videoFrame)
-    double videopos = videodistance+videoframedistance;
-    // now calculate the needed Rate
-    double rate = (playerpos / videopos);
-    if (rate>1.0) rate = rate * 1.1;
-    else rate = rate * 0.9;
+    // add the current video/player difference to the playedgpxdistance
+    playedgpxdistance = playedgpxdistance + gpxdistance - videodistance;
+    // Calculate rate beween Videoframedistance and played distance
+    double rate = (playedgpxdistance / videoframedistance);
+    // and make the rates slightly higher
+    if (rate>1.0) rate = rate * 1.05;
+    else rate = rate * 0.95;
     /*
     if ((fabs(videodiff))>1.0) {
         if (videodiff>1.0) rate = rate + (videodiff / 2.0);
@@ -254,8 +253,6 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << framestartsecs
              << frameendsecs
              << playedgpxdistance
-             << videopos
-             << playerpos
              << rate;
     return rate;
     /*
