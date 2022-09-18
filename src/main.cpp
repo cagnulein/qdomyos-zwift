@@ -260,10 +260,11 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         outFile.open(QIODevice::WriteOnly | QIODevice::Append);
         QTextStream ts(&outFile);
         ts << txt;
-
-        fprintf(stderr, "%s", txt.toLocal8Bit().constData());
+        // Commented for Windows Debug
+        //fprintf(stderr, "%s", txt.toLocal8Bit().constData());
     }
-    (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
+    // Commented for Windows Debug
+    //(*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
 int main(int argc, char *argv[]) {
