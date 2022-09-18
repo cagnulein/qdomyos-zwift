@@ -4492,7 +4492,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
         double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
         // only needed if Video is currently not displayed (Timestamp=0)
-        if (videoTimeStampSeconds = 0.0) {
+        if (videoTimeStampSeconds == 0.0) {
             double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
             double trainProgramPosition = ((double)(QTime(0, 0, 0).secsTo(source))); 
             double trainProgramLengthSeconds = ((double)(QTime(0, 0, 0).secsTo(trainProgram->duration())));
