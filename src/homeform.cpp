@@ -4490,6 +4490,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
 
     double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
+    double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
 
     if (trainProgram) {
         // get the new Videorate 
