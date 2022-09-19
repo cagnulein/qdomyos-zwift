@@ -261,10 +261,10 @@ void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QS
         QTextStream ts(&outFile);
         ts << txt;
         // Commented for Windows Debug
-        fprintf(stderr, "%s", txt.toLocal8Bit().constData());
+        //fprintf(stderr, "%s", txt.toLocal8Bit().constData());
     }
     // Commented for Windows Debug
-    (*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
+    //(*QT_DEFAULT_MESSAGE_HANDLER)(type, context, msg);
 }
 
 int main(int argc, char *argv[]) {
