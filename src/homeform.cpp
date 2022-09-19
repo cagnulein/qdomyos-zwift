@@ -4493,11 +4493,11 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
         // only needed if Video is currently not displayed (Timestamp=0)
         if (videoTimeStampSeconds == 0.0) {
-            setVideoPosition(0);
+            // setVideoPosition(0); //test only
             double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
             double trainProgramPosition = ((double)(QTime(0, 0, 0).secsTo(source))); 
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
-            if (videoLengthSeconds > trainProgramLengthSeconds) {
+            if ( (videoLengthSeconds > trainProgramLengthSeconds) && (videoLengthSeconds !=0.0) ) {
                 trainProgramPosition = (trainProgramPosition + videoLengthSeconds - trainProgramLengthSeconds);
             }
             qDebug() << "Start Video" 
