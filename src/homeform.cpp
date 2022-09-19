@@ -4485,7 +4485,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     //source = source.addSecs(20); // for testing
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
     // only needed if a gpx is loaded and the video is visible, otherwise do nothing.
-    if ( (trainProgram) && (videoVisible) ) {
+    if ( (trainProgram) && (videoVisible()) ) {
         QObject *rootObject = engine->rootObjects().constFirst();
         auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
