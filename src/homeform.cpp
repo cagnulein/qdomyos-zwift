@@ -4484,7 +4484,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     QSettings settings;
     //source = source.addSecs(20); // for testing
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
-    if (trainProgram) {
+    // only needed if a gpx is loaded and the video is visible, otherwise do nothing.
+    if ( (trainProgram) && (videoVisible) ) {
         QObject *rootObject = engine->rootObjects().constFirst();
         auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
@@ -4504,12 +4505,13 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             if ((videoLengthSeconds > trainProgramLengthSeconds) && (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds))) {
                 //Stop the Video
                 double trainProgramPosition = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
-                setVideoPosition((int)(trainProgramPosition * 1000.0));
-                videoTimeStampSeconds = trainProgramPosition;
                 qDebug() << "Restart Video at correct Position" 
+                        << videoTimeStampSeconds
                         << trainProgramLengthSeconds
                         << videoLengthSeconds
                         << trainProgramPosition;                
+                setVideoPosition((int)(trainProgramPosition * 1000.0));
+                videoTimeStampSeconds = trainProgramPosition;
             }
         }
         // get the new Videorate 
