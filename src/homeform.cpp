@@ -4484,28 +4484,33 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
     QSettings settings;
     //source = source.addSecs(20); // for testing
     int filterSeconds = settings.value(QStringLiteral("video_playback_window_s"), 12).toInt();
-
-
     if (trainProgram) {
         QObject *rootObject = engine->rootObjects().constFirst();
         auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
         double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
-        // only needed if Video is currently not displayed (Timestamp=0)
+        // Start the Video
         if (videoTimeStampSeconds == 0.0) {
-            // setVideoPosition(0); //test only
-            double videoLengthSeconds = (double)videoPlaybackHalfPlayer->duration() / 1000.0;
-            double trainProgramPosition = ((double)(QTime(0, 0, 0).secsTo(source))); 
-            double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
-            if ( (videoLengthSeconds > trainProgramLengthSeconds) && (videoLengthSeconds !=0.0) ) {
-                trainProgramPosition = (trainProgramPosition + videoLengthSeconds - trainProgramLengthSeconds);
-            }
+            setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
             qDebug() << "Start Video" 
-                    << trainProgramLengthSeconds
-                    << videoLengthSeconds
-                    << trainProgramPosition;
-            setVideoPosition((int)(trainProgramPosition * 1000));
-            videoTimeStampSeconds = trainProgramPosition;
+                     << QTime(0, 0, 0).secsTo(source);
+            // Init Videotimestamp at started Pos
+            videoTimeStampSeconds = ((double)(QTime(0, 0, 0).secsTo(source)));
+        }
+        // Check for time differences between Video and gpx Data
+        if (videoTimeStampSeconds > 1.0) {
+            double videoLengthSeconds = ((double)(videoPlaybackHalfPlayer->duration() / 1000.0));
+            double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
+            if ((videoLengthSeconds > trainProgramLengthSeconds) && (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds))) {
+                //Stop the Video
+                double trainProgramPosition = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
+                setVideoPosition((int)(trainProgramPosition * 1000.0));
+                videoTimeStampSeconds = trainProgramPosition;
+                qDebug() << "Restart Video at correct Position" 
+                        << trainProgramLengthSeconds
+                        << videoLengthSeconds
+                        << trainProgramPosition;                
+            }
         }
         // get the new Videorate 
         double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).secsTo(source)), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
