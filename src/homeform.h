@@ -363,7 +363,8 @@ class homeform : public QObject {
     }
     void setLicensePopupVisible(bool value);
     void setVideoVisible(bool value);
-    void setVideoPosition(int position);
+    void setVideoPosition(int position); // on startup
+    void videoSeekPosition(int ms);      // in realtime
     void setVideoRate(double rate);
     void setMapsVisible(bool value);
     void setGeneralPopupVisible(bool value);

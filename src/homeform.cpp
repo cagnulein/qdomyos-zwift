@@ -4520,3 +4520,10 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         setVideoRate(rate);
     }
 }
+
+void homeform::videoSeekPosition(int ms) {
+    QObject *rootObject = engine->rootObjects().constFirst();
+    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+    auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+    videoPlaybackHalfPlayer->setPosition(ms);
+}
