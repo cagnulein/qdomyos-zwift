@@ -4490,33 +4490,60 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
         auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
         double videoTimeStampSeconds = (double)videoPlaybackHalfPlayer->position() / 1000.0;
-        // Start the Video
-        if (videoTimeStampSeconds == 0.0) {
-            setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
-            qDebug() << "Start Video" 
-                     << QTime(0, 0, 0).secsTo(source);
-            // Init Videotimestamp at started Pos
-            videoTimeStampSeconds = ((double)(QTime(0, 0, 0).secsTo(source)));
-        }
         // Check for time differences between Video and gpx Data
         if (videoTimeStampSeconds > 1.0) {
+            bool videoTimeStampCorrected = false;
             double videoLengthSeconds = ((double)(videoPlaybackHalfPlayer->duration() / 1000.0));
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
-            if ((videoLengthSeconds > trainProgramLengthSeconds) && (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds))) {
-                //Stop the Video
-                double trainProgramPosition = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
-                qDebug() << "Restart Video at correct Position" 
-                        << videoTimeStampSeconds
-                        << trainProgramLengthSeconds
-                        << videoLengthSeconds
-                        << trainProgramPosition;                
-                setVideoPosition((int)(trainProgramPosition * 1000.0));
-                videoTimeStampSeconds = trainProgramPosition;
+            // check if there is a difference >= 1 second
+            if ((fabs(videoLengthSeconds - trainProgramLengthSeconds))>=1.0) {
+                // Check if Video is longer then gpx and Video is before the gpx Start Position: If yes, set the Video to the correct starting Point
+                if ((videoLengthSeconds > trainProgramLengthSeconds) && (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds))) {
+                    double videoStartingSeconds = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
+                    qDebug() << "Reset Video to correct Position" 
+                            << videoTimeStampSeconds
+                            << trainProgramLengthSeconds
+                            << videoLengthSeconds
+                            << videoStartingSeconds;                
+                    videoSeekPosition((int)(videoStartingSeconds * 1000.0));
+                    // Init Video Timestamp to gpx Timestamp
+                    videoTimeStampSeconds = ((double)QTime(0, 0, 0).secsTo(source));
+                    videoTimeStampCorrected = true;
+                }
+                // Check if Video is shorter then gpx and gpxPos is before possible Video start
+                if ( (videoLengthSeconds < trainProgramLengthSeconds) && (((double)(QTime(0, 0, 0).secsTo(source))) < (trainProgramLengthSeconds - videoLengthSeconds)) ) {
+                    qDebug() << "Set Video playbackrate to 0.01 to wait for the gpx";
+                    setVideoRate(0.01);
+                    // this is used by the videoComponent only when the video must be loaded for the first time
+                    setVideoPosition(0);
+                    return;
+                }
+
+                // correct Video TimeStamp by difference if not already corrected
+                if (videoTimeStampCorrected == false) 
+                    videoTimeStampSeconds = (videoTimeStampSeconds - videoLengthSeconds + trainProgramLengthSeconds);
+
+                // this is used by the videoComponent only when the video must be loaded for the first time
+                setVideoPosition((QTime(0, 0, 0).secsTo(source) +(((int)videoLengthSeconds)-((int)trainProgramLengthSeconds))) * 1000);
             }
         }
-        // get the new Videorate 
+        else {
+            // this is used by the videoComponent only when the video must be loaded for the first time
+            setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
+        }
+        // If videoTimeStamp is 0 init with gpx Timestamp to make sure first Cycle is done correctly
+        if (videoTimeStampSeconds == 0.0) {
+            videoTimeStampSeconds = ((double)(QTime(0, 0, 0).secsTo(source)));
+        }
+        // calculate and set the new Video Rate
         double rate = trainProgram->TimeRateFromGPX(((double)QTime(0, 0, 0).secsTo(source)), videoTimeStampSeconds, filterSeconds, bluetoothManager->device()->currentSpeed().average5s());
-        // this is used by the videoComponent only when the video must be loaded for the first time
         setVideoRate(rate);
     }
+}
+
+void homeform::videoSeekPosition(int ms) {
+    QObject *rootObject = engine->rootObjects().constFirst();
+    auto *videoPlaybackHalf = rootObject->findChild<QObject *>(QStringLiteral("videoplaybackhalf"));
+    auto videoPlaybackHalfPlayer = qvariant_cast<QMediaPlayer *>(videoPlaybackHalf->property("mediaObject"));
+    videoPlaybackHalfPlayer->setPosition(ms);
 }
