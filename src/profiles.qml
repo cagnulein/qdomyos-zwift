@@ -137,7 +137,6 @@ ColumnLayout {
                                 if (index == list.currentIndex) {
                                     let fileUrl = folderModel.get(list.currentIndex, 'fileUrl') || folderModel.get(list.currentIndex, 'fileURL');
                                     if (fileUrl) {
-                                        saveProfile(profileNameTextField.text);
                                         loadSettings(fileUrl);
                                         quitDialog.visible = true
                                     }
