@@ -4515,7 +4515,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
 
                 // correct Video TimeStamp by difference if not already corrected
                 if (videoTimeStampCorrected == false) 
-                    videoTimeStampSeconds = (videoTimeStampSeconds + videoLengthSeconds - trainProgramLengthSeconds);
+                    videoTimeStampSeconds = (videoTimeStampSeconds - videoLengthSeconds + trainProgramLengthSeconds);
             }
         }
         // If videoTimeStamp is 0 init with gpx Timestamp to make sure first Cycle is done correctly
