@@ -163,14 +163,17 @@ void horizontreadmill::btinit() {
     else if (nickname.length() == 0)
         nickname = "user";
     username[0] = nickname.toLocal8Bit();
-    for (int i = 0; i < 10; i++) {
-        initData7[11 + i] = username[0].at(i);
-        initData7_1[11 + i] = username[0].at(i);
-        initData7_2[11 + i] = username[0].at(i);
-        initData7_3[11 + i] = username[0].at(i);
-        initData7_4[11 + i] = username[0].at(i);
-        initData7_5[11 + i] = username[0].at(i);
-        initData7_6[11 + i] = username[0].at(i);
+    for (int i = 0; i < 9; i++) {
+        uint8_t Char = username[0].at(i);
+        if(nickname.length() <= i)
+            Char = 0;
+        initData7[11 + i] = Char;
+        initData7_1[11 + i] = Char;
+        initData7_2[11 + i] = Char;
+        initData7_3[11 + i] = Char;
+        initData7_4[11 + i] = Char;
+        initData7_5[11 + i] = Char;
+        initData7_6[11 + i] = Char;
     }
 
     if (gattCustomService) {
