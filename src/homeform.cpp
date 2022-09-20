@@ -4499,8 +4499,8 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
             // check if there is a difference >= 1 second
             if ((fabs(videoLengthSeconds - trainProgramLengthSeconds))>=1.0) {
-                // Check if Video is before the gpx Start Position: If yes, set the Video to the correct starting Point
-                if (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds)) {
+                // Check if Video is longer then gpx and Video is before the gpx Start Position: If yes, set the Video to the correct starting Point
+                if ((videoLengthSeconds > trainProgramLengthSeconds) && (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds))) {
                     double videoStartingSeconds = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
                     qDebug() << "Reset Video to correct Position" 
                             << videoTimeStampSeconds
@@ -4512,9 +4512,9 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                     videoTimeStampSeconds = ((double)QTime(0, 0, 0).secsTo(source));
                     videoTimeStampCorrected = true;
                 }
-                // Video is already at a later Time, set to the beginning
-                else {
-                    qDebug() << "Set very slow playback to wait for gpx";
+                // Check if Video is shorter then gpx and gpxPos is before possible Video start
+                if ( (videoLengthSeconds < trainProgramLengthSeconds) && (((double)(QTime(0, 0, 0).secsTo(source))) < (trainProgramLengthSeconds - videoLengthSeconds)) ) {
+                    qDebug() << "Set Video playbackrate to 0.01 to wait for the gpx";
                     setVideoRate(0.01);
                     return;
                 }
