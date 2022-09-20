@@ -4498,7 +4498,7 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
             double videoLengthSeconds = ((double)(videoPlaybackHalfPlayer->duration() / 1000.0));
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
             // check if there is a difference >= 1 second
-            if ((fabs(videoLengthSeconds - trainProgramLengthSeonds))>=1.0) {
+            if ((fabs(videoLengthSeconds - trainProgramLengthSeconds))>=1.0) {
                 // Check if Video is before the gpx Start Position: If yes, set the Video to the correct starting Point
                 if (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds)) {
                     double videoStartingSeconds = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
