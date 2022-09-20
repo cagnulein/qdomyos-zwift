@@ -4494,18 +4494,28 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
         setVideoPosition(QTime(0, 0, 0).secsTo(source) * 1000);
         // Check for time differences between Video and gpx Data
         if (videoTimeStampSeconds > 1.0) {
+            bool videoTimeStampCorrected = false;
             double videoLengthSeconds = ((double)(videoPlaybackHalfPlayer->duration() / 1000.0));
             double trainProgramLengthSeconds = ((double)(trainProgram->TotalGPXSecs()));
-            // Check if there is a difference and if Video Position is before the gpx Start Position: If yes, set the Video to the correct starting Point
-            if ((videoLengthSeconds > trainProgramLengthSeconds) && (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds))) {
-                double trainProgramPosition = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
-                qDebug() << "Reset Video to correct Position" 
-                        << videoTimeStampSeconds
-                        << trainProgramLengthSeconds
-                        << videoLengthSeconds
-                        << trainProgramPosition;                
-                videoSeekPosition((int)(trainProgramPosition * 1000.0));
-                videoTimeStampSeconds = trainProgramPosition;
+            // check if there is a difference >= 1 second
+            if ((fabs(videoLengthSeconds - trainProgramLengthSeonds))>=1.0) {
+                // Check if Video is before the gpx Start Position: If yes, set the Video to the correct starting Point
+                if (videoTimeStampSeconds < (videoLengthSeconds - trainProgramLengthSeconds)) {
+                    double videoStartingSeconds = (((double)QTime(0, 0, 0).secsTo(source)) + (videoLengthSeconds - trainProgramLengthSeconds));
+                    qDebug() << "Reset Video to correct Position" 
+                            << videoTimeStampSeconds
+                            << trainProgramLengthSeconds
+                            << videoLengthSeconds
+                            << videoStartingSeconds;                
+                    videoSeekPosition((int)(videoStartingSeconds * 1000.0));
+                    // Init Video Timestamp to gpx Timestamp
+                    videoTimeStampSeconds = ((double)QTime(0, 0, 0).secsTo(source));
+                    videoTimeStampCorrected = true;
+                }
+
+                // correct Video TimeStamp by difference if not already corrected
+                if (videoTimeStampCorrected == false) 
+                    videoTimeStampSeconds = (videoTimeStampSeconds + videoLengthSeconds - trainProgramLengthSeconds);
             }
         }
         // If videoTimeStamp is 0 init with gpx Timestamp to make sure first Cycle is done correctly
