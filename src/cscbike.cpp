@@ -168,7 +168,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
-    if (characteristic.uuid() != QBluetoothUuid((quint16)0x2A19)) {
+    if (characteristic.uuid() == QBluetoothUuid((quint16)0x2A19)) {
         battery = newValue.at(0);
         qDebug() << QStringLiteral("battery: ") << battery;
         return;
