@@ -4512,6 +4512,14 @@ void homeform::changeTimestamp(QTime source, QTime actual) {
                     videoTimeStampSeconds = ((double)QTime(0, 0, 0).secsTo(source));
                     videoTimeStampCorrected = true;
                 }
+                // Video is already at a later Time, set to the beginning
+                else {
+                    qDebug() << "Reset Video to 0";
+                    videoSeekPosition((int)(0));
+                    // Init Video Timestamp to gpx Timestamp
+                    videoTimeStampSeconds = ((double)QTime(0, 0, 0).secsTo(source));
+                    videoTimeStampCorrected = true;                    
+                }
 
                 // correct Video TimeStamp by difference if not already corrected
                 if (videoTimeStampCorrected == false) 
