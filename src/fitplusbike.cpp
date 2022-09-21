@@ -269,7 +269,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                 Cadence = ((uint8_t)newValue.at(6));
             m_watt = (double)((((uint8_t)newValue.at(4)) << 8) | ((uint8_t)newValue.at(3))) / 10.0;
 
-            /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool())
+            /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool())
                 Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
             else*/
             Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
