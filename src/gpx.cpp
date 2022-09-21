@@ -9,7 +9,7 @@ gpx::gpx(QObject *parent) : QObject(parent) {}
 
 QList<gpx_altitude_point_for_treadmill> gpx::open(const QString &gpx) {
     QSettings settings;
-    bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
+    bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed /* false */).toBool();
     QFile input(gpx);
     input.open(QIODevice::ReadOnly);
     QDomDocument doc;

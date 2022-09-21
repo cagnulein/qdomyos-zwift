@@ -5,7 +5,7 @@
 KeepAwakeHelper::KeepAwakeHelper() {
     QSettings settings;
     ant = 0;
-    bool wake = settings.value("android_wakelock", true).toBool();
+    bool wake = settings.value(QZSettings::android_wakelock, QZSettings::default_android_wakelock /* true */).toBool();
     if (!wake) {
         return;
     }
@@ -86,7 +86,7 @@ KeepAwakeHelper::~KeepAwakeHelper() {
         m_wakeLock.callMethod<void>("release", "()V");
 
         QSettings settings;
-        if ((settings.value("ant_cadence", false).toBool() || settings.value("ant_heart", false).toBool()) &&
+        if ((settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool() || settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool()) &&
             KeepAwakeHelper::antObject(false))
             KeepAwakeHelper::antObject(false)->callMethod<void>("doUnbindChannelService", "()V");
 

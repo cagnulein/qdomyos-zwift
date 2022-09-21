@@ -16,27 +16,27 @@ void metric::setValue(double v, bool applyGainAndOffset) {
     if (applyGainAndOffset) {
         if (m_type == METRIC_WATT) {
             if (v > 0) {
-                if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() <= 2.00) {
-                    if (settings.value(QStringLiteral("watt_gain"), 1.0).toDouble() != 1.0) {
+                if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble() <= 2.00) {
+                    if (settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble() != 1.0) {
                         qDebug() << QStringLiteral("watt value was ") << v
                                  << QStringLiteral("but it will be transformed to")
-                                 << v * settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+                                 << v * settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
                     }
-                    v *= settings.value(QStringLiteral("watt_gain"), 1.0).toDouble();
+                    v *= settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
                 }
-                if (settings.value(QStringLiteral("watt_offset"), 0.0).toDouble() < 0) {
-                    if (settings.value(QStringLiteral("watt_offset"), 0.0).toDouble() != 0.0) {
+                if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble() < 0) {
+                    if (settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble() != 0.0) {
                         qDebug() << QStringLiteral("watt value was ") << v
                                  << QStringLiteral("but it will be transformed to")
-                                 << v + settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+                                 << v + settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
                     }
-                    v += settings.value(QStringLiteral("watt_offset"), 0.0).toDouble();
+                    v += settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
                 }
             }
         } else if (m_type == METRIC_SPEED) {
             if (v > 0) {
-                v *= settings.value(QStringLiteral("speed_gain"), 1.0).toDouble();
-                v += settings.value(QStringLiteral("speed_offset"), 0.0).toDouble();
+                v *= settings.value(QZSettings::speed_gain, QZSettings::default_speed_gain /* 1.0 */).toDouble();
+                v += settings.value(QZSettings::speed_offset, QZSettings::default_speed_offset /* 0.0 */).toDouble();
             }
         }
     }
@@ -184,8 +184,8 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
     QSettings settings;
     if (inclination < -5)
         inclination = -5;
-    double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
-                        settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
+    double twt = 9.8 * (settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() +
+                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight /* 0.0 */).toFloat());
     double aero = 0.22691607640851885;
     double hw = 0; // wind speed
     double tr = twt * ((inclination / 100.0) + 0.005);
@@ -278,8 +278,8 @@ double metric::calculateVO2Max(QList<SessionLine> *session) {
 
     double peak = bests.first().avg;
     QSettings settings;
-    return ((0.0108 * peak + 0.007 * settings.value(QStringLiteral("weight"), 75.0).toFloat()) /
-            settings.value(QStringLiteral("weight"), 75.0).toFloat()) *
+    return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()) /
+            settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()) *
            1000.0;
 }
 
@@ -305,9 +305,9 @@ Women:
             */
 
     QSettings settings;
-    QString sex = settings.value(QStringLiteral("sex"), "Male").toString();
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
-    double age = settings.value(QStringLiteral("age"), 35).toDouble();
+    QString sex = settings.value(QZSettings::sex, QZSettings::default_sex /* "Male" */).toString();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+    double age = settings.value(QZSettings::age, QZSettings::default_age /* 35 */).toDouble();
     double T = elapsed / 60;
     double H = HR_AVG;
     double W = weight;

@@ -221,7 +221,7 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
 void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
 
     QSettings settings;
-    static bool logdebug = settings.value(QStringLiteral("log_debug"), false).toBool();
+    static bool logdebug = settings.value(QZSettings::log_debug, QZSettings::default_log_debug /* false */).toBool();
 #if defined(Q_OS_LINUX) // Linux OS does not read settings file for now
     if ((logs == false && !forceQml) || (logdebug == false && forceQml))
 #else
@@ -321,10 +321,10 @@ int main(int argc, char *argv[]) {
             settings.setValue(QStringLiteral("android_wakelock"), false);
         }
 
-        noHeartService = settings.value(QStringLiteral("bike_heartrate_service"), defaultNoHeartService).toBool();
-        bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), bikeResistanceOffset).toInt();
-        bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), bikeResistanceGain).toDouble();
-        deviceName = settings.value(QStringLiteral("filter_device"), QStringLiteral("Disabled")).toString();
+        noHeartService = settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service /* defaultNoHeartService */).toBool();
+        bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset /* bikeResistanceOffset */).toInt();
+        bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f /* bikeResistanceGain */).toDouble();
+        deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device /* QStringLiteral("Disabled") */).toString();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {
@@ -427,7 +427,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    settings.setValue(QStringLiteral("app_opening"), settings.value(QStringLiteral("app_opening"), 0).toInt() + 1);
+    settings.setValue(QStringLiteral("app_opening"), settings.value(QZSettings::app_opening, QZSettings::default_app_opening /* 0 */).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
     auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));

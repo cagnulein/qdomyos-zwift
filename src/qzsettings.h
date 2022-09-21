@@ -4,6 +4,14 @@
 #include <QString>
 
 namespace QZSettings {
+
+    //--------------------------------------------------------------------------------------------
+    // These are not in settings.qml
+    //--------------------------------------------------------------------------------------------
+    static const QString bluetooth_no_reconnection = QStringLiteral("bluetooth_no_reconnection");
+    static const bool default_bluetooth_no_reconnection = false;
+    //--------------------------------------------------------------------------------------------
+
     static const QString ui_zoom = QStringLiteral("ui_zoom");
 	static constexpr float default_ui_zoom = 100.0;
 	static const QString bike_heartrate_service = QStringLiteral("bike_heartrate_service");

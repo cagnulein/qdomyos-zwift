@@ -577,6 +577,7 @@ HEADERS += \
     qdebugfixup.h \
 	qfit.h \
     qmdnsengine_export.h \
+    qzsettings.h \
    renphobike.h \
    rower.h \
 	schwinnic4bike.h \

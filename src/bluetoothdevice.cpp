@@ -38,7 +38,7 @@ void bluetoothdevice::offsetElapsedTime(int offset) { elapsed += offset; }
 
 QTime bluetoothdevice::currentPace() {
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -55,7 +55,7 @@ QTime bluetoothdevice::currentPace() {
 QTime bluetoothdevice::averagePace() {
 
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -72,7 +72,7 @@ QTime bluetoothdevice::averagePace() {
 QTime bluetoothdevice::maxPace() {
 
     QSettings settings;
-    bool miles = settings.value(QStringLiteral("miles_unit"), false).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -135,17 +135,17 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
-    bool power_as_bike = settings.value(QStringLiteral("power_sensor_as_bike"), false).toBool();
-    bool power_as_treadmill = settings.value(QStringLiteral("power_sensor_as_treadmill"), false).toBool();
+    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike /* false */).toBool();
+    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill /* false */).toBool();
 
-    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
         !power_as_bike && !power_as_treadmill)
         watt_calc = false;
 
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QStringLiteral("continuous_moving"), true).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving /* true */).toBool()) {
 
             elapsed += deltaTime;
         }
@@ -157,18 +157,18 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             if (watt_calc) {
                 m_watt = watts;
             }
-            WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+            WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
         } else if (m_watt.value() > 0) {
 
             m_watt = 0;
             WattKg = 0;
         }
-    } else if (paused && settings.value(QStringLiteral("instant_power_on_pause"), false).toBool()) {
+    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause /* false */).toBool()) {
         // useful for FTP test
         if (watt_calc) {
             m_watt = watts;
         }
-        WattKg = m_watt.value() / settings.value(QStringLiteral("weight"), 75.0).toFloat();
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
     } else if (m_watt.value() > 0) {
 
         m_watt = 0;
@@ -267,7 +267,7 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;
     QString setting =
-        settings.value(QStringLiteral("peloton_heartrate_metric"), QStringLiteral("Heart Rate")).toString();
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric /* QStringLiteral("Heart Rate") */).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return currentHeart().value();
     } else if (!setting.compare(QStringLiteral("Speed"))) {

@@ -17,6 +17,8 @@
 #include <QtCore/qbytearray.h>
 #include <QtCore/qloggingcategory.h>
 
+#include "qzsettings.h"
+
 #include "activiotreadmill.h"
 #include "bhfitnesselliptical.h"
 #include "bluetoothdevice.h"

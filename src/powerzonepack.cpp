@@ -8,7 +8,7 @@ powerzonepack::powerzonepack(bluetooth *bl, QObject *parent) : QObject(parent) {
     QSettings settings;
     bluetoothManager = bl;
 
-    if (!settings.value(QStringLiteral("pzp_username"), QStringLiteral("username"))
+    if (!settings.value(QZSettings::pzp_username, QZSettings::default_pzp_username /* QStringLiteral("username") */)
              .toString()
              .compare(QStringLiteral("username"))) {
         pzp_credentials_wrong = true;
@@ -27,8 +27,8 @@ void powerzonepack::startEngine() {
     connect(&websocket, &QWebSocket::textMessageReceived, this, &powerzonepack::login_onfinish);
     connect(&websocket, &QWebSocket::connected, [&]() {
         QSettings settings;
-        websocket.sendTextMessage("[1,[\"Api_Login\",[\"" + settings.value("pzp_username", "username").toString() +
-                                  "\",\"" + settings.value("pzp_password", "password").toString() + "\"]]]");
+        websocket.sendTextMessage("[1,[\"Api_Login\",[\"" + settings.value(QZSettings::pzp_username, QZSettings::default_pzp_username /* "username" */).toString() +
+                                  "\",\"" + settings.value(QZSettings::pzp_password, QZSettings::default_pzp_password /* "password" */).toString() + "\"]]]");
     });
     websocket.open(QUrl("wss://pzpack.com/api"));
 }
@@ -78,7 +78,7 @@ void powerzonepack::search_workout_onfinish(const QString &message) {
     qDebug() << "search_workout_onfinish" << payload;
 
     QSettings settings;
-    QString difficulty = settings.value("peloton_difficulty", "lower").toString();
+    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty /* "lower" */).toString();
     QJsonParseError parseError;
     QJsonDocument performance = QJsonDocument::fromJson(payload, &parseError);
 
@@ -97,7 +97,7 @@ void powerzonepack::search_workout_onfinish(const QString &message) {
         seconds = seconds.addSecs((int)sec);
         r.duration = QTime(0, 0, lastSeconds.msecsTo(seconds) / 1000, 0);
         r.power = power_graph.at(i - 1).toObject()[QStringLiteral("power_ratio")].toDouble() *
-                  settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                  settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
 
         // in order to have compact rows in the training program to have an Reamining Time tile set correctly
         if (i == 1 || (r.power != trainrows.last().power))

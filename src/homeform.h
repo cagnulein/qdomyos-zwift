@@ -186,7 +186,7 @@ class homeform : public QObject {
                     QLinearGradient backgroundGradient;
                     double maxWatt = wattMaxChart();
                     QSettings settings;
-                    double ftpSetting = settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                    double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.55)) / maxWatt, QColor("white"));
@@ -229,11 +229,11 @@ class homeform : public QObject {
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value("heart_rate_zone1", 70.0).toDouble() / 100)) / 220, QColor("lightsteelblue"));
+                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1 /* 70.0 */).toDouble() / 100)) / 220, QColor("lightsteelblue"));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value("heart_rate_zone2", 80.0).toDouble() / 100)) / 220, QColor("green"));
+                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2 /* 80.0 */).toDouble() / 100)) / 220, QColor("green"));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value("heart_rate_zone3", 90.0).toDouble() / 100)) / 220, QColor("yellow"));
+                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3 /* 90.0 */).toDouble() / 100)) / 220, QColor("yellow"));
                     backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone4",
                     100.0).toDouble() / 100)) / 220, QColor("orange")); backgroundGradient.setColorAt(0.0,
                     QColor("red"));*/
@@ -246,22 +246,22 @@ class homeform : public QObject {
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone1"), 70.0).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1 /* 70.0 */).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone2"), 80.0).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2 /* 80.0 */).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone3"), 90.0).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3 /* 90.0 */).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QStringLiteral("heart_rate_zone4"), 100.0).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4 /* 100.0 */).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
@@ -288,7 +288,7 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
-        bool virtual_bike = settings.value("virtual_device_force_bike", false).toBool();
+        bool virtual_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike /* false */).toBool();
         return bluetoothManager && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&
@@ -381,10 +381,10 @@ class homeform : public QObject {
         QSettings settings;
         if (bluetoothManager && bluetoothManager->device() &&
             bluetoothManager->device()->wattsMetric().max() >
-                (settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 2)) {
+                (settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble() * 2)) {
             return bluetoothManager->device()->wattsMetric().max();
         } else {
-            return settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 2;
+            return settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble() * 2;
         }
     }
 
