@@ -41,7 +41,7 @@ namespace QZSettings {
     static const QString elite_sterzo_smart_address = QStringLiteral("elite_sterzo_smart_address");
 	static const QString default_elite_sterzo_smart_address = QStringLiteral("");
     static const QString strava_accesstoken = QStringLiteral("strava_accesstoken");
-    static const QString default_strava_accesstoken = QLatin1String(""); // inconsistent, may change to QStringLiteral later
+    static const QString default_strava_accesstoken = QStringLiteral("");
 
 
     static const QString strava_refreshtoken = QStringLiteral("strava_refreshtoken");
