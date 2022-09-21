@@ -208,7 +208,7 @@ void keepbike::characteristicChanged(const QLowEnergyCharacteristic &characteris
         Cadence = ((uint8_t)newValue.at(16));
     }
 
-    /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+    /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = ((uint8_t)newValue.at(18));
     } else*/
     {
