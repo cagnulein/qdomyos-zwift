@@ -229,14 +229,14 @@ class homeform : public QObject {
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1 /* 70.0 */).toDouble() / 100)) / 220, QColor("lightsteelblue"));
+                    settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() / 100)) / 220, QColor("lightsteelblue"));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2 /* 80.0 */).toDouble() / 100)) / 220, QColor("green"));
+                    settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() / 100)) / 220, QColor("green"));
                     backgroundGradient.setColorAt((220 - (maxHeartRate *
-                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3 /* 90.0 */).toDouble() / 100)) / 220, QColor("yellow"));
-                    backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value("heart_rate_zone4",
-                    100.0).toDouble() / 100)) / 220, QColor("orange")); backgroundGradient.setColorAt(0.0,
-                    QColor("red"));*/
+                    settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() / 100)) / 220, QColor("yellow"));
+                    backgroundGradient.setColorAt((220 - (maxHeartRate * settings.value(QZSettings::heart_rate_zone4,
+					QZSettings::default_heart_rate_zone4).toDouble() / 100)) / 220, QColor("orange"));
+                    backgroundGradient.setColorAt(0.0, QColor("red")); */
 
                     // backgroundGradient.setCoordinateMode(QGradient::ObjectBoundingMode);
                     // chart->setBackgroundBrush(backgroundGradient);

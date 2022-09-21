@@ -10,6 +10,36 @@ namespace QZSettings {
     //--------------------------------------------------------------------------------------------
     static const QString bluetooth_no_reconnection = QStringLiteral("bluetooth_no_reconnection");
     static const bool default_bluetooth_no_reconnection = false;
+    static const QString bike_wheel_revs = QStringLiteral("bike_wheel_revs");
+    static const bool default_bike_wheel_revs = false;
+    static const QString bluetooth_lastdevice_name = QStringLiteral("bluetooth_lastdevice_name");
+    static const QString default_bluetooth_lastdevice_name = QStringLiteral("");
+    static const QString bluetooth_lastdevice_address = QStringLiteral("bluetooth_lastdevice_address");
+    static const QString default_bluetooth_lastdevice_address = QStringLiteral("");
+    static const QString hrm_lastdevice_name = QStringLiteral("hrm_lastdevice_name");
+	static const QString default_hrm_lastdevice_name = QStringLiteral("");
+    static const QString hrm_lastdevice_address = QStringLiteral("hrm_lastdevice_address");
+	static const QString default_hrm_lastdevice_address = QStringLiteral("");
+    static const QString ftms_accessory_address = QStringLiteral("ftms_accessory_address");
+    static const QString default_ftms_accessory_address = QStringLiteral("");
+    static const QString ftms_accessory_lastdevice_name = QStringLiteral("ftms_accessory_lastdevice_name");
+    static const QString default_ftms_accessory_lastdevice_name = QStringLiteral("");
+    static const QString csc_sensor_address = QStringLiteral("csc_sensor_address");
+	static const QString default_csc_sensor_address = QStringLiteral("");
+    static const QString csc_sensor_lastdevice_name = QStringLiteral("csc_sensor_lastdevice_name");
+	static const QString default_csc_sensor_lastdevice_name = QStringLiteral("");
+    static const QString power_sensor_lastdevice_name = QStringLiteral("power_sensor_lastdevice_name");
+	static const QString default_power_sensor_lastdevice_name = QStringLiteral("");
+    static const QString power_sensor_address = QStringLiteral("power_sensor_address");
+	static const QString default_power_sensor_address = QStringLiteral("");
+    static const QString elite_rizer_lastdevice_name = QStringLiteral("elite_rizer_lastdevice_name");
+	static const QString default_elite_rizer_lastdevice_name = QStringLiteral("");
+    static const QString elite_rizer_address = QStringLiteral("elite_rizer_address");
+	static const QString default_elite_rizer_address = QStringLiteral("");
+    static const QString elite_sterzo_smart_lastdevice_name = QStringLiteral("elite_sterzo_smart_lastdevice_name");
+	static const QString default_elite_sterzo_smart_lastdevice_name = QStringLiteral("");
+    static const QString elite_sterzo_smart_address = QStringLiteral("elite_sterzo_smart_address");
+	static const QString default_elite_sterzo_smart_address = QStringLiteral("");
     //--------------------------------------------------------------------------------------------
 
     static const QString ui_zoom = QStringLiteral("ui_zoom");

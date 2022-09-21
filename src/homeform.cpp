@@ -1702,7 +1702,7 @@ void homeform::Plus(const QString &name) {
     } else if (name.contains(QStringLiteral("external_inclination"))) {
         double elite_rizer_gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain /* 1.0 */).toDouble();
         elite_rizer_gain = elite_rizer_gain + 0.1;
-        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
+        settings.setValue(QZSettings::elite_rizer_gain, elite_rizer_gain);
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1734,7 +1734,7 @@ void homeform::Plus(const QString &name) {
 
             if (zone < 5) {
                 zone++;
-                settings.setValue(QStringLiteral("treadmill_pid_heart_zone"), QString::number(zone));
+                settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
             }
         }
     } else if (name.contains("gears")) {
@@ -1845,7 +1845,7 @@ void homeform::Minus(const QString &name) {
         double elite_rizer_gain = settings.value(QZSettings::elite_rizer_gain, QZSettings::default_elite_rizer_gain /* 1.0 */).toDouble();
         if (elite_rizer_gain)
             elite_rizer_gain = elite_rizer_gain - 0.1;
-        settings.setValue(QStringLiteral("elite_rizer_gain"), elite_rizer_gain);
+        settings.setValue(QZSettings::elite_rizer_gain, elite_rizer_gain);
     } else if (name.contains(QStringLiteral("inclination"))) {
         if (bluetoothManager->device()) {
             if (bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
@@ -1871,9 +1871,9 @@ void homeform::Minus(const QString &name) {
                                .toUInt();
             if (zone > 1) {
                 zone--;
-                settings.setValue(QStringLiteral("treadmill_pid_heart_zone"), QString::number(zone));
+                settings.setValue(QZSettings::treadmill_pid_heart_zone, QString::number(zone));
             } else {
-                settings.setValue(QStringLiteral("treadmill_pid_heart_zone"), QStringLiteral("Disabled"));
+                settings.setValue(QZSettings::treadmill_pid_heart_zone, QStringLiteral("Disabled"));
             }
         }
     } else if (name.contains(QStringLiteral("gears"))) {
@@ -3674,9 +3674,9 @@ void homeform::strava_refreshtoken() {
     QString access_token = document[QStringLiteral("access_token")].toString();
     QString refresh_token = document[QStringLiteral("refresh_token")].toString();
 
-    settings.setValue(QStringLiteral("strava_accesstoken"), access_token);
-    settings.setValue(QStringLiteral("strava_refreshtoken"), refresh_token);
-    settings.setValue(QStringLiteral("strava_lastrefresh"), QDateTime::currentDateTime());
+    settings.setValue(QZSettings::strava_accesstoken, access_token);
+    settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
+    settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 }
 
 bool homeform::strava_upload_file(const QByteArray &data, const QString &remotename) {
@@ -3819,9 +3819,9 @@ void homeform::writeFileCompleted() {
 void homeform::onStravaGranted() {
 
     QSettings settings;
-    settings.setValue(QStringLiteral("strava_accesstoken"), strava->token());
-    settings.setValue(QStringLiteral("strava_refreshtoken"), strava->refreshToken());
-    settings.setValue(QStringLiteral("strava_lastrefresh"), QDateTime::currentDateTime());
+    settings.setValue(QZSettings::strava_accesstoken, strava->token());
+    settings.setValue(QZSettings::strava_refreshtoken, strava->refreshToken());
+    settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
     qDebug() << QStringLiteral("strava authenticathed") << strava->token() << strava->refreshToken();
     strava_refreshtoken();
     setGeneralPopupVisible(true);
@@ -3841,9 +3841,9 @@ void homeform::replyDataReceived(const QByteArray &v) {
     QSettings settings;
     QString s(v);
     QJsonDocument jsonResponse = QJsonDocument::fromJson(s.toUtf8());
-    settings.setValue(QStringLiteral("strava_accesstoken"), jsonResponse[QStringLiteral("access_token")]);
-    settings.setValue(QStringLiteral("strava_refreshtoken"), jsonResponse[QStringLiteral("refresh_token")]);
-    settings.setValue(QStringLiteral("strava_expires"), jsonResponse[QStringLiteral("expires_at")]);
+    settings.setValue(QZSettings::strava_accesstoken, jsonResponse[QStringLiteral("access_token")]);
+    settings.setValue(QZSettings::strava_refreshtoken, jsonResponse[QStringLiteral("refresh_token")]);
+    settings.setValue(QZSettings::strava_expires, jsonResponse[QStringLiteral("expires_at")]);
 
     qDebug() << jsonResponse[QStringLiteral("access_token")] << jsonResponse[QStringLiteral("refresh_token")]
              << jsonResponse[QStringLiteral("expires_at")];
@@ -3905,9 +3905,9 @@ void homeform::networkRequestFinished(QNetworkReply *reply) {
             access_token = document[QStringLiteral("access_token")].toString();
         }
 
-        settings.setValue(QStringLiteral("strava_accesstoken"), access_token);
-        settings.setValue(QStringLiteral("strava_refreshtoken"), refresh_token);
-        settings.setValue(QStringLiteral("strava_lastrefresh"), QDateTime::currentDateTime());
+        settings.setValue(QZSettings::strava_accesstoken, access_token);
+        settings.setValue(QZSettings::strava_refreshtoken, refresh_token);
+        settings.setValue(QZSettings::strava_lastrefresh, QDateTime::currentDateTime());
 
         qDebug() << access_token << refresh_token;
 
@@ -4415,7 +4415,7 @@ void homeform::saveProfile(QString profilename) {
     QString path = getProfileDir();
 
     QSettings settings;
-    settings.setValue("profile_name", profilename);
+    settings.setValue(QZSettings::profile_name, profilename);
     QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
