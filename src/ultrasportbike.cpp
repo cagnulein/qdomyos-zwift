@@ -167,7 +167,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     /*double distance = GetDistanceFromPacket(newValue);
 
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
@@ -175,7 +175,7 @@ void ultrasportbike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
     m_watt = GetWattFromPacket(newValue);
 
-    /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+    /*if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = GetSpeedFromPacket(newValue);
     } else*/
     { Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value()); }
