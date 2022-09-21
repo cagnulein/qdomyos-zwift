@@ -40,6 +40,20 @@ namespace QZSettings {
 	static const QString default_elite_sterzo_smart_lastdevice_name = QStringLiteral("");
     static const QString elite_sterzo_smart_address = QStringLiteral("elite_sterzo_smart_address");
 	static const QString default_elite_sterzo_smart_address = QStringLiteral("");
+    static const QString strava_accesstoken = QStringLiteral("strava_accesstoken");
+    static const QString default_strava_accesstoken = QLatin1String(""); // inconsistent, may change to QStringLiteral later
+
+
+    static const QString strava_refreshtoken = QStringLiteral("strava_refreshtoken");
+    static const QString default_strava_refreshtoken = QStringLiteral("");
+    static const QString strava_lastrefresh = QStringLiteral("strava_lastrefresh");
+    static const QString default_strava_lastrefresh = QStringLiteral("");
+    static const QString strava_expires = QStringLiteral("strava_expires");
+    static const QString default_strava_expires = QStringLiteral("");
+
+    static const QString virtualrower_forceresistance = QStringLiteral("virtualrower_forceresistance");
+    static constexpr bool default_virtualrower_forceresistance = true;
+
     //--------------------------------------------------------------------------------------------
 
     static const QString ui_zoom = QStringLiteral("ui_zoom");
