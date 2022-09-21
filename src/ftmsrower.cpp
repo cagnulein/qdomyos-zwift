@@ -137,6 +137,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -294,7 +295,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     else
 #endif
     {
-        if (Flags.heartRate) {
+        if (Flags.heartRate && !disable_hr_frommachinery) {
             if (index < newValue.length()) {
                 Heart = ((double)((newValue.at(index))));
                 // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
