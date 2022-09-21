@@ -1,6 +1,7 @@
 #include "metric.h"
 #include "qdebugfixup.h"
 #include <QSettings>
+#include "qzsettings.h"
 
 #ifdef TEST
 static uint32_t random_value_uint32 = 0;
