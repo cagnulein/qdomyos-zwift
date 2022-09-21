@@ -377,7 +377,7 @@ namespace QZSettings {
 	static const QString schwinn_bike_resistance = QStringLiteral("schwinn_bike_resistance");
 	static constexpr bool default_schwinn_bike_resistance = false;
 	static const QString schwinn_bike_resistance_v2 = QStringLiteral("schwinn_bike_resistance_v2");
-	static constexpr bool default_schwinn_bike_resistance_v2 = value;
+    static constexpr bool default_schwinn_bike_resistance_v2 = false;
 	static const QString technogym_myrun_treadmill_experimental = QStringLiteral("technogym_myrun_treadmill_experimental");
 	static constexpr bool default_technogym_myrun_treadmill_experimental = false;
 	static const QString trainprogram_random = QStringLiteral("trainprogram_random");
