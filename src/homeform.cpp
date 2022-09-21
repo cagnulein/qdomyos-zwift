@@ -877,7 +877,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_nextrowstrainprogram_enabled, QZSettings::default_tile_nextrowstrainprogram_enabled /* false */).toBool() &&
-                settings.value(QZSettings::tile_nextrowtrainprogram_order, QZSettings::default_tile_nextrowtrainprogram_order /* 31 */).toInt() == i) {
+                settings.value(QZSettings::tile_nextrowstrainprogram_order, QZSettings::default_tile_nextrowstrainprogram_order /* 31 */).toInt() == i) {
 
                 nextRows->setGridId(i);
                 dataList.append(nextRows);
@@ -1110,7 +1110,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_nextrowstrainprogram_enabled, QZSettings::default_tile_nextrowstrainprogram_enabled /* false */).toBool() &&
-                settings.value(QZSettings::tile_nextrowtrainprogram_order, QZSettings::default_tile_nextrowtrainprogram_order /* 31 */).toInt() == i) {
+                settings.value(QZSettings::tile_nextrowstrainprogram_order, QZSettings::default_tile_nextrowstrainprogram_order /* 31 */).toInt() == i) {
 
                 nextRows->setGridId(i);
                 dataList.append(nextRows);
@@ -1338,7 +1338,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_nextrowstrainprogram_enabled, QZSettings::default_tile_nextrowstrainprogram_enabled /* false */).toBool() &&
-                settings.value(QZSettings::tile_nextrowtrainprogram_order, QZSettings::default_tile_nextrowtrainprogram_order /* 31 */).toInt() == i) {
+                settings.value(QZSettings::tile_nextrowstrainprogram_order, QZSettings::default_tile_nextrowstrainprogram_order /* 31 */).toInt() == i) {
 
                 nextRows->setGridId(i);
                 dataList.append(nextRows);
@@ -1514,7 +1514,7 @@ void homeform::sortTiles() {
             }
 
             if (settings.value(QZSettings::tile_nextrowstrainprogram_enabled, QZSettings::default_tile_nextrowstrainprogram_enabled /* false */).toBool() &&
-                settings.value(QZSettings::tile_nextrowtrainprogram_order, QZSettings::default_tile_nextrowtrainprogram_order /* 31 */).toInt() == i) {
+                settings.value(QZSettings::tile_nextrowstrainprogram_order, QZSettings::default_tile_nextrowstrainprogram_order /* 31 */).toInt() == i) {
 
                 nextRows->setGridId(i);
                 dataList.append(nextRows);
@@ -3459,7 +3459,7 @@ void homeform::fit_save_clicked() {
         lastFitFileSaved = filename;
 
         QSettings settings;
-        if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken /* QLatin1String("" */)).toString().isEmpty()) {
+        if (!settings.value(QZSettings::strava_accesstoken, QZSettings::default_strava_accesstoken /* QLatin1String("" )*/).toString().isEmpty()) {
 
             QFile f(filename);
             f.open(QFile::OpenModeFlag::ReadOnly);
@@ -4089,8 +4089,8 @@ void homeform::sendMail() {
     MimeMessage message;
 
     message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QZSettings::default_user_email /* QLatin1String("" */)).toString(),
-                                          settings.value(QZSettings::user_email, QZSettings::default_user_email /* QLatin1String("" */)).toString()));
+    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QZSettings::default_user_email /* QLatin1String("")*/).toString(),
+                                          settings.value(QZSettings::user_email, QZSettings::default_user_email /* QLatin1String("")*/).toString()));
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
