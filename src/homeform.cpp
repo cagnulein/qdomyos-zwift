@@ -3683,7 +3683,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     strava_refreshtoken();
 
     QSettings settings;
-    QString token = settings.value(QZSettings::strava_accesstoken)).toString();
+    QString token = settings.value(QZSettings::strava_accesstoken).toString();
 
     // The V3 API doc said "https://api.strava.com" but it is not working yet
     QUrl url = QUrl(QStringLiteral("https://www.strava.com/api/v3/uploads"));
