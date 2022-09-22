@@ -3616,7 +3616,7 @@ void homeform::strava_refreshtoken() {
     QSettings settings;
     // QUrlQuery params; //NOTE: clazy-unuse-non-tirial-variable
 
-    if (settings.value(QStringLiteral("strava_refreshtoken")).toString().isEmpty()) {
+    if (settings.value(QZSettings::strava_refreshtoken).toString().isEmpty()) {
 
         strava_connect();
         return;
@@ -3632,7 +3632,7 @@ void homeform::strava_refreshtoken() {
     data += "&client_secret=";
     data += STRINGIFY(STRAVA_SECRET_KEY);
 #endif
-    data += QStringLiteral("&refresh_token=") + settings.value(QStringLiteral("strava_refreshtoken")).toString();
+    data += QStringLiteral("&refresh_token=") + settings.value(QZSettings::strava_refreshtoken).toString();
     data += QStringLiteral("&grant_type=refresh_token");
 
     // make request
@@ -3683,7 +3683,7 @@ bool homeform::strava_upload_file(const QByteArray &data, const QString &remoten
     strava_refreshtoken();
 
     QSettings settings;
-    QString token = settings.value(QStringLiteral("strava_accesstoken")).toString();
+    QString token = settings.value(QZSettings::strava_accesstoken)).toString();
 
     // The V3 API doc said "https://api.strava.com" but it is not working yet
     QUrl url = QUrl(QStringLiteral("https://www.strava.com/api/v3/uploads"));
@@ -3921,8 +3921,8 @@ void homeform::networkRequestFinished(QNetworkReply *reply) {
 
 void homeform::callbackReceived(const QVariantMap &values) {
     qDebug() << QStringLiteral("homeform::callbackReceived") << values;
-    if (!values.value(QStringLiteral("code")).toString().isEmpty()) {
-        strava_code = values.value(QStringLiteral("code")).toString();
+    if (!values.value(QZSettings::code).toString().isEmpty()) {
+        strava_code = values.value(QZSettings::code).toString();
 
         qDebug() << strava_code;
     }
@@ -4276,7 +4276,7 @@ void homeform::sendMail() {
 
     /* THE SMTP SERVER DOESN'T LIKE THE ZIP FILE
     extern QString logfilename;
-    if (settings.value("log_debug").toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
+    if (settings.value(QZSettings::log_debug).toBool() && QFile::exists(getWritableAppDir() + logfilename)) {
         QString fileName = getWritableAppDir() + logfilename;
         QFile f(fileName);
         f.open(QIODevice::ReadOnly);
@@ -4366,7 +4366,7 @@ void homeform::saveSettings(const QUrl &filename) {
 
     QDir().mkdir(path + QStringLiteral("settings/"));
     QSettings settings;
-    QSettings settings2Save(path + QStringLiteral("settings/settings_") + settings.value("profile_name").toString() +
+    QSettings settings2Save(path + QStringLiteral("settings/settings_") + settings.value(QZSettings::profile_name).toString() +
                                 QStringLiteral("_") + QDateTime::currentDateTime().toString("yyyyMMddhhmmss") +
                                 QStringLiteral(".qzs"),
                             QSettings::IniFormat);

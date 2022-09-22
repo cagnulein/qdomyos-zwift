@@ -317,7 +317,7 @@ int main(int argc, char *argv[]) {
 
         // some Android 6 doesn't support wake lock
         if (QOperatingSystemVersion::current() < QOperatingSystemVersion(QOperatingSystemVersion::Android, 7) &&
-            !settings.value(QStringLiteral("android_wakelock")).isValid()) {
+            !settings.value(QZSettings::android_wakelock).isValid()) {
             settings.setValue(QZSettings::android_wakelock, false);
         }
 

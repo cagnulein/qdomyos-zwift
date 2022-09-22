@@ -117,6 +117,12 @@ namespace QZSettings {
 	static const QString virtualrower_forceresistance = QStringLiteral("virtualrower_forceresistance");
     static constexpr bool default_virtualrower_forceresistance = true;
 
+    /**
+     * @brief Strava code.
+     */
+    static const QString code = QStringLiteral("code");
+    static const QString default_code = QStringLiteral("");
+
     //--------------------------------------------------------------------------------------------
 
     /**
