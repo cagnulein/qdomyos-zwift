@@ -24,6 +24,9 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
 horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) {
+    
+    testProfileCRC();
+    
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
@@ -86,66 +89,6 @@ void horizontreadmill::btinit() {
 
     uint8_t initData01[] = {0x55, 0xaa, 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x00};
 
-    // profiles
-    uint8_t initData7[] = {0x55, 0xaa, 0x02, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xed, 0xc2,
-                           0x00, 0x47, 0x75, 0x65, 0x73, 0x74, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData8[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                           0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xdc, 0x05, 0xc2, 0x07};
-    uint8_t initData10[] = {0x01, 0x01, 0x00, 0xd3, 0x8a, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                            0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-    uint8_t initData11[] = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-                            0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-    uint8_t initData12[] = {0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30,
-                            0x30, 0x30, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData13[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30,
-                            0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-    uint8_t initData14[] = {0x30};
-
-    uint8_t initData7_1[] = {0x55, 0xaa, 0x03, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xae, 0x2a,
-                             0x01, 0x41, 0x69, 0x61, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9_1[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa4, 0x06, 0xc4, 0x07};
-    uint8_t initData10_1[] = {0x09, 0x1c, 0x00, 0x9f, 0xef, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                              0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-
-    uint8_t initData7_2[] = {0x55, 0xaa, 0x04, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xae, 0x2a,
-                             0x01, 0x41, 0x69, 0x61, 0x6e, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9_2[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa4, 0x06, 0xc4, 0x07};
-    uint8_t initData10_2[] = {0x09, 0x1c, 0x00, 0x9f, 0xef, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                              0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-
-    uint8_t initData7_3[] = {0x55, 0xaa, 0x05, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xa9, 0xe7,
-                             0x02, 0x4d, 0x65, 0x67, 0x68, 0x61, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9_3[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xa4, 0x06, 0xc5, 0x07};
-    uint8_t initData10_3[] = {0x0b, 0x0f, 0x00, 0x4b, 0x40, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                              0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-
-    uint8_t initData7_4[] = {0x55, 0xaa, 0x06, 0x00, 0x01, 0x16, 0xdb, 0x02, 0xbc, 0x76,
-                             0x03, 0x44, 0x61, 0x72, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9_4[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x07, 0xca, 0x07};
-    uint8_t initData10_4[] = {0x05, 0x1c, 0x00, 0x07, 0x25, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                              0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-
-    uint8_t initData7_5[] = {0x55, 0xaa, 0x07, 0x00, 0x01, 0x16, 0xdb, 0x02, 0x7d, 0xeb,
-                             0x04, 0x41, 0x68, 0x6f, 0x6e, 0x61, 0x00, 0x00, 0x00, 0x00};
-    uint8_t initData9_5[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xb0, 0x04, 0xcc, 0x07};
-    uint8_t initData10_5[] = {0x01, 0x08, 0x00, 0xc2, 0x0f, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                              0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-
-    uint8_t initData7_6[] = {0x55, 0xaa, 0x08, 0x00, 0x01, 0x16, 0xdb, 0x02, 0x03, 0x0d,
-                             0x05, 0x55, 0x73, 0x65, 0x72, 0x20, 0x35, 0x00, 0x00, 0x00};
-    uint8_t initData9_6[] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                             0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xdc, 0x05, 0xc2, 0x07};
-    uint8_t initData10_6[] = {0x01, 0x01, 0x00, 0x8e, 0x6a, 0x0c, 0x00, 0x01, 0x01, 0x02,
-                              0x23, 0x00, 0x00, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30, 0x30};
-    // profiles end
-
     uint8_t initData02[] = {0x55, 0xaa, 0x09, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
     uint8_t initData03[] = {0x55, 0xaa, 0x0a, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
     uint8_t initData04[] = {0x55, 0xaa, 0x0b, 0x00, 0x01, 0x00, 0x02, 0x00, 0xb7, 0xf1, 0x1a, 0x00};
@@ -175,6 +118,8 @@ void horizontreadmill::btinit() {
         initData7_5[11 + i] = Char;
         initData7_6[11 + i] = Char;
     }
+    
+    updateProfileCRC();
 
     if (gattCustomService) {
 
@@ -1617,11 +1562,11 @@ const int CRC_TABLE[256] = {
 };
 
 // https://crccalc.com/
-int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count) {
+int horizontreadmill::GenerateCRC_CCITT(uint8_t *PUPtr8, int PU16_Count, int crcStart) {
     if (PU16_Count == 0) {
         return 0;
     }
-    int crc = 65535;
+    int crc = crcStart;
     for (int i = 0; i < PU16_Count; i++) {
         int c = CRC_TABLE[((crc & 65280) >> 8) ^ ((PUPtr8[i] & 255) & 255)];
         crc = ((crc << 8) & 65280) ^ c;
@@ -1650,4 +1595,597 @@ bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
         return true;
     else
         return false;
+}
+
+void horizontreadmill::updateProfileCRC() {
+    int confirm = GenerateCRC_CCITT(&initData7[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9, sizeof(initData9), confirm);
+    confirm = GenerateCRC_CCITT(initData10, sizeof(initData10), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7[8] = (confirm & 0xff);
+    initData7[9] = (confirm >> 8);
+        
+    confirm = GenerateCRC_CCITT(&initData7_1[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_1, sizeof(initData9_1), confirm);
+    confirm = GenerateCRC_CCITT(initData10_1, sizeof(initData10_1), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7_1[8] = (confirm & 0xff);
+    initData7_1[9] = (confirm >> 8);
+    
+    confirm = GenerateCRC_CCITT(&initData7_2[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_2, sizeof(initData9_2), confirm);
+    confirm = GenerateCRC_CCITT(initData10_2, sizeof(initData10_2), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7_2[8] = (confirm & 0xff);
+    initData7_2[9] = (confirm >> 8);
+    
+    confirm = GenerateCRC_CCITT(&initData7_3[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_3, sizeof(initData9_3), confirm);
+    confirm = GenerateCRC_CCITT(initData10_3, sizeof(initData10_3), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7_3[8] = (confirm & 0xff);
+    initData7_3[9] = (confirm >> 8);
+    
+    confirm = GenerateCRC_CCITT(&initData7_4[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_4, sizeof(initData9_4), confirm);
+    confirm = GenerateCRC_CCITT(initData10_4, sizeof(initData10_4), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7_4[8] = (confirm & 0xff);
+    initData7_4[9] = (confirm >> 8);
+    
+    confirm = GenerateCRC_CCITT(&initData7_5[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_5, sizeof(initData9_5), confirm);
+    confirm = GenerateCRC_CCITT(initData10_5, sizeof(initData10_5), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7_5[8] = (confirm & 0xff);
+    initData7_5[9] = (confirm >> 8);
+    
+    confirm = GenerateCRC_CCITT(&initData7_6[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_6, sizeof(initData9_6), confirm);
+    confirm = GenerateCRC_CCITT(initData10_6, sizeof(initData10_6), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    initData7_6[8] = (confirm & 0xff);
+    initData7_6[9] = (confirm >> 8);
+}
+
+
+void horizontreadmill::testProfileCRC() {
+    int confirm = GenerateCRC_CCITT(&initData7[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9, sizeof(initData9), confirm);
+    confirm = GenerateCRC_CCITT(initData10, sizeof(initData10), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7[8] == (confirm & 0xff));
+    assert(initData7[9] == (confirm >> 8));
+        
+    confirm = GenerateCRC_CCITT(&initData7_1[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_1, sizeof(initData9_1), confirm);
+    confirm = GenerateCRC_CCITT(initData10_1, sizeof(initData10_1), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7_1[8] == (confirm & 0xff));
+    assert(initData7_1[9] == (confirm >> 8));
+    
+    confirm = GenerateCRC_CCITT(&initData7_2[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_2, sizeof(initData9_2), confirm);
+    confirm = GenerateCRC_CCITT(initData10_2, sizeof(initData10_2), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7_2[8] == (confirm & 0xff));
+    assert(initData7_2[9] == (confirm >> 8));
+    
+    confirm = GenerateCRC_CCITT(&initData7_3[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_3, sizeof(initData9_3), confirm);
+    confirm = GenerateCRC_CCITT(initData10_3, sizeof(initData10_3), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7_3[8] == (confirm & 0xff));
+    assert(initData7_3[9] == (confirm >> 8));
+    
+    confirm = GenerateCRC_CCITT(&initData7_4[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_4, sizeof(initData9_4), confirm);
+    confirm = GenerateCRC_CCITT(initData10_4, sizeof(initData10_4), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7_4[8] == (confirm & 0xff));
+    assert(initData7_4[9] == (confirm >> 8));
+    
+    confirm = GenerateCRC_CCITT(&initData7_5[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_5, sizeof(initData9_5), confirm);
+    confirm = GenerateCRC_CCITT(initData10_5, sizeof(initData10_5), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7_5[8] == (confirm & 0xff));
+    assert(initData7_5[9] == (confirm >> 8));
+    
+    confirm = GenerateCRC_CCITT(&initData7_6[10], 10);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData9_6, sizeof(initData9_6), confirm);
+    confirm = GenerateCRC_CCITT(initData10_6, sizeof(initData10_6), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData11, sizeof(initData11), confirm);
+    confirm = GenerateCRC_CCITT(initData12, sizeof(initData12), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
+    confirm = GenerateCRC_CCITT(initData13, sizeof(initData13), confirm);
+    confirm = GenerateCRC_CCITT(initData14, sizeof(initData14), confirm);
+
+    assert(initData7_6[8] == (confirm & 0xff));
+    assert(initData7_6[9] == (confirm >> 8));
 }
