@@ -137,6 +137,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
+    bool disable_hr_frommachinery = settings.value(QStringLiteral("heart_ignore_builtin"), false).toBool();
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
@@ -172,12 +173,15 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
 
     flags Flags;
     int index = 0;
+    double cadence_divider = 2.0;
+    if (WHIPR)
+        cadence_divider = 1.0;
     Flags.word_flags = (newValue.at(1) << 8) | newValue.at(0);
     index += 2;
 
     if (!Flags.moreData) {
 
-        Cadence = ((uint8_t)newValue.at(index)) / 2;
+        Cadence = ((uint8_t)newValue.at(index)) / cadence_divider;
         StrokesCount =
             (((uint16_t)((uint8_t)newValue.at(index + 2)) << 8) | (uint16_t)((uint8_t)newValue.at(index + 1)));
 
@@ -196,7 +200,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     if (Flags.avgStroke) {
 
         double avgStroke;
-        avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) / 2.0;
+        avgStroke = ((double)(uint16_t)((uint8_t)newValue.at(index))) / cadence_divider;
         index += 1;
         emit debug(QStringLiteral("Current Average Stroke: ") + QString::number(avgStroke));
     }
@@ -240,7 +244,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         double watt =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
-        if(!filterWattNull || watt != 0) {
+        if (!filterWattNull || watt != 0) {
             m_watt = watt;
         }
         emit debug(QStringLiteral("Current Watt: ") + QString::number(m_watt.value()));
@@ -263,8 +267,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
     }
 
-    if (Flags.expEnergy) {
-
+    if (Flags.expEnergy && index + 1 < newValue.length()) {
         KCal = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
         index += 2;
 
@@ -292,7 +295,7 @@ void ftmsrower::characteristicChanged(const QLowEnergyCharacteristic &characteri
     else
 #endif
     {
-        if (Flags.heartRate) {
+        if (Flags.heartRate && !disable_hr_frommachinery) {
             if (index < newValue.length()) {
                 Heart = ((double)((newValue.at(index))));
                 // index += 1; //NOTE: clang-analyzer-deadcode.DeadStores
@@ -540,8 +543,9 @@ void ftmsrower::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     {
         bluetoothDevice = device;
 
-        if(device.name().trimmed().toUpper().startsWith("WHIPR")) {
+        if (device.name().trimmed().toUpper().startsWith("WHIPR")) {
             filterWattNull = true;
+            WHIPR = true;
             qDebug() << "WHIPR found! filtering null wattage";
         }
 

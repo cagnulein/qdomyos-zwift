@@ -334,58 +334,58 @@ import Qt.labs.settings 1.0
 
             property bool  fitshow_truetimer: false
 
-            // from the version 2.10.28
+            // from version 2.10.28
             property real elite_rizer_gain: 1.0
             property bool tile_ext_incline_enabled: false
             property int  tile_ext_incline_order: 32
 
-            // from the version 2.10.41
+            // from version 2.10.41
             property bool reebok_fr30_treadmill: false
 
-            // from the version 2.10.44
+            // from version 2.10.44
             property bool horizon_treadmill_7_8: false
 
-            // from the version 2.10.45
+            // from version 2.10.45
             property string profile_name: "default"
 
-            // from the version 2.10.46
+            // from version 2.10.46
             property bool tile_cadence_color_enabled: false
             property bool tile_peloton_remaining_enabled: false
             property int  tile_peloton_remaining_order: 22
             property bool tile_peloton_resistance_color_enabled: false
 
-            // from the version 2.10.49
+            // from version 2.10.49
             property bool dircon_yes: true
             property int dircon_server_base_port: 36866
 
-            // from the version 2.10.56
+            // from version 2.10.56
             property bool ios_cache_heart_device: true
 
-            // from the version 2.10.57
+            // from version 2.10.57
             property int app_opening: 0
 
-            // from the version 2.10.62
+            // from version 2.10.62
             property string proformtdf4ip: ""
 
-            // from the version 2.10.72
+            // from version 2.10.72
             property bool fitfiu_mc_v460: false
             property real bike_weight: 0
 
-            // from the version 2.10.77
+            // from version 2.10.77
             property bool kingsmith_encrypt_v2: false
 
-            // from the version 2.10.81
+            // from version 2.10.81
             property bool proform_treadmill_9_0: false
 
-            // from the version 2.10.85
+            // from version 2.10.85
             property bool proform_treadmill_1800i: false
 
-            // from the version 2.10.91
+            // from version 2.10.91
             property real cadence_offset: 0
             property real cadence_gain: 1
             property bool sp_ht_9600ie: false
 
-            // from the version 2.10.92
+            // from version 2.10.92
             property bool tts_enabled: false
             property int tts_summary_sec: 120
             property bool tts_act_speed: false
@@ -428,13 +428,13 @@ import Qt.labs.settings 1.0
             property bool tts_avg_watt_kg: false
             property bool tts_max_watt_kg: false
 
-            // from the version 2.10.96
+            // from version 2.10.96
             property bool fakedevice_elliptical: false
 
-            // from the version 2.10.99
+            // from version 2.10.99
             property string nordictrack_2950_ip: ""
 
-            // from the version 2.10.102
+            // from version 2.10.102
             property bool tile_instantaneous_stride_length_enabled: false
             property int  tile_instantaneous_stride_length_order: 32
             property bool tile_ground_contact_enabled: false
@@ -443,27 +443,30 @@ import Qt.labs.settings 1.0
             property int  tile_vertical_oscillation_order: 34
             property string sex: "Male"
 
-            // from the version 2.10.111
+            // from version 2.10.111
             property string maps_type: "3D"
 
-            // from the version 2.10.112
+            // from version 2.10.112
             property real ss2k_max_resistance: 100
             property real ss2k_min_resistance: 0
 
-            // from the version 2.11.10
+            // from version 2.11.10
             property bool proform_treadmill_se: false
 
-            // from the version 2.11.14
+            // from version 2.11.14
             property string proformtreadmillip: ""
 
-            // from the version 2.11.22
+            // from version 2.11.22
             property bool kingsmith_encrypt_v3: false
 
-            // from the version 2.11.38
+            // from version 2.11.38
             property string tdf_10_ip: ""
 
-            // from the version 2.11.41
+            // from version 2.11.41
             property bool fakedevice_treadmill: false
+
+            // from version 2.11.43
+            property int video_playback_window_s: 12
         }
 
         function paddingZeros(text, limit) {
@@ -799,18 +802,19 @@ import Qt.labs.settings 1.0
                         Layout.fillWidth: true
                         onClicked: settings.kcal_ignore_builtin = checked
                     }
+                    Label {
+                        id: labelHeartRateBelt
+                        text: qsTr("Heart Belt Name:")
+                        Layout.fillWidth: true
+                    }
                     RowLayout {
                         spacing: 10
-                        Label {
-                            id: labelHeartRateBelt
-                            text: qsTr("Heart Belt Name:")
-                            Layout.fillWidth: true
-                        }
                         ComboBox {
                             id: heartBeltNameTextField
                             model: rootItem.bluetoothDevices
                             displayText: settings.heart_rate_belt_name
                             Layout.fillHeight: false
+                            Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + heartBeltNameTextField.currentIndex)
@@ -3921,7 +3925,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -3944,7 +3948,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -3967,7 +3971,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -3990,7 +3994,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -4013,7 +4017,7 @@ import Qt.labs.settings 1.0
                         horizontalAlignment: Text.AlignRight
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        inputMethodHints: Qt.ImhDigitsOnly
+                        //inputMethodHints: Qt.ImhDigitsOnly
                         onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                     }
                     Button {
@@ -5161,18 +5165,19 @@ import Qt.labs.settings 1.0
                 //anchors.topMargin: 10
                 accordionContent: ColumnLayout {
                     spacing: 0
+                    Label {
+                        id: labelFilterDevice
+                        text: qsTr("Manual Device:")
+                        Layout.fillWidth: true
+                    }
                     RowLayout {
                         spacing: 10
-                        Label {
-                            id: labelFilterDevice
-                            text: qsTr("Manual Device:")
-                            Layout.fillWidth: true
-                        }
                         ComboBox {
                             id: filterDeviceTextField
                             model: rootItem.bluetoothDevices
                             displayText: settings.filter_device
                             Layout.fillHeight: false
+                            Layout.fillWidth: true
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onActivated: {
                                 console.log("combomodel activated" + filterDeviceTextField.currentIndex)
@@ -5518,18 +5523,19 @@ import Qt.labs.settings 1.0
                                 Layout.fillWidth: true
                                 onClicked: settings.cadence_sensor_as_bike = checked
                             }
+                            Label {
+                                id: labelCadenceSensorName
+                                text: qsTr("Cadence Sensor:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelCadenceSensorName
-                                    text: qsTr("Cadence Sensor:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: cadenceSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.cadence_sensor_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + cadenceSensorNameTextField.currentIndex)
@@ -5629,18 +5635,19 @@ import Qt.labs.settings 1.0
                                 onClicked: settings.powr_sensor_running_cadence_double = checked
                             }
 
+                            Label {
+                                id: labelPowerSensorName
+                                text: qsTr("Power Sensor:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelPowerSensorName
-                                    text: qsTr("Power Sensor:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: powerSensorNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.power_sensor_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + powerSensorNameTextField.currentIndex)
@@ -5681,18 +5688,19 @@ import Qt.labs.settings 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
+                                    Label {
+                                        id: labelEliteRizerName
+                                        text: qsTr("Elite Rizer:")
+                                        Layout.fillWidth: true
+                                    }
                                     RowLayout {
                                         spacing: 10
-                                        Label {
-                                            id: labelEliteRizerName
-                                            text: qsTr("Elite Rizer:")
-                                            Layout.fillWidth: true
-                                        }
                                         ComboBox {
                                             id: eliteRizerNameTextField
                                             model: rootItem.bluetoothDevices
                                             displayText: settings.elite_rizer_name
                                             Layout.fillHeight: false
+                                            Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteRizerNameTextField.currentIndex)
@@ -5748,18 +5756,19 @@ import Qt.labs.settings 1.0
                                 color: Material.backgroundColor
                                 accordionContent: ColumnLayout {
                                     spacing: 10
+                                    Label {
+                                        id: labelEliteSterzoSmartName
+                                        text: qsTr("Elite Sterzo Smart:")
+                                        Layout.fillWidth: true
+                                    }
                                     RowLayout {
                                         spacing: 10
-                                        Label {
-                                            id: labelEliteSterzoSmartName
-                                            text: qsTr("Elite Sterzo Smart:")
-                                            Layout.fillWidth: true
-                                        }
                                         ComboBox {
                                             id: eliteSterzoSmartNameTextField
                                             model: rootItem.bluetoothDevices
                                             displayText: settings.elite_sterzo_smart_name
                                             Layout.fillHeight: false
+                                            Layout.fillWidth: true
                                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                             onActivated: {
                                                 console.log("combomodel activated" + eliteSterzoSmartNameTextField.currentIndex)
@@ -5794,18 +5803,19 @@ import Qt.labs.settings 1.0
                         color: Material.backgroundColor
                         accordionContent: ColumnLayout {
                             spacing: 10
+                            Label {
+                                id: labelFTMSAccessoryName
+                                text: qsTr("SmartSpin2k device:")
+                                Layout.fillWidth: true
+                            }
                             RowLayout {
                                 spacing: 10
-                                Label {
-                                    id: labelFTMSAccessoryName
-                                    text: qsTr("SmartSpin2k device:")
-                                    Layout.fillWidth: true
-                                }
                                 ComboBox {
                                     id: ftmsAccessoryNameTextField
                                     model: rootItem.bluetoothDevices
                                     displayText: settings.ftms_accessory_name
                                     Layout.fillHeight: false
+                                    Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                                     onActivated: {
                                         console.log("combomodel activated" + ftmsAccessoryNameTextField.currentIndex)
@@ -6249,6 +6259,44 @@ import Qt.labs.settings 1.0
                             text: "OK"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             onClicked: settings.maps_type = mapsTypeTextField.displayText
+                        }
+                    }
+                }
+            }
+
+            AccordionElement {
+                id: videoAccordion
+                title: qsTr("Video 🎥")
+                indicatRectColor: Material.color(Material.Grey)
+                textColor: Material.color(Material.Grey)
+                color: Material.backgroundColor
+                //width: 640
+                //anchors.top: acc1.bottom
+                //anchors.topMargin: 10
+                accordionContent: ColumnLayout {
+                    spacing: 0
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelVideoWindow
+                            text: qsTr("Window Time (sec.):")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: videoWindowTextField
+                            text: settings.video_playback_window_s
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            inputMethodHints: Qt.ImhDigitsOnly
+                            onAccepted: settings.video_playback_window_s = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okVideoWindow
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.video_playback_window_s = videoWindowTextField.text
                         }
                     }
                 }

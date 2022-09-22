@@ -68,6 +68,7 @@ class ftmsrower : public rower {
     bool noHeartService = false;
 
     bool filterWattNull = false;
+    bool WHIPR = false;
 
 #ifdef Q_OS_IOS
     lockscreen *h = 0;

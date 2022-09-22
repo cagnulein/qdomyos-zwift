@@ -4,6 +4,7 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Dialogs 1.0
 import QtGraphicalEffects 1.12
 import Qt.labs.settings 1.0
+import QtMultimedia 5.15
 import org.cagnulein.qdomyoszwift 1.0
 
 ApplicationWindow {
@@ -35,6 +36,7 @@ ApplicationWindow {
     signal keyMediaNext()
 
     property bool lockTiles: false
+    property bool showVideo: false
 
     Settings {
         id: settings
@@ -458,13 +460,14 @@ ApplicationWindow {
             onClicked: { loadMaps(); }
             anchors.right: toolButtonLockTiles.left
             visible: rootItem.mapsVisible
-        }
+        }      
 
         ToolButton {
             function loadVideo() {
                 if(rootItem.currentCoordinateValid) {
                     console.log("coordinate is valid for map");
-                    stackView.push("videoPlayback.qml");
+                    //stackView.push("videoPlayback.qml");
+                    showVideo = !showVideo
                 } else {
                     console.log("coordinate is NOT valid for map");
                 }
@@ -642,9 +645,18 @@ ApplicationWindow {
                     drawer.close()
                 }
             }
+            ItemDelegate {
+                text: qsTr("Quit")
+                width: parent.width
+                visible: OS_VERSION === "Other" ? true : false
+                onClicked: {
+                    console.log("closing...")
+                    Qt.callLater(Qt.quit)
+                }
+            }
 
             ItemDelegate {
-                text: "version 2.11.41"
+                text: "version 2.11.57"
                 width: parent.width
             }
 				FileDialog {

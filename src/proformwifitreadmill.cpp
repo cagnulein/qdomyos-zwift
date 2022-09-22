@@ -38,8 +38,7 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
 
     connectToDevice();
 
-    initRequest = true;
-    emit connectedAndDiscovered();
+    initRequest = true;    
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualTreadMill && !virtualBike) {
@@ -96,6 +95,7 @@ void proformwifitreadmill::update() {
     if (initRequest) {
         initRequest = false;
         btinit();
+        emit connectedAndDiscovered();
     } else if (websocket.state() == QAbstractSocket::ConnectedState) {
         update_metrics(true, watts());
 
