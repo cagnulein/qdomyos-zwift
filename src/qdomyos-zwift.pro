@@ -181,6 +181,7 @@ SOURCES += \
    proformelliptical.cpp \
 	proformtreadmill.cpp \
 	qfit.cpp \
+    qzsettings.cpp \
    renphobike.cpp \
    rower.cpp \
 	schwinnic4bike.cpp \

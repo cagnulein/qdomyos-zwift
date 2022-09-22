@@ -1859,6 +1859,11 @@ namespace QZSettings {
 	*/
 	static const QString video_playback_window_s = QStringLiteral("video_playback_window_s");
 	static constexpr int default_video_playback_window_s = 12;
+
+    /**
+     * @brief Write the QSettings values using the constants from this namespace.
+     */
+    static void qDebugAllSettings();
 }
 
 #endif
