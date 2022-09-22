@@ -78,7 +78,12 @@ void horizontreadmill::waitForAPacket() {
 
 void horizontreadmill::btinit() {
     QSettings settings;
-    QString nickname = settings.value(QStringLiteral("user_nickname"), "user").toString();
+    QStringList horizon_treadmill_profile_users;
+    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user1"), "user1").toString());
+    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user2"), "user2").toString());
+    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user3"), "user3").toString());
+    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user4"), "user4").toString());
+    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user5"), "user5").toString());
     bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
@@ -100,23 +105,39 @@ void horizontreadmill::btinit() {
     uint8_t initData3[] = {0x55, 0xaa, 0x0f, 0x00, 0x03, 0x01, 0x01, 0x00, 0xd1, 0xf1, 0x01};
     uint8_t initData4[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
 
-    QByteArray username[7];
-    if (nickname.length() > 8)
-        nickname = nickname.left(8);
-    else if (nickname.length() == 0)
-        nickname = "user";
-    username[0] = nickname.toLocal8Bit();
-    for (int i = 0; i < 9; i++) {
-        uint8_t Char = username[0].at(i);
-        if(nickname.length() <= i)
-            Char = 0;
-        initData7[11 + i] = Char;
-        initData7_1[11 + i] = Char;
-        initData7_2[11 + i] = Char;
-        initData7_3[11 + i] = Char;
-        initData7_4[11 + i] = Char;
-        initData7_5[11 + i] = Char;
-        initData7_6[11 + i] = Char;
+    QByteArray username;
+    for(int i=0; i<horizon_treadmill_profile_users.length(); i++) {
+        QString nickname = horizon_treadmill_profile_users.at(i);
+        if (nickname.length() > 8)
+            nickname = nickname.left(8);
+        else if (nickname.length() == 0)
+            nickname = "user";
+        username = nickname.toLocal8Bit();
+        for (int i = 0; i < 9; i++) {
+            uint8_t Char = username.at(i);
+            if(nickname.length() <= i)
+                Char = 0;
+            switch(i) {
+            case 0:
+                initData7_1[11 + i] = Char;
+                break;
+            case 1:
+                initData7_2[11 + i] = Char;
+                break;
+            case 2:
+                initData7_3[11 + i] = Char;
+                break;
+            case 3:
+                initData7_4[11 + i] = Char;
+                break;
+            case 4:
+                initData7_5[11 + i] = Char;
+                break;
+            default:
+                initData7_6[11 + i] = Char;
+                break;
+            }
+        }
     }
     
     updateProfileCRC();
