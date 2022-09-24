@@ -329,16 +329,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
         Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
     }
 
-    emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-    emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
-    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
-    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
-    emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
-    emit debug(QStringLiteral("Current Elapsed from the bike (not used): ") +
-               QString::number(GetElapsedFromPacket(newValue)));
-    emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
-    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
-
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
@@ -346,7 +336,7 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
     }
     KCal = kcal;
     if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
@@ -381,7 +371,15 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     Resistance = resistance;
     emit resistanceRead(Resistance.value());
-
+    emit debug(QStringLiteral("Current speed: ") + QString::number(Speed.value()));
+    emit debug(QStringLiteral("Current cadence: ") + QString::number(cadence));
+    emit debug(QStringLiteral("Current heart: ") + QString::number(Heart.value()));
+    emit debug(QStringLiteral("Current KCal: ") + QString::number(kcal));
+    emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
+    emit debug(QStringLiteral("Current Elapsed from the bike (not used): ") +
+               QString::number(GetElapsedFromPacket(newValue)));
+    emit debug(QStringLiteral("Current Elapsed: ") + QString::number(elapsed.value()));
+    emit debug(QStringLiteral("Current Distance Calculated: ") + QString::number(Distance.value()));
     emit debug(QStringLiteral("Current resistance: ") + QString::number(resistance));
 
     lastTimeCharChanged = QTime::currentTime();
