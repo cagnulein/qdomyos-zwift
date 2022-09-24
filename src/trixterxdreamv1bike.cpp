@@ -542,8 +542,11 @@ resistance_t trixterxdreamv1bike::calculateResistanceFromInclination(double incl
     double bikeMass = settings.value(QStringLiteral("bike_weight"), 0.0).toFloat();
     double totalMass = riderMass+bikeMass;
 
-    double flywheelRPM = cadence * trixterxdreamv1client::GearRatio; // not using the value from device here to avoid freewheeling
-    double speedMetresPerSecond = flywheelRPM / 60.0 * 1000 * this->wheelCircumference;
+    // Since we need speed to calculate power, and QZ isn't getting it from Zwift,
+    // this number is invented to produce a somewhat believable user experience.
+    constexpr double magicNumber = 0.75;
+    double cadenceSensorSpeedRatio = settings.value(QStringLiteral("cadence_sensor_speed_ratio"), 0.33).toDouble();
+    double speedMetresPerSecond = magicNumber * cadenceSensorSpeedRatio * cadence;
     double fg = 9.8067*sin(atan(0.01*inclination))*totalMass;
 
     uint16_t power = (uint16_t)(fg * speedMetresPerSecond);
