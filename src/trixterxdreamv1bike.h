@@ -114,19 +114,13 @@ private:
     resistance_t resistanceLevel = 0;
 
     /**
-     * @brief Option to use resistance levels 0..100 instead of
-     * a full range that exceeds an int8_t.
-     */
-    bool useResistancePercentage = false;
-
-    /**
      * @brief The simulated circumference of the bike's wheels, for converting
      * angular velocity to a speed. Units: kilometers.
      */
     double wheelCircumference;
 
     /**
-     * @brief t0 The start time in milliseconds. Used to reduce te size of time values processed.
+     * @brief t0 The start time in milliseconds. Used to determine elapsed time.
      */
     qint64 t0=0;
 
@@ -198,33 +192,26 @@ private:
      * @brief Calculate power from cadence RPM and resistance.
      * @param cadenceRPM
      * @param resistance Bike resistance on full, not percentage scale.
-     * @return
      */
     double calculatePower(int cadenceRPM, int resistance);
 
     /**
      * @brief Calculate resistance from current inclination and cadence.
-     * @return
      */
     resistance_t calculateResistanceFromInclination();
 
     /**
-     * @brief Adjust the resistance based on whether the
-     * object has been configured to use a resistance percentage or the
-     * raw value.
-     * @param input 0..100 if the object is using a resistance percentage,
-     * 0..trixterxdreamclient::MaxResistance otherwise.
-     * @param toDevice The direction of the conversion.
-     * @return
+     * @brief Calculate resistance from the specified inclination and cadence. Uses rider and bike weight from settings.
+     * @param inclination Percentage inclination.
+     * @param cadence Cadence in RPM.
      */
-    resistance_t adjustedResistance(resistance_t input, bool toDevice);
+    resistance_t calculateResistanceFromInclination(double inclination, double cadence);
 
     /**
      * @brief Called to set the resistance level sent to the device.
      * @param resistanceLevel The resistance level to request (0..maximumResistance())
      */
     void set_resistance(resistance_t resistanceLevel);
-
 
 protected:
 
@@ -279,15 +266,13 @@ public:
 
     /**
      * @brief Calculate the power for the requested resistance at the current cadence.
-     * @param requestedResistance
-     * @return
+     * @param requestedResistance The resistance from 0 to maximumResistance().
      */
     uint16_t powerFromResistanceRequest(resistance_t requestedResistance) override;
 
     /**
      * @brief Calculate the resistance required to produce the requested power at the current cadence.
-     * @param power
-     * @return
+     * @param power The power in watts.
      */
     resistance_t resistanceFromPowerRequest(uint16_t power) override;
 
@@ -321,9 +306,8 @@ public:
 
     /**
      * @brief The maximum resistance supported.
-     * @return
      */
-    resistance_t maxResistance() override { return this->useResistancePercentage ? 100:trixterxdreamv1client::MaxResistance; }
+    resistance_t maxResistance() override { return trixterxdreamv1client::MaxResistance; }
 
     /**
      * @brief Map Peloton 0 to 100% resistance to the bike's range.
