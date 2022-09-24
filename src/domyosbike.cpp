@@ -427,7 +427,7 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
     }
     KCal = kcal;
     Distance = distance;

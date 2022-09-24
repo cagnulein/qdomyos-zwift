@@ -180,10 +180,8 @@ void metric::clearLap(bool accumulator) {
 
 void metric::setLap(bool accumulator) { clearLap(accumulator); }
 
-double metric::calculateSpeedFromPower(double power, double inclination) {
+double metric::calculateMaxSpeedFromPower(double power, double inclination) {
     QSettings settings;
-    if (inclination < -5)
-        inclination = -5;
     double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
                         settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
     double aero = 0.22691607640851885;
@@ -210,6 +208,39 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
         vel = vNew;
     }
     return 0.0; // failed to converge
+}
+
+double metric::calculatePowerFromSpeed(double speed, double inclination) {
+    QSettings settings;
+    double v = speed / 3.6;  // converted to m/s;
+    double hw = 0; // wind speed
+    double tv = v + 0;
+    double tran = 0.95;
+    const double aero = 0.22691607640851885;
+    double A2Eff = (tv > 0.0) ? aero : -aero; // wind in face, must reverse effect
+    double twt = 9.8 * (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
+                        settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
+    double tr = twt * ((inclination / 100.0) + 0.005);
+    return (v * tr + v * tv * tv * A2Eff) / tran;
+}
+
+double metric::calculateSpeedFromPower(double power, double inclination, double speed, double deltaTimeSeconds) {
+    QSettings settings;
+    if (inclination < -5)
+        inclination = -5;
+    
+    double fullWeight = (settings.value(QStringLiteral("weight"), 75.0).toFloat() +
+                         settings.value(QStringLiteral("bike_weight"), 0.0).toFloat());
+    double maxSpeed = calculateMaxSpeedFromPower(power, inclination);
+    double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
+    double acceleration = (power - maxPowerFromSpeed) / fullWeight;
+    double newSpeed = speed + (acceleration * 3.6 * deltaTimeSeconds);
+    if(maxSpeed > newSpeed)
+        return newSpeed;
+    else if(maxSpeed < speed)
+        return newSpeed;
+    else
+        return maxSpeed;
 }
 
 double metric::calculateWeightLoss(double kcal) {

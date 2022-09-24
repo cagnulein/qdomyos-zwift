@@ -272,7 +272,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             /*if (!settings.value(QStringLiteral("speed_power_based"), false).toBool())
                 Speed = (double)((((uint8_t)newValue.at(4)) << 10) | ((uint8_t)newValue.at(9))) / 100.0;
             else*/
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
 
         } else if (newValue.length() == 13) {
 
@@ -298,7 +298,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         if (!settings.value(QStringLiteral("speed_power_based"), false).toBool())
             Speed = (double)((((uint8_t)newValue.at(7)) << 8) | ((uint8_t)newValue.at(6))) / 10.0;
         else
-            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+            Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
     }
 
     if (watts())

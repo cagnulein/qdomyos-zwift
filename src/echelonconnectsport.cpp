@@ -231,7 +231,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
     }
     if (watts())
         KCal +=

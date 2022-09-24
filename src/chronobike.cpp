@@ -150,7 +150,7 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = ((double)((uint16_t)((uint8_t)newValue.at(6)) + ((uint16_t)((uint8_t)newValue.at(7)) << 8))) / 100.0;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
+        Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
     }
     if (watts())
         KCal +=
