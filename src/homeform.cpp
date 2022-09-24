@@ -3038,8 +3038,7 @@ void homeform::update() {
 
                 last_seconds_pid_heart_zone = seconds;
 
-                // it must be double because the current zone is double
-                double zone = settings.value(QStringLiteral("treadmill_pid_heart_zone"), QStringLiteral("Disabled"))
+                uint8_t zone = settings.value(QStringLiteral("treadmill_pid_heart_zone"), QStringLiteral("Disabled"))
                                    .toString()
                                    .toUInt();
                 if (fromTrainProgram) {
@@ -3055,13 +3054,13 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < currentHRZone) {
+                        if (zone < ((uint8_t)currentHRZone)) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (zone > currentHRZone && maxSpeed >= currentSpeed + step) {
+                        } else if (zone > ((uint8_t)currentHRZone) && maxSpeed >= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
@@ -3083,10 +3082,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (zone < currentHRZone) {
+                        if (zone < ((uint8_t)currentHRZone)) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > currentHRZone) {
+                        } else if (zone > ((uint8_t)currentHRZone)) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
@@ -3095,10 +3094,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (zone < currentHRZone) {
+                        if (zone < ((uint8_t)currentHRZone)) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > currentHRZone) {
+                        } else if (zone > ((uint8_t)currentHRZone)) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }

@@ -85,8 +85,10 @@ QCoreApplication *createApplication(int &argc, char *argv[]) {
     bool nogui = false;
 
     for (int i = 1; i < argc; ++i) {
-        if (!qstrcmp(argv[i], "-no-gui"))
+        if (!qstrcmp(argv[i], "-no-gui")) {
             nogui = true;
+            forceQml = false;
+        }
         if (!qstrcmp(argv[i], "-qml"))
             forceQml = true;
         if (!qstrcmp(argv[i], "-noqml"))
