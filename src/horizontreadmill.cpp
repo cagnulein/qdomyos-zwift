@@ -106,8 +106,8 @@ void horizontreadmill::btinit() {
     uint8_t initData4[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
 
     QByteArray username;
-    for(int i=0; i<horizon_treadmill_profile_users.length(); i++) {
-        QString nickname = horizon_treadmill_profile_users.at(i);
+    for(int l=0; l<horizon_treadmill_profile_users.length(); l++) {
+        QString nickname = horizon_treadmill_profile_users.at(l);
         if (nickname.length() > 8)
             nickname = nickname.left(8);
         else if (nickname.length() == 0)
