@@ -114,10 +114,12 @@ void horizontreadmill::btinit() {
             nickname = "user";
         username = nickname.toLocal8Bit();
         for (int i = 0; i < 9; i++) {
-            uint8_t Char = username.at(i);
+            uint8_t Char;
+            if(i < username.length())
+                Char = username.at(i);
             if(nickname.length() <= i)
                 Char = 0;
-            switch(i) {
+            switch(l) {
             case 0:
                 initData7_1[11 + i] = Char;
                 break;
