@@ -235,6 +235,8 @@ double metric::calculateSpeedFromPower(double power, double inclination, double 
     double maxPowerFromSpeed = calculatePowerFromSpeed(speed, inclination);
     double acceleration = (power - maxPowerFromSpeed) / fullWeight;
     double newSpeed = speed + (acceleration * 3.6 * deltaTimeSeconds);
+    if(newSpeed < 0)
+        newSpeed = 0;
     if(maxSpeed > newSpeed)
         return newSpeed;
     else if(maxSpeed < speed)
