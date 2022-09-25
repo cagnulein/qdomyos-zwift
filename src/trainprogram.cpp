@@ -245,12 +245,6 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     // Calculate rate beween Videoframedistance and played distance
     double rate = (playedgpxdistance / videoframedistance);
 
-    double timerate=(100.0 / (100.0 + fabs(videodiff)));
-    if (videosecs < gpxsecs) {
-        timerate = (1.0 / timerate);
-    }    
-    rate = rate * timerate;
-
     qDebug() << "TimeRateFromGPX" 
              << gpxsecs
              << videosecs
