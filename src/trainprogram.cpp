@@ -236,6 +236,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     qDebug() << "TimeRateFromGPX" 
              << gpxsecs
              << videosecs
+             << (gpxsecs-videosecs)
              << fullRate
              << timeFrame
              << currentspeed
