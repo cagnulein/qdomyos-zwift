@@ -163,7 +163,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double videodiff = videosecs - gpxsecs;
 
     if ((fabs(videodiff)) > 1.0) {
-        fullRate=(10.0 / (10.0 + fabs(videodiff)));
+        fullRate=(3.0 / (3.0 + fabs(videodiff)));
         if (videosecs < gpxsecs) {
             fullRate = (1.0 / fullRate);
         }
