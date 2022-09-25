@@ -332,6 +332,11 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
+    // moved up to have the Watt for the Speed calc
+    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
+            .toString()
+            .startsWith(QStringLiteral("Disabled")))
+        m_watt = watt;
 
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = speed;
@@ -344,10 +349,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
     }
-    if (settings.value(QStringLiteral("power_sensor_name"), QStringLiteral("Disabled"))
-            .toString()
-            .startsWith(QStringLiteral("Disabled")))
-        m_watt = watt;
 
     double ac = 0.01243107769;
     double bc = 1.145964912;
