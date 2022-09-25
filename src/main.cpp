@@ -321,10 +321,10 @@ int main(int argc, char *argv[]) {
             settings.setValue(QZSettings::android_wakelock, false);
         }
 
-        noHeartService = settings.value(QZSettings::bike_heartrate_service, QZSettings::default_bike_heartrate_service /* defaultNoHeartService */).toBool();
-        bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, QZSettings::default_bike_resistance_offset /* bikeResistanceOffset */).toInt();
-        bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, QZSettings::default_bike_resistance_gain_f /* bikeResistanceGain */).toDouble();
-        deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device /* QStringLiteral("Disabled") */).toString();
+        noHeartService = settings.value(QZSettings::bike_heartrate_service,  defaultNoHeartService ).toBool();
+        bikeResistanceOffset = settings.value(QZSettings::bike_resistance_offset, bikeResistanceOffset).toInt();
+        bikeResistanceGain = settings.value(QZSettings::bike_resistance_gain_f, bikeResistanceGain).toDouble();
+        deviceName = settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString();
     }
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
     else {

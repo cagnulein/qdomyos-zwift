@@ -126,55 +126,69 @@ namespace QZSettings {
     //--------------------------------------------------------------------------------------------
 
     /**
-	 *@brief 
+     *@brief Zoom percentage for the user interface.
 	*/
 	static const QString ui_zoom = QStringLiteral("ui_zoom");
 	static constexpr float default_ui_zoom = 100.0;
+
 	/**
 	 *@brief 
 	*/
 	static const QString bike_heartrate_service = QStringLiteral("bike_heartrate_service");
 	static constexpr bool default_bike_heartrate_service = false;
+
 	/**
-	 *@brief 
+     *@brief An offset that can be applied to the resistance from the device.
+     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
 	*/
 	static const QString bike_resistance_offset = QStringLiteral("bike_resistance_offset");
 	static constexpr int default_bike_resistance_offset = 4;
+
     /**
-	 *@brief 
+     *@brief A gain that can be applied to the resistance from the device.
+     * calculated_resistance = raw_resitance * bike_resistance_gain_f + bike_resistance_offset
 	*/
 	static const QString bike_resistance_gain_f = QStringLiteral("bike_resistance_gain_f");
 	static constexpr float default_bike_resistance_gain_f = 1.0;
+
 	/**
 	 *@brief 
 	*/
 	static const QString zwift_erg = QStringLiteral("zwift_erg");
 	static constexpr bool default_zwift_erg = false;
+
     /**
 	 *@brief 
 	*/
 	static const QString zwift_erg_filter = QStringLiteral("zwift_erg_filter");
 	static constexpr float default_zwift_erg_filter = 10.0;
+
     /**
 	 *@brief 
 	*/
 	static const QString zwift_erg_filter_down = QStringLiteral("zwift_erg_filter_down");
 	static constexpr float default_zwift_erg_filter_down = 10.0;
+
 	/**
 	 *@brief 
 	*/
 	static const QString zwift_negative_inclination_x2 = QStringLiteral("zwift_negative_inclination_x2");
 	static constexpr bool default_zwift_negative_inclination_x2 = false;
+
     /**
-	 *@brief 
+     *@brief An offset that will be applied to the inclination received from the client application.
+     * calculated_inclination = raw_inclination * zwift_inclination_gain + zwift_inclination_offset
 	*/
 	static const QString zwift_inclination_offset = QStringLiteral("zwift_inclination_offset");
 	static constexpr float default_zwift_inclination_offset = 0;
+
     /**
-	 *@brief 
-	*/
+     *@brief A gain that will be applied to the inclination received from the client application.
+     * calculated_inclination = raw_inclination * zwift_inclination_gain + zwift_inclination_offset
+    */
 	static const QString zwift_inclination_gain = QStringLiteral("zwift_inclination_gain");
 	static constexpr float default_zwift_inclination_gain = 1.0;
+
     /**
 	 *@brief 
 	*/
@@ -185,33 +199,40 @@ namespace QZSettings {
 	*/
 	static const QString echelon_resistance_gain = QStringLiteral("echelon_resistance_gain");
 	static constexpr float default_echelon_resistance_gain = 1.0;
+
 	/**
 	 *@brief 
 	*/
 	static const QString speed_power_based = QStringLiteral("speed_power_based");
 	static constexpr bool default_speed_power_based = false;
+
 	/**
-	 *@brief 
+     *@brief The resistance to be set when a bike or elliptical trainer first connects.
 	*/
 	static const QString bike_resistance_start = QStringLiteral("bike_resistance_start");
 	static constexpr int default_bike_resistance_start = 1;
+
 	/**
-	 *@brief 
+     *@brief The age of the user in years.
 	*/
 	static const QString age = QStringLiteral("age");
 	static constexpr int default_age = 35.0;
+
     /**
-	 *@brief 
+     *@brief The mass of the user in kilograms. Used for power calculations.
 	*/
 	static const QString weight = QStringLiteral("weight");
 	static constexpr float default_weight = 75.0;
+
     /**
-	 *@brief 
+     *@brief The user's Functional Threshold Power in watts per kilogram. This is a measure of the best average power output the user
+     * could sustain for 1 hour in a time-trial scenario.
 	*/
 	static const QString ftp = QStringLiteral("ftp");
 	static constexpr float default_ftp = 200.0;
+
     /**
-	 *@brief 
+     *@brief Email address of the user.
 	*/
 	static const QString user_email = QStringLiteral("user_email");
 	static const QString default_user_email = QStringLiteral("");
@@ -221,7 +242,7 @@ namespace QZSettings {
 	static const QString user_nickname = QStringLiteral("user_nickname");
 	static const QString default_user_nickname = QStringLiteral("");
 	/**
-	 *@brief 
+     *@brief Specifies whether or not to use miles (false) or kilometers (true) as the unit of distance.
 	*/
 	static const QString miles_unit = QStringLiteral("miles_unit");
 	static constexpr bool default_miles_unit = false;
@@ -231,7 +252,7 @@ namespace QZSettings {
 	static const QString pause_on_start = QStringLiteral("pause_on_start");
 	static constexpr bool default_pause_on_start = false;
 	/**
-	 *@brief 
+     *@brief value for peloton trainrow.forcespeed.
 	*/
 	static const QString treadmill_force_speed = QStringLiteral("treadmill_force_speed");
 	static constexpr bool default_treadmill_force_speed = false;
@@ -245,16 +266,19 @@ namespace QZSettings {
 	*/
 	static const QString continuous_moving = QStringLiteral("continuous_moving");
 	static constexpr bool default_continuous_moving = false;
+
 	/**
-	 *@brief 
+     *@brief
 	*/
 	static const QString bike_cadence_sensor = QStringLiteral("bike_cadence_sensor");
 	static constexpr bool default_bike_cadence_sensor = false;
+
 	/**
 	 *@brief 
 	*/
 	static const QString run_cadence_sensor = QStringLiteral("run_cadence_sensor");
 	static constexpr bool default_run_cadence_sensor = false;
+
 	/**
 	 *@brief 
 	*/
@@ -296,12 +320,13 @@ namespace QZSettings {
 	static const QString top_bar_enabled = QStringLiteral("top_bar_enabled");
 	static constexpr bool default_top_bar_enabled = true;
 	/**
-	 *@brief 
+     *@brief The username for logging in to Peloton.
 	*/
 	static const QString peloton_username = QStringLiteral("peloton_username");
 	static const QString default_peloton_username = QStringLiteral("username");
+
 	/**
-	 *@brief 
+     *@brief The password for logging in to Peloton.
 	*/
 	static const QString peloton_password = QStringLiteral("peloton_password");
 	static const QString default_peloton_password = QStringLiteral("password");
@@ -310,8 +335,9 @@ namespace QZSettings {
 	*/
 	static const QString peloton_difficulty = QStringLiteral("peloton_difficulty");
 	static const QString default_peloton_difficulty = QStringLiteral("lower");
-	/**
-	 *@brief 
+
+    /**
+     *@brief
 	*/
 	static const QString peloton_cadence_metric = QStringLiteral("peloton_cadence_metric");
 	static const QString default_peloton_cadence_metric = QStringLiteral("Cadence");
@@ -1269,7 +1295,8 @@ namespace QZSettings {
 	*/
 	static const QString service_changed = QStringLiteral("service_changed");
 	static constexpr bool default_service_changed = false;
-	/**
+
+    /**
 	 *@brief 
 	*/
 	static const QString virtual_device_enabled = QStringLiteral("virtual_device_enabled");
@@ -1290,7 +1317,7 @@ namespace QZSettings {
 	static const QString android_wakelock = QStringLiteral("android_wakelock");
 	static constexpr bool default_android_wakelock = true;
 	/**
-	 *@brief 
+     *@brief Specifies if the debug log file will be written.
 	*/
 	static const QString log_debug = QStringLiteral("log_debug");
 	static constexpr bool default_log_debug = false;
@@ -1520,7 +1547,7 @@ namespace QZSettings {
 	static const QString fitfiu_mc_v460 = QStringLiteral("fitfiu_mc_v460");
 	static constexpr bool default_fitfiu_mc_v460 = false;
     /**
-	 *@brief 
+     *@brief The mass of the bike in kilograms.
 	*/
 	static const QString bike_weight = QStringLiteral("bike_weight");
 	static constexpr float default_bike_weight = 0;
@@ -1802,13 +1829,15 @@ namespace QZSettings {
 	*/
 	static const QString tile_vertical_oscillation_enabled = QStringLiteral("tile_vertical_oscillation_enabled");
 	static constexpr bool default_tile_vertical_oscillation_enabled = false;
+
 	/**
 	 *@brief 
 	*/
 	static const QString tile_vertical_oscillation_order = QStringLiteral("tile_vertical_oscillation_order");
 	static constexpr int default_tile_vertical_oscillation_order = 34;
+
 	/**
-	 *@brief 
+     *@brief The gender of the user.
 	*/
 	static const QString sex = QStringLiteral("sex");
 	static const QString default_sex = QStringLiteral("Male");
@@ -1837,7 +1866,7 @@ namespace QZSettings {
 	static constexpr bool default_proform_treadmill_se = false;
 	// from version 2.11.14
 	/**
-	 *@brief 
+     *@brief THe IP address for the Proform Treadmill.
 	*/
 	static const QString proformtreadmillip = QStringLiteral("proformtreadmillip");
 	static const QString default_proformtreadmillip = QStringLiteral("");
@@ -1849,7 +1878,7 @@ namespace QZSettings {
 	static constexpr bool default_kingsmith_encrypt_v3 = false;
 	// from version 2.11.38
 	/**
-	 *@brief 
+     *@brief IP address for the TDF 10.
 	*/
 	static const QString tdf_10_ip = QStringLiteral("tdf_10_ip");
 	static const QString default_tdf_10_ip = QStringLiteral("");
