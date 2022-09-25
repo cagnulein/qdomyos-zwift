@@ -160,8 +160,13 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
 
     // only for debug, this is the rate of the video vs the player for the whole ride
     double fullRate = gpxsecs / videosecs;
+    double videodiff = videosecs - gpxsecs;
 
-    if ((fabs(gpxsecs - videosecs)) > 1.0) {
+    if ((fabs(videodiff)) > 1.0) {
+        fullRate=(10.0 / (10.0 + fabs(videodiff)));
+        if (videosecs < gpxsecs) {
+            fullRate = (1.0 / fullRate);
+        }
         qDebug() << "TimeRateFromGPX Difference > 1 sec use Fullrate"
                  << gpxsecs
                  << videosecs
@@ -169,7 +174,6 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         return fullRate;
     }
 
-    double videodiff = videosecs-gpxsecs;
     bool loopFinished = false;
     double gpxdistance = 0.0;
     double videodistance = 0.0;
