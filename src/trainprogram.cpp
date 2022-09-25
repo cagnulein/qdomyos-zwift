@@ -161,18 +161,24 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     // only for debug, this is the rate of the video vs the player for the whole ride
     double fullRate = gpxsecs / videosecs;
 
+    if ((fabs(gpxsecs - videosecs)) > 1.0) {
+        qDebug() << "TimeRateFromGPX Difference > 1 sec use Fullrate"
+                 << gpxsecs
+                 << videosecs
+                 << fullRate ;
+        return fullRate;
+    }
+
     double videodiff = videosecs-gpxsecs;
     bool loopFinished = false;
     double gpxdistance = 0.0;
     double videodistance = 0.0;
     double gpxframedistance = 0.0;
     double videoframedistance = 0.0;
-    double speedframedistance = 0.0;
     int c = 0;
     int framestartsecs = -1;
     int frameendsecs = 0;
     double lastsec = 0.0;
-    double speedFrame = 5.0;
     
     // Identify last needed Time
     if (videosecs > gpxsecs) {
@@ -196,15 +202,12 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
             if (cursecs <= videosecs) videodistance += (rows.at(c).distance);
             if ((cursecs > gpxsecs) && (cursecs <= (gpxsecs + ((double)timeFrame)))) {
                 gpxframedistance += (rows.at(c).distance);
-            }
-            if ((cursecs > videosecs) && (cursecs <= (videosecs + ((double)timeFrame)))) {
-                videoframedistance += (rows.at(c).distance); 
-            }
-            if ((cursecs > videosecs) && (cursecs <= (videosecs + speedFrame))) {
-                speedframedistance += (rows.at(c).distance);
                 // Get the exact Start and End Times of Frame for correctly calculating average Speed
                 if (framestartsecs == -1) framestartsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
                 frameendsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);                
+            }
+            if ((cursecs > videosecs) && (cursecs <= (videosecs + ((double)timeFrame)))) {
+                videoframedistance += (rows.at(c).distance); 
             }
         }
         c++;
@@ -227,8 +230,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
 
         return 1.0;
     }
-    // Calculate the average Speed of the speed Frame
-    double avgVideoSpeed = (speedframedistance / (((double)(frameendsecs-framestartsecs+1)) / 3600.0));
+    // Calculate the average Speed of the gpx Frame
+    double avgVideoSpeed = (gpxframedistance / (((double)(frameendsecs-framestartsecs+1)) / 3600.0));
     // Calculate the Videospeed to Playerspeed Rate
     double speedRate = (currentspeed / avgVideoSpeed);
     // Calculate what the played gpx Distance will be assuming player speed doesn't change
