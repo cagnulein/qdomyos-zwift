@@ -54,6 +54,34 @@ void ConsoleReader::run() {
                 double inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
                 ((treadmill *)bluetoothManager->device())->changeInclination(inclination - 0.5, inclination - 0.5);
             }
+        } else if (key == '1') {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                ((treadmill *)bluetoothManager->device())->changeSpeed(5);
+            }
+        } else if (key == '2') {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                double inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
+                ((treadmill *)bluetoothManager->device())->changeInclination(inclination + 0.5, inclination + 0.5);
+            }
+        } else if (key == '3') {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                ((treadmill *)bluetoothManager->device())->changeSpeed(10);
+            }
+        } else if (key == '4') {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                ((treadmill *)bluetoothManager->device())->changeSpeed(speed - 0.5);
+            }
+        } else if (key == '5') {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                double inclination = ((treadmill *)bluetoothManager->device())->currentInclination().value();
+                ((treadmill *)bluetoothManager->device())->changeInclination(inclination - 0.5, inclination - 0.5);
+            }
+        } else if (key == '6') {
+            if (bluetoothManager->device() && bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
+                double speed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
+                ((treadmill *)bluetoothManager->device())->changeSpeed(speed + 0.5);
+            }
         }
         emit KeyPressed(key);
     }
