@@ -157,22 +157,53 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Videopos = 0" ;
         return 1.0;
     }
-
-    // only for debug, this is the rate of the video vs the player for the whole ride
-    double fullRate = gpxsecs / videosecs;
-    double videodiff = videosecs - gpxsecs;
-
-    if ((fabs(videodiff)) > 1.0) {
-        fullRate=(3.0 / (3.0 + fabs(videodiff)));
-        if (videosecs < gpxsecs) {
-            fullRate = (1.0 / fullRate);
-        }
-        qDebug() << "TimeRateFromGPX Difference > 1 sec use Fullrate"
-                 << gpxsecs
-                 << videosecs
-                 << fullRate ;
-        return fullRate;
+    double avgNextSpeed = avgSpeedNextSecondsGPX(5);
+    // Avoid a Division by Zero
+    if (avgNextSpeed == 0.0 )
+    {
+        qDebug() << "TimeRateFromGPX Nextspeed = 0" ;
+        return 1.0;
     }
+    // Calculate the Factor between current Players Speed and the next average GPX Speed
+    double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
+    // Calculate where the gpx would be in 1 Second
+    double gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
+    // We get called even if the gpx didn't move since it has only a resolution of 1 second. On low Playerspeed this happen's quite often.
+    // Add the last fractions to the Gpx Target Time
+    if (lastTimeRateGpxSecs == gpxsecs) {
+        gpxTarget += nextTimeRateGpxSecs;
+    } 
+    // Get needed Rate for the next second
+    double rate = (gpxTarget - videosecs);
+
+    // If rate < 0 Video is highly before the gpx and Video would be rewinded. Wait with Video for gpx to reach it
+    if (rate < 0.0) {
+        rate == 0.1;
+    }
+
+    qDebug() << "TimeRateFromGPX" 
+             << gpxsecs
+             << videosecs
+             << (gpxsecs-videosecs)
+             << currentspeed
+             << avgNextSpeed
+             << gpxTarget
+             << lastTimeRateGpxSecs
+             << nextTimeRateGpxSecs
+             << rate;
+
+    // If called multiple Times for the same gpx Time sum the calculated Timediffs
+    if (lastTimeRateGpxSecs == gpxsecs) {
+        nextTimeRateGpxSecs += rate;
+    }
+    // Save the last Gpx Timestamp and the last Rate for later calls.
+    else {
+        lastTimeRateGpxSecs = gpxsecs;
+        nextTimeRateGpxSecs = rate;
+    }
+    return rate;       
+
+    /*
 
     bool loopFinished = false;
     double gpxdistance = 0.0;
@@ -262,6 +293,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << playedgpxdistance
              << rate;
     return rate;
+    */
 }
 
 double trainprogram::avgInclinationNext100Meters() {

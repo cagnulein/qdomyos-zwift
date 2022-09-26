@@ -122,6 +122,8 @@ class trainprogram : public QObject {
     double lastOdometer = 0;
     double currentStepDistance = 0;
     QTimer timer;
+    double lastTimeRateGpxSecs = 0.0;
+    double nextTimeRateGpxSecs = 0.0;
 };
 
 #endif // TRAINPROGRAM_H
