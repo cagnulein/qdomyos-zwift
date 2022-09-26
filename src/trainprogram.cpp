@@ -170,15 +170,15 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
     // We get called even if the gpx didn't move since it has only a resolution of 1 second. On low Playerspeed this happen's quite often.
     // Add the last fractions to the Gpx Target Time
-    if (lastTimeRateGpxSecs == gpxsecs) {
-        gpxTarget += nextTimeRateGpxSecs;
-    } 
+    //if (lastTimeRateGpxSecs == gpxsecs) {
+    //    gpxTarget += nextTimeRateGpxSecs;
+    //} 
     // Get needed Rate for the next second
     double rate = (gpxTarget - videosecs);
 
     // If rate < 0 Video is highly before the gpx and Video would be rewinded. Wait with Video for gpx to reach it
     if (rate < 0.0) {
-        rate == 0.1;
+        rate = 0.1;
     }
 
     qDebug() << "TimeRateFromGPX" 
