@@ -24,9 +24,9 @@ extern quint8 QZ_EnableDiscoveryCharsAndDescripttors;
 #endif
 
 horizontreadmill::horizontreadmill(bool noWriteResistance, bool noHeartService) {
-    
+
     testProfileCRC();
-    
+
 #ifdef Q_OS_IOS
     QZ_EnableDiscoveryCharsAndDescripttors = true;
 #endif
@@ -79,11 +79,16 @@ void horizontreadmill::waitForAPacket() {
 void horizontreadmill::btinit() {
     QSettings settings;
     QStringList horizon_treadmill_profile_users;
-    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user1"), "user1").toString());
-    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user2"), "user2").toString());
-    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user3"), "user3").toString());
-    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user4"), "user4").toString());
-    horizon_treadmill_profile_users.append(settings.value(QStringLiteral("horizon_treadmill_profile_user5"), "user5").toString());
+    horizon_treadmill_profile_users.append(
+        settings.value(QStringLiteral("horizon_treadmill_profile_user1"), "user1").toString());
+    horizon_treadmill_profile_users.append(
+        settings.value(QStringLiteral("horizon_treadmill_profile_user2"), "user2").toString());
+    horizon_treadmill_profile_users.append(
+        settings.value(QStringLiteral("horizon_treadmill_profile_user3"), "user3").toString());
+    horizon_treadmill_profile_users.append(
+        settings.value(QStringLiteral("horizon_treadmill_profile_user4"), "user4").toString());
+    horizon_treadmill_profile_users.append(
+        settings.value(QStringLiteral("horizon_treadmill_profile_user5"), "user5").toString());
     bool horizon_paragon_x = settings.value(QStringLiteral("horizon_paragon_x"), false).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
@@ -106,7 +111,7 @@ void horizontreadmill::btinit() {
     uint8_t initData4[] = {0x55, 0xaa, 0x10, 0x00, 0x03, 0x10, 0x01, 0x00, 0xf0, 0xe1, 0x00};
 
     QByteArray username;
-    for(int l=0; l<horizon_treadmill_profile_users.length(); l++) {
+    for (int l = 0; l < horizon_treadmill_profile_users.length(); l++) {
         QString nickname = horizon_treadmill_profile_users.at(l);
         if (nickname.length() > 8)
             nickname = nickname.left(8);
@@ -115,24 +120,21 @@ void horizontreadmill::btinit() {
         username = nickname.toLocal8Bit();
         for (int i = 0; i < 9; i++) {
             uint8_t Char;
-            if(i < username.length())
+            if (i < username.length())
                 Char = username.at(i);
-            if(nickname.length() <= i)
+            if (nickname.length() <= i)
                 Char = 0;
-            switch(l) {
+            switch (l) {
             case 0:
-                initData7_1[11 + i] = Char;
-                break;
-            case 1:
                 initData7_2[11 + i] = Char;
                 break;
-            case 2:
+            case 1:
                 initData7_3[11 + i] = Char;
                 break;
-            case 3:
+            case 2:
                 initData7_4[11 + i] = Char;
                 break;
-            case 4:
+            case 3:
                 initData7_5[11 + i] = Char;
                 break;
             default:
@@ -141,7 +143,7 @@ void horizontreadmill::btinit() {
             }
         }
     }
-    
+
     updateProfileCRC();
 
     if (gattCustomService) {
@@ -1662,7 +1664,7 @@ void horizontreadmill::updateProfileCRC() {
 
     initData7[8] = (confirm & 0xff);
     initData7[9] = (confirm >> 8);
-        
+
     confirm = GenerateCRC_CCITT(&initData7_1[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1704,7 +1706,7 @@ void horizontreadmill::updateProfileCRC() {
 
     initData7_1[8] = (confirm & 0xff);
     initData7_1[9] = (confirm >> 8);
-    
+
     confirm = GenerateCRC_CCITT(&initData7_2[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1746,7 +1748,7 @@ void horizontreadmill::updateProfileCRC() {
 
     initData7_2[8] = (confirm & 0xff);
     initData7_2[9] = (confirm >> 8);
-    
+
     confirm = GenerateCRC_CCITT(&initData7_3[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1788,7 +1790,7 @@ void horizontreadmill::updateProfileCRC() {
 
     initData7_3[8] = (confirm & 0xff);
     initData7_3[9] = (confirm >> 8);
-    
+
     confirm = GenerateCRC_CCITT(&initData7_4[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1830,7 +1832,7 @@ void horizontreadmill::updateProfileCRC() {
 
     initData7_4[8] = (confirm & 0xff);
     initData7_4[9] = (confirm >> 8);
-    
+
     confirm = GenerateCRC_CCITT(&initData7_5[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1872,7 +1874,7 @@ void horizontreadmill::updateProfileCRC() {
 
     initData7_5[8] = (confirm & 0xff);
     initData7_5[9] = (confirm >> 8);
-    
+
     confirm = GenerateCRC_CCITT(&initData7_6[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1916,7 +1918,6 @@ void horizontreadmill::updateProfileCRC() {
     initData7_6[9] = (confirm >> 8);
 }
 
-
 void horizontreadmill::testProfileCRC() {
     int confirm = GenerateCRC_CCITT(&initData7[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -1959,7 +1960,7 @@ void horizontreadmill::testProfileCRC() {
 
     assert(initData7[8] == (confirm & 0xff));
     assert(initData7[9] == (confirm >> 8));
-        
+
     confirm = GenerateCRC_CCITT(&initData7_1[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -2001,7 +2002,7 @@ void horizontreadmill::testProfileCRC() {
 
     assert(initData7_1[8] == (confirm & 0xff));
     assert(initData7_1[9] == (confirm >> 8));
-    
+
     confirm = GenerateCRC_CCITT(&initData7_2[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -2043,7 +2044,7 @@ void horizontreadmill::testProfileCRC() {
 
     assert(initData7_2[8] == (confirm & 0xff));
     assert(initData7_2[9] == (confirm >> 8));
-    
+
     confirm = GenerateCRC_CCITT(&initData7_3[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -2085,7 +2086,7 @@ void horizontreadmill::testProfileCRC() {
 
     assert(initData7_3[8] == (confirm & 0xff));
     assert(initData7_3[9] == (confirm >> 8));
-    
+
     confirm = GenerateCRC_CCITT(&initData7_4[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -2127,7 +2128,7 @@ void horizontreadmill::testProfileCRC() {
 
     assert(initData7_4[8] == (confirm & 0xff));
     assert(initData7_4[9] == (confirm >> 8));
-    
+
     confirm = GenerateCRC_CCITT(&initData7_5[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
@@ -2169,7 +2170,7 @@ void horizontreadmill::testProfileCRC() {
 
     assert(initData7_5[8] == (confirm & 0xff));
     assert(initData7_5[9] == (confirm >> 8));
-    
+
     confirm = GenerateCRC_CCITT(&initData7_6[10], 10);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
     confirm = GenerateCRC_CCITT(initData8, sizeof(initData8), confirm);
