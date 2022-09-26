@@ -63,6 +63,7 @@ class bhfitnesselliptical : public elliptical {
     uint8_t firstStateChanged = 0;
     uint8_t bikeResistanceOffset = 4;
     double bikeResistanceGain = 1.0;
+    const uint8_t max_resistance = 24;
 
     bool initDone = false;
     bool initRequest = false;

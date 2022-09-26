@@ -55,11 +55,15 @@ void bhfitnesselliptical::writeCharacteristic(uint8_t *data, uint8_t data_len, c
 
 void bhfitnesselliptical::forceResistance(resistance_t requestResistance) {
 
-    uint8_t write[] = {FTMS_SET_TARGET_RESISTANCE_LEVEL, 0x00};
+    uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x21, 0x22};
 
-    write[1] = ((uint16_t)requestResistance) & 0xFF;
+    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
+    write[4] = ((uint16_t)requestResistance * 100) >> 8;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
+
+    // this bike doesn't send resistance, so I have to use the value forced
+    Resistance = requestResistance;
 }
 
 void bhfitnesselliptical::update() {
@@ -69,6 +73,7 @@ void bhfitnesselliptical::update() {
     }
 
     if (initRequest) {
+
         initRequest = false;
     } else if (bluetoothDevice.isValid() &&
                m_control->state() == QLowEnergyController::DiscoveredState //&&
@@ -85,11 +90,8 @@ void bhfitnesselliptical::update() {
         }
 
         if (requestResistance != -1) {
-            if (requestResistance > 100) {
-                requestResistance = 100;
-            } // TODO, use the bluetooth value
-            else if (requestResistance == 0) {
-                requestResistance = 1;
+            if (requestResistance > max_resistance) {
+                requestResistance = max_resistance;
             }
 
             if (requestResistance != currentResistance().value()) {
