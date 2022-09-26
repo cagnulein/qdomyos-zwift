@@ -179,7 +179,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     //    gpxTarget += nextTimeRateGpxSecs;
     //} 
     // Get needed Rate for the next second
-    double rate = ((gpxTarget - videosecs) * 0.9);
+    double rate = (gpxTarget - videosecs);
+    if (rate > 1.2) rate = (rate * 0.9);
+    if (rate < 0.8) rate = (rate * 1.1);
 
     // If rate < 0 Video is highly before the gpx and Video would be rewinded. Wait with Video for gpx to reach it
     if (rate < 0.0) {
