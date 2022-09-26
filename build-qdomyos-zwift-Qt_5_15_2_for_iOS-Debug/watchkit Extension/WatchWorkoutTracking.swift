@@ -177,9 +177,9 @@ extension WorkoutTracking: WorkoutTrackingProtocol {
                 print(error)
             }
 
-            if sport > 0 {
-				    workoutBuilder?.dataSource?.enableCollection(for: HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!, predicate: nil)
-				}
+            if self.sport > 0 {
+                self.workoutBuilder.dataSource?.enableCollection(for: HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!, predicate: nil)
+            }
         }
     }
     
