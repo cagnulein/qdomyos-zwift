@@ -57,8 +57,8 @@ void bhfitnesselliptical::forceResistance(resistance_t requestResistance) {
 
     uint8_t write[] = {FTMS_SET_INDOOR_BIKE_SIMULATION_PARAMS, 0x00, 0x00, 0x00, 0x00, 0x21, 0x22};
 
-    write[3] = ((uint16_t)requestResistance * 100) & 0xFF;
-    write[4] = ((uint16_t)requestResistance * 100) >> 8;
+    write[3] = ((uint16_t)requestResistance * 20) & 0xFF;
+    write[4] = ((uint16_t)requestResistance * 20) >> 8;
 
     writeCharacteristic(write, sizeof(write), QStringLiteral("forceResistance ") + QString::number(requestResistance));
 
