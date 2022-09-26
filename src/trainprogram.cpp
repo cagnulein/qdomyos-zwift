@@ -164,6 +164,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Nextspeed = 0" ;
         return 1.0;
     }
+    if (gpxsecs == lastTimeRateGpxSecs) {
+        qDebug() << "TimeRateFromGPX Gpxpos=lastPos"
+                 << nextTimeRateGpxSecs ;
+        return nextTimeRateGpxSecs;
+    }
     // Calculate the Factor between current Players Speed and the next average GPX Speed
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
     // Calculate where the gpx would be in 1 Second
@@ -192,12 +197,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
              << nextTimeRateGpxSecs
              << rate;
 
-    // If called multiple Times for the same gpx Time sum the calculated Timediffs
-    if (lastTimeRateGpxSecs == gpxsecs) {
-        nextTimeRateGpxSecs += rate;
-    }
     // Save the last Gpx Timestamp and the last Rate for later calls.
-    else {
+    if (lastTimeRateGpxSecs != gpxsecs) {
         lastTimeRateGpxSecs = gpxsecs;
         nextTimeRateGpxSecs = rate;
     }
