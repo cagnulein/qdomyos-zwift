@@ -467,6 +467,9 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.43
             property int video_playback_window_s: 12
+
+            // from version 2.11.??
+            property real rolling_resistance: 0.005
         }
 
         function paddingZeros(text, limit) {
@@ -1145,6 +1148,38 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.speed_power_based = checked
+                    }
+                    RowLayout {
+                        spacing: 10
+                        Label {
+                            id: labelRollingResistance
+                            text: qsTr("Rolling Resistance Factor")
+                            Layout.fillWidth: true
+                        }
+                        TextField {
+                            id: rollingreistanceTextField
+                            text: settings.rolling_resistance
+                            horizontalAlignment: Text.AlignRight
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            //inputMethodHints: Qt.ImhFormattedNumbersOnly
+                            onAccepted: settings.rolling_resistance = text
+                            onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                        }
+                        Button {
+                            id: okRollingResistanceButton
+                            text: "OK"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                            onClicked: settings.rolling_resistance = rollingreistanceTextField.text
+                        }
+                    }
+                    Label {
+                        id: labelRollingResistanceInfo
+                        text: qsTr("0.005 = Clinchers\n0.004 = Tubulars\n0.012 = MTB")
+                        font.italic: true
+                        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                        font.pixelSize: 9
+                        color: "steelblue"
                     }
                     RowLayout {
                         spacing: 10
