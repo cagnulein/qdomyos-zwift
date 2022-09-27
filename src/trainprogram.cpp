@@ -604,8 +604,17 @@ void trainprogram::scheduler() {
                     if (bluetoothManager->device()->odometer() - lastOdometer > 0)
                         p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer),
                                                    rows.at(currentStep).azimuth);
+                    qDebug() << "positionOffset" << (bluetoothManager->device()->odometer() - lastOdometer);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
-                    emit changeTimestamp(rows.at(currentStep).gpxElapsed, QTime(0, 0, 0).addSecs(ticks));
+                    
+                    double distanceRow = rows.at(currentStep).distance;
+                    double ratioDistance = currentStepDistance / distanceRow;
+                    QTime r = rows.at(currentStep).gpxElapsed;
+                    if(currentStep + 1 < rows.length()) {
+                        ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
+                        r = r.addMSecs(ratioDistance * 1000);
+                    }
+                    emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");
@@ -648,7 +657,15 @@ void trainprogram::scheduler() {
                 qDebug() << QStringLiteral("trainprogram change inclination due to gps") + QString::number(inc);
                 emit changeInclination(inc, inc);
                 emit changeNextInclination300Meters(inclinationNext300Meters());
-                emit changeTimestamp(rows.at(currentStep).gpxElapsed, QTime(0, 0, 0).addSecs(ticks));
+
+                double distanceRow = rows.at(currentStep).distance;
+                double ratioDistance = currentStepDistance / distanceRow;
+                QTime r = rows.at(currentStep).gpxElapsed;
+                if(currentStep + 1 < rows.length()) {
+                    ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
+                    r = r.addMSecs(ratioDistance * 1000);
+                }
+                emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
             }
         }
         sameIteration++;
