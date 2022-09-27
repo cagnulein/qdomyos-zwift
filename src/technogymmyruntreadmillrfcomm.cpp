@@ -151,7 +151,7 @@ void technogymmyruntreadmillrfcomm::update() {
             */
         }
 
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
     }
 }
 

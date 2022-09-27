@@ -63,8 +63,8 @@ void nordictrackifitadbbike::processPendingDatagrams() {
 
         QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip /* "" */).toString();
         QString heartRateBeltName =
-            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
-        double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
         double speed = 0;
         double cadence = 0;

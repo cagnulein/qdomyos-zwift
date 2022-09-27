@@ -100,7 +100,7 @@ void trxappgateusbtreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotifyCharacteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1update++ == (1000 / refresh->interval())) {
@@ -182,7 +182,7 @@ void trxappgateusbtreadmill::characteristicChanged(const QLowEnergyCharacteristi
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));

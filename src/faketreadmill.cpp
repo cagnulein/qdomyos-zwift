@@ -31,9 +31,9 @@ faketreadmill::faketreadmill(bool noWriteResistance, bool noHeartService, bool n
 void faketreadmill::update() {
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
-    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
     Distance += ((Speed.value() / (double)3600.0) /
                  ((double)1000.0 / (double)(lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
@@ -84,7 +84,7 @@ void faketreadmill::update() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
         if (ios_peloton_workaround && cadence && h && firstStateChanged) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());

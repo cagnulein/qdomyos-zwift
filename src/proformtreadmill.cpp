@@ -129,7 +129,7 @@ void proformtreadmill::update() {
                gattCommunicationChannelService && gattWriteCharacteristic.isValid() &&
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill /* false */).toBool();
         bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill /* false */).toBool();
@@ -678,14 +678,14 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill /* false */).toBool();
     bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill /* false */).toBool();
     bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill /* false */).toBool();
     bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i /* false */).toBool();
     bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se /* false */).toBool();
     bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0 /* false */).toBool();
-    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 

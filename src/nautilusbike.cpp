@@ -134,9 +134,9 @@ void nautilusbike::characteristicChanged(const QLowEnergyCharacteristic &charact
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 

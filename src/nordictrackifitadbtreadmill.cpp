@@ -72,8 +72,8 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
 
         QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip /* "" */).toString();
         QString heartRateBeltName =
-            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
-        double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
         double speed = 0;
         double incline = 0;
@@ -167,7 +167,7 @@ void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
 void nordictrackifitadbtreadmill::update() {
 
     QSettings settings;
-    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
     if(initRequest) {
         initRequest = false;

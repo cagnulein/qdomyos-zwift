@@ -187,7 +187,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -205,7 +205,7 @@ void skandikawiribike::characteristicChanged(const QLowEnergyCharacteristic &cha
     if (newValue.at(1) == 0x00) {
         double speed = GetSpeedFromPacket(newValue);
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
@@ -332,7 +332,7 @@ void skandikawiribike::stateChanged(QLowEnergyService::ServiceState state) {
             bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
             bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";

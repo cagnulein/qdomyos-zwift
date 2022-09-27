@@ -341,8 +341,8 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
-    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain /* 1.0 */).toDouble();
     double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset /* 0.0 */).toDouble();
     const double miles = 1.60934;

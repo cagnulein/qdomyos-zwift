@@ -144,8 +144,8 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin /* false */).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     static bool firstPacket = false;
 
     union flags {
@@ -201,14 +201,14 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() *
+                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                    3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
                                                                   // kg * 3.5) / 200 ) / 60
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio /* 0.33 */).toDouble();
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
@@ -229,7 +229,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         index += 2;
 
         if (!Flags.moreData) {
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                   (uint16_t)((uint8_t)newValue.at(index)))) /
                         100.0;
@@ -334,7 +334,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         } else {
             if (watts())
                 KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -395,7 +395,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
@@ -520,7 +520,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
         bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
         if (ios_peloton_workaround && cadence) {
             qDebug() << "ios_peloton_workaround activated!";

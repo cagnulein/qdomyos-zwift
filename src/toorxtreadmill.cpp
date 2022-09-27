@@ -258,7 +258,7 @@ void toorxtreadmill::update() {
             emit debug(QStringLiteral("write poll"));
         }
 
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
     }
 }
 

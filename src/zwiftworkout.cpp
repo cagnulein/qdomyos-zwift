@@ -86,7 +86,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 double speed = speedFromPace(Pace);
                 row.speed = ((60.0 / speed) * 60.0) * OnPower;
             } else {
-                row.power = OnPower * settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
+                row.power = OnPower * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
             }
             list.append(row);
             if (!durationAsDistance(sportType, durationType))
@@ -98,7 +98,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                 double speed = speedFromPace(Pace);
                 row.speed = ((60.0 / speed) * 60.0) * OffPower;
             } else {
-                row.power = OffPower * settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
+                row.power = OffPower * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
             }
             qDebug() << "TrainRow" << row.toString();
             list.append(row);
@@ -128,7 +128,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                     row.speed = ((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i));
                 } else {
                     row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
+                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                 }
             } else {
                 if (sportType.toLower().contains(QStringLiteral("run"))) {
@@ -137,7 +137,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
                     row.speed = ((60.0 / speed) * 60.0) * (PowerLow + (((PowerHigh - PowerLow) / Duration) * i));
                 } else {
                     row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
+                                settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                 }
             }
             qDebug() << "TrainRow" << row.toString();
@@ -177,7 +177,7 @@ void zwiftworkout::convertTag(double thresholdSecPerKm, const QString &sportType
             Power = 1;
         }
 
-        row.power = Power * settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
+        row.power = Power * settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
         if (!durationAsDistance(sportType, durationType))
             row.duration = QTime(Duration / 3600, Duration / 60, Duration % 60, 0);
         else

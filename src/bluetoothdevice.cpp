@@ -38,7 +38,7 @@ void bluetoothdevice::offsetElapsedTime(int offset) { elapsed += offset; }
 
 QTime bluetoothdevice::currentPace() {
     QSettings settings;
-    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -55,7 +55,7 @@ QTime bluetoothdevice::currentPace() {
 QTime bluetoothdevice::averagePace() {
 
     QSettings settings;
-    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -72,7 +72,7 @@ QTime bluetoothdevice::averagePace() {
 QTime bluetoothdevice::maxPace() {
 
     QSettings settings;
-    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
+    bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
     if (miles) {
         unit_conversion = 0.621371;
@@ -157,7 +157,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             if (watt_calc) {
                 m_watt = watts;
             }
-            WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+            WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
         } else if (m_watt.value() > 0) {
 
             m_watt = 0;
@@ -168,7 +168,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         if (watt_calc) {
             m_watt = watts;
         }
-        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     } else if (m_watt.value() > 0) {
 
         m_watt = 0;
@@ -267,7 +267,7 @@ uint8_t bluetoothdevice::metrics_override_heartrate() {
 
     QSettings settings;
     QString setting =
-        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric /* QStringLiteral("Heart Rate") */).toString();
+        settings.value(QZSettings::peloton_heartrate_metric, QZSettings::default_peloton_heartrate_metric).toString();
     if (!setting.compare(QStringLiteral("Heart Rate"))) {
         return currentHeart().value();
     } else if (!setting.compare(QStringLiteral("Speed"))) {

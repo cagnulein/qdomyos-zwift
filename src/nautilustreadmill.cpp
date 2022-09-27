@@ -106,7 +106,7 @@ void nautilustreadmill::update() {
         }
         // ********************************************************************************************************
 
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         // it seems that stops the communication
@@ -167,7 +167,7 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -205,10 +205,10 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         // Distance = distance;
 
         if (!firstCharacteristicChanged) {
-            if (watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()))
+            if (watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
                 KCal +=
-                    ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat())) + 1.19) *
-                       settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+                    ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                       settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                       200.0) /
                      (60000.0 / ((double)lastTimeCharacteristicChanged.msecsTo(
                                     QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in

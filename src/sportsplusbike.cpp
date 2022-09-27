@@ -119,7 +119,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     QSettings settings;
     bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie /* false */).toBool();
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -140,7 +140,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             }
             emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = speed;
             } else {
                 Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
@@ -178,7 +178,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
         emit debug(QStringLiteral("Current speed: ") + QString::number(speed));
 
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = speed;
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());

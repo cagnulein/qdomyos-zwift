@@ -372,7 +372,7 @@ QVariant allSettings[allSettingsCount][2] =  {
 
 };
 
-static void qDebugAllSettings() {
+void qDebugAllSettings() {
     QSettings settings;
 
     for(uint32_t i=0; i<allSettingsCount; i++) {

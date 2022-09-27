@@ -19,7 +19,7 @@ homefitnessbuddy::homefitnessbuddy(bluetooth *bl, QObject *parent) : QObject(par
     retry.setInterval(10s);
     connect(&retry, &QTimer::timeout, this, &homefitnessbuddy::startEngine);
 
-    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username /* QStringLiteral("username") */)
+    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
              .toString()
              .compare(QStringLiteral("username"))) {
         qDebug() << QStringLiteral("invalid peloton credentials");

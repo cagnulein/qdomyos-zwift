@@ -835,7 +835,7 @@ void TemplateInfoSenderBuilder::buildContext(bool forceReinit) {
         obj.setProperty(QStringLiteral("altitude"), device->currentCordinate().altitude());
         obj.setProperty(
             QStringLiteral("nickName"),
-            (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname /* QStringLiteral("") */).toString()).isEmpty()
+            (nickName = settings.value(QZSettings::user_nickname, QZSettings::default_user_nickname).toString()).isEmpty()
                 ? QString(QStringLiteral("N/A"))
                 : nickName);
         if (tp == bluetoothdevice::BIKE) {

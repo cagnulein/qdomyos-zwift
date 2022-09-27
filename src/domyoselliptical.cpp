@@ -264,7 +264,7 @@ void domyoselliptical::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -582,7 +582,7 @@ uint16_t domyoselliptical::watts() {
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
     uint16_t watts = 0;
-    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     if (currentSpeed().value() > 0) {
 
         double pace = 60 / currentSpeed().value();

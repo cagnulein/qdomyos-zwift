@@ -233,7 +233,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     // the elliptical send the speed in miles always
     double miles = 1;
@@ -346,8 +346,8 @@ void soleelliptical::btinit(bool startTape) {
     uint8_t initData6[] = {0x5b, 0x02, 0x02, 0x02, 0x5d};
     uint8_t initData7[] = {0x5b, 0x02, 0x03, 0x04, 0x5d};
 
-    initData3[4] = settings.value(QZSettings::age, QZSettings::default_age /* 35 */).toUInt();
-    initData3[6] = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 2.20462;
+    initData3[4] = settings.value(QZSettings::age, QZSettings::default_age).toUInt();
+    initData3[6] = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 2.20462;
 
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
     writeCharacteristic(initData1, sizeof(initData1), QStringLiteral("init"));
@@ -497,7 +497,7 @@ uint16_t soleelliptical::watts() {
     // calc Watts ref. https://alancouzens.com/blog/Run_Power.html
 
     uint16_t watts = 0;
-    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
     if (currentSpeed().value() > 0) {
 
         double pace = 60 / currentSpeed().value();

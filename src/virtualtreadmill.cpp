@@ -296,7 +296,7 @@ void virtualtreadmill::slopeChanged() {
 void virtualtreadmill::reconnect() {
     QSettings settings;
     bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed /* false */).toBool();
-    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
 
     if (bluetooth_relaxed) {
         return;
@@ -485,7 +485,7 @@ bool virtualtreadmill::connected() {
 
 bool virtualtreadmill::ftmsServiceEnable() {
     QSettings settings;
-    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
     if (noHeartService == false)
@@ -495,7 +495,7 @@ bool virtualtreadmill::ftmsServiceEnable() {
 
 bool virtualtreadmill::ftmsTreadmillEnable() {
     QSettings settings;
-    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (!cadence)
         return true;
     return false;
@@ -503,7 +503,7 @@ bool virtualtreadmill::ftmsTreadmillEnable() {
 
 bool virtualtreadmill::RSCEnable() {
     QSettings settings;
-    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::run_cadence_sensor, QZSettings::default_run_cadence_sensor).toBool();
     if (cadence)
         return true;
     return false;

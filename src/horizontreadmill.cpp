@@ -763,7 +763,7 @@ void horizontreadmill::update() {
         QSettings settings;
         bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8 /* false */).toBool();
         bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
-        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()));
+        update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
         if (sec1Update++ == (500 / refresh->interval())) {
@@ -902,7 +902,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
                                 QStringLiteral("forceSpeed"), false, true);
         } else {
             uint8_t datas[3];
-            bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit /* false */).toBool();
+            bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
             double miles_conversion = 1.0;
             if (miles)
                 miles_conversion = 0.621371;
@@ -1016,7 +1016,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     QSettings settings;
     // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
@@ -1049,10 +1049,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Inclination = (double)((uint8_t)lastPacketComplete.at(30)) / 10.0;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()))
+        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat())) + 1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -1075,10 +1075,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
         Inclination = (double)((uint8_t)newValue.at(63)) / 10.0;
         emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
 
-        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()))
+        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat())) + 1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -1098,10 +1098,10 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         // Inclination = (double)((uint8_t)newValue.at(3)) / 10.0;
         // emit debug(QStringLiteral("Current Inclination: ") + QString::number(Inclination.value()));
-        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()))
+        if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
             KCal +=
-                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat())) + 1.19) *
-                   settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+                ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                   settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                                 QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in
@@ -1210,9 +1210,9 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             // energy per minute
             index += 1;
         } else {
-            if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()))
-                KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat())) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+            if (firstDistanceCalculated && watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()))
+                KCal += ((((0.048 * ((double)watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat())) + 1.19) *
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 /
                           ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -1259,7 +1259,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin /* false */).toBool()) {
+        if (heart == 0.0 || settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool()) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT

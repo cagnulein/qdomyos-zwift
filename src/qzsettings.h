@@ -236,6 +236,7 @@ namespace QZSettings {
 	*/
 	static const QString user_email = QStringLiteral("user_email");
 	static const QString default_user_email = QStringLiteral("");
+
 	/**
 	 *@brief 
 	*/
@@ -1898,7 +1899,7 @@ namespace QZSettings {
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      */
-    static void qDebugAllSettings();
+    void qDebugAllSettings();
 }
 
 #endif

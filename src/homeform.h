@@ -186,7 +186,7 @@ class homeform : public QObject {
                     QLinearGradient backgroundGradient;
                     double maxWatt = wattMaxChart();
                     QSettings settings;
-                    double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble();
+                    double ftpSetting = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                     /*backgroundGradient.setStart(QPointF(0, 0));
                     backgroundGradient.setFinalStop(QPointF(0, 1));
                     backgroundGradient.setColorAt((maxWatt - (ftpSetting * 0.55)) / maxWatt, QColor("white"));
@@ -381,10 +381,10 @@ class homeform : public QObject {
         QSettings settings;
         if (bluetoothManager && bluetoothManager->device() &&
             bluetoothManager->device()->wattsMetric().max() >
-                (settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble() * 2)) {
+                (settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2)) {
             return bluetoothManager->device()->wattsMetric().max();
         } else {
-            return settings.value(QZSettings::ftp, QZSettings::default_ftp /* 200.0 */).toDouble() * 2;
+            return settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 2;
         }
     }
 

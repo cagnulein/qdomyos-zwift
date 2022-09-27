@@ -184,8 +184,8 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &characteristic, const QByteArray &newValue) {
     QByteArray reply;
     QSettings settings;
-    bool force_resistance = settings.value(QZSettings::virtualrower_forceresistance, QZSettings::default_virtualrower_forceresistance /* true */).toBool();
-    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg /* false */).toBool();
+    bool force_resistance = settings.value(QZSettings::virtualrower_forceresistance, QZSettings::default_virtualrower_forceresistance).toBool();
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
     //    double erg_filter_upper =
     //        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter /* 0.0 */).toDouble(); //
     //        NOTE:clang-analyzer-deadcode.DeadStores

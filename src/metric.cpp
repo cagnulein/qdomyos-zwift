@@ -185,7 +185,7 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
     QSettings settings;
     if (inclination < -5)
         inclination = -5;
-    double twt = 9.8 * (settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() +
+    double twt = 9.8 * (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
                         settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight /* 0.0 */).toFloat());
     double aero = 0.22691607640851885;
     double hw = 0; // wind speed
@@ -279,8 +279,8 @@ double metric::calculateVO2Max(QList<SessionLine> *session) {
 
     double peak = bests.first().avg;
     QSettings settings;
-    return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()) /
-            settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat()) *
+    return ((0.0108 * peak + 0.007 * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) /
+            settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()) *
            1000.0;
 }
 
@@ -307,8 +307,8 @@ Women:
 
     QSettings settings;
     QString sex = settings.value(QZSettings::sex, QZSettings::default_sex /* "Male" */).toString();
-    double weight = settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
-    double age = settings.value(QZSettings::age, QZSettings::default_age /* 35 */).toDouble();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double age = settings.value(QZSettings::age, QZSettings::default_age).toDouble();
     double T = elapsed / 60;
     double H = HR_AVG;
     double W = weight;

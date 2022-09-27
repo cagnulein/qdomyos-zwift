@@ -18,9 +18,9 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     this->bikeResistanceOffset = bikeResistanceOffset;
 
     QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
-    bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs /* false */).toBool();
-    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool bike_wheel_revs = settings.value(QZSettings::bike_wheel_revs, QZSettings::default_bike_wheel_revs).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service /* false */).toBool();
     bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed /* false */).toBool();
     bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart /* false */).toBool();
@@ -928,9 +928,9 @@ void virtualbike::reconnect() {
         return;
     }
 
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service /* false */).toBool();
-    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor /* false */).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
     bool service_changed = settings.value(QZSettings::service_changed, QZSettings::default_service_changed /* false */).toBool();
     bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart /* false */).toBool();
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon /* false */).toBool();
@@ -976,13 +976,13 @@ void virtualbike::reconnect() {
 void virtualbike::bikeProvider() {
 
     QSettings settings;
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool battery = settings.value(QZSettings::battery_service, QZSettings::default_battery_service /* false */).toBool();
-    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor /* false */).toBool();
+    bool power = settings.value(QZSettings::bike_power_sensor, QZSettings::default_bike_power_sensor).toBool();
     bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart /* false */).toBool();
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon /* false */).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit /* false */).toBool();
-    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg /* false */).toBool();
+    bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
 
     double normalizeWattage = Bike->wattsMetric().value();
     if (normalizeWattage < 0)
@@ -1235,8 +1235,8 @@ void virtualbike::echelonWriteStatus() {
 void virtualbike::echelonWriteResistance() {
 
     QSettings settings;
-    double bikeResistanceOffset = settings.value(QZSettings::echelon_resistance_offset, QZSettings::default_echelon_resistance_offset /* 0 */).toInt();
-    double bikeResistanceGain = settings.value(QZSettings::echelon_resistance_gain, QZSettings::default_echelon_resistance_gain /* 1 */).toDouble();
+    double bikeResistanceOffset = settings.value(QZSettings::echelon_resistance_offset, QZSettings::default_echelon_resistance_offset).toInt();
+    double bikeResistanceGain = settings.value(QZSettings::echelon_resistance_gain, QZSettings::default_echelon_resistance_gain).toDouble();
     double CurrentResistance = (Bike->currentResistance().value() * bikeResistanceGain) + bikeResistanceOffset;
 
     // resistance change notification

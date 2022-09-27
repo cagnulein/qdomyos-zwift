@@ -123,7 +123,7 @@ void bluetooth::finished() {
 
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name /* QStringLiteral("Disabled") */).toString();
     bool csc_as_bike = settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike /* false */).toBool();
@@ -286,7 +286,7 @@ bool bluetooth::heartRateBeltAvaiable() {
 
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     Q_FOREACH (QBluetoothDeviceInfo b, devices) {
         if (!heartRateBeltName.compare(b.name())) {
@@ -301,7 +301,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name /* QStringLiteral("Disabled") */).toString();
     bool heartRateBeltFound = heartRateBeltName.startsWith(QStringLiteral("Disabled"));
@@ -1727,7 +1727,7 @@ void bluetooth::connectedAndDiscovered() {
     static bool firstConnected = true;
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     QString ftmsAccessoryName =
         settings.value(QZSettings::ftms_accessory_name, QZSettings::default_ftms_accessory_name /* QStringLiteral("Disabled") */).toString();
     bool csc_as_bike = settings.value(QZSettings::cadence_sensor_as_bike, QZSettings::default_cadence_sensor_as_bike /* false */).toBool();
@@ -1743,20 +1743,20 @@ void bluetooth::connectedAndDiscovered() {
 
     // only at the first very connection, setting the user default resistance
     if (device() && firstConnected && device()->deviceType() == bluetoothdevice::BIKE &&
-        settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start /* 1 */).toUInt() != 1) {
+        settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt() != 1) {
         qobject_cast<bike *>(device())->changeResistance(
-            settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start /* 1 */).toUInt());
+            settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt());
     } else if (device() && firstConnected && device()->deviceType() == bluetoothdevice::ELLIPTICAL &&
-               settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start /* 1 */).toUInt() != 1) {
+               settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt() != 1) {
         qobject_cast<elliptical *>(device())->changeResistance(
-            settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start /* 1 */).toUInt());
+            settings.value(QZSettings::bike_resistance_start, QZSettings::default_bike_resistance_start).toUInt());
     }
 
     if (heartRateBeltName.startsWith(QStringLiteral("Disabled"))) {
-        if (!settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name /* "" */).toString().isEmpty()) {
+        if (!settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name).toString().isEmpty()) {
             settings.setValue(QZSettings::hrm_lastdevice_name, "");
         }
-        if (!settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address /* "" */).toString().isEmpty()) {
+        if (!settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address).toString().isEmpty()) {
             settings.setValue(QZSettings::hrm_lastdevice_address, "");
         }
     }
@@ -1996,7 +1996,7 @@ void bluetooth::restart() {
         return;
     }
 
-    if (settings.value(QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection /* false */).toBool()) {
+    if (settings.value(QZSettings::bluetooth_no_reconnection, QZSettings::default_bluetooth_no_reconnection).toBool()) {
         exit(EXIT_SUCCESS);
     }
 

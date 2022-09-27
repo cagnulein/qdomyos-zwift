@@ -256,7 +256,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     qt_search =
         (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value(QZSettings::m3i_bike_qt_search, QZSettings::default_m3i_bike_qt_search /* false */).toBool();
 #endif
-    heartRateBeltDisabled = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */)
+    heartRateBeltDisabled = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
                                 .toString()
                                 .startsWith(QStringLiteral("Disabled"));
     m_watt.setType(metric::METRIC_WATT);
@@ -624,7 +624,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
-                bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+                bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
                 bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* false */).toBool();
                 if (ios_peloton_workaround && cadence) {
                     qDebug() << "ios_peloton_workaround activated!";
@@ -676,7 +676,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = k3.watt;
         watts(); // to update avg and max
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             Speed = k3.speed;
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
@@ -686,7 +686,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         } else {
             if (watts())
                 KCal += ((((0.048 * ((double)watts()) + 1.19) *
-                           settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() * 3.5) /
+                           settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
                           200.0) /
                          (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime()))));
         }
@@ -704,7 +704,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
         m_jouls += (m_watt.value() * (k3.time - oldtime));
         WeightLoss = metric::calculateWeightLoss(KCal.value());
-        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat();
+        WattKg = m_watt.value() / settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
         if (Cadence.value() > 0) {
             CrankRevs++;
@@ -736,7 +736,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
 
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
-        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+        bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
         bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* false */).toBool();
         if (ios_peloton_workaround && cadence && h) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());

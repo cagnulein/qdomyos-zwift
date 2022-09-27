@@ -131,8 +131,8 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* QStringLiteral("Disabled") */).toString();
-    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin /* false */).toBool();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -175,7 +175,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     index += 2;
 
     if (!Flags.moreData) {
-        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+        if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
             // this elliptical doesn't send speed so i have to calculate this based on cadence
             /*
             Speed = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -206,7 +206,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
                       2.0;
 
             // this elliptical doesn't send speed so i have to calculate this based on cadence
-            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based /* false */).toBool()) {
+            if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
                 Speed = Cadence.value() / 10.0;
             }
         }
@@ -274,7 +274,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     } else {
         if (watts())
             KCal +=
-                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight /* 75.0 */).toFloat() *
+                ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() *
                    3.5) /
                   200.0) /
                  (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
@@ -335,7 +335,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
 /*
-    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor /* false */).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
     bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualTreadmill_setCadence(currentCrankRevolutions(), lastCrankEventTime());
