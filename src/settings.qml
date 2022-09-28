@@ -4938,7 +4938,6 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.horizon_treadmill_profile_user1 = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -4962,7 +4961,6 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.horizon_treadmill_profile_user2 = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -4986,7 +4984,6 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.horizon_treadmill_profile_user3 = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -5010,7 +5007,6 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.horizon_treadmill_profile_user4 = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
@@ -5034,7 +5030,6 @@ import Qt.labs.settings 1.0
                                 horizontalAlignment: Text.AlignRight
                                 Layout.fillHeight: false
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                                inputMethodHints: Qt.ImhDigitsOnly
                                 onAccepted: settings.horizon_treadmill_profile_user5 = text
                                 onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
                             }
