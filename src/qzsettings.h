@@ -1896,6 +1896,39 @@ namespace QZSettings {
 	static const QString video_playback_window_s = QStringLiteral("video_playback_window_s");
 	static constexpr int default_video_playback_window_s = 12;
 
+
+    /**
+     * @brief
+     */
+    static const QString horizon_treadmill_profile_user1 = QStringLiteral("horizon_treadmill_profile_user1");
+    static const QString default_horizon_treadmill_profile_user1 = QStringLiteral("user1");
+
+    /**
+     * @brief
+     */
+    static const QString horizon_treadmill_profile_user2 = QStringLiteral("horizon_treadmill_profile_user2");
+    static const QString default_horizon_treadmill_profile_user2 = QStringLiteral("user2");
+
+
+    /**
+     * @brief
+     */
+    static const QString horizon_treadmill_profile_user3 = QStringLiteral("horizon_treadmill_profile_user3");
+    static const QString default_horizon_treadmill_profile_user3 = QStringLiteral("user3");
+
+
+    /**
+     * @brief
+     */
+    static const QString horizon_treadmill_profile_user4 = QStringLiteral("horizon_treadmill_profile_user4");
+    static const QString default_horizon_treadmill_profile_user4 = QStringLiteral("user4");
+
+    /**
+     * @brief
+     */
+    static const QString horizon_treadmill_profile_user5 = QStringLiteral("horizon_treadmill_profile_user5");
+    static const QString default_horizon_treadmill_profile_user5 = QStringLiteral("user5");
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      */
