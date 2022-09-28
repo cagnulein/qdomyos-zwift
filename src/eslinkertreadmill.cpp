@@ -299,7 +299,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         } else if (newValue.length() == 3 && newValue.at(0) == 2 && newValue.at(1) == 1) {
             uint8_t heart = newValue.at(2);
 #ifdef Q_OS_ANDROID
-            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+            if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                 Heart = (uint8_t)KeepAwakeHelper::heart();
             else
 #endif
@@ -321,7 +321,7 @@ void eslinkertreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif

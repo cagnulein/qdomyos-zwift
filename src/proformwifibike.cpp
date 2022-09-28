@@ -75,7 +75,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 void proformwifibike::connectToDevice() {
     QSettings settings;
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
-    websocket.open(QUrl("ws://" + settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip /* "" */).toString() + "/control"));
+    websocket.open(QUrl("ws://" + settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString() + "/control"));
 }
 
 /*
@@ -423,7 +423,7 @@ void proformwifibike::characteristicChanged(const QString &newValue) {
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif

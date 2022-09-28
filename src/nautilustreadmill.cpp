@@ -180,7 +180,7 @@ void nautilustreadmill::characteristicChanged(const QLowEnergyCharacteristic &ch
         double incline = GetInclinationFromPacket(value);
 
     #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
     #endif

@@ -277,7 +277,7 @@ void soleelliptical::characteristicChanged(const QLowEnergyCharacteristic &chara
     }
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif

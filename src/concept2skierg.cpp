@@ -180,7 +180,7 @@ void concept2skierg::characteristicChanged(const QLowEnergyCharacteristic &chara
                     uint8_t heart_rate = newValue.at(7);
 
 #ifdef Q_OS_ANDROID
-                    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+                    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
                         Heart = (uint8_t)KeepAwakeHelper::heart();
                     else
 #endif

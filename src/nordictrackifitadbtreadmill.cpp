@@ -22,7 +22,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
-    QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip /* "" */).toString();
+    QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -70,7 +70,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip /* "" */).toString();
+        QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
@@ -112,7 +112,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif

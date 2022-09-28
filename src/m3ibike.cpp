@@ -251,7 +251,7 @@ bool KeiserM3iDeviceSimulator::step_cyc(keiser_m3i_out_t *f, qint64 now) {
 
 m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     QSettings settings;
-    antHeart = settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool();
+    antHeart = settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool();
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     qt_search =
         (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value(QZSettings::m3i_bike_qt_search, QZSettings::default_m3i_bike_qt_search /* false */).toBool();

@@ -86,7 +86,7 @@ KeepAwakeHelper::~KeepAwakeHelper() {
         m_wakeLock.callMethod<void>("release", "()V");
 
         QSettings settings;
-        if ((settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool() || settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool()) &&
+        if ((settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool() || settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) &&
             KeepAwakeHelper::antObject(false))
             KeepAwakeHelper::antObject(false)->callMethod<void>("doUnbindChannelService", "()V");
 

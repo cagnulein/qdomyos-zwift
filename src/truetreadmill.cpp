@@ -146,7 +146,7 @@ void truetreadmill::characteristicChanged(const QLowEnergyCharacteristic &charac
     emit debug(QStringLiteral(" << ") + QString::number(avalue.length()) + QStringLiteral(" ") + avalue.toHex(' '));
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif

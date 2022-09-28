@@ -333,12 +333,12 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
     bool eliteRizerFound = eliteRizerName.startsWith(QStringLiteral("Disabled"));
     bool eliteSterzoSmartFound = eliteSterzoSmartName.startsWith(QStringLiteral("Disabled"));
     bool fake_bike = settings.value(QZSettings::applewatch_fakedevice, QZSettings::default_applewatch_fakedevice).toBool();
-    bool fakedevice_elliptical = settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical /* false */).toBool();
+    bool fakedevice_elliptical = settings.value(QZSettings::fakedevice_elliptical, QZSettings::default_fakedevice_elliptical).toBool();
     bool fakedevice_treadmill = settings.value(QZSettings::fakedevice_treadmill, QZSettings::default_fakedevice_treadmill).toBool();
     bool pafers_treadmill = settings.value(QZSettings::pafers_treadmill, QZSettings::default_pafers_treadmill).toBool();
-    QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip /* "" */).toString();
+    QString proformtdf4ip = settings.value(QZSettings::proformtdf4ip, QZSettings::default_proformtdf4ip).toString();
     QString proformtreadmillip = settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString();
-    QString nordictrack_2950_ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip /* "" */).toString();
+    QString nordictrack_2950_ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     QString tdf_10_ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     bool manufacturerDeviceFound = false;
 
@@ -1958,13 +1958,13 @@ void bluetooth::connectedAndDiscovered() {
 
 #ifdef Q_OS_ANDROID
     if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool() ||
-        settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool()) {
+        settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
             "antStart", "(Landroid/app/Activity;ZZZ)V", activity.object<jobject>(),
             settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool(),
-            settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool(),
+            settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
             settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin /* false */).toBool());
     }
 #endif

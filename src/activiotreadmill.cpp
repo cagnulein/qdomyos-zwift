@@ -75,7 +75,7 @@ void activiotreadmill::forceSpeed(double requestSpeed) {
 
     writeSpeed[1] = (requestSpeed * 10);
     writeSpeed[5] += writeSpeed[1];
-    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460 /* false */).toBool())
+    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
         writeSpeed[6] = writeSpeed[1] + 1;
     else {
         switch(writeSpeed[1] & 0x0F) {
@@ -298,13 +298,13 @@ void activiotreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
     double speed = GetSpeedFromPacket(value);
     double incline = 1.0; // "fitfiu_mc_v460" has 1.0 fixed inclination
-    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460 /* false */).toBool())
+    if(!settings.value(QZSettings::fitfiu_mc_v460, QZSettings::default_fitfiu_mc_v460).toBool())
         incline = GetInclinationFromPacket(value);
     // double kcal = GetKcalFromPacket(value);
     // double distance = GetDistanceFromPacket(value);
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart /* false */).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
