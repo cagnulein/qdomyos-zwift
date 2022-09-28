@@ -614,7 +614,7 @@ void trainprogram::scheduler() {
                         ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
                         r = r.addMSecs(ratioDistance * 1000);
                     }
-                    emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
+                    //emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");
