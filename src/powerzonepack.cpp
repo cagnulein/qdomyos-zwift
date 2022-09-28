@@ -28,7 +28,7 @@ void powerzonepack::startEngine() {
     connect(&websocket, &QWebSocket::connected, [&]() {
         QSettings settings;
         websocket.sendTextMessage("[1,[\"Api_Login\",[\"" + settings.value(QZSettings::pzp_username, QZSettings::default_pzp_username).toString() +
-                                  "\",\"" + settings.value(QZSettings::pzp_password, QZSettings::default_pzp_password /* "password" */).toString() + "\"]]]");
+                                  "\",\"" + settings.value(QZSettings::pzp_password,  QZSettings::default_pzp_password).toString() + "\"]]]");
     });
     websocket.open(QUrl("wss://pzpack.com/api"));
 }

@@ -213,7 +213,7 @@ void trainprogram::scheduler() {
     QSettings settings;
     if (rows.count() == 0 || started == false || enabled == false || bluetoothManager->device() == nullptr ||
         (bluetoothManager->device()->currentSpeed().value() <= 0 &&
-         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving /* false */).toBool()) ||
+         !settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving).toBool()) ||
         bluetoothManager->device()->isPaused()) {
 
         return;

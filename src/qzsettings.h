@@ -263,7 +263,7 @@ namespace QZSettings {
 	static const QString pause_on_start_treadmill = QStringLiteral("pause_on_start_treadmill");
 	static constexpr bool default_pause_on_start_treadmill = false;
 	/**
-	 *@brief 
+     *@brief Flag to indicate if it should be ignored (true) that the user has stopped doing work.
 	*/
 	static const QString continuous_moving = QStringLiteral("continuous_moving");
 	static constexpr bool default_continuous_moving = false;

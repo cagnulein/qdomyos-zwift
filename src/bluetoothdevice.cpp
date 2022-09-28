@@ -145,7 +145,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
         watt_calc = false;
 
     if (!_firstUpdate && !paused) {
-        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving, QZSettings::default_continuous_moving /* true */).toBool()) {
+        if (currentSpeed().value() > 0.0 || settings.value(QZSettings::continuous_moving,  true).toBool()) {
 
             elapsed += deltaTime;
         }
