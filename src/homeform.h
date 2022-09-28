@@ -593,6 +593,8 @@ class homeform : public QObject {
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
+    QNetworkAccessManager *mgr = nullptr;
+    void licenseRequest();
 #endif
 
     QGeoPath gpx_preview;

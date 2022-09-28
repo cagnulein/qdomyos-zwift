@@ -263,14 +263,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
-    QNetworkAccessManager *mgr = new QNetworkAccessManager(this);
     connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
     tLicense.start(600000);
-    connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
-    QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
-             settings.value("user_email", "").toString());
-    QNetworkRequest request(url);
-    mgr->get(request);
+    licenseRequest();
 #endif
 
     this->bluetoothManager = bl;
@@ -4475,8 +4470,23 @@ void homeform::licenseReply(QNetworkReply *reply) {
     qDebug() << r;
     if (r.contains("OK")) {
         tLicense.stop();
+    } else {
+        licenseRequest();
     }
 }
+
+void homeform::licenseRequest() {
+    QSettings settings;
+    if (!mgr) {
+        mgr = new QNetworkAccessManager(this);
+        connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
+    }
+    QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
+             settings.value("user_email", "").toString());
+    QNetworkRequest request(url);
+    mgr->get(request);
+}
+
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
