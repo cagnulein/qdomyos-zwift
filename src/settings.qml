@@ -468,7 +468,7 @@ import Qt.labs.settings 1.0
             // from version 2.11.43
             property int video_playback_window_s: 12
 
-            // from version 2.11.60 ??? (it was a branch)
+            // from version 2.11.62
             property string horizon_treadmill_profile_user1: "user1"
             property string horizon_treadmill_profile_user2: "user2"
             property string horizon_treadmill_profile_user3: "user3"
