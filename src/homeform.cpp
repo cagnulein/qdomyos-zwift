@@ -446,7 +446,7 @@ void homeform::peloton_start_workout() {
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
         if (trainProgram) {
-            emit trainProgram->stop();
+            emit trainProgram->stop(false);
 
             delete trainProgram;
             trainProgram = nullptr;
@@ -1958,7 +1958,7 @@ void homeform::Start_inner(bool send_event_to_device) {
 
         paused = true;
         if (bluetoothManager->device() && send_event_to_device) {
-            bluetoothManager->device()->stop();
+            bluetoothManager->device()->stop(paused);
         }
         emit workoutEventStateChanged(bluetoothdevice::PAUSED);
     } else {
@@ -2033,7 +2033,7 @@ void homeform::Stop() {
             }
         }
 
-        bluetoothManager->device()->stop();
+        bluetoothManager->device()->stop(false);
     }
 
     paused = false;
