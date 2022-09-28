@@ -161,9 +161,12 @@ void horizontreadmill::btinit() {
                                 sizeof(initData03_paragon), QStringLiteral("init"), false, true);
 
         } else {
-            writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01, sizeof(initData01),
-                                QStringLiteral("init"), false, true);
-            waitForAPacket();
+            bootstrapMessageReceived = false;
+            while (!bootstrapMessageReceived) {
+                writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData01, sizeof(initData01),
+                                    QStringLiteral("init"), false, true);
+                waitForAPacket();
+            }
 
             writeCharacteristic(gattCustomService, gattWriteCharCustomService, initData7, sizeof(initData7),
                                 QStringLiteral("init"), false, false);
@@ -1049,6 +1052,11 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
             lastPacketComplete.clear();
             customRecv = (((uint16_t)((uint8_t)newValue.at(7)) << 8) | (uint16_t)((uint8_t)newValue.at(6))) + 10;
             qDebug() << "new custom packet received. Len expected: " << customRecv;
+        }
+
+        if (newValue.length() > 4 && newValue.at(0) == 0x55 && newValue.at(4) == 0x03) {
+            bootstrapMessageReceived = true;
+            qDebug() << "bootstrapMessageReceived = true";
         }
 
         lastPacketComplete.append(newValue);
