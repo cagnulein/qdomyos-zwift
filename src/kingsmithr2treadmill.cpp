@@ -59,7 +59,7 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
         QSettings settings;
         if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2 /* false */).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
-        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3 /* false */).toBool())
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             encrypted.append(ENCRYPT_TABLE_v3[idx]);
         else
             encrypted.append(ENCRYPT_TABLE[idx]);
@@ -118,8 +118,8 @@ void kingsmithr2treadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike /* false */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -250,7 +250,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         QSettings settings;
         if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2 /* false */).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
-        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3 /* false */).toBool())
+        else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             idx = ENCRYPT_TABLE_v3.indexOf(ch);
         else
             idx = ENCRYPT_TABLE.indexOf(ch);

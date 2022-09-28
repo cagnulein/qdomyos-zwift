@@ -111,7 +111,7 @@ void eslinkertreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -542,7 +542,7 @@ void eslinkertreadmill::deviceDiscovered(const QBluetoothDeviceInfo &device) {
         });
 
         QSettings settings;
-        bool eslinker_cadenza = settings.value(QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza /* true */).toBool();
+        bool eslinker_cadenza = settings.value(QZSettings::eslinker_cadenza, QZSettings::default_eslinker_cadenza).toBool();
         if (eslinker_cadenza) {
             treadmill_type = CADENZA_FITNESS_T45;
         } else

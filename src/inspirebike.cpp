@@ -141,7 +141,7 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     Resistance = newValue.at(6);
     emit resistanceRead(Resistance.value());
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(3));
@@ -161,18 +161,18 @@ void inspirebike::characteristicChanged(const QLowEnergyCharacteristic &characte
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
-    if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2 /* false */).toBool()) {
+    if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2).toBool()) {
         // y = 0,0002x^3 - 0.1478x^2 + 4.2412x + 1.8102
         m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.002) - (pow(Resistance.value(), 2) * 0.1478) +
                                 (4.2412 * Resistance.value()) + 1.8102) *
-                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) +
-                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble();
-    } else if (settings.value(QZSettings::inspire_peloton_formula, QZSettings::default_inspire_peloton_formula /* false */).toBool()) {
+                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
+    } else if (settings.value(QZSettings::inspire_peloton_formula, QZSettings::default_inspire_peloton_formula).toBool()) {
         // y = 0.0014x^3 - 0.0796x^2 + 2.575x + 0.0444
         m_pelotonResistance = (((pow(Resistance.value(), 3) * 0.0014) - (pow(Resistance.value(), 2) * 0.0796) +
                                 (2.575 * Resistance.value()) + 0.0444) *
-                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) +
-                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble();
+                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     } else {
         m_pelotonResistance = Resistance.value() * 2.5;
     }
@@ -264,7 +264,7 @@ void inspirebike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -387,7 +387,7 @@ uint16_t inspirebike::watts() {
         return 0;
     }
 
-    if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2 /* false */).toBool()) {
+    if (settings.value(QZSettings::inspire_peloton_formula2, QZSettings::default_inspire_peloton_formula2).toBool()) {
         const double m[] = {0.6,  0.7, 0.75, 0.7, 0.9,  0.85, 0.85, 1,    1.1,  1.25, 1.5,  1.4,  1.4, 1.5,
                             1.5,  1.8, 1.75, 2,   2.15, 2.55, 2.65, 2.65, 2.85, 2.9,  3.25, 3.65, 3.4, 4.05,
                             4.05, 4.2, 4.25, 4.8, 5.35, 5.5,  6.1,  5.35, 5.95, 6.65, 7.25, 7.05};
@@ -407,7 +407,7 @@ uint16_t inspirebike::watts() {
         } else
             return 0;
 
-    } else if (settings.value(QZSettings::inspire_peloton_formula, QZSettings::default_inspire_peloton_formula /* false */).toBool()) {
+    } else if (settings.value(QZSettings::inspire_peloton_formula, QZSettings::default_inspire_peloton_formula).toBool()) {
         return (uint16_t)(((3.59 * exp(0.0217 * (double)(currentCadence().value()))) *
                            exp(0.088 * (double)(currentResistance().value()))) /
                           2.2);

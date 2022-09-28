@@ -74,8 +74,8 @@ void domyosbike::updateDisplay(uint16_t elapsed) {
     uint16_t multiplier = 1;
 
     QSettings settings;
-    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display /* true */).toBool();
-    bool domyos_bike_display_calories = settings.value(QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories /* true */).toBool();
+    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display).toBool();
+    bool domyos_bike_display_calories = settings.value(QZSettings::domyos_bike_display_calories, QZSettings::default_domyos_bike_display_calories).toBool();
 
     if (domyos_bike_display_calories) {
         multiplier = 10;
@@ -190,7 +190,7 @@ void domyosbike::update() {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -347,8 +347,8 @@ void domyosbike::characteristicChanged(const QLowEnergyCharacteristic &character
     double distance = GetDistanceFromPacket(value);
 
     double ucadence = ((uint8_t)value.at(9));
-    double cadenceFilter = settings.value(QZSettings::domyos_bike_cadence_filter, QZSettings::default_domyos_bike_cadence_filter /* 0 */).toDouble();
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    double cadenceFilter = settings.value(QZSettings::domyos_bike_cadence_filter, QZSettings::default_domyos_bike_cadence_filter).toDouble();
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         if (cadenceFilter == 0 || cadenceFilter > ucadence) {

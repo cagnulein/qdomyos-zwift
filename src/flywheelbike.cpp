@@ -272,7 +272,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
             uint16_t speed = ((parsedData->speed >> 8) & 0xFF);
             speed += ((parsedData->speed & 0xFF) << 8);
 
-            if (zero_fix_filter < settings.value(QZSettings::flywheel_filter, QZSettings::default_flywheel_filter /* 2 */).toUInt() &&
+            if (zero_fix_filter < settings.value(QZSettings::flywheel_filter, QZSettings::default_flywheel_filter).toUInt() &&
                 (parsedData->cadence == 0 || speed == 0 || power == 0)) {
                 qDebug() << QStringLiteral("filtering crappy values");
                 zero_fix_filter++;
@@ -281,7 +281,7 @@ void flywheelbike::characteristicChanged(const QLowEnergyCharacteristic &charact
 
                 Resistance = parsedData->brake_level;
                 emit resistanceRead(Resistance.value());
-                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+                if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                         .toString()
                         .startsWith(QStringLiteral("Disabled"))) {
                     Cadence = parsedData->cadence;
@@ -366,7 +366,7 @@ void flywheelbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

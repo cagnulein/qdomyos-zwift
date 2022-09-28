@@ -138,11 +138,11 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (newValue.length() != 19)
         return;
 
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled")))
         m_watt = (uint16_t)((uint8_t)newValue.at(17)) + ((uint16_t)((uint8_t)newValue.at(18)) << 8);
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(8)) / 2;
@@ -176,8 +176,8 @@ void chronobike::characteristicChanged(const QLowEnergyCharacteristic &character
                     (cr - (m_watt.value() * 132.0 / (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
            br) /
           (2.0 * ar)) *
-         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) +
-        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble();
+         settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+        settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     Resistance = m_pelotonResistance;
     emit resistanceRead(Resistance.value());
 
@@ -268,7 +268,7 @@ void chronobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

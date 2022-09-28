@@ -42,8 +42,8 @@ proformwifitreadmill::proformwifitreadmill(bool noWriteResistance, bool noHeartS
 
     // ******************************************* virtual bike init *************************************
     if (!firstStateChanged && !virtualTreadMill && !virtualBike) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
-        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike /* false */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -74,7 +74,7 @@ void proformwifitreadmill::changeInclinationRequested(double grade, double perce
 void proformwifitreadmill::connectToDevice() {
     QSettings settings;
     // https://github.com/dawsontoth/zwifit/blob/e846501149a6c8fbb03af8d7b9eab20474624883/src/ifit.js
-    websocket.open(QUrl("ws://" + settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip /* "" */).toString() + "/control"));
+    websocket.open(QUrl("ws://" + settings.value(QZSettings::proformtreadmillip, QZSettings::default_proformtreadmillip).toString() + "/control"));
 }
 
 void proformwifitreadmill::forceSpeed(double requestSpeed) {

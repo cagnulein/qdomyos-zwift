@@ -150,7 +150,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
             double watt = GetWattFromPacket(newValue);
             emit debug(QStringLiteral("Current watt: ") + QString::number(watt));
 
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 m_watt = watt;
@@ -161,7 +161,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
         // double resistance = GetResistanceFromPacket(newValue);
         kcal = GetKcalFromPacket(newValue);
     } else {
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             double watt = ((uint8_t)newValue.at(9)) * 100;
@@ -212,7 +212,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     Resistance = requestResistance;
     emit resistanceRead(Resistance.value());
     KCal = kcal;
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = cadence;
@@ -315,7 +315,7 @@ void sportsplusbike::stateChanged(QLowEnergyService::ServiceState state) {
         // ******************************************* virtual bike init *************************************
         if (!firstVirtualBike && !virtualBike) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual bike interface..."));
                 virtualBike = new virtualbike(this, noWriteResistance, noHeartService);

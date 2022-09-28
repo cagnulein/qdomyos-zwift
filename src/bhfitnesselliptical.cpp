@@ -198,7 +198,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     }
 
     if (Flags.instantCadence) {
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -245,7 +245,7 @@ void bhfitnesselliptical::characteristicChanged(const QLowEnergyCharacteristic &
     }
 
     if (Flags.instantPower) {
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |

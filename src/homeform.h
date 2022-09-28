@@ -246,22 +246,22 @@ class homeform : public QObject {
                     plotAreaGradient.setFinalStop(QPointF(0, 1));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1 /* 70.0 */).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone1, QZSettings::default_heart_rate_zone1).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("lightsteelblue")));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2 /* 80.0 */).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone2, QZSettings::default_heart_rate_zone2).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("green")));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3 /* 90.0 */).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone3, QZSettings::default_heart_rate_zone3).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("yellow")));
                     plotAreaGradient.setColorAt(
                         (220 -
-                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4 /* 100.0 */).toDouble() / 100)) /
+                         (maxHeartRate * settings.value(QZSettings::heart_rate_zone4, QZSettings::default_heart_rate_zone4).toDouble() / 100)) /
                             160,
                         QColor(QStringLiteral("orange")));
                     plotAreaGradient.setColorAt(0.0, QColor(QStringLiteral("red")));
@@ -288,7 +288,7 @@ class homeform : public QObject {
 
     Q_INVOKABLE bool autoInclinationEnabled() {
         QSettings settings;
-        bool virtual_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike /* false */).toBool();
+        bool virtual_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
         return bluetoothManager && bluetoothManager->device() &&
                bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL && !virtual_bike &&
                bluetoothManager->device()->VirtualDevice() &&

@@ -108,8 +108,8 @@ void domyostreadmill::updateDisplay(uint16_t elapsed) {
                          0x01, 0x00, 0x05, 0x01, 0x01, 0x00, 0x0c, 0x01, 0x01, 0x00, 0x00, 0x01, 0x00};
 
     QSettings settings;
-    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display /* true */).toBool();
-    bool domyos_treadmill_display_invert = settings.value(QZSettings::domyos_treadmill_display_invert, QZSettings::default_domyos_treadmill_display_invert /* false */).toBool();
+    bool distance = settings.value(QZSettings::domyos_treadmill_distance_display, QZSettings::default_domyos_treadmill_distance_display).toBool();
+    bool domyos_treadmill_display_invert = settings.value(QZSettings::domyos_treadmill_display_invert, QZSettings::default_domyos_treadmill_display_invert).toBool();
 
     if (elapsed > 5999) // 99:59
     {
@@ -255,8 +255,8 @@ void domyostreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && searchStopped && !virtualTreadMill && !virtualBike) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
-            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike /* false */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
@@ -377,7 +377,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool domyos_treadmill_buttons = settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons /* false */).toBool();
+    bool domyos_treadmill_buttons = settings.value(QZSettings::domyos_treadmill_buttons, QZSettings::default_domyos_treadmill_buttons).toBool();
     Q_UNUSED(characteristic);
     QByteArray value = newValue;
 
@@ -557,7 +557,7 @@ void domyostreadmill::characteristicChanged(const QLowEnergyCharacteristic &char
     
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled")))
     {

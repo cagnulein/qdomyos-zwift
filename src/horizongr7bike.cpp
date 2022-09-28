@@ -182,16 +182,16 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         emit debug(QStringLiteral("Current Resistance: ") + QString::number(Resistance.value()));
 
         if (Heart.value() > 0) {
-            int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1 /* 200 */).toDouble() *
-                         settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble()) -
-                        (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2 /* 230 */).toDouble() *
-                         settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble())) /
-                           (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble() -
-                            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble()) +
-                       (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1 /* 200 */).toDouble() -
-                                          settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2 /* 230 */).toDouble()) /
-                                         (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble() -
-                                          settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble())));
+            int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
+                         settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
+                        (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
+                         settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
+                           (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
+                            settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
+                       (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                                          settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                                         (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                                          settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
             if (avgP < 50) {
                 avgP = 50;
             }
@@ -209,7 +209,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                                                                   // kg * 3.5) / 200 ) / 60
 
         if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio /* 0.33 */).toDouble();
+            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
         }
@@ -250,7 +250,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.instantCadence) {
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
 
@@ -258,7 +258,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
                 Cadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                      (uint16_t)((uint8_t)newValue.at(index)))) /
                            2.0) *
-                          settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier /* 1.0 */).toDouble();
+                          settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier).toDouble();
             }
             index += 2;
             emit debug(QStringLiteral("Current Cadence: ") + QString::number(Cadence.value()));
@@ -269,7 +269,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
             avgCadence = (((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                     (uint16_t)((uint8_t)newValue.at(index)))) /
                           2.0) *
-                         settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier /* 1.0 */).toDouble();
+                         settings.value(QZSettings::horizon_gr7_cadence_multiplier, QZSettings::default_horizon_gr7_cadence_multiplier).toDouble();
             index += 2;
             emit debug(QStringLiteral("Current Average Cadence: ") + QString::number(avgCadence));
         }
@@ -304,7 +304,7 @@ void horizongr7bike::characteristicChanged(const QLowEnergyCharacteristic &chara
         }
 
         if (Flags.instantPower) {
-            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+            if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 m_watt = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
@@ -517,7 +517,7 @@ void horizongr7bike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

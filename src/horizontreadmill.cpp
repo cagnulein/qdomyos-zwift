@@ -75,7 +75,7 @@ void horizontreadmill::waitForAPacket() {
 
 void horizontreadmill::btinit() {
     QSettings settings;
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
+    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     uint8_t initData01_paragon[] = {0x55, 0xaa, 0x00, 0x00, 0x02, 0x20, 0x00, 0x00, 0x00, 0x00, 0x0d, 0x0a};
 
@@ -762,7 +762,7 @@ void horizontreadmill::update() {
 
         QSettings settings;
         bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8 /* false */).toBool();
-        bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
+        bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
         // updating the treadmill console every second
@@ -877,7 +877,7 @@ void horizontreadmill::update() {
 // example frame: 55aa320003050400532c00150000
 void horizontreadmill::forceSpeed(double requestSpeed) {
     QSettings settings;
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
+    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -945,7 +945,7 @@ void horizontreadmill::forceSpeed(double requestSpeed) {
 // example frame: 55aa3800030603005d0b0a0000
 void horizontreadmill::forceIncline(double requestIncline) {
     QSettings settings;
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
+    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     if (gattCustomService) {
         if (!horizon_paragon_x) {
@@ -1014,7 +1014,7 @@ void horizontreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     Q_UNUSED(characteristic);
     bool distanceEval = false;
     QSettings settings;
-    // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
+    // bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
@@ -1388,8 +1388,8 @@ void horizontreadmill::stateChanged(QLowEnergyService::ServiceState state) {
     ) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
-        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike /* false */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -1577,7 +1577,7 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     QSettings settings;
     bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8 /* false */).toBool();
-    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x /* false */).toBool();
+    bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     // the horizon starts with a strange speed, since that i can auto start (maybe the best way to solve this
     // is to understand why it's starting with this strange speed)

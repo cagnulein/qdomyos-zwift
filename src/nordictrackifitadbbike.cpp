@@ -22,7 +22,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbbike::update);
-    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip /* "" */).toString();
+    QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -33,7 +33,7 @@ nordictrackifitadbbike::nordictrackifitadbbike(bool noWriteResistance, bool noHe
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualBike) {
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             debug("creating virtual bike interface...");
             virtualBike = new virtualbike(this);
@@ -61,7 +61,7 @@ void nordictrackifitadbbike::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip /* "" */).toString();
+        QString ip = settings.value(QZSettings::tdf_10_ip, QZSettings::default_tdf_10_ip).toString();
         QString heartRateBeltName =
             settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
         double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();

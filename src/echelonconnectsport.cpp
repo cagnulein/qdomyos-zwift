@@ -189,7 +189,7 @@ double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
     if (p < 0) {
         p = 0;
     }
-    return (p * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) + settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble();
+    return (p * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) + settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -223,7 +223,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     double distance = GetDistanceFromPacket(newValue);
 
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
@@ -380,7 +380,7 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -595,7 +595,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
     }
     double *watts_of_level;
     QSettings settings;
-    if (!settings.value(QZSettings::echelon_watttable, QZSettings::default_echelon_watttable /* "Echelon" */).toString().compare("mgarcea"))
+    if (!settings.value(QZSettings::echelon_watttable, QZSettings::default_echelon_watttable).toString().compare("mgarcea"))
         watts_of_level = wattTable_mgarcea[level];
     else
         watts_of_level = wattTable[level];

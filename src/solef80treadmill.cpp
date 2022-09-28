@@ -46,7 +46,7 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
     QEventLoop loop;
     QTimer timeout;
     QSettings settings;
-    bool inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination /* false */).toBool();
+    bool inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
     if (!inclination) {
         qDebug() << "inclination support disabled";
@@ -78,9 +78,9 @@ void solef80treadmill::writeCharacteristic(uint8_t *data, uint8_t data_len, QStr
 void solef80treadmill::btinit() {
 
     QSettings settings;
-    bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65 /* false */).toBool();
-    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63 /* false */).toBool();
-    bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8 /* false */).toBool();
+    bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65).toBool();
+    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
+    bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
 
     uint8_t initData01[] = {0x5b, 0x01, 0xf0, 0x5d};
     uint8_t initData01a[] = {0x5b, 0x04, 0x00, 0x10, 0x4f, 0x4b, 0x5d};
@@ -257,9 +257,9 @@ void solef80treadmill::waitForAPacket() {
 void solef80treadmill::update() {
 
     QSettings settings;
-    bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65 /* false */).toBool();
-    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63 /* false */).toBool();
-    bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8 /* false */).toBool();
+    bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65).toBool();
+    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
+    bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
 
     if (m_control->state() == QLowEnergyController::UnconnectedState) {
 
@@ -450,9 +450,9 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     bool disable_hr_frommachinery = settings.value(QZSettings::heart_ignore_builtin, QZSettings::default_heart_ignore_builtin).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65 /* false */).toBool();
-    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63 /* false */).toBool();
-    bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8 /* false */).toBool();
+    bool f65 = settings.value(QZSettings::sole_treadmill_f65, QZSettings::default_sole_treadmill_f65).toBool();
+    bool f63 = settings.value(QZSettings::sole_treadmill_f63, QZSettings::default_sole_treadmill_f63).toBool();
+    bool tt8 = settings.value(QZSettings::sole_treadmill_tt8, QZSettings::default_sole_treadmill_tt8).toBool();
 
     emit debug(QStringLiteral(" << ") + characteristic.uuid().toString() + " " + QString::number(newValue.length()) +
                " " + newValue.toHex(' '));
@@ -472,7 +472,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 
         // the treadmill send the speed in miles always
         double miles = 1;
-        if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles /* true */).toBool())
+        if (settings.value(QZSettings::sole_treadmill_miles, QZSettings::default_sole_treadmill_miles).toBool())
             miles = 1.60934;
 
         QDateTime now = QDateTime::currentDateTime();
@@ -678,7 +678,7 @@ void solef80treadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
 void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
 
     QSettings settings;
-    bool inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination /* false */).toBool();
+    bool inclination = settings.value(QZSettings::sole_treadmill_inclination, QZSettings::default_sole_treadmill_inclination).toBool();
 
     QMetaEnum metaEnum = QMetaEnum::fromType<QLowEnergyService::ServiceState>();
     emit debug(QStringLiteral("BTLE stateChanged ") + QString::fromLocal8Bit(metaEnum.valueToKey(state)));
@@ -768,7 +768,7 @@ void solef80treadmill::stateChanged(QLowEnergyService::ServiceState state) {
     ) {
 
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
 

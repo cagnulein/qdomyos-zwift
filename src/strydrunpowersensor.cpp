@@ -95,7 +95,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
     qDebug() << "characteristicChanged" << characteristic.uuid() << newValue.toHex(' ') << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill /* false */).toBool();
+    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
@@ -153,7 +153,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         bool InstantaneousStrideLengthPresent = (flags & 0x01);
         bool TotalDistancePresent = (flags & 0x02) ? true : false;
         bool WalkingorRunningStatusbits = (flags & 0x04) ? true : false;
-        bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double /* false */).toBool();
+        bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
         double cadence_multiplier = 1.0;
         if (double_cadence)
             cadence_multiplier = 2.0;
@@ -229,7 +229,7 @@ void strydrunpowersensor::characteristicChanged(const QLowEnergyCharacteristic &
         oldLastCrankEventTime = LastCrankEventTime;
         oldCrankRevs = CrankRevs;
         if (power_as_treadmill) {
-            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio /* 0.33 */).toDouble();
+            Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
 
             emit speedChanged(Speed.value());
             Distance += ((Speed.value() / 3600000.0) *
@@ -371,7 +371,7 @@ void strydrunpowersensor::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
         if (virtual_device_enabled) {
             emit debug(QStringLiteral("creating virtual treadmill interface..."));
             virtualTreadmill = new virtualtreadmill(this, noHeartService);

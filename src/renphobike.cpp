@@ -57,8 +57,8 @@ void renphobike::writeCharacteristic(uint8_t *data, uint8_t data_len, QString in
 
 void renphobike::forcePower(int16_t requestPower) {
     QSettings settings;
-    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
-    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
     double r = ((requestPower / watt_gain) - watt_offset);
     uint8_t write[] = {FTMS_SET_TARGET_POWER, 0x00, 0x00};
 
@@ -108,7 +108,7 @@ void renphobike::update() {
             if (requestPower != -1) {
                 debug("writing power request " + QString::number(requestPower));
                 QSettings settings;
-                bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+                bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                          .toString()
                                          .startsWith(QStringLiteral("Disabled"));
                 // if zwift is connected, QZ routes the ftms packets directly to the bike.
@@ -220,7 +220,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     }
 
     if (Flags.instantCadence) {
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* "Disabled" */).toString().startsWith("Disabled"))
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name).toString().startsWith("Disabled"))
             Cadence = ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) |
                                 (uint16_t)((uint8_t)newValue.at(index)))) /
                       2.0;
@@ -263,7 +263,7 @@ void renphobike::characteristicChanged(const QLowEnergyCharacteristic &character
     if (Flags.instantPower) {
         wattFromBike =
             ((double)(((uint16_t)((uint8_t)newValue.at(index + 1)) << 8) | (uint16_t)((uint8_t)newValue.at(index))));
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = wattFromBike.value();
@@ -458,7 +458,7 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -484,11 +484,11 @@ void renphobike::stateChanged(QLowEnergyService::ServiceState state) {
 
 uint16_t renphobike::ergModificator(uint16_t powerRequested) {
     QSettings settings;
-    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+    bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                              .toString()
                              .startsWith(QStringLiteral("Disabled"));
-    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
-    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
     qDebug() << QStringLiteral("applying ERG mod from") << powerRequested;
     powerRequested = ((powerRequested / watt_gain) - watt_offset);
@@ -528,11 +528,11 @@ void renphobike::ftmsCharacteristicChanged(const QLowEnergyCharacteristic &chara
 
         // handling watt gain for erg
         QSettings settings;
-        bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+        bool power_sensor = !settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                                  .toString()
                                  .startsWith(QStringLiteral("Disabled"));
-        double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
-        double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
+        double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+        double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
         if (lastFTMSPacketReceived.at(0) == FTMS_SET_TARGET_POWER &&
             (watt_gain != 1.0 || watt_offset != 0 || power_sensor)) {
             uint16_t r = (((uint8_t)lastFTMSPacketReceived.at(1)) + (lastFTMSPacketReceived.at(2) << 8));
@@ -663,7 +663,7 @@ uint8_t renphobike::resistanceFromPowerRequest(uint16_t power)
 
 double renphobike::bikeResistanceToPeloton(double resistance) {
     QSettings settings;
-    bool renpho_peloton_conversion_v2 = settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2 /* false */).toBool();
+    bool renpho_peloton_conversion_v2 = settings.value(QZSettings::renpho_peloton_conversion_v2, QZSettings::default_renpho_peloton_conversion_v2).toBool();
 
     if (!renpho_peloton_conversion_v2) {
         // 0,0069x2 + 0,3538x + 24,207

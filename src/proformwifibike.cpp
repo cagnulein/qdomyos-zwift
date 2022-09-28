@@ -48,7 +48,7 @@ proformwifibike::proformwifibike(bool noWriteResistance, bool noHeartService, ui
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -107,8 +107,8 @@ resistance_t proformwifibike::resistanceFromPowerRequest(uint16_t power) {
 
     QSettings settings;
 
-    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
-    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
     for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
@@ -269,8 +269,8 @@ void proformwifibike::update() {
 
 bool proformwifibike::inclinationAvailableByHardware() {
     QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio /* false */).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10 /* false */).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
     if (proform_studio || proform_tdf_10)
         return true;

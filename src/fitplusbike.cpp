@@ -71,7 +71,7 @@ void fitplusbike::writeCharacteristic(uint8_t *data, uint8_t data_len, const QSt
 
 void fitplusbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe /* false */).toBool();
+    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     if (virtufit_etappe) {
         if (requestResistance == 1) {
             uint8_t res[] = {0x02, 0x44, 0x05, 0x01, 0xf9, 0xb9, 0x03};
@@ -163,23 +163,23 @@ void fitplusbike::update() {
                gattNotify1Characteristic.isValid() && initDone) {
         QSettings settings;
         update_metrics(true, watts());
-        bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe /* false */).toBool();
+        bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
 
         if (virtufit_etappe) {
 
         } else {
 
             if (Heart.value() > 0) {
-                int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1 /* 200 */).toDouble() *
-                             settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble()) -
-                            (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2 /* 230 */).toDouble() *
-                             settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble())) /
-                               (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble() -
-                                settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble()) +
-                           (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1 /* 200 */).toDouble() -
-                                              settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2 /* 230 */).toDouble()) /
-                                             (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble() -
-                                              settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble())));
+                int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
+                             settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
+                            (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
+                             settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
+                               (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
+                                settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
+                           (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                                              settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                                             (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                                              settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
                 if (avgP < 50) {
                     avgP = 50;
                 }
@@ -254,7 +254,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 
     lastPacket = newValue;
 
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe /* false */).toBool();
+    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
     if (virtufit_etappe) {
         if (newValue.length() != 15 && newValue.length() != 13)
             return;
@@ -263,7 +263,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             Resistance = newValue.at(5);
             m_pelotonResistance = (100 * Resistance.value()) / max_resistance;
 
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled")))
                 Cadence = ((uint8_t)newValue.at(6));
@@ -291,7 +291,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
         Resistance = 1;
         m_pelotonResistance = 1;
         emit resistanceRead(Resistance.value());
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
             Cadence = ((uint8_t)newValue.at(8));
@@ -364,7 +364,7 @@ void fitplusbike::characteristicChanged(const QLowEnergyCharacteristic &characte
 void fitplusbike::btinit() {
 
     QSettings settings;
-    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe /* false */).toBool();
+    bool virtufit_etappe = settings.value(QZSettings::virtufit_etappe, QZSettings::default_virtufit_etappe).toBool();
 
     if (virtufit_etappe) {
         uint8_t initData1[] = {0x02, 0x42, 0x42, 0x03};
@@ -448,7 +448,7 @@ void fitplusbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

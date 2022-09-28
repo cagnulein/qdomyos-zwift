@@ -33,8 +33,8 @@ fitshowtreadmill::fitshowtreadmill(uint32_t pollDeviceTime, bool noConsole, bool
     refresh = new QTimer(this);
     initDone = false;
     QSettings settings;
-    anyrun = settings.value(QZSettings::fitshow_anyrun, QZSettings::default_fitshow_anyrun /* false */).toBool();
-    truetimer = settings.value(QZSettings::fitshow_truetimer, QZSettings::default_fitshow_truetimer /* false */).toBool();
+    anyrun = settings.value(QZSettings::fitshow_anyrun, QZSettings::default_fitshow_anyrun).toBool();
+    truetimer = settings.value(QZSettings::fitshow_truetimer, QZSettings::default_fitshow_truetimer).toBool();
     connect(refresh, &QTimer::timeout, this, &fitshowtreadmill::update);
     refresh->start(pollDeviceTime);
 }
@@ -156,7 +156,7 @@ void fitshowtreadmill::update() {
         QSettings settings;
         // ******************************************* virtual treadmill init *************************************
         if (!firstInit && searchStopped && !virtualTreadMill) {
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
             if (virtual_device_enabled) {
                 emit debug(QStringLiteral("creating virtual treadmill interface..."));
                 virtualTreadMill = new virtualtreadmill(this, noHeartService);
@@ -601,7 +601,7 @@ void fitshowtreadmill::btinit(bool startTape) {
         0x00 // mode-dependent value (u16le)
     };       // to verify
     QSettings settings;
-    int user_id = settings.value(QZSettings::fitshow_user_id, QZSettings::default_fitshow_user_id /* 0x13AA */).toInt();
+    int user_id = settings.value(QZSettings::fitshow_user_id, QZSettings::default_fitshow_user_id).toInt();
     uint8_t weight = (uint8_t)(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() + 0.5);
     uint8_t initUserData[] = {FITSHOW_SYS_CONTROL, FITSHOW_CONTROL_USER, 0, 0, 0, 0, 0, 0};
     initUserData[2] = (user_id >> 0) & 0xFF;

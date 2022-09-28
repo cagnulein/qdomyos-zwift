@@ -55,8 +55,8 @@ resistance_t proformbike::resistanceFromPowerRequest(uint16_t power) {
 
     QSettings settings;
 
-    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain /* 1.0 */).toDouble();
-    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset /* 0.0 */).toDouble();
+    double watt_gain = settings.value(QZSettings::watt_gain, QZSettings::default_watt_gain).toDouble();
+    double watt_offset = settings.value(QZSettings::watt_offset, QZSettings::default_watt_offset).toDouble();
 
     for (resistance_t i = 1; i < max_resistance; i++) {
         if (((wattsFromResistance(i) * watt_gain) + watt_offset) <= power &&
@@ -148,8 +148,8 @@ uint16_t proformbike::wattsFromResistance(resistance_t resistance) {
 
 void proformbike::forceResistance(resistance_t requestResistance) {
     QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio /* false */).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10 /* false */).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
     if (proform_studio || proform_tdf_10) {
         const uint8_t res1[] = {0xfe, 0x02, 0x16, 0x03};
@@ -297,9 +297,9 @@ void proformbike::update() {
         update_metrics(true, watts());
 
         QSettings settings;
-        bool proform_tour_de_france_clc = settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc /* false */).toBool();
-        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio /* false */).toBool();
-        bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10 /* false */).toBool();
+        bool proform_tour_de_france_clc = settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc).toBool();
+        bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+        bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
         uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
         uint8_t noOpData2[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x15, 0x07, 0x15, 0x02, 0x00,
@@ -428,8 +428,8 @@ void proformbike::update() {
 
 bool proformbike::inclinationAvailableByHardware() {
     QSettings settings;
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio /* false */).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10 /* false */).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
 
     if(proform_studio || proform_tdf_10)
         return true;
@@ -499,9 +499,9 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     QSettings settings;
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
-    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio /* false */).toBool();
-    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10 /* false */).toBool();
-    bool proform_tdf_jonseed_watt = settings.value(QZSettings::proform_tdf_jonseed_watt, QZSettings::default_proform_tdf_jonseed_watt /* false */).toBool();
+    bool proform_studio = settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool();
+    bool proform_tdf_10 = settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool();
+    bool proform_tdf_jonseed_watt = settings.value(QZSettings::proform_tdf_jonseed_watt, QZSettings::default_proform_tdf_jonseed_watt).toBool();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
@@ -540,7 +540,7 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
             m_pelotonResistance = (100 / 32) * Resistance.value();
             emit resistanceRead(Resistance.value());
 
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((uint8_t)newValue.at(2));
@@ -642,14 +642,14 @@ void proformbike::characteristicChanged(const QLowEnergyCharacteristic &characte
                     m_watts = 0;
             }
 
-            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+            if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                     .toString()
                     .startsWith(QStringLiteral("Disabled"))) {
                 Cadence = ((uint8_t)newValue.at(18));
             }
 
             if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-                Speed = (settings.value(QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio /* 0.33 */).toDouble()) *
+                Speed = (settings.value(QZSettings::proform_wheel_ratio, QZSettings::default_proform_wheel_ratio).toDouble()) *
                         ((double)Cadence.value());
             } else {
                 Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
@@ -723,7 +723,7 @@ void proformbike::btinit() {
 
     QSettings settings;
 
-    if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio /* false */).toBool()) {
+    if (settings.value(QZSettings::proform_studio, QZSettings::default_proform_studio).toBool()) {
 
         max_resistance = 32;
 
@@ -783,7 +783,7 @@ void proformbike::btinit() {
         QThread::msleep(400);
         writeCharacteristic(initData12, sizeof(initData12), QStringLiteral("init"), false, false);
         QThread::msleep(400);
-    } else if (settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10 /* false */).toBool()) {
+    } else if (settings.value(QZSettings::proform_tdf_10, QZSettings::default_proform_tdf_10).toBool()) {
         max_resistance = 26;
 
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};
@@ -887,7 +887,7 @@ void proformbike::btinit() {
         writeCharacteristic(initData9, sizeof(initData9), QStringLiteral("init"), false, false);
         QThread::msleep(400);
 
-        if (settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc /* false */).toBool()) {
+        if (settings.value(QZSettings::proform_tour_de_france_clc, QZSettings::default_proform_tour_de_france_clc).toBool()) {
 
             uint8_t initData10[] = {0x00, 0x12, 0x02, 0x04, 0x02, 0x28, 0x07, 0x28, 0x90, 0x07,
                                     0x01, 0xb9, 0xf8, 0x45, 0x80, 0xc9, 0x10, 0x6d, 0xb8, 0x09};
@@ -959,7 +959,7 @@ void proformbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

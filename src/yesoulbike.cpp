@@ -120,7 +120,7 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
 
     Resistance = newValue.at(4);
     emit resistanceRead(Resistance.value());
-    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(6));
@@ -141,14 +141,14 @@ void yesoulbike::characteristicChanged(const QLowEnergyCharacteristic &character
     Distance += ((Speed.value() / 3600000.0) *
                  ((double)lastRefreshCharacteristicChanged.msecsTo(QDateTime::currentDateTime())));
 
-    if (!settings.value(QZSettings::yesoul_peloton_formula, QZSettings::default_yesoul_peloton_formula /* false */).toBool()) {
+    if (!settings.value(QZSettings::yesoul_peloton_formula, QZSettings::default_yesoul_peloton_formula).toBool()) {
         m_pelotonResistance =
-            ((Resistance.value() * 0.88) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) +
-            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble(); // 15% lower than yesoul bike
+            ((Resistance.value() * 0.88) * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble(); // 15% lower than yesoul bike
     } else {
         m_pelotonResistance = (((Resistance.value() * 1.1099) - 20.769) *
-                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) +
-                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble();
+                               settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+                              settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
     }
 
     if (Cadence.value() > 0) {
@@ -258,7 +258,7 @@ void yesoulbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
             bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

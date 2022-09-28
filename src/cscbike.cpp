@@ -82,16 +82,16 @@ void cscbike::update() {
     }
 
     if (Heart.value() > 0) {
-        int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1 /* 200 */).toDouble() *
-                     settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble()) -
-                    (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2 /* 230 */).toDouble() *
-                     settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble())) /
-                       (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble() -
-                        settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble()) +
-                   (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1 /* 200 */).toDouble() -
-                                      settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2 /* 230 */).toDouble()) /
-                                     (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1 /* 150 */).toDouble() -
-                                      settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2 /* 170 */).toDouble())));
+        int avgP = ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() *
+                     settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble()) -
+                    (settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble() *
+                     settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble())) /
+                       (settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble() -
+                        settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble()) +
+                   (Heart.value() * ((settings.value(QZSettings::power_hr_pwr1, QZSettings::default_power_hr_pwr1).toDouble() -
+                                      settings.value(QZSettings::power_hr_pwr2, QZSettings::default_power_hr_pwr2).toDouble()) /
+                                     (settings.value(QZSettings::power_hr_hr1, QZSettings::default_power_hr_hr1).toDouble() -
+                                      settings.value(QZSettings::power_hr_hr2, QZSettings::default_power_hr_hr2).toDouble())));
         if (avgP < 50) {
             avgP = 50;
         }
@@ -236,7 +236,7 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
     oldCrankRevs = CrankRevs;
 
     if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
-        Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio /* 0.33 */).toDouble();
+        Speed = Cadence.value() * settings.value(QZSettings::cadence_sensor_speed_ratio, QZSettings::default_cadence_sensor_speed_ratio).toDouble();
     } else {
         Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value());
     }
@@ -261,8 +261,8 @@ void cscbike::characteristicChanged(const QLowEnergyCharacteristic &characterist
                                               (ac * pow(Cadence.value(), 2.0) + bc * Cadence.value() + cc)))) -
                br) /
               (2.0 * ar)) *
-             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain /* 1.0 */).toDouble()) +
-            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset /* 0.0 */).toDouble();
+             settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) +
+            settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
         Resistance = m_pelotonResistance;
     } else {
         m_pelotonResistance = 0;
@@ -389,7 +389,7 @@ void cscbike::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
     ) {
         QSettings settings;
-        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();

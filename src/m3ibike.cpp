@@ -590,7 +590,7 @@ bool m3ibike::isCorrectUnit(const QBluetoothDeviceInfo &device) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
         QSettings settings;
         keiser_m3i_out_t k3;
-        int id = settings.value(QZSettings::m3i_bike_id, QZSettings::default_m3i_bike_id /* 256 */).toInt();
+        int id = settings.value(QZSettings::m3i_bike_id, QZSettings::default_m3i_bike_id).toInt();
         QHash<quint16, QByteArray> datas = device.manufacturerData();
         QHashIterator<quint16, QByteArray> i(datas);
         while (i.hasNext()) {
@@ -621,7 +621,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                 && !h
 #endif
                 ) {
-                bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled /* true */).toBool();
+                bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
                 bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
@@ -637,7 +637,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
                     // connect(virtualBike, &virtualbike::debug, this, &m3ibike::debug);
                     connect(virtualBike, &virtualbike::changeInclination, this, &m3ibike::changeInclination);
                 }
-                int buffSize = settings.value(QZSettings::m3i_bike_speed_buffsize, QZSettings::default_m3i_bike_speed_buffsize /* 90 */).toInt();
+                int buffSize = settings.value(QZSettings::m3i_bike_speed_buffsize, QZSettings::default_m3i_bike_speed_buffsize).toInt();
                 k3s.inner_reset(buffSize,
 #if defined(Q_OS_ANDROID)
                                 qt_search ? 2500 : 5000
@@ -666,12 +666,12 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         }
         emit resistanceRead(Resistance.value());
 
-        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled"))) {
             Cadence = k3.rpm;
         }
-        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+        if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")))
             m_watt = k3.watt;
@@ -681,7 +681,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
         } else {
             Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
         }
-        if (settings.value(QZSettings::m3i_bike_kcal, QZSettings::default_m3i_bike_kcal /* true */).toBool()) {
+        if (settings.value(QZSettings::m3i_bike_kcal, QZSettings::default_m3i_bike_kcal).toBool()) {
             KCal = k3.calorie;
         } else {
             if (watts())

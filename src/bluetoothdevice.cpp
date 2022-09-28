@@ -135,10 +135,10 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
     QDateTime current = QDateTime::currentDateTime();
     double deltaTime = (((double)_lastTimeUpdate.msecsTo(current)) / ((double)1000.0));
     QSettings settings;
-    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike /* false */).toBool();
-    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill /* false */).toBool();
+    bool power_as_bike = settings.value(QZSettings::power_sensor_as_bike, QZSettings::default_power_sensor_as_bike).toBool();
+    bool power_as_treadmill = settings.value(QZSettings::power_sensor_as_treadmill, QZSettings::default_power_sensor_as_treadmill).toBool();
 
-    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name /* QStringLiteral("Disabled") */)
+    if (settings.value(QZSettings::power_sensor_name, QZSettings::default_power_sensor_name)
                 .toString()
                 .startsWith(QStringLiteral("Disabled")) == false &&
         !power_as_bike && !power_as_treadmill)
@@ -163,7 +163,7 @@ void bluetoothdevice::update_metrics(bool watt_calc, const double watts) {
             m_watt = 0;
             WattKg = 0;
         }
-    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause /* false */).toBool()) {
+    } else if (paused && settings.value(QZSettings::instant_power_on_pause, QZSettings::default_instant_power_on_pause).toBool()) {
         // useful for FTP test
         if (watt_calc) {
             m_watt = watts;

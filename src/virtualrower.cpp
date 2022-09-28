@@ -16,7 +16,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
     this->noHeartService = noHeartService;
 
     QSettings settings;
-    bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart /* false */).toBool();
+    bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
     Q_UNUSED(noWriteResistance)
 
@@ -159,7 +159,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
         QObject::connect(serviceFIT, &QLowEnergyService::characteristicChanged, this,
                          &virtualrower::characteristicChanged);
 
-        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed /* false */).toBool();
+        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
         QLowEnergyAdvertisingParameters pars = QLowEnergyAdvertisingParameters();
         if (!bluetooth_relaxed) {
             pars.setInterval(100, 100);
@@ -283,13 +283,13 @@ void virtualrower::writeCharacteristic(QLowEnergyService *service, const QLowEne
 void virtualrower::reconnect() {
 
     QSettings settings;
-    bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed /* false */).toBool();
+    bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
 
     if (bluetooth_relaxed) {
         return;
     }
 
-    bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart /* false */).toBool();
+    bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
     qDebug() << QStringLiteral("virtualrower::reconnect");
     leController->disconnectFromDevice();
@@ -306,7 +306,7 @@ void virtualrower::reconnect() {
 void virtualrower::rowerProvider() {
 
     QSettings settings;
-    bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart /* false */).toBool();
+    bool heart_only = settings.value(QZSettings::virtual_device_onlyheart, QZSettings::default_virtual_device_onlyheart).toBool();
 
     double normalizeWattage = Rower->wattsMetric().value();
     if (normalizeWattage < 0)
@@ -351,8 +351,8 @@ void virtualrower::rowerProvider() {
 
         return;
     } else {
-        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed /* false */).toBool();
-        bool bluetooth_30m_hangs = settings.value(QZSettings::bluetooth_30m_hangs, QZSettings::default_bluetooth_30m_hangs /* false */).toBool();
+        bool bluetooth_relaxed = settings.value(QZSettings::bluetooth_relaxed, QZSettings::default_bluetooth_relaxed).toBool();
+        bool bluetooth_30m_hangs = settings.value(QZSettings::bluetooth_30m_hangs, QZSettings::default_bluetooth_30m_hangs).toBool();
         if (bluetooth_relaxed) {
 
             leController->stopAdvertising();
