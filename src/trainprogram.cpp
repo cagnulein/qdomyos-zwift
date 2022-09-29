@@ -434,12 +434,7 @@ void trainprogram::scheduler() {
                 double bikeResistanceOffset = settings.value(QStringLiteral("bike_resistance_offset"), 0).toInt();
                 double bikeResistanceGain = settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
-                double inc;
-                if (!isnan(rows.at(0).latitude) && !isnan(rows.at(0).longitude)) {
-                    inc = avgInclinationNext100Meters();
-                } else {
-                    inc = rows.at(0).inclination;
-                }
+                double inc = rows.at(0).inclination;
                 bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                              bikeResistanceOffset + 1); // resistance start from 1)
                 if (!((bike *)bluetoothManager->device())->inclinationAvailableByHardware())
@@ -558,12 +553,7 @@ void trainprogram::scheduler() {
                         double bikeResistanceGain =
                             settings.value(QStringLiteral("bike_resistance_gain_f"), 1).toDouble();
 
-                        double inc;
-                        if (!isnan(rows.at(currentStep).latitude) && !isnan(rows.at(currentStep).longitude)) {
-                            inc = avgInclinationNext100Meters();
-                        } else {
-                            inc = rows.at(currentStep).inclination;
-                        }
+                        double inc = rows.at(currentStep).inclination;
                         bluetoothManager->device()->changeResistance((resistance_t)(round(inc * bikeResistanceGain)) +
                                                                      bikeResistanceOffset +
                                                                      1); // resistance start from 1)
