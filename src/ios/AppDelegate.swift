@@ -39,6 +39,11 @@ var pedometer = CMPedometer()
         return WatchKitConnection.currentHeartRate;
     }
 
+    @objc public func setHeartRate(heartRate: Int)
+    {
+        WatchKitConnection.currentHeartRate = heartRate;
+    }
+    
     @objc public func stepCadence() -> Int
     {
         return WatchKitConnection.stepCadence;

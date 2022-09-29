@@ -379,6 +379,13 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
     m_speech.setLocale(QLocale::English);
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    // handling iOS Apple Watch from iPad
+    qDebug() << udpAppleWatch->bind(QHostAddress::AnyIPv4, 53421);
+#endif
+#endif
 
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
@@ -3343,6 +3350,70 @@ void homeform::update() {
 
     emit changeOfdevice();
     emit changeOflap();
+
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    // handling iOS Apple Watch from iPad
+
+    lockscreen h;
+    const int bufSizeAppleWatch = 100;
+    const QString separatorAppleWatch = "#";
+    const int portAppleWatch = 53421;
+    long appleWatchHeartRate = h.heartRate();
+    if(appleWatchHeartRate) {
+        //iphone side
+        while(udpAppleWatch->hasPendingDatagrams()) {
+            char buf[bufSizeAppleWatch];
+            udpAppleWatch->readDatagram(buf, bufSizeAppleWatch);
+            QString r = QString::fromLatin1(buf, bufSizeAppleWatch);
+            qDebug() << "udpAppleWatch << " << r;
+            QStringList l = r.split(separatorAppleWatch);
+            foreach(QString a, l) {
+                if(a.startsWith("KCAL")) {
+                    int kcal = a.replace("KCAL", "").toInt();
+                    if (kcal) {
+                        qDebug() << "Current KCAL from iPad: " + QString::number(kcal);
+                        h.setKcal(kcal);
+                    }
+                } else if(a.startsWith("ODO")) {
+                    qDebug() << a.replace("ODO", "");
+                    double odo = a.replace("ODO", "").toDouble();
+                    if (odo) {
+                        qDebug() << "Current Odometer from iPad: " + QString::number(odo);
+                        h.setDistance(odo);
+                    }
+                }
+            }
+        }
+        QString s = "QZ" + separatorAppleWatch + "HR" + QString::number(appleWatchHeartRate) + separatorAppleWatch;
+        QByteArray dgram = s.toLocal8Bit();
+        udpAppleWatch->writeDatagram(dgram.data(), dgram.size(), QHostAddress::Broadcast, portAppleWatch);
+
+        qDebug() << "Current Heart from Apple Watch: " + QString::number(appleWatchHeartRate);
+    } else if(bluetoothManager->device()) {
+        // ipad side connected to a fitness machine
+        while(udpAppleWatch->hasPendingDatagrams()) {
+            char buf[bufSizeAppleWatch];
+            udpAppleWatch->readDatagram(buf, bufSizeAppleWatch);
+            QString r = QString::fromLatin1(buf, bufSizeAppleWatch);
+            qDebug() << "udpAppleWatch << " << r;
+            QStringList l = r.split(separatorAppleWatch);
+            foreach(QString a, l) {
+                if(a.startsWith("HR")) {
+                    int hr = a.replace("HR", "").toInt();
+                    if (hr) {
+                        h.setHeartRate(hr);
+                        qDebug() << "Current Heart from Apple Watch: " + QString::number(hr);
+                        QString s = "QZ" + separatorAppleWatch + "KCAL" + QString::number(bluetoothManager->device()->calories().value()) + separatorAppleWatch + "ODO" + QString::number(bluetoothManager->device()->odometer()) + separatorAppleWatch;
+                        QByteArray dgram = s.toLocal8Bit();
+                        udpAppleWatch->writeDatagram(dgram.data(), dgram.size(), QHostAddress::Broadcast, portAppleWatch);
+                    }
+                }
+            }
+        }
+    }
+#endif
+#endif
 }
 
 bool homeform::getDevice() {

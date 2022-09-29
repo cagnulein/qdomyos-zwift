@@ -590,6 +590,13 @@ class homeform : public QObject {
 
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
+    
+#ifdef Q_OS_IOS
+#ifndef IO_UNDER_QT
+    // handling iOS Apple Watch from iPad
+    QUdpSocket* udpAppleWatch = new QUdpSocket(this);
+#endif
+#endif
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
