@@ -8,13 +8,23 @@
 import Foundation
 import Network
 
+extension String {
+    func slice(from: String, to: String) -> String? {
+        return (from.isEmpty ? startIndex..<startIndex : range(of: from)).flatMap { fromRange in
+            (to.isEmpty ? endIndex..<endIndex : range(of: to, range: fromRange.upperBound..<endIndex)).map({ toRange in
+                String(self[fromRange.upperBound..<toRange.lowerBound])
+            })
+        }
+    }
+}
+
 class Connection {
 
     let connection: NWConnection
 
     // outgoing connection
     init(endpoint: NWEndpoint) {
-        log("PeerConnection outgoing endpoint: \(endpoint)")
+        print("PeerConnection outgoing endpoint: \(endpoint)")
         let tcpOptions = NWProtocolTCP.Options()
         tcpOptions.enableKeepalive = true
         tcpOptions.keepaliveIdle = 2
@@ -27,14 +37,14 @@ class Connection {
 
     // incoming connection
     init(connection: NWConnection) {
-        log("PeerConnection incoming connection: \(connection)")
+        print("PeerConnection incoming connection: \(connection)")
         self.connection = connection
         start()
     }
 
     func start() {
         connection.stateUpdateHandler = { newState in
-            log("connection.stateUpdateHandler \(newState)")
+            print("connection.stateUpdateHandler \(newState)")
             if case .ready = newState {
                 self.receiveMessage()
             }
@@ -44,30 +54,20 @@ class Connection {
 
     func send(_ message: String) {
         connection.send(content: message.data(using: .utf8), contentContext: .defaultMessage, isComplete: true, completion: .contentProcessed({ error in
-            log("Connection send error: \(String(describing: error))")
+            print("Connection send error: \(String(describing: error))")
         }))
     }
-
-	extension String {
-		func slice(from: String, to: String) -> String? {
-			return (from.isEmpty ? startIndex..<startIndex : range(of: from)).flatMap { fromRange in
-				(to.isEmpty ? endIndex..<endIndex : range(of: to, range: fromRange.upperBound..<endIndex)).map({ toRange in
-					String(self[fromRange.upperBound..<toRange.lowerBound])
-				})
-			}
-		}
-	}
 
     func receiveMessage() {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 100) { data, _, _, _ in
             if let data = data,
                let message = String(data: data, encoding: .utf8) {
-                log("Connection receiveMessage message: \(message)")
+                print("Connection receiveMessage message: \(message)")
 				if message.contains("SENDER=") {
 					let sender = message.slice(from: "SENDER=", to: "#")
-					if sender.contains("PAD") and message.contains("HR=") {
-						let hr = message.slice(from: "HR=", to: "#")
-						WatchKitConnection.currentHeartRate = hr
+                    if sender?.contains("PHONE") ?? false && message.contains("HR=") {
+                        let hr : String = message.slice(from: "HR=", to: "#") ?? ""
+                        WatchKitConnection.currentHeartRate = (Int(hr) ?? 0)
 					}
 				}
             }

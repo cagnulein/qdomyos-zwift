@@ -8,6 +8,7 @@
 import Foundation
 import Network
 
+@available(iOS 13.0, *)
 class Browser {
 
     let browser: NWBrowser
@@ -21,7 +22,7 @@ class Browser {
 
     func start(handler: @escaping (NWBrowser.Result) -> Void) {
         browser.stateUpdateHandler = { newState in
-            log("browser.stateUpdateHandler \(newState)")
+            print("browser.stateUpdateHandler \(newState)")
         }
         browser.browseResultsChangedHandler = { results, changes in
             for result in results {

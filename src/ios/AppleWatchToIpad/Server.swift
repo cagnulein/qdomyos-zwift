@@ -11,6 +11,7 @@ import UIKit
 
 class Server {
 
+    static let server = try? Server()
     let listener: NWListener
 
     var connections: [Connection] = []
@@ -29,10 +30,10 @@ class Server {
 
     func start() {
         listener.stateUpdateHandler = { newState in
-            log("listener.stateUpdateHandler \(newState)")
+            print("listener.stateUpdateHandler \(newState)")
         }
         listener.newConnectionHandler = { [weak self] newConnection in
-            log("listener.newConnectionHandler \(newConnection)")
+            print("listener.newConnectionHandler \(newConnection)")
             let connection = Connection(connection: newConnection)
             self?.connections += [connection]
         }
