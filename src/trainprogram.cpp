@@ -119,15 +119,15 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
 }
 
 // speed in Km/h
-double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
-    int c = currentStep + 1;
+double trainprogram::avgSpeedNextSecondsGPX(int offset, int seconds) {
+    int c = currentStep + 1 + offset;
     double km = 0;
     int sum = 0;
-    double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(currentStep).gpxElapsed);
+    double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(currentStep + offset).gpxElapsed);
 
     while (1) {
         if (c < rows.length()) {
-            if (sum - actualGPXElapsed > seconds) {
+            if (sum - actualGPXElapsed > (seconds + offset)) {
                 return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
             }
             km += (rows.at(c).distance);
@@ -157,7 +157,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Videopos = 0";
         return 1.0;
     }
-    double avgNextSpeed = avgSpeedNextSecondsGPX(5);
+    double avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
+    double avgNextSpeed2 = avgSpeedNextSecondsGPX(1,5);
     // Avoid a Division by Zero
     if (avgNextSpeed == 0.0) {
         qDebug() << "TimeRateFromGPX Nextspeed = 0";
@@ -171,15 +172,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
     // Calculate where the gpx would be in 1 Second
     double gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
-    // We get called even if the gpx didn't move since it has only a resolution of 1 second. On low Playerspeed this
-    // happen's quite often. Add the last fractions to the Gpx Target Time
-    // if (lastTimeRateGpxSecs == gpxsecs) {
-    //    gpxTarget += nextTimeRateGpxSecs;
-    //}
+    playedToGpxSpeedFactor = (currentspeed / avgNextSpeed2);
+    gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
+
     // Get needed Rate for the next second
-    double rate = (gpxTarget - videosecs);
-    // if (rate > 1.2) rate = (rate * 0.9);
-    // if (rate < 0.8) rate = (rate * 1.1);
+    double rate = ((gpxTarget - videosecs) / 2.0);
 
     // If rate < 0 Video is highly before the gpx and Video would be rewinded. Wait with Video for gpx to reach it
     if (rate < 0.0) {
