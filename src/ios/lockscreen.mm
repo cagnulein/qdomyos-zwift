@@ -34,12 +34,6 @@ long lockscreen::heartRate()
     return [h heartRate];
 }
 
-void lockscreen::setHeartRate(long heartrate)
-{
-    [h setHeartRateWithHeartRate:heartrate];
-}
-
-
 long lockscreen::stepCadence()
 {
     return [h stepCadence];
