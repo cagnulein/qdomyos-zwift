@@ -192,10 +192,11 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
 
     lastPacket = newValue;
-    if ((newValue.length() != 21 &&
-         (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 && bike_type != TUNTURI && bike_type != TUNTURI_2)) ||
+    if ((newValue.length() != 21 && (bike_type != JLL_IC400 && bike_type != ASVIVA && bike_type != FYTTER_RI08 &&
+                                     bike_type != TUNTURI && bike_type != TUNTURI_2)) ||
         (newValue.length() != 19 && (bike_type == JLL_IC400 || bike_type == ASVIVA || bike_type == FYTTER_RI08)) ||
-        (newValue.length() != 20 && newValue.length() != 21 && (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2))) {
+        (newValue.length() != 20 && newValue.length() != 21 &&
+         (bike_type == TUNTURI || bike_type == TYPE::TUNTURI_2))) {
         return;
     }
 
@@ -325,10 +326,6 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
 
     FanSpeed = 0;
 
-    if (!firstCharChanged) {
-        Distance += ((speed / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
-    }
-
     if (m_control->error() != QLowEnergyController::NoError) {
         qDebug() << QStringLiteral("QLowEnergyController ERROR!!") << m_control->errorString();
     }
@@ -341,7 +338,12 @@ void trxappgateusbbike::characteristicChanged(const QLowEnergyCharacteristic &ch
     if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
         Speed = speed;
     } else {
-        Speed = metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
+        Speed =
+            metric::calculateSpeedFromPower(m_watt.value(), Inclination.value(), Speed.value(),
+                                            fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));
+    }
+    if (!firstCharChanged) {
+        Distance += ((Speed.value() / 3600.0) / (1000.0 / (lastTimeCharChanged.msecsTo(QTime::currentTime()))));
     }
     KCal = kcal;
     if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))

@@ -21,8 +21,8 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         qDebug() << "Trainprogramdata"
                  << QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)
                  << rows.at(c).distance;
-    } 
-    */       
+    }
+    */
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
     timer.start();
@@ -144,67 +144,57 @@ double trainprogram::avgSpeedNextSecondsGPX(int seconds) {
 int trainprogram::TotalGPXSecs() {
     if (rows.length() == 0)
         return 0;
-    return QTime(0, 0, 0).secsTo(rows.at(rows.length()-1).gpxElapsed);
+    return QTime(0, 0, 0).secsTo(rows.at(rows.length() - 1).gpxElapsed);
 }
 
 double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed) {
     // no rows available, return 1
     if (rows.length() <= 0) {
-        qDebug() << "TimeRateFromGPX no Rows" ;
+        qDebug() << "TimeRateFromGPX no Rows";
         return 1.0;
     }
     if (videosecs == 0.0) {
-        qDebug() << "TimeRateFromGPX Videopos = 0" ;
+        qDebug() << "TimeRateFromGPX Videopos = 0";
         return 1.0;
     }
     double avgNextSpeed = avgSpeedNextSecondsGPX(5);
     // Avoid a Division by Zero
-    if (avgNextSpeed == 0.0 )
-    {
-        qDebug() << "TimeRateFromGPX Nextspeed = 0" ;
+    if (avgNextSpeed == 0.0) {
+        qDebug() << "TimeRateFromGPX Nextspeed = 0";
         return 1.0;
     }
     if (gpxsecs == lastTimeRateGpxSecs) {
-        qDebug() << "TimeRateFromGPX Gpxpos=lastPos"
-                 << nextTimeRateGpxSecs ;
+        qDebug() << "TimeRateFromGPX Gpxpos=lastPos" << nextTimeRateGpxSecs;
         return nextTimeRateGpxSecs;
     }
     // Calculate the Factor between current Players Speed and the next average GPX Speed
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
     // Calculate where the gpx would be in 1 Second
     double gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
-    // We get called even if the gpx didn't move since it has only a resolution of 1 second. On low Playerspeed this happen's quite often.
-    // Add the last fractions to the Gpx Target Time
-    //if (lastTimeRateGpxSecs == gpxsecs) {
+    // We get called even if the gpx didn't move since it has only a resolution of 1 second. On low Playerspeed this
+    // happen's quite often. Add the last fractions to the Gpx Target Time
+    // if (lastTimeRateGpxSecs == gpxsecs) {
     //    gpxTarget += nextTimeRateGpxSecs;
-    //} 
+    //}
     // Get needed Rate for the next second
     double rate = (gpxTarget - videosecs);
-    if (rate > 1.2) rate = (rate * 0.9);
-    if (rate < 0.8) rate = (rate * 1.1);
+    // if (rate > 1.2) rate = (rate * 0.9);
+    // if (rate < 0.8) rate = (rate * 1.1);
 
     // If rate < 0 Video is highly before the gpx and Video would be rewinded. Wait with Video for gpx to reach it
     if (rate < 0.0) {
         rate = 0.1;
     }
 
-    qDebug() << "TimeRateFromGPX" 
-             << gpxsecs
-             << videosecs
-             << (gpxsecs-videosecs)
-             << currentspeed
-             << avgNextSpeed
-             << gpxTarget
-             << lastTimeRateGpxSecs
-             << nextTimeRateGpxSecs
-             << rate;
+    qDebug() << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs) << currentspeed << avgNextSpeed
+             << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
 
     // Save the last Gpx Timestamp and the last Rate for later calls.
     if (lastTimeRateGpxSecs != gpxsecs) {
         lastTimeRateGpxSecs = gpxsecs;
         nextTimeRateGpxSecs = rate;
     }
-    return rate;       
+    return rate;
 
     /*
 
@@ -217,11 +207,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     int framestartsecs = -1;
     int frameendsecs = 0;
     double lastsec = 0.0;
-    
+
     // Identify last needed Time
     if (videosecs > gpxsecs) {
         lastsec = videosecs;
-    } 
+    }
     else {
         lastsec = gpxsecs;
     }
@@ -242,10 +232,10 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
                 gpxframedistance += (rows.at(c).distance);
                 // Get the exact Start and End Times of Frame for correctly calculating average Speed
                 if (framestartsecs == -1) framestartsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
-                frameendsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);                
+                frameendsecs = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
             }
             if ((cursecs > videosecs) && (cursecs <= (videosecs + ((double)timeFrame)))) {
-                videoframedistance += (rows.at(c).distance); 
+                videoframedistance += (rows.at(c).distance);
             }
         }
         c++;
@@ -279,7 +269,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     // Calculate rate beween Videoframedistance and played distance
     double rate = (playedgpxdistance / videoframedistance);
 
-    qDebug() << "TimeRateFromGPX" 
+    qDebug() << "TimeRateFromGPX"
              << gpxsecs
              << videosecs
              << (gpxsecs-videosecs)
@@ -596,15 +586,15 @@ void trainprogram::scheduler() {
                                                    rows.at(currentStep).azimuth);
                     qDebug() << "positionOffset" << (bluetoothManager->device()->odometer() - lastOdometer);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
-                    
+
                     double distanceRow = rows.at(currentStep).distance;
                     double ratioDistance = currentStepDistance / distanceRow;
                     QTime r = rows.at(currentStep).gpxElapsed;
-                    if(currentStep + 1 < rows.length()) {
+                    if (currentStep + 1 < rows.length()) {
                         ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
                         r = r.addMSecs(ratioDistance * 1000);
                     }
-                    //emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
+                    // emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
                 }
             } else {
                 qDebug() << QStringLiteral("trainprogram ends!");
@@ -651,7 +641,7 @@ void trainprogram::scheduler() {
                 double distanceRow = rows.at(currentStep).distance;
                 double ratioDistance = currentStepDistance / distanceRow;
                 QTime r = rows.at(currentStep).gpxElapsed;
-                if(currentStep + 1 < rows.length()) {
+                if (currentStep + 1 < rows.length()) {
                     ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
                     r = r.addMSecs(ratioDistance * 1000);
                 }
