@@ -604,7 +604,7 @@ void trainprogram::scheduler() {
                     restart();
                 } else {
                     started = false;
-                    emit stop();
+                    emit stop(false);
                     distanceEvaluation = false;
                 }
             }
