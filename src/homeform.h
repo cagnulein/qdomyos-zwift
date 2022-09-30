@@ -591,7 +591,7 @@ class homeform : public QObject {
 
     QTextToSpeech m_speech;
     int tts_summary_count = 0;
-
+    
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     QTimer tLicense;
     QNetworkAccessManager *mgr = nullptr;
