@@ -9,8 +9,6 @@ import Foundation
 import Network
 import UIKit
 
-let server = try? Server()
-
 class Server {
 
     let listener: NWListener
@@ -26,7 +24,7 @@ class Server {
         parameters.includePeerToPeer = true
         listener = try NWListener(using: parameters)
         
-        listener.service = NWListener.Service(name: "server", type: "_superapp._tcp")
+        listener.service = NWListener.Service(name: "server", type: "_qz._tcp")
     }
 
     func start() {
@@ -41,9 +39,9 @@ class Server {
         listener.start(queue: .main)
     }
 
-    func send() {
+    func send(_ message: String) {
         connections.forEach {
-            $0.send("super message from the server! \(Int(Date().timeIntervalSince1970))")
+            $0.send(message)
         }
     }
 }

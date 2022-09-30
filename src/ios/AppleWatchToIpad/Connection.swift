@@ -48,11 +48,28 @@ class Connection {
         }))
     }
 
+	extension String {
+		func slice(from: String, to: String) -> String? {
+			return (from.isEmpty ? startIndex..<startIndex : range(of: from)).flatMap { fromRange in
+				(to.isEmpty ? endIndex..<endIndex : range(of: to, range: fromRange.upperBound..<endIndex)).map({ toRange in
+					String(self[fromRange.upperBound..<toRange.lowerBound])
+				})
+			}
+		}
+	}
+
     func receiveMessage() {
         connection.receive(minimumIncompleteLength: 1, maximumLength: 100) { data, _, _, _ in
             if let data = data,
                let message = String(data: data, encoding: .utf8) {
                 log("Connection receiveMessage message: \(message)")
+				if message.contains("SENDER=") {
+					let sender = message.slice(from: "SENDER=", to: "#")
+					if sender.contains("PAD") and message.contains("HR=") {
+						let hr = message.slice(from: "HR=", to: "#")
+						WatchKitConnection.currentHeartRate = hr
+					}
+				}
             }
             self.receiveMessage()
         }

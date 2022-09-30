@@ -17,9 +17,17 @@ var pedometer = CMPedometer()
 
 @objc public class healthkit:NSObject {
     let w = watchAppStart()
+	let bonjourServer = Server()
+	var bonjourClient: Client
         
     @objc public func request()
     {
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			bonjourClient = Client()
+			bonjourClient.start()
+		}
+		bonjourServer.start()
+	
         LocalNotificationHelper.requestPermission()
         WatchKitConnection.shared.startSession()
         
@@ -46,11 +54,25 @@ var pedometer = CMPedometer()
     
     @objc public func setDistance(distance: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+		bonjourServer.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#ODO=\(distance)")
         WatchKitConnection.distance = distance;
     }
     
     @objc public func setKcal(kcal: Double) -> Void
     {
+		var sender: String
+		if UIDevice.current.userInterfaceIdiom == .pad {
+			sender = "PAD"
+		} else {
+			sender = "PHONE"
+		}
+		bonjourServer.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(kcal)")
         WatchKitConnection.kcal = kcal;
     }
 }

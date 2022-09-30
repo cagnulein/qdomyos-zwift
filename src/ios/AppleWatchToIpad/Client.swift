@@ -7,8 +7,6 @@
 
 import Foundation
 
-let client = Client()
-
 class Client {
 
     let browser = Browser()
