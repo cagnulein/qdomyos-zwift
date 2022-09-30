@@ -33,6 +33,8 @@ void fakebike::update() {
     QString heartRateBeltName =
         settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
 
+    Speed = metric::calculateSpeedFromPower(150, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));    
+
     update_metrics(true, watts());
 
     Distance += ((Speed.value() / (double)3600.0) /
