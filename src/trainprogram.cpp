@@ -158,7 +158,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         return 1.0;
     }
     double avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
-    double avgNextSpeed2 = avgSpeedNextSecondsGPX(1,5);
+    double avgNextSpeed2 = avgSpeedNextSecondsGPX(1, 5);
     // Avoid a Division by Zero
     if (avgNextSpeed == 0.0) {
         qDebug() << "TimeRateFromGPX Nextspeed = 0";
