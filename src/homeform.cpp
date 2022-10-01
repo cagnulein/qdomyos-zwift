@@ -4482,7 +4482,7 @@ void homeform::licenseRequest() {
         connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
     }
     QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
-             settings.value("user_email", "").toString());
+             settings.value(QZSettings::user_email, QZSettings::default_user_email).toString());
     QNetworkRequest request(url);
     mgr->get(request);
 }
