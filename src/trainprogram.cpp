@@ -639,10 +639,11 @@ void trainprogram::scheduler() {
                 double ratioDistance = currentStepDistance / distanceRow;
                 QTime r = rows.at(currentStep).gpxElapsed;
                 if (currentStep + 1 < rows.length()) {
-                    // Try to fix gaps in gps
-                    // ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
+                    ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
                     r = r.addMSecs(ratioDistance * 1000);
                 }
+                qDebug() << QStringLiteral("changingTimestamp") << currentStep << distanceRow << currentStepDistance 
+                << rows.at(currentStep).gpxElapsed << r << ticks; 
                 emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
             }
         }
