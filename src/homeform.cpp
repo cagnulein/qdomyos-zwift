@@ -4345,12 +4345,12 @@ QString homeform::getAndroidDataAppDir() {
 
 quint64 homeform::cryptoKeySettingsProfiles() {
     QSettings settings;
-    quint64 v = settings.value(cryptoKeySettingsProfilesTag, 0).toULongLong();
+    quint64 v = settings.value(QZSettings::cryptoKeySettingsProfiles, QZSettings::default_cryptoKeySettingsProfiles).toULongLong();
     if (!v) {
         QRandomGenerator r = QRandomGenerator();
         r.seed(QDateTime::currentMSecsSinceEpoch());
         v = r.generate64();
-        settings.setValue(cryptoKeySettingsProfilesTag, v);
+        settings.setValue(QZSettings::cryptoKeySettingsProfiles, v);
     }
     return v;
 }
@@ -4367,7 +4367,7 @@ void homeform::saveSettings(const QUrl &filename) {
                             QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+        if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
             } else {
@@ -4384,7 +4384,7 @@ void homeform::loadSettings(const QUrl &filename) {
     QSettings settings2Load(filename.toLocalFile(), QSettings::IniFormat);
     auto settings2LoadAllKeys = settings2Load.allKeys();
     for (const QString &s : qAsConst(settings2LoadAllKeys)) {
-        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+        if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings.setValue(s, settings2Load.value(s));
             } else {
@@ -4413,7 +4413,7 @@ void homeform::saveProfile(QString profilename) {
     QSettings settings2Save(path + "/" + profilename + QStringLiteral(".qzs"), QSettings::IniFormat);
     auto settigsAllKeys = settings.allKeys();
     for (const QString &s : qAsConst(settigsAllKeys)) {
-        if (!s.contains(cryptoKeySettingsProfilesTag)) {
+        if (!s.contains(QZSettings::cryptoKeySettingsProfiles)) {
             if (!s.contains(QStringLiteral("password")) && !s.contains(QStringLiteral("token"))) {
                 settings2Save.setValue(s, settings.value(s));
             } else {

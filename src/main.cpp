@@ -351,6 +351,11 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    qDebug() << "-";
+    qDebug() << "Settings from QZSettings";
+    QZSettings::qDebugAllSettings();
+    qDebug() << "-";
+
 #if 0 // test gpx or fit export
     QList<SessionLine> l;
     for(int i =0; i< 500; i++)
@@ -427,7 +432,7 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    settings.setValue(QZSettings::app_opening, settings.value(QZSettings::app_opening, QZSettings::default_app_opening /* 0 */).toInt() + 1);
+    settings.setValue(QZSettings::app_opening, settings.value(QZSettings::app_opening, QZSettings::default_app_opening).toInt() + 1);
 
 #if defined(Q_OS_ANDROID)
     auto result = QtAndroid::checkPermission(QString("android.permission.READ_EXTERNAL_STORAGE"));

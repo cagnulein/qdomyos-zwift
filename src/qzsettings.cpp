@@ -6,8 +6,9 @@
 namespace QZSettings
 {
 
-const uint32_t allSettingsCount = 361;
+const uint32_t allSettingsCount = 367;
 QVariant allSettings[allSettingsCount][2] =  {
+    { cryptoKeySettingsProfiles, default_cryptoKeySettingsProfiles },
     { bluetooth_no_reconnection, default_bluetooth_no_reconnection },
     { bike_wheel_revs, default_bike_wheel_revs },
     { bluetooth_lastdevice_name, default_bluetooth_lastdevice_name },
@@ -369,21 +370,41 @@ QVariant allSettings[allSettingsCount][2] =  {
     { tdf_10_ip, default_tdf_10_ip },
     { fakedevice_treadmill, default_fakedevice_treadmill },
     { video_playback_window_s, default_video_playback_window_s },
-
+    {horizon_treadmill_profile_user1, default_horizon_treadmill_profile_user1},
+    {horizon_treadmill_profile_user2, default_horizon_treadmill_profile_user2},
+    {horizon_treadmill_profile_user3, default_horizon_treadmill_profile_user3},
+    {horizon_treadmill_profile_user4, default_horizon_treadmill_profile_user4},
+    {horizon_treadmill_profile_user5, default_horizon_treadmill_profile_user5}
 };
 
-void qDebugAllSettings() {
+void qDebugAllSettings(bool showDefaults) {
     QSettings settings;
 
+    // make a copy of the settings for sorting
+    std::vector<QVariant*> sorted;
     for(uint32_t i=0; i<allSettingsCount; i++) {
-        QString key = allSettings[i][0].toString();
-        QVariant defaultValue = allSettings[i][1];
-        qDebug() << "QSettings.value("
-                 << key
-                 <<", "
-                 << defaultValue
-                 << " = "
-                 << settings.value(key, defaultValue);
+        sorted.push_back(allSettings[i]);
+    }
+
+    // sort the settings alphabetically
+    struct { bool operator()(QVariant * a, QVariant * b) { return a[0].toString() < b[0].toString(); }} comparer;
+    std::sort(sorted.begin(), sorted.end(), comparer);
+
+    for(uint32_t i=0; i<sorted.size(); i++) {
+        QVariant * item = sorted[i];
+        QString key = item[0].toString();
+        QVariant defaultValue = item[1];
+
+        if(!showDefaults) {
+            qDebug() << key << settings.value(key, defaultValue);
+        } else {
+            qDebug() << "("
+                     << key
+                     <<", "
+                     << defaultValue
+                     << ") = "
+                     << settings.value(key, defaultValue);
+        }
     }
 
 }

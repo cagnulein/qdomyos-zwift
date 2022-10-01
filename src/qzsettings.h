@@ -8,6 +8,12 @@ namespace QZSettings {
 //--------------------------------------------------------------------------------------------
     // These are not in settings.qml
     //--------------------------------------------------------------------------------------------
+
+    /**
+     * @brief
+     */
+    static const QString cryptoKeySettingsProfiles = QStringLiteral("cryptoKeySettingsProfiles");
+    static const int default_cryptoKeySettingsProfiles = 0;
     /**
 	 *@brief 
 	*/
@@ -1931,8 +1937,9 @@ namespace QZSettings {
 
     /**
      * @brief Write the QSettings values using the constants from this namespace.
+     * @param showDefaults Optionally indicates if the default should be shown with the key.
      */
-    void qDebugAllSettings();
+    void qDebugAllSettings(bool showDefaults=false);
 }
 
 #endif
