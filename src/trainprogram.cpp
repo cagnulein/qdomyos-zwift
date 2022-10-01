@@ -639,7 +639,8 @@ void trainprogram::scheduler() {
                 double ratioDistance = currentStepDistance / distanceRow;
                 QTime r = rows.at(currentStep).gpxElapsed;
                 if (currentStep + 1 < rows.length()) {
-                    ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
+                    // Try to fix gaps in gps
+                    // ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
                     r = r.addMSecs(ratioDistance * 1000);
                 }
                 emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
