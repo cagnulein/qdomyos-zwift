@@ -36,11 +36,11 @@ void fakebike::update() {
     static int updcou = 0;
     updcou++;
     double w = 150.0;
-    if (updcou > 100 )
+    if (updcou > 20000 )
         updcou = 0;
-    else if (updcou > 60)
+    else if (updcou > 12000)
         w = 220;
-    else if (updcou > 30)
+    else if (updcou > 6000)
         w = 50;
 
     Speed = metric::calculateSpeedFromPower(w, Inclination.value(), Speed.value(),fabs(QDateTime::currentDateTime().msecsTo(Speed.lastChanged()) / 1000.0));    
