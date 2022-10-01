@@ -15,14 +15,12 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
         this->description = *description;
     if (tags)
         this->tags = *tags;
-    /*
     int c = 0;
     for (c = 0; c < rows.length(); c++) {
         qDebug() << "Trainprogramdata"
                  << QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)
                  << rows.at(c).distance;
     }
-    */
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
     timer.start();
