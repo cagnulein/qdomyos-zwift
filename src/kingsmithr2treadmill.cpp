@@ -57,7 +57,7 @@ void kingsmithr2treadmill::writeCharacteristic(const QString &data, const QStrin
     for (int i = 0; i < input.length(); i++) {
         int idx = PLAINTEXT_TABLE.indexOf(input.at(i));
         QSettings settings;
-        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2 /* false */).toBool())
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             encrypted.append(ENCRYPT_TABLE_v2[idx]);
         else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             encrypted.append(ENCRYPT_TABLE_v3[idx]);
@@ -248,7 +248,7 @@ void kingsmithr2treadmill::characteristicChanged(const QLowEnergyCharacteristic 
         }
         int idx;
         QSettings settings;
-        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2 /* false */).toBool())
+        if (settings.value(QZSettings::kingsmith_encrypt_v2, QZSettings::default_kingsmith_encrypt_v2).toBool())
             idx = ENCRYPT_TABLE_v2.indexOf(ch);
         else if (settings.value(QZSettings::kingsmith_encrypt_v3, QZSettings::default_kingsmith_encrypt_v3).toBool())
             idx = ENCRYPT_TABLE_v3.indexOf(ch);

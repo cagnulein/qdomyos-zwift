@@ -22,7 +22,7 @@ virtualrower::virtualrower(bluetoothdevice *t, bool noWriteResistance, bool noHe
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && !heart_only) {
 
         qDebug() << "ios_zwift_workaround activated!";

@@ -32,7 +32,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* true */).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround) {
 
         qDebug() << "ios_zwift_workaround activated!";
@@ -329,7 +329,7 @@ void virtualtreadmill::treadmillProvider() {
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double /* false */).toBool();
+    bool double_cadence = settings.value(QZSettings::powr_sensor_running_cadence_double, QZSettings::default_powr_sensor_running_cadence_double).toBool();
     double cadence_multiplier = 2.0;
     if (double_cadence)
         cadence_multiplier = 1.0;

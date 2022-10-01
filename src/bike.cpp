@@ -40,7 +40,7 @@ void bike::changePower(int32_t power) {
     requestPower = power; // used by some bikes that have ERG mode builtin
     QSettings settings;
     bool force_resistance = settings.value(QZSettings::virtualbike_forceresistance, QZSettings::default_virtualbike_forceresistance).toBool();
-    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg /* false */).toBool(); //Not used anywhere in code
+    // bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool(); //Not used anywhere in code
     double erg_filter_upper = settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter).toDouble();
     double erg_filter_lower = settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down).toDouble();
     double zwift_erg_resistance_up = settings.value(QZSettings::zwift_erg_resistance_up, QZSettings::default_zwift_erg_resistance_up).toDouble();

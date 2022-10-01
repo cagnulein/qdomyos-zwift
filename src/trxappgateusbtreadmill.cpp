@@ -57,7 +57,7 @@ void trxappgateusbtreadmill::changeInclinationRequested(double grade, double per
 
 void trxappgateusbtreadmill::forceIncline(double requestIncline) {
     QSettings settings;
-    bool reebok_fr30_treadmill = settings.value(QZSettings::reebok_fr30_treadmill, QZSettings::default_reebok_fr30_treadmill /* false */).toBool();
+    bool reebok_fr30_treadmill = settings.value(QZSettings::reebok_fr30_treadmill, QZSettings::default_reebok_fr30_treadmill).toBool();
 
     if (requestIncline < 0)
         requestIncline = 0;

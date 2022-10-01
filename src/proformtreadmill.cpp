@@ -52,8 +52,8 @@ void proformtreadmill::forceIncline(double incline) {
     QSettings settings;
     bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
     bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0 /* false */).toBool();
-    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i /* false */).toBool();
+    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
     bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
 
     if (proform_treadmill_1800i) {
@@ -92,7 +92,7 @@ void proformtreadmill::forceSpeed(double speed) {
     QSettings settings;
     bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
     bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0 /* false */).toBool();
+    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
 
     uint8_t noOpData7[] = {0xfe, 0x02, 0x0d, 0x02};
@@ -134,10 +134,10 @@ void proformtreadmill::update() {
         bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
         bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
         bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
-        bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i /* false */).toBool();
-        bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0 /* false */).toBool();
+        bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
+        bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
         bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
-        // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i /* false */).toBool();
+        // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
 
         /*if (proform_treadmill_995i) {
             uint8_t noOpData1[] = {0xfe, 0x02, 0x19, 0x03};
@@ -682,9 +682,9 @@ void proformtreadmill::characteristicChanged(const QLowEnergyCharacteristic &cha
     bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
     bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
     bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i /* false */).toBool();
+    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
     bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0 /* false */).toBool();
+    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
     double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -763,10 +763,10 @@ void proformtreadmill::btinit() {
     bool nordictrack10 = settings.value(QZSettings::nordictrack_10_treadmill, QZSettings::default_nordictrack_10_treadmill).toBool();
     bool nordictrack_t65s_treadmill = settings.value(QZSettings::nordictrack_t65s_treadmill, QZSettings::default_nordictrack_t65s_treadmill).toBool();
     bool nordictrack_s30_treadmill = settings.value(QZSettings::nordictrack_s30_treadmill, QZSettings::default_nordictrack_s30_treadmill).toBool();
-    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i /* false */).toBool();
+    bool proform_treadmill_1800i = settings.value(QZSettings::proform_treadmill_1800i, QZSettings::default_proform_treadmill_1800i).toBool();
     bool proform_treadmill_se = settings.value(QZSettings::proform_treadmill_se, QZSettings::default_proform_treadmill_se).toBool();
-    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0 /* false */).toBool();
-    // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i /* false */).toBool();
+    bool proform_treadmill_9_0 = settings.value(QZSettings::proform_treadmill_9_0, QZSettings::default_proform_treadmill_9_0).toBool();
+    // bool proform_treadmill_995i = settings.value(QZSettings::proform_treadmill_995i, QZSettings::default_proform_treadmill_995i).toBool();
 
     /*if (proform_treadmill_995i) {
         uint8_t initData1[] = {0xfe, 0x02, 0x08, 0x02};

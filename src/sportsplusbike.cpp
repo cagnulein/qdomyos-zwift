@@ -117,7 +117,7 @@ void sportsplusbike::characteristicChanged(const QLowEnergyCharacteristic &chara
     // qDebug() << "characteristicChanged" << characteristic.uuid() << newValue << newValue.length();
     Q_UNUSED(characteristic);
     QSettings settings;
-    bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie /* false */).toBool();
+    bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie).toBool();
     QString heartRateBeltName =
         settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
     emit packetReceived();
@@ -229,7 +229,7 @@ uint16_t sportsplusbike::GetElapsedFromPacket(const QByteArray &packet) {
 
 double sportsplusbike::GetSpeedFromPacket(const QByteArray &packet) {
     QSettings settings;
-    bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie /* false */).toBool();
+    bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie).toBool();
     if (sp_ht_9600ie) {
         uint16_t convertedData = (packet.at(2) * 100);
         uint8_t hexint = ((uint8_t)packet.at(3));
@@ -257,7 +257,7 @@ double sportsplusbike::GetWattFromPacket(const QByteArray &packet) {
 void sportsplusbike::btinit(bool startTape) {
     Q_UNUSED(startTape);
     QSettings settings;
-    bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie /* false */).toBool();
+    bool sp_ht_9600ie = settings.value(QZSettings::sp_ht_9600ie, QZSettings::default_sp_ht_9600ie).toBool();
 
     if (!sp_ht_9600ie) {
         const uint8_t initData1[] = {0x40, 0x00, 0x16, 0x0a, 0x60};

@@ -746,7 +746,7 @@ void horizontreadmill::update() {
                /*initDone*/) {
 
         QSettings settings;
-        bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8 /* false */).toBool();
+        bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
         bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
         update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
@@ -1608,7 +1608,7 @@ bool horizontreadmill::autoPauseWhenSpeedIsZero() {
 
 bool horizontreadmill::autoStartWhenSpeedIsGreaterThenZero() {
     QSettings settings;
-    bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8 /* false */).toBool();
+    bool horizon_treadmill_7_8 = settings.value(QZSettings::horizon_treadmill_7_8, QZSettings::default_horizon_treadmill_7_8).toBool();
     bool horizon_paragon_x = settings.value(QZSettings::horizon_paragon_x, QZSettings::default_horizon_paragon_x).toBool();
 
     // the horizon starts with a strange speed, since that i can auto start (maybe the best way to solve this

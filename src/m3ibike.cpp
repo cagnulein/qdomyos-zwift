@@ -254,7 +254,7 @@ m3ibike::m3ibike(bool noWriteResistance, bool noHeartService) {
     antHeart = settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool();
 #if defined(Q_OS_IOS) || defined(Q_OS_ANDROID)
     qt_search =
-        (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value(QZSettings::m3i_bike_qt_search, QZSettings::default_m3i_bike_qt_search /* false */).toBool();
+        (QT_VERSION < QT_VERSION_CHECK(5, 12, 0)) ? false : settings.value(QZSettings::m3i_bike_qt_search, QZSettings::default_m3i_bike_qt_search).toBool();
 #endif
     heartRateBeltDisabled = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name)
                                 .toString()
@@ -625,7 +625,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
                 h = new lockscreen();
                 bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-                bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* false */).toBool();
+                bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
                 if (ios_peloton_workaround && cadence) {
                     qDebug() << "ios_peloton_workaround activated!";
                     h->virtualbike_ios();
@@ -737,7 +737,7 @@ void m3ibike::processAdvertising(const QByteArray &data) {
 
 #if defined(Q_OS_IOS) && !defined(IO_UNDER_QT)
         bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
-        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround /* false */).toBool();
+        bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
         if (ios_peloton_workaround && cadence && h) {
             h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
             h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());

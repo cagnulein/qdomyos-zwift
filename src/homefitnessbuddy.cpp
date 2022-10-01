@@ -192,7 +192,7 @@ void homefitnessbuddy::search_workout_onfinish(QNetworkReply *reply) {
 
     QSettings settings;
     // NOTE: clazy-unused-non-trivial-variable
-    // QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty /* QStringLiteral("lower") */).toString();
+    // QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
 
     trainrows.clear();
     trainrows = zwiftworkout::load(payload);

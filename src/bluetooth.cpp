@@ -1764,9 +1764,9 @@ void bluetooth::connectedAndDiscovered() {
     if (this->device() != nullptr) {
 
 #ifdef Q_OS_IOS
-        if (settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device /* true */).toBool()) {
-            QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name /* "Disabled" */).toString();
-            QString b = settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name /* "" */).toString();
+        if (settings.value(QZSettings::ios_cache_heart_device, QZSettings::default_ios_cache_heart_device).toBool()) {
+            QString heartRateBeltName = settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+            QString b = settings.value(QZSettings::hrm_lastdevice_name, QZSettings::default_hrm_lastdevice_name).toString();
             qDebug() << "last hrm name" << b;
             if (!b.compare(heartRateBeltName) && b.length()) {
 
@@ -1776,7 +1776,7 @@ void bluetooth::connectedAndDiscovered() {
                 connect(heartRateBelt, SIGNAL(debug(QString)), this, SLOT(debug(QString)));
                 connect(heartRateBelt, SIGNAL(heartRate(uint8_t)), this->device(), SLOT(heartRate(uint8_t)));
                 QBluetoothDeviceInfo bt;
-                bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address /* "" */).toString()));
+                bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::hrm_lastdevice_address, QZSettings::default_hrm_lastdevice_address).toString()));
                 qDebug() << "UUID" << bt.deviceUuid();
                 heartRateBelt->deviceDiscovered(bt);
             }
@@ -1957,15 +1957,15 @@ void bluetooth::connectedAndDiscovered() {
     }
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool() ||
+    if (settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool() ||
         settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative",
                                                                                "activity", "()Landroid/app/Activity;");
         KeepAwakeHelper::antObject(true)->callMethod<void>(
             "antStart", "(Landroid/app/Activity;ZZZ)V", activity.object<jobject>(),
-            settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence /* false */).toBool(),
+            settings.value(QZSettings::ant_cadence, QZSettings::default_ant_cadence).toBool(),
             settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool(),
-            settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin /* false */).toBool());
+            settings.value(QZSettings::ant_garmin, QZSettings::default_ant_garmin).toBool());
     }
 #endif
 

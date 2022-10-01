@@ -186,7 +186,7 @@ double metric::calculateSpeedFromPower(double power, double inclination) {
     if (inclination < -5)
         inclination = -5;
     double twt = 9.8 * (settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() +
-                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight /* 0.0 */).toFloat());
+                        settings.value(QZSettings::bike_weight, QZSettings::default_bike_weight).toFloat());
     double aero = 0.22691607640851885;
     double hw = 0; // wind speed
     double tr = twt * ((inclination / 100.0) + 0.005);
