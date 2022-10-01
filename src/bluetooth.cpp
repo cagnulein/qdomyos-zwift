@@ -74,16 +74,16 @@ bluetooth::bluetooth(bool logs, const QString &deviceName, bool noWriteResistanc
 #ifdef Q_OS_IOS
         // Schwinn bikes on iOS allows to be connected to several instances, so in this way
         // QZ will remember the address and will try to connect to it
-        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name /* "" */).toString();
+        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
         qDebug() << "last device name (IC BIKE workaround)" << b;
-        if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device /* "Disabled" */).toString()) &&
+        if (!b.compare(settings.value(QZSettings::filter_device, QZSettings::default_filter_device).toString()) &&
             (b.toUpper().startsWith("IC BIKE") || b.toUpper().startsWith("C7-"))) {
 
             this->stopDiscovery();
             schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
             // stateFileRead();
             QBluetoothDeviceInfo bt;
-            bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address /* "" */).toString()));
+            bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address).toString()));
             // set name method doesn't exist
             emit(deviceConnected(bt));
             connect(schwinnIC4Bike, SIGNAL(connectedAndDiscovered()), this, SLOT(connectedAndDiscovered()));
@@ -1973,8 +1973,8 @@ void bluetooth::connectedAndDiscovered() {
     // in order to allow to populate the tiles with the IC BIKE auto connect feature
     if (firstConnected) {
         QBluetoothDeviceInfo bt;
-        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name /* "" */).toString();
-        bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address /* "" */).toString()));
+        QString b = settings.value(QZSettings::bluetooth_lastdevice_name, QZSettings::default_bluetooth_lastdevice_name).toString();
+        bt.setDeviceUuid(QBluetoothUuid(settings.value(QZSettings::bluetooth_lastdevice_address, QZSettings::default_bluetooth_lastdevice_address).toString()));
         // set name method doesn't exist
         emit(deviceConnected(bt));
     }
