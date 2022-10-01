@@ -20,13 +20,12 @@ var pedometer = CMPedometer()
         
     @objc public func request()
     {
-		if UIDevice.current.userInterfaceIdiom == .pad {
-            if #available(iOS 13.0, *) {
-                Client.client.start()
-            } else {
-                // Fallback on earlier versions
-            }
+        if #available(iOS 13.0, *) {
+            Client.client.start()
         } else {
+            // Fallback on earlier versions
+        }
+        if UIDevice.current.userInterfaceIdiom == .phone {
             Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.updateHeartRate), userInfo: nil, repeats: true)
         }
         Server.server?.start()
