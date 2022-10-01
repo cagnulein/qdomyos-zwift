@@ -50,7 +50,10 @@ void heartratebelt::stateChanged(QLowEnergyService::ServiceState state) {
 
         gattNotifyCharacteristic =
             gattCommunicationChannelService->characteristic(QBluetoothUuid(QBluetoothUuid::HeartRateMeasurement));
-        Q_ASSERT(gattNotifyCharacteristic.isValid());
+        if(!gattNotifyCharacteristic.isValid()) {
+            qDebug() << "gattNotifyCharacteristic not valid for HR";
+            return;
+        }
 
         // establish hook into notifications
         connect(gattCommunicationChannelService, &QLowEnergyService::characteristicChanged, this,
