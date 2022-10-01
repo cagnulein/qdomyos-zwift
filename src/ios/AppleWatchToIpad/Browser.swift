@@ -7,6 +7,7 @@
 
 import Foundation
 import Network
+import UIKit
 
 @available(iOS 13.0, *)
 class Browser {
@@ -17,7 +18,11 @@ class Browser {
         let parameters = NWParameters()
         parameters.includePeerToPeer = true
 
-        browser = NWBrowser(for: .bonjour(type: "_qz._tcp", domain: nil), using: parameters)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            browser = NWBrowser(for: .bonjour(type: "_qz_iphone._tcp", domain: nil), using: parameters)
+        } else {
+            browser = NWBrowser(for: .bonjour(type: "_qz_ipad._tcp", domain: nil), using: parameters)
+        }
     }
 
     func start(handler: @escaping (NWBrowser.Result) -> Void) {

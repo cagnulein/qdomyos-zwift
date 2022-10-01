@@ -25,7 +25,11 @@ class Server {
         parameters.includePeerToPeer = true
         listener = try NWListener(using: parameters)
         
-        listener.service = NWListener.Service(name: "server", type: "_qz._tcp")
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            listener.service = NWListener.Service(name: "server", type: "_qz_ipad._tcp")
+        } else {
+            listener.service = NWListener.Service(name: "server", type: "_qz_iphone._tcp")
+        }
     }
 
     func start() {
