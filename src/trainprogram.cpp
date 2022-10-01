@@ -18,8 +18,17 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     int c = 0;
     for (c = 0; c < rows.length(); c++) {
         qDebug() << "Trainprogramdata"
+                 << c
+                 << QTime(0, 0, 0).secsTo(rows.at(c).duration)
                  << QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)
-                 << rows.at(c).distance;
+                 << QTime(0, 0, 0).secsTo(rows.at(c).rampDuration)
+                 << QTime(0, 0, 0).secsTo(rows.at(c).rampElapsed)
+                 << rows.at(c).latitude
+                 << rows.at(c).longitude
+                 << rows.at(c).altitude
+                 << rows.at(c).distance
+                 << rows.at(c).speed
+                 << rows.at(c).inclination;
     }
     connect(&timer, SIGNAL(timeout()), this, SLOT(scheduler()));
     timer.setInterval(1s);
