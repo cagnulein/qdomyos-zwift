@@ -172,11 +172,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
     // Calculate where the gpx would be in 1 Second
     double gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
-    playedToGpxSpeedFactor = (currentspeed / avgNextSpeed2);
-    gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
+    //playedToGpxSpeedFactor = (currentspeed / avgNextSpeed2);
+    //gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
 
     // Get needed Rate for the next second
-    double rate = ((gpxTarget - videosecs) / 2.0);
+    double rate = (gpxTarget - videosecs);
 
     // If rate < 0 Video is highly before the gpx and Video would be rewinded. Wait with Video for gpx to reach it
     if (rate < 0.0) {
