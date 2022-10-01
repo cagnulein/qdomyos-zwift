@@ -6,7 +6,7 @@
 namespace QZSettings
 {
 
-const uint32_t allSettingsCount = 367;
+const uint32_t allSettingsCount = 365;
 QVariant allSettings[allSettingsCount][2] =  {
     { cryptoKeySettingsProfiles, default_cryptoKeySettingsProfiles },
     { bluetooth_no_reconnection, default_bluetooth_no_reconnection },
@@ -29,7 +29,6 @@ QVariant allSettings[allSettingsCount][2] =  {
     { strava_refreshtoken, default_strava_refreshtoken },
     { strava_lastrefresh, default_strava_lastrefresh },
     { strava_expires, default_strava_expires },
-    { virtualrower_forceresistance, default_virtualrower_forceresistance },
     { ui_zoom, default_ui_zoom },
     { bike_heartrate_service, default_bike_heartrate_service },
     { bike_resistance_offset, default_bike_resistance_offset },
@@ -277,7 +276,6 @@ QVariant allSettings[allSettingsCount][2] =  {
     { treadmill_step_incline, default_treadmill_step_incline },
     { fitshow_anyrun, default_fitshow_anyrun },
     { nordictrack_s30_treadmill, default_nordictrack_s30_treadmill },
-    { nordictrack_fs5i_treadmill, default_nordictrack_fs5i_treadmill },
     { renpho_peloton_conversion_v2, default_renpho_peloton_conversion_v2 },
     { ss2k_resistance_sample_1, default_ss2k_resistance_sample_1 },
     { ss2k_shift_step_sample_1, default_ss2k_shift_step_sample_1 },
