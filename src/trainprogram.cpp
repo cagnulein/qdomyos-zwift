@@ -137,13 +137,13 @@ double trainprogram::avgSpeedFromGpxStep(int gpxStep, int seconds) {
     int c = gpxStep + 1;
     while (1) {
         if ( (timesum >= seconds) || (c >= rows.length()) ) {
-            return (km / ((double) timesum) / 3600.0);
+            return (km / ((double) timesum) * 3600.0);
         }
         km += (rows.at(c).distance);
         timesum = (timesum + QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed) - QTime(0, 0, 0).secsTo(rows.at(c-1).gpxElapsed));
         c++;
     }
-    return (km / ((double) timesum) / 3600.0);
+    return (km / ((double) timesum) * 3600.0);
 }
 
 int trainprogram::TotalGPXSecs() {
@@ -173,7 +173,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         {
             double avgTestSpeed = avgSpeedFromGpxStep(testpos, 5);
             double deviation = (avgTestSpeed / prevAvgSpeed);
-            if (deviation >= 0.9 && deviation <=1.1) {
+            if (deviation >= 0.85 && deviation <=1.15) {
                 avgNextSpeed = avgTestSpeed;
                 testpos = (currentStep + 6);
             }
