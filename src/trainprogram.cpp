@@ -132,13 +132,16 @@ double trainprogram::avgSpeedNextSecondsGPX(int offset, int seconds) {
     int c = currentStep + 1 + offset;
     if (c < 0)
         c = 0;
+    int s = currentStep + offset;
+    if (s < 0)
+        s = 0;
     double km = 0;
     int sum = 0;
-    double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(currentStep + offset).gpxElapsed);
+    double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(s).gpxElapsed);
 
     while (1) {
         if (c < rows.length()) {
-            if (sum - actualGPXElapsed > (seconds + offset)) {
+            if (sum - actualGPXElapsed > (s)) {
                 return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
             }
             km += (rows.at(c).distance);
