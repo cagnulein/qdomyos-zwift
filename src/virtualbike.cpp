@@ -27,7 +27,7 @@ virtualbike::virtualbike(bluetoothdevice *t, bool noWriteResistance, bool noHear
     bool echelon = settings.value(QZSettings::virtual_device_echelon, QZSettings::default_virtual_device_echelon).toBool();
     bool ifit = settings.value(QZSettings::virtual_device_ifit, QZSettings::default_virtual_device_ifit).toBool();
 
-    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes /* false */).toBool()) {
+    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(Bike, bikeResistanceOffset, bikeResistanceGain, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
@@ -458,11 +458,6 @@ void virtualbike::characteristicChanged(const QLowEnergyCharacteristic &characte
     if (normalizeWattage < 0)
         normalizeWattage = 0;
 
-    //    double erg_filter_upper =
-    //        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter /* 0.0 */).toDouble(); //
-    //        NOTE:clang-analyzer-deadcode.DeadStores
-    //    double erg_filter_lower = settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down /* 0.0 */)
-    //                                  .toDouble(); // NOTE:clang-analyzer-deadcode.DeadStores
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');    
 

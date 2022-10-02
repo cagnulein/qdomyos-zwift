@@ -185,11 +185,6 @@ void virtualrower::characteristicChanged(const QLowEnergyCharacteristic &charact
     QByteArray reply;
     QSettings settings;
     bool erg_mode = settings.value(QZSettings::zwift_erg, QZSettings::default_zwift_erg).toBool();
-    //    double erg_filter_upper =
-    //        settings.value(QZSettings::zwift_erg_filter, QZSettings::default_zwift_erg_filter /* 0.0 */).toDouble(); //
-    //        NOTE:clang-analyzer-deadcode.DeadStores
-    //    double erg_filter_lower = settings.value(QZSettings::zwift_erg_filter_down, QZSettings::default_zwift_erg_filter_down /* 0.0 */)
-    //                                  .toDouble(); // NOTE:clang-analyzer-deadcode.DeadStores
     qDebug() << QStringLiteral("characteristicChanged ") + QString::number(characteristic.uuid().toUInt16()) +
                     QStringLiteral(" ") + newValue.toHex(' ');
 

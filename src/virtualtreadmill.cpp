@@ -12,7 +12,7 @@ virtualtreadmill::virtualtreadmill(bluetoothdevice *t, bool noHeartService) {
     treadMill = t;
 
     this->noHeartService = noHeartService;
-    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes /* false */).toBool()) {
+    if (settings.value(QZSettings::dircon_yes, QZSettings::default_dircon_yes).toBool()) {
         dirconManager = new DirconManager(t, 0, 0, this);
         connect(dirconManager, SIGNAL(changeInclination(double, double)), this,
                 SIGNAL(changeInclination(double, double)));
