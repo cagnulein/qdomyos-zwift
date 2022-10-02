@@ -171,8 +171,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Videopos = 0";
         return 1.0;
     }
-    double avgNextSpeed = avgSpeedNextSecondsGPX(-4, 7);
-    double avgNextSpeed2 = avgSpeedNextSecondsGPX(1, 5);
+    double avgNextSpeed = avgSpeedNextSecondsGPX(-2, 5);
+    double avgNextSpeed2 = avgSpeedNextSecondsGPX(-1, 6);
+    double avgNextSpeed3 = avgSpeedNextSecondsGPX(0, 7);
     // Avoid a Division by Zero
     if (avgNextSpeed == 0.0) {
         qDebug() << "TimeRateFromGPX Nextspeed = 0";
@@ -197,16 +198,8 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         rate = 0.1;
     }
 
-    if (nextTimeRateGpxSecs > 0) {
-        if ((abs(nextTimeRateGpxSecs-rate)) > 0.4) {
-            double limitedchange = (nextTimeRateGpxSecs - rate);
-            limitedchange = (limitedchange * 0.5);
-            rate = (nextTimeRateGpxSecs + limitedchange);
-        }
-    }
-
     qDebug() << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs) << currentspeed << avgNextSpeed
-             << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
+             << avgNextSpeed2 << avgNextSpeed3 << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
 
     // Save the last Gpx Timestamp and the last Rate for later calls.
     if (lastTimeRateGpxSecs != gpxsecs) {
