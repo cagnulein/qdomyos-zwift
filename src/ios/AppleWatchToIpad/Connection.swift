@@ -68,7 +68,13 @@ class Connection {
                     if sender?.contains("PHONE") ?? false && message.contains("HR=") {
                         let hr : String = message.slice(from: "HR=", to: "#") ?? ""
                         WatchKitConnection.currentHeartRate = (Int(hr) ?? 0)
-					}
+					} else if sender?.contains("PAD") ?? false && message.contains("KCAL=") {
+                        let kcal : String = message.slice(from: "KCAL=", to: "#") ?? ""
+                        WatchKitConnection.kcal = (Int(kcal) ?? 0)
+                    } else if sender?.contains("PAD") ?? false && message.contains("ODO=") {
+                        let kcal : String = message.slice(from: "ODO=", to: "#") ?? ""
+                        WatchKitConnection.distance = (Double(odo) ?? 0)
+                    }
 				}
             }
             self.receiveMessage()
