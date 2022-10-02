@@ -1,7 +1,6 @@
 #include "templateinfosenderbuilder.h"
 #include "bike.h"
 #include "treadmill.h"
-#include <limits>
 #include <QDirIterator>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -9,6 +8,7 @@
 #include <QNetworkInterface>
 #include <QStandardPaths>
 #include <QTime>
+#include <limits>
 #ifdef Q_HTTPSERVER
 #include "webserverinfosender.h"
 #endif
@@ -534,7 +534,7 @@ void TemplateInfoSenderBuilder::onStart(TemplateInfoSender *tempSender) {
 
 void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
     if (!device->isPaused()) {
-        device->stop();
+        device->stop(true);
         device->setPaused(true);
         emit workoutEventStateChanged(bluetoothdevice::PAUSED);
     }
@@ -545,7 +545,7 @@ void TemplateInfoSenderBuilder::onPause(TemplateInfoSender *tempSender) {
 }
 
 void TemplateInfoSenderBuilder::onStop(TemplateInfoSender *tempSender) {
-    device->stop();
+    device->stop(false);
     device->setPaused(true);
     device->clearStats();
     emit workoutEventStateChanged(bluetoothdevice::STOPPED);

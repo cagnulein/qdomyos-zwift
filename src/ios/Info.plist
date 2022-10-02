@@ -42,6 +42,8 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_wahoo-fitness-tnp._tcp</string>
+		<string>_qz_ipad._tcp</string>
+		<string>_qz_iphone._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>This app use a QT framework in order to playback workout videos. This permission is required for this reason.</string>
