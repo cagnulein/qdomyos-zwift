@@ -130,6 +130,8 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
 // speed in Km/h
 double trainprogram::avgSpeedNextSecondsGPX(int offset, int seconds) {
     int c = currentStep + 1 + offset;
+    if (c < 0)
+        c = 0;
     double km = 0;
     int sum = 0;
     double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(currentStep + offset).gpxElapsed);
@@ -166,7 +168,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Videopos = 0";
         return 1.0;
     }
-    double avgNextSpeed = avgSpeedNextSecondsGPX(0, 1);
+    double avgNextSpeed = avgSpeedNextSecondsGPX(-4, 7);
     double avgNextSpeed2 = avgSpeedNextSecondsGPX(1, 5);
     // Avoid a Division by Zero
     if (avgNextSpeed == 0.0) {
