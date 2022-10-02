@@ -4083,8 +4083,8 @@ void homeform::sendMail() {
     MimeMessage message;
 
     message.setSender(new EmailAddress(QStringLiteral("no-reply@qzapp.it"), QStringLiteral("QZ")));
-    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QZSettings::default_user_email).toString(),
-                                          settings.value(QZSettings::user_email, QZSettings::default_user_email).toString()));
+    message.addRecipient(new EmailAddress(settings.value(QZSettings::user_email, QLatin1String("")).toString(),
+                                          settings.value(QZSettings::user_email, QLatin1String("")).toString()));
     if (!Session.isEmpty()) {
         QString title = Session.constFirst().time.toString();
         if (!stravaPelotonActivityName.isEmpty()) {
@@ -4482,7 +4482,7 @@ void homeform::licenseRequest() {
         connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
     }
     QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
-             settings.value(QZSettings::user_email, QZSettings::default_user_email).toString());
+             settings.value(QZSettings::user_email, "").toString());
     QNetworkRequest request(url);
     mgr->get(request);
 }

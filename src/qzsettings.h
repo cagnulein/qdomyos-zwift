@@ -189,7 +189,12 @@ namespace QZSettings {
      *@brief Email address of the user.
 	*/
 	static const QString user_email = QStringLiteral("user_email");
-	static const QString default_user_email = QStringLiteral("");
+
+    /**
+     * @brief Default email address of user. Empty Latin1 string.
+     * This is a Latin1 string because of where it could be used.
+     */
+    static const QString default_user_email = QLatin1String("");
 
 	/**
 	 *@brief 
