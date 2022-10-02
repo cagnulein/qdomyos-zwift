@@ -171,19 +171,23 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Videopos = 0";
         return 1.0;
     }
-    double prevAvgSpeed = avgSpeedNextSecondsGPX(-1 ,5);
-    if (prevAvgSpeed == 0.0) prevAvgSpeed=1;
+    double prevAvgSpeed = lastGpxSpeedSet;
     double avgNextSpeed = -1.0;
-    int testpos = 0;
-    while (testpos < 4)
+    if (prevAvgSpeed == 0.0)
+        avgNextSpeed = avgSpeedNextSecondsGPX(testpos, 5);
+    else
     {
-        double avgTestSpeed = avgSpeedNextSecondsGPX(testpos, 5);
-        double deviation = (avgTestSpeed / prevAvgSpeed);
-        if (deviation >= 0.9 && deviation <=1.1) {
-            avgNextSpeed = avgTestSpeed;
-            testpos = 4;
+        int testpos = 0;
+        while (testpos < 6)
+        {
+            double avgTestSpeed = avgSpeedNextSecondsGPX(testpos, 5);
+            double deviation = (avgTestSpeed / prevAvgSpeed);
+            if (deviation >= 0.9 && deviation <=1.1) {
+                avgNextSpeed = avgTestSpeed;
+                testpos = 6;
+            }
+            testpos++;
         }
-        testpos++;
     }
     if (avgNextSpeed == -1.0) {
         avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
@@ -193,9 +197,9 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Nextspeed = 0";
         return 1.0;
     }
-    if (gpxsecs == lastTimeRateGpxSecs) {
-        qDebug() << "TimeRateFromGPX Gpxpos=lastPos" << nextTimeRateGpxSecs;
-        return nextTimeRateGpxSecs;
+    if (gpxsecs == lastGpxRateSetAt) {
+        qDebug() << "TimeRateFromGPX Gpxpos=lastPos" << lastGpxRateSet;
+        return lastGpxRateSet;
     }
     // Calculate the Factor between current Players Speed and the next average GPX Speed
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
@@ -210,12 +214,13 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     }
 
     qDebug() << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs) << currentspeed << avgNextSpeed
-             << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
+             << gpxTarget << lastGpxRateSetAt << lastGpxRateSet << rate;
 
     // Save the last Gpx Timestamp and the last Rate for later calls.
-    if (lastTimeRateGpxSecs != gpxsecs) {
-        lastTimeRateGpxSecs = gpxsecs;
-        nextTimeRateGpxSecs = rate;
+    lastGpxSpeedSet = avgNextSpeed;
+    if (lastGpxRateSetAt != gpxsecs) {
+        lastGpxRateSetAt = gpxsecs ;
+        lastGpxRateSet = rate;
     }
     return rate;
 
