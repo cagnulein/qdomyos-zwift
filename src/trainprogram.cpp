@@ -128,31 +128,22 @@ QList<MetersByInclination> trainprogram::inclinationNext300Meters() {
 }
 
 // speed in Km/h
-double trainprogram::avgSpeedNextSecondsGPX(int offset, int seconds) {
-    int c = currentStep + 1 + offset;
-    if (c < 0)
-        c = 0;
-    int s = currentStep + offset;
-    if (s < 0)
-        s = 0;
-    double km = 0;
-    int sum = 0;
-    double actualGPXElapsed = QTime(0, 0, 0).secsTo(rows.at(s).gpxElapsed);
-
+double trainprogram::avgSpeedFromGpxStep(int gpxStep, int seconds) {
+    int start = gpxStep;
+    double km = (rows.at(gpxStep).distance);
+    int timesum = 0;
+    if (gpxStep > 0) timesum=(QTime(0, 0, 0).secsTo(rows.at(gpxStep).gpxElapsed) - QTime(0, 0, 0).secsTo(rows.at(gpxStep-1).gpxElapsed));
+    else timesum = QTime(0, 0, 0).secsTo(rows.at(gpxStep).gpxElapsed);
+    int c = gpxStep + 1;
     while (1) {
-        if (c < rows.length()) {
-            if (sum - actualGPXElapsed > (s)) {
-                return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
-            }
-            km += (rows.at(c).distance);
-            sum = QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed);
-
-        } else {
-            return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
+        if ( (timesum >= seconds) || (c >= rows.length()) ) {
+            return (km / ((double) timesum) / 3600.0);
         }
+        km += (rows.at(c).distance);
+        timesum = (timesum + QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed) - QTime(0, 0, 0).secsTo(rows.at(c-1).gpxElapsed));
         c++;
     }
-    return km / (((double)(sum - actualGPXElapsed)) / 3600.0);
+    return (km / ((double) timesum) / 3600.0);
 }
 
 int trainprogram::TotalGPXSecs() {
@@ -174,23 +165,23 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double prevAvgSpeed = lastGpxSpeedSet;
     double avgNextSpeed = -1.0;
     if (prevAvgSpeed == 0.0)
-        avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
+        avgNextSpeed = avgSpeedFromGpxStep(currentStep, 5);
     else
     {
-        int testpos = 0;
-        while (testpos < 6)
+        int testpos = currentStep;
+        while (testpos < (currentStep + 6))
         {
-            double avgTestSpeed = avgSpeedNextSecondsGPX(testpos, 5);
+            double avgTestSpeed = avgSpeedFromGpxStep(testpos, 5);
             double deviation = (avgTestSpeed / prevAvgSpeed);
             if (deviation >= 0.9 && deviation <=1.1) {
                 avgNextSpeed = avgTestSpeed;
-                testpos = 6;
+                testpos = (currentStep + 6);
             }
             testpos++;
         }
     }
     if (avgNextSpeed == -1.0) {
-        avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
+        avgNextSpeed = avgSpeedFromGpxStep(currentStep, 5);
     }
     // Avoid a Division by Zero
     if (avgNextSpeed == 0.0) {
