@@ -174,7 +174,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double prevAvgSpeed = lastGpxSpeedSet;
     double avgNextSpeed = -1.0;
     if (prevAvgSpeed == 0.0)
-        avgNextSpeed = avgSpeedNextSecondsGPX(testpos, 5);
+        avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
     else
     {
         int testpos = 0;
