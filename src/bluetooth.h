@@ -249,7 +249,12 @@ class bluetooth : public QObject, public SignalHandler {
     QTimer discoveryTimeout;
 #endif
 
-  signals:
+    /**
+     * @brief Stores the name and address or UUID in the settings.
+     * @param b The Bluetooth device info.
+     */
+    void setLastBluetoothDevice(const QBluetoothDeviceInfo &b);
+signals:
     void deviceConnected(QBluetoothDeviceInfo b);
     void deviceFound(QString name);
     void searchingStop();

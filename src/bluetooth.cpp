@@ -297,6 +297,17 @@ bool bluetooth::heartRateBeltAvaiable() {
     return false;
 }
 
+void bluetooth::setLastBluetoothDevice(const QBluetoothDeviceInfo &b) {
+    QSettings settings;
+    settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
+#ifndef Q_OS_IOS
+    settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
+#else
+    settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
+#endif
+}
+
+
 void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
 
     QSettings settings;
@@ -795,13 +806,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if (b.name().startsWith(QStringLiteral("Domyos")) &&
                        !b.name().startsWith(QStringLiteral("DomyosBr")) && !domyos && !domyosElliptical &&
                        !domyosBike && !domyosRower && filter) {
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
-#ifndef Q_OS_IOS
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
-#else
-                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
-#endif
-
+                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 domyos = new domyostreadmill(this->pollDeviceTime, noConsole, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -832,13 +837,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                            b.name().toUpper().startsWith(QStringLiteral("KS-HDSY-X21C")) ||
                            b.name().toUpper().startsWith(QStringLiteral("KS-NGCH-X21C"))) &&
                        !kingsmithR2Treadmill && filter) {
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
-#ifndef Q_OS_IOS
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
-#else
-                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
-#endif
-
+                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kingsmithR2Treadmill = new kingsmithr2treadmill(this->pollDeviceTime, noConsole, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -865,13 +864,8 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                             QStringLiteral("KS-"))) && // Treadmill KingSmith WalkingPad R2 Pro KS-HCR1AA
                        !kingsmithR1ProTreadmill &&
                        !kingsmithR2Treadmill && filter) {
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
-#ifndef Q_OS_IOS
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
-#else
-                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
-#endif
 
+                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 kingsmithR1ProTreadmill = new kingsmithr1protreadmill(this->pollDeviceTime, noConsole, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -894,13 +888,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(kingsmithR1ProTreadmill);
                 innerTemplateManager->start(kingsmithR1ProTreadmill);
             } else if ((b.name().toUpper().startsWith(QStringLiteral("ZW-"))) && !shuaA5Treadmill && filter) {
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
-#ifndef Q_OS_IOS
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
-#else
-                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
-#endif
-
+                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 shuaA5Treadmill = new shuaa5treadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -921,13 +909,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             } else if ((b.name().toUpper().startsWith(QStringLiteral("TRUE")) ||
                         b.name().toUpper().startsWith(QStringLiteral("TREADMILL"))) &&
                        !trueTreadmill && filter) {
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
-#ifndef Q_OS_IOS
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
-#else
-                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
-#endif
-
+                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 trueTreadmill = new truetreadmill(noWriteResistance, noHeartService);
 #if !defined(Q_OS_ANDROID) && !defined(Q_OS_IOS)
@@ -1284,12 +1266,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                         (b.name().toUpper().startsWith(QStringLiteral("C7-")) && b.name().length() != 17) ||
                         b.name().toUpper().startsWith(QStringLiteral("C9/C10"))) &&
                        !schwinnIC4Bike && filter) {
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_name"), b.name());
-#ifndef Q_OS_IOS
-                settings.setValue(QStringLiteral("bluetooth_lastdevice_address"), b.address().toString());
-#else
-                settings.setValue("bluetooth_lastdevice_address", b.deviceUuid().toString());
-#endif
+                this->setLastBluetoothDevice(b);
                 this->stopDiscovery();
                 schwinnIC4Bike = new schwinnic4bike(noWriteResistance, noHeartService);
                 // stateFileRead();
