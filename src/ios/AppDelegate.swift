@@ -62,7 +62,7 @@ var pedometer = CMPedometer()
 		} else {
 			sender = "PHONE"
 		}
-        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#ODO=\(distance)")
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#ODO=\(distance)#")
         WatchKitConnection.distance = distance;
     }
     
@@ -74,7 +74,7 @@ var pedometer = CMPedometer()
 		} else {
 			sender = "PHONE"
 		}
-        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(kcal)")
+        Server.server?.send("SENDER=\(sender)#HR=\(WatchKitConnection.currentHeartRate)#KCAL=\(kcal)#")
         WatchKitConnection.kcal = kcal;
     }
     
