@@ -263,14 +263,9 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
 
 #if defined(Q_OS_WIN) || (defined(Q_OS_MAC) && !defined(Q_OS_IOS))
     connect(engine, &QQmlApplicationEngine::quit, &QGuiApplication::quit);
-    QNetworkAccessManager *mgr = new QNetworkAccessManager(this);
     connect(&tLicense, &QTimer::timeout, this, &homeform::licenseTimeout);
     tLicense.start(600000);
-    connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
-    QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
-             settings.value("user_email", "").toString());
-    QNetworkRequest request(url);
-    mgr->get(request);
+    licenseRequest();
 #endif
 
     this->bluetoothManager = bl;
@@ -384,7 +379,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
     m_speech.setLocale(QLocale::English);
-
+    
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
     deviceConnected(b);
@@ -451,7 +446,7 @@ void homeform::peloton_start_workout() {
     qDebug() << QStringLiteral("peloton_start_workout!");
     if (pelotonHandler && !pelotonHandler->trainrows.isEmpty()) {
         if (trainProgram) {
-            emit trainProgram->stop();
+            emit trainProgram->stop(false);
 
             delete trainProgram;
             trainProgram = nullptr;
@@ -1963,7 +1958,7 @@ void homeform::Start_inner(bool send_event_to_device) {
 
         paused = true;
         if (bluetoothManager->device() && send_event_to_device) {
-            bluetoothManager->device()->stop();
+            bluetoothManager->device()->stop(paused);
         }
         emit workoutEventStateChanged(bluetoothdevice::PAUSED);
     } else {
@@ -2038,7 +2033,7 @@ void homeform::Stop() {
             }
         }
 
-        bluetoothManager->device()->stop();
+        bluetoothManager->device()->stop(false);
     }
 
     paused = false;
@@ -3038,8 +3033,7 @@ void homeform::update() {
 
                 last_seconds_pid_heart_zone = seconds;
 
-                // it must be double because the current zone is double
-                double zone = settings.value(QStringLiteral("treadmill_pid_heart_zone"), QStringLiteral("Disabled"))
+                uint8_t zone = settings.value(QStringLiteral("treadmill_pid_heart_zone"), QStringLiteral("Disabled"))
                                    .toString()
                                    .toUInt();
                 if (fromTrainProgram) {
@@ -3055,13 +3049,13 @@ void homeform::update() {
 
                         const double step = 0.2;
                         double currentSpeed = ((treadmill *)bluetoothManager->device())->currentSpeed().value();
-                        if (zone < currentHRZone) {
+                        if (zone < ((uint8_t)currentHRZone)) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
                                     currentSpeed - step,
                                     ((treadmill *)bluetoothManager->device())->currentInclination().value());
                             pid_heart_zone_small_inc_counter = 0;
-                        } else if (zone > currentHRZone && maxSpeed >= currentSpeed + step) {
+                        } else if (zone > ((uint8_t)currentHRZone) && maxSpeed >= currentSpeed + step) {
                             ((treadmill *)bluetoothManager->device())
                                 ->changeSpeedAndInclination(
 
@@ -3083,10 +3077,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((bike *)bluetoothManager->device())->currentResistance().value();
-                        if (zone < currentHRZone) {
+                        if (zone < ((uint8_t)currentHRZone)) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > currentHRZone) {
+                        } else if (zone > ((uint8_t)currentHRZone)) {
 
                             ((bike *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
@@ -3095,10 +3089,10 @@ void homeform::update() {
                         const int step = 1;
                         resistance_t currentResistance =
                             ((rower *)bluetoothManager->device())->currentResistance().value();
-                        if (zone < currentHRZone) {
+                        if (zone < ((uint8_t)currentHRZone)) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance - step);
-                        } else if (zone > currentHRZone) {
+                        } else if (zone > ((uint8_t)currentHRZone)) {
 
                             ((rower *)bluetoothManager->device())->changeResistance(currentResistance + step);
                         }
@@ -4476,8 +4470,23 @@ void homeform::licenseReply(QNetworkReply *reply) {
     qDebug() << r;
     if (r.contains("OK")) {
         tLicense.stop();
+    } else {
+        licenseRequest();
     }
 }
+
+void homeform::licenseRequest() {
+    QSettings settings;
+    if (!mgr) {
+        mgr = new QNetworkAccessManager(this);
+        connect(mgr, &QNetworkAccessManager::finished, this, &homeform::licenseReply);
+    }
+    QUrl url(QStringLiteral("http://robertoviola.cloud:4010/?supporter=") +
+             settings.value("user_email", "").toString());
+    QNetworkRequest request(url);
+    mgr->get(request);
+}
+
 void homeform::licenseTimeout() { setLicensePopupVisible(true); }
 #endif
 
