@@ -197,6 +197,11 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         rate = 0.1;
     }
 
+    if ((abs(lastTimeRateGpxSecs-rate)) > 0.4) {
+        if (rate > lastTimeRateGpxSecs) rate = lastTimeRateGpxSecs + 0.4;
+        else if (rate < lastTimeRateGpxSecs) rate = lastTimeRateGpxSecs - 0.4; 
+    }
+
     qDebug() << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs) << currentspeed << avgNextSpeed
              << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
 
