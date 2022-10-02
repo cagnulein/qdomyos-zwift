@@ -456,7 +456,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             }
             if (b.name().startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
 
-                if (m3ibike::isCorrectUnit(b)) {this->setLastBluetoothDevice(b);this->setLastBluetoothDevice(b);
+                if (m3ibike::isCorrectUnit(b)) {
 					this->setLastBluetoothDevice(b);
                     this->stopDiscovery();
                     m3iBike = new m3ibike(noWriteResistance, noHeartService);
