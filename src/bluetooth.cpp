@@ -457,7 +457,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
             if (b.name().startsWith(QStringLiteral("M3")) && !m3iBike && filter) {
 
                 if (m3ibike::isCorrectUnit(b)) {
-					this->setLastBluetoothDevice(b);
+                    this->setLastBluetoothDevice(b);
                     this->stopDiscovery();
                     m3iBike = new m3ibike(noWriteResistance, noHeartService);
                     emit deviceConnected(b);
@@ -585,9 +585,7 @@ void bluetooth::deviceDiscovered(const QBluetoothDeviceInfo &device) {
                 userTemplateManager->start(nordictrackifitadbBike);
                 innerTemplateManager->start(nordictrackifitadbBike);
             } else if (csc_as_bike && b.name().startsWith(cscName) && !cscBike && filter) {
-
                 this->setLastBluetoothDevice(b);
-
                 this->stopDiscovery();
                 cscBike = new cscbike(noWriteResistance, noHeartService, false);
                 emit deviceConnected(b);
