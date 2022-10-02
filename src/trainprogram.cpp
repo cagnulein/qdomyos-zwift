@@ -171,9 +171,23 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         qDebug() << "TimeRateFromGPX Videopos = 0";
         return 1.0;
     }
-    double avgNextSpeed = avgSpeedNextSecondsGPX(-2, 5);
-    double avgNextSpeed2 = avgSpeedNextSecondsGPX(-1, 6);
-    double avgNextSpeed3 = avgSpeedNextSecondsGPX(0, 7);
+    double prevAvgSpeed = avgSpeedNextSecondsGPX(-1 ,5);
+    if (prevAvgSpeed == 0.0) prevAvgSpeed=1;
+    double avgNextSpeed = -1.0;
+    int testpos = 0;
+    while (testpos < 4)
+    {
+        double avgTestSpeed = avgSpeedNextSecondsGPX(testpos, 5);
+        double deviation = (avgTestSpeed / prevAvgSpeed);
+        if (deviation >= 0.9 && deviation <=1.1) {
+            avgNextSpeed = avgTestSpeed;
+            testpos = 4;
+        }
+        testpos++;
+    }
+    if (avgNextSpeed == -1.0) {
+        avgNextSpeed = avgSpeedNextSecondsGPX(0, 5);
+    }
     // Avoid a Division by Zero
     if (avgNextSpeed == 0.0) {
         qDebug() << "TimeRateFromGPX Nextspeed = 0";
@@ -187,9 +201,6 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double playedToGpxSpeedFactor = (currentspeed / avgNextSpeed);
     // Calculate where the gpx would be in 1 Second
     double gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
-    //playedToGpxSpeedFactor = (currentspeed / avgNextSpeed2);
-    //gpxTarget = (gpxsecs + playedToGpxSpeedFactor);
-
     // Get needed Rate for the next second
     double rate = (gpxTarget - videosecs);
 
@@ -199,7 +210,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     }
 
     qDebug() << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs) << currentspeed << avgNextSpeed
-             << avgNextSpeed2 << avgNextSpeed3 << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
+             << gpxTarget << lastTimeRateGpxSecs << nextTimeRateGpxSecs << rate;
 
     // Save the last Gpx Timestamp and the last Rate for later calls.
     if (lastTimeRateGpxSecs != gpxsecs) {
