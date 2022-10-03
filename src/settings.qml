@@ -334,58 +334,58 @@ import Qt.labs.settings 1.0
 
             property bool  fitshow_truetimer: false
 
-            // from the version 2.10.28
+            // from version 2.10.28
             property real elite_rizer_gain: 1.0
             property bool tile_ext_incline_enabled: false
             property int  tile_ext_incline_order: 32
 
-            // from the version 2.10.41
+            // from version 2.10.41
             property bool reebok_fr30_treadmill: false
 
-            // from the version 2.10.44
+            // from version 2.10.44
             property bool horizon_treadmill_7_8: false
 
-            // from the version 2.10.45
+            // from version 2.10.45
             property string profile_name: "default"
 
-            // from the version 2.10.46
+            // from version 2.10.46
             property bool tile_cadence_color_enabled: false
             property bool tile_peloton_remaining_enabled: false
             property int  tile_peloton_remaining_order: 22
             property bool tile_peloton_resistance_color_enabled: false
 
-            // from the version 2.10.49
+            // from version 2.10.49
             property bool dircon_yes: true
             property int dircon_server_base_port: 36866
 
-            // from the version 2.10.56
+            // from version 2.10.56
             property bool ios_cache_heart_device: true
 
-            // from the version 2.10.57
+            // from version 2.10.57
             property int app_opening: 0
 
-            // from the version 2.10.62
+            // from version 2.10.62
             property string proformtdf4ip: ""
 
-            // from the version 2.10.72
+            // from version 2.10.72
             property bool fitfiu_mc_v460: false
             property real bike_weight: 0
 
-            // from the version 2.10.77
+            // from version 2.10.77
             property bool kingsmith_encrypt_v2: false
 
-            // from the version 2.10.81
+            // from version 2.10.81
             property bool proform_treadmill_9_0: false
 
-            // from the version 2.10.85
+            // from version 2.10.85
             property bool proform_treadmill_1800i: false
 
-            // from the version 2.10.91
+            // from version 2.10.91
             property real cadence_offset: 0
             property real cadence_gain: 1
             property bool sp_ht_9600ie: false
 
-            // from the version 2.10.92
+            // from version 2.10.92
             property bool tts_enabled: false
             property int tts_summary_sec: 120
             property bool tts_act_speed: false
@@ -428,13 +428,13 @@ import Qt.labs.settings 1.0
             property bool tts_avg_watt_kg: false
             property bool tts_max_watt_kg: false
 
-            // from the version 2.10.96
+            // from version 2.10.96
             property bool fakedevice_elliptical: false
 
-            // from the version 2.10.99
+            // from version 2.10.99
             property string nordictrack_2950_ip: ""
 
-            // from the version 2.10.102
+            // from version 2.10.102
             property bool tile_instantaneous_stride_length_enabled: false
             property int  tile_instantaneous_stride_length_order: 32
             property bool tile_ground_contact_enabled: false
@@ -443,33 +443,40 @@ import Qt.labs.settings 1.0
             property int  tile_vertical_oscillation_order: 34
             property string sex: "Male"
 
-            // from the version 2.10.111
+            // from version 2.10.111
             property string maps_type: "3D"
 
-            // from the version 2.10.112
+            // from version 2.10.112
             property real ss2k_max_resistance: 100
             property real ss2k_min_resistance: 0
 
-            // from the version 2.11.10
+            // from version 2.11.10
             property bool proform_treadmill_se: false
 
-            // from the version 2.11.14
+            // from version 2.11.14
             property string proformtreadmillip: ""
 
-            // from the version 2.11.22
+            // from version 2.11.22
             property bool kingsmith_encrypt_v3: false
 
-            // from the version 2.11.38
+            // from version 2.11.38
             property string tdf_10_ip: ""
-            
-            
-            // from the version 2.11.41
+
+            // from version 2.11.41
             property bool fakedevice_treadmill: false
 
-            // from the version 2.11.43
+            // from version 2.11.43
             property int video_playback_window_s: 12
             
-            // from the version ?
+            
+            // from version 2.11.62
+            property string horizon_treadmill_profile_user1: "user1"
+            property string horizon_treadmill_profile_user2: "user2"
+            property string horizon_treadmill_profile_user3: "user3"
+            property string horizon_treadmill_profile_user4: "user4"
+            property string horizon_treadmill_profile_user5: "user5"
+            
+            // from version ?
 	        property bool trixter_xdream_v1_bike: false
 	        property bool trixter_xdream_v1_bike_heartrate_enabled: true
 	        property bool trixter_xdream_v1_bike_steering_enabled: true
@@ -5086,6 +5093,122 @@ import Qt.labs.settings 1.0
                             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             Layout.fillWidth: true
                             onClicked: settings.horizon_treadmill_7_8 = checked
+                        }
+
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile1
+                                text: qsTr("User 1:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile1TextField
+                                text: settings.horizon_treadmill_profile_user1
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user1 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile1Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user1 = horizonTreadmillProfile1TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile2
+                                text: qsTr("User 2:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile2TextField
+                                text: settings.horizon_treadmill_profile_user2
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user2 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile2Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user2 = horizonTreadmillProfile2TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile3
+                                text: qsTr("User 3:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile3TextField
+                                text: settings.horizon_treadmill_profile_user3
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user3 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile3Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user3 = horizonTreadmillProfile3TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile4
+                                text: qsTr("User 4:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile4TextField
+                                text: settings.horizon_treadmill_profile_user4
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user4 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile4Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user4 = horizonTreadmillProfile4TextField.text
+                            }
+                        }
+                        RowLayout {
+                            spacing: 10
+                            Label {
+                                id: labelhorizonTreadmillProfile5
+                                text: qsTr("User 5:")
+                                Layout.fillWidth: true
+                            }
+                            TextField {
+                                id: horizonTreadmillProfile5TextField
+                                text: settings.horizon_treadmill_profile_user5
+                                horizontalAlignment: Text.AlignRight
+                                Layout.fillHeight: false
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onAccepted: settings.horizon_treadmill_profile_user5 = text
+                                onActiveFocusChanged: if(this.focus) this.cursorPosition = this.text.length
+                            }
+                            Button {
+                                id: okhorizonTreadmillProfile5Button
+                                text: "OK"
+                                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                                onClicked: settings.horizon_treadmill_profile_user5 = horizonTreadmillProfile5TextField.text
+                            }
                         }
                     }
                 }
