@@ -17,10 +17,10 @@ class Client {
 
     func start() {
         browser.start { [weak self] result in
-            guard let self = self,
-                  self.connection == nil else { return }
+            /*guard let self = self,
+                  self.connection == nil else { return }*/
             print("client.handler result: \(result)")
-            self.connection = Connection(endpoint: result.endpoint)
+            self?.connection = Connection(endpoint: result.endpoint)
         }
     }
 
