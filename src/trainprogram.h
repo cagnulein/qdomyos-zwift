@@ -72,7 +72,7 @@ class trainprogram : public QObject {
     void decreaseElapsedTime(uint32_t i);
     int32_t offsetElapsedTime() { return offset; }
     void clearRows();
-    double avgSpeedNextSecondsGPX(int offset, int seconds);
+    double avgSpeedFromGpxStep(int gpxStep, int seconds);
     double TimeRateFromGPX(double gpxsecs, double videosecs, int timeFrame, double currentspeed);
     int TotalGPXSecs();
 
@@ -122,8 +122,9 @@ class trainprogram : public QObject {
     double lastOdometer = 0;
     double currentStepDistance = 0;
     QTimer timer;
-    double lastTimeRateGpxSecs = 0.0;
-    double nextTimeRateGpxSecs = 0.0;
+    double lastGpxRateSetAt = 0.0;
+    double lastGpxRateSet = 0.0;
+    double lastGpxSpeedSet = 0.0;
 };
 
 #endif // TRAINPROGRAM_H
