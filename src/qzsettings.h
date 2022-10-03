@@ -5,6 +5,10 @@
 
 namespace QZSettings {
 
+
+
+
+
     //--------------------------------------------------------------------------------------------
     // These are not in settings.qml
     //--------------------------------------------------------------------------------------------
@@ -111,20 +115,37 @@ namespace QZSettings {
 	static constexpr float default_bike_resistance_gain_f = 1.0;
 
 	/**
-	 *@brief 
+     *@brief Used to specify of QZ is using Zwift in ERG (workout) Mode.
+     * When supporting this, QZ should communicate the target resistance
+     * (or automatically adjust the device's resistance if it has this capability) to match the target
+     * watts based on the cadence (RPM). In ERG Mode, the changes in inclination should not affect target resistance,
+     * as is the case in Simulation Mode. Default is false.
+     *
 	*/
 	static const QString zwift_erg = QStringLiteral("zwift_erg");
 	static constexpr bool default_zwift_erg = false;
 
     /**
-	 *@brief 
+     *@brief In ERG Mode, Zwift sends a “target output” request. If the output requested doesn’t match the current output
+     *(calculated using cadence and resistance level), the target resistance should change to help the user get closer
+     *to the target output. If the filter is set to higher values, there should be less adjustment of the target resistance
+     *and cadence would need to be increased to match the target output.
+     * The zwift_erg_filter and zwift_erg_filter_down settings are the upper and lower margin before the adjustment of resistance
+     *  is communicated. Example: if the zwift_erg_filter and zwift_erg_filter_down filters are set to 10 and the target output is 100 watts,
+     *  a change of resistance will only be communicated if the device produces less than 90 Watts or more than 110 Watts.
 	*/
 	static const QString zwift_erg_filter = QStringLiteral("zwift_erg_filter");
 	static constexpr float default_zwift_erg_filter = 10.0;
 
     /**
-	 *@brief 
-	*/
+     *@brief In ERG Mode, Zwift sends a “target output” request. If the output requested doesn’t match the current output
+     *(calculated using cadence and resistance level), the target resistance should change to help the user get closer
+     *to the target output. If the filter is set to higher values, there should be less adjustment of the target resistance
+     *and cadence would need to be increased to match the target output.
+     *The zwift_erg_filter and zwift_erg_filter_down settings are the upper and lower margin before the adjustment of resistance
+     *is communicated. Example: if the zwift_erg_filter and zwift_erg_filter_down filters are set to 10 and the target output is 100 watts,
+     *a change of resistance will only be communicated if the device produces less than 90 Watts or more than 110 Watts.
+    */
 	static const QString zwift_erg_filter_down = QStringLiteral("zwift_erg_filter_down");
 	static constexpr float default_zwift_erg_filter_down = 10.0;
 
@@ -196,9 +217,6 @@ namespace QZSettings {
      */
     static const QString default_user_email = QLatin1String("");
 
-	/**
-	 *@brief 
-	*/
 	static const QString user_nickname = QStringLiteral("user_nickname");
 	static const QString default_user_nickname = QStringLiteral("");
 
@@ -557,32 +575,34 @@ namespace QZSettings {
 	static const QString treadmill_pid_heart_zone = QStringLiteral("treadmill_pid_heart_zone");
 	static const QString default_treadmill_pid_heart_zone = QStringLiteral("Disabled");
     /**
-	 *@brief 
+     *@brief 1 mile time goal, for a training program with the speed control.
 	*/
 	static const QString pacef_1mile = QStringLiteral("pacef_1mile");
 	static constexpr float default_pacef_1mile = 250;
     /**
-	 *@brief 
+     *@brief 5 km time goal, for a training program with the speed control.
 	*/
 	static const QString pacef_5km = QStringLiteral("pacef_5km");
 	static constexpr float default_pacef_5km = 300;
     /**
-	 *@brief 
+     *@brief 10 km time goal, for a training program with the speed control.
 	*/
 	static const QString pacef_10km = QStringLiteral("pacef_10km");
 	static constexpr float default_pacef_10km = 320;
     /**
-	 *@brief 
+     *@brief  pacef_1mile, but for half-marathon distance, for a training program with the speed control.
 	*/
 	static const QString pacef_halfmarathon = QStringLiteral("pacef_halfmarathon");
 	static constexpr float default_pacef_halfmarathon = 340;
     /**
-	 *@brief 
+     *@brief  pacef_1mile, but for marathon distance, for a training program with the speed control.
 	*/
 	static const QString pacef_marathon = QStringLiteral("pacef_marathon");
 	static constexpr float default_pacef_marathon = 360;
+
 	/**
-	 *@brief 
+     *@brief default pace to be used when the ZWO file does not indicate a precise pace.
+     *Text values, i.e. "1 mile", "5 km", "10 km", "Half Marathon"
 	*/
 	static const QString pace_default = QStringLiteral("pace_default");
 	static const QString default_pace_default = QStringLiteral("Half Marathon");
@@ -670,14 +690,10 @@ namespace QZSettings {
 
 	static const QString dkn_endurun_treadmill = QStringLiteral("dkn_endurun_treadmill");
 	static constexpr bool default_dkn_endurun_treadmill = false;
-	/**
-	 *@brief 
-	*/
+
 	static const QString trx_route_key = QStringLiteral("trx_route_key");
 	static constexpr bool default_trx_route_key = false;
-	/**
-	 *@brief 
-	*/
+
 	static const QString bh_spada_2 = QStringLiteral("bh_spada_2");
 	static constexpr bool default_bh_spada_2 = false;
 
@@ -824,24 +840,16 @@ namespace QZSettings {
 
 	static const QString cadence_sensor_speed_ratio = QStringLiteral("cadence_sensor_speed_ratio");
 	static constexpr float default_cadence_sensor_speed_ratio = 0.33;
-    /**
-	 *@brief 
-	*/
+
 	static const QString power_hr_pwr1 = QStringLiteral("power_hr_pwr1");
 	static constexpr float default_power_hr_pwr1 = 200;
-    /**
-	 *@brief 
-	*/
+
 	static const QString power_hr_hr1 = QStringLiteral("power_hr_hr1");
 	static constexpr float default_power_hr_hr1 = 150;
-    /**
-	 *@brief 
-	*/
+
 	static const QString power_hr_pwr2 = QStringLiteral("power_hr_pwr2");
 	static constexpr float default_power_hr_pwr2 = 230;
-    /**
-	 *@brief 
-	*/
+
 	static const QString power_hr_hr2 = QStringLiteral("power_hr_hr2");
 	static constexpr float default_power_hr_hr2 = 170;
 
@@ -881,17 +889,17 @@ namespace QZSettings {
 	static const QString fitmetria_fanfit_max = QStringLiteral("fitmetria_fanfit_max");
 	static constexpr float default_fitmetria_fanfit_max = 100;
 	/**
-	 *@brief 
+     *@brief Indicates if the virtual device should send resistance requests to the bike.
 	*/
 	static const QString virtualbike_forceresistance = QStringLiteral("virtualbike_forceresistance");
 	static constexpr bool default_virtualbike_forceresistance = true;
 	/**
-	 *@brief 
+     *@brief Troubleshooting setting. Should be false unless advised by QZ tech support.
 	*/
 	static const QString bluetooth_relaxed = QStringLiteral("bluetooth_relaxed");
 	static constexpr bool default_bluetooth_relaxed = false;
 	/**
-	 *@brief 
+     *@brief Troubleshooting setting. Should be false unless advised by QZ tech support.
 	*/
 	static const QString bluetooth_30m_hangs = QStringLiteral("bluetooth_30m_hangs");
 	static constexpr bool default_bluetooth_30m_hangs = false;
@@ -900,7 +908,7 @@ namespace QZSettings {
 	static constexpr bool default_battery_service = false;
 
     /**
-	 *@brief 
+     *@brief Experimental feature. Not recommended to use.
 	*/
 	static const QString service_changed = QStringLiteral("service_changed");
 	static constexpr bool default_service_changed = false;
@@ -927,27 +935,29 @@ namespace QZSettings {
 	static const QString log_debug = QStringLiteral("log_debug");
 	static constexpr bool default_log_debug = false;
 	/**
-	 *@brief 
+     *@brief Force QZ to communicate ONLY the Heart Rate metric to third-party apps.
 	*/
 	static const QString virtual_device_onlyheart = QStringLiteral("virtual_device_onlyheart");
 	static constexpr bool default_virtual_device_onlyheart = false;
 	/**
-	 *@brief 
+     *@brief Enables QZ to communicate with the Echelon app.
+     *This setting can only be used with iOS running QZ and iOS running the Echelon app.
 	*/
 	static const QString virtual_device_echelon = QStringLiteral("virtual_device_echelon");
 	static constexpr bool default_virtual_device_echelon = false;
 	/**
-	 *@brief 
+     *@brief Enables a virtual bluetooth bridge to the iFit App.
 	*/
 	static const QString virtual_device_ifit = QStringLiteral("virtual_device_ifit");
 	static constexpr bool default_virtual_device_ifit = false;
 	/**
-	 *@brief 
+     *@brief Instructs QZ to send a rower Bluetooth profile instead of a bike profile to third party apps that support rowing
+     *(examples: Kinomap and BitGym). This should be off for Zwift.
 	*/
 	static const QString virtual_device_rower = QStringLiteral("virtual_device_rower");
 	static constexpr bool default_virtual_device_rower = false;
 	/**
-	 *@brief 
+     *@brief Used to force a non-bike device to be presented to client apps as a bike.
 	*/
 	static const QString virtual_device_force_bike = QStringLiteral("virtual_device_force_bike");
 	static constexpr bool default_virtual_device_force_bike = false;
@@ -959,12 +969,13 @@ namespace QZSettings {
 	static constexpr bool default_applewatch_fakedevice = false;
 
     /**
-	 *@brief 
+     *@brief Minimum target resistance for ERG mode.
 	*/
 	static const QString zwift_erg_resistance_down = QStringLiteral("zwift_erg_resistance_down");
 	static constexpr float default_zwift_erg_resistance_down = 0.0;
+
     /**
-	 *@brief 
+     *@brief Maximum targe resistance for ERG mode.
 	*/
 	static const QString zwift_erg_resistance_up = QStringLiteral("zwift_erg_resistance_up");
 	static constexpr float default_zwift_erg_resistance_up = 999.0;
