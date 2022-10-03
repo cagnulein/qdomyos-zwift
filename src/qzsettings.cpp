@@ -6,7 +6,7 @@
 namespace QZSettings
 {
 
-const uint32_t allSettingsCount = 365;
+const uint32_t allSettingsCount = 366;
 QVariant allSettings[allSettingsCount][2] =  {
     { cryptoKeySettingsProfiles, default_cryptoKeySettingsProfiles },
     { bluetooth_no_reconnection, default_bluetooth_no_reconnection },
@@ -372,7 +372,8 @@ QVariant allSettings[allSettingsCount][2] =  {
     {horizon_treadmill_profile_user2, default_horizon_treadmill_profile_user2},
     {horizon_treadmill_profile_user3, default_horizon_treadmill_profile_user3},
     {horizon_treadmill_profile_user4, default_horizon_treadmill_profile_user4},
-    {horizon_treadmill_profile_user5, default_horizon_treadmill_profile_user5}
+    {horizon_treadmill_profile_user5, default_horizon_treadmill_profile_user5},
+    {nordictrack_gx_2_7, default_nordictrack_gx_2_7}
 };
 
 void qDebugAllSettings(bool showDefaults) {

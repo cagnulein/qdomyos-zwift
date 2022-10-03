@@ -1335,6 +1335,9 @@ namespace QZSettings {
     static const QString horizon_treadmill_profile_user5 = QStringLiteral("horizon_treadmill_profile_user5");
     static const QString default_horizon_treadmill_profile_user5 = QStringLiteral("user5");
 
+    static const QString nordictrack_gx_2_7 = QStringLiteral("nordictrack_gx_2_7");
+    static const bool default_nordictrack_gx_2_7 = false;
+
     /**
      * @brief Write the QSettings values using the constants from this namespace.
      * @param showDefaults Optionally indicates if the default should be shown with the key.
