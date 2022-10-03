@@ -20,6 +20,7 @@ class Server {
         let tcpOptions = NWProtocolTCP.Options()
         tcpOptions.enableKeepalive = true
         tcpOptions.keepaliveIdle = 2
+        tcpOptions.connectionTimeout = 5
 
         let parameters = NWParameters(tls: nil, tcp: tcpOptions)
         parameters.includePeerToPeer = true
@@ -46,7 +47,9 @@ class Server {
 
     func send(_ message: String) {
         connections.forEach {
-            $0.send(message)
+            if($0.connection.state == .ready) {
+                $0.send(message)
+            }
         }
     }
 }
