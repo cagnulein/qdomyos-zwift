@@ -201,7 +201,7 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
     changeInclination(grade, percentage);
 }
 
-bool nordictrackifitadbtreadmill::connected() {}
+bool nordictrackifitadbtreadmill::connected() { return true; }
 
 void *nordictrackifitadbtreadmill::VirtualTreadmill() { return virtualTreadmill; }
 

@@ -28,6 +28,7 @@ class Connection {
         let tcpOptions = NWProtocolTCP.Options()
         tcpOptions.enableKeepalive = true
         tcpOptions.keepaliveIdle = 2
+        tcpOptions.connectionTimeout = 5
 
         let parameters = NWParameters(tls: nil, tcp: tcpOptions)
         parameters.includePeerToPeer = true
@@ -45,14 +46,30 @@ class Connection {
     func start() {
         connection.stateUpdateHandler = { newState in
             print("connection.stateUpdateHandler \(newState)")
-            if case .ready = newState {
+            switch newState {
+            case .ready:
                 self.receiveMessage()
+            case .failed(let error):
+                self.connection.stateUpdateHandler = nil
+                self.connection.cancel()
+                print("Server error\(error)")
+            case .setup:
+                print("Server setup.")
+            case .waiting(_):
+                print("Server waiting.")
+            case .preparing:
+                print("Server preparing.")
+            case .cancelled:
+                print("Server cancelled.")
+            @unknown default:
+                print("Server DEFAULT.")
             }
         }
         connection.start(queue: .main)
     }
 
     func send(_ message: String) {
+        print("sending \(message)")
         connection.send(content: message.data(using: .utf8), contentContext: .defaultMessage, isComplete: true, completion: .contentProcessed({ error in
             print("Connection send error: \(String(describing: error))")
         }))
@@ -69,9 +86,19 @@ class Connection {
                         let hr : String = message.slice(from: "HR=", to: "#") ?? ""
                         WatchKitConnection.currentHeartRate = (Int(hr) ?? 0)
 					}
+                    if sender?.contains("PAD") ?? false && message.contains("KCAL=") {
+                        let kcal : String = message.slice(from: "KCAL=", to: "#") ?? ""
+                        WatchKitConnection.kcal = (Double(kcal) ?? 0)
+                    }
+                    if sender?.contains("PAD") ?? false && message.contains("ODO=") {
+                        let odo : String = message.slice(from: "ODO=", to: "#") ?? ""
+                        WatchKitConnection.distance = (Double(odo) ?? 0)
+                    }
 				}
             }
-            self.receiveMessage()
+            if(self.connection.state == .ready) {
+                self.receiveMessage()
+            }
         }
     }
 }

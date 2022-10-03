@@ -196,6 +196,6 @@ void nordictrackifitadbbike::changeInclinationRequested(double grade, double per
     changeInclination(grade, percentage);
 }
 
-bool nordictrackifitadbbike::connected() {}
+bool nordictrackifitadbbike::connected() { return true; }
 
 void *nordictrackifitadbbike::VirtualDevice() { return virtualBike; }
