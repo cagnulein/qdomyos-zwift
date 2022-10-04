@@ -18,7 +18,7 @@ trainprogram::trainprogram(const QList<trainrow> &rows, bluetooth *b, QString *d
     /*
     int c = 0;
     for (c = 0; c < rows.length(); c++) {
-        qDebug() << "Trainprogramdata"
+        qDebug()  << qSetRealNumberPrecision(10)<< "Trainprogramdata"
                  << c
                  << QTime(0, 0, 0).secsTo(rows.at(c).duration)
                  << QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed)
@@ -132,18 +132,23 @@ double trainprogram::avgSpeedFromGpxStep(int gpxStep, int seconds) {
     int start = gpxStep;
     double km = (rows.at(gpxStep).distance);
     int timesum = 0;
-    if (gpxStep > 0) timesum=(QTime(0, 0, 0).secsTo(rows.at(gpxStep).gpxElapsed) - QTime(0, 0, 0).secsTo(rows.at(gpxStep-1).gpxElapsed));
-    else timesum = QTime(0, 0, 0).secsTo(rows.at(gpxStep).gpxElapsed);
+    if (gpxStep > 0)
+        timesum = (QTime(0, 0, 0).secsTo(rows.at(gpxStep).gpxElapsed) -
+                   QTime(0, 0, 0).secsTo(rows.at(gpxStep - 1).gpxElapsed));
+    else
+        timesum = QTime(0, 0, 0).secsTo(rows.at(gpxStep).gpxElapsed);
     int c = gpxStep + 1;
     while (1) {
-        if ( (timesum >= seconds) || (c >= rows.length()) ) {
-            return (km / ((double) timesum) * 3600.0);
+        if ((timesum >= seconds) || (c >= rows.length())) {
+            return (km / ((double)timesum) * 3600.0);
         }
         km += (rows.at(c).distance);
-        if (c > 0) timesum = (timesum + QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed) - QTime(0, 0, 0).secsTo(rows.at(c-1).gpxElapsed));
+        if (c > 0)
+            timesum = (timesum + QTime(0, 0, 0).secsTo(rows.at(c).gpxElapsed) -
+                       QTime(0, 0, 0).secsTo(rows.at(c - 1).gpxElapsed));
         c++;
     }
-    return (km / ((double) timesum) * 3600.0);
+    return (km / ((double)timesum) * 3600.0);
 }
 
 int trainprogram::TotalGPXSecs() {
@@ -166,14 +171,12 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     double avgNextSpeed = -1.0;
     if (prevAvgSpeed == 0.0)
         avgNextSpeed = avgSpeedFromGpxStep(currentStep, 5);
-    else
-    {
+    else {
         int testpos = currentStep;
-        while (testpos < (currentStep + 6))
-        {
+        while (testpos < (currentStep + 6)) {
             double avgTestSpeed = avgSpeedFromGpxStep(testpos, 5);
             double deviation = (avgTestSpeed / prevAvgSpeed);
-            if (deviation >= 0.85 && deviation <=1.15) {
+            if (deviation >= 0.85 && deviation <= 1.15) {
                 avgNextSpeed = avgTestSpeed;
                 testpos = (currentStep + 6);
             }
@@ -204,13 +207,13 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
         rate = 0.1;
     }
 
-    qDebug() << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs) << currentspeed << avgNextSpeed
-             << gpxTarget << lastGpxRateSetAt << lastGpxRateSet << rate;
+    qDebug() << qSetRealNumberPrecision(10) << "TimeRateFromGPX" << gpxsecs << videosecs << (gpxsecs - videosecs)
+             << currentspeed << avgNextSpeed << gpxTarget << lastGpxRateSetAt << lastGpxRateSet << rate;
 
     // Save the last Gpx Timestamp and the last Rate for later calls.
     lastGpxSpeedSet = avgNextSpeed;
     if (lastGpxRateSetAt != gpxsecs) {
-        lastGpxRateSetAt = gpxsecs ;
+        lastGpxRateSetAt = gpxsecs;
         lastGpxRateSet = rate;
     }
     return rate;
@@ -263,7 +266,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     }
     // If no videoframeend found something is totally wrong. Return 1
     if (frameendsecs == 0) {
-        qDebug() << "TimeRateFromGPX no Videoframe End"
+        qDebug()  << qSetRealNumberPrecision(10)<< "TimeRateFromGPX no Videoframe End"
                  << gpxsecs
                  << videosecs
                  << timeFrame
@@ -288,7 +291,7 @@ double trainprogram::TimeRateFromGPX(double gpxsecs, double videosecs, int timeF
     // Calculate rate beween Videoframedistance and played distance
     double rate = (playedgpxdistance / videoframedistance);
 
-    qDebug() << "TimeRateFromGPX"
+    qDebug()  << qSetRealNumberPrecision(10)<< "TimeRateFromGPX"
              << gpxsecs
              << videosecs
              << (gpxsecs-videosecs)
@@ -460,7 +463,8 @@ void trainprogram::scheduler() {
         }
 
         if (!isnan(rows.at(0).latitude) || !isnan(rows.at(0).longitude) || !isnan(rows.at(0).altitude)) {
-            qDebug() << QStringLiteral("trainprogram change GEO position") + QString::number(rows.at(0).latitude) +
+            qDebug() << qSetRealNumberPrecision(10)
+                     << QStringLiteral("trainprogram change GEO position") + QString::number(rows.at(0).latitude) +
                             " " + QString::number(rows.at(0).longitude) + " " + QString::number(rows.at(0).altitude) +
                             " " + QString::number(rows.at(0).azimuth);
             QGeoCoordinate p;
@@ -496,10 +500,10 @@ void trainprogram::scheduler() {
         lastOdometer = bluetoothManager->device()->odometer();
         bool distanceStep = (rows.at(currentStep).distance > 0);
         distanceEvaluation = (distanceStep && currentStepDistance >= rows.at(currentStep).distance);
-        qDebug() << QStringLiteral("currentStepDistance") << currentStepDistance << QStringLiteral("distanceStep")
-                 << distanceStep << QStringLiteral("distanceEvaluation") << distanceEvaluation
-                 << QStringLiteral("rows distance") << rows.at(currentStep).distance << QStringLiteral("same iteration")
-                 << sameIteration;
+        qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("currentStepDistance") << currentStepDistance
+                 << QStringLiteral("distanceStep") << distanceStep << QStringLiteral("distanceEvaluation")
+                 << distanceEvaluation << QStringLiteral("rows distance") << rows.at(currentStep).distance
+                 << QStringLiteral("same iteration") << sameIteration;
 
         if ((calculatedLine != currentStep && !distanceStep) || distanceEvaluation) {
             if (calculateTimeForRow(calculatedLine) || calculateDistanceForRow(currentStep + 1) > 0) {
@@ -582,7 +586,8 @@ void trainprogram::scheduler() {
 
                 if (!isnan(rows.at(currentStep).latitude) || !isnan(rows.at(currentStep).longitude) ||
                     !isnan(rows.at(currentStep).altitude)) {
-                    qDebug() << QStringLiteral("trainprogram change GEO position") +
+                    qDebug() << qSetRealNumberPrecision(10)
+                             << QStringLiteral("trainprogram change GEO position") +
                                     QString::number(rows.at(currentStep).latitude) + " " +
                                     QString::number(rows.at(currentStep).longitude) + " " +
                                     QString::number(rows.at(currentStep).altitude) + " " +
@@ -593,17 +598,20 @@ void trainprogram::scheduler() {
                     p.setLatitude(rows.at(currentStep).latitude);
                     p.setLongitude(rows.at(currentStep).longitude);
                     p.setAltitude(rows.at(currentStep).altitude);
-                    // qDebug() << c << rows.at(currentStep+1).latitude << rows.at(currentStep + 1).longitude <<
+                    // qDebug()  << qSetRealNumberPrecision(10)<< c << rows.at(currentStep+1).latitude <<
+                    // rows.at(currentStep + 1).longitude <<
                     /*QGeoCoordinate c;
                     c.setLatitude(rows.at(currentStep+1).latitude);
                     c.setLongitude(rows.at(currentStep+1).longitude);
                     c.setAltitude(rows.at(currentStep+1).altitude);
-                    qDebug() << "distance" << p.distanceTo(c) << rows.at(currentStep).distance;*/
+                    qDebug()  << qSetRealNumberPrecision(10)<< "distance" << p.distanceTo(c) <<
+                    rows.at(currentStep).distance;*/
 
                     if (bluetoothManager->device()->odometer() - lastOdometer > 0)
                         p = p.atDistanceAndAzimuth((bluetoothManager->device()->odometer() - lastOdometer),
                                                    rows.at(currentStep).azimuth);
-                    qDebug() << "positionOffset" << (bluetoothManager->device()->odometer() - lastOdometer);
+                    qDebug() << qSetRealNumberPrecision(10) << "positionOffset"
+                             << (bluetoothManager->device()->odometer() - lastOdometer);
                     emit changeGeoPosition(p, rows.at(currentStep).azimuth, avgAzimuthNext300Meters());
 
                     double distanceRow = rows.at(currentStep).distance;
@@ -664,8 +672,8 @@ void trainprogram::scheduler() {
                     ratioDistance *= rows.at(currentStep).gpxElapsed.secsTo(rows.at(currentStep + 1).gpxElapsed);
                     r = r.addMSecs(ratioDistance * 1000);
                 }
-                qDebug() << QStringLiteral("changingTimestamp") << currentStep << distanceRow << currentStepDistance 
-                << rows.at(currentStep).gpxElapsed << r << ticks; 
+                qDebug() << qSetRealNumberPrecision(10) << QStringLiteral("changingTimestamp") << currentStep
+                         << distanceRow << currentStepDistance << rows.at(currentStep).gpxElapsed << r << ticks;
                 emit changeTimestamp(r, QTime(0, 0, 0).addSecs(ticks));
             }
         }
