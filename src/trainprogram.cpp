@@ -618,8 +618,6 @@ void trainprogram::scheduler() {
                     QTime r = QTime(0, 0, 0);
                     if (currentStep > 1) {
                         r = rows.at(currentStep - 2).gpxElapsed;
-                        // since comparing to the previous step also use the previous distance
-                        distanceRow = rows.at(currentStep -1).distance;
                     }
                     double ratioDistance = savedCurrentStepDistance / distanceRow;
                     if ( (currentStep < rows.length()) && (currentStep > 1) ) {
