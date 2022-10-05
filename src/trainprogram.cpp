@@ -616,14 +616,14 @@ void trainprogram::scheduler() {
 
                     double distanceRow = rows.at(currentStep).distance;
                     QTime r = QTime(0, 0, 0);
-                    if (currentStep > 2) {
-                        r = rows.at(currentStep - 3).gpxElapsed;
+                    if (currentStep > 1) {
+                        r = rows.at(currentStep - 2).gpxElapsed;
                         // since comparing to the previous step also use the previous distance
-                        distanceRow = rows.at(currentStep -2).distance;
+                        distanceRow = rows.at(currentStep -1).distance;
                     }
                     double ratioDistance = savedCurrentStepDistance / distanceRow;
-                    if (currentStep < rows.length()) {
-                        ratioDistance *= r.secsTo(rows.at(currentStep).gpxElapsed);
+                    if ( (currentStep < rows.length()) && (currentStep > 1) ) {
+                        ratioDistance *= r.secsTo(rows.at(currentStep - 1).gpxElapsed);
                         r = r.addMSecs(ratioDistance * 1000);
                     }
 
