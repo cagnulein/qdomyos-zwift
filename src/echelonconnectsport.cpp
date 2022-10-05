@@ -189,7 +189,7 @@ double echelonconnectsport::bikeResistanceToPeloton(double resistance) {
     if (p < 0) {
         p = 0;
     }
-    return (p * settings.value(QStringLiteral("peloton_gain"), 1.0).toDouble()) + settings.value(QStringLiteral("peloton_offset"), 0.0).toDouble();
+    return (p * settings.value(QZSettings::peloton_gain, QZSettings::default_peloton_gain).toDouble()) + settings.value(QZSettings::peloton_offset, QZSettings::default_peloton_offset).toDouble();
 }
 
 void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &characteristic,
@@ -198,7 +198,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
 
     qDebug() << " << " + newValue.toHex(' ');
 
@@ -223,19 +223,19 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
     double distance = GetDistanceFromPacket(newValue);
 
-    if (settings.value(QStringLiteral("cadence_sensor_name"), QStringLiteral("Disabled"))
+    if (settings.value(QZSettings::cadence_sensor_name, QZSettings::default_cadence_sensor_name)
             .toString()
             .startsWith(QStringLiteral("Disabled"))) {
         Cadence = ((uint8_t)newValue.at(10));
     }
-    if (!settings.value(QStringLiteral("speed_power_based"), false).toBool()) {
+    if (!settings.value(QZSettings::speed_power_based, QZSettings::default_speed_power_based).toBool()) {
         Speed = 0.37497622 * ((double)Cadence.value());
     } else {
         Speed = metric::calculateSpeedFromPower(m_watt.value(),  Inclination.value());
     }
     if (watts())
         KCal +=
-            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QStringLiteral("weight"), 75.0).toFloat() * 3.5) /
+            ((((0.048 * ((double)watts()) + 1.19) * settings.value(QZSettings::weight, QZSettings::default_weight).toFloat() * 3.5) /
               200.0) /
              (60000.0 / ((double)lastRefreshCharacteristicChanged.msecsTo(
                             QDateTime::currentDateTime())))); //(( (0.048* Output in watts +1.19) * body weight in kg
@@ -251,7 +251,7 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value(QStringLiteral("ant_heart"), false).toBool()) {
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool()) {
         Heart = (uint8_t)KeepAwakeHelper::heart();
     } else
 #endif
@@ -272,8 +272,8 @@ void echelonconnectsport::characteristicChanged(const QLowEnergyCharacteristic &
 
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-    bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-    bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+    bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+    bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
     if (ios_peloton_workaround && cadence && h && firstStateChanged) {
         h->virtualbike_setCadence(currentCrankRevolutions(), lastCrankEventTime());
         h->virtualbike_setHeartRate((uint8_t)metrics_override_heartrate());
@@ -380,11 +380,11 @@ void echelonconnectsport::stateChanged(QLowEnergyService::ServiceState state) {
 #endif
         ) {
             QSettings settings;
-            bool virtual_device_enabled = settings.value(QStringLiteral("virtual_device_enabled"), true).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
 #ifdef Q_OS_IOS
 #ifndef IO_UNDER_QT
-            bool cadence = settings.value("bike_cadence_sensor", false).toBool();
-            bool ios_peloton_workaround = settings.value("ios_peloton_workaround", true).toBool();
+            bool cadence = settings.value(QZSettings::bike_cadence_sensor, QZSettings::default_bike_cadence_sensor).toBool();
+            bool ios_peloton_workaround = settings.value(QZSettings::ios_peloton_workaround, QZSettings::default_ios_peloton_workaround).toBool();
             if (ios_peloton_workaround && cadence) {
                 qDebug() << "ios_peloton_workaround activated!";
                 h = new lockscreen();
@@ -595,7 +595,7 @@ uint16_t echelonconnectsport::wattsFromResistance(double resistance) {
     }
     double *watts_of_level;
     QSettings settings;
-    if (!settings.value("echelon_watttable", "Echelon").toString().compare("mgarcea"))
+    if (!settings.value(QZSettings::echelon_watttable, QZSettings::default_echelon_watttable).toString().compare("mgarcea"))
         watts_of_level = wattTable_mgarcea[level];
     else
         watts_of_level = wattTable[level];

@@ -22,7 +22,7 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
     this->noHeartService = noHeartService;
     initDone = false;
     connect(refresh, &QTimer::timeout, this, &nordictrackifitadbtreadmill::update);
-    QString ip = settings.value("nordictrack_2950_ip", "").toString();
+    QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
     refresh->start(200ms);
 
     socket = new QUdpSocket(this);
@@ -35,8 +35,8 @@ nordictrackifitadbtreadmill::nordictrackifitadbtreadmill(bool noWriteResistance,
 
     // ******************************************* virtual treadmill init *************************************
     if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
-        bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-        bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+        bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+        bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
         if (virtual_device_enabled) {
             if (!virtual_device_force_bike) {
                 debug("creating virtual treadmill interface...");
@@ -70,10 +70,10 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         qDebug() << "Port From :: " << port;
         qDebug() << "Message :: " << datagram;
 
-        QString ip = settings.value("nordictrack_2950_ip", "").toString();
+        QString ip = settings.value(QZSettings::nordictrack_2950_ip, QZSettings::default_nordictrack_2950_ip).toString();
         QString heartRateBeltName =
-            settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-        double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
+            settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+        double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
 
         double speed = 0;
         double incline = 0;
@@ -112,7 +112,7 @@ void nordictrackifitadbtreadmill::processPendingDatagrams() {
         lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-        if (settings.value("ant_heart", false).toBool())
+        if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
             Heart = (uint8_t)KeepAwakeHelper::heart();
         else
 #endif
@@ -167,7 +167,7 @@ void nordictrackifitadbtreadmill::forceSpeed(double speed) {}
 void nordictrackifitadbtreadmill::update() {
 
     QSettings settings;
-    update_metrics(true, watts(settings.value(QStringLiteral("weight"), 75.0).toFloat()));
+    update_metrics(true, watts(settings.value(QZSettings::weight, QZSettings::default_weight).toFloat()));
 
     if(initRequest) {
         initRequest = false;
@@ -201,7 +201,7 @@ void nordictrackifitadbtreadmill::changeInclinationRequested(double grade, doubl
     changeInclination(grade, percentage);
 }
 
-bool nordictrackifitadbtreadmill::connected() {}
+bool nordictrackifitadbtreadmill::connected() { return true; }
 
 void *nordictrackifitadbtreadmill::VirtualTreadmill() { return virtualTreadmill; }
 

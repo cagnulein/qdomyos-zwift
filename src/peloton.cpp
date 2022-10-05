@@ -19,7 +19,7 @@ peloton::peloton(bluetooth *bl, QObject *parent) : QObject(parent) {
                                 "img_1646099287_a620f71b3d6740718457b21769a7ed46.png"));
     */
 
-    if (!settings.value(QStringLiteral("peloton_username"), QStringLiteral("username"))
+    if (!settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username)
              .toString()
              .compare(QStringLiteral("username"))) {
         qDebug() << QStringLiteral("invalid peloton credentials");
@@ -81,9 +81,9 @@ void peloton::startEngine() {
 
     QJsonObject obj;
     obj[QStringLiteral("username_or_email")] =
-        settings.value(QStringLiteral("peloton_username"), QStringLiteral("username")).toString();
+        settings.value(QZSettings::peloton_username, QZSettings::default_peloton_username).toString();
     obj[QStringLiteral("password")] =
-        settings.value(QStringLiteral("peloton_password"), QStringLiteral("password")).toString();
+        settings.value(QZSettings::peloton_password, QZSettings::default_peloton_password).toString();
     QJsonDocument doc(obj);
     QByteArray data = doc.toJson();
 
@@ -210,11 +210,11 @@ void peloton::instructor_onfinish(QNetworkReply *reply) {
     QString air_time = current_original_air_time.toString(QStringLiteral("MM/dd/yy"));
     qDebug() << QStringLiteral("air_time ") + air_time;
     QString workout_name = current_workout_name;
-    if (settings.value(QStringLiteral("peloton_date"), QStringLiteral("Before Title"))
+    if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
             .toString()
             .contains(QStringLiteral("Before"))) {
         workout_name = air_time + QStringLiteral(" ") + workout_name;
-    } else if (settings.value(QStringLiteral("peloton_date"), QStringLiteral("Before Title"))
+    } else if (settings.value(QZSettings::peloton_date, QZSettings::default_peloton_date)
                    .toString()
                    .contains(QStringLiteral("After"))) {
         workout_name = workout_name + QStringLiteral(" ") + air_time;
@@ -284,7 +284,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
         trainrows.reserve(instructor_cues.count() + 1);
 
     QSettings settings;
-    QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
+    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
     QJsonObject segments = ride[QStringLiteral("segments")].toObject();
     QJsonArray segments_segment_list = segments[QStringLiteral("segment_list")].toArray();
 
@@ -379,10 +379,10 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
                             if (PowerHigh > PowerLow) {
                                 row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                             } else {
                                 row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                             }
                             qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                             trainrows.append(row);
@@ -400,10 +400,10 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                             row.rampElapsed = QTime(i / 3600, i / 60, i % 60, 0);
                             if (PowerHigh > PowerLow) {
                                 row.power = (PowerLow + (((PowerHigh - PowerLow) / Duration) * i)) *
-                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                             } else {
                                 row.power = (PowerLow - (((PowerLow - PowerHigh) / Duration) * i)) *
-                                            settings.value(QStringLiteral("ftp"), 200.0).toDouble();
+                                            settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble();
                             }
                             qDebug() << row.duration << "power" << row.power << row.rampDuration << row.rampElapsed;
                             trainrows.append(row);
@@ -411,7 +411,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         }
                     } else if (!zone.toUpper().compare(QStringLiteral("FLAT ROAD"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -419,7 +419,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("INTERVALS"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.75;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.75;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -427,7 +427,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 1"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.50;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.50;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -435,7 +435,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 2"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.66;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.66;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -443,7 +443,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 3"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.83;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.83;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -451,7 +451,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 4"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 0.98;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 0.98;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -459,7 +459,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 5"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.13;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.13;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -467,7 +467,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 6"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.35;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.35;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -475,7 +475,7 @@ void peloton::ride_onfinish(QNetworkReply *reply) {
                         qDebug() << r.duration << "power" << r.power;
                     } else if (!zone.toUpper().compare(QStringLiteral("ZONE 7"))) {
                         r.duration = QTime(0, len / 60, len % 60, 0);
-                        r.power = settings.value(QStringLiteral("ftp"), 200.0).toDouble() * 1.5;
+                        r.power = settings.value(QZSettings::ftp, QZSettings::default_ftp).toDouble() * 1.5;
                         if (r.power != -1) {
                             atLeastOnePower = true;
                         }
@@ -510,7 +510,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     disconnect(mgr, &QNetworkAccessManager::finished, this, &peloton::performance_onfinish);
 
     QSettings settings;
-    QString difficulty = settings.value(QStringLiteral("peloton_difficulty"), QStringLiteral("lower")).toString();
+    QString difficulty = settings.value(QZSettings::peloton_difficulty, QZSettings::default_peloton_difficulty).toString();
 
     QByteArray payload = reply->readAll(); // JSON
     QJsonParseError parseError;
@@ -526,7 +526,7 @@ void peloton::performance_onfinish(QNetworkReply *reply) {
     if (!target_metrics_performance_data.isEmpty() && bluetoothManager->device() &&
         bluetoothManager->device()->deviceType() == bluetoothdevice::TREADMILL) {
         double miles = 1;
-        bool treadmill_force_speed = settings.value(QStringLiteral("treadmill_force_speed"), false).toBool();
+        bool treadmill_force_speed = settings.value(QZSettings::treadmill_force_speed, QZSettings::default_treadmill_force_speed).toBool();
         QJsonArray target_metrics = target_metrics_performance_data[QStringLiteral("target_metrics")].toArray();
         QJsonObject splits_data = json[QStringLiteral("splits_data")].toObject();
         if (!splits_data[QStringLiteral("distance_marker_display_unit")].toString().toUpper().compare("MI"))

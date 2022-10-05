@@ -467,14 +467,16 @@ import Qt.labs.settings 1.0
 
             // from version 2.11.43
             property int video_playback_window_s: 12
-            
-            
+
             // from version 2.11.62
             property string horizon_treadmill_profile_user1: "user1"
             property string horizon_treadmill_profile_user2: "user2"
             property string horizon_treadmill_profile_user3: "user3"
             property string horizon_treadmill_profile_user4: "user4"
             property string horizon_treadmill_profile_user5: "user5"
+            
+            // from version 2.11.63
+            property bool nordictrack_gx_2_7: false
             
             // from version ?
 	        property bool trixter_xdream_v1_bike: false
@@ -2058,6 +2060,20 @@ import Qt.labs.settings 1.0
                         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
                         onClicked: settings.proform_tdf_10 = checked
+                    }
+                    SwitchDelegate {
+                        id: nordictrackGX27odelegate
+                        text: qsTr("NordicTrack GX 2.7")
+                        spacing: 0
+                        bottomPadding: 0
+                        topPadding: 0
+                        rightPadding: 0
+                        leftPadding: 0
+                        clip: false
+                        checked: settings.nordictrack_gx_2_7
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                        Layout.fillWidth: true
+                        onClicked: settings.nordictrack_gx_2_7 = checked
                     }
                     SwitchDelegate {
                         id: proformTdfJonseedWattdelegate

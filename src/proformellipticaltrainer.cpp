@@ -341,10 +341,10 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     Q_UNUSED(characteristic);
     QSettings settings;
     QString heartRateBeltName =
-        settings.value(QStringLiteral("heart_rate_belt_name"), QStringLiteral("Disabled")).toString();
-    double weight = settings.value(QStringLiteral("weight"), 75.0).toFloat();
-    double cadence_gain = settings.value(QStringLiteral("cadence_gain"), 1.0).toDouble();
-    double cadence_offset = settings.value(QStringLiteral("cadence_offset"), 0.0).toDouble();
+        settings.value(QZSettings::heart_rate_belt_name, QZSettings::default_heart_rate_belt_name).toString();
+    double weight = settings.value(QZSettings::weight, QZSettings::default_weight).toFloat();
+    double cadence_gain = settings.value(QZSettings::cadence_gain, QZSettings::default_cadence_gain).toDouble();
+    double cadence_offset = settings.value(QZSettings::cadence_offset, QZSettings::default_cadence_offset).toDouble();
     const double miles = 1.60934;
 
     emit debug(QStringLiteral(" << ") + newValue.toHex(' '));
@@ -403,7 +403,7 @@ void proformellipticaltrainer::characteristicChanged(const QLowEnergyCharacteris
     lastRefreshCharacteristicChanged = QDateTime::currentDateTime();
 
 #ifdef Q_OS_ANDROID
-    if (settings.value("ant_heart", false).toBool())
+    if (settings.value(QZSettings::ant_heart, QZSettings::default_ant_heart).toBool())
         Heart = (uint8_t)KeepAwakeHelper::heart();
     else
 #endif
@@ -568,8 +568,8 @@ void proformellipticaltrainer::stateChanged(QLowEnergyService::ServiceState stat
         // ******************************************* virtual treadmill init *************************************
         QSettings settings;
         if (!firstStateChanged && !virtualTreadmill && !virtualBike) {
-            bool virtual_device_enabled = settings.value("virtual_device_enabled", true).toBool();
-            bool virtual_device_force_bike = settings.value("virtual_device_force_bike", false).toBool();
+            bool virtual_device_enabled = settings.value(QZSettings::virtual_device_enabled, QZSettings::default_virtual_device_enabled).toBool();
+            bool virtual_device_force_bike = settings.value(QZSettings::virtual_device_force_bike, QZSettings::default_virtual_device_force_bike).toBool();
             if (virtual_device_enabled) {
                 if (!virtual_device_force_bike) {
                     debug("creating virtual treadmill interface...");
