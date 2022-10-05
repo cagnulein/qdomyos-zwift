@@ -379,7 +379,7 @@ homeform::homeform(QQmlApplicationEngine *engine, bluetooth *bl) {
     }
 
     m_speech.setLocale(QLocale::English);
-    
+
 #if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     QBluetoothDeviceInfo b;
     deviceConnected(b);
@@ -4034,6 +4034,8 @@ void homeform::sendMail() {
 
     bool miles = settings.value(QZSettings::miles_unit, QZSettings::default_miles_unit).toBool();
     double unit_conversion = 1.0;
+    double meter_feet_conversion = 1.0;
+    QString meter_feet_unit = QStringLiteral("meters");
     QString weightLossUnit = QStringLiteral("Kg");
     double WeightLoss = 0;
 
@@ -4045,6 +4047,8 @@ void homeform::sendMail() {
     if (miles) {
         unit_conversion = 0.621371; // clang, don't touch it!
         weightLossUnit = QStringLiteral("Oz");
+        meter_feet_conversion = 3.28084;
+        meter_feet_unit = QStringLiteral("feet");
     }
     WeightLoss = (miles ? bluetoothManager->device()->weightLoss() * 35.274 : bluetoothManager->device()->weightLoss());
 
@@ -4123,6 +4127,10 @@ void homeform::sendMail() {
                    QString::number(bluetoothManager->device()->calories().value(), 'f', 0) + QStringLiteral("\n");
     textMessage += QStringLiteral("Distance: ") +
                    QString::number(bluetoothManager->device()->odometer() * unit_conversion, 'f', 1) +
+                   QStringLiteral("\n");
+    textMessage += QStringLiteral("Elevation Gain (") + meter_feet_unit + "): " +
+                   QString::number(bluetoothManager->device()->elevationGain().value() * meter_feet_conversion, 'f',
+                                   (miles ? 0 : 1)) +
                    QStringLiteral("\n");
     textMessage += QStringLiteral("Average Watt: ") +
                    QString::number(bluetoothManager->device()->wattsMetric().average(), 'f', 0) + QStringLiteral("\n");
